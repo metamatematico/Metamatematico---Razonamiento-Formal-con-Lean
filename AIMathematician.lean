@@ -10,7 +10,13 @@
 -- import AIMathematician.Basic
 
 -- Ring isomorphism theorems (uses Mathlib)
-import AIMathematician.RingIsomorphism
+import AIMathematician.Ring.FirstIsomorphism
+import AIMathematician.Ring.SecondIsomorphism
+import AIMathematician.Ring.ThirdIsomorphism
+import AIMathematician.Ring.LatticeTheorem
 
 -- Group isomorphism theorems (uses Mathlib)
-import AIMathematician.GroupIsomorphism
+import AIMathematician.Group.FirstIsomorphism
+import AIMathematician.Group.SecondIsomorphism
+import AIMathematician.Group.ThirdIsomorphism
+import AIMathematician.Group.LatticeTheorem
