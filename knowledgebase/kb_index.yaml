@@ -1,0 +1,665 @@
+# Knowledge Base Index for AI-Mathematician
+# Ordered by measurability score (best Mathlib formalization first)
+# Last Updated: 2025-12-14
+# Schema Version: 1.0.0
+
+metadata:
+  total_kbs: 20
+  version: "1.1.0"
+  generated: "2025-12-14"
+  purpose: "Index for dataset generation and formalization tracking"
+
+# Mathematical family groupings
+families:
+  foundations:
+    description: "Foundational mathematics - logic, sets, orders"
+    members: ["set_theory", "order_theory", "arithmetic", "logic_model_theory"]
+
+  algebra:
+    description: "Algebraic structures and their properties"
+    members: ["linear_algebra", "isomorphism_theorems", "galois_theory", "representation_theory", "category_theory", "homological_algebra"]
+
+  analysis:
+    description: "Real and complex analysis, measure theory"
+    members: ["real_complex_analysis", "measure_theory", "probability_theory"]
+
+  topology:
+    description: "General and algebraic topology"
+    members: ["topology", "algebraic_topology"]
+
+  geometry:
+    description: "Classical and differential geometry"
+    members: ["classical_geometry", "differential_geometry"]
+
+  discrete:
+    description: "Discrete mathematics"
+    members: ["graph_theory", "prime_number_theorems", "combinatorics"]
+
+# Knowledge bases ordered by measurability score (highest first)
+knowledge_bases:
+  # === TIER 1: Excellent (90-100) - Foundation domains ===
+
+  - id: "set_theory"
+    file: "set_theory_knowledge_base.md"
+    family: "foundations"
+    measurability:
+      score: 98
+      coverage: "FULL"
+      gaps: []
+      justification: "All 9 ZFC axioms formalized. Core Mathlib foundation with Cantor, Schroeder-Bernstein theorems."
+    mathlib:
+      primary_imports:
+        - "Mathlib.SetTheory.ZFC.Basic"
+        - "Mathlib.SetTheory.Cardinal.Basic"
+        - "Mathlib.Logic.Function.Basic"
+      key_theorems:
+        - "Cantor's theorem (#63)"
+        - "Schroeder-Bernstein (#25)"
+        - "Uncountability of R (#22)"
+    dependencies: []
+    difficulty_distribution:
+      easy: 9
+      medium: 3
+      hard: 0
+    theorem_count: 12
+    dataset_priority: 1
+
+  - id: "arithmetic"
+    file: "arithmetic_knowledge_base.md"
+    family: "foundations"
+    measurability:
+      score: 96
+      coverage: "FULL"
+      gaps: []
+      justification: "Peano axioms, ring/field axioms, completeness all in Mathlib core."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Data.Nat.Basic"
+        - "Mathlib.Data.Int.Basic"
+        - "Mathlib.Data.Real.Basic"
+        - "Mathlib.Algebra.Order.Archimedean"
+      key_theorems:
+        - "Well-ordering of N"
+        - "sqrt(2) irrational (#1)"
+        - "Q denumerable (#3)"
+        - "Archimedean property"
+    dependencies: ["set_theory"]
+    difficulty_distribution:
+      easy: 28
+      medium: 8
+      hard: 3
+    theorem_count: 39
+    dataset_priority: 1
+
+  - id: "order_theory"
+    file: "order_theory_knowledge_base.md"
+    family: "foundations"
+    measurability:
+      score: 95
+      coverage: "FULL"
+      gaps: []
+      justification: "Excellent Mathlib Order.* hierarchy. Zorn, Knaster-Tarski, Boolean algebras complete."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Order.Lattice"
+        - "Mathlib.Order.Zorn"
+        - "Mathlib.Order.FixedPoints"
+        - "Mathlib.Order.BooleanAlgebra"
+      key_theorems:
+        - "Zorn's lemma"
+        - "Knaster-Tarski fixed point"
+        - "Schroeder-Bernstein (order version)"
+    dependencies: ["set_theory"]
+    difficulty_distribution:
+      easy: 6
+      medium: 4
+      hard: 4
+    theorem_count: 14
+    dataset_priority: 1
+
+  - id: "linear_algebra"
+    file: "linear_algebra_knowledge_base.md"
+    family: "algebra"
+    measurability:
+      score: 92
+      coverage: "FULL"
+      gaps:
+        - "Jordan normal form partial"
+      justification: "Comprehensive coverage via Module typeclass. Cayley-Hamilton, Cramer, Rank-Nullity all formalized."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Algebra.Module.Defs"
+        - "Mathlib.LinearAlgebra.Matrix.Charpoly.Basic"
+        - "Mathlib.LinearAlgebra.Dimension.Finrank"
+      key_theorems:
+        - "Cayley-Hamilton (#49)"
+        - "Cramer's Rule (#97)"
+        - "Rank-Nullity theorem"
+    dependencies: ["arithmetic", "set_theory"]
+    difficulty_distribution:
+      easy: 5
+      medium: 6
+      hard: 4
+    theorem_count: 15
+    dataset_priority: 2
+
+  - id: "isomorphism_theorems"
+    file: "isomorphism_theorems_knowledge_base.md"
+    family: "algebra"
+    measurability:
+      score: 90
+      coverage: "FULL"
+      gaps: []
+      justification: "All 4 isomorphism theorems for groups and rings formalized. Core abstract algebra."
+    mathlib:
+      primary_imports:
+        - "Mathlib.GroupTheory.QuotientGroup.Basic"
+        - "Mathlib.RingTheory.QuotientRing"
+        - "Mathlib.GroupTheory.Coset.Basic"
+      key_theorems:
+        - "First isomorphism theorem (groups)"
+        - "Second isomorphism theorem"
+        - "Third isomorphism theorem"
+        - "Fourth isomorphism theorem (Lattice)"
+    dependencies: ["set_theory", "order_theory"]
+    difficulty_distribution:
+      easy: 4
+      medium: 4
+      hard: 0
+    theorem_count: 8
+    dataset_priority: 1
+
+  # === TIER 2: Good (80-89) - Strong coverage ===
+
+  - id: "category_theory"
+    file: "category_theory_knowledge_base.md"
+    family: "algebra"
+    measurability:
+      score: 88
+      coverage: "FULL"
+      gaps:
+        - "Some advanced 2-categorical constructions"
+      justification: "Comprehensive CategoryTheory.* hierarchy. Yoneda, adjunctions, limits/colimits, derived categories."
+    mathlib:
+      primary_imports:
+        - "Mathlib.CategoryTheory.Category.Basic"
+        - "Mathlib.CategoryTheory.Yoneda"
+        - "Mathlib.CategoryTheory.Limits.Shapes.Products"
+        - "Mathlib.CategoryTheory.Adjunction.Basic"
+      key_theorems:
+        - "Yoneda lemma"
+        - "Adjunction equivalences"
+        - "Limit/colimit existence"
+    dependencies: ["set_theory", "order_theory"]
+    difficulty_distribution:
+      easy: 4
+      medium: 8
+      hard: 6
+    theorem_count: 18
+    dataset_priority: 2
+
+  - id: "topology"
+    file: "topology_knowledge_base.md"
+    family: "topology"
+    measurability:
+      score: 88
+      coverage: "FULL"
+      gaps: []
+      justification: "Excellent filter-based topology. All separation axioms, compactness, Urysohn, Tietze formalized."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Topology.Basic"
+        - "Mathlib.Topology.Compactness.Basic"
+        - "Mathlib.Topology.UrysohnLemma"
+        - "Mathlib.Topology.TietzeExtension"
+      key_theorems:
+        - "Tychonoff theorem"
+        - "Urysohn lemma"
+        - "Tietze extension theorem"
+        - "Baire category theorem"
+    dependencies: ["set_theory", "order_theory"]
+    difficulty_distribution:
+      easy: 12
+      medium: 15
+      hard: 6
+    theorem_count: 33
+    dataset_priority: 2
+
+  - id: "measure_theory"
+    file: "measure_theory_knowledge_base.md"
+    family: "analysis"
+    measurability:
+      score: 85
+      coverage: "FULL"
+      gaps:
+        - "Some advanced differentiation theorems"
+      justification: "Strong Bochner integral formalization. MCT, DCT, Fubini all complete."
+    mathlib:
+      primary_imports:
+        - "Mathlib.MeasureTheory.Measure.MeasureSpaceDef"
+        - "Mathlib.MeasureTheory.Integral.Bochner"
+        - "Mathlib.MeasureTheory.Integral.FubiniTonelli"
+      key_theorems:
+        - "Monotone convergence theorem"
+        - "Dominated convergence theorem"
+        - "Fubini-Tonelli theorem"
+        - "Radon-Nikodym theorem"
+    dependencies: ["set_theory", "topology", "order_theory"]
+    difficulty_distribution:
+      easy: 8
+      medium: 10
+      hard: 5
+    theorem_count: 23
+    dataset_priority: 2
+
+  - id: "combinatorics"
+    file: "combinatorics_knowledge_base.md"
+    family: "discrete"
+    measurability:
+      score: 85
+      coverage: "GOOD"
+      gaps:
+        - "Catalan number closed form in development"
+        - "Ramsey theory partial"
+        - "Some additive combinatorics results"
+      justification: "Strong BigOperators foundation. Catalan, Bell numbers, binomial identities solid. Ramsey theory growing."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Algebra.BigOperators.Group.Finset"
+        - "Mathlib.Combinatorics.Catalan"
+        - "Mathlib.Combinatorics.SetFamily.Kruskal"
+        - "Mathlib.Combinatorics.Additive.Behrend"
+      key_theorems:
+        - "Catalan number recurrence"
+        - "Bell number properties"
+        - "Sperner's theorem"
+        - "Kruskal-Katona theorem"
+        - "LYM inequality"
+    dependencies: ["set_theory", "arithmetic", "order_theory"]
+    difficulty_distribution:
+      easy: 6
+      medium: 8
+      hard: 4
+    theorem_count: 18
+    dataset_priority: 2
+
+  - id: "real_complex_analysis"
+    file: "real_complex_analysis_knowledge_base.md"
+    family: "analysis"
+    measurability:
+      score: 82
+      coverage: "GOOD"
+      gaps:
+        - "Some complex analysis theorems partial"
+        - "Riemann mapping incomplete"
+      justification: "Good coverage of basic analysis. FTC, IVT, MVT formalized. Complex analysis growing."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Analysis.Calculus.FDeriv.Basic"
+        - "Mathlib.Analysis.Calculus.MeanValue"
+        - "Mathlib.Analysis.Complex.CauchyIntegral"
+      key_theorems:
+        - "Fundamental theorem of calculus"
+        - "Intermediate value theorem"
+        - "Mean value theorem"
+        - "Cauchy integral formula"
+    dependencies: ["arithmetic", "topology", "measure_theory"]
+    difficulty_distribution:
+      easy: 8
+      medium: 12
+      hard: 6
+    theorem_count: 26
+    dataset_priority: 2
+
+  - id: "logic_model_theory"
+    file: "logic_model_theory_knowledge_base.md"
+    family: "foundations"
+    measurability:
+      score: 82
+      coverage: "GOOD"
+      gaps:
+        - "Gödel incompleteness theorems (#55) NOT FORMALIZED"
+        - "Compactness theorem partial"
+        - "Model-theoretic constructions limited"
+      justification: "Strong FOL formalization in Mathlib. Computability theory solid. Incompleteness formalized externally."
+    mathlib:
+      primary_imports:
+        - "Mathlib.ModelTheory.Basic"
+        - "Mathlib.ModelTheory.Satisfiability"
+        - "Mathlib.Computability.Halting"
+        - "Mathlib.Logic.Relation"
+      key_theorems:
+        - "Soundness theorem"
+        - "Completeness theorem (partial)"
+        - "Curry-Howard correspondence"
+        - "Halting problem undecidability"
+        - "Downward Löwenheim-Skolem"
+    dependencies: ["set_theory"]
+    difficulty_distribution:
+      easy: 5
+      medium: 7
+      hard: 5
+    theorem_count: 17
+    dataset_priority: 2
+
+  - id: "galois_theory"
+    file: "galois_theory_knowledge_base.md"
+    family: "algebra"
+    measurability:
+      score: 80
+      coverage: "HIGH"
+      gaps:
+        - "Angle trisection impossibility (#8)"
+        - "Constructible numbers"
+      justification: "Fundamental theorem of Galois theory complete. Splitting fields, algebraic closures formalized."
+    mathlib:
+      primary_imports:
+        - "Mathlib.FieldTheory.IntermediateField.Basic"
+        - "Mathlib.FieldTheory.Galois.Basic"
+        - "Mathlib.FieldTheory.SplittingField.IsSplittingField"
+      key_theorems:
+        - "Fundamental theorem of Galois theory"
+        - "Primitive element theorem"
+        - "Abel-Ruffini (partial)"
+    dependencies: ["linear_algebra", "isomorphism_theorems"]
+    difficulty_distribution:
+      easy: 4
+      medium: 10
+      hard: 6
+    theorem_count: 20
+    dataset_priority: 3
+
+  # === TIER 3: Adequate (70-79) - Notable gaps ===
+
+  - id: "probability_theory"
+    file: "probability_theory_knowledge_base.md"
+    family: "analysis"
+    measurability:
+      score: 78
+      coverage: "GOOD"
+      gaps:
+        - "CLT partial"
+        - "Some martingale convergence theorems"
+      justification: "Built on measure theory. Basic probability, expectations, independence formalized."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Probability.ProbabilityMassFunction.Basic"
+        - "Mathlib.Probability.Independence.Basic"
+        - "Mathlib.Probability.Martingale.Basic"
+      key_theorems:
+        - "Law of large numbers"
+        - "Conditional expectation"
+        - "Kolmogorov extension"
+    dependencies: ["measure_theory", "real_complex_analysis"]
+    difficulty_distribution:
+      easy: 6
+      medium: 10
+      hard: 5
+    theorem_count: 21
+    dataset_priority: 3
+
+  - id: "homological_algebra"
+    file: "homological_algebra_knowledge_base.md"
+    family: "algebra"
+    measurability:
+      score: 78
+      coverage: "GOOD"
+      gaps:
+        - "Spectral sequences partial"
+        - "Group cohomology limited"
+        - "Some derived functor computations"
+      justification: "Excellent chain complex infrastructure. Joël Riou's derived categories (2025) groundbreaking. Snake lemma, five lemma complete."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Algebra.Homology.HomologicalComplex"
+        - "Mathlib.Algebra.Homology.ShortComplex.Exact"
+        - "Mathlib.CategoryTheory.Abelian.DiagramLemmas.Four"
+        - "Mathlib.Algebra.Homology.DerivedCategory.Basic"
+      key_theorems:
+        - "Snake lemma"
+        - "Five lemma"
+        - "Nine lemma"
+        - "Long exact sequence in homology"
+        - "Derived categories of abelian categories"
+    dependencies: ["category_theory", "linear_algebra"]
+    difficulty_distribution:
+      easy: 4
+      medium: 8
+      hard: 6
+    theorem_count: 18
+    dataset_priority: 3
+
+  - id: "graph_theory"
+    file: "graph_theory_knowledge_base.md"
+    family: "discrete"
+    measurability:
+      score: 75
+      coverage: "GOOD"
+      gaps:
+        - "Many classical results not formalized"
+        - "Chromatic polynomial limited"
+      justification: "Combinatorics.SimpleGraph infrastructure solid. Basic connectivity, paths, cycles."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Combinatorics.SimpleGraph.Basic"
+        - "Mathlib.Combinatorics.SimpleGraph.Connectivity.Basic"
+        - "Mathlib.Combinatorics.SimpleGraph.Coloring"
+      key_theorems:
+        - "Handshaking lemma"
+        - "Basic connectivity theorems"
+        - "Euler's formula (#13) - partial"
+    dependencies: ["set_theory", "order_theory"]
+    difficulty_distribution:
+      easy: 8
+      medium: 8
+      hard: 3
+    theorem_count: 19
+    dataset_priority: 3
+
+  - id: "prime_number_theorems"
+    file: "prime_number_theorems_knowledge_base.md"
+    family: "discrete"
+    measurability:
+      score: 72
+      coverage: "PARTIAL"
+      gaps:
+        - "Prime Number Theorem not fully formalized"
+        - "Riemann hypothesis connection"
+      justification: "Basic prime properties complete. PNT in progress. Infinitude of primes, Fermat's little theorem done."
+    mathlib:
+      primary_imports:
+        - "Mathlib.NumberTheory.Divisors"
+        - "Mathlib.Data.Nat.Prime.Basic"
+        - "Mathlib.NumberTheory.LegendreSymbol.Basic"
+      key_theorems:
+        - "Infinitude of primes (#11)"
+        - "Fermat's little theorem (#15)"
+        - "Fundamental theorem of arithmetic (#80)"
+    dependencies: ["arithmetic"]
+    difficulty_distribution:
+      easy: 6
+      medium: 8
+      hard: 7
+    theorem_count: 21
+    dataset_priority: 3
+
+  - id: "representation_theory"
+    file: "representation_theory_knowledge_base.md"
+    family: "algebra"
+    measurability:
+      score: 70
+      coverage: "GOOD"
+      gaps:
+        - "Wedderburn decomposition"
+        - "Character tables infrastructure"
+        - "Number of irreducibles = conjugacy classes"
+      justification: "Core definitions, Maschke, Schur complete. Advanced results limited."
+    mathlib:
+      primary_imports:
+        - "Mathlib.RepresentationTheory.Basic"
+        - "Mathlib.RepresentationTheory.Maschke"
+        - "Mathlib.RepresentationTheory.FDRep"
+      key_theorems:
+        - "Maschke's theorem"
+        - "Schur's lemma"
+        - "Character orthogonality"
+    dependencies: ["linear_algebra", "isomorphism_theorems"]
+    difficulty_distribution:
+      easy: 4
+      medium: 6
+      hard: 5
+    theorem_count: 15
+    dataset_priority: 3
+
+  # === TIER 4: Developing (50-69) - Significant gaps ===
+
+  - id: "classical_geometry"
+    file: "classical_geometry_knowledge_base.md"
+    family: "geometry"
+    measurability:
+      score: 60
+      coverage: "PARTIAL"
+      gaps:
+        - "Ceva's theorem (#61)"
+        - "Pick's theorem (#92)"
+        - "Desargues's theorem (#87)"
+        - "Morley's theorem (#84)"
+        - "Projective geometry limited"
+      justification: "Euclidean geometry on inner product spaces works. Many classical theorems missing."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Geometry.Euclidean.Basic"
+        - "Mathlib.Geometry.Euclidean.Angle.Unoriented.Basic"
+        - "Mathlib.Geometry.Euclidean.Triangle"
+      key_theorems:
+        - "Pythagorean theorem (#4)"
+        - "Law of cosines"
+        - "Triangle angle sum"
+    dependencies: ["linear_algebra", "real_complex_analysis"]
+    difficulty_distribution:
+      easy: 4
+      medium: 6
+      hard: 3
+    theorem_count: 13
+    dataset_priority: 4
+
+  - id: "algebraic_topology"
+    file: "algebraic_topology_knowledge_base.md"
+    family: "topology"
+    measurability:
+      score: 55
+      coverage: "GOOD"
+      gaps:
+        - "Brouwer fixed point (#36) in progress"
+        - "CW complexes"
+        - "Singular homology"
+        - "Mayer-Vietoris"
+      justification: "Homological algebra excellent. Homotopy theory partial. Fundamental group via external library."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Algebra.Homology.HomologicalComplex"
+        - "Mathlib.Topology.Homotopy.Basic"
+        - "Mathlib.Algebra.Homology.ShortComplex.Exact"
+      key_theorems:
+        - "Snake lemma"
+        - "Long exact sequences"
+        - "Homotopy equivalence"
+    dependencies: ["topology", "category_theory", "linear_algebra"]
+    difficulty_distribution:
+      easy: 4
+      medium: 10
+      hard: 6
+    theorem_count: 20
+    dataset_priority: 4
+
+  - id: "differential_geometry"
+    file: "differential_geometry_knowledge_base.md"
+    family: "geometry"
+    measurability:
+      score: 50
+      coverage: "GOOD"
+      gaps:
+        - "Stokes' theorem not formalized"
+        - "de Rham cohomology missing"
+        - "Riemannian curvature limited"
+      justification: "Manifolds with corners framework complete. Tangent bundles, Lie groups good. Key gaps in differential forms."
+    mathlib:
+      primary_imports:
+        - "Mathlib.Geometry.Manifold.IsManifold.Basic"
+        - "Mathlib.Geometry.Manifold.MFDeriv.Defs"
+        - "Mathlib.Geometry.Manifold.VectorBundle.Tangent"
+      key_theorems:
+        - "Inverse function theorem (manifolds)"
+        - "Implicit function theorem"
+        - "Lie bracket Jacobi identity"
+    dependencies: ["linear_algebra", "topology", "real_complex_analysis"]
+    difficulty_distribution:
+      easy: 4
+      medium: 8
+      hard: 10
+    theorem_count: 22
+    dataset_priority: 4
+
+# Dependency graph for topological sorting
+dependency_graph:
+  nodes:
+    - set_theory
+    - arithmetic
+    - order_theory
+    - linear_algebra
+    - isomorphism_theorems
+    - category_theory
+    - topology
+    - measure_theory
+    - real_complex_analysis
+    - galois_theory
+    - probability_theory
+    - graph_theory
+    - prime_number_theorems
+    - representation_theory
+    - classical_geometry
+    - algebraic_topology
+    - differential_geometry
+    - combinatorics
+    - logic_model_theory
+    - homological_algebra
+
+  edges:
+    - from: arithmetic
+      to: [set_theory]
+    - from: order_theory
+      to: [set_theory]
+    - from: linear_algebra
+      to: [arithmetic, set_theory]
+    - from: isomorphism_theorems
+      to: [set_theory, order_theory]
+    - from: category_theory
+      to: [set_theory, order_theory]
+    - from: topology
+      to: [set_theory, order_theory]
+    - from: measure_theory
+      to: [set_theory, topology, order_theory]
+    - from: real_complex_analysis
+      to: [arithmetic, topology, measure_theory]
+    - from: galois_theory
+      to: [linear_algebra, isomorphism_theorems]
+    - from: probability_theory
+      to: [measure_theory, real_complex_analysis]
+    - from: graph_theory
+      to: [set_theory, order_theory]
+    - from: prime_number_theorems
+      to: [arithmetic]
+    - from: representation_theory
+      to: [linear_algebra, isomorphism_theorems]
+    - from: classical_geometry
+      to: [linear_algebra, real_complex_analysis]
+    - from: algebraic_topology
+      to: [topology, category_theory, linear_algebra]
+    - from: differential_geometry
+      to: [linear_algebra, topology, real_complex_analysis]
+    - from: combinatorics
+      to: [set_theory, arithmetic, order_theory]
+    - from: logic_model_theory
+      to: [set_theory]
+    - from: homological_algebra
+      to: [category_theory, linear_algebra]

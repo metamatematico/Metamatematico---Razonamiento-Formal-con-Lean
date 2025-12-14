@@ -4,300 +4,265 @@
 [![Mathlib](https://img.shields.io/badge/Mathlib-4-orange.svg)](https://github.com/leanprover-community/mathlib4)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A Lean 4 project containing **machine-verified formal proofs** of fundamental theorems in abstract algebra. These proofs are not just validated by tests or peer review—they are checked by a proof assistant, guaranteeing mathematical correctness.
+**Digitalization of Mathematics** — A structured representation of mathematical knowledge designed for autoformalization, discovery, and training AI systems to reason formally.
 
 ---
 
-## Table of Contents
+## Vision
 
-- [Overview](#overview)
-- [Theorems Proved](#theorems-proved)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Building the Project](#building-the-project)
-- [Project Structure](#project-structure)
-- [Mathematical Background](#mathematical-background)
-- [Contributing](#contributing)
+Mathematics exists primarily in natural language—textbooks, papers, lectures. This project aims to **digitalize mathematics**: converting human mathematical knowledge into machine-verifiable Lean 4 proofs organized as a queryable knowledge graph.
 
----
-
-## Overview
-
-This project demonstrates formal theorem proving in Lean 4 using the Mathlib library. It contains rigorous, machine-checked proofs of core isomorphism theorems from abstract algebra, including:
-
-- **First Isomorphism Theorem for Groups**
-- **First Isomorphism Theorem for Rings**
-- **Fundamental properties of algebraic structures**
-
-Each theorem is formalized using dependent type theory, ensuring that the proofs are constructive and verifiable by the Lean compiler.
+The result is a **Mathematical Knowledge Space** where:
+- Theorems, definitions, and axioms are nodes
+- Dependencies and relationships are edges
+- Each statement has natural language, LaTeX, and Lean 4 representations
+- Formalization readiness is measured and tracked
 
 ---
 
-## Theorems Proved
+## Motivation: The Metamathematical Program
 
-### 1. First Isomorphism Theorem for Groups
+> *"The study of mathematics itself became known as metamathematics—or occasionally, metalogic, since mathematics and logic are so intertwined. The most urgent priority of metamathematicians was to determine the true nature of mathematical reasoning. What is a legal method of procedure, and what is an illegal one? Since mathematical reasoning had always been done in "natural language" (e.g., French or Latin or some language for normal communication), there was always a lot of possible ambiguity. Words had different meanings to different people, conjured up different images, and so forth. It seemed reasonable and even important to establish a single uniform notation in which all mathematical work could be done, and with the aid of which any two mathematicians could resolve disputes over whether a suggested proof was valid or not. This would require a complete codification of the universally acceptable modes of human reasoning, at least as far as they applied to mathematics."*
+>
+> — Douglas Hofstadter, *Gödel, Escher, Bach: An Eternal Golden Braid* (1979)
 
-**File:** `AIMathematician/GroupIsomorphism.lean`
+### The Problem Hofstadter Identified
 
-For any group homomorphism `f : G → H`:
+| Problem | Our Solution |
+|---------|--------------|
+| Ambiguity of natural language | Dual representation: NL for humans, Lean 4 for machines |
+| Words mean different things to different people | Type system enforces precise, unambiguous definitions |
+| Need for uniform notation | Mathlib provides standardized mathematical vocabulary |
+| Disputes over proof validity | The Lean compiler is the ultimate arbiter—no ambiguity remains |
 
-| Result | Mathematical Statement | Lean Type |
-|--------|------------------------|-----------|
-| Kernel is normal | ker(f) is a normal subgroup of G | `Subgroup.Normal (MonoidHom.ker f)` |
-| Image is subgroup | im(f) is a subgroup of H | `Subgroup H` |
-| First Isomorphism Theorem | G / ker(f) ≅ im(f) | `G ⧸ ker(f) ≃* range(f)` |
-| Surjective case | If f is surjective: G / ker(f) ≅ H | `G ⧸ ker(f) ≃* H` |
+### What We Add: Beyond Codification
 
-### 2. First Isomorphism Theorem for Rings
+The metamathematicians of the early 20th century—Frege, Russell, Hilbert, Gödel—worked by hand. We extend their program with:
 
-**File:** `AIMathematician/RingIsomorphism.lean`
+- **Organization** (Knowledge Graph) — How do proofs relate to each other?
+- **Measurement** (Measurability Scores) — What is formalizable now vs. later?
+- **Discovery** (Frontier Analysis) — Where are the gaps between mathematical branches?
+- **Scale** (Automation) — 20 knowledge bases, ~800 statements, continuous validation
 
-For any ring homomorphism `f : R → S`:
+The `proof-engineer` agent continuously asks Hofstadter's question: *"Is this a legal method of procedure?"*
 
-| Result | Mathematical Statement | Lean Type |
-|--------|------------------------|-----------|
-| Kernel is ideal | ker(f) is a two-sided ideal of R | `Ideal R` |
-| Image is subring | im(f) is a subring of S | `Subring S` |
-| First Isomorphism Theorem | R / ker(f) ≅ im(f) | `R ⧸ ker(f) ≃+* range(f)` |
-| Surjective case | If f is surjective: R / ker(f) ≅ S | `R ⧸ ker(f) ≃+* S` |
-
-### 3. Abelian Group Properties
-
-**File:** `AIMathematician/Basic.lean`
-
-Educational custom definitions demonstrating:
-
-| Result | Description |
-|--------|-------------|
-| Custom group structure | Self-contained group axioms without Mathlib |
-| Abelian group definition | Extension with commutativity |
-| Commutativity proof | Proof that abelian groups satisfy `a * b = b * a` |
+When Lean accepts a proof, it certifies that every step follows from the rules of type theory. When it rejects, the reasoning was "illegal." This is applied metamathematics at industrial scale.
 
 ---
 
-## Prerequisites
+## Knowledge Space Architecture
 
-Before building this project, ensure you have the following installed:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  Mathematical Knowledge Space                    │
+├─────────────────────────────────────────────────────────────────┤
+│  Families (6)                                                   │
+│    ├── Foundations: set_theory, arithmetic, order_theory, logic │
+│    ├── Algebra: linear_algebra, groups, rings, categories, ...  │
+│    ├── Analysis: real/complex analysis, measure theory, prob    │
+│    ├── Topology: general topology, algebraic topology           │
+│    ├── Geometry: classical, differential                        │
+│    └── Discrete: graph theory, number theory, combinatorics     │
+│                                                                 │
+│  Theories (20 Knowledge Bases)                                  │
+│    └── Postulates (~800 statements)                             │
+│          └── Dependencies (DEPENDS_ON, GENERALIZES, RELATES_TO) │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-### 1. elan (Lean Version Manager)
+---
+
+## Quick Stats
+
+| Metric | Count |
+|--------|-------|
+| **Knowledge Bases** | 20 |
+| **Mathematical Families** | 6 |
+| **Theorems** | ~390 |
+| **Definitions** | ~250 |
+| **Axioms** | ~97 |
+| **Total Statements** | ~800+ |
+
+See [`knowledgebase/README.md`](knowledgebase/README.md) for detailed coverage and measurability scores.
+
+---
+
+## Two-Stage Pipeline
+
+We separate **content authoring** from **Lean validation** to enable rapid knowledge base growth:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Knowledge Base │    │  Proof Engineer │    │ Training Dataset│
+│  (NL + Lean     │ → │  (Validation)   │ → │  (Verified)     │
+│   templates)    │    │  compiles=?     │    │  compiles=true  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+     Stage 1                Stage 2               Final Output
+```
+
+**Stage 1**: Experts write natural language statements + Lean templates (may use `sorry`)
+
+**Stage 2**: `proof-engineer` agent validates templates through Lean compiler, fixes errors, records attempts
+
+**Result**: Only verified proofs enter the training dataset
+
+See [`dataset/dataset_schema.md`](dataset/dataset_schema.md) for the v5.0 schema specification.
+
+---
+
+## Use Cases
+
+### Autoformalization Training
+Train models to translate natural language math → Lean 4 proofs:
+```
+Input:  "For any group homomorphism f: G → H, G/ker(f) is isomorphic to im(f)"
+Output: theorem first_iso (f : G →* H) : G ⧸ MonoidHom.ker f ≃* MonoidHom.range f :=
+          QuotientGroup.quotientKerEquivRange f
+```
+
+### Mathematical Discovery
+- **Frontier Analysis**: Identify sparse connections between mathematical branches
+- **Gap Detection**: Find theorems in literature not yet formalized
+- **Dependency Mapping**: Understand theorem prerequisites
+
+### Proof Assistance
+- Provide context for theorem proving agents
+- Suggest relevant lemmas via semantic similarity
+- Track which results are available in Mathlib
+
+---
+
+## Repository Structure
+
+```
+ai-mathematician/
+├── AIMathematician/              # Verified Lean 4 proofs
+│   ├── Basic.lean                # Educational group definitions
+│   ├── GroupIsomorphism.lean     # First Isomorphism Theorem (groups)
+│   └── RingIsomorphism.lean      # First Isomorphism Theorem (rings)
+│
+├── knowledgebase/                # Mathematical Knowledge Bases
+│   ├── kb_index.yaml             # Index of all 20 KBs with measurability
+│   ├── README.md                 # KB documentation and methodology
+│   ├── set_theory_knowledge_base.md
+│   ├── topology_knowledge_base.md
+│   └── ... (20 KBs total)
+│
+├── dataset/                      # Dataset Schema & Training Strategy
+│   ├── dataset_schema.md         # v5.0 JSONL schema specification
+│   └── rl_dataset_analysis.md    # Training pipeline and evaluation
+│
+├── lakefile.toml                 # Lake build configuration
+├── lean-toolchain                # Lean version (reproducibility)
+└── justfile                      # Command runner recipes
+```
+
+---
+
+## Mathematical Families
+
+| Family | Avg Score | KBs |
+|--------|-----------|-----|
+| **Foundations** | 93 | set_theory, arithmetic, order_theory, logic_model_theory |
+| **Algebra** | 83 | linear_algebra, isomorphism_theorems, category_theory, galois_theory, homological_algebra, representation_theory |
+| **Analysis** | 82 | measure_theory, real_complex_analysis, probability_theory |
+| **Discrete** | 77 | combinatorics, graph_theory, prime_number_theorems |
+| **Topology** | 72 | topology, algebraic_topology |
+| **Geometry** | 55 | classical_geometry, differential_geometry |
+
+*Scores indicate Mathlib coverage and formalization readiness (0-100)*
+
+---
+
+## Getting Started
+
+### Prerequisites
 
 ```bash
-# macOS / Linux
+# Install elan (Lean version manager)
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
 
-# Verify installation
-elan --version
+# Install just (command runner)
+brew install just  # macOS
 ```
 
-### 2. Lean 4
-
-Lean 4 will be automatically installed by elan based on the `lean-toolchain` file.
+### Build
 
 ```bash
-# Verify Lean is available
-lean --version
-```
-
-### 3. just (Command Runner)
-
-```bash
-# macOS
-brew install just
-
-# Linux (cargo)
-cargo install just
-
-# Verify installation
-just --version
-```
-
----
-
-## Installation
-
-1. **Clone the repository:**
-
-```bash
+# Clone and enter
 git clone https://github.com/yourusername/ai-mathematician.git
 cd ai-mathematician
-```
 
-2. **Install Lean toolchain:**
-
-```bash
-# elan will read lean-toolchain and install the correct version
-lake update
-```
-
-3. **Download Mathlib cache (recommended):**
-
-```bash
+# Download Mathlib cache (recommended)
 lake exe cache get
+
+# Build
+just build
 ```
-
-This downloads pre-built Mathlib artifacts, significantly speeding up the first build.
-
----
-
-## Building the Project
-
-This project uses `just` as a command runner for common tasks.
 
 ### Available Commands
 
 | Command | Description |
 |---------|-------------|
-| `just` | Build the project (default) |
-| `just build` | Build the project |
+| `just build` | Build the Lean project |
 | `just update` | Update lake dependencies |
 | `just clean` | Clean build artifacts |
-| `just fresh` | Clean and rebuild from scratch |
-| `just run` | Run the executable |
-| `just info` | Show project info |
-| `just files` | List all Lean files |
-
-### Quick Start
-
-```bash
-# First time setup
-just update
-
-# Build the project
-just build
-
-# If you encounter issues, try a fresh build
-just fresh
-```
-
-### Manual Lake Commands
-
-If you prefer using Lake directly:
-
-```bash
-# Update dependencies
-lake update
-
-# Build the project
-lake build
-
-# Clean build artifacts
-lake clean
-```
+| `just fresh` | Clean rebuild from scratch |
 
 ---
 
-## Project Structure
+## Key Theorems (Verified)
 
-```
-ai-mathematician/
-├── AIMathematician/
-│   ├── Basic.lean              # Educational group/abelian group definitions
-│   ├── GroupIsomorphism.lean   # First Isomorphism Theorem for Groups
-│   └── RingIsomorphism.lean    # First Isomorphism Theorem for Rings
-├── AIMathematician.lean        # Root import file
-├── Main.lean                   # Executable entry point
-├── lakefile.toml               # Lake build configuration
-├── lake-manifest.json          # Dependency lock file
-├── lean-toolchain              # Lean version specification
-├── justfile                    # Command runner recipes
-└── README.md                   # This file
-```
+The `AIMathematician/` directory contains machine-verified proofs:
 
-### Key Files
-
-- **`lakefile.toml`**: Defines the project name, dependencies (Mathlib4), and build targets
-- **`lean-toolchain`**: Specifies the exact Lean 4 version for reproducibility
-- **`lake-manifest.json`**: Locks dependency versions for reproducible builds
-
----
-
-## Mathematical Background
-
-### The First Isomorphism Theorem
-
-The First Isomorphism Theorem is a cornerstone of abstract algebra, providing a canonical way to understand the structure of homomorphic images.
-
-#### For Groups
-
-Given a group homomorphism `f : G → H`:
-
-```
-         f
-    G ───────→ H
-    │          ↑
-    │ π        │ ι (injection)
-    ↓          │
-  G/ker(f) ──→ im(f)
-           ≃
-```
-
-**Statement:** The quotient group `G/ker(f)` is isomorphic to the image `im(f)`.
-
-In symbols: **G / ker(f) ≃ im(f)**
-
-When `f` is surjective: **G / ker(f) ≃ H**
-
-#### For Rings
-
-The ring version preserves both addition and multiplication:
-
-**Statement:** The quotient ring `R/ker(f)` is ring-isomorphic to the image `im(f)`.
-
-In symbols: **R / ker(f) ≃+* im(f)**
-
-The notation `≃+*` indicates a ring isomorphism (preserving both `+` and `*`).
-
-### Why Formal Proofs Matter
-
-Traditional mathematical proofs rely on human verification, which can miss subtle errors. Formal proofs in Lean provide:
-
-1. **Machine-checked correctness**: Every logical step is verified by the Lean kernel
-2. **No hidden assumptions**: All dependencies are explicit
-3. **Constructive content**: Proofs can be extracted as algorithms when applicable
-4. **Reusability**: Theorems can be composed to prove more complex results
+| Theorem | Statement | File |
+|---------|-----------|------|
+| First Isomorphism (Groups) | G / ker(f) ≃ im(f) | `GroupIsomorphism.lean` |
+| First Isomorphism (Rings) | R / ker(f) ≃+* im(f) | `RingIsomorphism.lean` |
+| Kernel is Normal | ker(f) ⊲ G | `GroupIsomorphism.lean` |
+| Kernel is Ideal | ker(f) is two-sided ideal | `RingIsomorphism.lean` |
 
 ---
 
 ## Contributing
 
-Contributions are welcome! Here are some ways to help:
+### Adding Knowledge Base Content
+1. Edit the relevant `knowledgebase/*_knowledge_base.md` file
+2. Follow the existing format (NL statement, Lean template, imports, difficulty)
+3. Update `kb_index.yaml` if adding new theorems
 
-### Adding New Theorems
+### Adding Verified Proofs
+1. Create a `.lean` file in `AIMathematician/`
+2. Import from `AIMathematician.lean`
+3. Ensure `just build` passes
 
-1. Create a new `.lean` file in `AIMathematician/`
-2. Import it from `AIMathematician.lean`
-3. Follow Mathlib conventions for naming and style
-4. Ensure `just build` passes before submitting
-
-### Theorem Ideas
-
-- Second and Third Isomorphism Theorems
-- Lagrange's Theorem
-- Cayley's Theorem
-- Structure theorems for finitely generated abelian groups
-- Fundamental theorem of Galois theory
-
-### Style Guidelines
-
-- Use Mathlib's existing definitions and theorems where possible
-- Provide docstrings for public definitions
-- Include both term-mode and tactic-mode proofs where instructive
+### Suggesting Theorems
+Open an issue with:
+- Natural language statement
+- Mathematical domain
+- Reference (if available)
 
 ---
 
 ## References
 
+### Project Documentation
+- [`knowledgebase/README.md`](knowledgebase/README.md) — KB coverage and measurability methodology
+- [`dataset/dataset_schema.md`](dataset/dataset_schema.md) — v5.0 schema for JSONL records
+- [`dataset/rl_dataset_analysis.md`](dataset/rl_dataset_analysis.md) — Training strategy and evaluation
+
+### External Resources
+- [Mathlib4 Documentation](https://leanprover-community.github.io/mathlib4_docs/)
+- [100 Theorems in Lean](https://leanprover-community.github.io/100.html)
 - [Theorem Proving in Lean 4](https://lean-lang.org/theorem_proving_in_lean4/)
-- [Mathlib Documentation](https://leanprover-community.github.io/mathlib4_docs/)
-- [Functional Programming in Lean](https://lean-lang.org/functional_programming_in_lean/)
-- [Abstract Algebra (Dummit and Foote)](https://www.wiley.com/en-us/Abstract+Algebra%2C+3rd+Edition-p-9780471433347)
+- [LeanDojo](https://leandojo.org/) — Lean data extraction
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-**Note:** This project is part of an exploration into AI-assisted formal mathematics, combining human mathematical intuition with machine verification.
+*This project is part of an exploration into AI-assisted formal mathematics, combining human mathematical intuition with machine verification.*
