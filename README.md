@@ -102,11 +102,11 @@ We separate **content authoring** from **Lean validation** to enable rapid knowl
 
 **Stage 1**: Experts write natural language statements + Lean templates (may use `sorry`)
 
-**Stage 2**: `proof-engineer` agent validates templates through Lean compiler, fixes errors, records attempts
+**Stage 2**: The [`proof-engineer`](agents/proof-engineer.md) agent validates templates through the Lean compiler, using 14 specialized [Lean skills](agents/skills/) for tactic selection, error resolution, and proof construction
 
 **Result**: Only verified proofs enter the training dataset
 
-See [`dataset/dataset_schema.md`](dataset/dataset_schema.md) for the v5.0 schema specification.
+The agent and skills in [`agents/`](agents/) are the foundation for transforming mathematical knowledge into machine-verified proofs. See [`dataset/dataset_schema.md`](dataset/dataset_schema.md) for the v5.0 schema specification.
 
 ---
 
@@ -144,13 +144,18 @@ ai-mathematician/
 ├── knowledgebase/                # Mathematical Knowledge Bases
 │   ├── kb_index.yaml             # Index of all 20 KBs with measurability
 │   ├── README.md                 # KB documentation and methodology
-│   ├── set_theory_knowledge_base.md
-│   ├── topology_knowledge_base.md
-│   └── ... (20 KBs total)
+│   └── *_knowledge_base.md       # 20 domain-specific KBs
 │
 ├── dataset/                      # Dataset Schema & Training Strategy
 │   ├── dataset_schema.md         # v5.0 JSONL schema specification
 │   └── rl_dataset_analysis.md    # Training pipeline and evaluation
+│
+├── agents/                       # Claude Code Agent & Skill Definitions
+│   ├── README.md                 # Usage and sync instructions
+│   ├── proof-engineer.md         # Lean 4 theorem proving agent
+│   └── skills/                   # Lean skill definitions
+│       ├── README.md             # Skill documentation
+│       └── lean-*/               # 14 Lean FP & theorem proving skills
 │
 ├── lakefile.toml                 # Lake build configuration
 ├── lean-toolchain                # Lean version (reproducibility)
