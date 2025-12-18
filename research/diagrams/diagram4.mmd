@@ -1,0 +1,15 @@
+flowchart LR
+    subgraph Algebra["ALGEBRA"]
+        G[Group Theory]
+        R[Ring Theory]
+        G --- R
+    end
+
+    subgraph Topology["TOPOLOGY"]
+        PS[Point-Set]
+        AT[Algebraic Topology]
+        PS --- AT
+    end
+
+    Algebra <-.->|"FRONTIER<br/>(sparse connections)"| Topology
+    R -.->|"bridges"| AT

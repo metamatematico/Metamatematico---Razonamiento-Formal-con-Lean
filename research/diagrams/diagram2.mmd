@@ -1,0 +1,9 @@
+flowchart LR
+    NL[NL Statement] --> GATHER[GATHER<br/>context]
+    GATHER --> ATTEMPT[ATTEMPT<br/>proof]
+    ATTEMPT --> VERIFY[VERIFY<br/>compile]
+    VERIFY --> Decision{Result?}
+    Decision -->|Success| VALID[✓ VALIDATED<br/>PROOF]
+    Decision -->|Error| REFINE[REFINE<br/>analyze error]
+    REFINE -->|retry ≤3| GATHER
+    REFINE -->|max iterations| BARRIER[✗ BARRIER]

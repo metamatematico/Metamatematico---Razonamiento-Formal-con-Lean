@@ -59,3 +59,82 @@ rebuild:
 # Full clean rebuild with fresh Mathlib
 fresh: clean
     @echo "Fresh build complete!"
+
+# ============================================
+# Documentation Pipeline (Markdown → HTML/PDF)
+# ============================================
+
+# Directory for research documents
+research_dir := "research"
+diagrams_dir := "research/diagrams"
+
+# Convert all Mermaid diagrams to PNG
+diagrams:
+    @echo "Converting Mermaid diagrams to PNG..."
+    @mkdir -p {{diagrams_dir}}
+    @for f in {{diagrams_dir}}/*.mmd; do \
+        if [ -f "$f" ]; then \
+            mmdc -i "$f" -o "${f%.mmd}.png" -b white; \
+        fi \
+    done
+    @echo "Diagrams converted!"
+
+# Preprocess markdown: replace mermaid blocks with image references
+_preprocess file:
+    #!/usr/bin/env bash
+    awk ' \
+      BEGIN { in_mermaid=0; diagram=1 } \
+      /^```mermaid/ { in_mermaid=1; print "![Diagram " diagram "](diagrams/diagram" diagram ".png)"; diagram++; next } \
+      /^```$/ && in_mermaid { in_mermaid=0; next } \
+      !in_mermaid { print } \
+    ' {{file}} > /tmp/proposal_clean.md
+
+# Generate HTML from markdown (with MathJax for LaTeX)
+html file="research/PROJECT_PROPOSAL.md": (_preprocess file)
+    @echo "Generating HTML from {{file}}..."
+    pandoc /tmp/proposal_clean.md \
+        -o "{{without_extension(file)}}.html" \
+        --standalone \
+        --mathjax \
+        --toc \
+        --toc-depth=2 \
+        --metadata title="Metamathematics.ai"
+    @echo "HTML generated: {{without_extension(file)}}.html"
+
+# Generate PDF from markdown (with XeLaTeX for Unicode support)
+pdf file="research/PROJECT_PROPOSAL.md": diagrams (_preprocess file)
+    @echo "Generating PDF from {{file}}..."
+    cd research && pandoc /tmp/proposal_clean.md \
+        -o "PROJECT_PROPOSAL.pdf" \
+        --pdf-engine=xelatex \
+        --toc \
+        --toc-depth=2 \
+        -V geometry:margin=1in \
+        --metadata title="Metamathematics.ai"
+    @echo "PDF generated: {{without_extension(file)}}.pdf"
+
+# Full documentation pipeline: diagrams → HTML + PDF
+docs: diagrams
+    @echo "Running full documentation pipeline..."
+    just html research/PROJECT_PROPOSAL.md
+    just pdf research/PROJECT_PROPOSAL.md
+    @echo "Documentation ready!"
+    @echo "  HTML: research/PROJECT_PROPOSAL.html"
+    @echo "  PDF:  research/PROJECT_PROPOSAL.pdf"
+
+# Create a new Mermaid diagram file
+new-diagram name:
+    @echo "Creating new diagram: {{diagrams_dir}}/{{name}}.mmd"
+    @mkdir -p {{diagrams_dir}}
+    @echo "graph TD\n    A[Start] --> B[End]" > {{diagrams_dir}}/{{name}}.mmd
+    @echo "Edit {{diagrams_dir}}/{{name}}.mmd then run 'just diagrams'"
+
+# Clean generated documentation files
+clean-docs:
+    rm -f {{research_dir}}/*.html
+    rm -f {{diagrams_dir}}/*.png
+    @echo "Documentation artifacts cleaned!"
+
+# Watch research docs and regenerate on change (requires fswatch)
+watch-docs:
+    fswatch -o {{research_dir}}/*.md {{diagrams_dir}}/*.mmd | xargs -n1 -I{} just docs
