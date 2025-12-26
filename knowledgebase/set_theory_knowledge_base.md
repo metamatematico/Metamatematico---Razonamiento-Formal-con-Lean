@@ -42,6 +42,27 @@ def ZFSet := Quotient PSet.setoid
 
 ---
 
+## Related Knowledge Bases
+
+### Builds Upon This KB
+- **Measure Theory** (`measure_theory_knowledge_base.md`): σ-algebras, measurable sets
+- **Topology** (`topology_knowledge_base.md`): Set operations, Borel sets
+- **Logic & Model Theory** (`logic_model_theory_knowledge_base.md`): Formal systems, models
+
+### Related Topics
+- **Order Theory** (`order_theory_knowledge_base.md`): Ordinals, well-orderings
+- **Cardinal Arithmetic** (`arithmetic_knowledge_base.md`): Cardinality computations
+
+### Scope Clarification
+This KB focuses on **axiomatic set theory (ZFC)**:
+- The nine ZFC axioms
+- Fundamental theorems (Cantor, Schroeder-Bernstein)
+- Set-theoretic foundations
+
+For **measure-theoretic sets** (σ-algebras), see the **Measure Theory KB**.
+
+---
+
 ## The Nine Axioms of ZFC
 
 ### 1. Axiom of Extensionality

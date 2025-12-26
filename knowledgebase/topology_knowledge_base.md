@@ -40,6 +40,30 @@ def nhds (x : X) : Filter X
 
 ---
 
+## Related Knowledge Bases
+
+### Builds Upon This KB
+- **Measure Theory** (`measure_theory_knowledge_base.md`): Borel σ-algebras, topological measure spaces
+- **Functional Analysis** (`functional_analysis_knowledge_base.md`): Topological vector spaces, weak topologies
+- **Algebraic Topology** (`algebraic_topology_knowledge_base.md`): Homotopy, fundamental groups
+- **Differential Geometry** (`differential_geometry_knowledge_base.md`): Smooth manifolds
+- **Sheaf Theory** (`sheaf_theory_knowledge_base.md`): Sheaves on topological spaces
+
+### Prerequisites
+- **Set Theory** (`set_theory_knowledge_base.md`): Set operations, functions
+
+### Scope Clarification
+This KB focuses on **general (point-set) topology**:
+- Topological spaces and open/closed sets
+- Continuity and homeomorphisms
+- Separation axioms (T₀ through T₄)
+- Compactness and connectedness
+- Major theorems (Urysohn, Tietze, Baire)
+
+For **algebraic invariants** (homotopy groups, homology), see the **Algebraic Topology KB**.
+
+---
+
 ## Part 1: Core Definitions
 
 ### 1. Topological Space

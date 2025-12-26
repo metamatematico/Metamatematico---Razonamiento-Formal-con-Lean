@@ -85,7 +85,7 @@ Each line is a JSON object representing one mathematical postulate.
 | `postulate_id` | string | Hierarchical ID: `{theory}.{name}` (e.g., `"set_theory.zfc_extensionality"`) |
 | `type` | string | `"axiom"` \| `"theorem"` \| `"lemma"` \| `"definition"` \| `"corollary"` |
 | `theory` | string | Parent theory: `"set_theory"`, `"algebra"`, etc. |
-| `family` | string | Mathematical family: `"foundations"`, `"algebra"`, `"analysis"`, `"topology"`, `"geometry"`, `"discrete"` |
+| `family` | string | Mathematical family: `"foundations"`, `"algebra"`, `"analysis"`, `"dynamics"`, `"topology"`, `"geometry"`, `"discrete"` |
 | `nl_statement` | string | Natural language statement |
 | `lean_template` | string | Lean 4 code (may not compile) |
 | `imports` | array[string] | Required Mathlib imports |
@@ -311,7 +311,7 @@ def get_training_records(postulates: list[dict]) -> list[dict]:
 
 1. `postulate_id` must be unique and follow `{theory}.{name}` format
 2. `type` must be one of: axiom, theorem, lemma, definition, corollary
-3. `family` must be one of: foundations, algebra, analysis, topology, geometry, discrete
+3. `family` must be one of: foundations, algebra, analysis, dynamics, topology, geometry, discrete
 4. `proof.status` must be one of: template, pending_review, validated, failed
 5. `imports` must be valid Mathlib4 paths
 6. If `proof.status == "validated"`, `lean_validated` must be non-null

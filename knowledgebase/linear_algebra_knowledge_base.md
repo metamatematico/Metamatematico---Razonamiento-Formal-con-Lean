@@ -35,6 +35,30 @@ Vector spaces are modules over division rings:
 
 ---
 
+## Related Knowledge Bases
+
+### Builds Upon This KB
+- **Functional Analysis** (`functional_analysis_knowledge_base.md`): Normed vector spaces, operators
+- **Operator Theory** (`operator_theory_knowledge_base.md`): Spectral theory, eigenvalue problems
+- **Convex Analysis** (`convex_analysis_knowledge_base.md`): Convex sets in vector spaces
+- **Representation Theory** (`representation_theory_knowledge_base.md`): Linear representations of groups
+
+### Prerequisites
+- **Group Theory** (`group_theory_knowledge_base.md`): Abelian groups (for AddCommGroup)
+- **Arithmetic** (`arithmetic_knowledge_base.md`): Rings and fields
+
+### Scope Clarification
+This KB focuses on **abstract linear algebra**:
+- Vector spaces (as modules over division rings)
+- Linear maps and their properties
+- Bases, dimension, rank-nullity
+- Determinants, eigenvalues, Cayley-Hamilton
+- Dual spaces, quotients, tensor products
+
+For **infinite-dimensional analysis**, see the **Functional Analysis KB**.
+
+---
+
 ## Vector Space Axioms (via Module Structure)
 
 ### 1. Module Typeclass Definition

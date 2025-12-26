@@ -39,6 +39,27 @@ Mathlib provides strong support for:
 
 ---
 
+## Related Knowledge Bases
+
+### Related Topics
+- **Graph Theory** (`graph_theory_knowledge_base.md`): Discrete structures, coloring
+- **Additive Combinatorics** (`additive_combinatorics_knowledge_base.md`): Sum-set problems
+- **Ramsey Theory** (`ramsey_theory_knowledge_base.md`): Ramsey numbers, partition regularity
+- **Probability Theory** (`probability_theory_knowledge_base.md`): Probabilistic method
+- **Number Theory** (`number_theory_knowledge_base.md`): Combinatorial number theory
+
+### Scope Clarification
+This KB focuses on **enumerative and extremal combinatorics**:
+- Counting principles (binomial, multinomial)
+- Special numbers (Catalan, Bell)
+- Set families (Sperner, LYM, Kruskal-Katona)
+- Basic principles (pigeonhole, inclusion-exclusion)
+
+For **graph-specific results**, see the **Graph Theory KB**.
+For **Ramsey theory details**, see the **Ramsey Theory KB**.
+
+---
+
 ## Part I: Counting Principles
 
 ### 1. Binomial Coefficients

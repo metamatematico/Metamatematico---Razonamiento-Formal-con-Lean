@@ -15,6 +15,33 @@ This knowledge base covers classical geometry formalization in Lean 4/Mathlib, i
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Linear Algebra** (`linear_algebra_knowledge_base.md`): Inner product spaces, affine spaces
+- **Topology** (`topology_knowledge_base.md`): Metric space structure
+- **Real/Complex Analysis** (`real_complex_analysis_knowledge_base.md`): Continuity, trigonometry
+
+### Builds Upon This KB
+- **Riemannian Geometry** (`riemannian_geometry_knowledge_base.md`): Curved geometries
+- **Smooth Manifolds** (`smooth_manifolds_knowledge_base.md`): Generalization to manifolds
+
+### Related Topics
+- **Convex Analysis** (`convex_analysis_knowledge_base.md`): Convex geometry in Euclidean space
+- **Combinatorics** (`combinatorics_knowledge_base.md`): Discrete geometry, Pick's theorem
+
+### Scope Clarification
+This KB focuses on **classical geometry**:
+- Euclidean space foundations (inner products, distances)
+- Triangle geometry (angles, circumcenter, orthocenter)
+- Circle geometry (circumcircle, inscribed angles)
+- Basic constructions
+- (Gaps: Ceva, Pick, Desargues, Morley, projective geometry)
+
+For **curved geometries**, see **Riemannian Geometry KB**.
+
+---
+
 ## 1. EUCLIDEAN SPACE FOUNDATIONS
 
 ### 1.1 Inner Product Geometry

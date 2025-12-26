@@ -15,6 +15,30 @@ This knowledge base covers probability theory formalization in Lean 4/Mathlib, b
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Measure Theory** (`measure_theory_knowledge_base.md`): σ-algebras, measures, integration, convergence theorems
+
+### Builds Upon This KB
+- **Statistics** (`statistics_knowledge_base.md`): Statistical inference (conceptual)
+- **Stochastic Processes** (`stochastic_processes_knowledge_base.md`): Filtrations, martingales, stopping times
+
+### Related Topics
+- **Real/Complex Analysis** (`real_complex_analysis_knowledge_base.md`): Convergence, integration
+
+### Scope Clarification
+This KB focuses on **measure-theoretic probability**:
+- Probability spaces and measures
+- Random variables and distributions
+- Expectation, variance, moments
+- Independence and conditional probability
+- Convergence modes and limit theorems (SLLN, partial CLT)
+
+For **statistical inference** (hypothesis testing, confidence intervals), see the **Statistics KB**.
+
+---
+
 ## 1. PROBABILITY SPACES
 
 ### 1.1 Probability Measure

@@ -42,7 +42,7 @@ The metamathematicians of the early 20th century—Frege, Russell, Hilbert, Göd
 - **Organization** (Knowledge Graph) — How do proofs relate to each other?
 - **Measurement** (Measurability Scores) — What is formalizable now vs. later?
 - **Discovery** (Frontier Analysis) — Where are the gaps between mathematical branches?
-- **Scale** (Automation) — 20 knowledge bases, ~800 statements, continuous validation
+- **Scale** (Automation) — 36 knowledge bases, ~1,600 statements, continuous validation
 
 The `proof-engineer` agent continuously asks Hofstadter's question: *"Is this a legal method of procedure?"*
 
@@ -53,21 +53,28 @@ When Lean accepts a proof, it certifies that every step follows from the rules o
 ## Knowledge Space Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                  Mathematical Knowledge Space                    │
-├─────────────────────────────────────────────────────────────────┤
-│  Families (6)                                                   │
-│    ├── Foundations: set_theory, arithmetic, order_theory, logic │
-│    ├── Algebra: linear_algebra, groups, rings, categories, ...  │
-│    ├── Analysis: real/complex analysis, measure theory, prob    │
-│    ├── Topology: general topology, algebraic topology           │
-│    ├── Geometry: classical, differential                        │
-│    └── Discrete: graph theory, number theory, combinatorics     │
-│                                                                 │
-│  Theories (20 Knowledge Bases)                                  │
-│    └── Postulates (~800 statements)                             │
-│          └── Dependencies (DEPENDS_ON, GENERALIZES, RELATES_TO) │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                   Mathematical Knowledge Space                        │
+├──────────────────────────────────────────────────────────────────────┤
+│  Families (7)                                                        │
+│    ├── Foundations: set_theory, arithmetic, order_theory, logic,     │
+│    │                computability_theory                             │
+│    ├── Algebra: linear_algebra, groups, rings, categories,          │
+│    │            commutative_algebra, algebraic_number_theory,        │
+│    │            lie_theory, algebraic_geometry                       │
+│    ├── Analysis: real/complex, measure theory, probability,         │
+│    │             functional_analysis, fourier_analysis,              │
+│    │             convex_analysis, stochastic_processes, operator     │
+│    ├── Dynamics: ergodic_theory, ordinary_differential_equations     │
+│    ├── Topology: general topology, algebraic topology                │
+│    ├── Geometry: classical, smooth_manifolds, differential           │
+│    └── Discrete: graph theory, number theory, combinatorics,        │
+│                  ramsey_theory, additive_combinatorics, p-adic       │
+│                                                                      │
+│  Theories (36 Knowledge Bases)                                       │
+│    └── Postulates (~1,600 statements)                                │
+│          └── Dependencies (DEPENDS_ON, GENERALIZES, RELATES_TO)      │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -76,12 +83,12 @@ When Lean accepts a proof, it certifies that every step follows from the rules o
 
 | Metric | Count |
 |--------|-------|
-| **Knowledge Bases** | 20 |
-| **Mathematical Families** | 6 |
-| **Theorems** | ~390 |
-| **Definitions** | ~250 |
-| **Axioms** | ~97 |
-| **Total Statements** | ~800+ |
+| **Knowledge Bases** | 36 |
+| **Mathematical Families** | 7 |
+| **Theorems** | ~800 |
+| **Definitions** | ~500 |
+| **Axioms** | ~130 |
+| **Total Statements** | ~1,600+ |
 
 See [`knowledgebase/README.md`](knowledgebase/README.md) for detailed coverage and measurability scores.
 
@@ -142,9 +149,9 @@ ai-mathematician/
 │   └── RingIsomorphism.lean      # First Isomorphism Theorem (rings)
 │
 ├── knowledgebase/                # Mathematical Knowledge Bases
-│   ├── kb_index.yaml             # Index of all 20 KBs with measurability
+│   ├── kb_index.yaml             # Index of all 36 KBs with measurability
 │   ├── README.md                 # KB documentation and methodology
-│   └── *_knowledge_base.md       # 20 domain-specific KBs
+│   └── *_knowledge_base.md       # 36 domain-specific KBs
 │
 ├── dataset/                      # Dataset Schema & Training Strategy
 │   ├── dataset_schema.md         # v5.0 JSONL schema specification
@@ -168,12 +175,13 @@ ai-mathematician/
 
 | Family | Avg Score | KBs |
 |--------|-----------|-----|
-| **Foundations** | 93 | set_theory, arithmetic, order_theory, logic_model_theory |
-| **Algebra** | 83 | linear_algebra, isomorphism_theorems, category_theory, galois_theory, homological_algebra, representation_theory |
-| **Analysis** | 82 | measure_theory, real_complex_analysis, probability_theory |
-| **Discrete** | 77 | combinatorics, graph_theory, prime_number_theorems |
+| **Foundations** | 90 | set_theory, arithmetic, order_theory, logic_model_theory, computability_theory |
+| **Algebra** | 80 | linear_algebra, isomorphism_theorems, category_theory, galois_theory, homological_algebra, representation_theory, commutative_algebra, algebraic_number_theory, lie_theory, algebraic_geometry |
+| **Analysis** | 82 | measure_theory, real_complex_analysis, probability_theory, functional_analysis, fourier_analysis, convex_analysis, stochastic_processes, operator_theory |
+| **Dynamics** | 84 | ergodic_theory, ordinary_differential_equations |
+| **Discrete** | 75 | combinatorics, graph_theory, prime_number_theorems, ramsey_theory, additive_combinatorics, p_adic_numbers |
 | **Topology** | 72 | topology, algebraic_topology |
-| **Geometry** | 55 | classical_geometry, differential_geometry |
+| **Geometry** | 75 | classical_geometry, smooth_manifolds, differential_geometry, algebraic_geometry |
 
 *Scores indicate Mathlib coverage and formalization readiness (0-100)*
 

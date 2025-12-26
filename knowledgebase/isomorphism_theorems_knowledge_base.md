@@ -5,6 +5,31 @@
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Group Theory** (`group_theory_knowledge_base.md`): Subgroups, normal subgroups, quotients, homomorphisms
+
+### Builds Upon This KB
+- **Homological Algebra** (`homological_algebra_knowledge_base.md`): Exact sequences, derived functors
+- **Galois Theory** (`galois_theory_knowledge_base.md`): Galois correspondence
+
+### Related Topics
+- **Category Theory** (`category_theory_knowledge_base.md`): Universal properties of quotients
+- **Linear Algebra** (`linear_algebra_knowledge_base.md`): Vector space isomorphism theorems
+
+### Scope Clarification
+This KB focuses on **isomorphism theorems**:
+- First Isomorphism Theorem (Groups, Rings)
+- Second/Diamond Isomorphism Theorem
+- Third Isomorphism Theorem
+- Fourth/Lattice Isomorphism Theorem
+- Related theorems (Lagrange, Cauchy, Chinese Remainder)
+
+For **group-theoretic foundations**, see **Group Theory KB**.
+
+---
+
 ## Already Implemented
 
 ### Groups

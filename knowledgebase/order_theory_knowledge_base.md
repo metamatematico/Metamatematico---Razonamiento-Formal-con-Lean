@@ -31,6 +31,35 @@ Order Theory and Lattice Theory are extensively formalized in Lean 4's Mathlib l
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Set Theory** (`set_theory_knowledge_base.md`): Set inclusion, power sets
+- **Logic & Model Theory** (`logic_model_theory_knowledge_base.md`): First-order logic foundations
+
+### Builds Upon This KB
+- **Measure Theory** (`measure_theory_knowledge_base.md`): σ-algebras as complete Boolean algebras
+- **Topology** (`topology_knowledge_base.md`): Lattice of open sets
+- **Category Theory** (`category_theory_knowledge_base.md`): Ordered categories, enriched categories
+
+### Related Topics
+- **Functional Analysis** (`functional_analysis_knowledge_base.md`): Ordered vector spaces
+- **Convex Analysis** (`convex_analysis_knowledge_base.md`): Partially ordered cones
+
+### Scope Clarification
+This KB focuses on **order theory and lattice structures**:
+- Preorders and partial orders
+- Lattices and semilattices
+- Complete lattices
+- Boolean algebras
+- Well-founded relations
+- Zorn's Lemma and applications
+- Knaster-Tarski fixed-point theorem
+
+For **categorical perspectives on order**, see **Category Theory KB**.
+
+---
+
 ## Preorders and Partial Orders
 
 ### 1. Preorder Axioms

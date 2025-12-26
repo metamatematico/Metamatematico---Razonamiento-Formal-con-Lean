@@ -46,6 +46,34 @@ R (complete ordered field)
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Logic & Model Theory** (`logic_model_theory_knowledge_base.md`): First-order logic, axiomatics
+- **Set Theory** (`set_theory_knowledge_base.md`): Set-theoretic foundations
+
+### Builds Upon This KB
+- **Real/Complex Analysis** (`real_complex_analysis_knowledge_base.md`): Analysis on ℝ and ℂ
+- **Measure Theory** (`measure_theory_knowledge_base.md`): Lebesgue measure on ℝ
+- **Galois Theory** (`galois_theory_knowledge_base.md`): Field extensions from ℚ
+
+### Related Topics
+- **Algebraic Number Theory** (`algebraic_number_theory_knowledge_base.md`): Algebraic extensions of ℚ
+- **P-adic Numbers** (`p_adic_numbers_knowledge_base.md`): Alternative completions of ℚ
+- **Combinatorics** (`combinatorics_knowledge_base.md`): Counting over ℕ
+
+### Scope Clarification
+This KB focuses on **foundational number systems**:
+- Peano axioms for ℕ
+- Ring axioms for ℤ
+- Field axioms for ℚ
+- Complete ordered field axioms for ℝ
+- Fundamental theorems (well-ordering, √2 irrational, ℚ denumerable, Archimedean)
+
+For **advanced number theory**, see **Algebraic Number Theory KB**.
+
+---
+
 ## 1. Peano Axioms (Natural Numbers)
 
 The Peano axioms provide a rigorous foundation for arithmetic, number theory, and all higher mathematics built on natural numbers.

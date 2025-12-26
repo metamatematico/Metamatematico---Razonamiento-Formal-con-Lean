@@ -15,6 +15,32 @@ This knowledge base covers Galois Theory formalization in Lean 4/Mathlib, includ
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Group Theory** (`group_theory_knowledge_base.md`): Subgroups, normal subgroups, quotients
+- **Linear Algebra** (`linear_algebra_knowledge_base.md`): Vector spaces, dimension theory
+
+### Builds Upon This KB
+- **Algebraic Number Theory** (`algebraic_number_theory_knowledge_base.md`): Number field extensions, algebraic integers
+- **P-adic Numbers** (`p_adic_numbers_knowledge_base.md`): Local field extensions
+
+### Related Topics
+- **Arithmetic** (`arithmetic_knowledge_base.md`): Finite fields, cyclotomic fields
+- **Number Theory** (`number_theory_knowledge_base.md`): Algebraic integers, class field theory connections
+
+### Scope Clarification
+This KB focuses on **Galois theory and field extensions**:
+- Intermediate fields and tower law
+- Separability, normality, splitting fields
+- Algebraic closures
+- The fundamental theorem of Galois theory
+- Solvability by radicals
+
+For **applications to number fields**, see **Algebraic Number Theory KB**.
+
+---
+
 ## 1. FIELD EXTENSIONS
 
 ### 1.1 Intermediate Field

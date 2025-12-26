@@ -38,6 +38,28 @@ class Category (obj : Type u) extends CategoryStruct.{v, u} obj : Type (max u (v
 
 ---
 
+## Related Knowledge Bases
+
+### Builds Upon This KB
+- **Homological Algebra** (`homological_algebra_knowledge_base.md`): Chain complexes, derived functors
+- **Algebraic Topology** (`algebraic_topology_knowledge_base.md`): Simplicial sets, homotopy theory
+- **Sheaf Theory** (`sheaf_theory_knowledge_base.md`): Presheaves, sheaves, sheafification
+- **Algebraic Geometry** (`algebraic_geometry_knowledge_base.md`): Schemes as locally ringed spaces
+
+### Related Topics
+- **Order Theory** (`order_theory_knowledge_base.md`): Categories from posets
+
+### Scope Clarification
+This KB focuses on **abstract category theory**:
+- Categories, functors, natural transformations
+- Limits and colimits
+- Adjunctions and the Yoneda lemma
+- Monads and abelian categories
+
+For **homological applications** (chain complexes, derived functors), see the **Homological Algebra KB**.
+
+---
+
 ## Category Axioms
 
 ### 1. Category Structure Definition

@@ -65,21 +65,23 @@ Mathematics can be understood as a vast network where every theorem, definition,
 
 ```mermaid
 graph TD
-    subgraph "FAMILIES (6)"
+    subgraph "FAMILIES (7)"
         F1[Foundations]
         F2[Algebra]
         F3[Analysis]
-        F4[...]
+        F4[Dynamics]
+        F5[...]
     end
 
-    subgraph "THEORIES (20)"
+    subgraph "THEORIES (36)"
         T1[Set Theory]
         T2[Group Theory]
         T3[Measure Theory]
-        T4[...]
+        T4[Ergodic Theory]
+        T5[...]
     end
 
-    subgraph "POSTULATES (~800)"
+    subgraph "POSTULATES (~1,600)"
         P1[Axioms]
         P2[Definitions]
         P3[Theorems]
@@ -164,9 +166,9 @@ These are the sources in the dependency DAG—axioms and primitive definitions.
 
 | Parameter | Value |
 |-----------|-------|
-| $\|F\|$ | 6 families |
-| $\|T\|$ | 20 theories |
-| $\|V\|$ | ~800 postulates |
+| $\|F\|$ | 7 families |
+| $\|T\|$ | 36 theories |
+| $\|V\|$ | ~1,600 postulates |
 | Average $\|\triangleleft(v)\|$ | 3-5 dependencies per postulate |
 
 ---
@@ -500,9 +502,9 @@ Dataset generation proceeds in $\preceq_\mu$ order, maximizing validated proofs 
 
 | Asset | Status | Quantity |
 |-------|--------|----------|
-| Knowledge bases | Complete | 20 theories |
-| Mathematical statements | Authored | ~800 |
-| Lean 4 templates | Authored | ~800 |
+| Knowledge bases | Complete | 36 theories |
+| Mathematical statements | Authored | ~1,600 |
+| Lean 4 templates | Authored | ~1,600 |
 | Proof skills | Implemented | 14 |
 | Verified proofs | Validated | 8 (isomorphism theorems) |
 

@@ -37,6 +37,34 @@ structure SimpleGraph (V : Type u) where
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Set Theory** (`set_theory_knowledge_base.md`): Set operations, finiteness
+- **Combinatorics** (`combinatorics_knowledge_base.md`): Counting principles, binomial coefficients
+
+### Builds Upon This KB
+- **Ramsey Theory** (`ramsey_theory_knowledge_base.md`): Graph Ramsey numbers
+- **Additive Combinatorics** (`additive_combinatorics_knowledge_base.md`): Cayley graphs
+
+### Related Topics
+- **Algebraic Topology** (`algebraic_topology_knowledge_base.md`): Simplicial complexes from graphs
+- **Coding Theory** (`coding_theory_knowledge_base.md`): Graph codes
+
+### Scope Clarification
+This KB focuses on **graph theory**:
+- Simple graphs and adjacency
+- Subgraphs and morphisms
+- Walks, paths, and connectivity
+- Degree theory and handshaking lemma
+- Bipartite graphs
+- Graph coloring
+- Extremal results (Turán)
+
+For **Ramsey-theoretic properties**, see **Ramsey Theory KB**.
+
+---
+
 ## Part I: Core Definitions
 
 ### 1. Simple Graph

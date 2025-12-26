@@ -41,6 +41,30 @@ structure MeasureTheory.Measure (α : Type*) [MeasurableSpace α]
 
 ---
 
+## Related Knowledge Bases
+
+### Builds Upon This KB
+- **Probability Theory** (`probability_theory_knowledge_base.md`): Probability measures, random variables, expectation
+- **Real/Complex Analysis** (`real_complex_analysis_knowledge_base.md`): Lebesgue integration applications
+- **Functional Analysis** (`functional_analysis_knowledge_base.md`): Lp spaces, Bochner integral
+- **Stochastic Processes** (`stochastic_processes_knowledge_base.md`): Filtrations, martingales
+
+### Prerequisites
+- **Topology** (`topology_knowledge_base.md`): Borel sets, topological foundations
+- **Set Theory** (`set_theory_knowledge_base.md`): σ-algebras, countable operations
+
+### Scope Clarification
+This KB focuses on **measure-theoretic foundations**:
+- σ-algebras and measurable spaces
+- Measures and outer measures
+- Lebesgue and Bochner integration
+- Convergence theorems (MCT, Fatou, DCT)
+- Lp spaces, Fubini, Radon-Nikodym
+
+For **probability applications**, see the **Probability Theory KB**.
+
+---
+
 ## Part I: Foundational Definitions
 
 ### 1. σ-Algebra (MeasurableSpace)

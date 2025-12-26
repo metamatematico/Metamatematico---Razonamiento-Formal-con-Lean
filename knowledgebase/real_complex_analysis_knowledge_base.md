@@ -38,6 +38,29 @@ def HasDerivAt (f : 𝕜 → F) (f' : F) (x : 𝕜) : Prop :=
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Topology** (`topology_knowledge_base.md`): Metric spaces, limits, continuity
+- **Measure Theory** (`measure_theory_knowledge_base.md`): Integration theory underlying Bochner integral
+
+### Builds Upon This KB
+- **Special Functions** (`special_functions_knowledge_base.md`): Gamma, Beta, exponential, trigonometric functions
+- **Functional Analysis** (`functional_analysis_knowledge_base.md`): Normed spaces, operators
+
+### Scope Clarification
+This KB focuses on **core calculus and complex analysis**:
+- Sequences, series, and limits
+- Continuity (epsilon-delta, uniform)
+- Differentiation (chain rule, MVT)
+- Integration (FTC, substitution, by parts)
+- Complex analysis (holomorphic functions, Cauchy theory)
+
+For **special functions** (Gamma, Beta, Bernoulli, Chebyshev), see the **Special Functions KB**.
+Note: Elementary functions (exp, log, sin, cos) appear in both KBs - intentional overlap for different contexts.
+
+---
+
 ## Part I: Real Analysis
 
 ### 1. Convergence of Sequences

@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Transform 17 knowledge bases (564 theorems) from a simple training dataset into a **navigable mathematical knowledge space** supporting:
+Transform 36 knowledge bases (~1,600 statements) from a simple training dataset into a **navigable mathematical knowledge space** supporting:
 
 1. **Autoformalization Training** - NL→Lean4 pairs (existing use case)
 2. **Theory Exploration** - Navigate frontiers between mathematical theories
@@ -85,9 +85,9 @@ Each mathematical postulate (theorem, axiom, lemma, corollary, definition) store
 ## Graph Structure
 
 **Nodes**:
-- `Postulate` (564 theorems/axioms)
-- `Theory` (17 domains)
-- `Family` (6 families: foundations, algebra, analysis, topology, geometry, discrete)
+- `Postulate` (~1,600 statements)
+- `Theory` (36 domains)
+- `Family` (7 families: foundations, algebra, analysis, dynamics, topology, geometry, discrete)
 
 **Edges**:
 - `DEPENDS_ON` - Theorem uses lemma in proof
@@ -137,7 +137,7 @@ See [`dataset/dataset_schema.md`](dataset/dataset_schema.md) for full schema spe
 
 ### Phase 1: Schema Migration (Weeks 1-2)
 
-**Deliverables**: `data/postulates/*.jsonl.gz` (17 files, ~564 records)
+**Deliverables**: `data/postulates/*.jsonl.gz` (36 files, ~1,600 records)
 
 | Task | Description |
 |------|-------------|
@@ -148,7 +148,7 @@ See [`dataset/dataset_schema.md`](dataset/dataset_schema.md) for full schema spe
 | Extract dependencies | Coarse-grained from Lean imports |
 
 **Success Criteria**:
-- All 564 postulates converted to JSONL
+- All ~1,600 postulates converted to JSONL
 - Zero schema validation errors
 - ID uniqueness verified
 
@@ -160,7 +160,7 @@ See [`dataset/dataset_schema.md`](dataset/dataset_schema.md) for full schema spe
 
 | Task | Description |
 |------|-------------|
-| Build NetworkX DiGraph | 564 nodes, ~1,500 estimated edges |
+| Build NetworkX DiGraph | ~1,600 nodes, ~4,800 estimated edges |
 | Generate embeddings | `all-mpnet-base-v2` on `"{domain} | {nl_statement}"` |
 | Load to pgvector | PostgreSQL with HNSW index |
 | Create evaluation set | 50 labeled pairs for similarity testing |
@@ -317,12 +317,12 @@ ai-mathematician/
 ├── knowledgebase/
 │   ├── kb_index.yaml              # Existing KB index
 │   ├── README.md                  # KB documentation
-│   └── *_knowledge_base.md        # 17 KB files
+│   └── *_knowledge_base.md        # 36 KB files
 ├── data/                          # NEW
 │   ├── postulates/
 │   │   ├── set_theory.jsonl.gz
 │   │   ├── arithmetic.jsonl.gz
-│   │   └── ... (17 files)
+│   │   └── ... (36 files)
 │   └── index/
 │       └── postulate_index.json
 ├── src/                           # NEW
@@ -353,7 +353,7 @@ Full research synthesis: `~/.claude/context/research/mathematical-knowledge-spac
 - **AutoMathKG** (2025) - LLM-augmented KG with synthetic data
 
 ### Current Assets
-- 17 knowledge bases with 564 postulates
+- 36 knowledge bases with ~1,600 postulates
 - `kb_index.yaml` with measurability ordering
 - Mathlib4 as ground truth for Lean syntax
 

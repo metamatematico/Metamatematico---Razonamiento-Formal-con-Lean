@@ -28,6 +28,30 @@ Joël Riou's formalization of derived categories (published Annals of Formalized
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Category Theory** (`category_theory_knowledge_base.md`): Abelian categories, functors, natural transformations
+
+### Builds Upon This KB
+- **Algebraic Topology** (`algebraic_topology_knowledge_base.md`): Singular homology, cellular homology (uses chain complexes)
+- **Sheaf Theory** (`sheaf_theory_knowledge_base.md`): Sheaf cohomology
+
+### Related Topics
+- **K-Theory** (`k_theory_knowledge_base.md`): K-groups via exact sequences
+
+### Scope Clarification
+This KB focuses on **homological algebra foundations**:
+- Chain complexes and homology
+- Exact sequences and diagram lemmas
+- Derived functors (Ext, Tor)
+- Spectral sequences (partial)
+- Group and sheaf cohomology
+
+For **topological applications** (homotopy, simplicial sets), see the **Algebraic Topology KB**.
+
+---
+
 ## 1. Chain Complexes
 
 ### 1.1 Complex Shape

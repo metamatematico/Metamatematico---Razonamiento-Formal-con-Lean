@@ -1,202 +1,40 @@
 # Algebraic Topology Knowledge Base
 
-**Domain**: Homological Algebra & Algebraic Topology
-**Lean 4 Coverage**: GOOD (homological algebra full, topology partial)
-**Source**: Mathlib4 `Algebra.Homology.*` and `Topology.Homotopy.*` modules
-**Last Updated**: 2025-12-14
+**Domain**: Algebraic Topology (Homotopy Theory, Simplicial Sets, Topological Methods)
+**Lean 4 Coverage**: GOOD (homotopy theory and simplicial sets well-covered)
+**Source**: Mathlib4 `Topology.Homotopy.*` and `AlgebraicTopology.*` modules
+**Last Updated**: 2025-12-24
 
 ---
 
 ## Overview
 
-This knowledge base covers algebraic topology formalization in Lean 4/Mathlib, including chain complexes, exact sequences, diagram lemmas (snake lemma), homotopy theory, and simplicial sets. The homological algebra infrastructure is production-ready thanks to Joël Riou's comprehensive formalization.
+This knowledge base covers algebraic topology formalization in Lean 4/Mathlib, focusing on **homotopy theory, simplicial sets, and chain homotopy**.
 
 **Key Gap**: CW complexes, singular homology, Mayer-Vietoris sequence, and Brouwer fixed point theorem (#36) not yet formalized. Fundamental group computations require external library (ComputationalPathsLean).
 
 ---
 
-## 1. CHAIN COMPLEX THEORY
+## Related Knowledge Bases
 
-### 1.1 ComplexShape
+### Prerequisites
+- **Homological Algebra** (`homological_algebra_knowledge_base.md`): Chain complexes, exact sequences, snake lemma, derived functors
+- **Category Theory** (`category_theory_knowledge_base.md`): Functors, natural transformations, limits/colimits
+- **Topology** (`topology_knowledge_base.md`): Continuous maps, compact spaces, connectedness
 
-**Concept**: A complex shape describes how differentials connect objects in a homological complex.
+### Foundational Content (See Homological Algebra KB)
 
-**NL Statement**: "A complex shape on index type ι uses a relation Rel : ι → ι → Prop specifying which pairs of indices can have nonzero differentials, with uniqueness conditions ensuring at most one successor and one predecessor."
-
-**Lean 4 Definition**:
-```lean
-structure ComplexShape (ι : Type*) where
-  Rel : ι → ι → Prop
-  next_eq : ∀ {i j j'}, Rel i j → Rel i j' → j = j'
-  prev_eq : ∀ {i i' j}, Rel i j → Rel i' j → i = i'
-```
-
-**Imports**: `Mathlib.Algebra.Homology.ComplexShape`
-
-**Difficulty**: medium
+For chain complex theory and exact sequences, see the **Homological Algebra KB** which provides comprehensive coverage of:
+- ComplexShape, HomologicalComplex, Chain/Cochain complexes
+- Homology groups via ShortComplex machinery
+- ShortComplex, Exactness, Short exact sequences
+- Snake lemma, Five lemma, Diagram lemmas
 
 ---
 
-### 1.2 Homological Complex
+## 1. HOMOTOPY THEORY
 
-**Concept**: A sequence of objects with differentials satisfying d² = 0.
-
-**NL Statement**: "A homological complex is a sequence of objects {Xᵢ} indexed by ι with morphisms d : Xᵢ → Xⱼ such that composing consecutive differentials yields zero."
-
-**Lean 4 Definition**:
-```lean
-structure HomologicalComplex {ι : Type u₁} (V : Type u)
-    [Category.{v, u} V] [HasZeroMorphisms V] (c : ComplexShape ι) where
-  X : ι → V
-  d : (i j : ι) → X i ⟶ X j
-  shape : ∀ i j, ¬c.Rel i j → d i j = 0
-  d_comp_d' : ∀ i j k, c.Rel i j → c.Rel j k → d i j ≫ d j k = 0
-```
-
-**Imports**: `Mathlib.Algebra.Homology.HomologicalComplex`
-
-**Difficulty**: medium
-
----
-
-### 1.3 Chain and Cochain Complexes
-
-**Concept**: Specialized homological complexes with decreasing or increasing indices.
-
-**NL Statement**: "A chain complex has differentials decreasing index (∂ₙ : Cₙ → Cₙ₋₁). A cochain complex has differentials increasing index (dⁿ : Cⁿ → Cⁿ⁺¹)."
-
-**Lean 4 Definition**:
-```lean
-abbrev ChainComplex (V : Type u) (α : Type*) [AddRightCancelSemigroup α] [One α] :=
-  HomologicalComplex V (ComplexShape.down α)
-
-abbrev CochainComplex (V : Type u) (α : Type*) [AddRightCancelSemigroup α] [One α] :=
-  HomologicalComplex V (ComplexShape.up α)
-```
-
-**Imports**: `Mathlib.Algebra.Homology.HomologicalComplex`
-
-**Difficulty**: easy
-
----
-
-### 1.4 Homology via ShortComplex
-
-**Concept**: Homology measures cycles that are not boundaries.
-
-**NL Statement**: "The homology at index i is Hᵢ = ker(dᵢ) / im(dᵢ₋₁), constructed via the short complex X(i-1) → X(i) → X(i+1)."
-
-**Lean 4 Definition**:
-```lean
--- The i-th short complex of a homological complex K
-def sc (K : HomologicalComplex C c) (i : ι) : ShortComplex C :=
-  (shortComplexFunctor C c i).obj K
-
--- Homology is defined via the short complex
-def homology (K : HomologicalComplex C c) (i : ι) : C :=
-  (K.sc i).homology
-```
-
-**Imports**: `Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex`
-
-**Difficulty**: medium
-
----
-
-## 2. EXACT SEQUENCES
-
-### 2.1 ShortComplex
-
-**Concept**: A three-term sequence with composition equal to zero.
-
-**NL Statement**: "A short complex is a sequence X₁ → X₂ → X₃ where f ≫ g = 0 (the composition is zero)."
-
-**Lean 4 Definition**:
-```lean
-structure ShortComplex (C : Type*) [Category C] [HasZeroMorphisms C] where
-  X₁ X₂ X₃ : C
-  f : X₁ ⟶ X₂
-  g : X₂ ⟶ X₃
-  zero : f ≫ g = 0
-```
-
-**Imports**: `Mathlib.Algebra.Homology.ShortComplex.Basic`
-
-**Difficulty**: easy
-
----
-
-### 2.2 Exactness
-
-**Concept**: Image equals kernel in a short complex.
-
-**NL Statement**: "A short complex is exact if the image of f equals the kernel of g, equivalently if its homology is zero."
-
-**Lean 4 Definition**:
-```lean
-class Exact (S : ShortComplex C) : Prop where
-  isZero_homology : IsZero S.homology
-
--- Equivalent characterizations:
-theorem exact_iff_isZero_homology [S.HasHomology] :
-    S.Exact ↔ IsZero S.homology
-
-theorem exact_iff_mono [S.HasCokernel] [S.HasKernel] :
-    S.Exact ↔ Mono (S.toCokernelKernel)
-
-theorem exact_iff_epi [S.HasImage] [S.HasKernel] :
-    S.Exact ↔ Epi (S.imageToKernel)
-```
-
-**Imports**: `Mathlib.Algebra.Homology.ShortComplex.Exact`
-
-**Difficulty**: medium
-
----
-
-### 2.3 Short Exact Sequence
-
-**Concept**: An exact sequence with zero at both ends.
-
-**NL Statement**: "A short exact sequence 0 → A → B → C → 0 is exact at A (f is mono), at B (im f = ker g), and at C (g is epi)."
-
-**Lean 4 Definition**:
-```lean
--- Short exact sequences are modeled as exact ShortComplexes
--- with additional mono/epi conditions
-class ShortExact (S : ShortComplex C) extends Exact S : Prop where
-  mono_f : Mono S.f
-  epi_g : Epi S.g
-```
-
-**Imports**: `Mathlib.Algebra.Homology.ShortComplex.ShortExact`
-
-**Difficulty**: medium
-
----
-
-### 2.4 Snake Lemma
-
-**Concept**: Connects kernels and cokernels via long exact sequence.
-
-**NL Statement**: "Given a commutative diagram with exact rows 0 → A → B → C → 0 over 0 → A' → B' → C' → 0, there exists a long exact sequence: ker(A→A') → ker(B→B') → ker(C→C') → coker(A→A') → coker(B→B') → coker(C→C')."
-
-**Lean 4 Theorem**:
-```lean
--- The snake lemma produces connecting homomorphism and exact sequence
--- Implementation in Mathlib.Algebra.Homology.ShortComplex.SnakeLemma
--- Key construction: the connecting homomorphism δ : ker(C→C') → coker(A→A')
-```
-
-**Imports**: `Mathlib.Algebra.Homology.ShortComplex.SnakeLemma`
-
-**Difficulty**: hard
-
----
-
-## 3. HOMOTOPY THEORY
-
-### 3.1 Homotopy Between Maps
+### 1.1 Homotopy Between Maps
 
 **Concept**: Continuous deformation between two maps.
 
@@ -219,7 +57,7 @@ def ContinuousMap.Homotopic (f₀ f₁ : C(X, Y)) : Prop :=
 
 ---
 
-### 3.2 Homotopy Equivalence
+### 1.2 Homotopy Equivalence
 
 **Concept**: Two spaces have the same homotopy type.
 
@@ -243,7 +81,7 @@ notation:25 X " ≃ₕ " Y => ContinuousMap.HomotopyEquiv X Y
 
 ---
 
-### 3.3 Homotopy is an Equivalence Relation
+### 1.3 Homotopy is an Equivalence Relation
 
 **Concept**: Homotopy satisfies reflexivity, symmetry, and transitivity.
 
@@ -268,7 +106,7 @@ def ContinuousMap.Homotopy.trans {f₀ f₁ f₂ : C(X, Y)} :
 
 ---
 
-### 3.4 Relative Homotopy
+### 1.4 Relative Homotopy
 
 **Concept**: Homotopy that keeps a subset fixed.
 
@@ -289,7 +127,7 @@ def ContinuousMap.HomotopicRel (f₀ f₁ : C(X, Y)) (S : Set X) : Prop :=
 
 ---
 
-### 3.5 Path Homotopy
+### 1.5 Path Homotopy
 
 **Concept**: Homotopy between paths with fixed endpoints.
 
@@ -308,9 +146,9 @@ def Path.Homotopic (p q : Path x y) : Prop :=
 
 ---
 
-## 4. SIMPLICIAL SETS
+## 2. SIMPLICIAL SETS
 
-### 4.1 Simplicial Set
+### 2.1 Simplicial Set
 
 **Concept**: Combinatorial model for topological spaces.
 
@@ -330,7 +168,7 @@ def SSet : Type (u + 1) := SimplicialObject (Type u)
 
 ---
 
-### 4.2 Simplex Category
+### 2.2 Simplex Category
 
 **Concept**: Category of finite ordinals and order-preserving maps.
 
@@ -357,7 +195,7 @@ def SimplexCategory.σ (n : ℕ) (i : Fin (n + 1)) :
 
 ---
 
-### 4.3 Standard Simplex
+### 2.3 Standard Simplex
 
 **Concept**: Representable functor in simplicial sets.
 
@@ -375,7 +213,7 @@ def standardSimplex (n : ℕ) : SSet := yoneda.obj (SimplexCategory.mk n)
 
 ---
 
-### 4.4 Face and Degeneracy Maps
+### 2.4 Face and Degeneracy Maps
 
 **Concept**: Structure maps in simplicial objects.
 
@@ -395,9 +233,9 @@ def standardSimplex (n : ℕ) : SSet := yoneda.obj (SimplexCategory.mk n)
 
 ---
 
-## 5. CHAIN HOMOTOPY
+## 3. CHAIN HOMOTOPY
 
-### 5.1 Chain Map
+### 3.1 Chain Map
 
 **Concept**: Morphism between chain complexes.
 
@@ -416,7 +254,7 @@ def standardSimplex (n : ℕ) : SSet := yoneda.obj (SimplexCategory.mk n)
 
 ---
 
-### 5.2 Chain Homotopy
+### 3.2 Chain Homotopy
 
 **Concept**: Two chain maps inducing same map on homology.
 
@@ -437,7 +275,7 @@ structure Homotopy (f g : K ⟶ L) where
 
 ---
 
-### 5.3 Homotopy Equivalence of Complexes
+### 3.3 Homotopy Equivalence of Complexes
 
 **Concept**: Chain complexes with same homology up to isomorphism.
 
@@ -458,9 +296,9 @@ structure HomotopyEquiv (C D : HomologicalComplex V c) where
 
 ---
 
-## 6. MISSING PRIORITY THEOREMS
+## 4. MISSING PRIORITY THEOREMS (GAPS)
 
-### 6.1 Brouwer Fixed Point Theorem (#36) - IN PROGRESS
+### 4.1 Brouwer Fixed Point Theorem (#36) - IN PROGRESS
 
 **NL Statement**: "Every continuous map f : Dⁿ → Dⁿ from the n-ball to itself has a fixed point."
 
@@ -474,7 +312,7 @@ structure HomotopyEquiv (C D : HomologicalComplex V c) where
 
 ---
 
-### 6.2 Mayer-Vietoris Sequence - NOT FORMALIZED
+### 4.2 Mayer-Vietoris Sequence - NOT FORMALIZED
 
 **NL Statement**: "Given X = U ∪ V (interior union), there is a long exact sequence: ... → Hₙ(U ∩ V) → Hₙ(U) ⊕ Hₙ(V) → Hₙ(X) → Hₙ₋₁(U ∩ V) → ..."
 
@@ -484,7 +322,7 @@ structure HomotopyEquiv (C D : HomologicalComplex V c) where
 
 ---
 
-### 6.3 CW Complexes - NOT FORMALIZED
+### 4.3 CW Complexes - NOT FORMALIZED
 
 **NL Statement**: "A CW complex is built inductively by attaching n-cells via maps ∂Dⁿ → Xⁿ⁻¹ to the (n-1)-skeleton."
 
@@ -494,7 +332,7 @@ structure HomotopyEquiv (C D : HomologicalComplex V c) where
 
 ---
 
-### 6.4 Fundamental Group - EXTERNAL LIBRARY
+### 4.4 Fundamental Group - EXTERNAL LIBRARY
 
 **NL Statement**: "The fundamental group π₁(X, x₀) consists of homotopy classes of loops based at x₀, with group operation given by path concatenation."
 

@@ -40,6 +40,35 @@ This knowledge base catalogs fundamental theorems in number theory, organized in
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Arithmetic** (`arithmetic_knowledge_base.md`): Natural numbers, divisibility
+- **Real/Complex Analysis** (`real_complex_analysis_knowledge_base.md`): Analytic methods for PNT
+
+### Builds Upon This KB
+- **Algebraic Number Theory** (`algebraic_number_theory_knowledge_base.md`): Prime ideal theory
+- **Galois Theory** (`galois_theory_knowledge_base.md`): Galois groups of cyclotomic fields
+
+### Related Topics
+- **Combinatorics** (`combinatorics_knowledge_base.md`): Counting arguments
+- **Group Theory** (`group_theory_knowledge_base.md`): Euler's theorem, multiplicative groups
+
+### Scope Clarification
+This KB focuses on **prime number theorems and transcendence**:
+- Euclid's infinitude of primes
+- Fundamental theorem of arithmetic
+- Fermat's little theorem, Euler's theorem, Wilson's theorem
+- Quadratic reciprocity
+- Bertrand's postulate
+- Prime Number Theorem (formalized 2024)
+- Dirichlet's theorem on primes in arithmetic progressions
+- Transcendence of e, π (gaps)
+
+For **ring of integers and ideals**, see **Algebraic Number Theory KB**.
+
+---
+
 ## 1. Euclid's Theorem on the Infinitude of Primes
 
 ### Natural Language Statement

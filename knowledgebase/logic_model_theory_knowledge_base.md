@@ -10,6 +10,33 @@
 
 ---
 
+## Related Knowledge Bases
+
+### Prerequisites
+- **Set Theory** (`set_theory_knowledge_base.md`): ZFC foundations, cardinality
+
+### Builds Upon This KB
+- **Computability Theory** (`computability_theory_knowledge_base.md`): Decidability, recursion
+- **Category Theory** (`category_theory_knowledge_base.md`): Categorical logic
+
+### Related Topics
+- **Arithmetic** (`arithmetic_knowledge_base.md`): Models of arithmetic
+- **Order Theory** (`order_theory_knowledge_base.md`): Boolean algebras, model-theoretic orders
+
+### Scope Clarification
+This KB focuses on **logic and model theory**:
+- First-order syntax and semantics
+- Satisfaction and models
+- Completeness and compactness theorems
+- Löwenheim-Skolem theorems
+- Gödel incompleteness (via external projects)
+- Curry-Howard correspondence
+
+For **proof formalization**, this KB is foundational to all other KBs.
+For **computability aspects**, see **Computability Theory KB**.
+
+---
+
 ## 1. First-Order Logic Fundamentals
 
 ### Syntax and Semantics
