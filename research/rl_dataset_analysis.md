@@ -348,7 +348,7 @@ def evaluate_model(model, test_set: list[dict]) -> float:
 
 ## Integration with Knowledge Space
 
-The training pipeline integrates with the Mathematical Knowledge Space (see `UNIVERSE_EXPANSION.md`):
+The training pipeline integrates with the [math-knowledge-space](https://github.com/ai-enhanced-engineer/math-knowledge-space) repository:
 
 1. **Measurability ordering**: Process high-score theories first
 2. **Dependency awareness**: Validate dependencies before dependents
@@ -358,8 +358,8 @@ The training pipeline integrates with the Mathematical Knowledge Space (see `UNI
 
 ## References
 
-- [dataset_schema.md](./dataset_schema.md) - v5.0 schema specification
-- [UNIVERSE_EXPANSION.md](../UNIVERSE_EXPANSION.md) - Knowledge space architecture
+- [math-knowledge-space](https://github.com/ai-enhanced-engineer/math-knowledge-space) - Knowledge bases and extraction pipeline
+- [dataset_schema.md](https://github.com/ai-enhanced-engineer/math-knowledge-space/blob/main/docs/dataset_schema.md) - v5.0 schema specification
 - [DeepSeek-R1](https://arxiv.org/abs/2501.12948) - Reasoning via RL
 - [AlphaProof](https://www.nature.com/articles/s41586-025-09833-y) - Autoformalization approach
 - [TheoremLlama](https://arxiv.org/abs/2407.03203) - NL-FL alignment

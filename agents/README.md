@@ -62,5 +62,4 @@ See [`WORKFLOWS.md`](./WORKFLOWS.md) for the vision of the complete mathematical
 
 - [`skills/`](./skills/) - Lean skills loaded by this agent
 - [`WORKFLOWS.md`](./WORKFLOWS.md) - Vision for multi-agent research system
-- [`dataset/dataset_schema.md`](../dataset/dataset_schema.md) - Schema for validation records
-- [`knowledgebase/`](../knowledgebase/) - Source templates to validate
+- [math-knowledge-space](https://github.com/ai-enhanced-engineer/math-knowledge-space) - Knowledge bases and extraction pipeline

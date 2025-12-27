@@ -1,4 +1,4 @@
-# AI Mathematician - Lean 4 Project Commands
+# Metamath Prover - Lean 4 Project Commands
 # Run `just --list` to see all available commands
 
 # Default recipe: build the project
@@ -20,7 +20,7 @@ clean:
 
 # Run the executable
 run:
-    lake exe ai_mathematician
+    lake exe metamath_prover
 
 # Check a specific file without full build
 check file:
@@ -36,7 +36,7 @@ cache:
 
 # Show project info
 info:
-    @echo "Project: ai_mathematician"
+    @echo "Project: metamath_prover"
     @echo "Toolchain: $(cat lean-toolchain)"
     @lake --version
 

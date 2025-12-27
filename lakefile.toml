@@ -1,14 +1,14 @@
-name = "ai_mathematician"
+name = "metamath_prover"
 version = "0.1.0"
-defaultTargets = ["ai_mathematician"]
+defaultTargets = ["metamath_prover"]
 
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
 
 [[lean_lib]]
-name = "AIMathematician"
+name = "MetamathProver"
 
 [[lean_exe]]
-name = "ai_mathematician"
+name = "metamath_prover"
 root = "Main"

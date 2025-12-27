@@ -1,4 +1,4 @@
-import AIMathematician
+import MetamathProver
 
 def main : IO Unit :=
-  IO.println s!"AI Mathematician: First Isomorphism Theorems loaded successfully!"
+  IO.println s!"Metamath Prover: Isomorphism theorems loaded successfully!"
