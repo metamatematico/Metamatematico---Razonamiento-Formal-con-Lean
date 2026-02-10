@@ -8,6 +8,8 @@
 
 📚 **Documentación**: [Instalación](INSTALACION.md) | [Ejemplos](EJEMPLOS.md) | [Inicio Rápido](INICIO_RAPIDO.md) | [Fundamentos Teóricos](FUNDAMENTOS_TEORICOS.md)
 
+> **Basado en**: Jiménez Martínez, L. (2025). *NLE v7.0: Núcleo Lógico Evolutivo basado en Memory Evolutive Systems de Ehresmann*. UNAM. [📄 PDF](docs/NLE_v7_MES_Ehresmann.pdf)
+
 ---
 
 ## ¿Qué es este sistema?
@@ -615,6 +617,14 @@ python -m pytest tests/ -o "addopts=" -v
 ---
 
 ## Referencias
+
+### Especificación del Sistema
+
+**Jiménez Martínez, L. (2025).** *NLE v7.0: Núcleo Lógico Evolutivo basado en Memory Evolutive Systems de Ehresmann*. Universidad Nacional Autónoma de México (UNAM). [📄 PDF](docs/NLE_v7_MES_Ehresmann.pdf)
+
+- **Paper fundacional** que especifica formalmente el sistema NLE v7.0
+- Axiomas 8.1-8.4, Teoremas 8.5-8.7, arquitectura categórica completa
+- Base teórica de esta implementación
 
 ### Fundamentos Teóricos
 

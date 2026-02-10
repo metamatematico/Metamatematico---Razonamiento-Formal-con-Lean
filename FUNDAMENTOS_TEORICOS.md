@@ -27,6 +27,12 @@ El sistema NLE v7.0 está fundamentado en tres pilares teóricos:
 2. **Memory Evolutive Systems (MES)**: Para modelar evolución y emergencia cognitiva
 3. **Lógica Matemática**: Para razonamiento formal y verificación
 
+**Nota**: Esta implementación está basada en el paper:
+
+> **Jiménez Martínez, L.** (2025). *NLE v7.0: Núcleo Lógico Evolutivo basado en Memory Evolutive Systems de Ehresmann*. Universidad Nacional Autónoma de México (UNAM). [PDF](docs/NLE_v7_MES_Ehresmann.pdf)
+
+El paper presenta la especificación formal completa del sistema, incluyendo axiomas, teoremas y arquitectura categórica.
+
 ### Motivación Teórica
 
 Los sistemas cognitivos (incluyendo sistemas matemáticos formales) exhiben:
@@ -842,6 +848,18 @@ class EvolutionarySystem:
 ---
 
 ## Referencias
+
+### Especificación Original del Sistema
+
+**0. Jiménez Martínez, L. (2025).** *NLE v7.0: Núcleo Lógico Evolutivo basado en Memory Evolutive Systems de Ehresmann*. Universidad Nacional Autónoma de México (UNAM). [PDF](docs/NLE_v7_MES_Ehresmann.pdf)
+
+   **Este es el paper fundacional del sistema NLE v7.0**, donde se presentan:
+   - Especificación formal completa de los axiomas 8.1-8.4
+   - Demostración de los teoremas 8.5-8.7
+   - Arquitectura categórica de los 4 pilares
+   - Diseño de la red de co-reguladores
+   - Integración de MES con RL y LLM
+   - Formalización de los 61 skills matemáticos
 
 ### Memory Evolutive Systems
 
