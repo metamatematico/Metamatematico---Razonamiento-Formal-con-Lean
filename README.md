@@ -6,6 +6,8 @@
 
 **Sistema de razonamiento matemático con IA** — NLE v7.0 (Núcleo Lógico Evolutivo)
 
+📚 **Documentación**: [Instalación](INSTALACION.md) | [Ejemplos](EJEMPLOS.md) | [Inicio Rápido](INICIO_RAPIDO.md) | [Fundamentos Teóricos](FUNDAMENTOS_TEORICOS.md)
+
 ---
 
 ## ¿Qué es este sistema?
