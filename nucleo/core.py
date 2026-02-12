@@ -2,15 +2,17 @@
 Nucleo Logico Evolutivo - Core
 ==============================
 
-Orquestador principal del sistema Σ_t = (L, N_t, G_t, F)
+Orquestador principal del sistema Sigma_t = (L, CR_t, G_t, F)
 
 Donde:
 - L: Modelo de Lenguaje (Claude)
-- N_t: Nucleo Logico (Agente RL)
+- CR_t: Red de Co-reguladores (Dinamica Global)
 - G_t: Grafo Categorico de Skills
 - F: Pilares Fundamentales
 
 Este modulo coordina la interaccion entre todos los componentes.
+La Dinamica Global reemplaza al agente RL monolitico con una
+red de 4 co-reguladores autonomos (Seccion 8, paper v7.0).
 """
 
 from __future__ import annotations
@@ -30,9 +32,6 @@ from nucleo.types import (
 from nucleo.config import NucleoConfig
 from nucleo.graph.category import SkillCategory
 from nucleo.graph.evolution import EvolutionarySystem
-from nucleo.rl.mdp import MDP, Transition
-from nucleo.rl.rewards import RewardFunction, TaskResult
-from nucleo.rl.agent import NucleoAgent, AgentConfig
 from nucleo.llm.client import LLMClient, LLMConfig
 from nucleo.lean.client import LeanClient, LeanResult, LeanResultStatus
 from nucleo.lean.tactics import TacticMapper
@@ -42,7 +41,7 @@ from nucleo.lean.sorry_analyzer import find_sorries_in_text
 from nucleo.lean.parser import LeanParser, parse_error_structured
 from nucleo.mes.patterns import PatternManager, ColimitBuilder
 from nucleo.mes.memory import MESMemory
-from nucleo.mes.co_regulators import CoRegulatorNetwork
+from nucleo.mes.co_regulators import CoRegulatorNetwork, GlobalDecision
 from nucleo.pillars.math_domains import load_math_domains
 
 logger = logging.getLogger(__name__)
@@ -95,9 +94,13 @@ class Nucleo:
 
     Sistema adaptativo que coordina:
     - LLM (Claude) para procesamiento de lenguaje
-    - Agente RL para toma de decisiones
+    - Red de Co-reguladores (Dinamica Global) para decisiones
     - Grafo categorico de skills
     - Verificador Lean 4
+
+    La Dinamica Global (Seccion 8, paper v7.0) reemplaza al agente RL
+    con 4 co-reguladores autonomos que operan a diferentes escalas
+    temporales y niveles jerarquicos.
 
     Example:
         nucleo = Nucleo()
@@ -120,12 +123,10 @@ class Nucleo:
 
         # Componentes
         self._graph: Optional[SkillCategory] = None
-        self._agent: Optional[NucleoAgent] = None
         self._llm: Optional[LLMClient] = None
         self._lean: Optional[LeanClient] = None
-        self._mdp: Optional[MDP] = None
 
-        # MES Components (v7.0)
+        # MES Components (v7.0) — Dinamica Global
         self._evolution: Optional[EvolutionarySystem] = None
         self._pattern_manager: Optional[PatternManager] = None
         self._colimit_builder: Optional[ColimitBuilder] = None
@@ -140,6 +141,7 @@ class Nucleo:
         self._state = NucleoState()
         self._mode = NucleoMode.INTERACTIVE
         self._initialized = False
+        self._last_decision: Optional[GlobalDecision] = None
 
         # Callbacks
         self._on_action: Optional[Callable] = None
@@ -151,9 +153,10 @@ class Nucleo:
 
         Carga:
         - Grafo de skills
-        - Agente RL
+        - Red de co-reguladores (Dinamica Global)
         - Cliente LLM
         - Cliente Lean
+        - Memoria persistente (si existe)
         """
         if self._initialized:
             return
@@ -163,18 +166,6 @@ class Nucleo:
         # Grafo categorico
         self._graph = SkillCategory(name="NucleoSkillGraph")
         self._load_foundational_skills()
-
-        # Agente RL
-        agent_config = AgentConfig(
-            epsilon_start=self.config.rl.epsilon_start,
-            epsilon_end=self.config.rl.epsilon_end,
-            epsilon_decay=self.config.rl.epsilon_decay,
-            learning_rate=self.config.rl.learning_rate,
-        )
-        self._agent = NucleoAgent(self._graph, agent_config)
-
-        # MDP
-        self._mdp = MDP(self._graph, gamma=self.config.rl.gamma)
 
         # LLM Client
         llm_config = LLMConfig(
@@ -193,7 +184,7 @@ class Nucleo:
         self._solver_cascade = SolverCascade(self._lean)
         self._sorry_filler = SorryFiller(solver_cascade=self._solver_cascade)
 
-        # MES Components (v7.0)
+        # MES Components (v7.0) — Dinamica Global
         self._pattern_manager = PatternManager()
         self._colimit_builder = ColimitBuilder(self._pattern_manager)
         self._memory = MESMemory(
@@ -210,6 +201,11 @@ class Nucleo:
             cr_str_frequency=self.config.mes.cr_str_frequency,
             cr_int_frequency=self.config.mes.cr_int_period,
         )
+
+        # Cargar memoria persistente si existe
+        memory_path = self.config.data_dir / "memory.json"
+        if memory_path.exists():
+            self._memory.load(memory_path)
 
         self._initialized = True
         logger.info("Nucleo inicializado correctamente")
@@ -303,14 +299,14 @@ class Nucleo:
 
     async def process(self, input_text: str) -> NucleoResponse:
         """
-        Procesar entrada del usuario.
+        Procesar entrada del usuario via Dinamica Global.
 
-        Flujo:
+        Flujo (Seccion 8, paper v7.0):
         1. Actualizar contexto con input
-        2. Agente RL selecciona accion
+        2. Red de CRs decide accion (protocolo de transicion global)
         3. Ejecutar accion (LLM, Lean, o reorganizacion)
-        4. Calcular recompensa
-        5. Actualizar agente
+        4. CRs evaluan resultado
+        5. Registrar en memoria (enriquecimiento monotono)
 
         Args:
             input_text: Texto de entrada del usuario
@@ -329,41 +325,40 @@ class Nucleo:
             "timestamp": datetime.now().isoformat()
         })
 
-        # Convertir a estado MDP
-        mdp_state = self._state.to_state(self._graph)
-
-        # Seleccionar accion
-        action = self._agent.select_action(mdp_state)
+        # Dinamica Global: CRs deciden accion
+        decision = self._cr_network.decide(input_text, self._graph)
+        self._last_decision = decision
 
         if self._on_action:
-            self._on_action(action)
+            self._on_action(decision)
 
-        # Ejecutar accion
+        # Ejecutar accion segun decision de los CRs
+        action = Action(action_type=decision.action_type)
         response = await self._execute_action(action, input_text)
+        response.confidence = decision.confidence
+        response.metadata["source_cr"] = decision.source_cr.name
+        response.metadata["cr_proposals"] = decision.cr_proposals
 
         # Actualizar historial
         self._state.history.append({
             "role": "assistant",
             "content": response.content,
-            "action": action.action_type.name,
+            "action": decision.action_type.name,
+            "source_cr": decision.source_cr.name,
             "timestamp": datetime.now().isoformat()
         })
 
-        # Calcular recompensa (basada en feedback implicito)
-        reward = self._estimate_reward(action, response)
+        # Evaluar resultado y registrar en memoria
+        success = self._evaluate_result(decision, response)
 
         if self._on_reward:
-            self._on_reward(reward)
+            self._on_reward(success)
 
-        # Actualizar agente
-        next_state = self._state.to_state(self._graph)
-        transition = Transition(
-            state=mdp_state,
-            action=action,
-            reward=reward,
-            next_state=next_state
-        )
-        self._agent.update([transition])
+        # CRs evaluan post-ejecucion
+        self._cr_network.record_result(decision, success, self._graph)
+
+        # Registrar en memoria MES
+        self._record_experience(input_text, decision, success)
 
         return response
 
@@ -558,33 +553,69 @@ class Nucleo:
             return text[start:end].strip()
         return text
 
-    def _estimate_reward(
+    def _evaluate_result(
         self,
-        action: Action,
+        decision: GlobalDecision,
         response: NucleoResponse
     ) -> float:
-        """Estimar recompensa basada en la respuesta."""
-        reward = 0.0
+        """
+        Evaluar resultado de la accion (fase 4 del ciclo CR).
 
-        # Recompensa base por tipo de accion
-        if action.action_type == ActionType.RESPONSE:
-            reward = 0.5 if len(response.content) > 50 else 0.1
+        Returns:
+            Valor de exito en [-1, 1]
+        """
+        if decision.action_type == ActionType.RESPONSE:
+            return 0.5 if len(response.content) > 50 else 0.1
 
-        elif action.action_type == ActionType.ASSIST:
+        elif decision.action_type == ActionType.ASSIST:
             if response.lean_result and response.lean_result.is_success:
-                reward = 2.0  # Prueba exitosa
+                return 1.0
             elif response.lean_result:
-                reward = 0.3  # Intento de verificacion
+                return 0.3
             else:
-                reward = 0.5
+                return 0.5
 
-        elif action.action_type == ActionType.REORGANIZE:
-            reward = 0.1  # Recompensa minima por reorganizacion
+        elif decision.action_type == ActionType.REORGANIZE:
+            return 0.2
 
-        # Ajustar por confianza
-        reward *= response.confidence
+        return 0.0
 
-        return reward
+    def _record_experience(
+        self,
+        input_text: str,
+        decision: GlobalDecision,
+        success: float,
+    ) -> None:
+        """
+        Registrar experiencia en memoria MES (Teorema 9.9).
+
+        Enriquecimiento monotono: la memoria solo crece.
+        """
+        if not self._memory:
+            return
+
+        record = ExperienceRecord(
+            pattern_id=f"query-{decision.source_cr.name.lower()}",
+            success_value=max(-1.0, min(1.0, success)),
+        )
+        self._memory.add_record(record)
+
+        # Intentar formar E-concepto
+        self._memory.try_form_concept(
+            record.pattern_id, decision.source_cr
+        )
+
+        # Aprender procedimiento si fue exitoso
+        if success > 0.5:
+            self._memory.learn_procedure(
+                record.pattern_id,
+                [decision.action_type.name],
+                success=True,
+            )
+
+        # Persistir memoria periodicamente (cada 10 interacciones)
+        if len(self._state.history) % 20 == 0:
+            self._save_memory()
 
     # =========================================================================
     # PROPIEDADES
@@ -598,11 +629,11 @@ class Nucleo:
         return self._graph
 
     @property
-    def agent(self) -> NucleoAgent:
-        """Agente RL."""
-        if not self._agent:
+    def cr_network(self) -> CoRegulatorNetwork:
+        """Red de co-reguladores (Dinamica Global)."""
+        if not self._cr_network:
             raise RuntimeError("Nucleo no inicializado")
-        return self._agent
+        return self._cr_network
 
     @property
     def stats(self) -> dict[str, Any]:
@@ -612,25 +643,39 @@ class Nucleo:
             "mode": self._mode.name,
             "num_skills": self._graph.stats["num_skills"] if self._graph else 0,
             "num_interactions": len(self._state.history),
-            "agent_epsilon": self._agent.epsilon if self._agent else None,
         }
-        # MES stats (v7.0)
+        # Dinamica Global stats (v7.0)
         if self._cr_network:
             result["co_regulators"] = self._cr_network.stats
         if self._memory:
             result["memory"] = self._memory.stats
         if self._evolution:
             result["evolution"] = self._evolution.stats
+        if self._last_decision:
+            result["last_decision"] = {
+                "action": self._last_decision.action_type.name,
+                "source_cr": self._last_decision.source_cr.name,
+                "confidence": self._last_decision.confidence,
+            }
         return result
+
+    def _save_memory(self) -> None:
+        """Persistir memoria a disco."""
+        if self._memory:
+            memory_path = self.config.data_dir / "memory.json"
+            try:
+                self._memory.save(memory_path)
+            except OSError as e:
+                logger.warning(f"No se pudo guardar memoria: {e}")
 
     # =========================================================================
     # CALLBACKS
     # =========================================================================
 
-    def on_action(self, callback: Callable[[Action], None]) -> None:
-        """Registrar callback para acciones."""
+    def on_action(self, callback: Callable[[GlobalDecision], None]) -> None:
+        """Registrar callback para decisiones de los CRs."""
         self._on_action = callback
 
     def on_reward(self, callback: Callable[[float], None]) -> None:
-        """Registrar callback para recompensas."""
+        """Registrar callback para evaluacion de resultado."""
         self._on_reward = callback

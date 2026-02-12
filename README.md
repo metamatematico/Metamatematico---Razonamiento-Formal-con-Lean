@@ -8,7 +8,9 @@
 
 📚 **Documentación**: [Instalación](INSTALACION.md) | [Ejemplos](EJEMPLOS.md) | [Inicio Rápido](INICIO_RAPIDO.md) | [Fundamentos Teóricos](FUNDAMENTOS_TEORICOS.md) | [Cómo Citar](CITATION.md)
 
-> **Basado en**: Jiménez Martínez, L. (2025). *NLE v7.0: Núcleo Lógico Evolutivo basado en Memory Evolutive Systems de Ehresmann*. UNAM. [📄 PDF](docs/NLE_v7_MES_Ehresmann.pdf)
+> **Papers fundacionales**:
+> - Jiménez Martínez, L. (2025). *NLE v7.0: Núcleo Lógico Evolutivo basado en Memory Evolutive Systems de Ehresmann*. UNAM. [PDF](docs/NLE_v7_MES_Ehresmann.pdf)
+> - Jiménez Martínez, L. (2025). *NLE v7.0 Unificado: Dinámica Global y Co-reguladores*. UNAM. [PDF](docs/NLE_v7_Unificado_MES.pdf)
 
 ---
 
@@ -52,8 +54,9 @@ El sistema NLE v7.0 está basado en **Memory Evolutive Systems** (Ehresmann & Va
 │                    NÚCLEO LÓGICO EVOLUTIVO v7.0                  │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  Usuario ──> Claude AI ──> Agente RL ──> Lean 4 (verificación) │
+│  Usuario ──> Claude AI ──> Dinámica Global ──> Lean 4          │
 │                                │                                │
+│                          (4 Co-reguladores)                     │
 │                                v                                │
 │              ┌─────────────────────────────────┐                │
 │              │  GRAFO CATEGÓRICO DE SKILLS     │                │
@@ -195,7 +198,7 @@ Dentro del chat, puedes usar estos comandos:
 | Comando | Función |
 |---------|---------|
 | `/help` | Muestra ayuda |
-| `/stats` | Estadísticas del sistema (skills, memoria, agente RL) |
+| `/stats` | Estadísticas del sistema (skills, memoria, co-reguladores) |
 | `/skills` | Lista los 61 skills matemáticos por pilar |
 | `/axioms` | Verifica los axiomas formales del sistema (8.1-8.4) |
 | `/clear` | Limpia el historial de conversación |
@@ -207,7 +210,7 @@ Dentro del chat, puedes usar estos comandos:
 # Usar modelo más rápido y económico
 python -m nucleo chat --model claude-haiku-4-5-20251001
 
-# Modo verbose (ver decisiones del agente RL)
+# Modo verbose (ver decisiones de los co-reguladores)
 python -m nucleo chat --verbose
 ```
 
@@ -254,10 +257,7 @@ async def main():
     nucleo = Nucleo(config=config)
     await nucleo.initialize()
 
-    # Poner en modo evaluación (no entrenamiento)
-    nucleo.agent.eval_mode()
-
-    # Hacer consulta
+    # Hacer consulta (la Dinámica Global decide la acción)
     response = await nucleo.process("¿Qué es un grupo abeliano?")
 
     print(f"Acción: {response.action_type.name}")
@@ -296,9 +296,9 @@ Demostrador-de-enunciados-matematicos/
 │   │   ├── operations.py        #     Operaciones sobre el grafo
 │   │   └── embeddings.py        #     Embeddings de skills
 │   │
-│   ├── mes/                     #   Memory Evolutive Systems
-│   │   ├── co_regulators.py     #     4 co-reguladores
-│   │   ├── memory.py            #     Memoria con E-equivalencia
+│   ├── mes/                     #   Dinámica Global (MES)
+│   │   ├── co_regulators.py     #     4 co-reguladores + protocolo global
+│   │   ├── memory.py            #     Memoria persistente + E-equivalencia
 │   │   └── patterns.py          #     Patrones, colímites
 │   │
 │   ├── lean/                    #   Integración con Lean 4
@@ -307,9 +307,9 @@ Demostrador-de-enunciados-matematicos/
 │   │   ├── sorry_analyzer.py    #     Análisis de sorry's
 │   │   └── ...
 │   │
-│   ├── rl/                      #   Aprendizaje por Refuerzo
-│   │   ├── agent.py             #     Agente RL (epsilon-greedy)
-│   │   ├── mdp.py               #     Proceso de decisión de Markov
+│   ├── rl/                      #   Tipos base (legacy)
+│   │   ├── agent.py             #     Agente base (no usado, ver mes/)
+│   │   ├── mdp.py               #     Tipos MDP
 │   │   └── rewards.py           #     Función de recompensa
 │   │
 │   ├── pillars/                 #   4 Pilares + 51 dominios
@@ -370,16 +370,25 @@ Nivel 0:  Átomos (axioma de extensionalidad, modus ponens)
 - `TRANSLATION`: traducción entre pilares (ej: Curry-Howard: FOL → TYPE)
 - `ANALOGY`: analogía estructural (ej: conjuntos como categorías)
 
-### 2. Red de Co-Reguladores (MES)
+### 2. Dinámica Global — Red de Co-Reguladores (MES)
 
-Cuatro co-reguladores operan a diferentes escalas temporales:
+El sistema usa una **Dinámica Global** en lugar de un agente RL tradicional.
+Cuatro co-reguladores autónomos toman decisiones a diferentes escalas temporales,
+siguiendo el protocolo de transición global (Sección 8 del paper unificado):
+
+**Protocolo**: CRs proponen opciones -> CR_int resuelve conflictos (Axioma 9.5) -> ejecución
 
 | Co-Regulador | Nivel | Frecuencia | Función |
 |--------------|-------|------------|---------|
-| **CR_tac** | 0-1 | Cada paso | Seleccionar tácticas, responder |
+| **CR_tac** | 0-1 | Cada paso | Clasificar query, seleccionar tácticas |
 | **CR_org** | 1-2 | Cada 10 pasos | Reorganizar grafo, crear puentes |
 | **CR_str** | 2-3 | Cada 100 pasos | Crear colímites, nuevos niveles |
-| **CR_int** | Todos | Periódico | Verificar axiomas, reparar |
+| **CR_int** | Todos | Periódico | Verificar axiomas, resolver conflictos |
+
+**Prioridad (Axioma 9.5)**: CR_int > CR_str > CR_org > CR_tac
+
+**Aprendizaje**: Por acumulación de memoria (Teorema 9.9), no por optimización.
+La memoria persiste entre sesiones y solo crece (enriquecimiento monótono).
 
 ### 3. Patrones y Colímites
 

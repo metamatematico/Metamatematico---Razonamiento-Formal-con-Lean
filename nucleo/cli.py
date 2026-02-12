@@ -181,14 +181,14 @@ async def _chat_loop(args: argparse.Namespace) -> int:
     nucleo = Nucleo(config=config)
 
     if verbose:
-        def on_action(action):
-            console.print(f"  [dim][RL: {action.action_type.name}][/]")
+        def on_action(decision):
+            console.print(
+                f"  [dim][CR: {decision.source_cr.name} -> "
+                f"{decision.action_type.name}][/]"
+            )
         nucleo.on_action(on_action)
 
     await nucleo.initialize()
-
-    # Chat uses eval mode — heuristic selects RESPONSE for text queries
-    nucleo.agent.eval_mode()
 
     skill_count = nucleo.stats.get("num_skills", 0)
     console.print(f"[green]Listo.[/] {skill_count} skills cargados.")

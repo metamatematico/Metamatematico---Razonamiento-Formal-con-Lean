@@ -16,9 +16,11 @@ Reference:
 
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Optional
 from collections import defaultdict
 
@@ -461,6 +463,158 @@ class MESMemory:
             record = self._records.pop(record_id, None)
             if record and record.id in self._by_pattern.get(record.pattern_id, []):
                 self._by_pattern[record.pattern_id].remove(record.id)
+
+    def save(self, path: str | Path) -> None:
+        """
+        Persistir memoria a disco (Teorema 9.9: enriquecimiento monotono).
+
+        Guarda registros, procedimientos y E-conceptos en formato JSON.
+        Garantiza que no se pierdan datos: si existe archivo previo,
+        merge los registros (nunca decrementar).
+
+        Args:
+            path: Ruta del archivo JSON
+        """
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Serialize records
+        records_data = {}
+        for rid, record in self._records.items():
+            records_data[rid] = {
+                "id": record.id,
+                "pattern_id": record.pattern_id,
+                "success_value": record.success_value,
+                "consolidation_count": record.consolidation_count,
+                "memory_type": record.memory_type.name,
+                "timestamp": record.timestamp.isoformat(),
+            }
+
+        # Serialize procedures
+        procedures_data = {}
+        for pid, proc in self.procedural._procedures.items():
+            procedures_data[pid] = {
+                "id": proc.id,
+                "pattern_id": proc.pattern_id,
+                "action_sequence": proc.action_sequence,
+                "success_rate": proc.success_rate,
+                "invocation_count": proc.invocation_count,
+            }
+
+        # Serialize E-concepts
+        econcepts_data = {}
+        for eid, ec in self.semantic._econcepts.items():
+            econcepts_data[eid] = {
+                "id": ec.id,
+                "representative_records": ec.representative_records,
+                "co_regulator_type": ec.co_regulator_type.name,
+            }
+
+        data = {
+            "version": "7.0",
+            "saved_at": datetime.now().isoformat(),
+            "records": records_data,
+            "procedures": procedures_data,
+            "econcepts": econcepts_data,
+        }
+
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+        logger.info(
+            f"Memoria guardada: {len(records_data)} registros, "
+            f"{len(procedures_data)} procedimientos, "
+            f"{len(econcepts_data)} E-conceptos -> {path}"
+        )
+
+    def load(self, path: str | Path) -> bool:
+        """
+        Cargar memoria desde disco (Teorema 9.9: enriquecimiento monotono).
+
+        Merge con registros existentes: nunca pierde datos previos.
+        Los contadores de consolidacion solo se incrementan, nunca decrementan.
+
+        Args:
+            path: Ruta del archivo JSON
+
+        Returns:
+            True si se cargo correctamente
+        """
+        path = Path(path)
+        if not path.exists():
+            logger.debug(f"No existe archivo de memoria: {path}")
+            return False
+
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning(f"Error leyendo memoria: {e}")
+            return False
+
+        loaded_records = 0
+        loaded_procs = 0
+        loaded_econcepts = 0
+
+        # Load records (monotonic: keep higher consolidation_count)
+        for rid, rdata in data.get("records", {}).items():
+            existing = self._records.get(rid)
+            if existing:
+                # Monotonic: only increase consolidation
+                existing.consolidation_count = max(
+                    existing.consolidation_count,
+                    rdata.get("consolidation_count", 0),
+                )
+            else:
+                record = ExperienceRecord(
+                    pattern_id=rdata["pattern_id"],
+                    success_value=rdata.get("success_value", 0.0),
+                )
+                record.id = rdata["id"]
+                record.consolidation_count = rdata.get("consolidation_count", 0)
+                try:
+                    record.memory_type = MemoryType[rdata.get("memory_type", "EMPIRICAL")]
+                except KeyError:
+                    pass
+                self._records[rid] = record
+                self._by_pattern[record.pattern_id].append(rid)
+                loaded_records += 1
+
+        # Load procedures
+        for pid, pdata in data.get("procedures", {}).items():
+            if pid not in self.procedural._procedures:
+                proc = Procedure(
+                    id=pdata["id"],
+                    pattern_id=pdata["pattern_id"],
+                    action_sequence=pdata.get("action_sequence", []),
+                    success_rate=pdata.get("success_rate", 0.0),
+                    invocation_count=pdata.get("invocation_count", 0),
+                )
+                self.procedural._procedures[pid] = proc
+                self.procedural._by_pattern[proc.pattern_id].append(pid)
+                loaded_procs += 1
+
+        # Load E-concepts
+        for eid, edata in data.get("econcepts", {}).items():
+            if eid not in self.semantic._econcepts:
+                try:
+                    cr_type = CoRegulatorType[edata.get("co_regulator_type", "TACTICAL")]
+                except KeyError:
+                    cr_type = CoRegulatorType.TACTICAL
+                econcept = EConcept(
+                    representative_records=edata.get("representative_records", []),
+                    co_regulator_type=cr_type,
+                )
+                econcept.id = edata["id"]
+                self.semantic.add_econcept(econcept)
+                loaded_econcepts += 1
+
+        logger.info(
+            f"Memoria cargada: +{loaded_records} registros, "
+            f"+{loaded_procs} procedimientos, "
+            f"+{loaded_econcepts} E-conceptos <- {path}"
+        )
+        return True
 
     @property
     def stats(self) -> dict[str, Any]:

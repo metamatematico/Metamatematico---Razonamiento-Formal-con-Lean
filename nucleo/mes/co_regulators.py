@@ -2,7 +2,7 @@
 Co-Regulators Network - MES v7.0
 ================================
 
-Red de co-reguladores que reemplaza el agente RL monolitico.
+Red de co-reguladores que implementa la Dinamica Global.
 Cada co-regulador opera a su propio nivel y escala temporal.
 
 Definicion 4.1 (v7.0):
@@ -10,6 +10,10 @@ Definicion 4.1 (v7.0):
 - CR_org (Organizativo): Nivel 1-2, cada k interacciones
 - CR_str (Estrategico): Nivel 2-3, cada K sesiones
 - CR_int (Integridad): Transversal, periodico
+
+Axioma 9.5 (Prioridad): CR_int > CR_str > CR_org > CR_tac
+Protocolo de transicion global (Seccion 8):
+  CRs proponen opciones -> CR_int filtra conflictos -> complejificacion
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ from datetime import datetime
 from typing import Any, Optional, TYPE_CHECKING
 
 from nucleo.types import (
+    ActionType,
     CoRegulatorType,
     MESActionType,
     MorphismType,
@@ -60,6 +65,27 @@ class CoRegulatorState:
     last_activation: Optional[datetime] = None
     pending_options: list[Option] = field(default_factory=list)
     detected_fractures: list[Fracture] = field(default_factory=list)
+
+
+@dataclass
+class GlobalDecision:
+    """
+    Resultado del protocolo de transicion global (Seccion 8 v7.0).
+
+    Encapsula la decision colectiva de los co-reguladores.
+
+    Attributes:
+        action_type: Accion a ejecutar (RESPONSE, ASSIST, REORGANIZE)
+        source_cr: Co-regulador que origino la decision
+        option: Opcion seleccionada
+        confidence: Confianza en la decision [0, 1]
+        cr_proposals: Propuestas individuales de cada CR activo
+    """
+    action_type: ActionType
+    source_cr: CoRegulatorType
+    option: Option = field(default_factory=Option)
+    confidence: float = 0.8
+    cr_proposals: dict[str, MESActionType] = field(default_factory=dict)
 
 
 class CoRegulator(ABC):
@@ -205,7 +231,18 @@ class TacticalCoRegulator(CoRegulator):
     - Escala temporal: Rapida (cada interaccion)
     - Procedimientos: select, compose, translate
     - Efectores: Interfaz LLM <-> Lean 4
+
+    Seleccion de procedimiento (Seccion 4.3):
+    - Busqueda por similitud en memoria procedural
+    - Si no hay match, heuristica basada en contenido del query
     """
+
+    # Keywords that indicate a Lean/formal query
+    ASSIST_KEYWORDS = {
+        "lean", "theorem", "proof", "lemma", "sorry", "tactic",
+        "formaliza", "formalize", "demuestra", "prove", "```lean",
+        "induction", "rfl", "simp", "exact", "apply",
+    }
 
     def __init__(
         self,
@@ -222,6 +259,7 @@ class TacticalCoRegulator(CoRegulator):
             pattern_manager=pattern_manager,
             colimit_builder=colimit_builder,
         )
+        self._current_query: str = ""
 
     def build_landscape(self, graph: SkillCategory) -> Landscape:
         """Construir paisaje tactico: skills de nivel 0-1 y patrones relevantes."""
@@ -275,8 +313,24 @@ class TacticalCoRegulator(CoRegulator):
         return Option()
 
     def encode_procedure(self, option: Option) -> MESActionType:
-        """Codificar como respuesta o asistencia."""
+        """Codificar como respuesta o asistencia basado en el query."""
+        query_lower = self._current_query.lower()
+        if any(kw in query_lower for kw in self.ASSIST_KEYWORDS):
+            return MESActionType.ASSIST
         return MESActionType.RESPONSE
+
+    def classify_query(self, query: str) -> ActionType:
+        """
+        Clasificar un query en tipo de accion (Seccion 4.3 v7.0).
+
+        Usa keywords como heuristica. En futuro, se puede usar
+        embedding similarity contra memoria procedural.
+        """
+        self._current_query = query
+        query_lower = query.lower()
+        if any(kw in query_lower for kw in self.ASSIST_KEYWORDS):
+            return ActionType.ASSIST
+        return ActionType.RESPONSE
 
     def evaluate(self, anticipated: Landscape, actual: Landscape) -> float:
         """Evaluar si la respuesta fue exitosa."""
@@ -602,6 +656,49 @@ class IntegrityCoRegulator(CoRegulator):
         pillars = actual.metrics.get("has_all_pillars", 0)
         return (connected + pillars) / 2.0
 
+    def resolve_conflicts(
+        self,
+        proposals: list[tuple[CoRegulatorType, MESActionType, Option]],
+    ) -> tuple[CoRegulatorType, MESActionType, Option]:
+        """
+        Resolver conflictos entre propuestas de CRs (Axioma 9.5 v7.0).
+
+        Prioridad: CR_int > CR_str > CR_org > CR_tac.
+        Si CR_int tiene propuesta activa (reparacion), toma precedencia.
+        """
+        priority = {
+            CoRegulatorType.INTEGRITY: 4,
+            CoRegulatorType.STRATEGIC: 3,
+            CoRegulatorType.ORGANIZATIONAL: 2,
+            CoRegulatorType.TACTICAL: 1,
+        }
+
+        # Filter out no-op proposals (empty options with RESPONSE)
+        active = [
+            (cr_type, action, option)
+            for cr_type, action, option in proposals
+            if option.bindings or option.absorptions or option.eliminations
+            or action != MESActionType.RESPONSE
+        ]
+
+        if not active:
+            # All no-ops: return tactical default
+            for cr_type, action, option in proposals:
+                if cr_type == CoRegulatorType.TACTICAL:
+                    return cr_type, action, option
+            return proposals[0] if proposals else (
+                CoRegulatorType.TACTICAL, MESActionType.RESPONSE, Option()
+            )
+
+        # Sort by priority (highest first)
+        active.sort(key=lambda x: priority.get(x[0], 0), reverse=True)
+        winner = active[0]
+        logger.debug(
+            f"CR_int: Conflicto resuelto -> {winner[0].name} "
+            f"(accion={winner[1].name})"
+        )
+        return winner
+
     def detect_fracture(
         self,
         anticipated: Landscape,
@@ -700,6 +797,113 @@ class CoRegulatorNetwork:
             else:
                 cr.tick()
         return results
+
+    def decide(self, query: str, graph: SkillCategory) -> GlobalDecision:
+        """
+        Protocolo de transicion global (Seccion 8 v7.0).
+
+        Ejecuta la Dinamica Global:
+        1. CR_tac clasifica el query (RESPONSE vs ASSIST)
+        2. Todos los CRs activos proponen opciones
+        3. CR_int resuelve conflictos (Axioma 9.5)
+        4. Retorna decision global
+
+        Args:
+            query: Texto de entrada del usuario
+            graph: Grafo de skills actual
+
+        Returns:
+            GlobalDecision con la accion a ejecutar
+        """
+        # Fase 1: CR_tac clasifica el query
+        action_type = self.tactical.classify_query(query)
+
+        # Fase 2: Recoger propuestas de todos los CRs activos
+        proposals = self.step(graph)
+        cr_proposals = {
+            cr_type.name: action.name
+            for cr_type, action, _ in proposals
+        }
+
+        if not proposals:
+            return GlobalDecision(
+                action_type=action_type,
+                source_cr=CoRegulatorType.TACTICAL,
+                confidence=0.7,
+                cr_proposals=cr_proposals,
+            )
+
+        # Fase 3: CR_int resuelve conflictos
+        winner_cr, winner_action, winner_option = (
+            self.integrity.resolve_conflicts(proposals)
+        )
+
+        # Map MESActionType back to ActionType for the decision
+        mes_to_action = {
+            MESActionType.RESPONSE: ActionType.RESPONSE,
+            MESActionType.ASSIST: ActionType.ASSIST,
+            MESActionType.REORGANIZE: ActionType.REORGANIZE,
+            MESActionType.COMPLEXIFY: ActionType.REORGANIZE,
+            MESActionType.FORM_CONCEPT: ActionType.REORGANIZE,
+            MESActionType.REPAIR_FRACTURE: ActionType.REORGANIZE,
+        }
+
+        # If winner is tactical, use the query-based classification
+        if winner_cr == CoRegulatorType.TACTICAL:
+            final_action = action_type
+        else:
+            final_action = mes_to_action.get(
+                winner_action, ActionType.RESPONSE
+            )
+
+        # Confidence based on source
+        confidence_map = {
+            CoRegulatorType.INTEGRITY: 0.95,
+            CoRegulatorType.STRATEGIC: 0.85,
+            CoRegulatorType.ORGANIZATIONAL: 0.75,
+            CoRegulatorType.TACTICAL: 0.8,
+        }
+
+        return GlobalDecision(
+            action_type=final_action,
+            source_cr=winner_cr,
+            option=winner_option,
+            confidence=confidence_map.get(winner_cr, 0.7),
+            cr_proposals=cr_proposals,
+        )
+
+    def record_result(
+        self,
+        decision: GlobalDecision,
+        success: float,
+        graph: SkillCategory,
+    ) -> None:
+        """
+        Fase de evaluacion post-ejecucion (Seccion 4.3 fase 4).
+
+        Cada CR activo evalua el resultado comparando paisajes.
+        CR_int detecta fracturas si hay invariantes violados.
+
+        Args:
+            decision: Decision que se ejecuto
+            success: Valor de exito [-1, 1]
+            graph: Grafo actual post-ejecucion
+        """
+        for cr in self._regulators:
+            if cr.should_activate():
+                actual_landscape = cr.build_landscape(graph)
+                actual_landscape.metrics["success"] = success > 0
+
+                # CR_int checks for fractures
+                if cr.cr_type == CoRegulatorType.INTEGRITY:
+                    anticipated = cr.build_landscape(graph)
+                    anticipated.metrics["success"] = True
+                    self.integrity.detect_fracture(anticipated, actual_landscape)
+
+        logger.debug(
+            f"Resultado registrado: CR={decision.source_cr.name}, "
+            f"exito={success:.2f}"
+        )
 
     def get_active_regulators(self) -> list[CoRegulator]:
         """Obtener co-reguladores que deben activarse."""
