@@ -4,7 +4,7 @@
 [![Tests](https://img.shields.io/badge/Tests-284_passing-brightgreen.svg)](#tests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Sistema de razonamiento matemático con IA** — NLE v7.0 (Núcleo Lógico Evolutivo)
+**Framework para demostración matemática asistida** — NLE v7.0 (Núcleo Lógico Evolutivo)
 
 📚 **Documentación**: [Instalación](INSTALACION.md) | [Ejemplos](EJEMPLOS.md) | [Inicio Rápido](INICIO_RAPIDO.md) | [Fundamentos Teóricos](FUNDAMENTOS_TEORICOS.md) | [Cómo Citar](CITATION.md)
 
@@ -16,12 +16,14 @@
 
 ## ¿Qué es este sistema?
 
-Este es un **asistente matemático inteligente** que puede:
+Es un **framework de demostración matemática** que organiza conocimiento usando teoría de categorías y Memory Evolutive Systems (MES). Actualmente:
 
-✅ **Responder preguntas matemáticas** en lenguaje natural
-✅ **Generar demostraciones formales** en Lean 4
-✅ **Aprender de la interacción** usando Sistemas de Memoria Evolutiva (MES)
-✅ **Razonar sobre 61 dominios matemáticos** (álgebra, topología, análisis, etc.)
+✅ **Consulta a Claude** para responder preguntas matemáticas en lenguaje natural
+✅ **Genera código Lean 4** para formalización (requiere Lean instalado para verificar)
+✅ **Organiza 61 skills matemáticos** en un grafo categórico jerárquico
+✅ **Acumula memoria** de interacciones usando co-reguladores (MES)
+
+> **Nota**: El sistema usa Claude (API de Anthropic) como motor de lenguaje. No tiene red neuronal propia ni razonamiento autónomo — eso está planeado pero no implementado.
 
 ### Ejemplo de uso
 
@@ -524,9 +526,9 @@ Depende del modelo:
 
 Una sesión típica de chat (10-20 preguntas) cuesta menos de $0.10 USD.
 
-### ¿Qué tipo de matemáticas entiende el sistema?
+### ¿Qué tipo de matemáticas cubre el sistema?
 
-El sistema cubre 61 dominios matemáticos:
+El sistema tiene skills organizados en 61 dominios matemáticos (las respuestas las genera Claude):
 - Álgebra (grupos, anillos, campos, álgebra lineal)
 - Análisis (real, complejo, funcional)
 - Topología (punto-conjunto, algebraica, diferencial)
