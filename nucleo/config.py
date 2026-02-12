@@ -158,6 +158,9 @@ class LLMConfig:
     # Dimension de embeddings
     embedding_dim: int = 1536
 
+    # API key (si no se especifica, usa ANTHROPIC_API_KEY del entorno)
+    api_key: Optional[str] = None
+
 
 @dataclass
 class NucleoConfig:

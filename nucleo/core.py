@@ -172,6 +172,7 @@ class Nucleo:
             model=self.config.llm.model,
             max_tokens=self.config.llm.max_tokens,
             temperature=self.config.llm.temperature,
+            api_key=self.config.llm.api_key,
         )
         self._llm = LLMClient(llm_config)
 

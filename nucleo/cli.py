@@ -164,20 +164,31 @@ async def _chat_loop(args: argparse.Namespace) -> int:
     model = getattr(args, "model", None) or "claude-sonnet-4-20250514"
     verbose = getattr(args, "verbose", False)
 
-    # Check API key
-    if not os.environ.get("ANTHROPIC_API_KEY"):
-        console.print("[bold red]Error:[/] ANTHROPIC_API_KEY no esta definida.")
-        console.print("Configura tu API key:")
-        console.print("  [cyan]set ANTHROPIC_API_KEY=sk-ant-...[/]  (Windows)")
-        console.print("  [cyan]export ANTHROPIC_API_KEY=sk-ant-...[/]  (Linux/Mac)")
-        return 1
+    # Load config (puede tener api_key en nucleo_config.yaml)
+    config_path = Path("nucleo_config.yaml")
+    if config_path.exists():
+        config = NucleoConfig.from_yaml(config_path)
+    else:
+        config = NucleoConfig()
+    config.llm.model = model
+
+    # Check API key: env var > config > warning
+    api_key = os.environ.get("ANTHROPIC_API_KEY") or config.llm.api_key
+    if not api_key:
+        console.print("[bold yellow]Aviso:[/] No se encontro API key de Anthropic.")
+        console.print("El sistema funcionara en modo mock (sin Claude real).")
+        console.print("Para usar Claude, configura tu API key:")
+        console.print("  [cyan]$env:ANTHROPIC_API_KEY='sk-ant-...'[/]  (PowerShell)")
+        console.print("  [cyan]set ANTHROPIC_API_KEY=sk-ant-...[/]    (CMD)")
+        console.print("  O agrega [cyan]api_key: 'sk-ant-...'[/] bajo [cyan]llm:[/] en nucleo_config.yaml")
+        console.print()
+    else:
+        config.llm.api_key = api_key
 
     _print_banner(model)
 
     # Initialize Nucleo
     console.print("[dim]Inicializando sistema...[/]")
-    config = NucleoConfig()
-    config.llm.model = model
     nucleo = Nucleo(config=config)
 
     if verbose:
