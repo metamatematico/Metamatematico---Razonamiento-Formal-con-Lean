@@ -139,24 +139,35 @@ pip install pyyaml rich anthropic
 - `rich`: Interfaz de terminal con colores y formato
 - `anthropic`: Cliente oficial de Claude AI
 
-### Paso 3: Configurar API key de Anthropic
+### Paso 3: Configurar API key de Anthropic (opcional)
 
-Necesitas una API key de Anthropic (https://console.anthropic.com):
+Para usar Claude AI real necesitas una API key de Anthropic (https://console.anthropic.com).
+**Sin API key el sistema funciona en modo mock** (respuestas simuladas, útil para explorar la interfaz).
 
-**Windows CMD:**
+Hay **3 formas** de configurar la API key (en orden de prioridad):
+
+**Opción A — Variable de entorno** (recomendado):
 ```cmd
+:: Windows CMD
 set ANTHROPIC_API_KEY=sk-ant-tu-clave-aqui
-```
 
-**Windows PowerShell:**
-```powershell
+:: Windows PowerShell
 $env:ANTHROPIC_API_KEY="sk-ant-tu-clave-aqui"
-```
 
-**Linux/Mac:**
-```bash
+:: Linux/Mac
 export ANTHROPIC_API_KEY=sk-ant-tu-clave-aqui
 ```
+
+**Opción B — En `nucleo_config.yaml`**:
+```yaml
+llm:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 4096
+  api_key: "sk-ant-tu-clave-aqui"   # <-- agregar esta línea
+```
+
+**Opción C — Modo mock** (sin API key):
+El sistema arranca normalmente y muestra un aviso. Las respuestas serán simuladas.
 
 ### Paso 4: Verificar instalación
 
@@ -177,6 +188,11 @@ El modo más sencillo de usar el sistema es el chat interactivo:
 ```bash
 python -m nucleo chat
 ```
+
+> **PowerShell**: Si usas el intérprete de Python con ruta completa, necesitas el operador `&`:
+> ```powershell
+> & "C:/Users/tu-usuario/anaconda3/envs/tu-env/python.exe" -m nucleo chat
+> ```
 
 Esto abrirá una sesión interactiva:
 
@@ -376,14 +392,18 @@ El sistema usa una **Dinámica Global** en lugar de un agente RL tradicional.
 Cuatro co-reguladores autónomos toman decisiones a diferentes escalas temporales,
 siguiendo el protocolo de transición global (Sección 8 del paper unificado):
 
-**Protocolo**: CRs proponen opciones -> CR_int resuelve conflictos (Axioma 9.5) -> ejecución
+**Protocolo de decisión**:
+1. **CR_tac** clasifica el query del usuario (RESPONSE, ASSIST, etc.) — es **autoritativo** para la clasificación
+2. CR_org y CR_str realizan mantenimiento estructural en background (reorganizar grafo, crear colímites)
+3. Solo **CR_int con REPAIR_FRACTURE** puede sobreescribir la decisión de CR_tac (Axioma 9.5)
+4. Se ejecuta la acción final y se registra el resultado
 
 | Co-Regulador | Nivel | Frecuencia | Función |
 |--------------|-------|------------|---------|
-| **CR_tac** | 0-1 | Cada paso | Clasificar query, seleccionar tácticas |
-| **CR_org** | 1-2 | Cada 10 pasos | Reorganizar grafo, crear puentes |
-| **CR_str** | 2-3 | Cada 100 pasos | Crear colímites, nuevos niveles |
-| **CR_int** | Todos | Periódico | Verificar axiomas, resolver conflictos |
+| **CR_tac** | 0-1 | Cada paso | Clasificar query, seleccionar tácticas (autoritativo) |
+| **CR_org** | 1-2 | Cada 10 pasos | Reorganizar grafo, crear puentes (background) |
+| **CR_str** | 2-3 | Cada 100 pasos | Crear colímites, nuevos niveles (background) |
+| **CR_int** | Todos | Periódico | Verificar axiomas, resolver conflictos (veto) |
 
 **Prioridad (Axioma 9.5)**: CR_int > CR_str > CR_org > CR_tac
 
@@ -524,10 +544,10 @@ El sistema cubre 61 dominios matemáticos:
 
 ### ¿El sistema aprende de mis consultas?
 
-**Parcialmente**:
-- Durante una sesión, el sistema recuerda el contexto
-- La memoria se reinicia al cerrar el chat
-- **Futuro**: Memoria persistente entre sesiones
+**Sí**:
+- Durante una sesión, el sistema acumula memoria (empírica → semántica)
+- La memoria puede persistir entre sesiones (save/load JSON)
+- El aprendizaje es por enriquecimiento monótono (Teorema 9.9): la memoria solo crece
 
 ### ¿Funciona sin conexión a Internet?
 
@@ -541,18 +561,27 @@ Actualmente solo funciona con Claude. Soporte para otros LLMs (GPT-4, Gemini) es
 
 ## Solución de Problemas
 
-### Error: "ANTHROPIC_API_KEY not found"
+### Aviso: "No se encontró API key de Anthropic"
 
-**Solución:**
+Esto **no es un error** — el sistema arranca en modo mock. Para usar Claude real:
+
 ```bash
-# Windows CMD
-set ANTHROPIC_API_KEY=sk-ant-tu-clave
+# Opción 1: Variable de entorno
+set ANTHROPIC_API_KEY=sk-ant-tu-clave          # CMD
+$env:ANTHROPIC_API_KEY="sk-ant-tu-clave"       # PowerShell
+export ANTHROPIC_API_KEY=sk-ant-tu-clave       # Linux/Mac
 
-# PowerShell
-$env:ANTHROPIC_API_KEY="sk-ant-tu-clave"
+# Opción 2: En nucleo_config.yaml, bajo "llm:", agregar:
+#   api_key: "sk-ant-tu-clave"
+```
 
-# Linux/Mac
-export ANTHROPIC_API_KEY=sk-ant-tu-clave
+### Error en PowerShell: "Unexpected token '-m'"
+
+**Causa:** PowerShell interpreta la ruta del ejecutable como string, no como comando.
+
+**Solución:** Usar el operador `&`:
+```powershell
+& "C:/ruta/a/python.exe" -m nucleo chat
 ```
 
 ### Error: "Your credit balance is too low"
@@ -610,7 +639,7 @@ python -m pytest tests/ -o "addopts=" -v
 - [ ] Red neuronal (PPO policy, GNN embeddings)
 - [ ] Dataset de entrenamiento
 - [ ] Pipeline de evaluación end-to-end
-- [ ] Memoria persistente entre sesiones
+- [x] ~~Memoria persistente entre sesiones~~ (implementado)
 - [ ] Soporte para otros LLMs (GPT-4, Gemini)
 
 ### Cómo Contribuir
