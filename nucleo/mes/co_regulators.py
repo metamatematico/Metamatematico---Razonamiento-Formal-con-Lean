@@ -850,13 +850,15 @@ class CoRegulatorNetwork:
             MESActionType.REPAIR_FRACTURE: ActionType.REORGANIZE,
         }
 
-        # If winner is tactical, use the query-based classification
-        if winner_cr == CoRegulatorType.TACTICAL:
-            final_action = action_type
+        # CR_tac es autoritativo para la clasificacion del query.
+        # Solo CR_int con REPAIR_FRACTURE puede sobreescribir (Axioma 9.5).
+        # CRs estructurales (CR_str, CR_org) hacen mantenimiento en background
+        # pero no cambian el tipo de accion del query del usuario.
+        if (winner_cr == CoRegulatorType.INTEGRITY
+                and winner_action == MESActionType.REPAIR_FRACTURE):
+            final_action = ActionType.REORGANIZE
         else:
-            final_action = mes_to_action.get(
-                winner_action, ActionType.RESPONSE
-            )
+            final_action = action_type
 
         # Confidence based on source
         confidence_map = {
