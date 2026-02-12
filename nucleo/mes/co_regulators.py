@@ -436,10 +436,12 @@ class OrganizationalCoRegulator(CoRegulator):
         return Option()
 
     def encode_procedure(self, option: Option) -> MESActionType:
-        """Codificar como reorganizacion."""
+        """Codificar como reorganizacion si hay trabajo, noop si no."""
         if option.bindings:
             return MESActionType.COMPLEXIFY
-        return MESActionType.REORGANIZE
+        if option.eliminations:
+            return MESActionType.REORGANIZE
+        return MESActionType.RESPONSE
 
     def evaluate(self, anticipated: Landscape, actual: Landscape) -> float:
         """Evaluar mejora en organizacion."""
@@ -537,10 +539,10 @@ class StrategicCoRegulator(CoRegulator):
         return Option()
 
     def encode_procedure(self, option: Option) -> MESActionType:
-        """Codificar como complejificacion o formacion de concepto."""
+        """Codificar como complejificacion si hay bindings, noop si no."""
         if option.bindings:
             return MESActionType.COMPLEXIFY
-        return MESActionType.FORM_CONCEPT
+        return MESActionType.RESPONSE
 
     def evaluate(self, anticipated: Landscape, actual: Landscape) -> float:
         """Evaluar emergencia de nuevos niveles."""
