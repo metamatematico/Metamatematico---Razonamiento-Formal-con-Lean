@@ -33,6 +33,8 @@ Transformer Goal_Enc   GNN
 from nucleo.rl.mdp import MDP, Transition
 from nucleo.rl.rewards import RewardFunction, compute_reward
 from nucleo.rl.agent import NucleoAgent
+from nucleo.rl.gnn import SkillGNN, graph_to_pyg
+from nucleo.rl.networks import ActorCriticNetwork, encode_query
 
 __all__ = [
     "MDP",
@@ -40,4 +42,8 @@ __all__ = [
     "RewardFunction",
     "compute_reward",
     "NucleoAgent",
+    "SkillGNN",
+    "graph_to_pyg",
+    "ActorCriticNetwork",
+    "encode_query",
 ]

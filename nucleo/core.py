@@ -143,6 +143,10 @@ class Nucleo:
         self._initialized = False
         self._last_decision: Optional[GlobalDecision] = None
 
+        # Neural agent for live PPO learning (optional)
+        self._neural_agent = None
+        self._live_learning_steps = 0
+
         # Callbacks
         self._on_action: Optional[Callable] = None
         self._on_reward: Optional[Callable] = None
@@ -591,6 +595,7 @@ class Nucleo:
         Registrar experiencia en memoria MES (Teorema 9.9).
 
         Enriquecimiento monotono: la memoria solo crece.
+        Also feeds live PPO update if neural_agent is set.
         """
         if not self._memory:
             return
@@ -612,11 +617,53 @@ class Nucleo:
                 record.pattern_id,
                 [decision.action_type.name],
                 success=True,
+                query_text=input_text,
             )
 
-        # Persistir memoria periodicamente (cada 10 interacciones)
+        # Live PPO update: feed real interaction to neural agent
+        if self._neural_agent is not None:
+            try:
+                from nucleo.rl.mdp import Transition
+                state = State(lean_goal=input_text)
+                action = Action(action_type=decision.action_type)
+                transition = Transition(
+                    state=state,
+                    action=action,
+                    reward=success,
+                    next_state=State(),
+                )
+                self._neural_agent.update([transition])
+                self._live_learning_steps += 1
+
+                # Save weights periodically
+                if self._live_learning_steps % 10 == 0:
+                    self._save_neural_weights()
+            except Exception as e:
+                logger.warning(f"Live PPO update failed: {e}")
+
+        # Persistir memoria periodicamente (cada 20 interacciones)
         if len(self._state.history) % 20 == 0:
             self._save_memory()
+
+    def _save_neural_weights(self) -> None:
+        """Save neural agent weights to disk."""
+        if self._neural_agent is None or not self._neural_agent.has_network:
+            return
+        try:
+            weights_path = str(self.config.data_dir / "neural_agent.json")
+            self._neural_agent.save(weights_path)
+            logger.info(f"Neural weights saved ({self._live_learning_steps} steps)")
+        except Exception as e:
+            logger.warning(f"Failed to save neural weights: {e}")
+
+    def set_neural_agent(self, agent) -> None:
+        """
+        Set neural agent for live PPO learning.
+
+        When set, each interaction feeds a PPO update so the agent
+        learns from real chat rewards.
+        """
+        self._neural_agent = agent
 
     # =========================================================================
     # PROPIEDADES

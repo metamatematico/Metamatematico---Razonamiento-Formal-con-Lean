@@ -57,6 +57,7 @@ def _build_graph_with_foundations() -> SkillCategory:
     # F_Type foundations
     g.add_skill(Skill(id="cic", name="CIC", pillar=PillarType.TYPE, level=0))
     g.add_skill(Skill(id="lean-kernel", name="Lean Kernel", pillar=PillarType.TYPE, level=0))
+    g.add_skill(Skill(id="type-theory", name="Type Theory", pillar=PillarType.TYPE, level=0))
 
     # Connectivity morphisms
     g.add_morphism("zfc-axioms", "cat-basics", MorphismType.ANALOGY)
@@ -79,8 +80,8 @@ class TestSkillDefinitions:
     """Verify skill definition integrity."""
 
     def test_total_domain_skills(self):
-        """Total domain skills count is 51."""
-        assert get_domain_skill_count() == 51
+        """Total domain skills count is 66 (51 math + 9 lean tactics + 6 proof strategies)."""
+        assert get_domain_skill_count() == 66
 
     def test_all_skills_have_required_fields(self):
         """Every skill has id, name, description, pillar, level."""
@@ -97,12 +98,13 @@ class TestSkillDefinitions:
         assert len(ids) == len(set(ids)), f"Duplicate IDs found"
 
     def test_categories_complete(self):
-        """All 12 categories are represented."""
+        """All 14 categories are represented."""
         cats = get_domain_categories()
         expected = {
             "algebra", "geometry", "analysis", "topology", "logic",
             "number-theory", "combinatorics", "probability", "set-theory",
             "category-theory", "computation", "optimization",
+            "lean-tactics", "proof-strategies",
         }
         assert set(cats.keys()) == expected
 
@@ -154,10 +156,10 @@ class TestLoadMathDomains:
     """Verify loading domain skills into a SkillCategory."""
 
     def test_load_with_foundations(self):
-        """All 51 skills load when foundations are present."""
+        """All 66 skills load when foundations are present."""
         g = _build_graph_with_foundations()
         result = load_math_domains(g)
-        assert result["added"] == 51
+        assert result["added"] == 66
         assert result["skipped"] == 0
 
     def test_load_adds_morphisms(self):
@@ -167,7 +169,7 @@ class TestLoadMathDomains:
         load_math_domains(g)
         morphisms_after = len(g._morphisms)
         # At least one morphism per dependency + identity morphisms for new skills
-        assert morphisms_after > morphisms_before + 51
+        assert morphisms_after > morphisms_before + 66
 
     def test_load_inter_pillar_translations(self):
         """Inter-pillar translations are created."""
@@ -180,16 +182,16 @@ class TestLoadMathDomains:
         g = _build_graph_with_foundations()
         r1 = load_math_domains(g)
         r2 = load_math_domains(g)
-        assert r1["added"] == 51
+        assert r1["added"] == 66
         assert r2["added"] == 0
-        assert r2["skipped"] == 51
+        assert r2["skipped"] == 66
 
     def test_load_empty_graph_skips_most(self):
         """Loading on empty graph skips skills with missing deps."""
         g = SkillCategory(name="Empty")
         result = load_math_domains(g)
         assert result["added"] == 0
-        assert result["skipped"] == 51
+        assert result["skipped"] == 66
 
     def test_load_partial_graph(self):
         """Loading with partial foundations adds available skills."""
@@ -198,7 +200,7 @@ class TestLoadMathDomains:
         result = load_math_domains(g)
         # Should add at least group-theory, ring-theory, etc. that only need zfc-axioms
         assert result["added"] > 0
-        assert result["added"] < 51
+        assert result["added"] < 66
 
     def test_skills_have_correct_levels(self):
         """Loaded skills maintain their level assignments."""
@@ -323,7 +325,7 @@ class TestGraphProperties:
         g = _build_graph_with_foundations()
         load_math_domains(g)
         stats = g.stats
-        assert stats["num_skills"] == 10 + 51  # 10 foundations + 51 domains
+        assert stats["num_skills"] == 11 + 66  # 11 foundations + 66 domains
 
 
 # =============================================================================

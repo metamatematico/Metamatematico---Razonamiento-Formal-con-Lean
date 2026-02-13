@@ -466,6 +466,123 @@ OPTIMIZATION_SKILLS = [
 ]
 
 
+# -- Lean Tactics (9 skills) ------------------------------------------------
+
+LEAN_TACTICS_SKILLS = [
+    DomainSkillDef(
+        id="tactic-simp", name="Simplification",
+        description="simp, simp_all, norm_num — automated simplification",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-rewrite", name="Rewriting",
+        description="rw, conv, simp with lemmas — term rewriting",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-exact", name="Exact Proof",
+        description="exact, refine, use — provide exact proof terms",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-apply", name="Apply Rule",
+        description="apply, have, suffices — rule application and intermediate goals",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-induction", name="Induction",
+        description="induction, cases, rcases — structural induction and case analysis",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-omega", name="Arithmetic",
+        description="omega, linarith, norm_num — linear arithmetic decision procedures",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-ring", name="Ring Algebra",
+        description="ring, ring_nf, field_simp — algebraic normalization",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-aesop", name="Automation",
+        description="aesop, decide, tauto — automated proof search",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+    DomainSkillDef(
+        id="tactic-calc", name="Calculation",
+        description="calc blocks — step-by-step equational reasoning",
+        pillar=PillarType.TYPE, level=1,
+        dependencies=["type-theory"],
+        category="lean-tactics",
+    ),
+]
+
+
+# -- Proof Strategies (6 skills) --------------------------------------------
+
+PROOF_STRATEGY_SKILLS = [
+    DomainSkillDef(
+        id="strategy-backward", name="Backward Reasoning",
+        description="Goal-directed reasoning, working from conclusion to hypotheses",
+        pillar=PillarType.LOG, level=2,
+        dependencies=["tactic-apply", "tactic-exact"],
+        category="proof-strategies",
+    ),
+    DomainSkillDef(
+        id="strategy-forward", name="Forward Reasoning",
+        description="Hypothesis-driven reasoning, deriving consequences toward goal",
+        pillar=PillarType.LOG, level=2,
+        dependencies=["tactic-apply", "tactic-rewrite"],
+        category="proof-strategies",
+    ),
+    DomainSkillDef(
+        id="strategy-contradiction", name="Contradiction",
+        description="by_contra, absurd — proof by contradiction or contrapositive",
+        pillar=PillarType.LOG, level=2,
+        dependencies=["tactic-exact", "fol-deduction"],
+        category="proof-strategies",
+    ),
+    DomainSkillDef(
+        id="strategy-cases", name="Case Analysis",
+        description="Split on disjunctions, exhaustive case enumeration",
+        pillar=PillarType.LOG, level=2,
+        dependencies=["tactic-induction", "tactic-simp"],
+        category="proof-strategies",
+    ),
+    DomainSkillDef(
+        id="strategy-inductive", name="Inductive Proof",
+        description="Induction pattern: establish base case, prove inductive step",
+        pillar=PillarType.LOG, level=2,
+        dependencies=["tactic-induction", "tactic-simp"],
+        category="proof-strategies",
+    ),
+    DomainSkillDef(
+        id="strategy-construction", name="Construction",
+        description="Exhibit witness or construct object satisfying goal",
+        pillar=PillarType.LOG, level=2,
+        dependencies=["tactic-exact", "tactic-apply"],
+        category="proof-strategies",
+    ),
+]
+
+
 # =========================================================================
 # ALL DOMAIN SKILLS
 # =========================================================================
@@ -483,6 +600,8 @@ ALL_DOMAIN_SKILLS: list[DomainSkillDef] = (
     + CATEGORY_THEORY_SKILLS
     + COMPUTATION_SKILLS
     + OPTIMIZATION_SKILLS
+    + LEAN_TACTICS_SKILLS
+    + PROOF_STRATEGY_SKILLS
 )
 
 # Inter-pillar translation morphisms between domain skills
@@ -512,6 +631,13 @@ INTER_PILLAR_TRANSLATIONS = [
     # Combinatorics <-> Algebra
     ("algebraic-combinatorics", "representation-theory", MorphismType.ANALOGY,
      {"analogy": "symmetric-group-representations"}),
+    # Lean Tactics <-> Proof Strategies
+    ("tactic-apply", "strategy-backward", MorphismType.DEPENDENCY,
+     {"relation": "apply-enables-backward-reasoning"}),
+    ("tactic-induction", "strategy-inductive", MorphismType.DEPENDENCY,
+     {"relation": "induction-tactic-enables-inductive-strategy"}),
+    ("strategy-contradiction", "proof-theory", MorphismType.ANALOGY,
+     {"analogy": "contradiction-as-proof-theoretic-method"}),
 ]
 
 

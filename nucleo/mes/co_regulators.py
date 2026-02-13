@@ -250,6 +250,7 @@ class TacticalCoRegulator(CoRegulator):
         memory: Optional[MESMemory] = None,
         pattern_manager: Optional[PatternManager] = None,
         colimit_builder: Optional[ColimitBuilder] = None,
+        neural_agent=None,
     ):
         super().__init__(
             cr_type=CoRegulatorType.TACTICAL,
@@ -260,6 +261,7 @@ class TacticalCoRegulator(CoRegulator):
             colimit_builder=colimit_builder,
         )
         self._current_query: str = ""
+        self._neural_agent = neural_agent
 
     def build_landscape(self, graph: SkillCategory) -> Landscape:
         """Construir paisaje tactico: skills de nivel 0-1 y patrones relevantes."""
@@ -323,10 +325,19 @@ class TacticalCoRegulator(CoRegulator):
         """
         Clasificar un query en tipo de accion (Seccion 4.3 v7.0).
 
-        Usa keywords como heuristica. En futuro, se puede usar
-        embedding similarity contra memoria procedural.
+        Si hay agente neuronal disponible, usa la red GNN+PPO.
+        Sino, usa keywords como heuristica.
         """
         self._current_query = query
+
+        # Clasificacion neuronal si disponible
+        if self._neural_agent is not None and self._neural_agent.has_network:
+            from nucleo.types import State
+            state = State(lean_goal=query)
+            action = self._neural_agent._select_neural(state)
+            return action.action_type
+
+        # Fallback a keywords
         query_lower = query.lower()
         if any(kw in query_lower for kw in self.ASSIST_KEYWORDS):
             return ActionType.ASSIST

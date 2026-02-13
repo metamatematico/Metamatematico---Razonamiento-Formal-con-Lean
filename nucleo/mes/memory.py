@@ -49,6 +49,9 @@ class Procedure:
     invocation_count: int = 0
     created_at: datetime = field(default_factory=datetime.now)
     last_used: datetime = field(default_factory=datetime.now)
+    query_text: str = ""         # Original query text
+    tactic_used: str = ""        # Lean tactic if applicable
+    lean_goal: str = ""          # Lean goal if applicable
 
     def invoke(self) -> None:
         """Registrar invocacion del procedimiento."""
@@ -73,7 +76,10 @@ class ProceduralMemory:
         self,
         pattern_id: str,
         action_sequence: list[str],
-        success: bool = True
+        success: bool = True,
+        query_text: str = "",
+        tactic_used: str = "",
+        lean_goal: str = "",
     ) -> Procedure:
         """
         Agregar o actualizar procedimiento.
@@ -82,6 +88,9 @@ class ProceduralMemory:
             pattern_id: ID del patron de skills
             action_sequence: Secuencia de acciones
             success: Si fue exitoso
+            query_text: Original query text
+            tactic_used: Lean tactic if applicable
+            lean_goal: Lean goal if applicable
 
         Returns:
             Procedimiento creado o actualizado
@@ -94,6 +103,12 @@ class ProceduralMemory:
                 (existing.success_rate * (existing.invocation_count - 1) + float(success))
                 / existing.invocation_count
             )
+            if query_text:
+                existing.query_text = query_text
+            if tactic_used:
+                existing.tactic_used = tactic_used
+            if lean_goal:
+                existing.lean_goal = lean_goal
             return existing
 
         # Crear nuevo
@@ -104,6 +119,9 @@ class ProceduralMemory:
             action_sequence=action_sequence,
             success_rate=float(success),
             invocation_count=1,
+            query_text=query_text,
+            tactic_used=tactic_used,
+            lean_goal=lean_goal,
         )
         self._procedures[proc_id] = proc
         self._by_pattern[pattern_id].append(proc_id)
@@ -125,6 +143,44 @@ class ProceduralMemory:
         if not procs:
             return None
         return max(procs, key=lambda p: p.success_rate)
+
+    def get_best_for_query(self, query: str, min_success: float = 0.8) -> Optional[Procedure]:
+        """
+        Find best procedure matching a query by keyword overlap.
+
+        Args:
+            query: Query text to match
+            min_success: Minimum success rate threshold
+
+        Returns:
+            Best matching procedure or None
+        """
+        if not query:
+            return None
+
+        query_words = set(query.lower().split())
+        best: Optional[Procedure] = None
+        best_score = 0.0
+
+        for proc in self._procedures.values():
+            if proc.success_rate < min_success:
+                continue
+            if not proc.query_text:
+                continue
+
+            proc_words = set(proc.query_text.lower().split())
+            overlap = len(query_words & proc_words)
+            if overlap == 0:
+                continue
+
+            # Score: overlap * success_rate * log(invocations)
+            import math
+            score = overlap * proc.success_rate * math.log1p(proc.invocation_count)
+            if score > best_score:
+                best_score = score
+                best = proc
+
+        return best
 
     def _find_matching(
         self,
@@ -407,7 +463,10 @@ class MESMemory:
         self,
         pattern_id: str,
         action_sequence: list[str],
-        success: bool
+        success: bool,
+        query_text: str = "",
+        tactic_used: str = "",
+        lean_goal: str = "",
     ) -> Procedure:
         """
         Aprender o reforzar un procedimiento.
@@ -416,11 +475,17 @@ class MESMemory:
             pattern_id: Patron de skills
             action_sequence: Secuencia de acciones
             success: Si fue exitoso
+            query_text: Original query text
+            tactic_used: Lean tactic if applicable
+            lean_goal: Lean goal if applicable
 
         Returns:
             Procedimiento aprendido
         """
-        return self.procedural.add_procedure(pattern_id, action_sequence, success)
+        return self.procedural.add_procedure(
+            pattern_id, action_sequence, success,
+            query_text=query_text, tactic_used=tactic_used, lean_goal=lean_goal,
+        )
 
     def try_form_concept(
         self,
