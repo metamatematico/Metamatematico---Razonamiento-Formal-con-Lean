@@ -1,4 +1,4 @@
-# Metamath Prover
+# Demostrador de Enunciados Matemáticos
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Mathlib](https://img.shields.io/badge/Mathlib-4-orange.svg)](https://github.com/leanprover-community/mathlib4)
@@ -625,7 +625,8 @@ Las 8 fases completas. Infraestructura GNN+PPO construida (124,420 parametros), 
 
 ## Autor
 
-**Leonardo Jimenez Martinez** — UNAM
+**Leonardo Jimenez Martinez** — UNAM 
+Correo electrónico: leonsinmiedo@gmail.com
 
 ---
 
