@@ -22,6 +22,8 @@ El objetivo es construir una **IA matematica** capaz de:
 - Generar pruebas formales en Lean 4
 - Aprender y mejorar mediante interaccion via Memory Evolutive Systems
 
+El NLE v7.0 recibe consultas en lenguaje natural, las clasifica mediante un co-regulador tactico (CR_tac) que consulta un grafo categorico de 76 skills organizados en 4 pilares (Conjuntos, Categorias, Logica, Tipos), y decide si responder con explicacion o asistir con prueba formal en Lean 4. Cuando asiste, un GoalAnalyzer analiza la estructura del goal para reordenar un cascade de 9 tacticas automaticas (rfl, simp, ring, omega, etc.) priorizando las mas relevantes segun patrones regex y las conexiones del grafo (por ejemplo, un goal algebraico va directo a `ring`), mientras el LLM (Claude) recibe contexto extraido del grafo — skills relevantes, prerequisitos, tacticas sugeridas y pilar dominante — en vez de datos aleatorios. Todo esto se retroalimenta: cada interaccion alimenta una red neuronal GNN+PPO (124K parametros) que aprende a seleccionar mejores skills, y una memoria procedural que guarda patrones exitosos (query, tactica, goal) para reutilizarlos sin necesidad de la red neuronal, formando un ciclo evolutivo modelado segun los Memory Evolutive Systems de Ehresmann donde el grafo crece por complexificacion (patrones → colimites → emergencia de nuevos niveles) manteniendo axiomas formales verificados (jerarquia, multiplicidad, conectividad, cobertura).
+
 ---
 
 ## Arquitectura
