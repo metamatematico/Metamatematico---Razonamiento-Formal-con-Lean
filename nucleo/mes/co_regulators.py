@@ -262,6 +262,7 @@ class TacticalCoRegulator(CoRegulator):
         )
         self._current_query: str = ""
         self._neural_agent = neural_agent
+        self._relevant_skills: list[str] = []  # Skills matched by last query
 
     def build_landscape(self, graph: SkillCategory) -> Landscape:
         """Construir paisaje tactico: skills de nivel 0-1 y patrones relevantes."""
@@ -321,14 +322,23 @@ class TacticalCoRegulator(CoRegulator):
             return MESActionType.ASSIST
         return MESActionType.RESPONSE
 
-    def classify_query(self, query: str) -> ActionType:
+    def classify_query(
+        self, query: str, graph: Optional[SkillCategory] = None
+    ) -> ActionType:
         """
         Clasificar un query en tipo de accion (Seccion 4.3 v7.0).
 
-        Si hay agente neuronal disponible, usa la red GNN+PPO.
-        Sino, usa keywords como heuristica.
+        Classification chain:
+        1. Neural agent (GNN+PPO) if available
+        2. Keyword heuristic (fast path)
+        3. Graph-based: match skills, check tactic connections
+
+        Args:
+            query: User query text
+            graph: Optional skill graph for domain-aware classification
         """
         self._current_query = query
+        self._relevant_skills = []
 
         # Clasificacion neuronal si disponible
         if self._neural_agent is not None and self._neural_agent.has_network:
@@ -337,11 +347,52 @@ class TacticalCoRegulator(CoRegulator):
             action = self._neural_agent._select_neural(state)
             return action.action_type
 
-        # Fallback a keywords
+        # Keyword heuristic (fast path)
         query_lower = query.lower()
         if any(kw in query_lower for kw in self.ASSIST_KEYWORDS):
             return ActionType.ASSIST
+
+        # Graph-based classification: match skills, check tactic connections
+        if graph is not None:
+            matched = self._match_graph_skills(query_lower, graph)
+            if matched:
+                self._relevant_skills = matched
+                # If any matched skill connects to tactic/strategy → ASSIST
+                for sid in matched:
+                    for nbr in graph.neighbors(sid):
+                        if nbr.startswith("tactic-") or nbr.startswith("strategy-"):
+                            return ActionType.ASSIST
+
         return ActionType.RESPONSE
+
+    def _match_graph_skills(
+        self, query_lower: str, graph: SkillCategory
+    ) -> list[str]:
+        """
+        Match skill IDs/names against query tokens.
+
+        Tokenizes query and skill identifiers, returns skills
+        with at least one overlapping token (length > 3).
+        """
+        query_tokens = set(
+            t for t in query_lower.replace("-", " ").replace("_", " ").split()
+            if len(t) > 3
+        )
+        if not query_tokens:
+            return []
+
+        matched = []
+        for skill_id in graph.skill_ids:
+            skill = graph.get_skill(skill_id)
+            if not skill:
+                continue
+            skill_tokens = set(
+                skill_id.lower().replace("-", " ").split()
+                + skill.name.lower().replace("-", " ").split()
+            )
+            if query_tokens & skill_tokens:
+                matched.append(skill_id)
+        return matched
 
     def evaluate(self, anticipated: Landscape, actual: Landscape) -> float:
         """Evaluar si la respuesta fue exitosa."""
@@ -828,8 +879,8 @@ class CoRegulatorNetwork:
         Returns:
             GlobalDecision con la accion a ejecutar
         """
-        # Fase 1: CR_tac clasifica el query
-        action_type = self.tactical.classify_query(query)
+        # Fase 1: CR_tac clasifica el query (graph-aware)
+        action_type = self.tactical.classify_query(query, graph=graph)
 
         # Fase 2: Recoger propuestas de todos los CRs activos
         proposals = self.step(graph)

@@ -26,11 +26,15 @@ Reference:
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from pathlib import Path
 
 from nucleo.lean.client import LeanClient, LeanResult, LeanResultStatus
+
+if TYPE_CHECKING:
+    from nucleo.graph.category import SkillCategory
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +59,120 @@ SKIP_ERROR_TYPES = frozenset([
     "recursion_depth",
     "synth_instance",
 ])
+
+
+class GoalAnalyzer:
+    """
+    Analyze Lean goal structure to prioritize tactics.
+
+    Uses regex patterns to detect goal type, then reorders the solver
+    cascade so the most likely tactics are tried first. Optionally
+    consults the skill graph to find tactic skills connected to the
+    relevant mathematical domain.
+    """
+
+    # (regex_pattern, priority_tactics) — checked in order, first match wins
+    GOAL_PATTERNS: list[tuple[str, list[str]]] = [
+        # Ring/field algebra: a * b + c = ...
+        (r"[\+\-\*\^].*=.*[\+\-\*\^]", ["ring", "nlinarith", "linarith"]),
+        # Natural/integer arithmetic with inequalities
+        (r"(Nat|Int|Fin|ℕ|ℤ).*[≤<≥>]|[≤<≥>].*(Nat|Int|Fin|ℕ|ℤ)", ["omega", "linarith", "simp"]),
+        # Pure arithmetic equalities (n + 0 = n)
+        (r"\b\d+\s*[\+\-\*]\s*\d+\s*=", ["omega", "simp", "ring"]),
+        # Logical connectives
+        (r"[∧∨¬↔]|True|False", ["simp", "tauto", "aesop"]),
+        # Quantifiers / implications
+        (r"[∀∃]|→", ["simp", "exact", "apply?"]),
+        # List/array operations
+        (r"List\.|Array\.|length|append|map", ["simp", "omega"]),
+    ]
+
+    # Map tactic skill IDs to their solver cascade names
+    _SKILL_TO_SOLVER = {
+        "tactic-simp": "simp",
+        "tactic-ring": "ring",
+        "tactic-omega": "omega",
+        "tactic-exact": "exact?",
+        "tactic-apply": "apply?",
+        "tactic-aesop": "aesop",
+        "tactic-induction": "induction",
+        "tactic-rewrite": "rw",
+        "tactic-calc": "calc",
+    }
+
+    def prioritize(
+        self,
+        goal: str,
+        graph: Optional[SkillCategory] = None,
+    ) -> list[tuple[str, int]]:
+        """
+        Reorder SOLVER_CASCADE based on goal structure and graph context.
+
+        Args:
+            goal: The Lean goal text to analyze
+            graph: Optional skill graph for domain-aware ordering
+
+        Returns:
+            Reordered list of (solver_name, timeout) tuples
+        """
+        priority_names: list[str] = []
+
+        # 1. Pattern matching on goal text
+        for pattern, tactics in self.GOAL_PATTERNS:
+            if re.search(pattern, goal):
+                priority_names.extend(tactics)
+                break  # First match wins
+
+        # 2. Graph-based: find tactic skills connected to matched domains
+        if graph is not None:
+            graph_tactics = self._tactics_from_graph(goal, graph)
+            # Add graph-suggested tactics after pattern-based ones
+            for t in graph_tactics:
+                if t not in priority_names:
+                    priority_names.append(t)
+
+        if not priority_names:
+            return list(SOLVER_CASCADE)
+
+        # 3. Build reordered cascade: priority first, then remaining
+        solver_dict = {name: timeout for name, timeout in SOLVER_CASCADE}
+        ordered = []
+        seen = set()
+        for name in priority_names:
+            if name in solver_dict and name not in seen:
+                ordered.append((name, solver_dict[name]))
+                seen.add(name)
+        for name, timeout in SOLVER_CASCADE:
+            if name not in seen:
+                ordered.append((name, timeout))
+                seen.add(name)
+
+        return ordered
+
+    def _tactics_from_graph(
+        self, goal: str, graph: SkillCategory
+    ) -> list[str]:
+        """Find solver names from tactic skills connected to relevant domains."""
+        goal_lower = goal.lower()
+        tactics = []
+
+        for skill_id in graph.skill_ids:
+            # Check if skill name appears in goal
+            skill = graph.get_skill(skill_id)
+            if not skill:
+                continue
+
+            # Match domain skill names against goal keywords
+            name_tokens = skill.name.lower().replace("-", " ").split()
+            if any(tok in goal_lower for tok in name_tokens if len(tok) > 3):
+                # Found relevant domain — check its neighbors for tactic skills
+                for nbr_id in graph.neighbors(skill_id):
+                    if nbr_id in self._SKILL_TO_SOLVER:
+                        solver = self._SKILL_TO_SOLVER[nbr_id]
+                        if solver not in tactics:
+                            tactics.append(solver)
+
+        return tactics
 
 
 @dataclass
@@ -90,9 +208,12 @@ class SolverCascade:
         self,
         lean_client: LeanClient,
         solvers: Optional[list[tuple[str, int]]] = None,
+        graph: Optional[SkillCategory] = None,
     ):
         self._lean = lean_client
         self._solvers = solvers or list(SOLVER_CASCADE)
+        self._graph = graph
+        self._goal_analyzer = GoalAnalyzer()
 
     async def try_fill_sorry(
         self,
@@ -149,6 +270,50 @@ class SolverCascade:
 
         logger.debug(f"Solver cascade exhausted after {solvers_tried} attempts")
         return CascadeResult(success=False, solvers_tried=solvers_tried)
+
+    async def try_fill_sorry_smart(
+        self,
+        code: str,
+        sorry_line: int,
+        goal_text: str = "",
+        error_type: Optional[str] = None,
+        imports: Optional[list[str]] = None,
+    ) -> CascadeResult:
+        """
+        Goal-aware solver cascade that reorders tactics by goal structure.
+
+        Uses GoalAnalyzer to prioritize tactics based on the goal text
+        and the skill graph, then runs the cascade in the optimized order.
+
+        Args:
+            code: Full Lean source code containing sorry
+            sorry_line: 1-indexed line number of the sorry
+            goal_text: The Lean goal to analyze for tactic ordering
+            error_type: If known, skip cascade for incompatible errors
+            imports: Additional imports to prepend
+
+        Returns:
+            CascadeResult with success status and solver used
+        """
+        if not goal_text:
+            return await self.try_fill_sorry(code, sorry_line, error_type, imports)
+
+        # Reorder solvers based on goal analysis
+        smart_order = self._goal_analyzer.prioritize(goal_text, self._graph)
+        logger.debug(
+            f"Smart cascade order for goal: "
+            f"{[s for s, _ in smart_order[:3]]}..."
+        )
+
+        # Temporarily swap solver order and run
+        original_solvers = self._solvers
+        self._solvers = smart_order
+        try:
+            result = await self.try_fill_sorry(code, sorry_line, error_type, imports)
+        finally:
+            self._solvers = original_solvers
+
+        return result
 
     async def try_fill_theorem(
         self,

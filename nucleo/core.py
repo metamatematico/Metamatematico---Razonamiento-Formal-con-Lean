@@ -185,8 +185,8 @@ class Nucleo:
             timeout_ms=self.config.lean.timeout_ms
         )
 
-        # lean4-skills integration: Solver Cascade + Sorry Filler
-        self._solver_cascade = SolverCascade(self._lean)
+        # lean4-skills integration: Solver Cascade + Sorry Filler (graph-aware)
+        self._solver_cascade = SolverCascade(self._lean, graph=self._graph)
         self._sorry_filler = SorryFiller(solver_cascade=self._solver_cascade)
 
         # MES Components (v7.0) — Dinamica Global
@@ -375,13 +375,12 @@ class Nucleo:
         """Ejecutar la accion seleccionada."""
 
         if action.action_type == ActionType.RESPONSE:
-            # Generar respuesta con LLM
+            # Generar respuesta con LLM using graph-relevant context
+            context = self._find_relevant_context(input_text, self._graph)
+            context["mode"] = self._mode.name
             llm_response = await self._llm.generate(
                 input_text,
-                context={
-                    "skills": list(self._graph.skill_ids)[:10],
-                    "mode": self._mode.name
-                }
+                context=context,
             )
             return NucleoResponse(
                 content=llm_response.content,
@@ -415,15 +414,17 @@ class Nucleo:
 
         Integration with lean4-skills (Phase 6):
         1. Check code with Lean
-        2. If has sorries → use solver cascade
+        2. If has sorries → use goal-aware solver cascade
         3. Record result as ExperienceRecord in MES memory
         4. Attempt E-concept formation
         """
         if "```lean" not in input_text and "theorem" not in input_text:
-            # Sin codigo Lean, generar sugerencia
+            # Sin codigo Lean, generar sugerencia con graph context
+            context = self._find_relevant_context(input_text, self._graph)
+            context["task"] = "formalization"
             llm_response = await self._llm.generate(
                 f"Sugiere como formalizar en Lean 4: {input_text}",
-                context={"task": "formalization"}
+                context=context,
             )
             return NucleoResponse(
                 content=llm_response.content,
@@ -706,6 +707,112 @@ class Nucleo:
                 "confidence": self._last_decision.confidence,
             }
         return result
+
+    # =========================================================================
+    # GRAPH-AWARE CONTEXT (Hierarchy → Reasoning connection)
+    # =========================================================================
+
+    def _find_relevant_context(
+        self, query: str, graph: SkillCategory
+    ) -> dict:
+        """
+        Find graph-relevant context for a query.
+
+        Traverses the skill graph to find:
+        1. Skills matching the query (by keyword overlap)
+        2. Their dependency chain (prerequisites)
+        3. Connected tactic/strategy skills
+        4. Dominant pillar
+
+        This replaces the naive `skill_ids[:10]` approach with
+        structurally-informed context that helps the LLM reason better.
+        """
+        matched = self._match_skills_to_query(query, graph)
+
+        deps: list[str] = []
+        tactics: list[str] = []
+        strategies: list[str] = []
+
+        for sid in matched:
+            # Traverse dependency chain
+            for dep_id in graph.dependencies(sid):
+                if dep_id not in deps:
+                    deps.append(dep_id)
+
+            # Find connected tactic and strategy skills
+            for nbr_id in graph.neighbors(sid):
+                if nbr_id.startswith("tactic-") and nbr_id not in tactics:
+                    tactics.append(nbr_id)
+                elif nbr_id.startswith("strategy-") and nbr_id not in strategies:
+                    strategies.append(nbr_id)
+
+        pillar = self._dominant_pillar(matched, graph)
+
+        return {
+            "relevant_skills": matched[:5],
+            "prerequisites": deps[:5],
+            "suggested_tactics": tactics,
+            "proof_strategies": strategies,
+            "pillar": pillar,
+        }
+
+    def _match_skills_to_query(
+        self, query: str, graph: SkillCategory
+    ) -> list[str]:
+        """
+        Match skills in the graph to a query by keyword overlap.
+
+        Tokenizes the query and compares against skill IDs and names.
+        Returns skill IDs sorted by match relevance (most tokens matched first).
+        """
+        # Tokenize query: lowercase, split on whitespace and punctuation
+        query_lower = query.lower()
+        query_tokens = set(
+            t for t in query_lower.replace("-", " ").replace("_", " ").split()
+            if len(t) > 2  # Skip very short tokens
+        )
+
+        if not query_tokens:
+            return []
+
+        scored: list[tuple[str, int]] = []
+        for skill_id in graph.skill_ids:
+            skill = graph.get_skill(skill_id)
+            if not skill:
+                continue
+
+            # Tokens from skill ID and name
+            skill_tokens = set(
+                skill_id.lower().replace("-", " ").split()
+                + skill.name.lower().replace("-", " ").split()
+            )
+
+            overlap = len(query_tokens & skill_tokens)
+            if overlap > 0:
+                scored.append((skill_id, overlap))
+
+        # Sort by overlap descending
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return [sid for sid, _ in scored[:10]]
+
+    def _dominant_pillar(
+        self, skill_ids: list[str], graph: SkillCategory
+    ) -> str:
+        """Determine the dominant pillar from a set of matched skills."""
+        if not skill_ids:
+            return "TYPE"  # Default to TYPE for Lean-related queries
+
+        pillar_counts: dict[str, int] = {}
+        for sid in skill_ids:
+            skill = graph.get_skill(sid)
+            if skill:
+                p = skill.pillar.name
+                pillar_counts[p] = pillar_counts.get(p, 0) + 1
+
+        if not pillar_counts:
+            return "TYPE"
+
+        return max(pillar_counts, key=pillar_counts.get)
 
     def _save_memory(self) -> None:
         """Persistir memoria a disco."""
