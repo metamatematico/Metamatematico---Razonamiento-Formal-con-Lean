@@ -8,8 +8,6 @@
 [![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-124K_params-red.svg)](#7-gnn--ppo-neural-network)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Part of [metamathematics.ai](https://metamathematics.ai)** — Machine-verified proofs and research toward automating mathematical formalization.
-
 ---
 
 ## Overview
