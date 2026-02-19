@@ -8,7 +8,7 @@
 ---
 
 **Autor:** Leonardo Jiménez Martínez
-**Institución:** BIOMAT — Biomatemáticas, UNAM
+**Institución:** BIOMAT 
 **Año:** 2025
 
 ---
