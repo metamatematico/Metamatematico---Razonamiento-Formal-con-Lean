@@ -1,0 +1,58 @@
+# Nucleo Logico Evolutivo - Configuracion
+# ========================================
+
+# Aprendizaje por Refuerzo
+rl:
+  # Factor de descuento (alto: efectos a largo plazo)
+  gamma: 0.99
+
+  # Pesos de recompensa
+  lambda_1: 0.1   # Eficiencia
+  lambda_2: 0.05  # Organizacion
+  lambda_3: 0.2   # Emergencia
+
+  # Penalizaciones
+  alpha: 0.1      # Por skill usado
+  beta: 0.01      # Por tiempo
+
+  # Historial
+  history_size: 10
+
+  # PPO
+  learning_rate: 0.0003
+  batch_size: 64
+  n_epochs: 10
+  clip_range: 0.2
+
+# Integracion Lean 4
+lean:
+  lean_path: "lake"
+  timeout_ms: 30000
+  project_path: null
+  use_mathlib: true
+  mathlib_cache: true
+
+# Grafo Categorico
+graph:
+  max_skills: 100000
+  default_weight: 1.0
+  weight_decay: 0.99
+  gnn_hidden_dim: 256
+  gnn_num_layers: 3
+  gnn_dropout: 0.1
+
+# LLM (Claude)
+llm:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 4096
+  temperature: 0.7
+  embedding_dim: 1536
+
+# Directorios
+data_dir: "data"
+models_dir: "models"
+logs_dir: "logs"
+
+# Debug
+debug: false
+verbose: false
