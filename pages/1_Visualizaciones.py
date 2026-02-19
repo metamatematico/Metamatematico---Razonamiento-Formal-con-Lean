@@ -533,7 +533,192 @@ def fig_architecture():
 
 # ─── MES: COMPLEXIFICACIÓN ────────────────────────────────────────────────────
 
-def fig_mes_complexification():
+def _fan_positions(skill_ids, y, x_spread=1.6):
+    """Distribuye skill_ids uniformemente en y=y con separación x_spread."""
+    n = len(skill_ids)
+    if n == 0:
+        return {}
+    xs = [(i - (n - 1) / 2) * x_spread for i in range(n)]
+    return {sid: (xs[i], y) for i, sid in enumerate(skill_ids)}
+
+
+def fig_mes_complexification(query=None):
+    """Complexificación MES — estática (sin consulta) o dinámica (con consulta)."""
+
+    # ── VERSIÓN DINÁMICA ──────────────────────────────────────────────────────
+    if query:
+        from collections import Counter
+        G = build_graph()
+        TACTIC_CATS = ("Tácticas Lean", "Estrategias")
+
+        matched   = match_skills(query)[:5]          # Patrón P (máx 5)
+        needed    = proof_subgraph(G, matched)
+        tactic_set = {n for n in needed if G.nodes[n].get("cat") in TACTIC_CATS}
+        dep_set    = needed - set(matched) - tactic_set
+
+        # Dominio predominante → nombre del colímite
+        cats = [G.nodes[m].get("cat", "") for m in matched if m in G]
+        dom  = Counter(cats).most_common(1)[0][0] if cats else "Matemáticas"
+        q_short   = query[:34] + ("…" if len(query) > 34 else "")
+        cp_label  = f"cP — {dom}\n«{q_short}»"
+
+        fig, axes = plt.subplots(1, 3, figsize=(14, 5.2), facecolor=BG)
+
+        # ── Panel 1: Patrón P ─────────────────────────────────────────────────
+        ax = axes[0]
+        ax.set_facecolor(BG); ax.axis("off")
+        ax.set_xlim(-3.2, 3.2); ax.set_ylim(-2.8, 2.6)
+        ax.set_title(f"1. Patrón P ⊂ K\nSkills activados por la consulta",
+                     color=FG, fontsize=8.5, pad=6)
+
+        pat_pos = _fan_positions(matched, y=0.0, x_spread=min(2.0, 5.0 / max(len(matched), 1)))
+
+        # Edges entre skills del patrón que existen en EDGES
+        for src, tgt, kind in EDGES:
+            if src in pat_pos and tgt in pat_pos:
+                col = {"dep": "#4a5568", "trans": "#58a6ff", "analogy": "#4ade80"}.get(kind, "#4a5568")
+                ax.annotate("", xy=pat_pos[tgt], xytext=pat_pos[src],
+                            arrowprops=dict(arrowstyle="-|>", color=col, lw=1.0, alpha=0.7,
+                                            connectionstyle="arc3,rad=0.1"))
+
+        for i, sid in enumerate(matched):
+            x, y = pat_pos[sid]
+            c    = G.nodes[sid].get("color", "#42a5f5")
+            cat  = G.nodes[sid].get("cat", "")
+            ax.scatter(x, y, s=500, c=c, zorder=5, edgecolors="#fbbf24", lw=1.8)
+            ax.text(x, y + 0.28, f"P{i+1}", ha="center", fontsize=8,
+                    color="#fbbf24", fontweight="bold")
+            ax.text(x, y - 0.42, G.nodes[sid]["name"], ha="center", fontsize=6.5,
+                    color=FG, wrap=True)
+            ax.text(x, y - 0.72, f"({cat})", ha="center", fontsize=5.5, color="#6e7681")
+
+        ax.text(0, -1.9, f"Patrón P: I → K  ({len(matched)} skills)\nDominio: {dom}",
+                ha="center", fontsize=7, color="#9ca3af",
+                bbox=dict(boxstyle="round", facecolor="#161b22", edgecolor="#21262d"))
+
+        # ── Panel 2: Colímite cP ──────────────────────────────────────────────
+        ax = axes[1]
+        ax.set_facecolor(BG); ax.axis("off")
+        ax.set_xlim(-3.2, 3.2); ax.set_ylim(-2.8, 2.6)
+        ax.set_title("2. Colímite cP\n(skill emergente: síntesis categórica)",
+                     color=FG, fontsize=8.5, pad=6)
+
+        # Pattern skills tenues
+        for sid in matched:
+            x, y = pat_pos[sid]
+            c    = G.nodes[sid].get("color", "#42a5f5")
+            ax.scatter(x, y, s=220, c=c, zorder=3, alpha=0.35,
+                       edgecolors="#21262d", lw=0.6)
+            ax.text(x, y - 0.38, G.nodes[sid]["name"], ha="center",
+                    fontsize=5.5, color="#484f58")
+
+        # Nodo cP
+        ax.scatter(0, 1.7, s=800, c="#f59e0b", zorder=6, edgecolors="#fbbf24", lw=2.5)
+        ax.text(0, 1.7, "cP", ha="center", va="center", fontsize=12,
+                color="black", fontweight="bold", zorder=7)
+        for ln in cp_label.split("\n"):
+            pass  # handled below
+        cp_lines = cp_label.split("\n")
+        ax.text(0, 2.25, cp_lines[0], ha="center", fontsize=7.5,
+                color="#fbbf24", fontweight="bold")
+        if len(cp_lines) > 1:
+            ax.text(0, 2.0, cp_lines[1], ha="center", fontsize=6.5, color="#fbbf24")
+
+        # Co-cono: Pᵢ → cP
+        for sid in matched:
+            x, y = pat_pos[sid]
+            ax.annotate("", xy=(0, 1.7), xytext=(x, y),
+                        arrowprops=dict(arrowstyle="-|>", color="#f59e0b",
+                                        lw=1.3, alpha=0.75,
+                                        connectionstyle="arc3,rad=0.05"))
+
+        ax.text(0, -1.9, f"cᵢ: Pᵢ → cP  (co-cono universal)\nPropiedad universal verificada formalmente",
+                ha="center", fontsize=6.5, color="#9ca3af",
+                bbox=dict(boxstyle="round", facecolor="#161b22", edgecolor="#21262d"))
+
+        # ── Panel 3: K' Complexificada ────────────────────────────────────────
+        ax = axes[2]
+        ax.set_facecolor(BG); ax.axis("off")
+        ax.set_xlim(-3.5, 3.5); ax.set_ylim(-2.8, 3.0)
+        n_total = len(needed) + 1  # +1 por cP
+        ax.set_title(f"3. K' Complexificada\n({n_total} nodos: {len(matched)} activados + "
+                     f"{len(dep_set)} deps + {len(tactic_set)} tácticas + cP)",
+                     color=FG, fontsize=8, pad=6)
+
+        dep_show   = sorted(dep_set)[:5]
+        tac_show   = sorted(tactic_set)[:4]
+        mat_show   = matched[:5]
+
+        pos3 = {}
+        pos3.update(_fan_positions(mat_show, y=1.1, x_spread=min(1.8, 6.0 / max(len(mat_show), 1))))
+        pos3.update(_fan_positions(dep_show, y=-0.2, x_spread=min(1.4, 6.0 / max(len(dep_show), 1))))
+        pos3.update(_fan_positions(tac_show, y=-1.5, x_spread=min(1.6, 6.0 / max(len(tac_show), 1))))
+        pos3["_cP"] = (0, 2.4)
+
+        # Edges del subgrafo
+        SG = G.subgraph(needed)
+        for src, tgt, d in SG.edges(data=True):
+            if src in pos3 and tgt in pos3:
+                kind = d.get("kind", "dep")
+                col  = {"dep": "#374151", "trans": "#58a6ff",
+                        "analogy": "#3fb950"}.get(kind, "#374151")
+                ax.annotate("", xy=pos3[tgt], xytext=pos3[src],
+                            arrowprops=dict(arrowstyle="-|>", color=col, lw=0.9,
+                                            alpha=0.7, connectionstyle="arc3,rad=0.08"))
+
+        # Nodos del subgrafo
+        for sid, (x, y) in pos3.items():
+            if sid == "_cP":
+                ax.scatter(x, y, s=650, c="#f59e0b", zorder=6,
+                           edgecolors="#fbbf24", lw=2.2)
+                ax.text(x, y, "cP", ha="center", va="center", fontsize=10,
+                        color="black", fontweight="bold", zorder=7)
+                ax.text(x, y + 0.42, "Síntesis ✦", ha="center",
+                        fontsize=6.5, color="#fbbf24")
+            else:
+                if sid in matched:
+                    c, ec, sz, fc = "#fbbf24", "#ffffff", 420, "#fbbf24"
+                elif sid in tactic_set:
+                    c, ec, sz, fc = "#4ade80", "#4ade80", 240, "#4ade80"
+                else:
+                    c, ec, sz, fc = "#818cf8", "#818cf8", 200, "#93c5fd"
+                ax.scatter(x, y, s=sz, c=c, zorder=5, edgecolors=ec, lw=1.2)
+                ax.text(x, y - 0.34, G.nodes[sid]["name"], ha="center",
+                        fontsize=6, color=fc)
+
+        # Co-conos hacia cP
+        for sid in mat_show:
+            if sid in pos3:
+                ax.annotate("", xy=pos3["_cP"], xytext=pos3[sid],
+                            arrowprops=dict(arrowstyle="-|>", color="#f59e0b",
+                                            lw=1.0, alpha=0.45,
+                                            connectionstyle="arc3,rad=0.0"))
+
+        # Líneas divisoras
+        for y_line, lbl, clr in [(-0.85, "↑ Deps / ↓ Activados", "#818cf8"),
+                                  (-1.05, "↑ Tácticas Lean", "#4ade80")]:
+            ax.axhline(y=y_line, color=clr, alpha=0.1, lw=0.7, linestyle="--")
+
+        ax.legend(
+            handles=[
+                mpatches.Patch(color="#fbbf24", label=f"Activados ({len(matched)})"),
+                mpatches.Patch(color="#818cf8", label=f"Dependencias ({len(dep_set)})"),
+                mpatches.Patch(color="#4ade80", label=f"Tácticas ({len(tactic_set)})"),
+                mpatches.Patch(color="#f59e0b", label="cP — colímite emergente"),
+            ],
+            loc="lower right", fontsize=6,
+            facecolor="#161b22", edgecolor="#30363d", labelcolor=FG,
+        )
+
+        fig.suptitle(
+            f"MES — Complexificación para «{q_short}»  "
+            f"(Axiomas 8.1–8.4 · Teoremas 8.5–8.7)",
+            color=FG, fontsize=10, y=1.01,
+        )
+        fig.tight_layout()
+        return fig
+
+    # ── VERSIÓN ESTÁTICA (ejemplo álgebra) ───────────────────────────────────
     fig, axes = plt.subplots(1, 3, figsize=(14, 5), facecolor=BG)
     titles = [
         "1. Patrón P: I → K\n(colección de skills)",
@@ -572,13 +757,13 @@ def fig_mes_complexification():
 
     # Panel 2: Colímite
     ax = axes[1]
-    # Nodos del patrón (tenue)
     for x, y, lbl, _ in nodes_pat:
         ax.scatter(x, y, s=150, c="#374151", zorder=3, alpha=0.5)
-    # Colímite
     ax.scatter(0, 1.5, s=600, c="#f59e0b", zorder=6, edgecolors="#fbbf24", lw=2)
-    ax.text(0, 1.5, "cP", ha="center", va="center", fontsize=10, color="black", fontweight="bold", zorder=7)
-    ax.text(0, 2.1, "Álgebra Abstracta\n(skill emergente)", ha="center", fontsize=7.5, color="#fbbf24")
+    ax.text(0, 1.5, "cP", ha="center", va="center", fontsize=10,
+            color="black", fontweight="bold", zorder=7)
+    ax.text(0, 2.1, "Álgebra Abstracta\n(skill emergente)", ha="center",
+            fontsize=7.5, color="#fbbf24")
     for x, y, _, _ in nodes_pat:
         ax.annotate("", xy=(0, 1.5), xytext=(x, y),
                     arrowprops=dict(arrowstyle="-|>", color="#f59e0b", lw=1, alpha=0.6))
@@ -1094,23 +1279,43 @@ with tab3:
 with tab4:
     col1, col2 = st.columns([2, 1])
     with col1:
-        st.markdown("**Proceso de complexificación** — cómo el sistema genera skills emergentes mediante colímites categoriales.")
+        if _cq:
+            st.markdown(
+                f"**Complexificación MES para la consulta activa** — los tres paneles muestran "
+                f"el patrón P, el colímite cP y la estructura K' específicos del teorema analizado."
+            )
+        else:
+            st.markdown("**Proceso de complexificación** — cómo el sistema genera skills emergentes mediante colímites categoriales (ejemplo: Álgebra Abstracta).")
         with st.spinner("Generando diagrama MES..."):
-            fig = fig_mes_complexification()
+            fig = fig_mes_complexification(query=_cq or None)
         st.pyplot(fig, use_container_width=True)
         plt.close(fig)
     with col2:
         st.markdown("**¿Qué es la complexificación?**")
+        if _cq:
+            matched_info = match_skills(_cq)
+            st.markdown(
+                f"Para la consulta activa, el sistema identificó **{len(matched_info)} skills** "
+                f"que forman el patrón P."
+            )
+            st.markdown("**Patrón activado:**")
+            G_tmp = build_graph()
+            for sid in matched_info:
+                if sid in G_tmp:
+                    name = G_tmp.nodes[sid]["name"]
+                    cat  = G_tmp.nodes[sid].get("cat", "")
+                    st.markdown(f"- **{name}** _{cat}_")
+            st.divider()
         st.markdown("""
 Un **patrón** P es un funtor P: I → K que selecciona una colección de skills conectados.
 
 El **colímite** cP es el skill "más pequeño" que recibe morfismos de todos los componentes del patrón — representa la *síntesis* de esos conocimientos.
 
-La **complexificación** K' añade cP al grafo junto con los morfismos co-cono, generando un nuevo nivel de abstracción.
+La **complexificación** K'  añade cP al grafo junto con los morfismos co-cono, generando un nuevo nivel de abstracción.
 
 Este proceso modela cómo el sistema *aprende*: combina skills conocidos para crear competencias emergentes (Axiomas 8.1–8.4 del paper MES v7.0).
 
-**Verificado formalmente**: 379 tests confirman las propiedades:
+**Verificado formalmente**: 379 tests confirman:
 - Universalidad del colímite
 - Functorialidad de la complexificación
 - Principio de multiplicidad
