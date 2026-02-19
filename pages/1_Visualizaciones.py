@@ -25,8 +25,26 @@ h1, h2, h3 { color: #c9d1d9; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("⬡ Visualizaciones del Sistema NLE v7.0")
-st.caption("Grafo de skills · Espacio de embeddings · Arquitectura MES · Pipeline de razonamiento")
+st.title("📊 Visualizaciones del Sistema NLE v7.0")
+
+# ── Consulta activa desde el Demostrador ──────────────────────────────────────
+_cq = st.session_state.get("current_query", "")
+if _cq:
+    st.markdown(
+        f'<div style="background:#131c2e;border:1px solid #818cf8;border-left:4px solid #818cf8;'
+        f'border-radius:10px;padding:.8rem 1.2rem;margin-bottom:1rem;">'
+        f'<span style="font-size:.72rem;color:#6e7681;text-transform:uppercase;'
+        f'letter-spacing:.07em">Consulta activa</span><br>'
+        f'<span style="font-size:.95rem;color:#c9d1d9;font-weight:500">{_cq}</span>'
+        f'<span style="float:right;font-size:.72rem;color:#484f58">Todas las pestañas adaptadas a esta consulta</span>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+    if st.button("✕ Limpiar — mostrar sistema completo", key="clear_query"):
+        del st.session_state["current_query"]
+        st.rerun()
+else:
+    st.caption("Grafo de skills · Espacio de embeddings · Arquitectura MES · Pipeline de razonamiento")
 
 # ─── DATOS DEL SISTEMA ────────────────────────────────────────────────────────
 # 76 skills organizados por categoría matemática
@@ -234,53 +252,96 @@ def make_layout(_G):
     return pos
 
 
-def fig_skill_graph(filter_cat=None):
+def fig_skill_graph(filter_cat=None, query=None):
     G = build_graph()
     pos = make_layout(G)
 
+    # Calcular nodos relevantes para la consulta
+    TACTIC_CATS = ("Tácticas Lean", "Estrategias")
+    matched_set, dep_set, tactic_set = set(), set(), set()
+    if query:
+        matched = match_skills(query)
+        needed  = proof_subgraph(G, matched)
+        matched_set = set(matched)
+        tactic_set  = {n for n in needed if G.nodes[n].get("cat") in TACTIC_CATS}
+        dep_set     = needed - matched_set - tactic_set
+
     nodes = [n for n in G.nodes if filter_cat is None or G.nodes[n]["cat"] == filter_cat]
-    subG = G.subgraph(nodes)
+    subG  = G.subgraph(nodes)
 
     fig, ax = plt.subplots(figsize=(16, 8), facecolor=BG)
     ax.set_facecolor(BG)
 
-    # Edges
-    edge_colors = {"dep": "#30363d", "trans": "#58a6ff", "analogy": "#3fb950"}
+    # Edges — más visibles cuando conectan nodos relevantes
     for u, v, d in subG.edges(data=True):
-        if u in pos and v in pos:
-            x0, y0 = pos[u]
-            x1, y1 = pos[v]
-            col = edge_colors.get(d.get("kind", "dep"), "#30363d")
-            ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
-                        arrowprops=dict(arrowstyle="-|>", color=col, lw=0.8,
-                                        connectionstyle="arc3,rad=0.05"))
+        if u not in pos or v not in pos:
+            continue
+        kind = d.get("kind", "dep")
+        active = query and (u in matched_set | dep_set | tactic_set or
+                            v in matched_set | dep_set | tactic_set)
+        col   = {"dep": "#58a6ff" if active else "#1c2333",
+                 "trans": "#818cf8" if active else "#1c2333",
+                 "analogy": "#4ade80" if active else "#1c2333"}.get(kind, "#1c2333")
+        lw    = 1.4 if active else 0.4
+        alpha = 0.9 if active else 0.3
+        ax.annotate("", xy=pos[v], xytext=pos[u],
+                    arrowprops=dict(arrowstyle="-|>", color=col, lw=lw, alpha=alpha,
+                                    connectionstyle="arc3,rad=0.05"))
 
     # Nodes
     for sid in subG.nodes:
         x, y = pos[sid]
-        d = G.nodes[sid]
-        size = 220 if d["level"] == 0 else (160 if d["level"] == 1 else 130)
-        ax.scatter(x, y, s=size, c=d["color"], zorder=5, edgecolors="#21262d", linewidths=0.5)
-        ax.text(x, y - 0.25, d["name"], fontsize=5.5, ha="center", va="top",
-                color=FG, zorder=6)
+        d    = G.nodes[sid]
+        if query:
+            if sid in matched_set:
+                color, size, alpha, ec, lw = "#fbbf24", 600, 1.0, "#ffffff", 1.5
+            elif sid in tactic_set:
+                color, size, alpha, ec, lw = "#4ade80", 350, 0.95, "#4ade80", 1.0
+            elif sid in dep_set:
+                color, size, alpha, ec, lw = "#818cf8", 280, 0.9, "#818cf8", 0.8
+            else:
+                color, size, alpha, ec, lw = "#1c2333", 60, 0.2, "#21262d", 0.3
+        else:
+            size  = 220 if d["level"] == 0 else (160 if d["level"] == 1 else 130)
+            color, alpha, ec, lw = d["color"], 0.92, "#21262d", 0.5
 
-    # Leyenda de categorías
-    handles = [mpatches.Patch(color=c, label=k) for k, c in PALETTE.items()]
-    ax.legend(handles=handles, loc="lower left", ncol=2, fontsize=6.5,
-              framealpha=0.15, edgecolor="#30363d", labelcolor=FG)
+        ax.scatter(x, y, s=size, c=[color], zorder=5, alpha=alpha,
+                   edgecolors=ec, linewidths=lw)
 
-    # Leyenda de aristas
-    for lbl, col, ls in [("Dependencia", "#30363d", "-"), ("Traducción", "#58a6ff", "-"), ("Analogía", "#3fb950", "-")]:
-        ax.plot([], [], color=col, lw=1.2, linestyle=ls, label=lbl)
-    ax.legend(handles=handles + [
-        mpatches.Patch(color="#30363d", label="Dependencia"),
-        mpatches.Patch(color="#58a6ff", label="Traducción"),
-        mpatches.Patch(color="#3fb950", label="Analogía"),
-    ], loc="lower left", ncol=2, fontsize=6, framealpha=0.15, edgecolor="#21262d")
+        # Etiqueta: siempre en nodos relevantes, solo fundamentos en vista global
+        show_label = (query and sid in (matched_set | dep_set | tactic_set)) or \
+                     (not query and d["level"] == 0) or \
+                     (not query and filter_cat is not None)
+        if show_label:
+            fc = "#fbbf24" if sid in matched_set else \
+                 "#4ade80" if sid in tactic_set else \
+                 "#93c5fd" if sid in dep_set else FG
+            ax.text(x, y - 0.28, d["name"], fontsize=6, ha="center", va="top",
+                    color=fc, zorder=6, fontweight="bold" if sid in matched_set else "normal")
+
+    # Leyenda
+    if query:
+        legend_h = [
+            mpatches.Patch(color="#fbbf24", label=f"Skills activados ({len(matched_set)})"),
+            mpatches.Patch(color="#818cf8", label=f"Dependencias ({len(dep_set)})"),
+            mpatches.Patch(color="#4ade80", label=f"Tácticas/Estrategias ({len(tactic_set)})"),
+            mpatches.Patch(color="#1c2333", label="No involucrados"),
+        ]
+    else:
+        legend_h = [mpatches.Patch(color=c, label=k) for k, c in PALETTE.items()] + [
+            mpatches.Patch(color="#30363d", label="Dependencia"),
+            mpatches.Patch(color="#58a6ff", label="Traducción"),
+            mpatches.Patch(color="#3fb950", label="Analogía"),
+        ]
+    ax.legend(handles=legend_h, loc="lower left", ncol=2, fontsize=6.5,
+              framealpha=0.2, edgecolor="#21262d", labelcolor=FG)
 
     ax.axis("off")
-    ax.set_title(f"Grafo Categórico de Skills — NLE v7.0  ({len(subG.nodes)} nodos, {len(subG.edges)} aristas)",
-                 color=FG, fontsize=11, pad=10)
+    suffix = f' — consulta: "{query[:45]}…"' if query and len(query) > 45 \
+             else (f' — consulta: "{query}"' if query else "")
+    ax.set_title(
+        f"Grafo Categórico de Skills — NLE v7.0  ({len(subG.nodes)} nodos){suffix}",
+        color=FG, fontsize=10, pad=10)
     fig.tight_layout()
     return fig
 
@@ -305,7 +366,7 @@ def build_embeddings():
     return np.array(embs)
 
 
-def fig_tsne(method="tsne"):
+def fig_tsne(method="tsne", query=None):
     embs = build_embeddings()
     if method == "tsne":
         proj = TSNE(n_components=2, random_state=42, perplexity=15,
@@ -315,44 +376,86 @@ def fig_tsne(method="tsne"):
     else:
         pca = PCA(n_components=2, random_state=42)
         proj = pca.fit_transform(embs)
-        xlabel, ylabel = f"PC1 ({pca.explained_variance_ratio_[0]:.0%})", f"PC2 ({pca.explained_variance_ratio_[1]:.0%})"
-        title = "Espacio de Embeddings — PCA (76 skills)"
+        xlabel = f"PC1 ({pca.explained_variance_ratio_[0]:.0%})"
+        ylabel = f"PC2 ({pca.explained_variance_ratio_[1]:.0%})"
+        title  = "Espacio de Embeddings — PCA (76 skills)"
 
-    fig, ax = plt.subplots(figsize=(10, 7), facecolor=BG)
+    # Calcular nodos relevantes
+    TACTIC_CATS = ("Tácticas Lean", "Estrategias")
+    matched_set, dep_set, tactic_set = set(), set(), set()
+    if query:
+        G = build_graph()
+        matched    = match_skills(query)
+        needed     = proof_subgraph(G, matched)
+        matched_set = set(matched)
+        tactic_set  = {n for n in needed if G.nodes[n].get("cat") in TACTIC_CATS}
+        dep_set     = needed - matched_set - tactic_set
+
+    fig, ax = plt.subplots(figsize=(11, 7), facecolor=BG)
     ax.set_facecolor(BG)
 
     markers = {0: "D", 1: "o", 2: "^"}
+
+    # Dibuja primero los nodos no relevantes (fondo)
     for i, (sid, name, level, cat, color) in enumerate(SKILLS):
+        in_query = sid in (matched_set | dep_set | tactic_set)
+        if query and not in_query:
+            ax.scatter(proj[i, 0], proj[i, 1],
+                       c=[color], s=30, marker=markers[level],
+                       edgecolors="#0d1117", linewidths=0.3, alpha=0.18, zorder=3)
+
+    # Luego los relevantes (encima)
+    for i, (sid, name, level, cat, color) in enumerate(SKILLS):
+        in_matched = sid in matched_set
+        in_tactic  = sid in tactic_set
+        in_dep     = sid in dep_set
+        in_query   = in_matched or in_tactic or in_dep
+
+        if query and not in_query:
+            continue  # ya dibujados arriba
+
+        if in_matched:
+            clr, sz, ec, lw, zord = "#fbbf24", 320, "#ffffff", 2.0, 7
+        elif in_tactic:
+            clr, sz, ec, lw, zord = "#4ade80", 200, "#4ade80", 1.5, 6
+        elif in_dep:
+            clr, sz, ec, lw, zord = "#818cf8", 160, "#818cf8", 1.2, 6
+        else:
+            clr, sz, ec, lw, zord = color, 80 if level == 0 else 55, "#0d1117", 0.4, 5
+
         ax.scatter(proj[i, 0], proj[i, 1],
-                   c=color, s=80 if level == 0 else 55,
-                   marker=markers[level], zorder=5,
-                   edgecolors="#0d1117", linewidths=0.4, alpha=0.92)
+                   c=[clr], s=sz, marker=markers[level],
+                   edgecolors=ec, linewidths=lw, alpha=0.95, zorder=zord)
 
-    # Etiquetas para nivel 0 (fundamentos)
-    for i, (sid, name, level, cat, color) in enumerate(SKILLS):
-        if level == 0:
+        # Etiquetas
+        show = in_query or (not query and level == 0)
+        if show:
+            fc = "#fbbf24" if in_matched else "#4ade80" if in_tactic else \
+                 "#93c5fd" if in_dep else color
             ax.annotate(name, (proj[i, 0], proj[i, 1]),
-                        fontsize=6, color=color,
-                        xytext=(4, 4), textcoords="offset points")
+                        fontsize=6.5 if in_matched else 5.5,
+                        color=fc, fontweight="bold" if in_matched else "normal",
+                        xytext=(5, 5), textcoords="offset points",
+                        arrowprops=dict(arrowstyle="-", color=fc, lw=0.5, alpha=0.5)
+                        if in_matched else None)
 
-    # Leyenda de categorías
-    handles = [mpatches.Patch(color=c, label=k) for k, c in PALETTE.items()]
+    # Leyenda
+    if query:
+        handles = [
+            mpatches.Patch(color="#fbbf24", label=f"Activados ({len(matched_set)})"),
+            mpatches.Patch(color="#818cf8", label=f"Dependencias ({len(dep_set)})"),
+            mpatches.Patch(color="#4ade80", label=f"Tácticas ({len(tactic_set)})"),
+            mpatches.Patch(color="#3d444d", label="No involucrados"),
+        ]
+        title += f'\n"{query[:55]}{"…" if len(query)>55 else ""}"'
+    else:
+        handles = [mpatches.Patch(color=c, label=k) for k, c in PALETTE.items()]
     ax.legend(handles=handles, loc="upper left", ncol=1, fontsize=6.5,
-              framealpha=0.15, edgecolor="#30363d")
-
-    # Leyenda de niveles
-    for lbl, mk in [("Nivel 0 (fundamentos)", "D"), ("Nivel 1 (dominios)", "o"), ("Nivel 2 (estrategias)", "^")]:
-        ax.scatter([], [], c="#888", marker=mk, s=60, label=lbl)
-    ax.legend(loc="lower right", fontsize=6.5, framealpha=0.15, edgecolor="#30363d",
-              handles=handles + [
-                  mpatches.Patch(color="#888", label="◆ Nivel 0 — Fundamentos"),
-                  mpatches.Patch(color="#aaa", label="● Nivel 1 — Dominios"),
-                  mpatches.Patch(color="#ccc", label="▲ Nivel 2 — Estrategias"),
-              ])
+              framealpha=0.2, edgecolor="#21262d", labelcolor=FG)
 
     ax.set_xlabel(xlabel, color=FG, fontsize=9)
     ax.set_ylabel(ylabel, color=FG, fontsize=9)
-    ax.set_title(title, color=FG, fontsize=11, pad=10)
+    ax.set_title(title, color=FG, fontsize=10, pad=10)
     ax.tick_params(colors=FG, labelsize=7)
     for spine in ax.spines.values():
         spine.set_edgecolor("#21262d")
@@ -954,21 +1057,29 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 ])
 
 with tab1:
-    st.markdown("**Grafo categórico completo de los 76 skills** — nodos por dominio, aristas por tipo de morfismo.")
+    if _cq:
+        st.markdown(f"**Grafo completo** — nodos resaltados según la consulta activa. "
+                    f"🟡 activados · 🟣 dependencias · 🟢 tácticas · gris=no involucrados")
+    else:
+        st.markdown("**Grafo categórico completo de los 76 skills** — nodos por dominio, aristas por tipo de morfismo.")
     cats_filter = ["Todos"] + list(PALETTE.keys())
     sel = st.selectbox("Filtrar por categoría", cats_filter, key="cat_filter")
     with st.spinner("Generando grafo..."):
-        fig = fig_skill_graph(None if sel == "Todos" else sel)
+        fig = fig_skill_graph(None if sel == "Todos" else sel, query=_cq or None)
     st.pyplot(fig, use_container_width=True)
     plt.close(fig)
     st.caption("◆ Nivel 0 (fundamentos)  ●  Nivel 1 (dominios)  ▲ Nivel 2 (estrategias) · Aristas: gris=dependencia, azul=traducción, verde=analogía")
 
 with tab2:
-    st.markdown("**Proyección 2D del espacio de embeddings** — cada skill representado por un vector 256-dim + estructura de grafo.")
+    if _cq:
+        st.markdown("**Espacio de embeddings** — skills relevantes a la consulta resaltados. "
+                    "Los clusters muestran la proximidad semántica entre skills.")
+    else:
+        st.markdown("**Proyección 2D del espacio de embeddings** — cada skill representado por un vector 256-dim + estructura de grafo.")
     method = st.radio("Método de reducción", ["tsne", "pca"], horizontal=True,
                       format_func=lambda x: "t-SNE (preserva clusters)" if x=="tsne" else "PCA (preserva varianza)")
     with st.spinner("Calculando proyección..."):
-        fig = fig_tsne(method)
+        fig = fig_tsne(method, query=_cq or None)
     st.pyplot(fig, use_container_width=True)
     plt.close(fig)
     st.caption("Los clusters visibles reflejan la organización semántica del grafo. Skills del mismo dominio se agrupan naturalmente.")
@@ -1064,10 +1175,24 @@ Total trainable: ~124,420 params
 with tab7:
     st.markdown("**Traza de prueba interactiva** — ingresa un teorema o problema y ve qué skills, dependencias y tácticas activa el sistema.")
 
+    # ── Precargar textarea y detectar auto-ejecución ───────────────────────────
+    _auto_run = False
+    if "_trace_q" in st.session_state:
+        # Botón de ejemplo pulsado → forzar valor en el widget
+        st.session_state["_tab7_textarea"] = st.session_state.pop("_trace_q")
+    elif _cq and st.session_state.get("_tab7_last_cq") != _cq:
+        # Nueva consulta procedente del Demostrador → pre-llenar y auto-ejecutar
+        st.session_state["_tab7_textarea"] = _cq
+        st.session_state["_tab7_last_cq"] = _cq
+        _auto_run = True
+
     col_a, col_b = st.columns([3, 1])
     with col_a:
+        if _auto_run:
+            st.caption("↓ Trazando automáticamente la consulta que enviaste al Demostrador")
         query_input = st.text_area(
             "Teorema o problema",
+            key="_tab7_textarea",
             placeholder="Ej: Demuestra que √2 es irracional\n     example (n : Nat) : n + 0 = n := by ?\n     Explica el Lema de Yoneda",
             height=90,
             label_visibility="collapsed",
@@ -1084,18 +1209,14 @@ with tab7:
             "Inducción Nat":    "Prueba por inducción que la suma de los primeros n naturales es n(n+1)/2",
         }
         for label, ex in ejemplos.items():
-            if st.button(label, use_container_width=True):
+            if st.button(label, use_container_width=True, key=f"_ex_{label}"):
                 st.session_state["_trace_q"] = ex
                 st.rerun()
-
-    # Pick value from session state if button was pressed
-    if "_trace_q" in st.session_state:
-        query_input = st.session_state.pop("_trace_q")
 
     run_trace = st.button("Trazar subred →", type="primary",
                           disabled=not (query_input and query_input.strip()))
 
-    if run_trace and query_input.strip():
+    if (run_trace or _auto_run) and query_input and query_input.strip():
         with st.spinner("Calculando subred de skills activada..."):
             fig, n_act, n_total = fig_proof_trace(query_input.strip())
         st.pyplot(fig, use_container_width=True)

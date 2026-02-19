@@ -487,6 +487,10 @@ hr { border-color: #1c2333 !important; }
             if res.get("error"):
                 st.error(res["error"])
             else:
+                # Guardar consulta activa para visualizaciones
+                st.session_state["current_query"] = query
+                st.session_state["current_response"] = res["content"]
+
                 # Render respuesta como markdown dentro de la tarjeta
                 st.markdown('<div class="resp-card">', unsafe_allow_html=True)
                 st.markdown(res["content"])
@@ -503,6 +507,13 @@ hr { border-color: #1c2333 !important; }
                     f'</div>',
                     unsafe_allow_html=True,
                 )
+
+                # Botón para ver visualizaciones contextuales
+                st.markdown('<div style="height:.6rem"></div>', unsafe_allow_html=True)
+                if st.button("📊 Ver grafo de skills y traza de esta consulta →",
+                             use_container_width=True):
+                    st.switch_page("pages/1_Visualizaciones.py")
+
                 st.session_state.history.insert(0, {
                     "ts": datetime.now().strftime("%H:%M"),
                     "q": query,
