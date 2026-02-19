@@ -2,7 +2,6 @@
 
 Sistema interactivo de razonamiento matemático formal basado en **NLE v7.0** (Evolutionary Logical Core, Ehresmann Memory Evolutive Systems).
 
-🔗 **Demo en vivo:** https://share.streamlit.io
 📄 **Paper:** UNAM 2025 — Leonardo Jiménez Martínez
 
 ---
