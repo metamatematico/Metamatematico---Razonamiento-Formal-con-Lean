@@ -255,8 +255,10 @@ section[data-testid="stSidebar"] .stTextInput label {
     background: linear-gradient(145deg, #090e1a 0%, #0f1729 50%, #0a0f1c 100%);
     border: 1px solid #1a2236;
     border-radius: 20px;
-    padding: 2.6rem 2rem 2.2rem;
-    margin-bottom: 2rem;
+    padding: 2.4rem 4rem 2rem;
+    margin: 0 auto 2rem;
+    max-width: 860px;
+    min-height: 0;
     position: relative;
     overflow: hidden;
     text-align: center;
@@ -302,9 +304,10 @@ section[data-testid="stSidebar"] .stTextInput label {
 /* Main name */
 .meta-name {
     font-family: 'Space Grotesk', 'Inter', sans-serif;
-    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
     background: linear-gradient(120deg,
         #60a5fa 0%, #818cf8 30%, #c084fc 55%, #818cf8 75%, #60a5fa 100%);
     background-size: 250% 250%;
@@ -313,7 +316,8 @@ section[data-testid="stSidebar"] .stTextInput label {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin: 0 0 0.5rem;
-    line-height: 1.05;
+    line-height: 1.1;
+    overflow: visible;
 }
 
 /* Subtitle */
@@ -604,12 +608,8 @@ hr { border-color: #141c2a !important; }
             unsafe_allow_html=True,
         )
 
-    # ── Contenido central ─────────────────────────────────────────────────────
-    _, col, _ = st.columns([1, 2.2, 1])
-    with col:
-
-        # ── Hero ───────────────────────────────────────────────────────────
-        st.markdown("""
+    # ── Hero — ancho completo, rectángulo horizontal ──────────────────────────
+    st.markdown("""
 <div class="meta-hero">
   <div class="glow-bl"></div>
   <div class="meta-deco">∑ · ∀ · ∂ · ∫ · ∃ · ∇ · ∞</div>
@@ -624,6 +624,10 @@ hr { border-color: #141c2a !important; }
   </div>
 </div>
 """, unsafe_allow_html=True)
+
+    # ── Columna central para el formulario ────────────────────────────────────
+    _, col, _ = st.columns([1, 2.2, 1])
+    with col:
 
         # ── ¿Qué es el Núcleo Lógico Evolutivo? ───────────────────────────
         with st.expander("¿Qué es el Núcleo Lógico Evolutivo?"):
