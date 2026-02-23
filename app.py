@@ -1,6 +1,6 @@
 """
-NLE v7.0 — Demostrador Matematico
-Entry point con navegacion multi-pagina.
+METAMATEMÁTICO — NLE v7.0
+Asistente de razonamiento formal y demostracion de teoremas.
 """
 
 import streamlit as st
@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 st.set_page_config(
-    page_title="NLE v7.0 — Demostrador Matematico",
+    page_title="METAMATEMÁTICO",
     page_icon="🧮",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -207,172 +207,340 @@ def call_demo(query: str, info: dict) -> dict:
 def page_home():
     st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@700;800&display=swap');
 
 *, body { font-family: 'Inter', sans-serif; }
 
+/* ── Scrollbar ───────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #080c12; }
+::-webkit-scrollbar-thumb { background: #1c2333; border-radius: 4px; }
+
+/* ── Global bg ───────────────────────────── */
+.main .block-container { background: #080c12; }
+section[data-testid="stMain"]       { background: #080c12; }
+
 /* ── Sidebar ─────────────────────────────── */
 section[data-testid="stSidebar"] {
-    background: #080c12 !important;
-    border-right: 1px solid #1c2333;
+    background: #060a10 !important;
+    border-right: 1px solid #151c28;
 }
 section[data-testid="stSidebar"] .stSelectbox label,
-section[data-testid="stSidebar"] .stSlider label,
+section[data-testid="stSidebar"] .stSlider  label,
 section[data-testid="stSidebar"] .stTextInput label {
-    font-size: 0.78rem;
-    font-weight: 500;
-    color: #6e7681;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4a5568;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
 }
 
-/* ── Hero header ─────────────────────────── */
-.nle-hero {
-    background: linear-gradient(135deg, #0d1424 0%, #111827 50%, #0d1117 100%);
-    border: 1px solid #1c2333;
-    border-radius: 14px;
-    padding: 1.8rem 2rem 1.4rem;
-    margin-bottom: 1.6rem;
+/* ── Animated gradient keyframes ────────── */
+@keyframes grad-shift {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+}
+@keyframes float-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+    0%,100% { box-shadow: 0 0 0 0 #818cf800; }
+    50%      { box-shadow: 0 0 24px 4px #818cf818; }
+}
+
+/* ── Hero ────────────────────────────────── */
+.meta-hero {
+    background: linear-gradient(145deg, #090e1a 0%, #0f1729 50%, #0a0f1c 100%);
+    border: 1px solid #1a2236;
+    border-radius: 20px;
+    padding: 2.6rem 2rem 2.2rem;
+    margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+    text-align: center;
+    animation: float-in 0.5s ease both;
 }
-.nle-hero::before {
+/* Grid overlay */
+.meta-hero::before {
     content: "";
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 180px; height: 180px;
-    background: radial-gradient(circle, #818cf820 0%, transparent 70%);
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(#818cf80a 1px, transparent 1px),
+        linear-gradient(90deg, #818cf80a 1px, transparent 1px);
+    background-size: 36px 36px;
     pointer-events: none;
 }
-.nle-title {
-    font-size: 1.65rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #93c5fd, #818cf8, #c084fc);
+/* Purple glow top-right */
+.meta-hero::after {
+    content: "";
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #7c3aed18 0%, transparent 65%);
+    pointer-events: none;
+}
+/* Blue glow bottom-left */
+.meta-hero .glow-bl {
+    position: absolute;
+    bottom: -60px; left: -60px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, #3b82f612 0%, transparent 65%);
+    pointer-events: none;
+}
+
+/* Math deco row */
+.meta-deco {
+    font-size: 1.05rem;
+    color: #818cf835;
+    letter-spacing: 0.55em;
+    margin-bottom: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Main name */
+.meta-name {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    background: linear-gradient(120deg,
+        #60a5fa 0%, #818cf8 30%, #c084fc 55%, #818cf8 75%, #60a5fa 100%);
+    background-size: 250% 250%;
+    animation: grad-shift 6s ease infinite;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin: 0 0 0.3rem;
-    line-height: 1.2;
-}
-.nle-subtitle {
-    color: #6e7681;
-    font-size: 0.82rem;
-    font-weight: 400;
-    margin: 0;
-    letter-spacing: 0.02em;
-}
-.nle-badge {
-    display: inline-block;
-    background: #1c2333;
-    border: 1px solid #2d3748;
-    border-radius: 20px;
-    padding: 0.18rem 0.65rem;
-    font-size: 0.72rem;
-    color: #8b949e;
-    margin-right: 0.4rem;
-    margin-top: 0.7rem;
+    margin: 0 0 0.5rem;
+    line-height: 1.05;
 }
 
-/* ── Quick example buttons ───────────────── */
-div[data-testid="column"] .stButton > button {
-    background: #111827;
-    border: 1px solid #1f2937;
-    border-radius: 20px;
-    color: #6e7681;
-    font-size: 0.78rem;
+/* Subtitle */
+.meta-sub {
+    color: #4a5568;
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    margin: 0 0 1rem;
+}
+
+/* Badges */
+.meta-badge {
+    display: inline-block;
+    background: #0f1729;
+    border: 1px solid #1e2d47;
+    border-radius: 100px;
+    padding: 0.2rem 0.75rem;
+    font-size: 0.7rem;
+    color: #4a5568;
+    margin: 0.2rem 0.2rem 0;
     font-weight: 500;
-    padding: 0.35rem 0.6rem;
-    transition: all 0.18s ease;
+    letter-spacing: 0.04em;
+    transition: border-color 0.2s, color 0.2s;
+}
+.meta-badge:hover { border-color: #818cf850; color: #818cf8; }
+
+/* ── Section label ───────────────────────── */
+.section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #2d3748;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.section-label::before {
+    content: "";
+    display: inline-block;
+    width: 14px; height: 1px;
+    background: #2d3748;
+}
+
+/* ── Example buttons ─────────────────────── */
+div[data-testid="column"] .stButton > button {
+    background: #0d1117;
+    border: 1px solid #161c27;
+    border-radius: 100px;
+    color: #3d4d63;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.4rem 0.5rem;
+    transition: all 0.2s ease;
     width: 100%;
+    letter-spacing: 0.02em;
 }
 div[data-testid="column"] .stButton > button:hover {
-    border-color: #818cf8;
+    border-color: #4f46e580;
     color: #93c5fd;
-    background: #131c2e;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px #818cf820;
+    background: #0f1729;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px #4f46e520;
+}
+div[data-testid="column"] .stButton > button:active {
+    transform: translateY(0);
+}
+
+/* ── Query wrapper ───────────────────────── */
+.query-wrap {
+    background: #0d1117;
+    border: 1px solid #161c27;
+    border-radius: 14px;
+    padding: 1rem 1rem 0.8rem;
+    margin: 0.6rem 0;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.query-wrap:focus-within {
+    border-color: #4f46e560;
+    box-shadow: 0 0 0 4px #4f46e510;
 }
 
 /* ── Textarea ────────────────────────────── */
 .stTextArea textarea {
-    background: #111827 !important;
-    border: 1px solid #1f2937 !important;
-    border-radius: 10px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
     color: #c9d1d9 !important;
-    font-size: 0.95rem !important;
-    line-height: 1.6 !important;
-    transition: border-color 0.2s;
+    font-size: 0.96rem !important;
+    line-height: 1.65 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    resize: none !important;
 }
 .stTextArea textarea:focus {
-    border-color: #818cf8 !important;
-    box-shadow: 0 0 0 3px #818cf815 !important;
-}
-
-/* ── Send button ─────────────────────────── */
-div[data-testid="stMainBlockContainer"] > div > div > div .stButton:last-of-type > button[kind="primary"],
-.stButton > button[kind="primary"] {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
     border: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.02em !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 4px 14px #7c3aed30 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
-.stButton > button[kind="primary"]:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 20px #7c3aed45 !important;
+.stTextArea textarea::placeholder { color: #2d3748 !important; }
+.stTextArea { border: none !important; }
+div[data-testid="stTextArea"] > label { display: none; }
+
+/* ── Primary button ──────────────────────── */
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #7c3aed 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    color: #fff !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 4px 18px #6d28d928 !important;
+    height: 2.8rem !important;
+    animation: pulse-glow 3s ease infinite;
+}
+.stButton > button[kind="primary"]:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 28px #6d28d948 !important;
+    filter: brightness(1.08) !important;
+}
+.stButton > button[kind="primary"]:disabled {
+    opacity: 0.35 !important;
+    animation: none !important;
 }
 
 /* ── Response card ───────────────────────── */
 .resp-card {
-    background: #0d1117;
-    border: 1px solid #1c2333;
-    border-left: 3px solid #818cf8;
-    border-radius: 12px;
-    padding: 1.5rem 1.8rem;
-    margin-top: 1rem;
-    line-height: 1.78;
+    background: #0a0f1c;
+    border: 1px solid #151c2e;
+    border-left: 3px solid #6d28d9;
+    border-radius: 14px;
+    padding: 1.6rem 1.8rem;
+    margin-top: 1.2rem;
+    line-height: 1.82;
     color: #c9d1d9;
-    font-size: 0.93rem;
+    font-size: 0.94rem;
+    animation: float-in 0.4s ease both;
+    position: relative;
+}
+.resp-card::before {
+    content: "∴";
+    position: absolute;
+    top: 1rem; right: 1.2rem;
+    font-size: 1.2rem;
+    color: #6d28d918;
 }
 .resp-card code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85em;
-    background: #161b22;
-    color: #79c0ff;
-    padding: 2px 6px;
-    border-radius: 4px;
+    font-size: 0.84em;
+    background: #111827;
+    color: #7dd3fc;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid #1e293b;
 }
 .resp-card pre {
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    padding: 1rem;
+    background: #080c12;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem;
     overflow-x: auto;
-    font-size: 0.85em;
+    font-size: 0.84em;
 }
+.resp-card pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #a5f3fc;
+}
+.resp-card h1,.resp-card h2,.resp-card h3 {
+    color: #93c5fd;
+    font-weight: 600;
+}
+.resp-card strong { color: #e2e8f0; }
+.resp-card blockquote {
+    border-left: 3px solid #4f46e5;
+    padding-left: 1rem;
+    color: #6e7681;
+    margin: 0.8rem 0;
+}
+
+/* ── Meta row under response ─────────────── */
 .resp-meta {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 0.7rem;
-    color: #3d444d;
-    font-size: 0.74rem;
+    margin-top: 0.8rem;
+    color: #2d3748;
+    font-size: 0.72rem;
     font-family: 'JetBrains Mono', monospace;
 }
-.resp-meta span { color: #484f58; }
+.resp-meta .dot { color: #1e2d47; }
+.resp-meta .accent { color: #4f46e5; }
+.resp-meta .val   { color: #374151; }
 
-/* ── Divider / HR ────────────────────────── */
-hr { border-color: #1c2333 !important; }
-
-/* ── Expander ────────────────────────────── */
-.streamlit-expanderHeader {
-    background: #111827 !important;
-    border-radius: 8px !important;
-    font-size: 0.85rem !important;
-    color: #6e7681 !important;
+/* ── Viz button ──────────────────────────── */
+.viz-btn > button {
+    background: #0a0f1c !important;
+    border: 1px solid #1a2236 !important;
+    border-radius: 10px !important;
+    color: #6366f1 !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
 }
+.viz-btn > button:hover {
+    background: #0f1729 !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 4px 16px #6366f120 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* ── Historial expander ───────────────────── */
+.streamlit-expanderHeader {
+    background: #0a0f1a !important;
+    border: 1px solid #141c2a !important;
+    border-radius: 10px !important;
+    font-size: 0.8rem !important;
+    color: #3d4d63 !important;
+    font-weight: 600 !important;
+}
+
+/* ── Divider ─────────────────────────────── */
+hr { border-color: #141c2a !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -382,9 +550,14 @@ hr { border-color: #1c2333 !important; }
     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
         st.markdown("""
-<div style="padding:0.5rem 0 0.2rem">
-  <div style="font-size:1.1rem;font-weight:700;color:#93c5fd;letter-spacing:-0.01em">🧮 NLE v7.0</div>
-  <div style="font-size:0.72rem;color:#3d444d;margin-top:2px">BIOMAT · UNAM · 2025</div>
+<div style="padding:0.8rem 0 0.4rem">
+  <div style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:800;
+              letter-spacing:0.06em;
+              background:linear-gradient(120deg,#60a5fa,#818cf8,#c084fc);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+              background-clip:text">METAMATEMÁTICO</div>
+  <div style="font-size:0.68rem;color:#2d3748;margin-top:4px;letter-spacing:0.06em;
+              text-transform:uppercase;font-weight:600">BIOMAT · UNAM · NLE v7.0</div>
 </div>
 """, unsafe_allow_html=True)
         st.divider()
@@ -402,49 +575,65 @@ hr { border-color: #1c2333 !important; }
             )
 
         model = st.selectbox("Modelo", cfg["models"])
-        max_tokens = st.slider("Tokens", 256, 4096, 1024, 128)
+        max_tokens = st.slider("Tokens máx.", 256, 4096, 1024, 128)
 
         st.divider()
 
         n_hist = len(st.session_state.history)
         st.markdown(
-            f'<div style="font-size:0.78rem;color:#6e7681;text-transform:uppercase;'
-            f'letter-spacing:.06em;margin-bottom:.4rem">Sesión</div>'
-            f'<div style="font-size:1.5rem;font-weight:700;color:#c9d1d9">{n_hist}'
-            f'<span style="font-size:.8rem;font-weight:400;color:#484f58"> consultas</span></div>',
+            f'<div style="font-size:0.68rem;color:#2d3748;text-transform:uppercase;'
+            f'letter-spacing:.1em;font-weight:700;margin-bottom:.5rem">Sesión activa</div>'
+            f'<div style="font-size:2rem;font-weight:800;color:#c9d1d9;line-height:1">{n_hist}'
+            f'<span style="font-size:.78rem;font-weight:400;color:#3d4d63"> consultas</span></div>',
             unsafe_allow_html=True,
         )
-        if n_hist and st.button("Limpiar historial", use_container_width=True):
-            st.session_state.history = []
-            st.rerun()
+        if n_hist:
+            st.markdown('<div style="height:.4rem"></div>', unsafe_allow_html=True)
+            if st.button("Limpiar historial", use_container_width=True):
+                st.session_state.history = []
+                st.rerun()
+
+        st.divider()
+        st.markdown(
+            '<div style="font-size:0.65rem;color:#1e2d3d;line-height:1.6">'
+            '76 skills matemáticos · 14 categorías<br>'
+            'GNN + PPO · Memory Evolutive Systems<br>'
+            'Lean 4 · FOL · ZFC · Teoría de Tipos'
+            '</div>',
+            unsafe_allow_html=True,
+        )
 
     # ── Contenido central ─────────────────────────────────────────────────────
-    _, col, _ = st.columns([1, 2, 1])
+    _, col, _ = st.columns([1, 2.2, 1])
     with col:
 
-        # Hero
+        # ── Hero ───────────────────────────────────────────────────────────
         st.markdown("""
-<div class="nle-hero">
-  <p class="nle-title">Demostrador Matemático</p>
-  <p class="nle-subtitle">Razonamiento formal · Lean 4 · Memory Evolutive Systems</p>
-  <span class="nle-badge">76 skills</span>
-  <span class="nle-badge">14 categorías</span>
-  <span class="nle-badge">GNN + PPO</span>
-  <span class="nle-badge">NLE v7.0</span>
+<div class="meta-hero">
+  <div class="glow-bl"></div>
+  <div class="meta-deco">∑ · ∀ · ∂ · ∫ · ∃ · ∇ · ∞</div>
+  <div class="meta-name">METAMATEMÁTICO</div>
+  <p class="meta-sub">Razonamiento formal · Lean 4 · NLE v7.0 · BIOMAT–UNAM</p>
+  <div>
+    <span class="meta-badge">76 skills</span>
+    <span class="meta-badge">14 categorías</span>
+    <span class="meta-badge">GNN + PPO</span>
+    <span class="meta-badge">Memory Evolutive Systems</span>
+    <span class="meta-badge">Lean 4</span>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
-        # Ejemplos rápidos
+        # ── Ejemplos rápidos ───────────────────────────────────────────────
         st.markdown(
-            '<div style="font-size:0.74rem;color:#484f58;text-transform:uppercase;'
-            'letter-spacing:.07em;margin-bottom:.5rem">Ejemplos rápidos</div>',
+            '<div class="section-label">Ejemplos rápidos</div>',
             unsafe_allow_html=True,
         )
         examples = [
-            ("√2 irracional",   "Demuestra que √2 es irracional"),
-            ("Yoneda",          "Explica el Lema de Yoneda"),
-            ("Lean 4",          "example (n : Nat) : n + 0 = n := by ?"),
-            ("Curry-Howard",    "Qué es la correspondencia Curry-Howard?"),
+            ("√2  irracional",  "Demuestra que √2 es irracional"),
+            ("∀  Yoneda",       "Explica el Lema de Yoneda"),
+            ("⟨⟩  Lean 4",      "example (n : Nat) : n + 0 = n := by ?"),
+            ("↔  Curry–Howard", "Qué es la correspondencia Curry-Howard?"),
         ]
         cols4 = st.columns(4)
         for i, (label, ex) in enumerate(examples):
@@ -452,25 +641,32 @@ hr { border-color: #1c2333 !important; }
                 if st.button(label, use_container_width=True, help=ex):
                     st.session_state["_ex"] = ex
 
-        # Área de consulta
-        st.markdown('<div style="height:.4rem"></div>', unsafe_allow_html=True)
+        # ── Área de consulta ───────────────────────────────────────────────
+        st.markdown(
+            '<div style="height:.3rem"></div>'
+            '<div class="section-label" style="margin-top:.4rem">Tu consulta</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown('<div class="query-wrap">', unsafe_allow_html=True)
         query = st.text_area(
-            "query",
+            "consulta",
             value=st.session_state.pop("_ex", ""),
-            height=120,
-            placeholder="Escribe tu problema matemático o goal de Lean 4...",
+            height=110,
+            placeholder="Escribe un teorema, problema matemático o goal de Lean 4…",
             label_visibility="collapsed",
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        send = st.button("Enviar →", type="primary", disabled=not query.strip(),
+        send = st.button("Demostrar  →", type="primary",
+                         disabled=not query.strip(),
                          use_container_width=True)
 
         # ── Procesamiento ──────────────────────────────────────────────────
         if send and query.strip():
-            info = classify(query)
+            info   = classify(query)
             prompt = enrich(query, info)
 
-            with st.spinner("Procesando…"):
+            with st.spinner("Analizando…"):
                 t0 = time.time()
                 if provider == "Google AI Studio" and api_key:
                     res = call_google(prompt, model, api_key, max_tokens)
@@ -487,11 +683,9 @@ hr { border-color: #1c2333 !important; }
             if res.get("error"):
                 st.error(res["error"])
             else:
-                # Guardar consulta activa para visualizaciones
-                st.session_state["current_query"] = query
+                st.session_state["current_query"]    = query
                 st.session_state["current_response"] = res["content"]
 
-                # Render respuesta como markdown dentro de la tarjeta
                 st.markdown('<div class="resp-card">', unsafe_allow_html=True)
                 st.markdown(res["content"])
                 st.markdown('</div>', unsafe_allow_html=True)
@@ -500,50 +694,56 @@ hr { border-color: #1c2333 !important; }
                             if res["in_tok"] else "")
                 st.markdown(
                     f'<div class="resp-meta">'
-                    f'<span style="color:#818cf8">◆</span>'
-                    f'<span>{res["model"]}</span>'
-                    f'{"<span>·</span><span>" + tok_info + "</span>" if tok_info else ""}'
-                    f'<span>·</span><span>{elapsed:.1f}s</span>'
+                    f'<span class="accent">◆</span>'
+                    f'<span class="val">{res["model"]}</span>'
+                    + (f'<span class="dot">·</span><span class="val">{tok_info}</span>'
+                       if tok_info else "")
+                    + f'<span class="dot">·</span><span class="val">{elapsed:.1f}s</span>'
                     f'</div>',
                     unsafe_allow_html=True,
                 )
 
-                # Botón para ver visualizaciones contextuales
-                st.markdown('<div style="height:.6rem"></div>', unsafe_allow_html=True)
-                if st.button("📊 Ver grafo de skills y traza de esta consulta →",
-                             use_container_width=True):
-                    st.switch_page("pages/1_Visualizaciones.py")
+                st.markdown('<div style="height:.5rem"></div>', unsafe_allow_html=True)
+                with st.container():
+                    st.markdown('<div class="viz-btn">', unsafe_allow_html=True)
+                    if st.button("📊  Ver grafo · embeddings · traza categórica de esta consulta →",
+                                 use_container_width=True):
+                        st.switch_page("pages/1_Visualizaciones.py")
+                    st.markdown('</div>', unsafe_allow_html=True)
 
                 st.session_state.history.insert(0, {
-                    "ts": datetime.now().strftime("%H:%M"),
-                    "q": query,
-                    "a": res["content"],
+                    "ts":    datetime.now().strftime("%H:%M"),
+                    "q":     query,
+                    "a":     res["content"],
                     "model": res["model"],
-                    "t": round(elapsed, 1),
+                    "t":     round(elapsed, 1),
                 })
 
         # ── Historial ──────────────────────────────────────────────────────
         if st.session_state.history:
             st.divider()
-            with st.expander(f"Historial — {len(st.session_state.history)} consultas"):
+            with st.expander(f"📋  Historial de sesión — {len(st.session_state.history)} consultas"):
                 for item in st.session_state.history[:15]:
                     st.markdown(
-                        f'<div style="font-size:.8rem;color:#484f58;margin-bottom:.15rem">'
-                        f'{item["ts"]} · <span style="color:#6e7681">{item["model"]}</span>'
-                        f' · {item["t"]}s</div>'
-                        f'<div style="font-size:.9rem;color:#c9d1d9;margin-bottom:.2rem">'
+                        f'<div style="font-size:.75rem;color:#2d3748;margin-bottom:.1rem">'
+                        f'{item["ts"]}'
+                        f' <span style="color:#374151">·</span> '
+                        f'<span style="color:#3d4d63">{item["model"]}</span>'
+                        f' <span style="color:#374151">·</span> '
+                        f'{item["t"]}s</div>'
+                        f'<div style="font-size:.88rem;color:#94a3b8;margin-bottom:.15rem;'
+                        f'font-weight:500">'
                         f'{item["q"][:90]}{"…" if len(item["q"])>90 else ""}</div>'
-                        f'<div style="font-size:.82rem;color:#484f58;padding-bottom:.8rem;'
-                        f'border-bottom:1px solid #1c2333">'
-                        f'{item["a"][:180]}{"…" if len(item["a"])>180 else ""}</div>',
+                        f'<div style="font-size:.8rem;color:#374151;padding-bottom:.75rem;'
+                        f'border-bottom:1px solid #0f1729;margin-bottom:.5rem">'
+                        f'{item["a"][:160]}{"…" if len(item["a"])>160 else ""}</div>',
                         unsafe_allow_html=True,
                     )
-                st.markdown('<div style="height:.5rem"></div>', unsafe_allow_html=True)
-                if st.button("Exportar JSON"):
+                if st.button("⬇  Exportar historial JSON", use_container_width=True):
                     st.download_button(
-                        "Descargar historial",
+                        "Descargar",
                         data=json.dumps(st.session_state.history, ensure_ascii=False, indent=2),
-                        file_name=f"historial_{datetime.now().strftime('%Y%m%d_%H%M')}.json",
+                        file_name=f"metamatico_{datetime.now().strftime('%Y%m%d_%H%M')}.json",
                         mime="application/json",
                     )
 
@@ -551,7 +751,7 @@ hr { border-color: #1c2333 !important; }
 # ── Navegacion ────────────────────────────────────────────────────────────────
 
 pg = st.navigation([
-    st.Page(page_home, title="Demostrador", icon="🧮", default=True),
+    st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
     st.Page("pages/1_Visualizaciones.py", title="Visualizaciones", icon="📊"),
 ])
 pg.run()
