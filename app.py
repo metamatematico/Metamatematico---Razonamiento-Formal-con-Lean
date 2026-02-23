@@ -231,7 +231,7 @@ section[data-testid="stSidebar"] .stSlider  label,
 section[data-testid="stSidebar"] .stTextInput label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #4a5568;
+    color: #7a8fa0;
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -295,7 +295,7 @@ section[data-testid="stSidebar"] .stTextInput label {
 /* Math deco row */
 .meta-deco {
     font-size: 1.05rem;
-    color: #818cf835;
+    color: #818cf880;
     letter-spacing: 0.55em;
     margin-bottom: 0.5rem;
     font-family: 'JetBrains Mono', monospace;
@@ -322,7 +322,7 @@ section[data-testid="stSidebar"] .stTextInput label {
 
 /* Subtitle */
 .meta-sub {
-    color: #4a5568;
+    color: #8892a4;
     font-size: 0.82rem;
     font-weight: 400;
     letter-spacing: 0.05em;
@@ -337,7 +337,7 @@ section[data-testid="stSidebar"] .stTextInput label {
     border-radius: 100px;
     padding: 0.2rem 0.75rem;
     font-size: 0.7rem;
-    color: #4a5568;
+    color: #7a8fa0;
     margin: 0.2rem 0.2rem 0;
     font-weight: 500;
     letter-spacing: 0.04em;
@@ -349,7 +349,7 @@ section[data-testid="stSidebar"] .stTextInput label {
 .section-label {
     font-size: 0.68rem;
     font-weight: 700;
-    color: #2d3748;
+    color: #6080a0;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     margin-bottom: 0.6rem;
@@ -361,15 +361,15 @@ section[data-testid="stSidebar"] .stTextInput label {
     content: "";
     display: inline-block;
     width: 14px; height: 1px;
-    background: #2d3748;
+    background: #6080a0;
 }
 
 /* ── Example buttons ─────────────────────── */
 div[data-testid="column"] .stButton > button {
     background: #0d1117;
-    border: 1px solid #161c27;
+    border: 1px solid #1e2d40;
     border-radius: 100px;
-    color: #3d4d63;
+    color: #6b7f99;
     font-size: 0.76rem;
     font-weight: 600;
     padding: 0.4rem 0.5rem;
@@ -419,7 +419,7 @@ div[data-testid="column"] .stButton > button:active {
     box-shadow: none !important;
     outline: none !important;
 }
-.stTextArea textarea::placeholder { color: #2d3748 !important; }
+.stTextArea textarea::placeholder { color: #4a5c6e !important; }
 .stTextArea { border: none !important; }
 div[data-testid="stTextArea"] > label { display: none; }
 
@@ -499,7 +499,7 @@ div[data-testid="stTextArea"] > label { display: none; }
 .resp-card blockquote {
     border-left: 3px solid #4f46e5;
     padding-left: 1rem;
-    color: #6e7681;
+    color: #8b949e;
     margin: 0.8rem 0;
 }
 
@@ -509,13 +509,13 @@ div[data-testid="stTextArea"] > label { display: none; }
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.8rem;
-    color: #2d3748;
+    color: #5a7090;
     font-size: 0.72rem;
     font-family: 'JetBrains Mono', monospace;
 }
-.resp-meta .dot { color: #1e2d47; }
-.resp-meta .accent { color: #4f46e5; }
-.resp-meta .val   { color: #374151; }
+.resp-meta .dot { color: #3d5570; }
+.resp-meta .accent { color: #818cf8; }
+.resp-meta .val   { color: #6b7a8d; }
 
 /* ── Viz button ──────────────────────────── */
 .viz-btn > button {
@@ -537,10 +537,10 @@ div[data-testid="stTextArea"] > label { display: none; }
 /* ── Historial expander ───────────────────── */
 .streamlit-expanderHeader {
     background: #0a0f1a !important;
-    border: 1px solid #141c2a !important;
+    border: 1px solid #1a2840 !important;
     border-radius: 10px !important;
     font-size: 0.8rem !important;
-    color: #3d4d63 !important;
+    color: #6b7f99 !important;
     font-weight: 600 !important;
 }
 
@@ -586,10 +586,10 @@ hr { border-color: #141c2a !important; }
 
         n_hist = len(st.session_state.history)
         st.markdown(
-            f'<div style="font-size:0.68rem;color:#2d3748;text-transform:uppercase;'
+            f'<div style="font-size:0.68rem;color:#6080a0;text-transform:uppercase;'
             f'letter-spacing:.1em;font-weight:700;margin-bottom:.5rem">Sesión activa</div>'
             f'<div style="font-size:2rem;font-weight:800;color:#c9d1d9;line-height:1">{n_hist}'
-            f'<span style="font-size:.78rem;font-weight:400;color:#3d4d63"> consultas</span></div>',
+            f'<span style="font-size:.78rem;font-weight:400;color:#7a8fa0"> consultas</span></div>',
             unsafe_allow_html=True,
         )
         if n_hist:
@@ -600,7 +600,7 @@ hr { border-color: #141c2a !important; }
 
         st.divider()
         st.markdown(
-            '<div style="font-size:0.65rem;color:#1e2d3d;line-height:1.6">'
+            '<div style="font-size:0.65rem;color:#4a6080;line-height:1.6">'
             '76 skills matemáticos · 14 categorías<br>'
             'GNN + PPO · Memory Evolutive Systems<br>'
             'Lean 4 · FOL · ZFC · Teoría de Tipos'
@@ -756,17 +756,17 @@ para reutilizarlos en problemas similares.
             with st.expander(f"📋  Historial de sesión — {len(st.session_state.history)} consultas"):
                 for item in st.session_state.history[:15]:
                     st.markdown(
-                        f'<div style="font-size:.75rem;color:#2d3748;margin-bottom:.1rem">'
+                        f'<div style="font-size:.75rem;color:#5a7090;margin-bottom:.1rem">'
                         f'{item["ts"]}'
-                        f' <span style="color:#374151">·</span> '
-                        f'<span style="color:#3d4d63">{item["model"]}</span>'
-                        f' <span style="color:#374151">·</span> '
+                        f' <span style="color:#3d5570">·</span> '
+                        f'<span style="color:#6b7f99">{item["model"]}</span>'
+                        f' <span style="color:#3d5570">·</span> '
                         f'{item["t"]}s</div>'
                         f'<div style="font-size:.88rem;color:#94a3b8;margin-bottom:.15rem;'
                         f'font-weight:500">'
                         f'{item["q"][:90]}{"…" if len(item["q"])>90 else ""}</div>'
-                        f'<div style="font-size:.8rem;color:#374151;padding-bottom:.75rem;'
-                        f'border-bottom:1px solid #0f1729;margin-bottom:.5rem">'
+                        f'<div style="font-size:.8rem;color:#6b7280;padding-bottom:.75rem;'
+                        f'border-bottom:1px solid #151f30;margin-bottom:.5rem">'
                         f'{item["a"][:160]}{"…" if len(item["a"])>160 else ""}</div>',
                         unsafe_allow_html=True,
                     )
