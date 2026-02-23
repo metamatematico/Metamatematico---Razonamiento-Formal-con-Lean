@@ -1,7 +1,8 @@
 """
-NLE v7.0 — Visualizaciones del Sistema
-=======================================
+Núcleo Lógico Evolutivo — Visualizaciones del Sistema
+======================================================
 Grafos, embeddings, arquitectura y diagramas explicativos.
+BIOMAT · Centro de Biomatemáticas
 """
 
 import streamlit as st
@@ -25,7 +26,7 @@ h1, h2, h3 { color: #c9d1d9; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📊 Visualizaciones del Sistema NLE v7.0")
+st.title("📊 Visualizaciones — Núcleo Lógico Evolutivo")
 
 # ── Consulta activa desde el Demostrador ──────────────────────────────────────
 _cq = st.session_state.get("current_query", "")
@@ -340,7 +341,7 @@ def fig_skill_graph(filter_cat=None, query=None):
     suffix = f' — consulta: "{query[:45]}…"' if query and len(query) > 45 \
              else (f' — consulta: "{query}"' if query else "")
     ax.set_title(
-        f"Grafo Categórico de Skills — NLE v7.0  ({len(subG.nodes)} nodos){suffix}",
+        f"Grafo Categórico de Skills — Núcleo Lógico Evolutivo  ({len(subG.nodes)} nodos){suffix}",
         color=FG, fontsize=10, pad=10)
     fig.tight_layout()
     return fig
@@ -525,7 +526,7 @@ def fig_architecture():
     arrow(11.0, 1.5, 8.5, 1.5)
     ax.text(8.5, 1.5, "→", color="#fbbf24", fontsize=14)
 
-    ax.set_title("Arquitectura del Sistema NLE v7.0  —  Σ_t = (L, CR_t, G_t, F)",
+    ax.set_title("Arquitectura del Núcleo Lógico Evolutivo  —  Σ_t = (L, CR_t, G_t, F)",
                  color=FG, fontsize=12, pad=8, fontweight="bold")
     fig.tight_layout()
     return fig

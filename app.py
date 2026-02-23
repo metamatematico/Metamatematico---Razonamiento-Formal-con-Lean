@@ -1,6 +1,7 @@
 """
-METAMATEMÁTICO — NLE v7.0
+METAMATEMÁTICO — Núcleo Lógico Evolutivo
 Asistente de razonamiento formal y demostracion de teoremas.
+BIOMAT Centro de Biomatemáticas.
 """
 
 import streamlit as st
@@ -186,7 +187,7 @@ def call_demo(query: str, info: dict) -> dict:
     if info["is_lean"]:
         text = (
             "Para este goal en Lean 4, las tacticas recomendadas son:\n\n"
-            f"```lean4\n-- Cascade NLE v7.0\n"
+            f"```lean4\n-- Núcleo Lógico Evolutivo\n"
             f"by\n  {info['tactic'].split('/')[0].strip()}  -- primer intento\n"
             f"  <;> simp [*]             -- simplificacion general\n"
             f"  <;> omega                -- aritmetica lineal\n```\n\n"
@@ -557,7 +558,7 @@ hr { border-color: #141c2a !important; }
               -webkit-background-clip:text;-webkit-text-fill-color:transparent;
               background-clip:text">METAMATEMÁTICO</div>
   <div style="font-size:0.68rem;color:#2d3748;margin-top:4px;letter-spacing:0.06em;
-              text-transform:uppercase;font-weight:600">BIOMAT · UNAM · NLE v7.0</div>
+              text-transform:uppercase;font-weight:600">BIOMAT · Centro de Biomatemáticas</div>
 </div>
 """, unsafe_allow_html=True)
         st.divider()
@@ -613,7 +614,7 @@ hr { border-color: #141c2a !important; }
   <div class="glow-bl"></div>
   <div class="meta-deco">∑ · ∀ · ∂ · ∫ · ∃ · ∇ · ∞</div>
   <div class="meta-name">METAMATEMÁTICO</div>
-  <p class="meta-sub">Razonamiento formal · Lean 4 · NLE v7.0 · BIOMAT–UNAM</p>
+  <p class="meta-sub">Razonamiento formal · Lean 4 · Núcleo Lógico Evolutivo · BIOMAT</p>
   <div>
     <span class="meta-badge">76 skills</span>
     <span class="meta-badge">14 categorías</span>
@@ -623,6 +624,32 @@ hr { border-color: #141c2a !important; }
   </div>
 </div>
 """, unsafe_allow_html=True)
+
+        # ── ¿Qué es el Núcleo Lógico Evolutivo? ───────────────────────────
+        with st.expander("¿Qué es el Núcleo Lógico Evolutivo?"):
+            st.markdown("""
+El **Núcleo Lógico Evolutivo (NLE)** es un sistema de inteligencia artificial para
+razonamiento matemático formal, desarrollado en **BIOMAT Centro de Biomatemáticas**.
+Integra cuatro pilares teóricos en un único marco coherente:
+
+| Componente | Rol en el sistema |
+|---|---|
+| **Memory Evolutive Systems** (Ehresmann) | Base categórica de la memoria y el aprendizaje |
+| **Teoría de Categorías** | Estructura del grafo de 76 skills en 14 dominios |
+| **Lean 4** | Verificación formal de demostraciones |
+| **GNN + PPO** | Red neuronal que aprende estrategias de prueba |
+
+El sistema modela el proceso cognitivo de un matemático experto en tres pasos:
+
+1. **Patrón P** — identifica los conocimientos relevantes para el problema
+2. **Colímite cP** — sintetiza una nueva competencia emergente (Memory Evolutive Systems)
+3. **Verificación** — genera y comprueba la prueba en Lean 4
+
+El aprendizaje es continuo: cada interacción alimenta el agente PPO, que mejora
+su selección de tácticas. La memoria procedimental guarda los patrones exitosos
+para reutilizarlos en problemas similares.
+""")
+        st.markdown('<div style="height:.2rem"></div>', unsafe_allow_html=True)
 
         # ── Ejemplos rápidos ───────────────────────────────────────────────
         st.markdown(
