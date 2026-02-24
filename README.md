@@ -1,6 +1,6 @@
 # Demostrador de Enunciados Matemáticos
 
-**NLE v7.0 — Evolutionary Logical Core**
+**METAMATEMATICO NLE v7.0 — Evolutionary Logical Core**
 
 > Sistema de razonamiento matemático formal basado en *Memory Evolutive Systems* (Ehresmann).
 > Demuestra teoremas, explica conceptos y genera código Lean 4 a partir de lenguaje natural.
