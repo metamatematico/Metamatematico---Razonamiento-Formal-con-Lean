@@ -166,5 +166,5 @@ Este formalismo está inspirado en los *Memory Evolutive Systems* de Andrée Ehr
 
 ---
 
-*BIOMAT — Biomatemáticas · UNAM · 2025*
+*BIOMAT — Centro de Biomatemáticas · 2025*
 *Leonardo Jiménez Martínez*
