@@ -1,4 +1,5 @@
-# Demostrador de Enunciados Matemáticos
+# METAMATEMÁTICO
+#Demostrador de Enunciados Matemáticos
 
 **METAMATEMATICO NLE v7.0 — Evolutionary Logical Core**
 
