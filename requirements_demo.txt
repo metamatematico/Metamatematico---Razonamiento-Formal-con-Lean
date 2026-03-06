@@ -1,0 +1,19 @@
+# NLE v7.0 — Demostrador Matematico
+# Dependencias para el demo Streamlit
+# Instalar con: pip install -r requirements_demo.txt
+
+# ── Core Streamlit ──────────────────────────────────────────────
+streamlit>=1.32.0         # probado con 1.54.0
+
+# ── Modelos LLM ─────────────────────────────────────────────────
+# Anthropic (Claude)
+anthropic>=0.36.0         # probado con 0.79.0
+
+# Groq — modelos gratuitos (Llama 3, Gemma 2, Mixtral)
+groq>=0.11.0              # probado con 1.0.0
+
+# Google AI Studio (Gemini — gratis)
+google-genai>=1.0.0
+
+# ── Utilidades ──────────────────────────────────────────────────
+python-dotenv>=1.0.0      # variables de entorno desde .env

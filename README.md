@@ -1,497 +1,237 @@
-# Metamath Prover
+# METAMATEMÁTICO — Razonamiento Formal con Lean 4
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
-[![Mathlib](https://img.shields.io/badge/Mathlib-4-orange.svg)](https://github.com/leanprover-community/mathlib4)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-284_passing-brightgreen.svg)](#tests)
+[![Tests](https://img.shields.io/badge/Tests-379_passing-brightgreen.svg)](#tests)
+[![Skills](https://img.shields.io/badge/Skills-76-blueviolet.svg)](#grafo-de-skills)
+[![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-124K_params-red.svg)](#gnn--ppo)
+[![Streamlit](https://img.shields.io/badge/App-Streamlit-ff4b4b.svg)](#aplicacion-web)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Part of [metamathematics.ai](https://metamathematics.ai)** — Machine-verified proofs and research toward automating mathematical formalization.
+**BIOMAT · Centro de Biomatemáticas · UNAM**
+
+Asistente de razonamiento matemático formal basado en el **Núcleo Lógico Evolutivo (NLE v7.0)**: un sistema que integra Memory Evolutive Systems, teoría de categorías, verificación en Lean 4 y aprendizaje por refuerzo en un único marco coherente.
 
 ---
 
-## Overview
+## Aplicación Web
 
-This project has two main components:
+Interfaz de chat clásica construida con Streamlit:
 
-1. **MetamathProver/** — Machine-verified proofs in Lean 4 (groups, rings)
-2. **nucleo/** — Adaptive mathematical reasoning system (NLE v7.0, ~12,800 LOC Python)
+- **Input fijo al fondo** — el área de escritura siempre visible
+- **Historial persistente** — la conversación se conserva al navegar a las visualizaciones y regresar
+- **Visualizaciones conectadas** — grafos de embeddings, complexificación MES y traza de prueba reflejan datos reales del Núcleo, no maquetas
 
-The goal is to build a **mathematical AI** that can:
-- Understand mathematical queries in natural language
-- Generate formal proofs in Lean 4
-- Learn and improve through interaction via Memory Evolutive Systems
-
----
-
-## Architecture
-
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                     NUCLEO LOGICO EVOLUTIVO (NLE v7.0)               │
-├──────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  ┌──────────────┐    ┌──────────────┐    ┌───────────────────────┐  │
-│  │   Usuario    │───>│     LLM      │───>│      Lean 4           │  │
-│  │  (consulta)  │    │   (Claude)   │    │  (solver cascade +    │  │
-│  └──────────────┘    └──────────────┘    │   sorry analyzer)     │  │
-│         │                   │            └───────────────────────┘  │
-│         v                   v                      │                │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │              GRAFO CATEGORICO DE SKILLS                      │   │
-│  │                                                              │   │
-│  │   Nivel 3: o Competencias (verificacion Lean)               │   │
-│  │             |                                                │   │
-│  │   Nivel 2: o---o Habilidades (induccion, Curry-Howard)      │   │
-│  │             |   |                                            │   │
-│  │   Nivel 1: o---o---o Clusters (ZFC, FOL, tipos)             │   │
-│  │             |   |   |                                        │   │
-│  │   Nivel 0: o---o---o---o Atomos (axiomas basicos)           │   │
-│  │                                                              │   │
-│  │   4 Pilares: SET | CAT | LOG | TYPE                         │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│         │                                                           │
-│         v                                                           │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │              RED DE CO-REGULADORES (MES)                     │   │
-│  │                                                              │   │
-│  │  CR_tac ──> CR_org ──> CR_str ──> CR_int                   │   │
-│  │  (rapido)   (medio)    (lento)    (integridad)              │   │
-│  │                                                              │   │
-│  │  Memoria: Empirica -> Procedural -> Semantica -> E-conceptos│   │
-│  └──────────────────────────────────────────────────────────────┘   │
-│                                                                      │
-│  Propiedades Formales Verificadas:                                   │
-│  Axiomas 8.1-8.4 (Hierarchy, Multiplicity, Connectivity, Coverage)  │
-│  Teoremas 8.5-8.7 (Consistency, Emergence, Coverage Preservation)   │
-└──────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Repository Structure
-
-```
-metamath-prover/
-│
-├── MetamathProver/              # Pruebas Lean 4 verificadas
-│   ├── Group/                   #   Teoria de grupos
-│   └── Ring/                    #   Teoria de anillos
-│
-├── nucleo/                      # Sistema NLE v7.0 (~12,800 LOC)
-│   ├── core.py                  #   Orquestador principal (Nucleo class)
-│   ├── cli.py                   #   CLI + chat interactivo con Claude
-│   ├── __main__.py              #   Entry point: python -m nucleo
-│   ├── types.py                 #   Tipos: Skill, Morphism, Pattern, Colimit, Option
-│   ├── config.py                #   Configuracion e hiperparametros
-│   │
-│   ├── graph/                   #   Categoria de Skills
-│   │   ├── category.py          #     Grafo jerarquico + axiomas formales (8.1-8.4)
-│   │   ├── evolution.py         #     Sistema evolutivo + teoremas (8.5-8.7)
-│   │   ├── operations.py        #     Operaciones de grafo
-│   │   └── embeddings.py        #     Embeddings de skills
-│   │
-│   ├── mes/                     #   Memory Evolutive Systems
-│   │   ├── co_regulators.py     #     4 co-reguladores (tac/org/str/int)
-│   │   ├── memory.py            #     Memoria: E-equivalencia, E-conceptos
-│   │   └── patterns.py          #     Patrones, colimites, multiplicidad
-│   │
-│   ├── lean/                    #   Integracion Lean 4
-│   │   ├── client.py            #     Cliente Lean 4 (check/eval)
-│   │   ├── solver_cascade.py    #     Cascade APOLLO (9 solvers automaticos)
-│   │   ├── sorry_analyzer.py    #     Analisis estatico de sorries
-│   │   ├── sorry_filler.py      #     Generacion de pruebas (cascade + LLM)
-│   │   ├── parser.py            #     Parser de errores estructurados
-│   │   ├── tactics.py           #     Mapeo de tacticas
-│   │   └── tactics_db.py        #     Base de datos de tacticas Lean 4
-│   │
-│   ├── rl/                      #   Aprendizaje por Refuerzo
-│   │   ├── agent.py             #     Agente RL
-│   │   ├── mdp.py               #     Proceso de decision de Markov
-│   │   └── rewards.py           #     Funcion de recompensa (6 componentes)
-│   │
-│   ├── pillars/                 #   4 Pilares + 51 dominios matematicos
-│   │   ├── set_theory.py        #     ZFC (Teoria de Conjuntos)
-│   │   ├── category_theory.py   #     CAT (Teoria de Categorias)
-│   │   ├── logic.py             #     LOG (FOL + Logica Intuicionista)
-│   │   ├── type_theory.py       #     TYPE (CIC / Lean 4)
-│   │   └── math_domains.py      #     51 dominios (algebra, topologia, analisis, ...)
-│   │
-│   ├── llm/                     #   Integracion LLM
-│   │   ├── client.py            #     Cliente Claude API
-│   │   └── prompts.py           #     Templates de prompts
-│   │
-│   └── eval/                    #   Evaluacion
-│       └── math_evaluator.py    #     Verificacion de respuestas
-│
-├── tests/                       #   284 tests (13 suites)
-│   ├── test_graph.py            #     Categoria de skills
-│   ├── test_evolution.py        #     Sistema evolutivo
-│   ├── test_colimits.py         #     Patrones y colimites
-│   ├── test_emergence.py        #     Links simples/complejos, emergencia
-│   ├── test_multiplicity.py     #     Homologia, principio de multiplicidad
-│   ├── test_coregulators.py     #     Red de co-reguladores
-│   ├── test_memory.py           #     Memoria MES, E-conceptos
-│   ├── test_lean_integration.py #     Solver cascade, sorry analyzer, parser
-│   ├── test_formal_properties.py#     Axiomas 8.1-8.4, Teoremas 8.5-8.7
-│   ├── test_math_domains.py     #     51 dominios matematicos, cadenas de deps
-│   ├── test_pillars.py          #     4 pilares fundacionales
-│   └── test_types.py            #     Tipos basicos
-│
-├── examples/                    #   Ejemplos de uso
-│   ├── basic_usage.py
-│   ├── complete_flow.py
-│   ├── demo_external_skills.py
-│   └── lean_integration.py
-│
-├── scripts/                     #   Utilidades
-├── PLAN.md                      #   Plan de implementacion (fases 0-7)
-└── IMPLEMENTATION_PLAN.md       #   Plan detallado original
-```
-
----
-
-## Core Concepts
-
-### 1. Hierarchical Skill Category
-
-Skills (knowledge units) are organized in a categorical hierarchy:
-
-| Level | Name | Example |
-|-------|------|---------|
-| 0 | Atoms | Axiom of extensionality, modus ponens |
-| 1 | Clusters | ZFC-axioms, FOL-rules, Type-rules |
-| 2 | Skills | Mathematical induction, Curry-Howard |
-| 3 | Competences | Lean verification, Forcing |
-| 4+ | Meta-skills | Inter-pillar translations |
-
-Four foundational **pillars** organize knowledge: SET (ZFC), CAT (Category Theory), LOG (FOL + IL), TYPE (CIC/Lean 4). The system includes **61 mathematical skills**: 10 foundational (level 0) + 51 domain skills (levels 1-2) across 12 categories.
-
-#### Domain Skills (51 skills, 12 categories)
-
-| Category | Skills | Level 1 | Level 2 |
-|----------|--------|---------|---------|
-| Algebra | 7 | group-theory, ring-theory, field-theory, linear-algebra, module-theory | commutative-algebra, homological-algebra |
-| Geometry | 6 | euclidean-geometry, differential-geometry, projective-geometry | algebraic-geometry, riemannian-geometry, symplectic-geometry |
-| Analysis | 6 | real-analysis, complex-analysis, measure-theory | functional-analysis, harmonic-analysis, pde-theory |
-| Topology | 5 | point-set-topology, algebraic-topology | differential-topology, homotopy-theory, knot-theory |
-| Logic | 3 | model-theory | proof-theory, homotopy-type-theory |
-| Number Theory | 4 | elementary-number-theory, algebraic-number-theory | analytic-number-theory, arithmetic-geometry |
-| Combinatorics | 6 | enumerative-combinatorics, graph-theory, matroid-theory | extremal-combinatorics, additive-combinatorics, combinatorial-optimization |
-| Probability | 4 | probability-theory, stochastic-processes | ergodic-theory, stochastic-calculus |
-| Set Theory | 1 | descriptive-set-theory | |
-| Category Theory | 2 | topos-theory | homological-algebra-cat |
-| Computation | 4 | algorithm-analysis, formal-languages | computational-complexity, type-theory-advanced |
-| Optimization | 3 | convex-optimization | variational-methods, optimal-control |
-
-```python
-from nucleo.graph.category import SkillCategory
-from nucleo.types import Skill, PillarType, MorphismType
-
-cat = SkillCategory("MathKnowledge")
-
-# Add skills at different levels
-cat.add_skill(Skill(id="zfc", name="ZFC", pillar=PillarType.SET, level=0))
-cat.add_skill(Skill(id="group-theory", name="Group Theory", pillar=PillarType.SET, level=1))
-cat.add_morphism("zfc", "group-theory", MorphismType.DEPENDENCY)
-
-# Verify formal axioms (8.1-8.4)
-result = cat.verify_all_axioms()
-print(result["all_satisfied"])  # True if hierarchy + multiplicity + connectivity + coverage hold
-```
-
-### 2. Co-Regulator Network
-
-Four co-regulators operate at different timescales:
-
-| Co-Regulator | Level | Frequency | Function |
-|--------------|-------|-----------|----------|
-| **CR_tac** (Tactical) | 0-1 | Every step | Select tactics, respond |
-| **CR_org** (Organizational) | 1-2 | Every 10 steps | Reorganize graph, create bridges |
-| **CR_str** (Strategic) | 2-3 | Every 100 steps | Create colimits, new levels |
-| **CR_int** (Integrity) | All | Periodic | Verify axioms, repair |
-
-```python
-from nucleo.mes.co_regulators import CoRegulatorNetwork
-
-network = CoRegulatorNetwork(cr_org_frequency=10, cr_str_frequency=100)
-results = network.step(cat)
-for cr_type, action, option in results:
-    print(f"{cr_type.name}: {action.name}")
-```
-
-### 3. Patterns and Colimits
-
-A **pattern** is a group of skills that work together. Its **colimit** is a new skill that integrates them (emergence):
-
-```python
-from nucleo.mes.patterns import PatternManager, ColimitBuilder
-
-pm = PatternManager()
-pattern = pm.create_pattern(
-    component_ids=["skill_1", "skill_2", "skill_3"],
-    distinguished_links=["morph_1_2", "morph_2_3"],
-    graph=cat,
-)
-
-cb = ColimitBuilder(pm)
-new_skill, colimit = cb.build_colimit(pattern, cat)
-# new_skill is at max(component_levels) + 1
-# Colimit satisfies universal property
-```
-
-### 4. Evolution and Formal Properties
-
-The system evolves through **complexification** (Options with absorptions, eliminations, bindings):
-
-```python
-from nucleo.graph.evolution import EvolutionarySystem
-from nucleo.types import Option, Skill
-
-evo = EvolutionarySystem(cat)
-
-# Apply evolution step
-option = Option(absorptions=[
-    Skill(id="topology", name="Topology", pillar=PillarType.SET, level=1)
-])
-functor = evo.apply_option(option)
-
-# Verify theorems hold after evolution
-result = evo.verify_all_theorems()
-assert result["8.5_consistency"]["satisfies"]   # Axioms preserved
-assert result["8.6_emergence"]["satisfies"]     # Complexity grows
-assert result["8.7_coverage_preservation"]["satisfies"]  # Coverage maintained
-```
-
-### 5. Lean 4 Integration (Solver Cascade)
-
-APOLLO-inspired solver cascade tries 9 automated tactics before falling back to LLM:
-
-```
-Solver Cascade: rfl -> simp -> ring -> linarith -> nlinarith -> omega -> exact? -> apply? -> aesop
-```
-
-```python
-from nucleo.lean.solver_cascade import SolverCascade
-from nucleo.lean.sorry_analyzer import find_sorries_in_text
-from nucleo.lean.parser import classify_error, parse_error_structured
-
-# Find sorries in Lean code
-sorries = find_sorries_in_text(lean_code)
-
-# Classify errors
-error_type = classify_error("type mismatch")  # -> "type_mismatch"
-```
-
-### 6. MES Memory
-
-Four types of memory with E-equivalence and E-concept formation:
-
-| Type | Description | Example |
-|------|-------------|---------|
-| **Empirical** | Concrete experiences | "Used `simp` to solve x + 0 = x" |
-| **Procedural** | Successful sequences | "For forall, use `intro` then `apply`" |
-| **Semantic** | Abstract E-concepts | "Induction is useful for N" |
-| **Consolidated** | Reinforced knowledge | Skills used 3+ times |
-
----
-
-## Formal Properties
-
-The system verifies the formal properties from the MES specification:
-
-### Axioms (verified on SkillCategory)
-
-| Axiom | Property | Condition |
-|-------|----------|-----------|
-| 8.1 | Hierarchy | >= 2 hierarchical levels |
-| 8.2 | Multiplicity | >= 2 pillars with inter-pillar translations |
-| 8.3 | Connectivity | Weakly connected + inter-pillar connections |
-| 8.4 | Coverage | Every skill reachable from a pillar skill |
-
-### Theorems (verified on EvolutionarySystem)
-
-| Theorem | Property | Condition |
-|---------|----------|-----------|
-| 8.5 | Consistency | Complexification preserves all axioms |
-| 8.6 | Emergence | Complexity grows or stabilizes over time |
-| 8.7 | Coverage Preservation | Coverage maintained under evolution |
-
----
-
-## Verified Lean 4 Proofs
-
-The `MetamathProver/` directory contains machine-verified proofs:
-
-| Theorem | Statement | Directory |
-|---------|-----------|-----------|
-| First Isomorphism (Groups) | G / ker(f) ~=* im(f) | `Group/` |
-| First Isomorphism (Rings) | R / ker(f) ~=+* im(f) | `Ring/` |
-| Kernel is Normal Subgroup | ker(f) normal in G | `Group/` |
-| Kernel is Bilateral Ideal | ker(f) is ideal | `Ring/` |
-
----
-
-## Installation
-
-### Requirements
+### Ejecutar localmente
 
 ```bash
-# Python 3.10+
-python --version  # Must be 3.10 or higher
+# 1. Instalar dependencias
+pip install -r requirements.txt
 
-# Dependencies
-pip install pyyaml rich anthropic
-
-# (Optional) Lean 4 for proof verification
-curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
+# 2. Lanzar la app
+streamlit run app.py
 ```
 
-### Clone and Build
+Abre en el navegador: `http://localhost:8501`
 
-```bash
-git clone https://github.com/ai-enhanced-engineer/metamath-prover.git
-cd metamath-prover
+### Proveedores soportados
 
-# (Optional) Download Mathlib cache
-lake exe cache get
-lake build
+| Proveedor | Modelos | Costo |
+|---|---|---|
+| **Google AI Studio** | Gemini 2.0 Flash, 1.5 Pro | Gratis (tier) |
+| **Groq** | Llama 3.3 70B, Mixtral 8x7B | Gratis |
+| **Anthropic** | Claude Haiku, Sonnet | De pago |
+| **Demo** | Respuesta local | Sin API key |
+
+---
+
+## Arquitectura del Sistema
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              NUCLEO LOGICO EVOLUTIVO (NLE v7.0)             │
+│                  Σ_t = (L, CR_t, G_t, F)                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Usuario → CR_tac → [RESPONDER | ASISTIR]                  │
+│                           │                                 │
+│              ┌────────────┴────────────┐                    │
+│              │                         │                    │
+│         GoalAnalyzer            Grafo de Skills             │
+│         (orden tácticas)        (76 skills, 14 cats)        │
+│              │                         │                    │
+│              └────────────┬────────────┘                    │
+│                           │                                 │
+│                    LLM (contexto enriquecido)               │
+│                           │                                 │
+│                    Lean 4 SolverCascade                     │
+│              rfl → simp → ring → omega → aesop              │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Memory Evolutive Systems (Ehresmann)               │   │
+│  │  Patrones P → Colímites cP → Complexificación K'   │   │
+│  │  Axiomas 8.1–8.4 · Teoremas 8.5–8.7               │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  GNN + PPO (124K params)                            │   │
+│  │  SkillGNN (3x GATConv) + ActorCriticNetwork        │   │
+│  │  Aprendizaje vivo: cada interacción alimenta PPO   │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Verify Installation
+### Subsistemas (`nucleo/`)
 
-```bash
-python -c "
-from nucleo.graph.category import SkillCategory
-from nucleo.graph.evolution import EvolutionarySystem
-from nucleo.mes.co_regulators import CoRegulatorNetwork
-print('NLE v7.0 installed correctly')
-"
+| Módulo | Descripción |
+|---|---|
+| `core.py` | Orquestador principal `Nucleo` |
+| `graph/` | `SkillCategory` (NetworkX), embeddings, evolución |
+| `mes/` | Patrones, colímites, co-reguladores, memoria |
+| `rl/` | GNN (`SkillGNN`), PPO (`NucleoAgent`), recompensas |
+| `lean/` | Cliente Lean 4, solver cascade, sorry analyzer |
+| `llm/` | Cliente LLM multi-proveedor |
+| `pillars/` | ZFC, categorías, lógica, teoría de tipos |
+| `eval/` | Evaluador de respuestas matemáticas |
+
+---
+
+## Grafo de Skills
+
+**76 skills** organizados en una jerarquía de 3 niveles y 14 categorías matemáticas:
+
+| Nivel | Descripción | Skills |
+|---|---|---|
+| L0 | Fundamentos (ZFC, categorías, FOL, tipos, Lean) | 10 |
+| L1 | Dominios: álgebra, geometría, análisis, topología, lógica, números, combinatoria, probabilidad, categorías avanzadas, computación, optimización, tácticas Lean | 60 |
+| L2 | Estrategias de prueba | 6 |
+
+Morfismos entre skills: **dependencia**, **analogía**, **traducción**.
+
+---
+
+## Memory Evolutive Systems
+
+Implementación de la teoría de Ehresmann para modelar el aprendizaje matemático:
+
+- **Patrón P: I → K** — colección de skills relevantes para una consulta
+- **Colímite cP** — skill emergente que sintetiza el patrón (propiedad universal verificada)
+- **Complexificación K'** — el grafo evoluciona añadiendo cP y los co-conos
+
+Axiomas formalmente verificados: jerarquía de skills, multiplicidad, conectividad, cobertura de pilares.
+
+---
+
+## GNN + PPO
+
+Red neuronal para selección adaptativa de skills:
+
+```
+SkillGNN:
+  node_proj    →  feat_dim × 64
+  GATConv 1   →  64 × 64 × 4 heads     ≈ 16,640 params
+  GATConv 2   →  64 × 64 × 4 heads     ≈ 16,640 params
+  GATConv 3   →  64 × 64 × 4 heads     ≈ 16,640 params
+  out_proj    →  128 × 64              ≈  8,192 params
+
+ActorCriticNetwork:
+  shared_net  →  256 × 128 × 2        ≈ 33,024 params
+  actor       →  128 × num_skills     ≈  9,728 params
+  critic      →  128 × 1             ≈    129 params
+
+Total: ~124,420 parámetros entrenables
 ```
 
-### Interactive Chat with Claude
+**Aprendizaje vivo**: cada interacción con el chat alimenta el agente PPO via `Transition`. La memoria procedimental guarda los patrones exitosos para reutilizarlos sin necesidad de la red neuronal.
 
-```bash
-# Set your Anthropic API key
-set ANTHROPIC_API_KEY=sk-ant-...          # Windows CMD
-$env:ANTHROPIC_API_KEY="sk-ant-..."       # PowerShell
-export ANTHROPIC_API_KEY=sk-ant-...       # Linux/Mac
+---
 
-# Start interactive session
-python -m nucleo chat
+## Visualizaciones
 
-# With faster/cheaper model
-python -m nucleo chat --model claude-haiku-4-5-20251001
+La página de visualizaciones muestra datos reales del Núcleo (no maquetas):
 
-# With debug info (RL actions)
-python -m nucleo chat --verbose
-```
-
-Commands inside chat: `/help`, `/stats`, `/skills`, `/axioms`, `/clear`, `/quit`
-
-Example session:
-```
-┌─── Chat Interactivo ───┐
-│ NLE v7.0 — Nucleo Logico Evolutivo      │
-│ Modelo: claude-haiku-4-5-20251001       │
-└─────────────────────────┘
-Listo. 61 skills cargados.
-
-Tu > Que es un grupo en algebra abstracta?
-[RESPONSE | confianza: 0.80]
-Un **grupo** es una estructura algebraica (G, ·) donde G es un conjunto
-con una operación binaria · que es asociativa, tiene elemento neutro e,
-y todo elemento tiene inverso.
-
-Tu > Formaliza eso en Lean 4
-[RESPONSE | confianza: 0.80]
-class Group (G : Type u) where
-  mul : G → G → G
-  one : G
-  inv : G → G
-  mul_assoc : ∀ a b c : G, mul (mul a b) c = mul a (mul b c)
-  ...
-
-Tu > /skills
-┌──────────────────────────────┐
-│ 61 skills across 4 pillars   │
-└──────────────────────────────┘
-
-Tu > /quit
-Adios!
-```
+| Pestaña | Contenido |
+|---|---|
+| Grafo de Skills | Red categórica completa — nodos resaltados según la consulta activa |
+| Espacio de Embeddings | Proyección t-SNE / PCA de los vectores reales (320 dim) |
+| Arquitectura NLE | Diagrama de bloques del sistema completo |
+| Complexificación MES | Patrón P → colímite cP → K' con skills reales de la consulta |
+| Pipeline | Flujo de procesamiento de consulta a respuesta |
+| GNN + Estadísticas | Arquitectura de la red neuronal |
+| Traza de Prueba | Subred de skills activada para un teorema concreto |
 
 ---
 
 ## Tests
 
-284 tests across 13 test suites:
-
 ```bash
-python -m pytest tests/ -v
+python -m pytest tests/ -o "addopts=" -v
 ```
 
-| Suite | Tests | Coverage |
-|-------|-------|----------|
-| test_types | 10 | Types, Skill, Morphism, State, Action |
-| test_graph | 12 | SkillCategory, axioms, serialization |
-| test_pillars | 16 | SET, CAT, LOG, TYPE pillars |
-| test_evolution | 10 | Snapshots, transition functors, compatibility |
-| test_colimits | 26 | Patterns, cocones, universal property, colimits |
-| test_emergence | 14 | Link classification, emergence detection |
-| test_multiplicity | 10 | Homology, multiplicity principle |
-| test_coregulators | 19 | 4 co-regulators, network, shared resources |
-| test_memory | 16 | E-equivalence, E-concepts, procedural memory |
-| test_lean_integration | 48 | Solver cascade, sorry analyzer, structured errors |
-| test_formal_properties | 26 | Axioms 8.1-8.4, Theorems 8.5-8.7 |
-| test_math_domains | 32 | 51 domain skills, dependency chains, inter-pillar translations |
-| test_cli | 10 | CLI structure, chat command, __main__.py |
-| **Total** | **284** | |
+379 tests en 17 suites — colímites, evolución, emergencia, multiplicidad, co-reguladores, GNN, PPO, Lean, memoria, aprendizaje vivo, CLI.
 
 ---
 
-## Implementation Status
+## Estructura del Proyecto
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| 0 | Bugfixes (4 critical) | Done |
-| 1 | Colimits (universal property, co-cones) | Done |
-| 2 | Evolution (snapshots, transition functors) | Done |
-| 3 | Emergence (link classification, detection) | Done |
-| 4 | Multiplicity (homology, pillar multiplicity) | Done |
-| 5 | Co-Regulators + Memory (E-equivalence, core.py) | Done |
-| 6 | Lean skills (solver cascade, sorry analyzer) | Done |
-| 7 | Formal properties (axioms 8.1-8.4, theorems 8.5-8.7) | Done |
-
-### Remaining Work
-
-- Neural network (PPO policy, GNN embeddings)
-- Training dataset generation
-- End-to-end evaluation pipeline
-
----
-
-## References
-
-### Lean & Mathlib
-- [Mathlib4 Documentation](https://leanprover-community.github.io/mathlib4_docs/)
-- [Theorem Proving in Lean 4](https://lean-lang.org/theorem_proving_in_lean4/)
-
-### Memory Evolutive Systems (MES)
-- Ehresmann, A. C., & Vanbremeersch, J. P. (2007). *Memory Evolutive Systems: Hierarchy, Emergence, Cognition*. Elsevier.
-- Ehresmann, A. C. (2012). MENS, a mathematical model for cognitive systems. *Journal of Mind Theory*, 0(2).
-
-### Solver Cascade
-- Wang et al. (2025). APOLLO: Automated LLM and Lean Collaboration for Mathematical Reasoning. *arXiv:2505.05758*.
+```
+metamath-prover/
+├── app.py                    # App Streamlit (chat + navegación)
+├── pages/
+│   └── 1_Visualizaciones.py  # Grafos, embeddings, MES, traza
+├── nucleo/                   # Núcleo Lógico Evolutivo (~12,800 LOC)
+│   ├── core.py               # Orquestador principal
+│   ├── graph/                # Grafo categórico de skills
+│   ├── mes/                  # Memory Evolutive Systems
+│   ├── rl/                   # GNN + PPO
+│   ├── lean/                 # Verificación Lean 4
+│   ├── llm/                  # Cliente LLM
+│   └── pillars/              # Fundamentos matemáticos
+├── MetamathProver/           # Pruebas Lean 4 verificadas
+├── tests/                    # 379 tests
+├── experiments/              # Experimentos y benchmarks
+└── docs/                     # Papers NLE v7.0
+```
 
 ---
 
-## Author
+## Instalación
 
-**Leonardo Jimenez Martinez** — UNAM
+```bash
+git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
+cd Metamatematico---Razonamiento-Formal-con-Lean
+
+# Entorno recomendado: conda
+conda create -n metamat python=3.10
+conda activate metamat
+
+pip install -r requirements.txt
+
+# Lanzar la app
+streamlit run app.py
+```
+
+### Dependencias principales
+
+```
+streamlit>=1.40
+networkx>=3.0
+numpy>=1.24
+scikit-learn>=1.3
+matplotlib>=3.7
+torch>=2.0
+torch-geometric>=2.4
+anthropic / google-genai / groq  (según proveedor elegido)
+```
 
 ---
 
-## License
+## Fundamento Teórico
 
-MIT License. See [LICENSE](LICENSE) for details.
+El NLE v7.0 está basado en el artículo **"Núcleo Lógico Evolutivo v7.0 — Memory Evolutive Systems y Razonamiento Formal"** (Jiménez Martínez, BIOMAT 2025), disponible en `docs/`.
+
+El sistema modela el proceso cognitivo de un matemático experto siguiendo la teoría de **Memory Evolutive Systems** de A. Ehresmann: la memoria matemática se organiza como una categoría que evoluciona mediante complexificaciones sucesivas, donde cada nueva competencia emerge como colímite de competencias previas.
+
+---
+
+**BIOMAT · Centro de Biomatemáticas · UNAM · 2025**

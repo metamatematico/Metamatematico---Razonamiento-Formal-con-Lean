@@ -1,0 +1,237 @@
+{
+  "name": "MigratedSkills",
+  "created_at": "2026-02-05T13:33:49.862332",
+  "skills": [
+    {
+      "id": "lean-fp-basics",
+      "name": "Lean 4 Functional Programming Basics",
+      "description": "",
+      "pillar": "TYPE"
+    },
+    {
+      "id": "lean-fp-dependent-types",
+      "name": "Lean 4 Dependent Types for Programming",
+      "description": "",
+      "pillar": "TYPE"
+    },
+    {
+      "id": "lean-fp-functor-applicative",
+      "name": "Lean 4 Functor and Applicative",
+      "description": "",
+      "pillar": "CAT"
+    },
+    {
+      "id": "lean-fp-monads",
+      "name": "Lean 4 Monads",
+      "description": "",
+      "pillar": "CAT"
+    },
+    {
+      "id": "lean-fp-performance",
+      "name": "Lean 4 Performance Optimization",
+      "description": "",
+      "pillar": "TYPE"
+    },
+    {
+      "id": "lean-fp-transformers",
+      "name": "Lean 4 Monad Transformers",
+      "description": "",
+      "pillar": "CAT"
+    },
+    {
+      "id": "lean-fp-type-classes",
+      "name": "Lean 4 Type Classes",
+      "description": "",
+      "pillar": "CAT"
+    },
+    {
+      "id": "lean-quick-reference",
+      "name": "Lean 4 Quick Reference",
+      "description": "",
+      "pillar": null
+    },
+    {
+      "id": "lean-tp-advanced",
+      "name": "Lean 4 Advanced Theorem Proving",
+      "description": "",
+      "pillar": "TYPE"
+    },
+    {
+      "id": "lean-tp-foundations",
+      "name": "Lean 4 Theorem Proving Foundations",
+      "description": "",
+      "pillar": "TYPE"
+    },
+    {
+      "id": "lean-tp-propositions",
+      "name": "Lean 4 Propositions and Proofs",
+      "description": "",
+      "pillar": "LOG"
+    },
+    {
+      "id": "lean-tp-quantifiers",
+      "name": "Lean 4 Quantifiers and Equality",
+      "description": "",
+      "pillar": "LOG"
+    },
+    {
+      "id": "lean-tp-tactic-selection",
+      "name": "Lean 4 Tactic Selection",
+      "description": "",
+      "pillar": "TYPE"
+    },
+    {
+      "id": "lean-tp-tactics",
+      "name": "Lean 4 Tactics",
+      "description": "",
+      "pillar": "TYPE"
+    }
+  ],
+  "morphisms": [
+    {
+      "id": "21bce668-d69c-4c42-811b-bcd1a8bbe118",
+      "source_id": "lean-tp-foundations",
+      "target_id": "lean-tp-propositions",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "c0e0f7db-f4a2-4c1b-82c8-3d7d372a2032",
+      "source_id": "lean-tp-propositions",
+      "target_id": "lean-tp-quantifiers",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "e4d90869-ae04-4d45-a38e-f4c41c3a6df5",
+      "source_id": "lean-tp-foundations",
+      "target_id": "lean-tp-tactics",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "6190da38-75fb-47d3-be4b-654f8ef78ace",
+      "source_id": "lean-tp-tactics",
+      "target_id": "lean-tp-tactic-selection",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "3c8a7048-1282-424b-95ae-a7bf57d7a2ba",
+      "source_id": "lean-tp-tactics",
+      "target_id": "lean-tp-advanced",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "81ed5000-f54a-4e30-9d31-2d6674bd3dfb",
+      "source_id": "lean-tp-tactic-selection",
+      "target_id": "lean-tp-advanced",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "71f53b31-4f14-4ad3-8e88-b3139b860d8b",
+      "source_id": "lean-fp-basics",
+      "target_id": "lean-fp-type-classes",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "5472c67a-6d7e-4e8b-b925-c768aaef75e5",
+      "source_id": "lean-fp-basics",
+      "target_id": "lean-fp-dependent-types",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "decd0eb6-42a8-434f-a37a-4521edf1a997",
+      "source_id": "lean-fp-type-classes",
+      "target_id": "lean-fp-functor-applicative",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "a3220d39-78a2-4f3f-9081-60bc342ab6e6",
+      "source_id": "lean-fp-functor-applicative",
+      "target_id": "lean-fp-monads",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "97c61b28-07a6-4520-8549-a7033e062a99",
+      "source_id": "lean-fp-monads",
+      "target_id": "lean-fp-transformers",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "bee2bff3-08f4-4e93-a753-ac1644068019",
+      "source_id": "lean-fp-basics",
+      "target_id": "lean-fp-performance",
+      "type": "DEPENDENCY",
+      "weight": 1.0
+    },
+    {
+      "id": "b4ee7675-5715-4b77-b5b0-412b927cca4d",
+      "source_id": "lean-tp-propositions",
+      "target_id": "lean-fp-basics",
+      "type": "TRANSLATION",
+      "weight": 0.8
+    },
+    {
+      "id": "7c743a31-3cca-4307-8469-1b3604bf4aa9",
+      "source_id": "lean-tp-propositions",
+      "target_id": "lean-fp-dependent-types",
+      "type": "TRANSLATION",
+      "weight": 0.8
+    },
+    {
+      "id": "c4f83403-eadf-4edf-9aa8-98e5889e13a5",
+      "source_id": "lean-tp-quantifiers",
+      "target_id": "lean-fp-basics",
+      "type": "TRANSLATION",
+      "weight": 0.8
+    },
+    {
+      "id": "43d29447-cd34-48d7-b470-717cf0777aad",
+      "source_id": "lean-tp-quantifiers",
+      "target_id": "lean-fp-dependent-types",
+      "type": "TRANSLATION",
+      "weight": 0.8
+    },
+    {
+      "id": "46fa6cb5-4a03-48e6-8458-00927e337681",
+      "source_id": "lean-fp-functor-applicative",
+      "target_id": "lean-fp-basics",
+      "type": "TRANSLATION",
+      "weight": 0.7
+    },
+    {
+      "id": "40da677a-af18-4093-8f58-7aa428e83596",
+      "source_id": "lean-fp-functor-applicative",
+      "target_id": "lean-fp-dependent-types",
+      "type": "TRANSLATION",
+      "weight": 0.7
+    },
+    {
+      "id": "dc8c29c7-3a2a-4cca-b132-2ba9b7ac4315",
+      "source_id": "lean-fp-monads",
+      "target_id": "lean-fp-basics",
+      "type": "TRANSLATION",
+      "weight": 0.7
+    },
+    {
+      "id": "154bb45d-40c9-4391-afed-db71ef3dbb04",
+      "source_id": "lean-fp-monads",
+      "target_id": "lean-fp-dependent-types",
+      "type": "TRANSLATION",
+      "weight": 0.7
+    }
+  ],
+  "stats": {
+    "num_skills": 14,
+    "num_morphisms": 34,
+    "total_weight": 32.0
+  }
+}
