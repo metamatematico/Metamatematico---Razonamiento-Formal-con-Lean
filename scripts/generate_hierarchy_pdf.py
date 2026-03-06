@@ -101,7 +101,7 @@ def generate():
 
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(80, 80, 80)
-    pdf.cell(0, 6, "Leonardo Jimenez Martinez - UNAM", align="C")
+    pdf.cell(0, 6, "Leonardo Jiménez Martínez - BIOMAT · Centro de Biomatemáticas", align="C")
     pdf.ln(5)
     today = datetime.date.today().strftime("%d de %B de %Y")
     pdf.cell(0, 6, today, align="C")

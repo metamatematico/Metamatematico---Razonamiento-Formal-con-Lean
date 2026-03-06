@@ -17,12 +17,12 @@ Componentes:
         - F_Log: Logica
         - F_Type: Teoria de Tipos
 
-Autor: Leonardo Jimenez Martinez (UNAM) & Claude (Anthropic)
+Autor: Leonardo Jiménez Martínez (BIOMAT · Centro de Biomatemáticas) & Claude (Anthropic)
 Version: 0.1.0
 """
 
 __version__ = "0.1.0"
-__author__ = "Leonardo Jimenez Martinez"
+__author__ = "Leonardo Jiménez Martínez"
 
 from nucleo.types import (
     Skill,

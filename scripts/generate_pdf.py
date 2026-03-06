@@ -71,8 +71,8 @@ def main():
             [
                 ("", [
                     "Demostrador de Enunciados Matematicos",
-                    "Universidad Nacional Autonoma de Mexico (UNAM)",
-                    "Autor: Leonardo Jimenez Martinez",
+                    "BIOMAT · Centro de Biomatemáticas",
+                    "Autor: Leonardo Jiménez Martínez",
                     "Fecha: Febrero 2026",
                     "",
                     "Este documento resume las mejoras e implementaciones recientes",

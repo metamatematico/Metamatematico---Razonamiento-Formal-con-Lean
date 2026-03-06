@@ -3,7 +3,7 @@ name = "nucleo-logico-evolutivo"
 version = "0.1.0"
 description = "Nucleo Logico Evolutivo: Interfaz Adaptativa entre LLM, Lean 4 y Grafo Categorico de Skills"
 authors = [
-    { name = "Leonardo Jimenez Martinez", email = "leonardo@unam.mx" }
+    { name = "Leonardo Jiménez Martínez", email = "leonardo@unam.mx" }
 ]
 readme = "README.md"
 license = { text = "MIT" }
