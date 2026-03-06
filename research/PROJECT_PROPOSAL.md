@@ -2,7 +2,7 @@
 
 **Project Proposal**
 
-**Author**: Leopoldo Garcia Vargas
+**Author**: Leonardo Jiménez Martínez
 
 **Date**: December 16, 2025
 

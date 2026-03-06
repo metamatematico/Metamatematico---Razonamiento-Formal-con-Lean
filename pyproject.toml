@@ -64,9 +64,9 @@ docs = [
 nucleo = "nucleo.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/ai-enhanced-engineer/metamath-prover"
-Documentation = "https://metamathematics.ai/docs"
-Repository = "https://github.com/ai-enhanced-engineer/metamath-prover"
+Homepage = "https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean"
+Documentation = "https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean"
+Repository = "https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean"
 
 [build-system]
 requires = ["hatchling"]
