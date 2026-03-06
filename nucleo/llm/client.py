@@ -133,11 +133,15 @@ Responde en el mismo idioma que el usuario."""
         max_tokens: int = 1024,
     ) -> None:
         """Cambiar proveedor/modelo/key en caliente (llamado desde Streamlit)."""
+        prev_provider = self.config.provider
         self.config.provider  = provider
         self.config.model     = model
         self.config.api_key   = api_key or self.config.api_key
         self.config.max_tokens = max_tokens
         self._client = None  # forzar re-init del cliente
+        # Si cambia el proveedor, limpiar conversacion (formatos incompatibles)
+        if provider != prev_provider:
+            self._conversation.clear()
 
     def _get_client(self):
         """Obtener cliente según provider (lazy loading)."""
@@ -231,11 +235,16 @@ Responde en el mismo idioma que el usuario."""
 
             elif provider == LLMProvider.GOOGLE:
                 from google.genai import types as gtypes
-                full_prompt = f"{sys_prompt}\n\n{prompt}"
+                # Multi-turn para Gemini: convertir _conversation a formato contents
+                contents = []
+                for msg in self._conversation:
+                    role = "user" if msg.role == LLMRole.USER else "model"
+                    contents.append({"role": role, "parts": [{"text": msg.content}]})
                 resp = client.models.generate_content(
                     model=model_name,
-                    contents=full_prompt,
+                    contents=contents,
                     config=gtypes.GenerateContentConfig(
+                        system_instruction=sys_prompt,
                         max_output_tokens=self.config.max_tokens,
                         temperature=self.config.temperature,
                     ),
@@ -270,12 +279,12 @@ Responde en el mismo idioma que el usuario."""
             return llm_response
 
         except Exception as e:
+            # Rollback: quitar el mensaje del usuario para mantener la conversacion
+            # en estado valido (evita mensajes consecutivos del mismo rol).
+            if self._conversation and self._conversation[-1].role == LLMRole.USER:
+                self._conversation.pop()
             logger.error(f"Error generating response ({provider.value}): {e}")
-            return LLMResponse(
-                content=f"[Error al generar respuesta: {e}]",
-                model="error",
-                usage={"input_tokens": 0, "output_tokens": 0},
-            )
+            raise  # Re-raise para que process_sync() lo capture y lo muestre
 
     async def suggest_tactic(
         self,

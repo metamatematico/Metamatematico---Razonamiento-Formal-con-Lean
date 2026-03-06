@@ -790,6 +790,28 @@ class Nucleo:
                 max_tokens=max_tokens,
             ))
 
+    def sync_conversation(self, history: list) -> None:
+        """
+        Sincronizar la conversacion interna del LLM con el historial de Streamlit.
+
+        Llamado desde app.py antes de process_sync() para que el LLM tenga
+        el contexto correcto de la sesion actual. Solo conserva los ultimos
+        N turnos para evitar exceder limites de tokens.
+
+        Args:
+            history: Lista de items {"q": str, "a": str} ordenados del mas reciente
+                     al mas antiguo (como en session_state.history).
+        """
+        if self._llm is None:
+            return
+        from nucleo.llm.client import LLMMessage, LLMRole
+        # Tomar los ultimos 5 turnos (10 mensajes: 5 user + 5 assistant)
+        recent = list(reversed(history))[-5:]
+        self._llm._conversation.clear()
+        for item in recent:
+            self._llm._conversation.append(LLMMessage(LLMRole.USER, item["q"]))
+            self._llm._conversation.append(LLMMessage(LLMRole.ASSISTANT, item["a"]))
+
     def apply_feedback(self, score: float) -> None:
         """
         Aplicar feedback explícito del usuario a la última interacción.
