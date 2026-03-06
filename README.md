@@ -8,7 +8,7 @@
 [![Streamlit](https://img.shields.io/badge/App-Streamlit-ff4b4b.svg)](#aplicacion-web)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**BIOMAT · Centro de Biomatemáticas · UNAM**
+**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
 
 Asistente de razonamiento matemático formal basado en el **Núcleo Lógico Evolutivo (NLE v7.0)**: un sistema que integra Memory Evolutive Systems, teoría de categorías, verificación en Lean 4 y aprendizaje por refuerzo en un único marco coherente.
 
@@ -234,4 +234,4 @@ El sistema modela el proceso cognitivo de un matemático experto siguiendo la te
 
 ---
 
-**BIOMAT · Centro de Biomatemáticas · UNAM · 2025**
+**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · 2025**
