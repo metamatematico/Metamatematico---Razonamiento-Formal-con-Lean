@@ -489,7 +489,7 @@ hr { border-color: #141c2a !important; }
         )
         if n_hist:
             st.markdown('<div style="height:.4rem"></div>', unsafe_allow_html=True)
-            if st.button("Limpiar historial", use_container_width=True):
+            if st.button("Limpiar historial", width="stretch"):
                 st.session_state.history = []
                 st.session_state.pop("current_query", None)
                 st.session_state.pop("viz_data", None)
@@ -545,7 +545,7 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
     cols4 = st.columns(4)
     for i, (label, ex) in enumerate(examples):
         with cols4[i]:
-            if st.button(label, use_container_width=True, help=ex, key=f"_ex_{i}"):
+            if st.button(label, width="stretch", help=ex, key=f"_ex_{i}"):
                 st.session_state["_pending_query"] = ex
                 st.rerun()
 
@@ -575,7 +575,7 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
     if st.session_state.get("current_query"):
         st.markdown('<div class="viz-btn">', unsafe_allow_html=True)
         if st.button("📊  Ver grafo · embeddings · traza categórica →",
-                     use_container_width=True, key="_viz_btn"):
+                     width="stretch", key="_viz_btn"):
             st.switch_page("pages/1_Visualizaciones.py")
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -612,6 +612,8 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
                     api_key or "",
                     max_tokens,
                 )
+                # Sincronizar conversacion interna con el historial visible
+                nucleo.sync_conversation(st.session_state.history)
                 with st.spinner("Analizando con el Núcleo…"):
                     t0 = time.time()
                     nr = nucleo.process_sync(prompt)
@@ -640,6 +642,7 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
                 logging.getLogger(__name__).warning(
                     f"Nucleo.process_sync falló: {_nucleo_err}"
                 )
+                st.warning(f"⚠ El Núcleo encontró un error: {_nucleo_err}", icon="⚠️")
 
         if res is None:
             info   = classify(prompt)
@@ -698,7 +701,7 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
         if not res.get("error"):
             st.markdown('<div class="viz-btn" style="margin-top:.5rem">', unsafe_allow_html=True)
             if st.button("📊  Ver grafo · embeddings · traza categórica de esta consulta →",
-                         use_container_width=True, key="_viz_btn_new"):
+                         width="stretch", key="_viz_btn_new"):
                 st.switch_page("pages/1_Visualizaciones.py")
             st.markdown('</div>', unsafe_allow_html=True)
 

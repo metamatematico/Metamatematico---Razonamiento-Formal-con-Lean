@@ -29,7 +29,7 @@ h1, h2, h3 { color: #c9d1d9; }
 # ── Botón volver al chat ─────────────────────────────────────────────────────
 _back_col, _ = st.columns([1, 5])
 with _back_col:
-    if st.button("← Volver al chat", use_container_width=True):
+    if st.button("← Volver al chat", width="stretch"):
         st.switch_page("app.py")
 st.title("📊 Visualizaciones — Núcleo Lógico Evolutivo")
 
@@ -1361,7 +1361,7 @@ with tab1:
     sel = st.selectbox("Filtrar por categoría", cats_filter, key="cat_filter")
     with st.spinner("Generando grafo..."):
         fig = fig_skill_graph(None if sel == "Todos" else sel, query=_cq or None)
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
     st.caption("◆ Nivel 0 (fundamentos)  ●  Nivel 1 (dominios)  ▲ Nivel 2 (estrategias) · Aristas: gris=dependencia, azul=traducción, verde=analogía")
 
@@ -1375,7 +1375,7 @@ with tab2:
                       format_func=lambda x: "t-SNE (preserva clusters)" if x=="tsne" else "PCA (preserva varianza)")
     with st.spinner("Calculando proyección..."):
         fig = fig_tsne(method, query=_cq or None)
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
     st.caption("Los clusters visibles reflejan la organización semántica del grafo. Skills del mismo dominio se agrupan naturalmente.")
 
@@ -1383,7 +1383,7 @@ with tab3:
     st.markdown("**Diagrama de bloques completo** — cómo interactúan todos los componentes del sistema.")
     with st.spinner("Generando arquitectura..."):
         fig = fig_architecture()
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
 
 with tab4:
@@ -1398,7 +1398,7 @@ with tab4:
             st.markdown("**Proceso de complexificación** — cómo el sistema genera skills emergentes mediante colímites categoriales (ejemplo: Álgebra Abstracta).")
         with st.spinner("Generando diagrama MES..."):
             fig = fig_mes_complexification(query=_cq or None)
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width="stretch")
         plt.close(fig)
     with col2:
         st.markdown("**¿Qué es la complexificación?**")
@@ -1452,7 +1452,7 @@ with tab5:
     st.markdown("**Flujo de una consulta** — desde el texto del usuario hasta la respuesta con prueba Lean.")
     with st.spinner("Generando pipeline..."):
         fig = fig_pipeline()
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
     st.divider()
     col1, col2 = st.columns(2)
@@ -1461,20 +1461,20 @@ with tab5:
         st.caption("Similitud coseno entre embeddings centroide de cada dominio matemático.")
         with st.spinner("Calculando similitudes..."):
             fig = fig_heatmap()
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width="stretch")
         plt.close(fig)
     with col2:
         st.markdown("**Distribución de skills**")
         with st.spinner("Generando distribución..."):
             fig = fig_distribution()
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width="stretch")
         plt.close(fig)
 
 with tab6:
     st.markdown("**Red neuronal GNN + PPO** — arquitectura del sistema de aprendizaje por refuerzo.")
     with st.spinner("Generando diagrama GNN..."):
         fig = fig_gnn()
-    st.pyplot(fig, use_container_width=True)
+    st.pyplot(fig, width="stretch")
     plt.close(fig)
 
     st.divider()
@@ -1542,7 +1542,7 @@ with tab7:
             "Inducción Nat":    "Prueba por inducción que la suma de los primeros n naturales es n(n+1)/2",
         }
         for label, ex in ejemplos.items():
-            if st.button(label, use_container_width=True, key=f"_ex_{label}"):
+            if st.button(label, width="stretch", key=f"_ex_{label}"):
                 st.session_state["_trace_q"] = ex
                 st.rerun()
 
@@ -1552,7 +1552,7 @@ with tab7:
     if (run_trace or _auto_run) and query_input and query_input.strip():
         with st.spinner("Calculando subred de skills activada..."):
             fig, n_act, n_total = fig_proof_trace(query_input.strip())
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width="stretch")
         plt.close(fig)
 
         st.caption(
