@@ -12,6 +12,13 @@ import sys
 import os
 from datetime import datetime
 
+# Forzar UTF-8 en stdout/stderr para que caracteres como ℝ, ∀, ∃ no rompan
+# el logging de Streamlit en Windows (cp1252 por defecto).
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # Asegurar que el paquete nucleo sea importable desde el directorio del proyecto
 _proj_dir = os.path.dirname(os.path.abspath(__file__))
 if _proj_dir not in sys.path:
@@ -56,10 +63,14 @@ st.set_page_config(
 # ── Modelos ───────────────────────────────────────────────────────────────────
 
 PROVIDERS = {
-    "Demo (sin API key)": {
-        "models": ["demo"],
-        "key_label": None,
-        "key_placeholder": None,
+    "Anthropic": {
+        "models": [
+            "claude-haiku-4-5-20251001",
+            "claude-sonnet-4-6",
+        ],
+        "key_label": "Anthropic API Key",
+        "key_placeholder": "sk-ant-...",
+        "key_help": "Obtener en console.anthropic.com",
     },
     "Google AI Studio": {
         "models": [
@@ -83,14 +94,10 @@ PROVIDERS = {
         "key_placeholder": "gsk_...",
         "key_help": "Obtener gratis en console.groq.com",
     },
-    "Anthropic": {
-        "models": [
-            "claude-haiku-4-5-20251001",
-            "claude-sonnet-4-6",
-        ],
-        "key_label": "Anthropic API Key",
-        "key_placeholder": "sk-ant-...",
-        "key_help": "Obtener en console.anthropic.com",
+    "Demo (sin API key)": {
+        "models": ["demo"],
+        "key_label": None,
+        "key_placeholder": None,
     },
 }
 
@@ -467,8 +474,17 @@ hr { border-color: #141c2a !important; }
 
         api_key = None
         if cfg["key_label"]:
+            _secret_map = {"Anthropic": "ANTHROPIC_API_KEY", "Google AI Studio": "GOOGLE_API_KEY", "Groq (gratis)": "GROQ_API_KEY"}
+            _env_key = ""
+            _sname = _secret_map.get(provider, "")
+            if _sname:
+                try:
+                    _env_key = st.secrets[_sname]
+                except Exception:
+                    _env_key = os.environ.get(_sname, "")
             api_key = st.text_input(
                 cfg["key_label"],
+                value=_env_key,
                 type="password",
                 placeholder=cfg["key_placeholder"],
                 help=cfg.get("key_help", ""),

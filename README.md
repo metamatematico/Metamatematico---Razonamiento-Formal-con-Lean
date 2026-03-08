@@ -14,27 +14,193 @@ Asistente de razonamiento matemático formal basado en el **Núcleo Lógico Evol
 
 ---
 
-## Aplicación Web
+## Principio de diseño: Lean primero
 
-Interfaz de chat clásica construida con Streamlit:
+**Toda consulta matemática pasa obligatoriamente por Lean 4 antes de producir una respuesta.**
 
-- **Input fijo al fondo** — el área de escritura siempre visible
-- **Historial persistente** — la conversación se conserva al navegar a las visualizaciones y regresar
-- **Visualizaciones conectadas** — grafos de embeddings, complexificación MES y traza de prueba reflejan datos reales del Núcleo, no maquetas
+El LLM actúa únicamente como:
+1. **Formalizador**: traduce el enunciado en lenguaje natural a código Lean 4
+2. **Traductor**: convierte el resultado verificado de Lean a lenguaje natural accesible
 
-### Ejecutar localmente
+El NLE nunca responde matemáticas directamente desde el LLM. Lean es la fuente de verdad.
+
+```
+Consulta matematica
+       |
+       v
+  CR_tac enruta
+       |
+       v
+  LLM formaliza  -->  Lean 4 verifica  -->  LLM traduce  -->  Respuesta
+       |                    |
+  (formalizador)      (fuente de verdad)
+                            |
+                   SolverCascade si hay sorry:
+                   rfl -> simp -> ring -> omega -> aesop
+```
+
+---
+
+## Arquitectura del Sistema
+
+```
++-------------------------------------------------------------+
+|              NUCLEO LOGICO EVOLUTIVO (NLE v7.0)             |
+|                  Sigma_t = (L, CR_t, G_t, F)               |
++-------------------------------------------------------------+
+|                                                             |
+|  Usuario --> CR_tac --> [RESPONDER | ASISTIR_LEAN]          |
+|                               |                             |
+|              +----------------+----------------+            |
+|              |                                 |            |
+|         _is_mathematical()              Grafo de Skills     |
+|         (80+ keywords, LaTeX,           (76 skills,         |
+|          simbolos Unicode)               14 categorias)     |
+|              |                                 |            |
+|         Lean-first pipeline                    |            |
+|         1. LLM formaliza                       |            |
+|         2. Lean 4 verifica               MES Memory         |
+|         3. SolverCascade                 (patrones de       |
+|         4. LLM traduce                    exito previos)    |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  |  Memory Evolutive Systems (Ehresmann)                 |  |
+|  |  Patrones P -> Colimites cP -> Complexificacion K'   |  |
+|  |  Axiomas 8.1-8.4 . Teoremas 8.5-8.7                 |  |
+|  |  2371 patrones sembrados (ProofNet + NuminaMath)     |  |
+|  +-------------------------------------------------------+  |
+|                                                             |
+|  +-------------------------------------------------------+  |
+|  |  GNN + PPO (124K params)                              |  |
+|  |  SkillGNN (3x GATConv) + ActorCriticNetwork          |  |
+|  |  Aprendizaje vivo: cada interaccion alimenta PPO     |  |
+|  +-------------------------------------------------------+  |
++-------------------------------------------------------------+
+```
+
+---
+
+## Estructura del Repositorio
+
+```
+metamath-prover/
+|
++-- app.py                        # App Streamlit (interfaz de chat)
++-- pages/
+|   +-- 1_Visualizaciones.py      # Grafos, embeddings, MES, traza de prueba
+|
++-- nucleo/                       # Nucleo Logico Evolutivo (~12,800 LOC)
+|   +-- core.py                   # Orquestador principal (Lean-first pipeline)
+|   +-- config.py                 # Configuracion centralizada
+|   +-- graph/                    # Grafo categorico de skills
+|   |   +-- category.py           # SkillCategory (NetworkX), links simples/complejos
+|   |   +-- evolution.py          # Complexificacion, snapshots, functores de transicion
+|   |   +-- math_domains.py       # 76 skills en 14 categorias matematicas
+|   +-- mes/                      # Memory Evolutive Systems
+|   |   +-- patterns.py           # Patrones, colimites, propiedad universal
+|   |   +-- memory.py             # MES Memory, patrones procedimentales
+|   |   +-- co_regulators.py      # 4 Co-reguladores activos (TAC/ORG/STR/INT)
+|   +-- rl/                       # Aprendizaje por refuerzo
+|   |   +-- agent.py              # NucleoAgent (PPO + memoria procedimental)
+|   |   +-- gnn.py                # SkillGNN (3x GATConv)
+|   |   +-- networks.py           # ActorCriticNetwork
+|   |   +-- mdp.py                # MDP matematico
+|   +-- lean/                     # Verificacion Lean 4
+|   |   +-- client.py             # Cliente Lean 4 (UTF-8, timeout)
+|   |   +-- solver_cascade.py     # rfl -> simp -> ring -> omega -> aesop
+|   |   +-- sorry_analyzer.py     # Analisis de sorry en pruebas
+|   +-- llm/                      # Cliente LLM multi-proveedor
+|   |   +-- client.py             # Anthropic / Google / Groq / Demo
+|   +-- pillars/                  # Fundamentos matematicos formales
+|   |   +-- zfc.py                # Axiomas ZFC
+|   |   +-- category_theory.py    # Teoria de categorias
+|   |   +-- logic.py              # FOL + logica intuicionista
+|   |   +-- type_theory.py        # Teoria de tipos
+|   +-- eval/                     # Evaluacion de respuestas
+|       +-- math_evaluator.py     # Extraccion \boxed{}, tolerancia numerica, sympy
+|
++-- MetamathProver/               # Pruebas Lean 4 verificadas (8 archivos)
+|
++-- scripts/                      # Utilidades de datos y evaluacion
+|   +-- seed_from_datasets.py     # Conecta ProofNet/miniF2F/NuminaMath al NLE
+|   +-- evaluate_benchmark.py     # Benchmark NLE-especifico (MATH/GSM8K)
+|
++-- data/                         # Datos generados (no versionados excepto ejemplos)
+|   +-- lean_examples.json        # 157 ejemplos few-shot miniF2F (versionado)
+|
++-- tests/                        # 379 tests en 17 suites
++-- experiments/                  # Experimentos y cuadernos
++-- docs/                         # Paper NLE v7.0
+```
+
+---
+
+## Datasets Conectados
+
+El sistema usa cinco conjuntos de datos matematicos para alimentar el NLE:
+
+| Dataset | Uso en el sistema | Cantidad |
+|---|---|---|
+| **ProofNet** | MES Memory: teoremas formales verificados | 371 registros |
+| **miniF2F** | Few-shot Lean: ejemplos inyectados en el prompt de formalizacion | 157 con prueba real |
+| **NuminaMath** | MES Memory: problemas con solucion para reconocimiento de patrones | 2000 problemas |
+| **MATH** | Benchmark: evaluacion de respuestas (extraccion `\boxed{}`) | referencia |
+| **GSM8K** | Benchmark: problemas de razonamiento numerico | referencia |
+
+### Sembrar la memoria del NLE
 
 ```bash
-# 1. Instalar dependencias
+# Conecta ProofNet + miniF2F + NuminaMath al sistema
+python scripts/seed_from_datasets.py
+
+# Solo proofnet, sin escritura
+python scripts/seed_from_datasets.py --skip-numina --dry-run
+```
+
+### Ejecutar benchmark
+
+```bash
+# Evalua el sistema en MATH o GSM8K
+python scripts/evaluate_benchmark.py --dataset math --n 50
+
+# Metricas NLE (independientes del LLM):
+#   skill_hit    - consulta matcheo al grafo de skills
+#   cr_source    - que co-regulador enruto la consulta
+#   lean_verified- Lean verifico la formalizacion
+#   memory_hit   - encontro patron previo en MES Memory
+```
+
+---
+
+## Metricas del Sistema
+
+El benchmark distingue dos clases de metricas:
+
+**Dependientes del LLM** (calidad de la traduccion):
+- Exactitud de respuesta (tolerancia numerica 1e-4, comparacion simbolica sympy)
+- Matching de `\boxed{}` vs referencia
+
+**NLE-especificas** (independientes del LLM, miden el razonamiento del nucleo):
+- `skill_hit`: el grafo de skills identifico la categoria matematica correcta
+- `cr_source`: el co-regulador TACTICAL enruto la consulta apropiadamente
+- `lean_verified`: Lean 4 verifico la formalizacion sin sorry
+- `memory_hit`: MES Memory recupero un patron de exito previo
+
+---
+
+## Aplicacion Web
+
+```bash
+# Instalar dependencias
 pip install -r requirements.txt
 
-# 2. Lanzar la app
-streamlit run app.py
+# Lanzar (Windows: incluir PYTHONIOENCODING para simbolos Unicode)
+PYTHONIOENCODING=utf-8 streamlit run app.py
 ```
 
 Abre en el navegador: `http://localhost:8501`
 
-### Proveedores soportados
+### Proveedores LLM soportados
 
 | Proveedor | Modelos | Costo |
 |---|---|---|
@@ -45,120 +211,68 @@ Abre en el navegador: `http://localhost:8501`
 
 ---
 
-## Arquitectura del Sistema
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│              NUCLEO LOGICO EVOLUTIVO (NLE v7.0)             │
-│                  Σ_t = (L, CR_t, G_t, F)                   │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  Usuario → CR_tac → [RESPONDER | ASISTIR]                  │
-│                           │                                 │
-│              ┌────────────┴────────────┐                    │
-│              │                         │                    │
-│         GoalAnalyzer            Grafo de Skills             │
-│         (orden tácticas)        (76 skills, 14 cats)        │
-│              │                         │                    │
-│              └────────────┬────────────┘                    │
-│                           │                                 │
-│                    LLM (contexto enriquecido)               │
-│                           │                                 │
-│                    Lean 4 SolverCascade                     │
-│              rfl → simp → ring → omega → aesop              │
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  Memory Evolutive Systems (Ehresmann)               │   │
-│  │  Patrones P → Colímites cP → Complexificación K'   │   │
-│  │  Axiomas 8.1–8.4 · Teoremas 8.5–8.7               │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  GNN + PPO (124K params)                            │   │
-│  │  SkillGNN (3x GATConv) + ActorCriticNetwork        │   │
-│  │  Aprendizaje vivo: cada interacción alimenta PPO   │   │
-│  └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Subsistemas (`nucleo/`)
-
-| Módulo | Descripción |
-|---|---|
-| `core.py` | Orquestador principal `Nucleo` |
-| `graph/` | `SkillCategory` (NetworkX), embeddings, evolución |
-| `mes/` | Patrones, colímites, co-reguladores, memoria |
-| `rl/` | GNN (`SkillGNN`), PPO (`NucleoAgent`), recompensas |
-| `lean/` | Cliente Lean 4, solver cascade, sorry analyzer |
-| `llm/` | Cliente LLM multi-proveedor |
-| `pillars/` | ZFC, categorías, lógica, teoría de tipos |
-| `eval/` | Evaluador de respuestas matemáticas |
-
----
-
 ## Grafo de Skills
 
-**76 skills** organizados en una jerarquía de 3 niveles y 14 categorías matemáticas:
+**76 skills** en jerarquia de 3 niveles y 14 categorias:
 
-| Nivel | Descripción | Skills |
+| Nivel | Descripcion | Skills |
 |---|---|---|
-| L0 | Fundamentos (ZFC, categorías, FOL, tipos, Lean) | 10 |
-| L1 | Dominios: álgebra, geometría, análisis, topología, lógica, números, combinatoria, probabilidad, categorías avanzadas, computación, optimización, tácticas Lean | 60 |
+| L0 | Fundamentos: ZFC, categorias, FOL, tipos, Lean | 10 |
+| L1 | Dominios: algebra, geometria, analisis, topologia, logica, numeros, combinatoria, probabilidad, categorias avanzadas, computacion, optimizacion, tacticas Lean | 60 |
 | L2 | Estrategias de prueba | 6 |
 
-Morfismos entre skills: **dependencia**, **analogía**, **traducción**.
+Morfismos: **dependencia**, **analogia**, **traduccion**.
 
 ---
 
 ## Memory Evolutive Systems
 
-Implementación de la teoría de Ehresmann para modelar el aprendizaje matemático:
+Implementacion de la teoria de Ehresmann para modelar el aprendizaje matematico:
 
-- **Patrón P: I → K** — colección de skills relevantes para una consulta
-- **Colímite cP** — skill emergente que sintetiza el patrón (propiedad universal verificada)
-- **Complexificación K'** — el grafo evoluciona añadiendo cP y los co-conos
+- **Patron P: I -> K** — coleccion de skills relevantes para una consulta
+- **Colimite cP** — skill emergente que sintetiza el patron (propiedad universal verificada)
+- **Complexificacion K'** — el grafo evoluciona anadiendo cP y los co-conos
 
-Axiomas formalmente verificados: jerarquía de skills, multiplicidad, conectividad, cobertura de pilares.
+Axiomas formalmente verificados: jerarquia, multiplicidad, conectividad, cobertura de pilares.
+
+La memoria procedimental almacena 2371 patrones sembrados desde ProofNet y NuminaMath, y crece con cada interaccion exitosa.
 
 ---
 
 ## GNN + PPO
 
-Red neuronal para selección adaptativa de skills:
+Red neuronal para seleccion adaptativa de skills:
 
 ```
 SkillGNN:
-  node_proj    →  feat_dim × 64
-  GATConv 1   →  64 × 64 × 4 heads     ≈ 16,640 params
-  GATConv 2   →  64 × 64 × 4 heads     ≈ 16,640 params
-  GATConv 3   →  64 × 64 × 4 heads     ≈ 16,640 params
-  out_proj    →  128 × 64              ≈  8,192 params
+  node_proj    ->  feat_dim x 64
+  GATConv 1   ->  64 x 64 x 4 heads     ~ 16,640 params
+  GATConv 2   ->  64 x 64 x 4 heads     ~ 16,640 params
+  GATConv 3   ->  64 x 64 x 4 heads     ~ 16,640 params
+  out_proj    ->  128 x 64              ~  8,192 params
 
 ActorCriticNetwork:
-  shared_net  →  256 × 128 × 2        ≈ 33,024 params
-  actor       →  128 × num_skills     ≈  9,728 params
-  critic      →  128 × 1             ≈    129 params
+  shared_net  ->  256 x 128 x 2        ~ 33,024 params
+  actor       ->  128 x num_skills     ~  9,728 params
+  critic      ->  128 x 1             ~    129 params
 
-Total: ~124,420 parámetros entrenables
+Total: ~124,420 parametros entrenables
 ```
 
-**Aprendizaje vivo**: cada interacción con el chat alimenta el agente PPO via `Transition`. La memoria procedimental guarda los patrones exitosos para reutilizarlos sin necesidad de la red neuronal.
+**Aprendizaje vivo**: cada interaccion alimenta PPO via `Transition`. La memoria procedimental guarda patrones exitosos para reutilizarlos sin red neuronal. Pesos guardados automaticamente cada 10 interacciones.
 
 ---
 
-## Visualizaciones
+## Co-Reguladores
 
-La página de visualizaciones muestra datos reales del Núcleo (no maquetas):
+4 co-reguladores activos que coordinan el procesamiento:
 
-| Pestaña | Contenido |
+| Co-regulador | Rol |
 |---|---|
-| Grafo de Skills | Red categórica completa — nodos resaltados según la consulta activa |
-| Espacio de Embeddings | Proyección t-SNE / PCA de los vectores reales (320 dim) |
-| Arquitectura NLE | Diagrama de bloques del sistema completo |
-| Complexificación MES | Patrón P → colímite cP → K' con skills reales de la consulta |
-| Pipeline | Flujo de procesamiento de consulta a respuesta |
-| GNN + Estadísticas | Arquitectura de la red neuronal |
-| Traza de Prueba | Subred de skills activada para un teorema concreto |
+| **TACTICAL (CR_tac)** | Clasifica consultas y enruta al pipeline correcto (80% del trafico) |
+| **ORGANIZATIONAL (CR_org)** | Organiza secuencias de tacticas |
+| **STRATEGIC (CR_str)** | Decide estrategia de alto nivel (20% del trafico) |
+| **INTEGRATIVE (CR_int)** | Integra resultados parciales |
 
 ---
 
@@ -168,47 +282,24 @@ La página de visualizaciones muestra datos reales del Núcleo (no maquetas):
 python -m pytest tests/ -o "addopts=" -v
 ```
 
-379 tests en 17 suites — colímites, evolución, emergencia, multiplicidad, co-reguladores, GNN, PPO, Lean, memoria, aprendizaje vivo, CLI.
+379 tests en 17 suites: colimites, evolucion, emergencia, multiplicidad, co-reguladores, GNN, PPO, Lean, memoria, aprendizaje vivo, CLI.
 
 ---
 
-## Estructura del Proyecto
-
-```
-metamath-prover/
-├── app.py                    # App Streamlit (chat + navegación)
-├── pages/
-│   └── 1_Visualizaciones.py  # Grafos, embeddings, MES, traza
-├── nucleo/                   # Núcleo Lógico Evolutivo (~12,800 LOC)
-│   ├── core.py               # Orquestador principal
-│   ├── graph/                # Grafo categórico de skills
-│   ├── mes/                  # Memory Evolutive Systems
-│   ├── rl/                   # GNN + PPO
-│   ├── lean/                 # Verificación Lean 4
-│   ├── llm/                  # Cliente LLM
-│   └── pillars/              # Fundamentos matemáticos
-├── MetamathProver/           # Pruebas Lean 4 verificadas
-├── tests/                    # 379 tests
-├── experiments/              # Experimentos y benchmarks
-└── docs/                     # Papers NLE v7.0
-```
-
----
-
-## Instalación
+## Instalacion
 
 ```bash
 git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
 cd Metamatematico---Razonamiento-Formal-con-Lean
 
-# Entorno recomendado: conda
+# Entorno recomendado
 conda create -n metamat python=3.10
 conda activate metamat
 
 pip install -r requirements.txt
 
-# Lanzar la app
-streamlit run app.py
+# Lanzar
+PYTHONIOENCODING=utf-8 streamlit run app.py
 ```
 
 ### Dependencias principales
@@ -221,17 +312,17 @@ scikit-learn>=1.3
 matplotlib>=3.7
 torch>=2.0
 torch-geometric>=2.4
-anthropic / google-genai / groq  (según proveedor elegido)
+anthropic / google-genai / groq  (segun proveedor elegido)
 ```
 
 ---
 
-## Fundamento Teórico
+## Fundamento Teorico
 
-El NLE v7.0 está basado en el artículo **"Núcleo Lógico Evolutivo v7.0 — Memory Evolutive Systems y Razonamiento Formal"** (Jiménez Martínez, BIOMAT 2025), disponible en `docs/`.
+El NLE v7.0 esta basado en el articulo **"Nucleo Logico Evolutivo v7.0 — Memory Evolutive Systems y Razonamiento Formal"** (Jimenez Martinez, BIOMAT 2025), disponible en `docs/`.
 
-El sistema modela el proceso cognitivo de un matemático experto siguiendo la teoría de **Memory Evolutive Systems** de A. Ehresmann: la memoria matemática se organiza como una categoría que evoluciona mediante complexificaciones sucesivas, donde cada nueva competencia emerge como colímite de competencias previas.
+El sistema modela el proceso cognitivo de un matematico experto siguiendo la teoria de **Memory Evolutive Systems** de A. Ehresmann: la memoria matematica se organiza como una categoria que evoluciona mediante complexificaciones sucesivas, donde cada nueva competencia emerge como colimite de competencias previas.
 
 ---
 
-**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · 2025**
+**Leonardo Jimenez Martinez · BIOMAT · Centro de Biomatematicas · 2025**

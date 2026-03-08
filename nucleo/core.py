@@ -43,6 +43,7 @@ from nucleo.mes.patterns import PatternManager, ColimitBuilder
 from nucleo.mes.memory import MESMemory
 from nucleo.mes.co_regulators import CoRegulatorNetwork, GlobalDecision
 from nucleo.pillars.math_domains import load_math_domains
+from nucleo.eval.math_evaluator import MathEvaluator, EvaluationResult
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +144,9 @@ class Nucleo:
         self._initialized = False
         self._last_decision: Optional[GlobalDecision] = None
 
+        # Banco de ejemplos few-shot Lean (cargado desde lean_examples.json)
+        self._lean_examples: dict = {}
+
         # Neural agent for live PPO learning (optional)
         self._neural_agent = None
         self._live_learning_steps = 0
@@ -150,6 +154,9 @@ class Nucleo:
         # Feedback tracking — last experience for retroactive update
         self._last_experience_id: Optional[str] = None
         self._last_action_type = None
+
+        # Math answer evaluator (MATH / GSM8K benchmarks)
+        self._evaluator: MathEvaluator = MathEvaluator()
 
         # Callbacks
         self._on_action: Optional[Callable] = None
@@ -192,6 +199,15 @@ class Nucleo:
         # lean4-skills integration: Solver Cascade + Sorry Filler (graph-aware)
         self._solver_cascade = SolverCascade(self._lean, graph=self._graph)
         self._sorry_filler = SorryFiller(solver_cascade=self._solver_cascade)
+
+        # Cargar banco de ejemplos Lean few-shot (miniF2F, seeded por seed_from_datasets.py)
+        lean_ex_path = self.config.data_dir / "lean_examples.json"
+        if lean_ex_path.exists():
+            import json as _json
+            with open(lean_ex_path, encoding="utf-8") as _f:
+                self._lean_examples = _json.load(_f)
+            n_ex = sum(len(v) for v in self._lean_examples.values())
+            logger.info(f"lean_examples.json: {n_ex} ejemplos few-shot cargados")
 
         # MES Components (v7.0) — Dinamica Global
         self._pattern_manager = PatternManager()
@@ -413,7 +429,11 @@ class Nucleo:
         """Ejecutar la accion seleccionada."""
 
         if action.action_type == ActionType.RESPONSE:
-            # Generar respuesta con LLM using graph-relevant context
+            # Consulta matematica → Lean primero, LLM solo traduce
+            if self._is_mathematical(input_text):
+                return await self._math_via_lean(input_text)
+
+            # Conversacion pura → LLM directamente
             context = self._find_relevant_context(input_text, self._graph)
             context["mode"] = self._mode.name
             llm_response = await self._llm.generate(
@@ -427,7 +447,7 @@ class Nucleo:
             )
 
         elif action.action_type == ActionType.ASSIST:
-            # Asistir con prueba Lean
+            # CR_tac decidio ASSIST (usuario adjunto codigo Lean)
             return await self._assist_lean(input_text)
 
         elif action.action_type == ActionType.REORGANIZE:
@@ -461,30 +481,10 @@ class Nucleo:
         context = self._find_relevant_context(input_text, self._graph)
         context["task"] = "lean_formalization"
 
-        # ── Caso A: usuario pide formalización sin adjuntar código ───────────
+        # ── Caso A: usuario pide formalizacion sin adjuntar codigo ───────────
+        # El pipeline Lean-primero aplica siempre: Lean verifica, LLM traduce.
         if "```lean" not in input_text:
-            prompt = (
-                "El usuario quiere formalizar o demostrar lo siguiente en Lean 4:\n\n"
-                f"> {input_text}\n\n"
-                "Estructura tu respuesta EXACTAMENTE así, con estos encabezados Markdown:\n\n"
-                "## ¿Qué afirma este resultado?\n"
-                "[Explicación clara e intuitiva del enunciado, sin código. "
-                "Para alguien que sabe matemáticas pero no conoce Lean.]\n\n"
-                "## Idea de la demostración\n"
-                "[La estrategia matemática: casos, inducción, contradicción, etc. "
-                "Paso a paso en lenguaje natural.]\n\n"
-                "## Demostración en Lean 4\n"
-                "```lean\n[código completo aquí]\n```\n\n"
-                "## Guía de las tácticas\n"
-                "[Para cada táctica usada: qué hace y por qué se aplica en ese punto.]"
-            )
-            llm_response = await self._llm.generate(prompt, system=lean_system, context=context)
-            self._record_lean_experience("lean-tactics", 0.7)
-            return NucleoResponse(
-                content=llm_response.content,
-                action_type=ActionType.ASSIST,
-                confidence=0.75,
-            )
+            return await self._math_via_lean(input_text)
 
         # ── Caso B: usuario envió código Lean → verificar, luego explicar ───
         code = self._extract_lean_code(input_text)
@@ -558,6 +558,273 @@ class Nucleo:
             lean_result=result,
             confidence=confidence,
         )
+
+    # =========================================================================
+    # LEAN-FIRST PIPELINE (v7.0 — arquitectura central)
+    # =========================================================================
+
+    _MATH_KEYWORDS = frozenset({
+        # Español
+        "teorema", "lema", "proposicion", "corolario", "demostracion",
+        "prueba", "demostrar", "probar", "verificar", "calcular", "hallar",
+        "encontrar", "derivada", "integral", "limite", "serie", "sucesion",
+        "convergencia", "divergencia", "continua", "diferenciable", "analitica",
+        "grupo", "anillo", "campo", "espacio", "subespacio", "base", "dimension",
+        "vector", "matriz", "determinante", "eigenvalor", "autovalor",
+        "polinomio", "funcion", "biyeccion", "inyectiva", "sobreyectiva",
+        "isomorfismo", "homomorfismo", "endomorfismo", "automorfismo",
+        "conjunto", "subconjunto", "interseccion", "union", "complemento",
+        "cardinalidad", "infinito", "axioma", "hipotesis", "conclusion",
+        "logica", "cuantificador", "implicacion", "equivalencia", "negacion",
+        "topologia", "metrica", "norma", "producto", "suma", "algebra",
+        "geometria", "numero", "primo", "divisible", "modulo", "congruencia",
+        "categoria", "funtor", "transformacion", "natural", "adjunto",
+        # English
+        "theorem", "lemma", "proposition", "corollary", "proof",
+        "prove", "show", "verify", "compute", "find", "calculate",
+        "derivative", "integral", "limit", "series", "sequence",
+        "convergence", "continuous", "differentiable", "analytic",
+        "group", "ring", "field", "space", "subspace", "basis", "dimension",
+        "vector", "matrix", "determinant", "eigenvalue",
+        "polynomial", "function", "bijection", "injection", "surjection",
+        "isomorphism", "homomorphism", "endomorphism", "automorphism",
+        "set", "subset", "intersection", "union", "complement", "cardinality",
+        "axiom", "hypothesis", "logic", "quantifier", "implication",
+        "topology", "metric", "norm", "algebra", "geometry",
+        "prime", "divisible", "modulo", "congruence",
+        "category", "functor", "adjoint",
+        # Lean / formal
+        "lean", "simp", "ring", "omega", "induction", "cases",
+        "have", "intro", "apply", "exact", "rfl", "sorry",
+    })
+
+    _MATH_SYMBOLS = frozenset("∀∃∈∉⊆⊇⊂⊃∪∩∅∑∏∫∂∇∞αβγδεζηθλμνξρστφχψω")
+
+    _MATH_LATEX = (
+        r"\frac", r"\sum", r"\int", r"\forall", r"\exists",
+        r"\in", r"\subset", r"\mathbb", r"\sqrt", r"\prod",
+        r"\lim", r"\infty", r"\partial",
+    )
+
+    def _is_mathematical(self, text: str) -> bool:
+        """
+        Clasificar si una consulta es matematica.
+
+        Criterios (cualquiera es suficiente):
+        - Contiene vocabulario matematico formal (keywords)
+        - Contiene simbolos matematicos Unicode
+        - Contiene comandos LaTeX matematicos
+
+        Excluye frases puramente conversacionales como saludo/despedida.
+        """
+        low = text.lower()
+
+        # Frases puramente conversacionales → no matematico
+        conversational_starters = (
+            "hola", "buenos", "buenas", "gracias", "adios", "hasta",
+            "como estas", "como te llamas", "que eres", "quien eres",
+            "hi ", "hello", "thanks", "bye",
+        )
+        if any(low.strip().startswith(s) for s in conversational_starters):
+            return False
+
+        # Simbolos matematicos Unicode
+        if any(ch in text for ch in self._MATH_SYMBOLS):
+            return True
+
+        # LaTeX matematico
+        if any(cmd in text for cmd in self._MATH_LATEX):
+            return True
+
+        # Keywords: al menos 1 match sobre tokens de la query
+        tokens = set(
+            w.strip("¿?.,;:!()[]{}\"'") for w in low.split()
+        )
+        if tokens & self._MATH_KEYWORDS:
+            return True
+
+        return False
+
+    async def _math_via_lean(self, input_text: str) -> NucleoResponse:
+        """
+        Pipeline principal para consultas matematicas.
+
+        Arquitectura (Lean-primero):
+          1. LLM formaliza el enunciado en Lean 4   (rol: formalizador)
+          2. Lean verifier comprueba la prueba        (fuente de verdad)
+          3. Si hay sorry → solver cascade intenta llenarlos
+          4. LLM traduce el resultado a lenguaje natural amable
+             (rol: traductor, NO razonador)
+
+        La verdad matematica viene de Lean, no del LLM.
+        """
+        from nucleo.llm.client import LLMClient
+        lean_system = LLMClient.LEAN_SYSTEM_PROMPT
+        context = self._find_relevant_context(input_text, self._graph)
+        context["task"] = "lean_formalization"
+
+        # ── Paso 1: LLM formaliza → Lean 4 ──────────────────────────────────
+        # Construir ejemplos few-shot relevantes (miniF2F)
+        few_shot_block = self._build_few_shot_context(input_text)
+
+        formalize_prompt = (
+            "Tu única tarea es escribir código Lean 4 que formalice el siguiente "
+            "enunciado o pregunta matemática.\n\n"
+            f"Enunciado: {input_text}\n\n"
+            + (
+                f"Ejemplos de referencia (Lean 3 — adapta la sintaxis a Lean 4):\n"
+                f"{few_shot_block}\n\n"
+                if few_shot_block else ""
+            )
+            + "Instrucciones:\n"
+            "- Escribe SOLO el bloque de código Lean 4. Nada más.\n"
+            "- El código debe ser autocontenido (con los imports necesarios).\n"
+            "- Si es una afirmación, escríbela como `theorem` o `lemma`.\n"
+            "- Si es una definición, usa `def` o `structure`.\n"
+            "- Si no sabes la prueba completa, usa `sorry` como marcador.\n"
+            "- No pongas explicaciones fuera del bloque de código."
+        )
+        lean_gen = await self._llm.generate(
+            formalize_prompt, system=lean_system, context=context
+        )
+        lean_code = self._extract_lean_code(lean_gen.content)
+        if not lean_code:
+            # Si el LLM no produjo un bloque, usar su respuesta completa
+            lean_code = lean_gen.content.strip()
+
+        # ── Paso 2: Lean verifier ─────────────────────────────────────────
+        result = await self._lean.check_code(lean_code)
+
+        if result.is_success:
+            verification_status = "verificado"
+            verification_note = (
+                "La prueba fue verificada formalmente por Lean 4 sin errores."
+            )
+            confidence    = 0.95
+            success_value = 1.0
+
+        elif result.status == LeanResultStatus.SORRY:
+            # ── Paso 3: Solver cascade intenta llenar los sorry ───────────
+            sorry_msg, confidence, success_value = await self._try_solve_sorries(
+                lean_code, result
+            )
+            verification_status = "parcial"
+            verification_note = (
+                f"Lean 4 aceptó la estructura de la prueba. {sorry_msg}"
+            )
+
+        else:
+            error_info = self._analyze_lean_errors(result)
+            first_err  = result.get_first_error() or "error desconocido"
+            verification_status = "no_verificado"
+            verification_note = (
+                f"Lean 4 reportó un error (`{error_info.get('type', 'unknown')}`): "
+                f"{first_err}. La formalización puede requerir ajustes."
+            )
+            confidence    = 0.6
+            success_value = 0.2
+
+        # ── Paso 4: LLM traduce a lenguaje natural amable ─────────────────
+        translate_prompt = (
+            "Eres un traductor matemático. Tu trabajo es explicar el siguiente "
+            "código Lean 4 en lenguaje natural claro, preciso y amable. "
+            "No tienes que razonar ni inventar — solo explicar lo que Lean dice.\n\n"
+            f"Pregunta original del usuario:\n> {input_text}\n\n"
+            f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
+            f"Estado de verificación: {verification_note}\n\n"
+            "Escribe tu explicación con estas secciones:\n\n"
+            "## ¿Qué dice este resultado?\n"
+            "[Explica el enunciado con tus palabras, como si hablaras con "
+            "alguien que sabe matemáticas pero no conoce Lean.]\n\n"
+            "## ¿Cómo lo demuestra Lean?\n"
+            "[Explica la estrategia de la prueba y qué hace cada táctica "
+            "importante. Sin copiar el código — solo en palabras.]\n\n"
+            "## ¿Por qué es correcto?\n"
+            "[Explica la intuición matemática detrás de la prueba. "
+            "¿Qué hace que este argumento sea válido?]"
+            + (
+                "\n\n## Nota sobre la verificación\n"
+                f"[{verification_note}]"
+                if verification_status != "verificado" else ""
+            )
+        )
+        translation = await self._llm.generate(
+            translate_prompt, system=lean_system, context=context
+        )
+
+        # ── Ensamblaje final ───────────────────────────────────────────────
+        status_badge = {
+            "verificado":    "**Lean 4: verificado formalmente**",
+            "parcial":       "**Lean 4: estructura verificada (sorry parcial)**",
+            "no_verificado": "**Lean 4: formalización pendiente de ajuste**",
+        }[verification_status]
+
+        content = (
+            f"{translation.content}\n\n"
+            f"---\n\n"
+            f"{status_badge}\n\n"
+            f"```lean\n{lean_code}\n```"
+        )
+
+        self._record_lean_experience("lean-tactics", success_value)
+
+        return NucleoResponse(
+            content=content,
+            action_type=ActionType.ASSIST,
+            lean_result=result,
+            confidence=confidence,
+        )
+
+    def _build_few_shot_context(self, query: str) -> str:
+        """
+        Buscar 2-3 ejemplos few-shot de miniF2F relevantes para la query.
+
+        Usa el banco lean_examples.json (cargado en initialize).
+        Selecciona por categoria y keyword overlap.
+        """
+        if not self._lean_examples:
+            return ""
+
+        query_lower = query.lower()
+        tokens = set(query_lower.split())
+
+        # Inferir categoria de la query
+        cat_map = {
+            "algebra":        {"algebra", "ecuacion", "polinomio", "equation", "polynomial"},
+            "number_theory":  {"primo", "divisible", "modulo", "prime", "integer", "number"},
+            "geometry":       {"geometria", "triangulo", "angulo", "geometry", "triangle"},
+            "analysis":       {"limite", "continua", "integral", "limit", "continuous"},
+            "combinatorics":  {"combinatoria", "permutacion", "combination", "counting"},
+        }
+        best_cat = "general"
+        best_score = 0
+        for cat, keywords in cat_map.items():
+            score = len(tokens & keywords)
+            if score > best_score:
+                best_score = score
+                best_cat = cat
+
+        # Tomar ejemplos de la categoria inferida, o de competition_math como fallback
+        candidates = (
+            self._lean_examples.get(best_cat, [])
+            or self._lean_examples.get("competition_math", [])
+            or next(iter(self._lean_examples.values()), [])
+        )
+
+        # Seleccionar los 2 primeros (ya estan filtrados por has_proof=True)
+        selected = candidates[:2]
+        if not selected:
+            return ""
+
+        lines = []
+        for ex in selected:
+            tac_str = "\n  ".join(ex.get("tactics", [])[:3])
+            lines.append(
+                f"-- Ejemplo: {ex['name']} ({best_cat})\n"
+                f"{ex['statement']}\nbegin\n  {tac_str}\nend"
+            )
+
+        return "\n\n".join(lines)
 
     async def _try_solve_sorries(
         self, code: str, result: LeanResult
@@ -850,6 +1117,27 @@ class Nucleo:
                 logger.info("PPO update con feedback del usuario")
             except Exception as e:
                 logger.warning(f"Feedback PPO update falló: {e}")
+
+    def evaluate_answer(
+        self,
+        prediction: str,
+        reference: str,
+        extract_answers: bool = True,
+    ) -> EvaluationResult:
+        """
+        Verificar si una respuesta matematica es correcta.
+
+        Usa MathEvaluator: extrae \\boxed{}, compara numerico/simbolico.
+
+        Args:
+            prediction: Respuesta generada (puede contener \\boxed{...})
+            reference:  Respuesta de referencia
+            extract_answers: Si extraer la respuesta del texto completo
+
+        Returns:
+            EvaluationResult con is_correct, match_type y detalles
+        """
+        return self._evaluator.evaluate(prediction, reference, extract_answers)
 
     def process_sync(self, input_text: str) -> "NucleoResponse":
         """

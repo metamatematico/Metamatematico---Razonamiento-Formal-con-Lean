@@ -11,3 +11,16 @@ dist/
 build/
 .env
 .venv/
+
+# Runtime data (generated at runtime, not versioned)
+data/memory.json
+data/neural_agent.json
+data/neural_agent.json.pt
+data/eval_results/
+
+# Lean temp files
+tmp*.lean
+
+# OS
+.DS_Store
+Thumbs.db

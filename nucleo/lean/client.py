@@ -139,7 +139,8 @@ class LeanClient:
             mode="w",
             suffix=".lean",
             delete=False,
-            dir=self.project_path
+            dir=self.project_path,
+            encoding="utf-8",
         ) as f:
             f.write(code)
             temp_file = Path(f.name)
