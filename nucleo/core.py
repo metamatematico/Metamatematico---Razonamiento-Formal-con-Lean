@@ -151,6 +151,9 @@ class Nucleo:
         self._neural_agent = None
         self._live_learning_steps = 0
 
+        # Multi-agent orchestrator (14 specialized agents, one per category)
+        self._multi_agent_orchestrator = None
+
         # Feedback tracking — last experience for retroactive update
         self._last_experience_id: Optional[str] = None
         self._last_action_type = None
@@ -431,6 +434,13 @@ class Nucleo:
         if action.action_type == ActionType.RESPONSE:
             # Consulta matematica → Lean primero, LLM solo traduce
             if self._is_mathematical(input_text):
+                # Enrutar al agente especializado si está disponible
+                if self._multi_agent_orchestrator is not None:
+                    category, _agent = self.get_specialized_agent(input_text)
+                    if category:
+                        logger.debug(f"Agente especializado: {category}")
+                        # Registrar categoría en metadata para el response
+                        self._state.metadata["math_category"] = category
                 return await self._math_via_lean(input_text)
 
             # Conversacion pura → LLM directamente
@@ -1018,6 +1028,82 @@ class Nucleo:
             logger.info(f"Neural weights saved ({self._live_learning_steps} steps)")
         except Exception as e:
             logger.warning(f"Failed to save neural weights: {e}")
+
+    def report_lean_result(
+        self,
+        query: str,
+        tactic: str,
+        lean_result: str,
+        reward: float,
+    ) -> None:
+        """Reporta el resultado de Lean al sistema multi-agente (MES Bridge).
+
+        Debe llamarse tras cada verificación Lean para que los agentes
+        aprendan de las soluciones exitosas y detecten convergencias.
+
+        Args:
+            query:       Texto del problema
+            tactic:      Táctica Lean usada
+            lean_result: "success" | "partial" | "failed"
+            reward:      Recompensa (0.0 - 1.0)
+        """
+        if self._multi_agent_orchestrator is None:
+            return
+        try:
+            self._multi_agent_orchestrator.record_solution(
+                query=query,
+                tactic=tactic,
+                lean_result=lean_result,
+                reward=reward,
+            )
+        except Exception as e:
+            logger.debug(f"report_lean_result error: {e}")
+
+    def set_multi_agent_orchestrator(self, orchestrator=None) -> None:
+        """
+        Conecta el MultiAgentOrchestrator al Nucleo.
+
+        Cuando está activo, las consultas matemáticas se enrutan al agente
+        especializado de su categoría (algebra, geometry, etc.) en vez de
+        usar el agente monolítico global.
+
+        Args:
+            orchestrator: instancia de MultiAgentOrchestrator,
+                          o None para crear uno por defecto.
+        """
+        if orchestrator is None:
+            try:
+                from nucleo.multi_agent import MultiAgentOrchestrator
+                orchestrator = MultiAgentOrchestrator(
+                    lazy=True,
+                    pattern_manager=self._pattern_manager,
+                    colimit_builder=self._colimit_builder,
+                    skill_graph=self._graph,
+                )
+            except ImportError:
+                logger.warning("MultiAgentOrchestrator no disponible")
+                return
+        else:
+            # Inyectar MES del Nucleo en el bridge existente
+            if hasattr(orchestrator, "mes_bridge") and orchestrator.mes_bridge is not None:
+                orchestrator.mes_bridge.pattern_manager = self._pattern_manager
+                orchestrator.mes_bridge.colimit_builder = self._colimit_builder
+                orchestrator.mes_bridge.skill_graph = self._graph
+
+        self._multi_agent_orchestrator = orchestrator
+        orchestrator._nucleo = self
+        logger.info("MultiAgentOrchestrator integrado con Nucleo (MES Bridge conectado)")
+
+    def get_specialized_agent(self, query: str):
+        """Retorna el agente especializado para la categoría de query, o None."""
+        if self._multi_agent_orchestrator is None:
+            return None, None
+        try:
+            category, agent = self._multi_agent_orchestrator.route(query)
+            return category, agent
+        except Exception as e:
+            logger.warning(f"Error al enrutar query: {e}")
+            return None, None
 
     def set_neural_agent(self, agent) -> None:
         """
