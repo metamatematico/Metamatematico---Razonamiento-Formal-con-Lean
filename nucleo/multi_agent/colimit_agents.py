@@ -96,6 +96,11 @@ class ColimitAgent:
         self._memory: Dict[str, List[dict]] = {}  # query_hash → [resultados]
         self._tactic_success: Dict[str, float] = {}  # tactic → success_rate
 
+        # Memoria de morfismos mediadores (cross-agent, sin reentrenamiento)
+        self._mediating_memory: Dict[str, str] = {}   # qhash → tactic mediadora
+        # Palabras clave de skills absorbidos → táctica sugerida
+        self._skill_keyword_tactics: Dict[str, str] = {}  # keyword → tactic
+
         # Estado actual
         self.state = ColimitAgentState(
             category=category,
@@ -226,22 +231,40 @@ class ColimitAgent:
         self.calls += 1
         self.state.active_skill_ids = []
 
-        # 1. Consultar memoria
+        # 1. Memoria procedimental exacta (query hash)
         best = self._best_tactic_for_query(query)
         if best:
             logger.debug(f"[{self.category}] Táctica desde memoria: {best!r}")
             return best
 
-        # 2. Activar co-cono: buscar qué skills del patrón son relevantes
+        # 2. Morfismo mediador (táctica compartida con otro agente, Limitación 2)
+        qhash = _qhash(query)
+        if qhash in self._mediating_memory:
+            tactic = self._mediating_memory[qhash]
+            logger.debug(f"[{self.category}] Táctica mediadora: {tactic!r}")
+            return tactic
+
+        # 3. Activar co-cono: skills relevantes ponderados por peso de morfismo
         relevant = self._activate_cocone(query)
         if relevant:
-            self.state.active_skill_ids = [s.id for s in relevant]
-            # La táctica del skill más activado
-            tactic = getattr(relevant[0], "default_tactic", None)
+            self.state.active_skill_ids = [s for s, _ in relevant]
+            # La táctica del skill más activado (mayor score)
+            top_skill = self.graph.get_skill(relevant[0][0]) if self.graph else None
+            tactic = getattr(top_skill, "default_tactic", None)
             if tactic:
                 return tactic
+            # Buscar en keywords de skills absorbidos
+            for keyword, ktactic in self._skill_keyword_tactics.items():
+                if keyword in query.lower():
+                    return ktactic
 
-        # 3. Táctica por defecto de la categoría
+        # 4. Señal de pilar L1 (morfismo L1→L2 en el grafo, Limitación 1)
+        pillar_tactic = self._pillar_signal_tactic(query)
+        if pillar_tactic:
+            logger.debug(f"[{self.category}] Táctica de pilar: {pillar_tactic!r}")
+            return pillar_tactic
+
+        # 5. Táctica por defecto de la categoría
         return _default_tactic(self.category)
 
     def record_result(
@@ -329,13 +352,29 @@ class ColimitAgent:
                 source_id=new_skill_id,
                 target_id=self.colimit_skill.id,
                 morphism_type=MorphismType.COMPOSITION,
-                weight=0.5,  # peso inicial del co-cono
+                weight=0.5,
                 metadata={"role": "cocone", "category": self.category},
             ))
             self.state.cocone_morphism_ids.append(morphism_id)
+
+            # Limitación 3: registrar la táctica del skill nuevo para inferencia inmediata
+            default_tactic = getattr(new_skill, "default_tactic", None)
+            if default_tactic and default_tactic not in self._tactic_success:
+                # Seed: éxito neutro — el skill es nuevo, no hay historial
+                self._tactic_success[default_tactic] = 0.5
+                logger.debug(
+                    f"[{self.category}] Táctica {default_tactic!r} sembrada "
+                    f"desde skill absorbido {new_skill_id!r}"
+                )
+            # Registrar palabras clave del skill para _activate_cocone()
+            name_words = new_skill.name.lower().replace("_", " ").split()
+            for word in name_words:
+                if len(word) > 3 and default_tactic:
+                    self._skill_keyword_tactics[word] = default_tactic
+
             logger.info(
                 f"[{self.category}] Skill {new_skill_id!r} absorbido "
-                f"en el colímite"
+                f"en el colímite (táctica: {default_tactic!r})"
             )
             return True
         except Exception as e:
@@ -401,17 +440,118 @@ class ColimitAgent:
 
         return None
 
-    def _activate_cocone(self, query: str) -> list:
-        """Activa los skills del co-cono relevantes para la query."""
+    def _activate_cocone(self, query: str) -> List[Tuple[str, float]]:
+        """
+        Activa los skills del co-cono ponderados por:
+          score = peso_morfismo × relevancia_nombre
+        Devuelve lista de (skill_id, score) ordenada descendente.
+        """
         if self.pattern is None or self.graph is None:
             return []
         query_lower = query.lower()
-        relevant = []
+
+        # Índice: skill_id → peso del co-cono en el grafo
+        morph_weights: Dict[str, float] = {}
+        try:
+            all_morphisms = graph_morphisms(self.graph)
+            colimit_id = self.colimit_skill.id if self.colimit_skill else ""
+            for m in all_morphisms:
+                if m.target_id == colimit_id and m.source_id in set(self.pattern.component_ids):
+                    morph_weights[m.source_id] = getattr(m, "weight", 0.5)
+        except Exception:
+            pass
+
+        scored = []
         for skill_id in self.pattern.component_ids:
             skill = self.graph.get_skill(skill_id)
-            if skill and skill.name.lower().split("_")[0] in query_lower:
-                relevant.append(skill)
-        return relevant[:3]  # top 3 más relevantes
+            if skill is None:
+                continue
+            # Relevancia por nombre
+            words = set(skill.name.lower().replace("_", " ").split())
+            query_words = set(query_lower.split())
+            name_match = len(words & query_words) / max(len(words), 1)
+            # Relevancia por descripción (si existe)
+            desc = getattr(skill, "description", "") or ""
+            desc_match = 0.3 if any(w in desc.lower() for w in query_words if len(w) > 3) else 0.0
+            weight = morph_weights.get(skill_id, 0.5)
+            score = weight * (name_match + desc_match)
+            if score > 0:
+                scored.append((skill_id, score))
+
+        scored.sort(key=lambda x: -x[1])
+        return scored[:3]
+
+    def _pillar_signal_tactic(self, query: str) -> Optional[str]:
+        """
+        Lee morfismos L1→L2 en el grafo para sugerir tácticas de pilar.
+
+        Limitación 1 resuelta: los morfismos con source = nodo pilar
+        ya existen en el grafo (peso 0.8). Aquí los leemos y los
+        traducimos a tácticas Lean sin reentrenar.
+        """
+        if self.graph is None or self.colimit_skill is None:
+            return None
+
+        # Preferencias de táctica por pilar (heurística sin entrenar)
+        PILLAR_TACTICS: Dict[str, List[str]] = {
+            "zfc":                    ["simp", "ext", "exact"],
+            "category-theory-pillar": ["funext", "simp", "ext"],
+            "logic-pillar":           ["tauto", "exact", "intro"],
+            "type-theory-pillar":     ["rfl", "decide", "norm_num"],
+        }
+        # Palabras clave que activan el señal de cada pilar en la query
+        PILLAR_KEYWORDS: Dict[str, List[str]] = {
+            "zfc":                    ["set", "union", "element", "subset", "belongs", "∈", "∪", "∩"],
+            "category-theory-pillar": ["functor", "morphism", "natural", "adjoint", "category", "colimit"],
+            "logic-pillar":           ["prove", "implies", "forall", "exists", "hypothesis", "assume", "∀", "∃"],
+            "type-theory-pillar":     ["type", "decidable", "compute", "evaluate", "algorithm"],
+        }
+
+        colimit_id = self.colimit_skill.id
+        query_lower = query.lower()
+        best_tactic = None
+        best_weight = 0.0
+
+        try:
+            for m in graph_morphisms(self.graph):
+                if m.target_id != colimit_id:
+                    continue
+                src = m.source_id
+                morph_weight = getattr(m, "weight", 0.0)
+                if morph_weight < 0.6:
+                    continue
+                # Identificar si el source es un nodo pilar
+                for pillar, tactics in PILLAR_TACTICS.items():
+                    if pillar in src or f"pillar_{pillar}" in src:
+                        keywords = PILLAR_KEYWORDS.get(pillar, [])
+                        if any(kw in query_lower for kw in keywords):
+                            # Puntuar: peso × (nº keywords coincidentes)
+                            kw_score = sum(1 for kw in keywords if kw in query_lower)
+                            score = morph_weight * kw_score
+                            if score > best_weight:
+                                best_weight = score
+                                best_tactic = tactics[0]
+        except Exception:
+            pass
+
+        return best_tactic
+
+    def _register_mediating_tactic(self, query: str, tactic: str) -> None:
+        """
+        Registra una táctica mediadora para uso futuro (Limitación 2).
+
+        Llamado por ColimitAgentSystem cuando mediate() detecta
+        que otro agente comparte una táctica exitosa para esta query.
+        La próxima vez que llegue una query similar, la táctica ya está disponible.
+        """
+        qhash = _qhash(query)
+        # Solo guardar si la táctica mediadora es mejor que lo que ya hay
+        if qhash not in self._mediating_memory:
+            self._mediating_memory[qhash] = tactic
+            logger.debug(
+                f"[{self.category}] Táctica mediadora registrada: "
+                f"{tactic!r} para query={query[:50]!r}"
+            )
 
     def _strengthen_cocone(self, tactic: str, reward: float) -> None:
         """Fortalece los morfismos de co-cono de los skills activos."""
@@ -561,16 +701,25 @@ class ColimitAgentSystem:
             self._update_mediating_morphisms(query, tactic, category, reward)
 
     def _update_mediating_morphisms(self, query, tactic, primary_cat, reward):
-        """Si otro agente conoce la misma táctica, refuerza el morfismo mediador."""
+        """
+        Detecta tácticas compartidas entre agentes y las registra en ambos
+        para uso inmediato en queries futuras similares (Limitación 2 resuelta).
+        """
+        primary_agent = self._agents.get(primary_cat)
+        if primary_agent is None:
+            return
         for cat, agent in self._agents.items():
             if cat == primary_cat:
                 continue
             if tactic in agent._tactic_success and agent._tactic_success[tactic] >= 0.5:
-                mediator = self._agents[primary_cat].mediate(agent, query)
+                mediator = primary_agent.mediate(agent, query)
                 if mediator:
+                    # Guardar en ambos agentes para inferencia futura
+                    primary_agent._register_mediating_tactic(query, mediator)
+                    agent._register_mediating_tactic(query, mediator)
                     logger.debug(
-                        f"Morfismo mediador: {primary_cat} → {cat} "
-                        f"via táctica {mediator!r}"
+                        f"Morfismo mediador registrado: {primary_cat} ↔ {cat} "
+                        f"via {mediator!r}"
                     )
 
     def print_hierarchy(self):
@@ -687,6 +836,17 @@ def _make_stub_skill(category: str):
         level=2,
         metadata={"category": category, "stub": True},
     )
+
+
+def graph_morphisms(graph) -> list:
+    """Itera sobre todos los morfismos del grafo de forma segura."""
+    try:
+        morphs = graph.morphisms if hasattr(graph, "morphisms") else {}
+        if isinstance(morphs, dict):
+            return list(morphs.values())
+        return list(morphs)
+    except Exception:
+        return []
 
 
 def _qhash(query: str) -> str:
