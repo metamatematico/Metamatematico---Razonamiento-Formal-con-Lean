@@ -1,34 +1,60 @@
-name: Lean Action CI
+name: Lean CI
 
-# Este workflow está deshabilitado temporalmente.
-# Compilar Lean + Mathlib en CI requiere ~6 GB de cache y 30+ min.
-# Se rehabilitará cuando el desarrollo de pruebas Lean esté estabilizado.
+# Verifica que los archivos .lean del repositorio compilan correctamente.
+#
+# Usa el cache oficial de Mathlib (lake exe cache get) para descargar
+# los .olean precompilados en lugar de recompilar Mathlib desde cero.
+# Esto reduce el tiempo de CI de 30+ min a ~2-5 min.
+#
+# Se dispara:
+#   - En cada push o PR que modifique archivos Lean o la configuración de lake
+#   - Manualmente desde la pestaña Actions de GitHub (workflow_dispatch)
 #
 # Para correr localmente:
-#   lake build
-#
-# on:
-#   push:
-#     paths:
-#       - '**/*.lean'
-#       - 'lakefile.toml'
-#       - 'lean-toolchain'
-#   workflow_dispatch:
+#   lake exe cache get   # descarga cache de Mathlib
+#   lake build           # compila los archivos .lean del proyecto
 
 on:
+  push:
+    paths:
+      - '**/*.lean'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
+  pull_request:
+    paths:
+      - '**/*.lean'
+      - 'lakefile.toml'
+      - 'lake-manifest.json'
+      - 'lean-toolchain'
   workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Razón para correr el CI de Lean manualmente'
-        required: true
 
 jobs:
   build:
+    name: Verificar pruebas Lean 4
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: leanprover/lean-action@v1
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Lean 4 via elan
+        uses: leanprover/lean-action@v1
         with:
-          auto-config: true
+          # Usa el cache de Mathlib precompilado (oleans oficiales)
+          # Evita recompilar Mathlib desde cero (~6 GB, 30+ min)
+          use-mathlib-cache: true
+          # No falla si lake update encuentra diferencias menores de versión
           lake-package-directory: '.'
+
+      - name: Descargar cache de Mathlib
+        run: lake exe cache get || echo "Cache parcial — continuando con lo disponible"
+
+      - name: Compilar proyecto
+        run: lake build
+
+      - name: Verificar archivos Lean del proyecto
+        run: |
+          echo "=== Archivos Lean verificados ==="
+          find . -name "*.lean" -not -path "./.lake/*" | sort
+          echo "================================="
