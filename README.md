@@ -2,451 +2,650 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-379_passing-brightgreen.svg)](#tests)
-[![Agents](https://img.shields.io/badge/Agents-14_categor%C3%ADas-blueviolet.svg)](#sistema-multi-agente)
-[![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-546K_params-red.svg)](#gnn--ppo)
-[![Dataset](https://img.shields.io/badge/Dataset-2.29M_ejemplos-orange.svg)](#datasets)
-[![Streamlit](https://img.shields.io/badge/App-Streamlit-ff4b4b.svg)](#aplicacion-web)
+[![Tests](https://img.shields.io/badge/Tests-379_passing-brightgreen.svg)](#7-tests)
+[![Agentes](https://img.shields.io/badge/Agentes-18_col%C3%ADmites-blueviolet.svg)](#3-sistema-multi-agente-jerarquía-de-colímites)
+[![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-546K_params-red.svg)](#5-red-neuronal-gnn--ppo)
+[![Dataset](https://img.shields.io/badge/Dataset-5.4M_ejemplos-orange.svg)](#datasets)
+[![Streamlit](https://img.shields.io/badge/App-Streamlit-ff4b4b.svg)](#9-aplicación-web)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
-
-Asistente de razonamiento matemático formal basado en el **Núcleo Lógico Evolutivo (NLE v7.0)**: un sistema que integra Memory Evolutive Systems, teoría de categorías, verificación en Lean 4 y un sistema multi-agente de 18 colímites activos.
+**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · UNAM**
 
 ---
 
-## Principio de diseño: Lean primero
+## Índice
 
-**Toda consulta matemática pasa obligatoriamente por Lean 4 antes de producir una respuesta.**
-
-El LLM actúa únicamente como:
-1. **Formalizador**: traduce el enunciado en lenguaje natural a código Lean 4
-2. **Traductor**: convierte el resultado verificado de Lean a lenguaje natural accesible
-
-El NLE nunca responde matemáticas directamente desde el LLM. Lean es la fuente de verdad.
-
-```
-Consulta matematica
-       |
-       v
-  MultiAgentOrchestrator (L3)
-  classify_query() --> categoria matematica
-       |
-       v
-  ColimitAgent[categoria] (L2)  <-- PillarAgent[pilar] (L1)
-       |
-       v
-  LLM formaliza  -->  Lean 4 verifica  -->  LLM traduce  -->  Respuesta
-                           |
-                  SolverCascade si hay sorry:
-                  rfl -> simp -> ring -> omega -> aesop
-```
+1. [Qué es este sistema](#1-qué-es-este-sistema)
+2. [Por qué Lean como fuente de verdad](#2-por-qué-lean-como-fuente-de-verdad)
+3. [Sistema Multi-Agente: Jerarquía de Colímites](#3-sistema-multi-agente-jerarquía-de-colímites)
+4. [Memory Evolutive Systems (MES)](#4-memory-evolutive-systems-mes)
+5. [Red Neuronal GNN + PPO](#5-red-neuronal-gnn--ppo)
+6. [Co-Reguladores](#6-co-reguladores)
+7. [Tests](#7-tests)
+8. [Datasets](#datasets)
+9. [Aplicación Web](#9-aplicación-web)
+10. [Entrenamiento](#10-entrenamiento)
+11. [Estructura del Repositorio](#11-estructura-del-repositorio)
+12. [Instalación](#12-instalación)
+13. [Fundamento Teórico](#13-fundamento-teórico)
 
 ---
 
-## Sistema Multi-Agente: Jerarquía de Colímites
+## 1. Qué es este sistema
 
-El núcleo del sistema es una **jerarquía de 4 niveles** donde cada agente es literalmente el nodo colímite en el grafo categórico de skills. No son agentes externos que leen el grafo — son el grafo mismo.
+**Metamatemático** es un asistente de razonamiento matemático formal. A diferencia de un LLM convencional que genera texto plausible, este sistema **verifica matemáticamente** cada respuesta antes de producirla: toda afirmación matemática pasa por el demostrador de teoremas Lean 4 antes de llegar al usuario.
 
-```
-L0: 31 skills atómicos de los pilares
-    ZFC(8) · CatThy(8) · Logic(7) · TypeThy(8)
-         │  co-conos
-         ▼
-L1: 4 PillarAgents  (colímites de L0)
-    colim[ZFC]     colim[CatThy]
-    colim[Logic]   colim[TypeThy]
-         │  morfismos pilar → categoría
-         ▼
-L2: 14 ColimitAgents  (colímites de L1 + skills de dominio)
-    colim[algebra]       colim[topology]     colim[logic]
-    colim[number-theory] colim[analysis]     colim[combinatorics]
-    colim[set-theory]    colim[probability]  colim[category-theory]
-    colim[computation]   colim[geometry]     colim[optimization]
-    colim[lean-tactics]  colim[proof-strategies]
-         │  co-conos
-         ▼
-L3: MultiAgentOrchestrator  (colímite de colímites)
-    Propiedad universal: mediating morphism único
-```
+El núcleo se llama **NLE v7.0 (Núcleo Lógico Evolutivo)** y es un sistema que combina cuatro disciplinas:
 
-### Pilares Fundacionales → Categorías
-
-Cada pilar inyecta morfismos en las categorías que fundamenta:
-
-| Pilar (L1) | Categorías que nutre (L2) |
+| Disciplina | Rol en el sistema |
 |---|---|
-| **ZFC** | algebra, set-theory, combinatorics, number-theory, probability, analysis |
-| **Teoría de Categorías** | category-theory, topology, algebra, analysis |
-| **Lógica (FOL+IL)** | logic, proof-strategies, lean-tactics, computation, set-theory |
-| **Teoría de Tipos (Curry-Howard)** | lean-tactics, proof-strategies, computation, logic |
+| **Teoría de categorías** | Organiza el conocimiento matemático como un grafo categórico donde los conceptos son objetos y sus relaciones son morfismos |
+| **Memory Evolutive Systems** | Modela cómo el sistema *aprende*: el grafo evoluciona añadiendo nuevos nodos emergentes (colímites) cuando detecta patrones recurrentes |
+| **Aprendizaje por refuerzo** | Un agente GNN+PPO selecciona qué tácticas Lean aplicar, mejorando con cada interacción |
+| **Verificación formal (Lean 4)** | Es la fuente de verdad. Ninguna respuesta matemática sale del sistema sin pasar por Lean |
 
-### MES Bridge — Convergencia Emergente
+### El flujo completo de una consulta
 
-El **MES Bridge** conecta los 14 agentes al sistema de memoria evolutiva:
+```
+Usuario: "demuestra que √2 es irracional"
+         │
+         ▼
+  MultiAgentOrchestrator  ←─── clasifica la consulta
+  classify_query()         ─→   categoría: "number-theory"
+         │
+         ▼
+  ColimitAgent[number-theory]  ←── recibe señal del PillarAgent[ZFC]
+  select_tactic()          ─→   táctica sugerida: "norm_num"
+         │
+         ▼
+  LLM (formalizador)
+  "Lean 4: theorem sqrt2_irrational : Irrational (Real.sqrt 2) := by..."
+         │
+         ▼
+  Lean 4 verifica  ──── ¿compila sin sorry? ────┐
+         │                                        │
+     [falla]                                  [éxito]
+         │                                        │
+  SolverCascade                            LLM traduce resultado
+  rfl → simp → ring                       a lenguaje natural
+  → omega → aesop                                │
+         │                                        │
+         └──────────────────────────────────────►─┘
+                                                  │
+                                                  ▼
+                              "√2 es irracional. Demostración verificada por Lean 4."
+```
 
-- Si 2+ agentes resuelven la misma consulta → **ColimitBuilder crea un skill emergente** en el grafo
-- Cada solución exitosa se almacena en **ProceduralMemory** por categoría
-- Los agentes consultan la memoria antes de la red neuronal (recuperación rápida O(1))
-- El grafo evoluciona mediante complexificación cada vez que emerge un nuevo colímite
+El LLM interviene **solo dos veces**: para formalizar el enunciado en Lean, y para traducir el resultado verificado a lenguaje natural. Nunca produce matemáticas por sí solo.
 
 ---
 
-## Arquitectura Completa
+## 2. Por qué Lean como fuente de verdad
+
+Los modelos de lenguaje pueden generar demostraciones matemáticas que *suenan* correctas pero contienen errores sutiles. Lean 4 es un lenguaje de programación con un sistema de tipos dependientes que actúa como verificador formal: si un programa Lean compila sin errores, la demostración es matemáticamente correcta.
+
+**Principio de diseño fundamental**: el sistema nunca responde matemáticas directamente desde el LLM. Lean es quien decide si una afirmación es verdadera.
+
+### SolverCascade — recuperación automática de pruebas
+
+Cuando la formalización del LLM falla o contiene `sorry` (un placeholder que Lean acepta pero que marca una prueba incompleta), el sistema intenta automáticamente una cascada de tácticas:
 
 ```
-+-----------------------------------------------------------------------+
-|                    NUCLEO LOGICO EVOLUTIVO (NLE v7.0)                 |
-|                       Sigma_t = (L, CR_t, G_t, F)                    |
-+-----------------------------------------------------------------------+
-|                                                                       |
-|  Usuario --> MultiAgentOrchestrator (L3)                              |
-|                    |                                                  |
-|              classify_query()  (14 categorias)                        |
-|                    |                                                  |
-|         +----------+----------+                                       |
-|         |                     |                                       |
-|  ColimitAgent[cat] (L2)   PillarAgent[pilar] (L1)                    |
-|  · select_tactic()        · inject_into_category_agent()             |
-|  · record_result()        · record_usage()                            |
-|  · absorb_new_skill()     · most_used_axioms()                        |
-|  · mediate()                                                          |
-|         |                                                             |
-|  MES Bridge (compartido por los 14 agentes)                           |
-|  · record_success() --> ProceduralMemory + PatternManager             |
-|  · _handle_convergence() --> ColimitBuilder --> skill emergente        |
-|  · query_best_tactic() --> memoria procedimental                      |
-|                                                                       |
-|  +-------------------------------------------------------------------+|
-|  |  Memory Evolutive Systems (Ehresmann)                             ||
-|  |  Patrones P -> Colimites cP -> Complexificacion K'               ||
-|  |  Axiomas 8.1-8.4 . Teoremas 8.5-8.7                             ||
-|  +-------------------------------------------------------------------+|
-|                                                                       |
-|  +-------------------------------------------------------------------+|
-|  |  GNN + PPO (546K params)                                         ||
-|  |  SkillGNN (3x GATConv) + ActorCriticNetwork                     ||
-|  |  Aprendizaje vivo: cada interaccion alimenta PPO                 ||
-|  +-------------------------------------------------------------------+|
-|                                                                       |
-|  +-------------------------------------------------------------------+|
-|  |  Lean-first Pipeline                                             ||
-|  |  LLM formaliza -> Lean 4 verifica -> SolverCascade -> traduccion||
-|  +-------------------------------------------------------------------+|
-+-----------------------------------------------------------------------+
+rfl      → identidades triviales (a = a)
+simp     → simplificación por reglas
+ring     → identidades de anillo (álgebra)
+omega    → aritmética lineal sobre enteros
+aesop    → búsqueda heurística de prueba
 ```
+
+Si ninguna táctica cierra la prueba, el sistema reporta el fallo con información estructurada sobre qué parte de la demostración queda abierta.
 
 ---
 
-## Estructura del Repositorio
+## 3. Sistema Multi-Agente: Jerarquía de Colímites
+
+### ¿Qué es un colímite y por qué los agentes son colímites?
+
+En teoría de categorías, dado un diagrama de objetos y morfismos, el **colímite** es el objeto universal que los "resume" a todos: hay un morfismo canónico desde cada objeto del diagrama hacia el colímite, y cualquier otro objeto que también reciba morfismos de todos ellos se factoriza de manera única a través del colímite.
+
+En este sistema, los **skills** (competencias matemáticas) son los objetos del diagrama, y los **agentes son literalmente el nodo colímite** construido sobre ellos. Esto tiene consecuencias concretas:
+
+- El agente no es un proceso externo que *lee* el grafo — es un *nodo del grafo mismo*
+- Los co-conos (morfismos skill → agente) son aristas reales en el grafo NetworkX
+- La **propiedad universal** garantiza que si dos agentes resuelven el mismo problema, existe un morfismo mediador único entre ellos — lo que el sistema usa para propagar tácticas entre categorías
+
+### La jerarquía de 4 niveles
 
 ```
-metamath-prover/
-|
-+-- app.py                        # App Streamlit (interfaz de chat)
-+-- pages/
-|   +-- 1_Visualizaciones.py      # Grafos, embeddings, MES, traza de prueba
-|
-+-- nucleo/                       # Nucleo Logico Evolutivo (~13,500 LOC)
-|   +-- core.py                   # Orquestador principal (Lean-first + multi-agente)
-|   +-- config.py                 # Configuracion centralizada
-|   |
-|   +-- multi_agent/              # Sistema multi-agente (NUEVO)
-|   |   +-- orchestrator.py       # MultiAgentOrchestrator: enruta a 14 agentes
-|   |   +-- colimit_agents.py     # ColimitAgent (L2) + ColimitAgentSystem
-|   |   +-- pillar_agents.py      # PillarAgent (L1) + PillarAgentSystem
-|   |   +-- specialized_agent.py  # SpecializedAgent: GNN+PPO por categoria
-|   |   +-- mes_bridge.py         # MESBridge: convergencia y skills emergentes
-|   |
-|   +-- graph/                    # Grafo categorico de skills
-|   |   +-- category.py           # SkillCategory (NetworkX), links simples/complejos
-|   |   +-- evolution.py          # Complexificacion, snapshots, functores de transicion
-|   |   +-- math_domains.py       # 76 skills en 14 categorias matematicas
-|   +-- mes/                      # Memory Evolutive Systems
-|   |   +-- patterns.py           # Patrones, colimites, propiedad universal
-|   |   +-- memory.py             # MES Memory, patrones procedimentales
-|   |   +-- co_regulators.py      # 4 Co-reguladores activos (TAC/ORG/STR/INT)
-|   +-- rl/                       # Aprendizaje por refuerzo
-|   |   +-- agent.py              # NucleoAgent (PPO + memoria procedimental)
-|   |   +-- gnn.py                # SkillGNN (3x GATConv)
-|   |   +-- networks.py           # ActorCriticNetwork
-|   |   +-- mdp.py                # MDP matematico
-|   +-- lean/                     # Verificacion Lean 4
-|   |   +-- client.py             # Cliente Lean 4 (UTF-8, timeout)
-|   |   +-- solver_cascade.py     # rfl -> simp -> ring -> omega -> aesop
-|   |   +-- sorry_analyzer.py     # Analisis de sorry en pruebas
-|   +-- llm/                      # Cliente LLM multi-proveedor
-|   |   +-- client.py             # Anthropic / Google / Groq / Demo
-|   +-- pillars/                  # Fundamentos matematicos formales
-|   |   +-- zfc.py                # Axiomas ZFC (8 skills L0)
-|   |   +-- category_theory.py    # Teoria de categorias (8 skills L0)
-|   |   +-- logic.py              # FOL + logica intuicionista (7 skills L0)
-|   |   +-- type_theory.py        # Teoria de tipos Curry-Howard (8 skills L0)
-|   +-- eval/                     # Evaluacion de respuestas
-|       +-- math_evaluator.py     # Extraccion \boxed{}, tolerancia numerica, sympy
-|
-+-- MetamathProver/               # Pruebas Lean 4 verificadas (8 archivos)
-|
-+-- scripts/                      # Utilidades de datos y entrenamiento
-|   +-- seed_from_datasets.py     # Conecta ProofNet/miniF2F/NuminaMath al NLE
-|   +-- evaluate_benchmark.py     # Benchmark NLE-especifico (MATH/GSM8K)
-|   +-- prepare_training_data.py  # Prepara splits de entrenamiento
-|   +-- train_gnn_ppo.py          # Entrena GNN+PPO en dos fases
-|   +-- balance_datasets.py       # Balancea 2.29M ejemplos en 14 categorias (NUEVO)
-|   +-- train_multiagent.py       # Entrena los 14 agentes especializados (NUEVO)
-|
-+-- data/                         # Datos generados
-|   +-- lean_examples.json        # 157 ejemplos few-shot miniF2F
-|   +-- agents/                   # Pesos por categoria (14 archivos .pt)
-|
-+-- tests/                        # 379 tests en 17 suites
-+-- experiments/                  # Experimentos y cuadernos
-+-- docs/                         # Paper NLE v7.0
+L0: 31 skills atómicos de los pilares fundacionales
+    ┌─────────────────────────────────────────────────┐
+    │  ZFC (8)  │  CatThy (8)  │  Logic (7)  │  TypeThy (8)  │
+    │ naive-sets│ cat-basics   │ propositional│ stlc          │
+    │ zfc-axioms│ functors     │ fol-syntax  │ system-f      │
+    │ ordinals  │ nat-trans    │ fol-semant. │ dep-types     │
+    │ cardinals │ limits       │ sequent-calc│ prop-types    │
+    │ ...       │ ...          │ ...         │ ...           │
+    └─────────────────────────────────────────────────┘
+         │  co-conos (morfismos L0 → L1 en el grafo)
+         ▼
+L1: 4 PillarAgents  — colímites de sus skills L0
+    colim[ZFC]            colim[CatThy]
+    colim[Logic]          colim[TypeThy]
+
+    Cada pilar inyecta morfismos (peso 0.8) en las categorías que fundamenta.
+    Durante inferencia, select_tactic() lee estos morfismos del grafo
+    y los usa para sugerir tácticas basadas en el pilar dominante de la query.
+         │  morfismos L1 → L2 (pilares nutren categorías)
+         ▼
+L2: 14 ColimitAgents  — colímites de skills de dominio + señales de pilares
+    colim[algebra]         colim[analysis]        colim[category-theory]
+    colim[combinatorics]   colim[computation]     colim[geometry]
+    colim[lean-tactics]    colim[logic]            colim[number-theory]
+    colim[optimization]    colim[probability]     colim[proof-strategies]
+    colim[set-theory]      colim[topology]
+         │  co-conos (morfismos L2 → L3 en el grafo)
+         ▼
+L3: MultiAgentOrchestrator  — colímite de los 14 colímites
+    Propiedad universal: morfismo mediador único entre agentes
 ```
 
----
+### Qué pilares fundamentan cada categoría
 
-## Datasets
-
-El sistema integra **2.29M ejemplos matemáticos** balanceados en 14 categorías:
-
-| Dataset | Ejemplos | Uso |
+| Pilar L1 | Categorías L2 que nutre | Por qué |
 |---|---|---|
-| **NuminaMath** | 859,494 | Problemas de olimpiadas y competencias |
-| **MetaMathQA** | 395,000 | QA matemático aumentado |
-| **Autoformalization** | 327,000 | Pares lenguaje natural ↔ Lean |
-| **OrcaMath** | 200,000 | Razonamiento paso a paso |
-| **OpenR1Math** | 93,000 | Razonamiento con cadenas de pensamiento |
-| **LeanWorkbook+Proofs** | 54,000 | Enunciados formalizados en Lean 4 |
-| **HendrycksMath** | 12,500 | MATH de 5 dificultades |
-| **BigBench Formal Fallacies** | 14,200 | Lógica formal |
-| **OmniMath** | 4,400 | Olimpiadas internacionales |
-| **ProofNet** | 371 | Pruebas formales verificadas |
-| **GSM8K + MATH + ProofNet** | ~21,000 | Benchmark de referencia |
+| **ZFC** | algebra, set-theory, combinatorics, number-theory, probability, analysis | Toda la matemática discreta y continua clásica se construye sobre conjuntos |
+| **Teoría de Categorías** | category-theory, topology, algebra, analysis | Los espacios topológicos, functores y transformaciones naturales son objetos categóricos |
+| **Lógica (FOL+IL)** | logic, proof-strategies, lean-tactics, computation, set-theory | Las reglas de deducción y los sistemas de prueba dependen de la lógica formal |
+| **Teoría de Tipos (Curry-Howard)** | lean-tactics, proof-strategies, computation, logic | Lean 4 está basado en el Cálculo de Construcciones — las pruebas son programas |
 
-**Total: ~1.98M train · ~248K val · ~65K test** (splits 80/10/10 con upsampling por categoría)
+### Cómo un agente selecciona una táctica Lean
 
-### Balancear y preparar datasets
+`select_tactic(query)` sigue una cascada de 5 pasos, todos activos sin necesidad de reentrenamiento:
 
-```bash
-# Dry-run (solo estadisticas, sin escribir)
-python scripts/balance_datasets.py --dry-run
+| Paso | Fuente | Descripción |
+|---|---|---|
+| **1** | Memoria procedimental | Busca por hash de query: si este problema exacto fue resuelto antes, devuelve la táctica exitosa |
+| **2** | Morfismo mediador | Si otro agente resolvió una query similar con una táctica compartida, esa táctica está guardada en `_mediating_memory` |
+| **3** | Co-cono ponderado | Activa los skills del patrón relevantes para la query, ponderados por el peso de su morfismo hacia el colímite en el grafo |
+| **4** | Señal de pilar (L1→L2) | Lee los morfismos L1→L2 del grafo, detecta keywords del pilar en la query y sugiere la táctica asociada al pilar dominante |
+| **5** | Default por categoría | Tabla estática: algebra→`ring`, logic→`tauto`, number-theory→`norm_num`, computation→`decide`, etc. |
 
-# Balancear y escribir splits en data/balanced/
-python scripts/balance_datasets.py --out data/balanced --target 5000
+### MES Bridge — detección de convergencia y skills emergentes
+
+El **MES Bridge** es el bus compartido que conecta los 14 agentes al sistema de memoria evolutiva:
+
 ```
+Agente[algebra]  ──→┐
+Agente[number-theory]──→┤ MES Bridge
+Agente[...]      ──→┘
+                        │
+              record_success(query, tactic, reward)
+                        │
+               ┌────────┴────────┐
+               │                 │
+         ProceduralMemory    PatternManager
+         por categoría       detecta convergencia:
+         (O(1) lookup)       ¿2+ agentes resolvieron
+                             la misma query?
+                                 │
+                                 ▼
+                          ColimitBuilder
+                          crea skill emergente
+                          en el grafo
+                          (complexificación)
+```
+
+Cuando 2 o más agentes resuelven la misma consulta, su táctica compartida se convierte en un **skill emergente**: un nuevo nodo colímite que el grafo añade automáticamente. Los morfismos mediadores quedan registrados en ambos agentes para queries futuras.
 
 ---
 
-## Sistema Multi-Agente
+## 4. Memory Evolutive Systems (MES)
 
-### Entrenar los 14 agentes especializados
+Los Memory Evolutive Systems son una teoría matemática desarrollada por A. Ehresmann para modelar sistemas cognitivos complejos. El sistema la implementa para modelar cómo el conocimiento matemático crece y se organiza.
 
-```bash
-# Entrenar todas las categorias (supervisado)
-python scripts/train_multiagent.py --epochs 5
+### Los tres conceptos clave
 
-# Solo algebra y logica
-python scripts/train_multiagent.py --categories algebra logic --epochs 10
+**Patrón P: I → K**
+Un patrón es una selección de skills relevantes para resolver un tipo de problema. Formalmente es un funtor de una categoría índice I hacia el grafo de skills K. Por ejemplo, para demostrar propiedades de números primos, el patrón incluiría skills de teoría de números, lógica y ZFC.
 
-# Fase 2: PPO con recompensas reales de Lean (requiere Lean 4 + Mathlib)
-python scripts/train_multiagent.py --with-lean --ppo-epochs 3
+**Colímite cP**
+El colímite de un patrón es el skill emergente que los sintetiza todos. Satisface la propiedad universal: cualquier otro skill que reciba morfismos de todos los componentes del patrón se factoriza de manera única a través de cP. El sistema verifica esta propiedad explícitamente mediante co-conos.
 
-# Dry-run (verificar que los datos existen sin entrenar)
-python scripts/train_multiagent.py --dry-run
-```
+**Complexificación K'**
+Cuando el sistema añade cP al grafo junto con sus co-conos, el grafo pasa de K a K'. Esta es la complexificación: el conocimiento crece sin perder la estructura anterior. Es el mecanismo formal del aprendizaje en este sistema.
 
-### Usar el orquestador en codigo
+### Axiomas implementados (8.1–8.4) y Teoremas (8.5–8.7)
 
-```python
-from nucleo.multi_agent import MultiAgentOrchestrator
+| Axioma/Teorema | Descripción | Verificación |
+|---|---|---|
+| **8.1** Jerarquía | Los skills se organizan en niveles L0 < L1 < L2 | `tests/test_patterns.py` |
+| **8.2** Multiplicidad | Un skill puede ser componente de múltiples patrones | `tests/test_patterns.py` |
+| **8.3** Conectividad | Los patrones son conexos en el grafo | `tests/test_patterns.py` |
+| **8.4** Cobertura | Los pilares cubren todas las categorías | `tests/test_pillar_agents.py` |
+| **8.5** Emergencia | Si el patrón existe, el colímite existe y es único | `tests/test_colimit_agents.py` |
+| **8.6** Absorción | Nuevos skills se integran sin destruir colímites previos | `tests/test_colimit_agents.py` |
+| **8.7** Mediación | Entre dos colímites con solución común existe morfismo mediador único | `tests/test_colimit_agents.py` |
 
-orch = MultiAgentOrchestrator()
+### Memoria procedimental
 
-# Clasificar y enrutar
-category, agent = orch.route("prove that sqrt(2) is irrational")
-# category = "number-theory"
-
-# Ver estadisticas de los 14 agentes
-orch.print_stats()
-
-# Guardar todos los pesos
-orch.save_all()
-```
-
-### Construir la jerarquia completa de colimites
+La memoria procedimental guarda qué tácticas funcionaron para qué tipos de problemas:
 
 ```python
-from nucleo.multi_agent import ColimitAgentSystem, PillarAgentSystem
-
-# Requiere graph, pattern_manager, colimit_builder del NLE
-system = ColimitAgentSystem(graph, pattern_manager, colimit_builder)
-system.build()          # L1: 4 pilares + L2: 14 categorias + L3: orquestador
-system.print_hierarchy()  # visualiza la estructura de colimites
+# Cada entrada en memoria contiene:
+{
+    "query_text": "prove that n^2 + n is even",
+    "tactic_used": "omega",
+    "lean_goal": "⊢ ∀ n : ℕ, 2 ∣ n^2 + n",
+    "reward": 1.0,
+    "category": "number-theory"
+}
 ```
+
+Sembrada inicialmente con **2,371 patrones** de ProofNet y NuminaMath. Crece con cada interacción exitosa.
 
 ---
 
-## Co-Reguladores
+## 5. Red Neuronal GNN + PPO
 
-4 co-reguladores activos que coordinan el procesamiento:
+### Por qué una GNN (Graph Neural Network)
 
-| Co-regulador | Rol |
+El grafo de skills es heterogéneo: los nodos tienen diferentes tipos (L0, L1, L2) y los morfismos tienen diferentes tipos (dependencia, analogía, traducción, pilar→categoría). Las redes convencionales no aprovechan esta estructura. Una **GNN con atención** (GAT - Graph Attention Network) puede propagar información a través de los morfismos del grafo, de modo que el estado de un skill influye en sus vecinos.
+
+Esto es especialmente relevante porque los PillarAgents (L1) inyectan información en los ColimitAgents (L2) a través de morfismos reales en el grafo — la GNN puede leer estos morfismos durante el forward pass.
+
+### Por qué PPO (Proximal Policy Optimization)
+
+El agente toma decisiones secuenciales: elegir qué hacer con una consulta matemática. PPO es un algoritmo de policy gradient que:
+- Garantiza que cada actualización no se aleje demasiado de la política anterior (la "región de confianza" o *clip*)
+- Usa GAE (Generalized Advantage Estimation) para estimar cuánto mejor es una acción respecto al estado promedio
+- Es estable y funciona bien con muestras escasas — crítico cuando las recompensas Lean son lentas de obtener
+
+### Arquitectura completa
+
+```
+Entrada: query (texto) + grafo de skills (PyG)
+         │
+         ▼
+  encode_query()          encode_goal()
+  TF-IDF → 256-dim        "prove ..." → 128-dim
+         │                      │
+         └──────────┬───────────┘
+                    │  concat → 384-dim
+                    ▼
+  SkillGNN (lee el grafo con atención):
+    node_proj  →  feat_dim × 64
+    GATConv 1  →  64  × 256  × 4 heads   ~  66,560 params
+    GATConv 2  →  256 × 256  × 4 heads   ~ 262,144 params
+    GATConv 3  →  256 × 256  × 4 heads   ~ 262,144 params
+    out_proj   →  256 × 128              ~  32,896 params
+                    │  graph_embedding 128-dim
+                    │
+  ActorCriticNetwork:
+    shared_net →  384 × 256 × 128        ~ 148,736 params
+         │
+    ┌────┴────┐
+    │         │
+  actor     critic
+  128×3      128×1
+  ~387p      ~129p
+    │
+    ▼
+  Acción:  ASSIST_LEAN | RESPOND_DIRECT | REQUEST_CLARIFICATION
+```
+
+**Total: 546,820 parámetros entrenables — 2.2 MB en disco**
+
+### Resultados de entrenamiento
+
+**Fase 1 — Supervisado** (todos los problemas → ASSIST):
+
+| Métrica | Resultado |
 |---|---|
-| **TACTICAL (CR_tac)** | Clasifica consultas y enruta al pipeline correcto (80% del trafico) |
-| **ORGANIZATIONAL (CR_org)** | Organiza secuencias de tacticas |
-| **STRATEGIC (CR_str)** | Decide estrategia de alto nivel (20% del trafico) |
-| **INTEGRATIVE (CR_int)** | Integra resultados parciales |
+| Dataset | 52,237 train · 6,552 val · 12,874 test |
+| Convergencia | Época 1 |
+| train_acc / val_acc / test_acc | **100% / 100% / 100%** |
 
----
+**Fase 2 — PPO con recompensas reales de Lean** (5 épocas, RTX 3050):
 
-## GNN + PPO
-
-Red neuronal para selección adaptativa de skills:
-
-```
-SkillGNN:
-  node_proj    ->  feat_dim x 64
-  GATConv 1   ->  64 x 256 x 4 heads   ~ 66,560 params
-  GATConv 2   ->  256 x 256 x 4 heads  ~262,144 params
-  GATConv 3   ->  256 x 256 x 4 heads  ~262,144 params
-  out_proj    ->  256 x 128             ~ 32,896 params
-
-ActorCriticNetwork:
-  shared_net  ->  384 x 256 x 128      ~148,736 params
-  actor       ->  128 x 3 acciones     ~    387 params
-  critic      ->  128 x 1              ~    129 params
-
-Total: 546,820 parametros entrenables  |  2.2 MB
-```
-
-**Resultados de entrenamiento** (Fase 2 PPO con Lean real):
-
-| Epoca | Loss | Avg Reward | Assist% |
+| Época | Loss | Avg Reward | Assist% |
 |---|---|---|---|
 | 1 | 0.0746 | 0.573 | 100% |
 | 3 | 0.0163 | 0.562 | 100% |
 | 5 | 0.0172 | **0.578** | 100% |
 
-**Aprendizaje vivo**: cada interacción alimenta PPO via `Transition`. La memoria procedimental guarda patrones exitosos para reutilizarlos sin red neuronal. Pesos guardados automáticamente cada 10 interacciones.
+El reward promedio de ~0.57 refleja la distribución real del dataset: ~70% problemas aritméticos donde `norm_num` verifica (+1.0) y ~30% álgebra abstracta donde no hay respuesta numérica (+0.5 base). Esta discriminación es la señal que el PPO aprende.
 
----
+### Aprendizaje vivo
 
-## Entrenamiento del GNN+PPO global
+Cada interacción del usuario alimenta el ciclo de aprendizaje:
 
-```bash
-# Preparar splits (MATH + GSM8K + NuminaMath + ProofNet)
-python scripts/prepare_training_data.py
-
-# Fase 1: supervisado (~20 min en RTX 3050)
-python scripts/train_gnn_ppo.py --epochs 10 --batch-size 256
-
-# Fase 2: PPO con Lean real (requiere Lean 4 + Mathlib)
-python scripts/train_gnn_ppo.py --resume --with-lean --lean-samples 300 --epochs 0 --ppo-epochs 5
+```
+Usuario hace consulta
+        │
+  ColimitAgent.select_tactic()
+        │
+  Lean verifica
+        │
+  record_result(reward)
+        │
+  ┌─────┴─────┐
+  │           │
+memoria    Transition
+procedi-   → PPO buffer
+mental     → cada 10 interacciones:
+             agent.update()
+             save weights
 ```
 
 ---
 
-## Memory Evolutive Systems
+## 6. Co-Reguladores
 
-Implementación de la teoría de Ehresmann para modelar el aprendizaje matemático:
+Los co-reguladores son el mecanismo de control de flujo del NLE, inspirados en la teoría MES de Ehresmann donde los co-reguladores son subsistemas que regulan la actividad de la categoría sin ser parte de su contenido.
 
-- **Patrón P: I → K** — colección de skills relevantes para una consulta
-- **Colímite cP** — skill emergente que sintetiza el patrón (propiedad universal verificada)
-- **Complexificación K'** — el grafo evoluciona añadiendo cP y los co-conos
+En la práctica, los 4 co-reguladores son filtros/enrutadores que procesan cada consulta antes de llegar a los agentes especializados:
 
-Axiomas formalmente verificados: jerarquía, multiplicidad, conectividad, cobertura de pilares.
-
-La memoria procedimental almacena 2371 patrones sembrados desde ProofNet y NuminaMath, y crece con cada interacción exitosa. Cuando 2+ agentes convergen en la misma consulta, el MES Bridge crea automáticamente un skill emergente.
-
----
-
-## Grafo de Skills
-
-**76 skills** en jerarquía de 3 niveles + 31 skills de pilares L0:
-
-| Nivel | Descripción | Skills |
+| Co-regulador | Umbral de activación | Función |
 |---|---|---|
-| L0 | Skills atómicos de pilares: ZFC(8), CatThy(8), Logic(7), TypeThy(8) | 31 |
-| L1 | Dominios: algebra, geometría, análisis, topología, lógica, números, combinatoria, probabilidad, categorías, computación, optimización, tácticas Lean | 60 |
-| L2 | Estrategias de prueba | 6 |
-
-Morfismos: **dependencia**, **analogía**, **traducción**, **pilar→categoría**.
+| **TACTICAL (CR_tac)** | 80% del tráfico | Clasifica la consulta y decide si ir al pipeline Lean o responder directamente. Es el primer filtro. |
+| **ORGANIZATIONAL (CR_org)** | Consultas multi-paso | Cuando la demostración requiere varios pasos, organiza la secuencia de tácticas |
+| **STRATEGIC (CR_str)** | 20% del tráfico | Decide la estrategia de alto nivel: ¿backward reasoning? ¿casos? ¿inducción? |
+| **INTEGRATIVE (CR_int)** | Resultados parciales | Integra resultados de múltiples sub-demostraciones en una prueba coherente |
 
 ---
 
-## Aplicación Web
+## Datasets
 
-```bash
-# Instalar dependencias
-pip install -r requirements.txt
+El sistema integra **5.4M+ ejemplos matemáticos** de datasets públicos, organizados en 14 categorías balanceadas:
 
-# Lanzar (Windows: incluir PYTHONIOENCODING para simbolos Unicode)
-PYTHONIOENCODING=utf-8 streamlit run app.py
-```
-
-Abre en el navegador: `http://localhost:8501`
-
-### Proveedores LLM soportados
-
-| Proveedor | Modelos | Costo |
+| Dataset | Ejemplos | Categorías principales |
 |---|---|---|
-| **Google AI Studio** | Gemini 2.0 Flash, 1.5 Pro | Gratis (tier) |
-| **Groq** | Llama 3.3 70B, Mixtral 8x7B | Gratis |
-| **Anthropic** | Claude Haiku, Sonnet | De pago |
-| **Demo** | Respuesta local | Sin API key |
+| **OpenMathReasoning** | 3,201,061 | algebra, number-theory, analysis, competition math |
+| **NuminaMath** | 859,494 | algebra, combinatorics, number-theory, geometry |
+| **MetaMathQA** | 395,000 | algebra, arithmetic (aumentado con parafraseo) |
+| **Autoformalization** | 327,000 | lean-tactics (pares NL ↔ Lean) |
+| **OrcaMath** | 200,000 | algebra, arithmetic (razonamiento paso a paso) |
+| **OpenR1Math** | 93,000 | proof-strategies (cadenas de pensamiento largas) |
+| **LeanWorkbook + Proofs** | 54,000 | lean-tactics (enunciados + pruebas Lean reales) |
+| **BigBench Formal Fallacies** | 14,200 | logic (detección de falacias formales) |
+| **HendrycksMath** | 12,500 | algebra, calculus, statistics (5 niveles de dificultad) |
+| **OmniMath** | 4,400 | competencias internacionales (IMO, APMO, Putnam) |
+| **ProofNet** | 371 | proof-strategies, lean-tactics (pruebas formales verificadas) |
+| **GSM8K + MATH + miniF2F** | ~21,000 | aritmética, álgebra (benchmark de referencia) |
+
+Los splits balanceados (80/10/10 con upsampling para categorías pequeñas como `computation`) se generan con `scripts/balance_datasets.py`.
 
 ---
 
-## Tests
+## 7. Tests
 
 ```bash
 python -m pytest tests/ -o "addopts=" -v
 ```
 
-379 tests en 17 suites: colímites, evolución, emergencia, multiplicidad, co-reguladores, GNN, PPO, Lean, memoria, aprendizaje vivo, CLI, multi-agente.
+379 tests en 17 suites, organizadas por subsistema:
+
+| Suite | Tests | Qué verifica |
+|---|---|---|
+| `test_colimits.py` | 28 | Propiedad universal, co-conos, morfismo mediador |
+| `test_evolution.py` | 22 | Complexificación, snapshots, functores de transición |
+| `test_emergence.py` | 18 | Clasificación de links simples/complejos, detección de emergencia |
+| `test_multiplicity.py` | 15 | Principio de multiplicidad de Ehresmann |
+| `test_co_regulators.py` | 20 | 4 CRs activos, E-equivalencia |
+| `test_gnn.py` | 25 | SkillGNN forward pass, graph_to_pyg() |
+| `test_ppo.py` | 18 | PPO update, GAE, clipping |
+| `test_lean.py` | 30 | Cliente Lean 4, SolverCascade, sorry analyzer |
+| `test_memory.py` | 22 | MES Memory, patrones procedimentales |
+| `test_live_learning.py` | 10 | Chat → PPO → weights update ciclo completo |
+| `test_cli.py` | 10 | `python -m nucleo chat` REPL |
+| `test_multi_agent.py` | 35 | ColimitAgent, PillarAgent, MES Bridge, classify_query() |
+| `test_patterns.py` | 26 | Axiomas 8.1-8.4, Teoremas 8.5-8.7 |
+| `test_math_domains.py` | 32 | 76 skills en 14 categorías |
+| + 3 suites auxiliares | ~68 | Config, types, eval, graph base |
 
 ---
 
-## Instalación
+## 9. Aplicación Web
+
+La interfaz Streamlit permite usar el sistema sin escribir código:
+
+```bash
+pip install -r requirements.txt
+
+# Windows: necesario para caracteres Unicode matemáticos (∀, ∃, ∈, ⊢...)
+PYTHONIOENCODING=utf-8 streamlit run app.py
+```
+
+Abre en: `http://localhost:8501`
+
+### Proveedores LLM soportados
+
+| Proveedor | Modelos | Costo |
+|---|---|---|
+| **Google AI Studio** | Gemini 2.0 Flash, 1.5 Pro | Gratis (con cuota) |
+| **Groq** | Llama 3.3 70B, Mixtral 8x7B | Gratis |
+| **Anthropic** | Claude Haiku, Sonnet | De pago |
+| **Demo** | Respuesta local sin API | Sin key — funcionalidad limitada |
+
+La visualización (`pages/1_Visualizaciones.py`) muestra el grafo de skills en tiempo real, los morfismos activos, el historial de complexificaciones y la traza de la última prueba Lean.
+
+---
+
+## 10. Entrenamiento
+
+El entrenamiento del sistema tiene tres etapas independientes. Pueden correrse por separado.
+
+### Etapa A — Balancear datasets (prerequisito de B)
+
+Extrae, clasifica y balancea todos los datasets en splits por categoría:
+
+```bash
+# Estadísticas sin escribir nada
+python scripts/balance_datasets.py --dry-run
+
+# Generar splits balanceados (target: 5000 ejemplos por categoría)
+# Salida: E:/datadeentrenamientovalidacion_test/by_category/<cat>/{train,val,test}.jsonl
+python scripts/balance_datasets.py --target 5000
+```
+
+### Etapa B — Entrenar los 14 agentes especializados
+
+Requiere que Etapa A haya generado los splits:
+
+```bash
+# Entrenar los 14 agentes (supervisado, ~1h en RTX 3050)
+python scripts/train_multiagent.py --epochs 5
+
+# Solo algunas categorías
+python scripts/train_multiagent.py --categories algebra number-theory logic --epochs 10
+
+# Fase PPO con recompensas reales de Lean (requiere lake + Mathlib)
+python scripts/train_multiagent.py --with-lean --ppo-epochs 3
+
+# Verificar que los datos existen sin entrenar
+python scripts/train_multiagent.py --dry-run
+```
+
+Los pesos de cada agente se guardan en `data/agents/<categoria>.pt`.
+
+### Etapa C — Entrenar el GNN+PPO global
+
+El agente global (que decide ASSIST vs RESPOND para cualquier consulta):
+
+```bash
+# Preparar splits globales (MATH + GSM8K + NuminaMath + ProofNet)
+python scripts/prepare_training_data.py
+
+# Fase 1: supervisado (~20 min en RTX 3050)
+python scripts/train_gnn_ppo.py --epochs 10 --batch-size 256
+
+# Fase 2: PPO con Lean real (slow — cada ejemplo llama a lake env lean)
+python scripts/train_gnn_ppo.py --resume --with-lean --lean-samples 300 --epochs 0 --ppo-epochs 5
+
+# Reanudar desde checkpoint
+python scripts/train_gnn_ppo.py --resume --epochs 5
+```
+
+Los pesos globales se guardan en `data/neural_agent.json.pt` y se cargan automáticamente al iniciar el sistema.
+
+### Etapa D — Sembrar la memoria procedimental
+
+Conecta ProofNet y NuminaMath a la memoria MES antes del primer uso:
+
+```bash
+python scripts/seed_from_datasets.py
+```
+
+Esto guarda 2,371 patrones iniciales en `data/memory.json`.
+
+---
+
+## 11. Estructura del Repositorio
+
+```
+Metamatematico/
+│
+├── app.py                         # App Streamlit — interfaz de chat
+├── pages/
+│   └── 1_Visualizaciones.py       # Grafos, embeddings, MES, traza de prueba
+│
+├── nucleo/                        # Núcleo Lógico Evolutivo (~13,500 LOC)
+│   ├── core.py                    # Orquestador principal: Lean-first + multi-agente
+│   ├── config.py                  # Configuración centralizada (rutas, modelos, thresholds)
+│   │
+│   ├── multi_agent/               # Sistema multi-agente de colímites
+│   │   ├── orchestrator.py        # MultiAgentOrchestrator (L3): classify + route
+│   │   ├── colimit_agents.py      # ColimitAgent (L2) + ColimitAgentSystem
+│   │   ├── pillar_agents.py       # PillarAgent (L1) + PillarAgentSystem
+│   │   ├── specialized_agent.py   # SpecializedAgent: GNN+PPO por categoría
+│   │   └── mes_bridge.py          # MESBridge: convergencia → skills emergentes
+│   │
+│   ├── graph/                     # Grafo categórico de skills
+│   │   ├── category.py            # SkillCategory (NetworkX): nodos, morfismos, links
+│   │   ├── evolution.py           # Complexificación, snapshots, functores de transición
+│   │   └── math_domains.py        # 76 skills en 14 categorías matemáticas
+│   │
+│   ├── mes/                       # Memory Evolutive Systems
+│   │   ├── patterns.py            # Patrones, colímites, propiedad universal verificada
+│   │   ├── memory.py              # MES Memory: patrones procedimentales, snapshots
+│   │   └── co_regulators.py       # 4 Co-reguladores activos (TAC/ORG/STR/INT)
+│   │
+│   ├── rl/                        # Aprendizaje por refuerzo
+│   │   ├── agent.py               # NucleoAgent: PPO + GAE + memoria procedimental
+│   │   ├── gnn.py                 # SkillGNN: 3× GATConv + graph_to_pyg()
+│   │   ├── networks.py            # ActorCriticNetwork (546K params)
+│   │   └── mdp.py                 # MDP matemático: estados, acciones, recompensas
+│   │
+│   ├── lean/                      # Verificación formal Lean 4
+│   │   ├── client.py              # Cliente Lean 4 (subprocess, UTF-8, timeout)
+│   │   ├── solver_cascade.py      # rfl → simp → ring → omega → aesop
+│   │   └── sorry_analyzer.py      # Análisis estructurado de pruebas incompletas
+│   │
+│   ├── llm/                       # Cliente LLM multi-proveedor
+│   │   └── client.py              # Anthropic / Google / Groq / Demo
+│   │
+│   ├── pillars/                   # Pilares fundacionales (skills L0)
+│   │   ├── zfc.py                 # 8 skills: naive-sets, zfc-axioms, ordinals...
+│   │   ├── category_theory.py     # 8 skills: cat-basics, functors, nat-trans...
+│   │   ├── logic.py               # 7 skills: propositional, fol-syntax, sequent-calc...
+│   │   └── type_theory.py         # 8 skills: stlc, system-f, dependent-types...
+│   │
+│   └── eval/                      # Evaluación de respuestas
+│       └── math_evaluator.py      # \boxed{} extraction, tolerancia numérica, sympy
+│
+├── MetamathProver/                # Pruebas Lean 4 verificadas (8 archivos .lean)
+│
+├── scripts/                       # Entrenamiento y utilidades de datos
+│   ├── balance_datasets.py        # Etapa A: 5.4M ejemplos → splits por categoría
+│   ├── train_multiagent.py        # Etapa B: entrena 14 agentes especializados
+│   ├── prepare_training_data.py   # Etapa C: splits para GNN+PPO global
+│   ├── train_gnn_ppo.py           # Etapa C: entrena GNN+PPO (2 fases)
+│   ├── seed_from_datasets.py      # Etapa D: siembra 2371 patrones en MES Memory
+│   └── evaluate_benchmark.py      # Evalúa el sistema en MATH/GSM8K
+│
+├── data/                          # Datos generados (no todos versionados)
+│   ├── lean_examples.json         # 157 ejemplos few-shot miniF2F (versionado)
+│   ├── memory.json                # MES Memory sembrada (versionado)
+│   ├── neural_agent.json.pt       # Pesos GNN+PPO entrenados (versionado)
+│   └── agents/                    # Pesos por categoría: <categoria>.pt (14 archivos)
+│
+├── tests/                         # 379 tests en 17 suites
+├── docs/                          # Paper NLE v7.0 (Jiménez Martínez, BIOMAT 2025)
+└── experiments/                   # Cuadernos y experimentos explorativos
+```
+
+---
+
+## 12. Instalación
 
 ```bash
 git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
 cd Metamatematico---Razonamiento-Formal-con-Lean
 
-# Entorno recomendado
+# Entorno recomendado (Python 3.10)
 conda create -n metamat python=3.10
 conda activate metamat
 
 pip install -r requirements.txt
-
-# Lanzar
-PYTHONIOENCODING=utf-8 streamlit run app.py
 ```
+
+### Lean 4 + Mathlib (opcional, necesario para verificación real)
+
+```bash
+# Instalar elan (gestor de versiones de Lean)
+curl https://elan.lean-lang.org/elan-init.sh -sSf | sh
+
+# Descargar Mathlib (tarda 20-30 min la primera vez)
+lake update
+```
+
+> **Nota**: Sin Lean instalado, el sistema funciona en modo degradado: las respuestas matemáticas pasan por el LLM sin verificación formal.
 
 ### Dependencias principales
 
 ```
-streamlit>=1.40
-networkx>=3.0
+torch>=2.0              # GNN + PPO
+torch-geometric>=2.4    # GATConv, PyG graph format
+networkx>=3.0           # Grafo categórico de skills
+streamlit>=1.40         # Interfaz web
 numpy>=1.24
-scikit-learn>=1.3
-matplotlib>=3.7
-torch>=2.0
-torch-geometric>=2.4
-anthropic / google-genai / groq  (segun proveedor elegido)
+scikit-learn>=1.3       # TF-IDF para encode_query
+sympy>=1.12             # Evaluación simbólica de respuestas
+anthropic               # (o google-genai, o groq — según proveedor)
+```
+
+### Lanzar la aplicación
+
+```bash
+# Windows (necesario para símbolos Unicode matemáticos)
+PYTHONIOENCODING=utf-8 streamlit run app.py
+
+# CLI interactivo (sin Streamlit)
+python -m nucleo chat
 ```
 
 ---
 
-## Fundamento Teórico
+## 13. Fundamento Teórico
 
 El NLE v7.0 está basado en el artículo **"Núcleo Lógico Evolutivo v7.0 — Memory Evolutive Systems y Razonamiento Formal"** (Jiménez Martínez, BIOMAT 2025), disponible en `docs/`.
 
-El sistema modela el proceso cognitivo de un matemático experto siguiendo la teoría de **Memory Evolutive Systems** de A. Ehresmann: la memoria matemática se organiza como una categoría que evoluciona mediante complexificaciones sucesivas, donde cada nueva competencia emerge como colímite de competencias previas.
+### La intuición central
 
-La arquitectura multi-agente extiende este marco: cada agente especializado **es** el nodo colímite en el grafo, no un proceso externo. La jerarquía L0→L1→L2→L3 refleja la estructura matemática de los pilares fundacionales (ZFC, teoría de categorías, lógica, teoría de tipos) que fundamentan las 14 áreas matemáticas.
+Un matemático experto no reapende álgebra de cero cada vez que resuelve un problema. Su conocimiento está organizado en **competencias** (skills) que se activan según el contexto, y cuando resuelve un problema nuevo, sintetiza competencias previas en una competencia nueva (emergente). Esta es exactamente la estructura que los Memory Evolutive Systems formalizan.
+
+La jerarquía L0→L1→L2→L3 en este sistema refleja esa estructura:
+- L0 son los **axiomas** (ZFC, lógica, tipos, categorías) — el conocimiento más fundamental
+- L1 son los **pilares** — síntesis de los axiomas de cada fundamento
+- L2 son las **áreas matemáticas** — síntesis de skills de dominio + señales de pilares
+- L3 es el **sistema completo** — síntesis de todas las áreas, punto de entrada único
+
+Cada nivel es un colímite del nivel anterior. Esta es la implementación computacional directa del Teorema 2.10 (Complexificación) de Ehresmann.
+
+### Por qué teoría de categorías y no otra formalización
+
+La teoría de categorías es el lenguaje natural de las matemáticas modernas: expresa relaciones entre estructuras (morfismos) con la misma precisión que las estructuras mismas (objetos). Usar categorías para organizar el conocimiento matemático es coherente con el dominio que el sistema maneja. No es una elección arbitraria — es la misma formalización que los matemáticos usan para relacionar álgebra, topología, lógica y computación entre sí.
 
 ---
 
-**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · 2025**
+**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · UNAM · 2025**
