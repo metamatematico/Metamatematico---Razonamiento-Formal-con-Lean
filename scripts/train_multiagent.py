@@ -2,20 +2,28 @@
 train_multiagent.py — Entrena 14 agentes especializados, uno por categoría.
 ===========================================================================
 
+Tres fases independientes:
+  Fase 1 — Fine-tuning supervisado desde pesos globales (routing ASSIST)
+  Fase 2 — Supervisión de tácticas con etiquetas heurísticas (sin correr Lean)
+  Fase 3 — PPO con recompensa Lean real (solo con --with-lean)
+
 Uso:
     python scripts/train_multiagent.py
     python scripts/train_multiagent.py --categories algebra number-theory
-    python scripts/train_multiagent.py --epochs 10 --batch-size 128
-    python scripts/train_multiagent.py --with-lean          # PPO con recompensa Lean real
-    python scripts/train_multiagent.py --category algebra   # solo una categoría
+    python scripts/train_multiagent.py --epochs 5 --tactic-epochs 10
+    python scripts/train_multiagent.py --device cuda
+    python scripts/train_multiagent.py --with-lean --ppo-epochs 3
+    python scripts/train_multiagent.py --dry-run
 
 Fuente de datos:
-    E:/datadeentrenamientovalidacion_test/by_category/<cat>/train.jsonl
+    E:/Metamatematico/training/by_category/<cat>/{train,val,test}.jsonl
     (generado por scripts/balance_datasets.py)
 
 Salida:
-    data/agents/<categoria>.pt  — pesos de cada agente
-    E:/chechkpointsmetamatematico/multiagent_<cat>_best.pt  — mejores checkpoints
+    E:/Metamatematico/training/agents/<categoria>.pt     — pesos finales
+    E:/Metamatematico/training/agents/<cat>_best.pt      — mejor checkpoint
+    E:/Metamatematico/training/agents/training_summary.json
+    E:/Metamatematico/training/logs/                     — logs por categoría
 """
 
 from __future__ import annotations
@@ -24,15 +32,56 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 import numpy as np
 
-# Asegurar imports del proyecto
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Rutas — todo en E:\Metamatematico\training\
+# ──────────────────────────────────────────────────────────────────────────────
+
+TRAINING_ROOT = Path("E:/Metamatematico/training")
+DATA_DIR      = TRAINING_ROOT / "by_category"
+AGENTS_DIR    = TRAINING_ROOT / "agents"
+LOGS_DIR      = TRAINING_ROOT / "logs"
+BASE_WEIGHTS  = Path("E:/Metamatematico/data/neural_agent.json.pt")
+
+# Directorios anteriores como fallback si el usuario ya tiene splits ahí
+ALT_DATA_DIR  = Path("E:/datadeentrenamientovalidacion_test/by_category")
+
+CATEGORIES = [
+    "algebra", "analysis", "category-theory", "combinatorics", "computation",
+    "geometry", "lean-tactics", "logic", "number-theory", "optimization",
+    "probability", "proof-strategies", "set-theory", "topology",
+]
+
+# Tácticas Lean disponibles para clasificación
+TACTICS = [
+    "norm_num", "ring", "omega", "simp", "exact",
+    "tauto", "linarith", "decide", "aesop", "induction",
+]
+TACTIC_TO_IDX = {t: i for i, t in enumerate(TACTICS)}
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Logging por categoría
+# ──────────────────────────────────────────────────────────────────────────────
+
+def get_logger(category: str) -> logging.Logger:
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log = logging.getLogger(f"agent.{category}")
+    if not log.handlers:
+        fh = logging.FileHandler(LOGS_DIR / f"{category}.log", encoding="utf-8")
+        fh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s: %(message)s", "%H:%M:%S"))
+        log.addHandler(fh)
+    return log
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,30 +90,27 @@ logging.basicConfig(
 )
 logger = logging.getLogger("train_multiagent")
 
-# ──────────────────────────────────────────────
-# Constantes
-# ──────────────────────────────────────────────
-DATA_DIR = Path("E:/datadeentrenamientovalidacion_test/by_category")
-WEIGHTS_DIR = Path(__file__).parent.parent / "data" / "agents"
-CHECKPOINT_DIR = Path("E:/chechkpointsmetamatematico")
-BASE_WEIGHTS = Path(__file__).parent.parent / "data" / "neural_agent.json.pt"
 
-CATEGORIES = [
-    "algebra", "analysis", "category-theory", "combinatorics", "computation",
-    "geometry", "lean-tactics", "logic", "number-theory", "optimization",
-    "probability", "proof-strategies", "set-theory", "topology",
-]
-
-
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 # Carga de datos
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 
-def load_category_data(category: str, split: str = "train") -> List[Dict[str, Any]]:
-    """Carga registros JSONL para una categoría y split."""
-    path = DATA_DIR / category / f"{split}.jsonl"
+def _find_data_dir() -> Path:
+    """Busca el directorio de splits en E:\Metamatematico\training\ o el antiguo."""
+    if DATA_DIR.exists() and any(DATA_DIR.iterdir()):
+        return DATA_DIR
+    if ALT_DATA_DIR.exists() and any(ALT_DATA_DIR.iterdir()):
+        logger.info(f"Usando directorio alternativo: {ALT_DATA_DIR}")
+        return ALT_DATA_DIR
+    return DATA_DIR  # dejará que load_category_data avise que no hay datos
+
+
+def load_category_data(category: str, split: str = "train",
+                       data_root: Optional[Path] = None) -> List[Dict[str, Any]]:
+    data_root = data_root or _find_data_dir()
+    path = data_root / category / f"{split}.jsonl"
     if not path.exists():
-        logger.warning(f"  No existe {path}")
+        logger.warning(f"  No existe: {path}")
         return []
     records = []
     with open(path, encoding="utf-8") as f:
@@ -78,191 +124,461 @@ def load_category_data(category: str, split: str = "train") -> List[Dict[str, An
     return records
 
 
-# ──────────────────────────────────────────────
-# Construcción del grafo de skills por categoría
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 2 — Inferencia heurística de tácticas (sin correr Lean)
+# ──────────────────────────────────────────────────────────────────────────────
+
+_BOXED_RE   = re.compile(r"\\boxed\{([^}]+)\}")
+_NUMBER_RE  = re.compile(r"\d")
+_RING_KWORDS = {"polynomial", "ring", "ideal", "commutative", "field",
+                "monomial", "binomial", "expand", "(a+b)", "factor"}
+_OMEGA_KWORDS = {"divisible", "remainder", "modulo", "mod ", "∣", "divides",
+                 "even", "odd", "integer", "natural number", "ℕ", "induction step"}
+_LINARITH_KWORDS = {"inequality", "≤", "≥", "<", ">", "less than", "greater than",
+                    "nonnegative", "positive", "upper bound", "lower bound", "linarith"}
+_TAUTO_KWORDS = {"tautology", "implies", "if and only if", "iff", "∧", "∨",
+                 "contradiction", "modus ponens", "propositional"}
+_SIMP_KWORDS = {"simplify", "rewrite", "substitute", "set", "union", "intersection",
+                "belongs to", "subset", "∈", "∉", "commutes", "associative"}
+_DECIDE_KWORDS = {"algorithm", "decidable", "computable", "halting", "regular language",
+                  "automaton", "turing", "complexity"}
+_INDUCTION_KWORDS = {"by induction", "inductive step", "base case", "for all n",
+                     "∀ n", "prove that for every", "prove for all"}
+_EXACT_KWORDS = {"exactly", "unique", "there exists a unique", "definition of",
+                 "by definition", "trivially", "follows directly"}
+
+# Tácticas por defecto si no se puede inferir
+_CATEGORY_DEFAULT: Dict[str, str] = {
+    "algebra":          "ring",
+    "analysis":         "norm_num",
+    "category-theory":  "simp",
+    "combinatorics":    "omega",
+    "computation":      "decide",
+    "geometry":         "norm_num",
+    "lean-tactics":     "simp",
+    "logic":            "tauto",
+    "number-theory":    "norm_num",
+    "optimization":     "linarith",
+    "probability":      "norm_num",
+    "proof-strategies": "exact",
+    "set-theory":       "simp",
+    "topology":         "simp",
+}
+
+
+def _infer_tactic(rec: Dict[str, Any], category: str) -> str:
+    """
+    Infiere la táctica Lean más adecuada para un registro de dataset.
+
+    Usa heurísticas sobre el texto del problema y la solución.
+    No llama a Lean — es supervisión débil (weak supervision).
+
+    Prioridad:
+      1. Boxed numérico + operadores → norm_num
+      2. Keywords de ring → ring
+      3. Keywords de inducción → induction (omega)
+      4. Keywords de linarith → linarith
+      5. Keywords de tauto (lógica proposicional) → tauto
+      6. Keywords de decide (computabilidad) → decide
+      7. Keywords de simp (conjuntos, reescritura) → simp
+      8. Default por categoría
+    """
+    problem  = (rec.get("problem", "") or rec.get("query", "") or "").lower()
+    solution = (rec.get("solution", "") or rec.get("answer", "") or "").lower()
+    text = problem + " " + solution
+
+    # 1. \boxed{N} con número → norm_num
+    m = _BOXED_RE.search(text)
+    if m and _NUMBER_RE.search(m.group(1)):
+        return "norm_num"
+
+    # 2. Ring / polynomial
+    if any(kw in text for kw in _RING_KWORDS):
+        if category in ("algebra", "number-theory", "analysis"):
+            return "ring"
+
+    # 3. Inducción → omega (aritmética entera en Lean)
+    if any(kw in text for kw in _INDUCTION_KWORDS):
+        return "omega"
+
+    # 4. Desigualdades → linarith
+    if any(kw in text for kw in _LINARITH_KWORDS):
+        return "linarith"
+
+    # 5. Lógica proposicional → tauto
+    if any(kw in text for kw in _TAUTO_KWORDS):
+        return "tauto"
+
+    # 6. Computabilidad → decide
+    if any(kw in text for kw in _DECIDE_KWORDS):
+        return "decide"
+
+    # 7. Conjuntos / reescritura → simp
+    if any(kw in text for kw in _SIMP_KWORDS):
+        return "simp"
+
+    # 8. "exact" cuando se pide algo por definición
+    if any(kw in text for kw in _EXACT_KWORDS):
+        return "exact"
+
+    return _CATEGORY_DEFAULT.get(category, "simp")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Grafo de skills por categoría
+# ──────────────────────────────────────────────────────────────────────────────
 
 def build_category_skill_graph(category: str):
-    """Construye un SkillCategory con skills L0 + skills de la categoría."""
     from nucleo.graph.category import SkillCategory
     from nucleo.graph.skills import SkillNode, SkillLevel
 
     graph = SkillCategory(name=f"agent_{category}")
 
-    # Skills L0 (fundacionales — siempre presentes)
     l0_skills = [
-        ("parse_query", "Parsear consulta", SkillLevel.L0),
-        ("identify_type", "Identificar tipo de problema", SkillLevel.L0),
-        ("select_strategy", "Seleccionar estrategia", SkillLevel.L0),
-        ("call_lean", "Llamar verificador Lean", SkillLevel.L0),
-        ("interpret_result", "Interpretar resultado Lean", SkillLevel.L0),
-        ("format_response", "Formatear respuesta", SkillLevel.L0),
-        ("check_validity", "Verificar validez lógica", SkillLevel.L0),
-        ("decompose_problem", "Descomponer problema", SkillLevel.L0),
-        ("apply_tactic", "Aplicar táctica", SkillLevel.L0),
-        ("synthesize_proof", "Sintetizar prueba", SkillLevel.L0),
+        ("parse_query",       "Parsear consulta",           SkillLevel.L0),
+        ("identify_type",     "Identificar tipo",           SkillLevel.L0),
+        ("select_strategy",   "Seleccionar estrategia",     SkillLevel.L0),
+        ("call_lean",         "Llamar Lean",                SkillLevel.L0),
+        ("interpret_result",  "Interpretar resultado",      SkillLevel.L0),
+        ("format_response",   "Formatear respuesta",        SkillLevel.L0),
+        ("check_validity",    "Verificar validez",          SkillLevel.L0),
+        ("decompose_problem", "Descomponer problema",       SkillLevel.L0),
+        ("apply_tactic",      "Aplicar táctica",            SkillLevel.L0),
+        ("synthesize_proof",  "Sintetizar prueba",          SkillLevel.L0),
     ]
     for skill_id, name, level in l0_skills:
         graph.add_skill(SkillNode(skill_id=skill_id, name=name, level=level))
 
-    # Skills L1 específicas por categoría
     category_skills = {
-        "algebra": [
-            ("factor_poly", "Factorizar polinomio", SkillLevel.L1),
-            ("solve_equation", "Resolver ecuación", SkillLevel.L1),
-            ("group_theory", "Teoría de grupos", SkillLevel.L1),
-            ("ring_ideal", "Ideales en anillos", SkillLevel.L1),
-            ("linear_algebra", "Álgebra lineal", SkillLevel.L1),
-        ],
-        "analysis": [
-            ("compute_limit", "Calcular límite", SkillLevel.L1),
-            ("differentiate", "Derivar función", SkillLevel.L1),
-            ("integrate", "Integrar función", SkillLevel.L1),
-            ("series_convergence", "Convergencia de series", SkillLevel.L1),
-            ("real_analysis", "Análisis real", SkillLevel.L1),
-        ],
-        "category-theory": [
-            ("define_functor", "Definir funtor", SkillLevel.L1),
-            ("natural_transform", "Transformación natural", SkillLevel.L1),
-            ("colimit_construction", "Construir colímite", SkillLevel.L1),
-            ("adjunction", "Adjunción", SkillLevel.L1),
-            ("yoneda_lemma", "Lema de Yoneda", SkillLevel.L1),
-        ],
-        "combinatorics": [
-            ("count_permutations", "Contar permutaciones", SkillLevel.L1),
-            ("binomial_coeff", "Coeficientes binomiales", SkillLevel.L1),
-            ("graph_coloring", "Coloración de grafos", SkillLevel.L1),
-            ("partition_theory", "Teoría de particiones", SkillLevel.L1),
-            ("pigeonhole", "Principio del palomar", SkillLevel.L1),
-        ],
-        "computation": [
-            ("complexity_analysis", "Análisis de complejidad", SkillLevel.L1),
-            ("algorithm_design", "Diseño de algoritmos", SkillLevel.L1),
-            ("decidability", "Decidibilidad", SkillLevel.L1),
-            ("turing_reduction", "Reducción de Turing", SkillLevel.L1),
-            ("automata_theory", "Teoría de autómatas", SkillLevel.L1),
-        ],
-        "geometry": [
-            ("euclidean_proof", "Prueba euclidiana", SkillLevel.L1),
-            ("coordinate_geom", "Geometría coordenada", SkillLevel.L1),
-            ("area_volume", "Área y volumen", SkillLevel.L1),
-            ("circle_theorems", "Teoremas de círculos", SkillLevel.L1),
-            ("triangle_props", "Propiedades de triángulos", SkillLevel.L1),
-        ],
-        "lean-tactics": [
-            ("tactic_simp", "Táctica simp", SkillLevel.L1),
-            ("tactic_ring", "Táctica ring", SkillLevel.L1),
-            ("tactic_norm_num", "Táctica norm_num", SkillLevel.L1),
-            ("tactic_omega", "Táctica omega", SkillLevel.L1),
-            ("tactic_induction", "Táctica induction", SkillLevel.L1),
-        ],
-        "logic": [
-            ("propositional_logic", "Lógica proposicional", SkillLevel.L1),
-            ("predicate_logic", "Lógica de predicados", SkillLevel.L1),
-            ("sat_solving", "Resolución SAT", SkillLevel.L1),
-            ("modal_logic", "Lógica modal", SkillLevel.L1),
-            ("proof_theory", "Teoría de la prueba", SkillLevel.L1),
-        ],
-        "number-theory": [
-            ("primality_test", "Test de primalidad", SkillLevel.L1),
-            ("modular_arith", "Aritmética modular", SkillLevel.L1),
-            ("diophantine_eq", "Ecuaciones diofánticas", SkillLevel.L1),
-            ("number_theorems", "Teoremas de teoría de números", SkillLevel.L1),
-            ("cryptographic_nt", "TN criptográfica", SkillLevel.L1),
-        ],
-        "optimization": [
-            ("linear_program", "Programación lineal", SkillLevel.L1),
-            ("gradient_descent", "Descenso del gradiente", SkillLevel.L1),
-            ("convex_optim", "Optimización convexa", SkillLevel.L1),
-            ("lagrange_mult", "Multiplicadores de Lagrange", SkillLevel.L1),
-            ("integer_optim", "Optimización entera", SkillLevel.L1),
-        ],
-        "probability": [
-            ("basic_probability", "Probabilidad básica", SkillLevel.L1),
-            ("conditional_prob", "Probabilidad condicional", SkillLevel.L1),
-            ("expectation_var", "Esperanza y varianza", SkillLevel.L1),
-            ("distributions", "Distribuciones estadísticas", SkillLevel.L1),
-            ("markov_chains", "Cadenas de Markov", SkillLevel.L1),
-        ],
-        "proof-strategies": [
-            ("proof_induction", "Prueba por inducción", SkillLevel.L1),
-            ("proof_contradiction", "Prueba por contradicción", SkillLevel.L1),
-            ("proof_contrapositive", "Prueba por contrapositiva", SkillLevel.L1),
-            ("proof_construction", "Prueba constructiva", SkillLevel.L1),
-            ("proof_cases", "Prueba por casos", SkillLevel.L1),
-        ],
-        "set-theory": [
-            ("set_operations", "Operaciones de conjuntos", SkillLevel.L1),
-            ("cardinality", "Cardinalidad", SkillLevel.L1),
-            ("ordinal_theory", "Teoría ordinal", SkillLevel.L1),
-            ("axiom_choice", "Axioma de elección", SkillLevel.L1),
-            ("cantor_theorem", "Teorema de Cantor", SkillLevel.L1),
-        ],
-        "topology": [
-            ("open_closed_sets", "Conjuntos abiertos/cerrados", SkillLevel.L1),
-            ("compactness", "Compacidad", SkillLevel.L1),
-            ("connectedness", "Conexidad", SkillLevel.L1),
-            ("homeomorphism", "Homeomorfismo", SkillLevel.L1),
-            ("homotopy_theory", "Teoría de homotopía", SkillLevel.L1),
-        ],
+        "algebra":          [("factor_poly","Factorizar",SkillLevel.L1),("group_theory","Grupos",SkillLevel.L1),("ring_ideal","Ideales",SkillLevel.L1),("linear_algebra","Álg. Lineal",SkillLevel.L1),("galois_theory","Galois",SkillLevel.L1)],
+        "analysis":         [("compute_limit","Límites",SkillLevel.L1),("differentiate","Derivar",SkillLevel.L1),("integrate","Integrar",SkillLevel.L1),("series_conv","Series",SkillLevel.L1),("real_analysis","Análisis Real",SkillLevel.L1)],
+        "category-theory":  [("define_functor","Functores",SkillLevel.L1),("nat_transform","Trans. Nat.",SkillLevel.L1),("colimit_const","Colímites",SkillLevel.L1),("adjunction","Adjunciones",SkillLevel.L1),("yoneda","Yoneda",SkillLevel.L1)],
+        "combinatorics":    [("count_perm","Permutaciones",SkillLevel.L1),("binomial","Binomial",SkillLevel.L1),("graph_color","Coloración",SkillLevel.L1),("partitions","Particiones",SkillLevel.L1),("pigeonhole","Palomar",SkillLevel.L1)],
+        "computation":      [("complexity","Complejidad",SkillLevel.L1),("algo_design","Algoritmos",SkillLevel.L1),("decidability","Decidibilidad",SkillLevel.L1),("turing","Turing",SkillLevel.L1),("automata","Autómatas",SkillLevel.L1)],
+        "geometry":         [("euclidean","Euclidiana",SkillLevel.L1),("coord_geom","Coordenadas",SkillLevel.L1),("area_vol","Área/Volumen",SkillLevel.L1),("circles","Círculos",SkillLevel.L1),("triangles","Triángulos",SkillLevel.L1)],
+        "lean-tactics":     [("tac_simp","simp",SkillLevel.L1),("tac_ring","ring",SkillLevel.L1),("tac_norm_num","norm_num",SkillLevel.L1),("tac_omega","omega",SkillLevel.L1),("tac_induction","induction",SkillLevel.L1)],
+        "logic":            [("prop_logic","Prop. Lógica",SkillLevel.L1),("pred_logic","Pred. Lógica",SkillLevel.L1),("sat","SAT",SkillLevel.L1),("modal","Modal",SkillLevel.L1),("proof_theory","T. Prueba",SkillLevel.L1)],
+        "number-theory":    [("primality","Primalidad",SkillLevel.L1),("mod_arith","Mod. Aritmética",SkillLevel.L1),("diophantine","Diofánticas",SkillLevel.L1),("nt_theorems","Teoremas NT",SkillLevel.L1),("crypto_nt","NT Cripto",SkillLevel.L1)],
+        "optimization":     [("linear_prog","Prog. Lineal",SkillLevel.L1),("grad_descent","Grad. Desc.",SkillLevel.L1),("convex","Convexa",SkillLevel.L1),("lagrange","Lagrange",SkillLevel.L1),("int_optim","Entera",SkillLevel.L1)],
+        "probability":      [("basic_prob","Prob. Básica",SkillLevel.L1),("cond_prob","Prob. Cond.",SkillLevel.L1),("expectation","Esperanza",SkillLevel.L1),("distributions","Distribuciones",SkillLevel.L1),("markov","Markov",SkillLevel.L1)],
+        "proof-strategies": [("induction","Inducción",SkillLevel.L1),("contradiction","Contradicción",SkillLevel.L1),("contrapositive","Contrapositiva",SkillLevel.L1),("construction","Constructiva",SkillLevel.L1),("cases","Por Casos",SkillLevel.L1)],
+        "set-theory":       [("set_ops","Operaciones",SkillLevel.L1),("cardinality","Cardinalidad",SkillLevel.L1),("ordinals","Ordinales",SkillLevel.L1),("axiom_choice","AC",SkillLevel.L1),("cantor","Cantor",SkillLevel.L1)],
+        "topology":         [("open_closed","Ab./Cerr.",SkillLevel.L1),("compactness","Compacidad",SkillLevel.L1),("connectedness","Conexidad",SkillLevel.L1),("homeomorphism","Homeomorf.",SkillLevel.L1),("homotopy","Homotopía",SkillLevel.L1)],
     }
-
     for skill_id, name, level in category_skills.get(category, []):
         graph.add_skill(SkillNode(skill_id=skill_id, name=name, level=level))
 
     return graph
 
 
-# ──────────────────────────────────────────────
-# Estado simulado para entrenamiento supervisado
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Construcción de estado
+# ──────────────────────────────────────────────────────────────────────────────
 
 def record_to_state(rec: Dict[str, Any], graph, category: str):
-    """Convierte un registro JSONL en un State para el agente."""
     from nucleo.types import State
-
     query = rec.get("problem", rec.get("query", ""))
-    goal = rec.get("solution", rec.get("answer", ""))
-
-    state = State(
+    goal  = rec.get("solution", rec.get("answer", ""))
+    return State(
         query=query,
         goal=goal,
         skill_graph=graph,
         context={"category": category, "source": rec.get("source", "")},
     )
-    return state
 
 
-# ──────────────────────────────────────────────
-# Entrenamiento supervisado por categoría
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 1 — Fine-tuning supervisado (routing)
+# ──────────────────────────────────────────────────────────────────────────────
 
-def train_category(
+def train_phase1_routing(
     category: str,
+    agent,
+    graph,
+    train_data: List[Dict],
+    val_data: List[Dict],
     args: argparse.Namespace,
-) -> Dict[str, float]:
-    """Entrena el agente de una categoría. Retorna métricas finales."""
-    import torch
-    from nucleo.rl.agent import NucleoAgent, AgentConfig
+    cat_log: logging.Logger,
+) -> Tuple[float, List[Dict]]:
+    """Fine-tuning para routing ASSIST. Retorna (best_val_acc, history)."""
     from nucleo.rl.mdp import Transition
     from nucleo.types import ActionType
 
+    best_val_acc = 0.0
+    history = []
+
+    for epoch in range(1, args.epochs + 1):
+        agent.network.train()
+        np.random.shuffle(train_data)
+        correct = total = 0
+        total_loss = 0.0
+        batches = [train_data[i:i+args.batch_size]
+                   for i in range(0, len(train_data), args.batch_size)]
+
+        for batch in batches:
+            transitions = []
+            for rec in batch:
+                state  = record_to_state(rec, graph, category)
+                action = agent.select_action(state)
+                reward = 1.0 if action.action_type == ActionType.ASSIST else 0.0
+                transitions.append(
+                    Transition(state=state, action=action, reward=reward,
+                               next_state=state, done=True)
+                )
+                correct += int(action.action_type == ActionType.ASSIST)
+                total   += 1
+            m = agent.update(transitions)
+            total_loss += m.get("loss", 0.0)
+
+        train_acc = correct / max(total, 1)
+        avg_loss  = total_loss / max(len(batches), 1)
+
+        val_acc = 0.0
+        if val_data:
+            agent.network.eval()
+            val_correct = sum(
+                1 for rec in val_data
+                if agent.select_action(
+                    record_to_state(rec, graph, category)
+                ).action_type == ActionType.ASSIST
+            )
+            val_acc = val_correct / len(val_data)
+
+        cat_log.info(f"[F1] Época {epoch}/{args.epochs} loss={avg_loss:.4f} "
+                     f"train_acc={train_acc:.3f} val_acc={val_acc:.3f}")
+        logger.info(f"  [{category}] F1 época {epoch}/{args.epochs} | "
+                    f"loss={avg_loss:.4f} | train={train_acc:.3f} | val={val_acc:.3f}")
+
+        best_val_acc = max(best_val_acc, val_acc)
+        history.append({"phase": 1, "epoch": epoch, "loss": avg_loss,
+                        "train_acc": train_acc, "val_acc": val_acc})
+
+    return best_val_acc, history
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 2 — Supervisión de tácticas (weak supervision, sin Lean)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def train_phase2_tactics(
+    category: str,
+    agent,
+    graph,
+    train_data: List[Dict],
+    val_data: List[Dict],
+    args: argparse.Namespace,
+    cat_log: logging.Logger,
+) -> Tuple[float, List[Dict]]:
+    """
+    Fase 2: entrena selección de tácticas usando etiquetas heurísticas.
+
+    Convierte cada ejemplo en (query, tactic_label) y entrena el actor
+    para predecir la táctica correcta vía cross-entropy.
+    No requiere correr Lean — las etiquetas se infieren del texto.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    best_tactic_acc = 0.0
+    history = []
+
+    # Pre-calcular etiquetas de táctica para todo el set
+    def label_batch(records):
+        labeled = []
+        for rec in records:
+            tactic = _infer_tactic(rec, category)
+            idx    = TACTIC_TO_IDX.get(tactic, TACTIC_TO_IDX["simp"])
+            labeled.append((rec, idx))
+        return labeled
+
+    train_labeled = label_batch(train_data)
+    val_labeled   = label_batch(val_data) if val_data else []
+
+    # Estadísticas de distribución de tácticas
+    tactic_dist: Dict[str, int] = {}
+    for _, idx in train_labeled:
+        t = TACTICS[idx]
+        tactic_dist[t] = tactic_dist.get(t, 0) + 1
+    cat_log.info(f"[F2] Distribución de tácticas: {tactic_dist}")
+
+    # Necesitamos la capa de salida de tácticas en el network
+    # Si el network no tiene tactic_head, lo añadimos sobre la marcha
+    network = agent.network
+    if not hasattr(network, "tactic_head"):
+        hidden = getattr(network, "hidden_dim", 128)
+        network.tactic_head = torch.nn.Linear(hidden, len(TACTICS))
+        if args.device != "cpu":
+            network.tactic_head = network.tactic_head.to(args.device)
+        # Optimizador separado solo para la cabeza de tácticas
+        tactic_optimizer = torch.optim.Adam(
+            network.tactic_head.parameters(), lr=args.lr
+        )
+    else:
+        tactic_optimizer = torch.optim.Adam(
+            network.tactic_head.parameters(), lr=args.lr
+        )
+
+    for epoch in range(1, args.tactic_epochs + 1):
+        network.train()
+        np.random.shuffle(train_labeled)
+
+        total_loss = 0.0
+        correct = total = 0
+        batches = [train_labeled[i:i+args.batch_size]
+                   for i in range(0, len(train_labeled), args.batch_size)]
+
+        for batch in batches:
+            tactic_optimizer.zero_grad()
+            batch_loss = 0.0
+
+            for rec, tactic_idx in batch:
+                state = record_to_state(rec, graph, category)
+                # Obtener embedding del query desde el agente
+                try:
+                    emb = agent.network.encode_query(state.query)
+                    if emb is None:
+                        continue
+                    logits = network.tactic_head(emb.unsqueeze(0))
+                    target = torch.tensor([tactic_idx], dtype=torch.long)
+                    if args.device != "cpu":
+                        logits = logits.to(args.device)
+                        target = target.to(args.device)
+                    loss = F.cross_entropy(logits, target)
+                    batch_loss += loss
+                    pred = logits.argmax(dim=-1).item()
+                    correct += int(pred == tactic_idx)
+                except Exception:
+                    pass
+                total += 1
+
+            if total > 0 and batch_loss > 0:
+                batch_loss.backward()
+                tactic_optimizer.step()
+                total_loss += batch_loss.item()
+
+        train_tactic_acc = correct / max(total, 1)
+        avg_loss = total_loss / max(len(batches), 1)
+
+        # Validación de tácticas
+        val_tactic_acc = 0.0
+        if val_labeled:
+            network.eval()
+            vc = vt = 0
+            with torch.no_grad():
+                for rec, tactic_idx in val_labeled:
+                    try:
+                        state = record_to_state(rec, graph, category)
+                        emb   = agent.network.encode_query(state.query)
+                        if emb is None:
+                            continue
+                        logits = network.tactic_head(emb.unsqueeze(0))
+                        pred   = logits.argmax(dim=-1).item()
+                        vc += int(pred == tactic_idx)
+                    except Exception:
+                        pass
+                    vt += 1
+            val_tactic_acc = vc / max(vt, 1)
+
+        cat_log.info(f"[F2] Época {epoch}/{args.tactic_epochs} "
+                     f"loss={avg_loss:.4f} tactic_acc_train={train_tactic_acc:.3f} "
+                     f"tactic_acc_val={val_tactic_acc:.3f}")
+        logger.info(f"  [{category}] F2 época {epoch}/{args.tactic_epochs} | "
+                    f"loss={avg_loss:.4f} | tactic_train={train_tactic_acc:.3f} | "
+                    f"tactic_val={val_tactic_acc:.3f}")
+
+        best_tactic_acc = max(best_tactic_acc, val_tactic_acc)
+        history.append({"phase": 2, "epoch": epoch, "loss": avg_loss,
+                        "tactic_train": train_tactic_acc, "tactic_val": val_tactic_acc})
+
+    return best_tactic_acc, history
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fase 3 — PPO con recompensa Lean real
+# ──────────────────────────────────────────────────────────────────────────────
+
+def train_phase3_ppo_lean(
+    category: str,
+    agent,
+    graph,
+    train_data: List[Dict],
+    args: argparse.Namespace,
+    cat_log: logging.Logger,
+) -> Tuple[float, List[Dict]]:
+    """PPO con recompensa real de Lean. Lento — solo para categorías con datos Lean."""
+    try:
+        from scripts.train_gnn_ppo import _lean_reward
+    except ImportError:
+        try:
+            from train_gnn_ppo import _lean_reward
+        except ImportError:
+            cat_log.error("No se pudo importar _lean_reward. Saltando Fase 3.")
+            return 0.0, []
+
+    from nucleo.rl.mdp import Transition
+    from nucleo.types import ActionType
+
+    best_reward = 0.0
+    history = []
+
+    for epoch in range(1, args.ppo_epochs + 1):
+        sample = train_data[:min(500, len(train_data))]
+        np.random.shuffle(sample)
+
+        transitions = []
+        total_reward = 0.0
+        for rec in sample:
+            state  = record_to_state(rec, graph, category)
+            action = agent.select_action(state)
+            reward = _lean_reward(
+                rec.get("problem", ""), lean_client=None, rec=rec
+            )
+            if action.action_type != ActionType.ASSIST:
+                reward = min(reward - 0.5, 0.0)
+            transitions.append(
+                Transition(state=state, action=action, reward=reward,
+                           next_state=state, done=True)
+            )
+            total_reward += reward
+
+        agent.update(transitions)
+        avg_reward = total_reward / max(len(sample), 1)
+
+        cat_log.info(f"[F3] PPO época {epoch}/{args.ppo_epochs} avg_reward={avg_reward:.4f}")
+        logger.info(f"  [{category}] F3 PPO época {epoch}/{args.ppo_epochs} | reward={avg_reward:.4f}")
+
+        best_reward = max(best_reward, avg_reward)
+        history.append({"phase": 3, "epoch": epoch, "avg_reward": avg_reward})
+
+    return best_reward, history
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Entrenamiento completo de una categoría
+# ──────────────────────────────────────────────────────────────────────────────
+
+def train_category(category: str, args: argparse.Namespace,
+                   data_root: Optional[Path] = None) -> Dict[str, Any]:
+    import torch
+    from nucleo.rl.agent import NucleoAgent, AgentConfig
+
+    cat_log = get_logger(category)
     logger.info(f"\n{'='*60}")
-    logger.info(f"Entrenando agente: {category.upper()}")
+    logger.info(f"  AGENTE: {category.upper()}")
     logger.info(f"{'='*60}")
 
-    # Cargar datos
-    train_data = load_category_data(category, "train")
-    val_data = load_category_data(category, "val")
+    # ── Cargar datos ──
+    train_data = load_category_data(category, "train", data_root)
+    val_data   = load_category_data(category, "val",   data_root)
 
     if not train_data:
-        logger.warning(f"[{category}] Sin datos de entrenamiento, saltando.")
-        return {"skipped": True}
+        logger.warning(f"[{category}] Sin datos. Saltando.")
+        return {"category": category, "skipped": True}
 
-    logger.info(f"[{category}] Train: {len(train_data)} | Val: {len(val_data)}")
+    logger.info(f"  [{category}] train={len(train_data)} val={len(val_data)}")
 
-    # Construir grafo + agente
-    graph = build_category_skill_graph(category)
+    # ── Construir grafo + agente ──
+    graph  = build_category_skill_graph(category)
     config = AgentConfig(
         hidden_dim=256,
         learning_rate=args.lr,
@@ -270,283 +586,242 @@ def train_category(
     )
     agent = NucleoAgent(skill_graph=graph, config=config, use_neural=True)
 
-    # Cargar pesos base si existen
+    # Mover red a GPU si está disponible
+    if args.device != "cpu" and hasattr(agent, "network"):
+        try:
+            agent.network = agent.network.to(args.device)
+            logger.info(f"  [{category}] Red movida a {args.device}")
+        except Exception as e:
+            logger.warning(f"  [{category}] No se pudo mover a GPU: {e}")
+            args.device = "cpu"
+
+    # ── Cargar pesos base (global GNN+PPO) ──
     if BASE_WEIGHTS.exists():
         try:
-            state_dict = torch.load(str(BASE_WEIGHTS), map_location="cpu")
-            agent.network.load_state_dict(state_dict, strict=False)
-            logger.info(f"[{category}] Pesos base cargados desde {BASE_WEIGHTS}")
+            sd = torch.load(str(BASE_WEIGHTS), map_location=args.device)
+            agent.network.load_state_dict(sd, strict=False)
+            logger.info(f"  [{category}] Pesos globales cargados")
+            cat_log.info(f"Pesos base cargados: {BASE_WEIGHTS}")
         except Exception as e:
-            logger.warning(f"[{category}] No se cargaron pesos base: {e}")
+            logger.warning(f"  [{category}] Sin pesos base: {e}")
 
-    # Cargar checkpoint específico si existe
-    cat_checkpoint = CHECKPOINT_DIR / f"multiagent_{category}_best.pt"
-    if cat_checkpoint.exists():
+    # ── Cargar checkpoint propio si existe ──
+    best_ckpt = AGENTS_DIR / f"{category}_best.pt"
+    if best_ckpt.exists():
         try:
-            ckpt = torch.load(str(cat_checkpoint), map_location="cpu")
+            ckpt = torch.load(str(best_ckpt), map_location=args.device)
             agent.network.load_state_dict(ckpt.get("network", ckpt), strict=False)
-            if "optimizer" in ckpt:
+            if "optimizer" in ckpt and hasattr(agent, "optimizer"):
                 agent.optimizer.load_state_dict(ckpt["optimizer"])
-            logger.info(f"[{category}] Checkpoint propio cargado")
+            logger.info(f"  [{category}] Checkpoint propio cargado")
         except Exception as e:
-            logger.warning(f"[{category}] No se cargó checkpoint propio: {e}")
+            logger.warning(f"  [{category}] Sin checkpoint propio: {e}")
 
-    best_val_acc = 0.0
-    metrics_history = []
+    all_history = []
+    results: Dict[str, Any] = {"category": category, "train_samples": len(train_data)}
 
-    for epoch in range(1, args.epochs + 1):
-        # ── Fase supervisada ──
-        agent.network.train()
-        np.random.shuffle(train_data)
-        epoch_correct = 0
-        epoch_total = 0
-        epoch_loss = 0.0
-
-        batches = [
-            train_data[i : i + args.batch_size]
-            for i in range(0, len(train_data), args.batch_size)
-        ]
-
-        for batch in batches:
-            transitions = []
-            for rec in batch:
-                state = record_to_state(rec, graph, category)
-                action = agent.select_action(state)
-                # Recompensa: ASSIST siempre correcto para matemáticas
-                reward = 1.0 if action.action_type == ActionType.ASSIST else 0.0
-                next_state = state  # simplificado
-                transitions.append(
-                    Transition(
-                        state=state,
-                        action=action,
-                        reward=reward,
-                        next_state=next_state,
-                        done=True,
-                    )
-                )
-                epoch_correct += int(action.action_type == ActionType.ASSIST)
-                epoch_total += 1
-
-            metrics = agent.update(transitions)
-            epoch_loss += metrics.get("loss", 0.0)
-
-        train_acc = epoch_correct / max(epoch_total, 1)
-        avg_loss = epoch_loss / max(len(batches), 1)
-
-        # ── Validación ──
-        val_acc = 0.0
-        if val_data:
-            agent.network.eval()
-            val_correct = sum(
-                1
-                for rec in val_data
-                if agent.select_action(
-                    record_to_state(rec, graph, category)
-                ).action_type == ActionType.ASSIST
-            )
-            val_acc = val_correct / len(val_data)
-
-        logger.info(
-            f"[{category}] Época {epoch}/{args.epochs} | "
-            f"loss={avg_loss:.4f} | train_acc={train_acc:.3f} | val_acc={val_acc:.3f}"
+    # ── Fase 1: Fine-tuning routing ──
+    if args.epochs > 0:
+        best_acc, hist = train_phase1_routing(
+            category, agent, graph, train_data, val_data, args, cat_log
         )
+        results["phase1_val_acc"] = best_acc
+        all_history.extend(hist)
+        _save_checkpoint(agent, category, epoch=args.epochs,
+                         metric=best_acc, metric_name="val_acc")
 
-        # ── Guardar mejor checkpoint ──
-        if val_acc >= best_val_acc:
-            best_val_acc = val_acc
-            CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-            torch.save(
-                {
-                    "network": agent.network.state_dict(),
-                    "optimizer": agent.optimizer.state_dict(),
-                    "epoch": epoch,
-                    "val_acc": val_acc,
-                    "category": category,
-                },
-                str(cat_checkpoint),
-            )
-
-        metrics_history.append(
-            {"epoch": epoch, "loss": avg_loss, "train_acc": train_acc, "val_acc": val_acc}
+    # ── Fase 2: Supervisión de tácticas ──
+    if args.tactic_epochs > 0:
+        best_tac, hist = train_phase2_tactics(
+            category, agent, graph, train_data, val_data, args, cat_log
         )
+        results["phase2_tactic_acc"] = best_tac
+        all_history.extend(hist)
+        _save_checkpoint(agent, category, epoch=args.tactic_epochs,
+                         metric=best_tac, metric_name="tactic_acc")
 
-    # ── Guardar pesos finales en data/agents/ ──
-    WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
-    final_path = WEIGHTS_DIR / f"{category}.pt"
-    torch.save(
-        {
-            "network": agent.network.state_dict(),
-            "optimizer": agent.optimizer.state_dict(),
-            "category": category,
-            "best_val_acc": best_val_acc,
-        },
-        str(final_path),
-    )
-    logger.info(f"[{category}] Pesos finales guardados: {final_path}")
-    logger.info(f"[{category}] Mejor val_acc: {best_val_acc:.3f}")
+    # ── Fase 3: PPO Lean (opcional) ──
+    if args.with_lean and args.ppo_epochs > 0:
+        best_reward, hist = train_phase3_ppo_lean(
+            category, agent, graph, train_data, args, cat_log
+        )
+        results["phase3_reward"] = best_reward
+        all_history.extend(hist)
+        _save_checkpoint(agent, category, epoch=args.ppo_epochs,
+                         metric=best_reward, metric_name="ppo_reward")
 
-    return {
-        "category": category,
-        "train_samples": len(train_data),
-        "best_val_acc": best_val_acc,
-        "epochs": args.epochs,
-    }
+    # ── Guardar pesos finales ──
+    AGENTS_DIR.mkdir(parents=True, exist_ok=True)
+    final_path = AGENTS_DIR / f"{category}.pt"
+    torch.save({
+        "network":        agent.network.state_dict(),
+        "category":       category,
+        "history":        all_history,
+        "tactic_to_idx":  TACTIC_TO_IDX,
+        "results":        results,
+    }, str(final_path))
+    logger.info(f"  [{category}] Pesos finales → {final_path}")
+    cat_log.info(f"Pesos finales guardados: {final_path}")
+
+    # Log de historia completa
+    history_path = LOGS_DIR / f"{category}_history.json"
+    with open(history_path, "w", encoding="utf-8") as f:
+        json.dump(all_history, f, indent=2, ensure_ascii=False)
+
+    return results
 
 
-# ──────────────────────────────────────────────
-# Entrenamiento PPO con recompensa Lean (Fase 2)
-# ──────────────────────────────────────────────
-
-def train_category_ppo_lean(category: str, args: argparse.Namespace) -> Dict[str, float]:
-    """PPO con recompensa real de Lean (more expensive, more accurate)."""
-    # Importar función de recompensa del script principal
-    sys.path.insert(0, str(Path(__file__).parent))
-    try:
-        from train_gnn_ppo import _lean_reward
-    except ImportError:
-        logger.error("No se pudo importar _lean_reward de train_gnn_ppo.py")
-        return train_category(category, args)
-
+def _save_checkpoint(agent, category: str, epoch: int,
+                     metric: float, metric_name: str):
     import torch
-    from nucleo.rl.agent import NucleoAgent, AgentConfig
-    from nucleo.rl.mdp import Transition
-    from nucleo.types import ActionType
-
-    train_data = load_category_data(category, "train")
-    if not train_data:
-        return {"skipped": True}
-
-    graph = build_category_skill_graph(category)
-    config = AgentConfig(learning_rate=args.lr, batch_size=args.batch_size)
-    agent = NucleoAgent(skill_graph=graph, config=config, use_neural=True)
-
-    # Cargar checkpoint propio si existe
-    cat_checkpoint = CHECKPOINT_DIR / f"multiagent_{category}_best.pt"
-    if cat_checkpoint.exists():
-        ckpt = torch.load(str(cat_checkpoint), map_location="cpu")
-        agent.network.load_state_dict(ckpt.get("network", ckpt), strict=False)
-
-    best_reward = 0.0
-
-    for epoch in range(1, args.ppo_epochs + 1):
-        transitions = []
-        total_reward = 0.0
-        sample = train_data[: min(500, len(train_data))]  # 500 por época PPO
-
-        for rec in sample:
-            state = record_to_state(rec, graph, category)
-            action = agent.select_action(state)
-
-            problem = rec.get("problem", "")
-            reward = _lean_reward(problem, lean_client=None, rec=rec)
-            if action.action_type != ActionType.ASSIST:
-                reward = min(reward - 0.5, 0.0)
-
-            transitions.append(
-                Transition(state=state, action=action, reward=reward, next_state=state, done=True)
-            )
-            total_reward += reward
-
-        agent.update(transitions)
-        avg_reward = total_reward / max(len(sample), 1)
-        logger.info(f"[{category}] PPO época {epoch}/{args.ppo_epochs} | avg_reward={avg_reward:.4f}")
-
-        if avg_reward > best_reward:
-            best_reward = avg_reward
-            CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-            torch.save(
-                {"network": agent.network.state_dict(), "category": category, "reward": avg_reward},
-                str(cat_checkpoint),
-            )
-
-    # Guardar pesos finales
-    final_path = WEIGHTS_DIR / f"{category}.pt"
-    WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
-    torch.save({"network": agent.network.state_dict(), "category": category}, str(final_path))
-
-    return {"category": category, "best_reward": best_reward}
+    AGENTS_DIR.mkdir(parents=True, exist_ok=True)
+    path = AGENTS_DIR / f"{category}_best.pt"
+    # Solo sobreescribe si mejora
+    if path.exists():
+        try:
+            prev = torch.load(str(path), map_location="cpu")
+            if prev.get(metric_name, -1) >= metric:
+                return
+        except Exception:
+            pass
+    torch.save({
+        "network":    agent.network.state_dict(),
+        "category":   category,
+        "epoch":      epoch,
+        metric_name:  metric,
+    }, str(path))
 
 
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 # CLI
-# ──────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────────────────────
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Entrenar 14 agentes especializados NLE v7.0")
-    p.add_argument(
-        "--categories", nargs="*", default=None,
-        help="Categorías a entrenar. Por defecto: todas.",
+    p = argparse.ArgumentParser(
+        description="Entrenar 14 agentes especializados NLE v7.0",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    p.add_argument("--epochs", type=int, default=10, help="Épocas de entrenamiento supervisado")
-    p.add_argument("--ppo-epochs", type=int, default=5, help="Épocas PPO con Lean (solo con --with-lean)")
-    p.add_argument("--batch-size", type=int, default=128, help="Tamaño de batch")
-    p.add_argument("--lr", type=float, default=3e-4, help="Learning rate")
-    p.add_argument("--with-lean", action="store_true", help="PPO con recompensa Lean real (lento)")
-    p.add_argument("--dry-run", action="store_true", help="Mostrar info sin entrenar")
+    p.add_argument("--categories", nargs="*", default=None,
+                   help="Categorías a entrenar (por defecto: todas)")
+    p.add_argument("--epochs",        type=int,   default=5,    help="Épocas Fase 1 (routing)")
+    p.add_argument("--tactic-epochs", type=int,   default=10,   help="Épocas Fase 2 (tácticas)")
+    p.add_argument("--ppo-epochs",    type=int,   default=3,    help="Épocas Fase 3 (PPO Lean)")
+    p.add_argument("--batch-size",    type=int,   default=128,  help="Tamaño de batch")
+    p.add_argument("--lr",            type=float, default=3e-4, help="Learning rate")
+    p.add_argument("--device",        type=str,   default="auto",
+                   help="Dispositivo: auto | cuda | cpu")
+    p.add_argument("--with-lean",     action="store_true",
+                   help="Fase 3: PPO con recompensa Lean real (lento)")
+    p.add_argument("--skip-phase1",   action="store_true", help="Saltar Fase 1 routing")
+    p.add_argument("--skip-phase2",   action="store_true", help="Saltar Fase 2 tácticas")
+    p.add_argument("--dry-run",       action="store_true", help="Solo mostrar info, no entrenar")
     return p.parse_args()
 
 
+def resolve_device(device_arg: str) -> str:
+    if device_arg == "auto":
+        try:
+            import torch
+            return "cuda" if torch.cuda.is_available() else "cpu"
+        except ImportError:
+            return "cpu"
+    return device_arg
+
+
 def main():
+    import torch
     args = parse_args()
 
-    categories_to_train = args.categories if args.categories else CATEGORIES
+    # Resolver dispositivo
+    args.device = resolve_device(args.device)
+    if args.device == "cuda":
+        try:
+            import torch
+            logger.info(f"GPU: {torch.cuda.get_device_name(0)} "
+                        f"({torch.cuda.get_device_properties(0).total_memory // 1024**2} MB VRAM)")
+        except Exception:
+            args.device = "cpu"
+            logger.warning("GPU no disponible, usando CPU")
+    logger.info(f"Dispositivo: {args.device}")
 
-    # Validar categorías
-    invalid = [c for c in categories_to_train if c not in CATEGORIES]
+    # Ajustar epochs si se pide saltar fases
+    if args.skip_phase1:
+        args.epochs = 0
+    if args.skip_phase2:
+        args.tactic_epochs = 0
+
+    # Categorías
+    cats = args.categories if args.categories else CATEGORIES
+    invalid = [c for c in cats if c not in CATEGORIES]
     if invalid:
-        logger.error(f"Categorías inválidas: {invalid}")
+        logger.error(f"Categorías inválidas: {invalid}. Válidas: {CATEGORIES}")
         sys.exit(1)
 
-    logger.info(f"Categorías a entrenar: {categories_to_train}")
-    logger.info(f"Épocas: {args.epochs} | Batch: {args.batch_size} | LR: {args.lr}")
-    if args.with_lean:
-        logger.info(f"PPO con Lean: {args.ppo_epochs} épocas")
+    # Detectar directorio de datos
+    data_root = _find_data_dir()
 
-    # Verificar datos disponibles
+    logger.info(f"\nDirectorio de datos: {data_root}")
+    logger.info(f"Directorio de salida: {AGENTS_DIR}")
+    logger.info(f"Logs: {LOGS_DIR}")
+    logger.info(f"Categorías: {cats}")
+    logger.info(f"Fases: F1={args.epochs}ep | F2={args.tactic_epochs}ep | "
+                f"F3={'SÍ '+str(args.ppo_epochs)+'ep' if args.with_lean else 'NO'}")
+
+    # Mostrar disponibilidad de datos
     logger.info("\nDisponibilidad de datos:")
-    for cat in categories_to_train:
-        train_path = DATA_DIR / cat / "train.jsonl"
-        n = sum(1 for _ in open(train_path, encoding="utf-8")) if train_path.exists() else 0
-        logger.info(f"  {cat:<20}: {n:>6} ejemplos de entrenamiento")
+    for cat in cats:
+        train_path = data_root / cat / "train.jsonl"
+        if train_path.exists():
+            n = sum(1 for _ in open(train_path, encoding="utf-8"))
+            logger.info(f"  {cat:<22}: {n:>6} ejemplos")
+        else:
+            logger.info(f"  {cat:<22}: *** SIN DATOS ***")
 
     if args.dry_run:
-        logger.info("\nDry-run completado. No se entrenó ningún agente.")
+        logger.info("\nDry-run completado.")
         return
 
-    # Entrenar
+    # ── Entrenamiento ──
+    AGENTS_DIR.mkdir(parents=True, exist_ok=True)
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
     all_results = []
     t0 = time.time()
 
-    for cat in categories_to_train:
-        if args.with_lean:
-            results = train_category_ppo_lean(cat, args)
-        else:
-            results = train_category(cat, args)
-        all_results.append(results)
+    for cat in cats:
+        try:
+            result = train_category(cat, args, data_root)
+            all_results.append(result)
+        except Exception as e:
+            logger.error(f"[{cat}] Error durante entrenamiento: {e}", exc_info=True)
+            all_results.append({"category": cat, "error": str(e)})
 
-    # Resumen final
+    # ── Resumen final ──
     elapsed = time.time() - t0
-    logger.info(f"\n{'='*60}")
-    logger.info(f"ENTRENAMIENTO COMPLETADO en {elapsed/60:.1f} min")
-    logger.info(f"{'='*60}")
-    logger.info(f"\n{'Categoría':<22} {'Train':<8} {'Val Acc':>8}")
-    logger.info("-" * 42)
+    logger.info(f"\n{'='*65}")
+    logger.info(f"  ENTRENAMIENTO COMPLETADO — {elapsed/60:.1f} min")
+    logger.info(f"{'='*65}")
+    logger.info(f"\n{'Categoría':<22} {'Train':>7} {'F1 acc':>8} {'F2 tac':>8} {'F3 rew':>8}")
+    logger.info("-" * 58)
     for r in all_results:
         if r.get("skipped"):
-            logger.info(f"  {r.get('category', '?'):<20} {'SIN DATOS':>10}")
+            logger.info(f"  {r['category']:<20}  {'SIN DATOS':>10}")
+        elif r.get("error"):
+            logger.info(f"  {r['category']:<20}  {'ERROR':>10}")
         else:
             logger.info(
-                f"  {r.get('category', '?'):<20} "
-                f"{r.get('train_samples', 0):>8} "
-                f"{r.get('best_val_acc', r.get('best_reward', 0)):.3f}"
+                f"  {r.get('category','?'):<20} "
+                f"{r.get('train_samples',0):>7} "
+                f"{r.get('phase1_val_acc', 0.0):>8.3f} "
+                f"{r.get('phase2_tactic_acc', 0.0):>8.3f} "
+                f"{r.get('phase3_reward', 0.0):>8.3f}"
             )
 
     # Guardar resumen JSON
-    summary_path = WEIGHTS_DIR / "training_summary.json"
-    WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
+    summary_path = AGENTS_DIR / "training_summary.json"
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(all_results, f, indent=2, ensure_ascii=False)
-    logger.info(f"\nResumen guardado en {summary_path}")
+    logger.info(f"\nResumen → {summary_path}")
 
 
 if __name__ == "__main__":
