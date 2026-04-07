@@ -1,0 +1,206 @@
+{
+  "description": "Preguntas de prueba para el sistema Metamatemático, una por área y algunas generales. Cubren las 14 categorías del NLE v7.0 más preguntas de lenguaje natural mixtas.",
+  "categories": {
+
+    "algebra": [
+      "Prove that the set of invertible elements of a ring forms a group under multiplication.",
+      "Show that every finite integral domain is a field.",
+      "Prove that if G is a group of order p^2 where p is prime, then G is abelian.",
+      "Demonstrate that the polynomial x^4 + 1 is irreducible over Q.",
+      "Prove that every subgroup of a cyclic group is cyclic.",
+      "Show that Z[sqrt(-5)] is not a unique factorization domain.",
+      "Prueba que todo grupo de orden primo es cíclico.",
+      "¿Es el anillo Z/6Z un dominio integral? Justifica."
+    ],
+
+    "number-theory": [
+      "Prove that sqrt(2) is irrational.",
+      "Show that there are infinitely many prime numbers.",
+      "Prove that for all n in N, n^2 + n is divisible by 2.",
+      "Demonstrate that gcd(a, b) * lcm(a, b) = a * b for positive integers a, b.",
+      "Prove Fermat's little theorem: if p is prime and gcd(a, p) = 1, then a^(p-1) ≡ 1 (mod p).",
+      "Show that every prime p > 2 is of the form 4k+1 or 4k+3.",
+      "Prueba que no existe un entero cuyo cuadrado sea congruente a 2 módulo 4.",
+      "¿Cuántos primos menores de 50 existen? Lista todos."
+    ],
+
+    "analysis": [
+      "Prove that every Cauchy sequence of real numbers converges.",
+      "Show that the function f(x) = x^2 is uniformly continuous on [0, 1] but not on R.",
+      "Prove that if a function is differentiable at a point, it is continuous there.",
+      "Demonstrate that the series sum 1/n^2 converges.",
+      "Prove the intermediate value theorem.",
+      "Show that lim_{x->0} sin(x)/x = 1.",
+      "Prueba que la suma de una serie absolutamente convergente no depende del orden de sus términos.",
+      "Demuestra que toda función continua en un compacto alcanza su máximo."
+    ],
+
+    "topology": [
+      "Prove that a continuous image of a compact space is compact.",
+      "Show that [0,1] is not homeomorphic to (0,1).",
+      "Prove that every metric space is Hausdorff.",
+      "Demonstrate that the product of two connected spaces is connected.",
+      "Show that a subset of R^n is compact if and only if it is closed and bounded.",
+      "Prueba que toda función continua de un espacio compacto en R es uniformemente continua.",
+      "¿Es el círculo S^1 homeomorfo al intervalo [0,1]? Justifica."
+    ],
+
+    "logic": [
+      "Prove that (P → Q) is logically equivalent to (¬P ∨ Q).",
+      "Show that the formula (P ∧ ¬P) is a contradiction.",
+      "Demonstrate that ¬∀x P(x) is equivalent to ∃x ¬P(x).",
+      "Prove that modus ponens is a sound inference rule.",
+      "Show that propositional logic is decidable.",
+      "Is the formula (P → (Q → P)) a tautology? Prove it.",
+      "Prueba que si Γ ⊨ φ y Γ ⊆ Δ, entonces Δ ⊨ φ.",
+      "¿Puede una fórmula ser verdadera en todos los modelos finitos pero falsa en uno infinito?"
+    ],
+
+    "set-theory": [
+      "Prove that the power set of a set A has strictly greater cardinality than A (Cantor's theorem).",
+      "Show that the union of countably many countable sets is countable.",
+      "Prove that R is uncountable (Cantor's diagonal argument).",
+      "Demonstrate that |N| = |Z| = |Q| but |R| > |N|.",
+      "Show that the Cartesian product N × N is countable.",
+      "Prove that for any sets A, B, C: A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C).",
+      "Prueba que no existe el conjunto de todos los conjuntos.",
+      "¿Cuál es la cardinalidad del conjunto de todas las funciones de N en {0,1}?"
+    ],
+
+    "combinatorics": [
+      "Prove the binomial theorem: (x+y)^n = sum_{k=0}^{n} C(n,k) x^k y^(n-k).",
+      "Show that C(n, k) = C(n, n-k) for all valid n, k.",
+      "Prove that the number of surjective functions from {1,...,n} to {1,...,k} is k! * S(n,k) where S(n,k) is the Stirling number.",
+      "Demonstrate that in any group of 13 people, at least 2 share a birth month.",
+      "How many ways can 8 rooks be placed on a chessboard with no two attacking each other?",
+      "Prove that the number of partitions of n into odd parts equals the number of partitions of n into distinct parts.",
+      "¿De cuántas formas se pueden ordenar las letras de la palabra MATEMATICA?",
+      "Prueba la identidad de Vandermonde: C(m+n, r) = sum_{k=0}^{r} C(m,k)*C(n,r-k)."
+    ],
+
+    "probability": [
+      "Show that P(A ∪ B) = P(A) + P(B) - P(A ∩ B).",
+      "Prove Bayes' theorem: P(A|B) = P(B|A)P(A) / P(B).",
+      "Demonstrate that the expected value of a sum of random variables equals the sum of their expected values.",
+      "What is the probability that in a group of 23 people, at least two share a birthday?",
+      "Prove that the variance of a sum of independent random variables equals the sum of their variances.",
+      "Show that Markov's inequality holds: P(X ≥ a) ≤ E[X]/a for X ≥ 0, a > 0.",
+      "Si lanzamos un dado justo 3 veces, ¿cuál es la probabilidad de obtener exactamente dos seises?",
+      "¿Cuál es la distribución de la suma de dos variables aleatorias uniformes independientes en [0,1]?"
+    ],
+
+    "geometry": [
+      "Prove the Pythagorean theorem.",
+      "Show that the sum of interior angles of any triangle is 180 degrees.",
+      "Prove that the three medians of a triangle are concurrent (centroid).",
+      "Demonstrate that a circle is determined by any three non-collinear points.",
+      "Show that opposite angles in a cyclic quadrilateral sum to 180 degrees.",
+      "Prove that the area of a circle of radius r is π r^2.",
+      "Prueba que todo triángulo inscrito en una semicircunferencia es rectángulo.",
+      "¿Cuál es el volumen de un tetraedro regular de arista a?"
+    ],
+
+    "category-theory": [
+      "Prove that the composition of two functors is a functor.",
+      "Show that every adjunction gives rise to a monad.",
+      "Demonstrate that the Yoneda lemma holds: Nat(Hom(A,-), F) ≅ F(A).",
+      "Prove that left adjoints preserve colimits.",
+      "Show that the forgetful functor from Grp to Set has a left adjoint (the free group functor).",
+      "What is the colimit of the diagram N → N → N → ... where each arrow is the successor function?",
+      "Prueba que los isomorfismos en una categoría son exactamente los morfismos con inverso a ambos lados.",
+      "¿Qué es un topos elemental y en qué se diferencia de Set?"
+    ],
+
+    "computation": [
+      "Prove that the halting problem is undecidable.",
+      "Show that SATISFIABILITY (SAT) is NP-complete.",
+      "Demonstrate that the class P is closed under complement.",
+      "Prove that if a language L is decidable, then its complement is also decidable.",
+      "Show that every regular language can be recognized by a finite automaton.",
+      "What is the time complexity of the naive matrix multiplication algorithm? Can we do better?",
+      "Prueba que 3-SAT se reduce polinomialmente a CLIQUE.",
+      "¿Cuál es la diferencia entre P y NP? ¿Por qué es difícil probar que P ≠ NP?"
+    ],
+
+    "optimization": [
+      "Prove that a local minimum of a convex function is a global minimum.",
+      "State and prove the KKT conditions for constrained optimization.",
+      "Show that the simplex method terminates in finite steps (assuming non-degeneracy).",
+      "Prove the strong duality theorem for linear programming.",
+      "Demonstrate that gradient descent converges for L-smooth convex functions with step size 1/L.",
+      "What is the optimal solution to: minimize x^2 + y^2 subject to x + y = 1?",
+      "Prueba que el problema del viajante (TSP) es NP-difícil.",
+      "¿Qué condiciones garantizan que un problema de optimización tiene solución única?"
+    ],
+
+    "lean-tactics": [
+      "Write a Lean 4 proof that 2 + 2 = 4 using norm_num.",
+      "Prove in Lean 4 that for all n : Nat, n + 0 = n.",
+      "Write a Lean 4 proof that the composition of injective functions is injective.",
+      "Demonstrate the use of the `ring` tactic to prove (a + b)^2 = a^2 + 2*a*b + b^2.",
+      "Write a Lean 4 proof by induction that sum_{i=0}^{n} i = n*(n+1)/2.",
+      "Show how to use `simp` with custom lemmas in Lean 4.",
+      "¿Cuándo usar `omega` vs `linarith` vs `norm_num` en Lean 4?",
+      "Escribe en Lean 4 la prueba de que todo número par al cuadrado es divisible por 4."
+    ],
+
+    "proof-strategies": [
+      "Give an example of a proof by contradiction and explain why contradiction is necessary.",
+      "Explain when to use strong induction vs simple induction, with an example of each.",
+      "Show a proof by contrapositive: if n^2 is even, then n is even.",
+      "Give an example of a constructive proof vs a non-constructive existence proof.",
+      "Demonstrate the technique of proof by cases for: |a + b| ≤ |a| + |b|.",
+      "Explain the diagonal argument as a proof strategy and give two different applications.",
+      "¿Cuándo es útil la técnica de demostración por el principio del buen orden?",
+      "Demuestra por inducción fuerte que todo entero mayor que 1 tiene un factor primo."
+    ]
+  },
+
+  "mixed_natural_language": [
+    "Is 1 a prime number? Why or why not?",
+    "What is the difference between a theorem and a lemma?",
+    "Can a set be an element of itself? What does ZFC say about this?",
+    "Why is division by zero undefined?",
+    "What is the difference between countable and uncountable infinity?",
+    "Is 0.999... equal to 1? Prove it.",
+    "¿Por qué el número de Euler e es irracional?",
+    "¿Qué significa que una demostración sea 'formal'?",
+    "¿Cuál es la diferencia entre una demostración constructiva y una no constructiva?",
+    "¿Existe un número primo entre n y 2n para todo n ≥ 1? (Postulado de Bertrand)",
+    "¿Cuántos números reales hay entre 0 y 1?",
+    "¿Por qué π es irracional y qué significa eso para la geometría?"
+  ],
+
+  "cross_category": [
+    {
+      "query": "Prove that every vector space has a basis (using Zorn's lemma).",
+      "expected_categories": ["algebra", "set-theory", "logic"],
+      "note": "Requiere AC/Zorn de ZFC + estructura algebraica"
+    },
+    {
+      "query": "Show that the fundamental group of the circle S^1 is isomorphic to Z.",
+      "expected_categories": ["topology", "algebra"],
+      "note": "Topología algebraica — morfismo entre categorías"
+    },
+    {
+      "query": "Prove that the category of sets and functions has all small limits and colimits.",
+      "expected_categories": ["category-theory", "set-theory"],
+      "note": "MES: exactamente el tipo de colímite que construye el sistema"
+    },
+    {
+      "query": "Demonstrate that the Curry-Howard correspondence maps proofs to programs.",
+      "expected_categories": ["logic", "lean-tactics", "proof-strategies"],
+      "note": "Isomorfismo lógica-computación, base de Lean 4"
+    },
+    {
+      "query": "Prove that the chromatic polynomial of a graph satisfies a deletion-contraction recurrence.",
+      "expected_categories": ["combinatorics", "computation"],
+      "note": "Combinatoria + algoritmos"
+    },
+    {
+      "query": "Show that the central limit theorem holds for iid random variables with finite variance.",
+      "expected_categories": ["probability", "analysis"],
+      "note": "Convergencia débil — análisis funcional + probabilidad"
+    }
+  ]
+}
