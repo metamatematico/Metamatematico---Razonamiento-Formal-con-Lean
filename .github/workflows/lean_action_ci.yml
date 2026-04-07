@@ -1,14 +1,34 @@
 name: Lean Action CI
 
+# Este workflow está deshabilitado temporalmente.
+# Compilar Lean + Mathlib en CI requiere ~6 GB de cache y 30+ min.
+# Se rehabilitará cuando el desarrollo de pruebas Lean esté estabilizado.
+#
+# Para correr localmente:
+#   lake build
+#
+# on:
+#   push:
+#     paths:
+#       - '**/*.lean'
+#       - 'lakefile.toml'
+#       - 'lean-toolchain'
+#   workflow_dispatch:
+
 on:
-  push:
-  pull_request:
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Razón para correr el CI de Lean manualmente'
+        required: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
+        with:
+          auto-config: true
+          lake-package-directory: '.'
