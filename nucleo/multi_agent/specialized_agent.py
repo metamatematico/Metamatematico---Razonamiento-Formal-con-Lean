@@ -73,7 +73,7 @@ _CATEGORY_KEYWORDS: Dict[str, List[str]] = {
 }
 
 # Pesos por defecto (directorio donde cada agente guarda sus pesos)
-_DEFAULT_WEIGHTS_DIR = Path(__file__).parent.parent.parent / "data" / "agents"
+_DEFAULT_WEIGHTS_DIR = Path(__file__).parent.parent.parent / "training" / "agents" / "best"
 
 
 def classify_query(text: str) -> str:
@@ -133,7 +133,7 @@ class SpecializedAgent:
 
         config = AgentConfig()
         agent = NucleoAgent(
-            skill_graph=SkillCategory(name=f"agent_{self.category}"),
+            graph=SkillCategory(name=f"agent_{self.category}"),
             config=config,
             use_neural=self.use_neural,
         )
@@ -142,24 +142,26 @@ class SpecializedAgent:
         if self.weights_path.exists():
             try:
                 import torch
-                state = torch.load(str(self.weights_path), map_location="cpu")
+                state = torch.load(str(self.weights_path), map_location="cpu",
+                                   weights_only=False)
                 if isinstance(state, dict) and "network" in state:
-                    agent.network.load_state_dict(state["network"])
-                    agent.optimizer.load_state_dict(state["optimizer"])
+                    agent._network.load_state_dict(state["network"])
+                    if "optimizer" in state and agent._optimizer is not None:
+                        agent._optimizer.load_state_dict(state["optimizer"])
                     logger.info(f"[{self.category}] Pesos cargados desde {self.weights_path}")
                 else:
-                    agent.network.load_state_dict(state)
+                    agent._network.load_state_dict(state)
                     logger.info(f"[{self.category}] Pesos (state_dict) cargados")
             except Exception as e:
                 logger.warning(f"[{self.category}] No se pudo cargar pesos: {e}")
         else:
             # Intentar pesos base compartidos
-            base = self.weights_dir.parent / "neural_agent.json.pt"
+            base = Path(__file__).parent.parent.parent / "data" / "neural_agent.json.pt"
             if base.exists():
                 try:
                     import torch
-                    state = torch.load(str(base), map_location="cpu")
-                    agent.network.load_state_dict(state)
+                    state = torch.load(str(base), map_location="cpu", weights_only=False)
+                    agent._network.load_state_dict(state)
                     logger.info(f"[{self.category}] Usando pesos base compartidos")
                 except Exception as e:
                     logger.warning(f"[{self.category}] Pesos base no cargados: {e}")

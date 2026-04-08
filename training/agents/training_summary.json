@@ -1,0 +1,16 @@
+[
+  {"category": "algebra",         "train_samples": 43944, "phase1_val_acc": 0.936, "phase2_tactic_acc": 0.327},
+  {"category": "analysis",        "train_samples":  1285, "phase1_val_acc": 0.354, "phase2_tactic_acc": 0.832},
+  {"category": "category-theory", "train_samples":     8, "phase1_val_acc": 1.000, "phase2_tactic_acc": 0.000},
+  {"category": "combinatorics",   "train_samples":  1276, "phase1_val_acc": 0.421, "phase2_tactic_acc": 0.805},
+  {"category": "computation",     "train_samples":    42, "phase1_val_acc": 0.400, "phase2_tactic_acc": 0.200},
+  {"category": "geometry",        "train_samples":  4153, "phase1_val_acc": 0.482, "phase2_tactic_acc": 0.638},
+  {"category": "lean-tactics",    "train_samples":    54, "phase1_val_acc": 0.429, "phase2_tactic_acc": 0.000},
+  {"category": "logic",           "train_samples":  2058, "phase1_val_acc": 0.409, "phase2_tactic_acc": 0.000},
+  {"category": "number-theory",   "train_samples":  1241, "phase1_val_acc": 0.387, "phase2_tactic_acc": 0.077},
+  {"category": "optimization",    "train_samples":   483, "phase1_val_acc": 0.350, "phase2_tactic_acc": 0.150},
+  {"category": "probability",     "train_samples":   352, "phase1_val_acc": 0.409, "phase2_tactic_acc": 0.477},
+  {"category": "proof-strategies","train_samples":   332, "phase1_val_acc": 0.439, "phase2_tactic_acc": 0.000},
+  {"category": "set-theory",      "train_samples":    37, "phase1_val_acc": 0.800, "phase2_tactic_acc": 0.000},
+  {"category": "topology",        "train_samples":   198, "phase1_val_acc": 0.480, "phase2_tactic_acc": 0.000}
+]

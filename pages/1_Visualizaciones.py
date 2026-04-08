@@ -1341,7 +1341,7 @@ def fig_proof_trace(query: str):
 
 # ─── INTERFAZ STREAMLIT ───────────────────────────────────────────────────────
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "⬡ Grafo de Skills",
     "◎ Espacio de Embeddings",
     "⚙ Arquitectura NLE",
@@ -1349,6 +1349,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "→ Pipeline",
     "⊛ GNN + Estadísticas",
     "🔍 Traza de Prueba",
+    "🤖 Agentes",
 ])
 
 with tab1:
@@ -1566,3 +1567,195 @@ with tab7:
             "🟣 nodo azul = dependencia requerida · "
             "🟢 nodo verde = táctica / estrategia Lean"
         )
+
+# ── Tab 8: Agentes ─────────────────────────────────────────────────────────────
+with tab8:
+    import json as _json
+    from pathlib import Path as _Path
+
+    st.markdown("**Sistema multi-agente** — jerarquía L0→L1→L2→L3, pesos entrenados y rendimiento por categoría.")
+
+    # Cargar summary de entrenamiento
+    _summary_path = _Path(__file__).parent.parent / "training" / "agents" / "training_summary.json"
+    _best_dir     = _Path(__file__).parent.parent / "training" / "agents" / "best"
+    _summary = []
+    if _summary_path.exists():
+        with open(_summary_path, encoding="utf-8") as _f:
+            _summary = _json.load(_f)
+
+    # ── Grafo jerárquico de agentes ─────────────────────────────────────────────
+    st.markdown("### Grafo categórico: Skills → ColimitAgents → Orchestrator")
+
+    def _fig_agents():
+        import matplotlib.pyplot as plt
+        import matplotlib.patches as mpatches
+        import networkx as nx
+        import numpy as np
+
+        _CAT_COLORS = {
+            "algebra":         "#42a5f5", "analysis":       "#ab47bc",
+            "category-theory": "#ef5350", "combinatorics":  "#26c6da",
+            "computation":     "#ff7043", "geometry":       "#66bb6a",
+            "lean-tactics":    "#ffa726", "logic":          "#ec407a",
+            "number-theory":   "#8d6e63", "optimization":   "#29b6f6",
+            "probability":     "#9ccc65", "proof-strategies":"#78909c",
+            "set-theory":      "#ffee58", "topology":       "#26a69a",
+        }
+        _CAT_SKILLS = {
+            "algebra": ["group-theory","ring-theory","field-theory","module-theory","comm-algebra","homological-alg","repres-theory"],
+            "analysis": ["real-analysis","complex-analysis","functional-analysis","measure-theory","differential-eq","fourier-analysis"],
+            "category-theory": ["category-basics","functors","nat-trans","limits","adjoint-functors","topos-theory","abelian-cat"],
+            "combinatorics": ["graph-theory","enumeration","generating-func","ramsey-theory","combinatorial-id"],
+            "computation": ["turing-computability","complexity-theory","automata","lambda-calculus","algo-design"],
+            "geometry": ["euclidean-geo","projective-geo","differential-geo","algebraic-geo","hyperbolic-geo","topology-geo"],
+            "lean-tactics": ["lean-kernel","tactic-simp","tactic-ring","tactic-omega","tactic-linarith","tactic-aesop"],
+            "logic": ["fol-deduction","fol-metatheory","propositional-logic","modal-logic","model-theory"],
+            "number-theory": ["elementary-nt","analytic-nt","algebraic-nt","diophantine","prime-theory"],
+            "optimization": ["linear-prog","convex-opt","integer-prog","combinatorial-opt"],
+            "probability": ["probability-theory","stochastic-proc","statistical-inference","markov-chains"],
+            "proof-strategies": ["induction","contradiction","constructive","pigeonhole","diagonal"],
+            "set-theory": ["zfc-axioms","ordinals","cardinals","forcing","descriptive-st"],
+            "topology": ["point-set-top","algebraic-top","differential-top","homotopy-theory"],
+        }
+
+        G = nx.DiGraph()
+        # Nodo orquestador (L3)
+        G.add_node("ORCHESTRATOR", kind="orch", label="Orchestrator\nL3", color="#f59e0b")
+        # 14 ColimitAgents (L2)
+        for cat in _CAT_COLORS:
+            G.add_node(cat, kind="agent", label=cat.replace("-", "\n"), color=_CAT_COLORS[cat])
+            G.add_edge(cat, "ORCHESTRATOR")
+        # Skills representativos (L1) — 3 por agente para no saturar
+        for cat, skills in _CAT_SKILLS.items():
+            for sk in skills[:3]:
+                nid = f"{cat}::{sk}"
+                G.add_node(nid, kind="skill", label=sk.replace("-", "\n"), color=_CAT_COLORS[cat])
+                G.add_edge(nid, cat)
+
+        fig, ax = plt.subplots(figsize=(18, 10), facecolor="#080c12")
+        ax.set_facecolor("#080c12")
+        ax.axis("off")
+
+        # Layout manual: orquestador arriba, agentes en el medio, skills abajo
+        pos = {}
+        cats = list(_CAT_COLORS.keys())
+        n = len(cats)
+        pos["ORCHESTRATOR"] = (0.5, 0.95)
+        for i, cat in enumerate(cats):
+            x = (i + 0.5) / n
+            pos[cat] = (x, 0.60)
+            skills = _CAT_SKILLS.get(cat, [])[:3]
+            for j, sk in enumerate(skills):
+                nid = f"{cat}::{sk}"
+                sw = 1.0 / n
+                pos[nid] = (x - sw/3 + j * sw/3, 0.25)
+
+        # Edges
+        for u, v in G.edges():
+            xu, yu = pos.get(u, (0, 0))
+            xv, yv = pos.get(v, (0, 0))
+            ku = G.nodes[u].get("kind")
+            col = "#2d3748" if ku == "skill" else "#4a5568"
+            ax.annotate("", xy=(xv, yv), xytext=(xu, yu),
+                        xycoords="axes fraction", textcoords="axes fraction",
+                        arrowprops=dict(arrowstyle="-|>", color=col, lw=0.6, alpha=0.5,
+                                        connectionstyle="arc3,rad=0.0"))
+
+        # Nodes
+        for nid, d in G.nodes(data=True):
+            if nid not in pos:
+                continue
+            x, y = pos[nid]
+            kind  = d.get("kind")
+            color = d.get("color", "#374151")
+            if kind == "orch":
+                ax.scatter(x, y, s=2000, c=[color], transform=ax.transAxes,
+                           zorder=8, edgecolors="#ffffff", linewidths=2)
+                ax.text(x, y, "L3\nOrch", ha="center", va="center", fontsize=7,
+                        fontweight="bold", color="#000000", zorder=9, transform=ax.transAxes)
+            elif kind == "agent":
+                # ¿tiene pesos?
+                has_wt = (_best_dir / f"{nid}.pt").exists()
+                ec = "#ffffff" if has_wt else "#6b7280"
+                lw = 2.0 if has_wt else 0.8
+                ax.scatter(x, y, s=700, c=[color], transform=ax.transAxes,
+                           zorder=7, edgecolors=ec, linewidths=lw, marker="s")
+                short = nid[:8] if len(nid) > 8 else nid
+                ax.text(x, y + 0.025, short, ha="center", va="bottom", fontsize=5.5,
+                        color="#e5e7eb", zorder=8, transform=ax.transAxes, fontweight="bold")
+                # F1 acc badge
+                acc = next((s["phase1_val_acc"] for s in _summary if s["category"] == nid), None)
+                if acc is not None:
+                    ax.text(x, y - 0.025, f"F1={acc:.2f}", ha="center", va="top", fontsize=4.5,
+                            color="#9ca3af", zorder=8, transform=ax.transAxes)
+            else:
+                ax.scatter(x, y, s=80, c=[color], transform=ax.transAxes,
+                           zorder=6, edgecolors="#374151", linewidths=0.3, alpha=0.7)
+
+        # Leyenda
+        legend_h = [
+            mpatches.Patch(color="#f59e0b", label="L3 Orchestrator"),
+            mpatches.Patch(color="#6366f1", label="L2 ColimitAgent (borde blanco = pesos cargados)"),
+            mpatches.Patch(color="#6b7280", label="L1 Skills (3 por agente)"),
+        ]
+        ax.legend(handles=legend_h, loc="lower center", bbox_to_anchor=(0.5, -0.02),
+                  ncol=3, fontsize=7, facecolor="#0d1117", edgecolor="#21262d", labelcolor="#9ca3af")
+        ax.set_title("Jerarquía L0→L1→L2→L3 · 14 ColimitAgents · 76 skills",
+                     color="#c9d1d9", fontsize=11, pad=8)
+        fig.tight_layout()
+        return fig
+
+    with st.spinner("Generando grafo de agentes..."):
+        _fig_ag = _fig_agents()
+    st.pyplot(_fig_ag, width="stretch")
+    plt.close(_fig_ag)
+
+    # ── Tabla de estadísticas ────────────────────────────────────────────────────
+    st.markdown("### Resultados de entrenamiento por agente")
+    if _summary:
+        _col_names = ["Categoría", "Muestras", "F1 routing acc", "F2 tactic acc", "Pesos"]
+        _rows = []
+        for s in _summary:
+            cat    = s["category"]
+            n_samp = s.get("train_samples", 0)
+            f1     = s.get("phase1_val_acc", 0.0)
+            f2     = s.get("phase2_tactic_acc", 0.0)
+            has_wt = "✓" if (_best_dir / f"{cat}.pt").exists() else "✗"
+            _rows.append({
+                "Categoría":      cat,
+                "Muestras":       f"{n_samp:,}",
+                "F1 routing acc": f"{f1:.3f}",
+                "F2 tactic acc":  f"{f2:.3f}",
+                "Pesos":          has_wt,
+            })
+        import pandas as _pd
+        _df = _pd.DataFrame(_rows)
+        st.dataframe(_df, use_container_width=True, hide_index=True)
+    else:
+        st.warning("No se encontró training_summary.json — entrena primero con scripts/train_multiagent.py")
+
+    # ── Bar chart F1 / F2 ────────────────────────────────────────────────────────
+    if _summary:
+        st.markdown("### F1 routing vs F2 tactic accuracy por agente")
+        _cats  = [s["category"] for s in _summary]
+        _f1s   = [s.get("phase1_val_acc", 0.0) for s in _summary]
+        _f2s   = [s.get("phase2_tactic_acc", 0.0) for s in _summary]
+        _x     = np.arange(len(_cats))
+        _w     = 0.4
+        _fig_b, _ax_b = plt.subplots(figsize=(14, 4), facecolor="#080c12")
+        _ax_b.set_facecolor("#0d1117")
+        _ax_b.bar(_x - _w/2, _f1s, _w, label="F1 routing", color="#6366f1", alpha=0.85)
+        _ax_b.bar(_x + _w/2, _f2s, _w, label="F2 tactic",  color="#22c55e", alpha=0.85)
+        _ax_b.set_xticks(_x)
+        _ax_b.set_xticklabels([c[:10] for c in _cats], rotation=35, ha="right",
+                               fontsize=8, color="#9ca3af")
+        _ax_b.set_ylim(0, 1.05)
+        _ax_b.set_ylabel("Accuracy", color="#9ca3af", fontsize=9)
+        _ax_b.tick_params(colors="#9ca3af")
+        for spine in _ax_b.spines.values():
+            spine.set_edgecolor("#21262d")
+        _ax_b.legend(facecolor="#0d1117", edgecolor="#21262d", labelcolor="#c9d1d9", fontsize=8)
+        _ax_b.axhline(0.5, color="#374151", lw=0.8, linestyle="--", alpha=0.6)
+        _fig_b.tight_layout()
+        st.pyplot(_fig_b, width="stretch")
+        plt.close(_fig_b)

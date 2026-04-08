@@ -269,6 +269,13 @@ class Nucleo:
         self.set_neural_agent(neural_agent)
         self._cr_network.set_neural_agent(neural_agent)
 
+        # Activar multi-agente con los 14 agentes especializados (lazy load)
+        try:
+            self.set_multi_agent_orchestrator()
+            logger.info("MultiAgentOrchestrator activado con pesos en training/agents/best/")
+        except Exception as e:
+            logger.warning(f"MultiAgentOrchestrator no disponible: {e}")
+
         self._initialized = True
         logger.info("Nucleo inicializado correctamente (PPO activo)")
 
