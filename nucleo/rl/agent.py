@@ -291,13 +291,14 @@ class NucleoAgent(BaseAgent):
 
         self._network.eval()
         with torch.no_grad():
-            graph_data = graph_to_pyg(self.graph)
+            device = next(self._network.parameters()).device
+            graph_data = graph_to_pyg(self.graph).to(device)
             query_text = state.lean_goal or ""
-            query_emb = encode_query(query_text).unsqueeze(0)
+            query_emb = encode_query(query_text).unsqueeze(0).to(device)
 
             goal_emb = None
             if state.lean_goal:
-                goal_emb = encode_goal(state.lean_goal).unsqueeze(0)
+                goal_emb = encode_goal(state.lean_goal).unsqueeze(0).to(device)
 
             output = self._network(graph_data, query_emb, goal_emb=goal_emb)
             probs = torch.softmax(output.action_logits, dim=-1)
@@ -365,10 +366,13 @@ class NucleoAgent(BaseAgent):
         gamma = self.config.gamma
         gae_lambda = self.config.gae_lambda
 
+        # Detectar dispositivo del modelo
+        device = next(self._network.parameters()).device
+
         # Preparar datos del rollout
         graph_data = graph_to_pyg(self.graph)
-        rewards = torch.tensor([t.reward for t in transitions], dtype=torch.float32)
-        dones = torch.tensor([t.done for t in transitions], dtype=torch.float32)
+        rewards = torch.tensor([t.reward for t in transitions], dtype=torch.float32).to(device)
+        dones = torch.tensor([t.done for t in transitions], dtype=torch.float32).to(device)
 
         # Codificar queries para cada transicion
         query_embs = []
@@ -380,14 +384,14 @@ class NucleoAgent(BaseAgent):
             goal_embs.append(encode_goal(q_text))
             action_indices.append(ACTION_TYPES.index(t.action.action_type))
 
-        query_batch = torch.stack(query_embs)
-        goal_batch = torch.stack(goal_embs)
-        action_batch = torch.tensor(action_indices, dtype=torch.long)
+        query_batch = torch.stack(query_embs).to(device)
+        goal_batch = torch.stack(goal_embs).to(device)
+        action_batch = torch.tensor(action_indices, dtype=torch.long).to(device)
 
         # Expandir graph_data para el batch (mismo grafo para todas las transiciones)
         from torch_geometric.data import Batch
         batch_size = len(transitions)
-        graph_batch = Batch.from_data_list([graph_data] * batch_size)
+        graph_batch = Batch.from_data_list([graph_data] * batch_size).to(device)
 
         # Forward pass para obtener old log_probs y values
         with torch.no_grad():

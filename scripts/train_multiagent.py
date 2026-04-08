@@ -230,43 +230,43 @@ def _infer_tactic(rec: Dict[str, Any], category: str) -> str:
 
 def build_category_skill_graph(category: str):
     from nucleo.graph.category import SkillCategory
-    from nucleo.graph.skills import SkillNode, SkillLevel
+    from nucleo.types import Skill
 
     graph = SkillCategory(name=f"agent_{category}")
 
     l0_skills = [
-        ("parse_query",       "Parsear consulta",           SkillLevel.L0),
-        ("identify_type",     "Identificar tipo",           SkillLevel.L0),
-        ("select_strategy",   "Seleccionar estrategia",     SkillLevel.L0),
-        ("call_lean",         "Llamar Lean",                SkillLevel.L0),
-        ("interpret_result",  "Interpretar resultado",      SkillLevel.L0),
-        ("format_response",   "Formatear respuesta",        SkillLevel.L0),
-        ("check_validity",    "Verificar validez",          SkillLevel.L0),
-        ("decompose_problem", "Descomponer problema",       SkillLevel.L0),
-        ("apply_tactic",      "Aplicar táctica",            SkillLevel.L0),
-        ("synthesize_proof",  "Sintetizar prueba",          SkillLevel.L0),
+        ("parse_query",       "Parsear consulta",       0),
+        ("identify_type",     "Identificar tipo",       0),
+        ("select_strategy",   "Seleccionar estrategia", 0),
+        ("call_lean",         "Llamar Lean",            0),
+        ("interpret_result",  "Interpretar resultado",  0),
+        ("format_response",   "Formatear respuesta",    0),
+        ("check_validity",    "Verificar validez",      0),
+        ("decompose_problem", "Descomponer problema",   0),
+        ("apply_tactic",      "Aplicar tactica",        0),
+        ("synthesize_proof",  "Sintetizar prueba",      0),
     ]
-    for skill_id, name, level in l0_skills:
-        graph.add_skill(SkillNode(skill_id=skill_id, name=name, level=level))
+    for sid, name, level in l0_skills:
+        graph.add_skill(Skill(id=sid, name=name, level=level))
 
     category_skills = {
-        "algebra":          [("factor_poly","Factorizar",SkillLevel.L1),("group_theory","Grupos",SkillLevel.L1),("ring_ideal","Ideales",SkillLevel.L1),("linear_algebra","Álg. Lineal",SkillLevel.L1),("galois_theory","Galois",SkillLevel.L1)],
-        "analysis":         [("compute_limit","Límites",SkillLevel.L1),("differentiate","Derivar",SkillLevel.L1),("integrate","Integrar",SkillLevel.L1),("series_conv","Series",SkillLevel.L1),("real_analysis","Análisis Real",SkillLevel.L1)],
-        "category-theory":  [("define_functor","Functores",SkillLevel.L1),("nat_transform","Trans. Nat.",SkillLevel.L1),("colimit_const","Colímites",SkillLevel.L1),("adjunction","Adjunciones",SkillLevel.L1),("yoneda","Yoneda",SkillLevel.L1)],
-        "combinatorics":    [("count_perm","Permutaciones",SkillLevel.L1),("binomial","Binomial",SkillLevel.L1),("graph_color","Coloración",SkillLevel.L1),("partitions","Particiones",SkillLevel.L1),("pigeonhole","Palomar",SkillLevel.L1)],
-        "computation":      [("complexity","Complejidad",SkillLevel.L1),("algo_design","Algoritmos",SkillLevel.L1),("decidability","Decidibilidad",SkillLevel.L1),("turing","Turing",SkillLevel.L1),("automata","Autómatas",SkillLevel.L1)],
-        "geometry":         [("euclidean","Euclidiana",SkillLevel.L1),("coord_geom","Coordenadas",SkillLevel.L1),("area_vol","Área/Volumen",SkillLevel.L1),("circles","Círculos",SkillLevel.L1),("triangles","Triángulos",SkillLevel.L1)],
-        "lean-tactics":     [("tac_simp","simp",SkillLevel.L1),("tac_ring","ring",SkillLevel.L1),("tac_norm_num","norm_num",SkillLevel.L1),("tac_omega","omega",SkillLevel.L1),("tac_induction","induction",SkillLevel.L1)],
-        "logic":            [("prop_logic","Prop. Lógica",SkillLevel.L1),("pred_logic","Pred. Lógica",SkillLevel.L1),("sat","SAT",SkillLevel.L1),("modal","Modal",SkillLevel.L1),("proof_theory","T. Prueba",SkillLevel.L1)],
-        "number-theory":    [("primality","Primalidad",SkillLevel.L1),("mod_arith","Mod. Aritmética",SkillLevel.L1),("diophantine","Diofánticas",SkillLevel.L1),("nt_theorems","Teoremas NT",SkillLevel.L1),("crypto_nt","NT Cripto",SkillLevel.L1)],
-        "optimization":     [("linear_prog","Prog. Lineal",SkillLevel.L1),("grad_descent","Grad. Desc.",SkillLevel.L1),("convex","Convexa",SkillLevel.L1),("lagrange","Lagrange",SkillLevel.L1),("int_optim","Entera",SkillLevel.L1)],
-        "probability":      [("basic_prob","Prob. Básica",SkillLevel.L1),("cond_prob","Prob. Cond.",SkillLevel.L1),("expectation","Esperanza",SkillLevel.L1),("distributions","Distribuciones",SkillLevel.L1),("markov","Markov",SkillLevel.L1)],
-        "proof-strategies": [("induction","Inducción",SkillLevel.L1),("contradiction","Contradicción",SkillLevel.L1),("contrapositive","Contrapositiva",SkillLevel.L1),("construction","Constructiva",SkillLevel.L1),("cases","Por Casos",SkillLevel.L1)],
-        "set-theory":       [("set_ops","Operaciones",SkillLevel.L1),("cardinality","Cardinalidad",SkillLevel.L1),("ordinals","Ordinales",SkillLevel.L1),("axiom_choice","AC",SkillLevel.L1),("cantor","Cantor",SkillLevel.L1)],
-        "topology":         [("open_closed","Ab./Cerr.",SkillLevel.L1),("compactness","Compacidad",SkillLevel.L1),("connectedness","Conexidad",SkillLevel.L1),("homeomorphism","Homeomorf.",SkillLevel.L1),("homotopy","Homotopía",SkillLevel.L1)],
+        "algebra":          [("factor_poly","Factorizar",1),("group_theory","Grupos",1),("ring_ideal","Ideales",1),("linear_algebra","Algebra Lineal",1),("galois_theory","Galois",1)],
+        "analysis":         [("compute_limit","Limites",1),("differentiate","Derivar",1),("integrate","Integrar",1),("series_conv","Series",1),("real_analysis","Analisis Real",1)],
+        "category-theory":  [("define_functor","Functores",1),("nat_transform","Trans Natural",1),("colimit_const","Colimites",1),("adjunction","Adjunciones",1),("yoneda","Yoneda",1)],
+        "combinatorics":    [("count_perm","Permutaciones",1),("binomial","Binomial",1),("graph_color","Coloracion",1),("partitions","Particiones",1),("pigeonhole","Palomar",1)],
+        "computation":      [("complexity","Complejidad",1),("algo_design","Algoritmos",1),("decidability","Decidibilidad",1),("turing","Turing",1),("automata","Automatas",1)],
+        "geometry":         [("euclidean","Euclidiana",1),("coord_geom","Coordenadas",1),("area_vol","Area y Volumen",1),("circles","Circulos",1),("triangles","Triangulos",1)],
+        "lean-tactics":     [("tac_simp","simp",1),("tac_ring","ring",1),("tac_norm_num","norm_num",1),("tac_omega","omega",1),("tac_induction","induction",1)],
+        "logic":            [("prop_logic","Logica Proposicional",1),("pred_logic","Logica Predicados",1),("sat","SAT",1),("modal","Modal",1),("proof_theory","Teoria Prueba",1)],
+        "number-theory":    [("primality","Primalidad",1),("mod_arith","Aritmetica Modular",1),("diophantine","Diofanticas",1),("nt_theorems","Teoremas NT",1),("crypto_nt","NT Cripto",1)],
+        "optimization":     [("linear_prog","Prog Lineal",1),("grad_descent","Descenso Gradiente",1),("convex","Convexa",1),("lagrange","Lagrange",1),("int_optim","Optimizacion Entera",1)],
+        "probability":      [("basic_prob","Probabilidad Basica",1),("cond_prob","Prob Condicional",1),("expectation","Esperanza",1),("distributions","Distribuciones",1),("markov","Markov",1)],
+        "proof-strategies": [("induction","Induccion",1),("contradiction","Contradiccion",1),("contrapositive","Contrapositiva",1),("construction","Constructiva",1),("cases","Por Casos",1)],
+        "set-theory":       [("set_ops","Operaciones Conjuntos",1),("cardinality","Cardinalidad",1),("ordinals","Ordinales",1),("axiom_choice","Axioma Eleccion",1),("cantor","Cantor",1)],
+        "topology":         [("open_closed","Abiertos Cerrados",1),("compactness","Compacidad",1),("connectedness","Conexidad",1),("homeomorphism","Homeomorfismo",1),("homotopy","Homotopia",1)],
     }
-    for skill_id, name, level in category_skills.get(category, []):
-        graph.add_skill(SkillNode(skill_id=skill_id, name=name, level=level))
+    for sid, name, level in category_skills.get(category, []):
+        graph.add_skill(Skill(id=sid, name=name, level=level))
 
     return graph
 
@@ -280,10 +280,9 @@ def record_to_state(rec: Dict[str, Any], graph, category: str):
     query = rec.get("problem", rec.get("query", ""))
     goal  = rec.get("solution", rec.get("answer", ""))
     return State(
-        query=query,
-        goal=goal,
-        skill_graph=graph,
-        context={"category": category, "source": rec.get("source", "")},
+        lean_goal=query,          # query text stored in lean_goal for encode_query
+        graph_snapshot={"category": category, "source": rec.get("source", "")},
+        metrics={"expected_goal": hash(goal) % 1000},
     )
 
 
@@ -308,7 +307,7 @@ def train_phase1_routing(
     history = []
 
     for epoch in range(1, args.epochs + 1):
-        agent.network.train()
+        agent._network.train()
         np.random.shuffle(train_data)
         correct = total = 0
         total_loss = 0.0
@@ -335,7 +334,7 @@ def train_phase1_routing(
 
         val_acc = 0.0
         if val_data:
-            agent.network.eval()
+            agent._network.eval()
             val_correct = sum(
                 1 for rec in val_data
                 if agent.select_action(
@@ -378,6 +377,7 @@ def train_phase2_tactics(
     """
     import torch
     import torch.nn.functional as F
+    from nucleo.rl.networks import encode_query
 
     best_tactic_acc = 0.0
     history = []
@@ -403,10 +403,10 @@ def train_phase2_tactics(
 
     # Necesitamos la capa de salida de tácticas en el network
     # Si el network no tiene tactic_head, lo añadimos sobre la marcha
-    network = agent.network
+    network = agent._network
+    from nucleo.rl.networks import VOCAB_SIZE as _VOCAB_SIZE
     if not hasattr(network, "tactic_head"):
-        hidden = getattr(network, "hidden_dim", 128)
-        network.tactic_head = torch.nn.Linear(hidden, len(TACTICS))
+        network.tactic_head = torch.nn.Linear(_VOCAB_SIZE, len(TACTICS))
         if args.device != "cpu":
             network.tactic_head = network.tactic_head.to(args.device)
         # Optimizador separado solo para la cabeza de tácticas
@@ -435,7 +435,7 @@ def train_phase2_tactics(
                 state = record_to_state(rec, graph, category)
                 # Obtener embedding del query desde el agente
                 try:
-                    emb = agent.network.encode_query(state.query)
+                    emb = encode_query(state.lean_goal or "")
                     if emb is None:
                         continue
                     logits = network.tactic_head(emb.unsqueeze(0))
@@ -468,7 +468,7 @@ def train_phase2_tactics(
                 for rec, tactic_idx in val_labeled:
                     try:
                         state = record_to_state(rec, graph, category)
-                        emb   = agent.network.encode_query(state.query)
+                        emb   = encode_query(state.lean_goal or "")
                         if emb is None:
                             continue
                         logits = network.tactic_head(emb.unsqueeze(0))
@@ -584,12 +584,13 @@ def train_category(category: str, args: argparse.Namespace,
         learning_rate=args.lr,
         batch_size=args.batch_size,
     )
-    agent = NucleoAgent(skill_graph=graph, config=config, use_neural=True)
+    agent = NucleoAgent(graph=graph, config=config, use_neural=True)
 
     # Mover red a GPU si está disponible
-    if args.device != "cpu" and hasattr(agent, "network"):
+    if args.device != "cpu" and agent._network is not None:
         try:
-            agent.network = agent.network.to(args.device)
+            import torch
+            agent._network = agent._network.to(args.device)
             logger.info(f"  [{category}] Red movida a {args.device}")
         except Exception as e:
             logger.warning(f"  [{category}] No se pudo mover a GPU: {e}")
@@ -599,7 +600,7 @@ def train_category(category: str, args: argparse.Namespace,
     if BASE_WEIGHTS.exists():
         try:
             sd = torch.load(str(BASE_WEIGHTS), map_location=args.device)
-            agent.network.load_state_dict(sd, strict=False)
+            agent._network.load_state_dict(sd, strict=False)
             logger.info(f"  [{category}] Pesos globales cargados")
             cat_log.info(f"Pesos base cargados: {BASE_WEIGHTS}")
         except Exception as e:
@@ -610,7 +611,7 @@ def train_category(category: str, args: argparse.Namespace,
     if best_ckpt.exists():
         try:
             ckpt = torch.load(str(best_ckpt), map_location=args.device)
-            agent.network.load_state_dict(ckpt.get("network", ckpt), strict=False)
+            agent._network.load_state_dict(ckpt.get("network", ckpt), strict=False)
             if "optimizer" in ckpt and hasattr(agent, "optimizer"):
                 agent.optimizer.load_state_dict(ckpt["optimizer"])
             logger.info(f"  [{category}] Checkpoint propio cargado")
@@ -654,7 +655,7 @@ def train_category(category: str, args: argparse.Namespace,
     AGENTS_DIR.mkdir(parents=True, exist_ok=True)
     final_path = AGENTS_DIR / f"{category}.pt"
     torch.save({
-        "network":        agent.network.state_dict(),
+        "network":        agent._network.state_dict(),
         "category":       category,
         "history":        all_history,
         "tactic_to_idx":  TACTIC_TO_IDX,
@@ -685,7 +686,7 @@ def _save_checkpoint(agent, category: str, epoch: int,
         except Exception:
             pass
     torch.save({
-        "network":    agent.network.state_dict(),
+        "network":    agent._network.state_dict(),
         "category":   category,
         "epoch":      epoch,
         metric_name:  metric,
@@ -822,6 +823,21 @@ def main():
     with open(summary_path, "w", encoding="utf-8") as f:
         json.dump(all_results, f, indent=2, ensure_ascii=False)
     logger.info(f"\nResumen → {summary_path}")
+
+    # ── Copiar mejores checkpoints a carpeta best/ para no perderlos ──
+    import shutil
+    best_dir = AGENTS_DIR / "best"
+    best_dir.mkdir(exist_ok=True)
+    copied = 0
+    for r in all_results:
+        if r.get("skipped") or r.get("error"):
+            continue
+        cat = r.get("category", "")
+        src = AGENTS_DIR / f"{cat}_best.pt"
+        if src.exists():
+            shutil.copy2(str(src), str(best_dir / f"{cat}_best.pt"))
+            copied += 1
+    logger.info(f"Mejores checkpoints copiados a {best_dir}  ({copied} archivos)")
 
 
 if __name__ == "__main__":

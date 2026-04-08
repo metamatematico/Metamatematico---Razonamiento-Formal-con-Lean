@@ -35,7 +35,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 DATASETS_DIR = Path("E:/MetamatematicoDataSet")
-OUTPUT_DIR   = Path("E:/datadeentrenamientovalidacion_test/by_category")
+OUTPUT_DIR   = Path("E:/Metamatematico/training/by_category")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Keywords por categoría para clasificar problemas sin etiqueta explícita
@@ -718,6 +718,9 @@ def extract_omni_math() -> list[dict]:
             p = r.get("problem", "")
             s = r.get("solution", "")
             domain = r.get("domain", "")
+            # domain puede ser lista (e.g. ["Algebra"]) o string
+            if isinstance(domain, list):
+                domain = domain[0] if domain else ""
             if p and s:
                 cat = DOMAIN_TO_CAT.get(domain, classify_problem(p))
                 results.append(record(p, s, cat, "omni_math"))
@@ -909,9 +912,9 @@ def main():
         before[remap_category(r.get("category", "?"))] += 1
     for cat in CATEGORIES_14:
         n = before.get(cat, 0)
-        bar = "█" * min(40, n // 200)
-        status = "✅" if n >= args.target else ("⚠️" if n >= 500 else "❌")
-        print(f"  {status} {cat:<20} {n:>7}  {bar}")
+        bar = "#" * min(40, n // 200)
+        status = "[OK]" if n >= args.target else ("[LOW]" if n >= 500 else "[MISS]")
+        print(f"  {status:<6} {cat:<20} {n:>7}  {bar}")
 
     if args.dry_run:
         print("\n[dry-run] No se guardaron archivos.")
@@ -928,8 +931,8 @@ def main():
         tr = len(splits[cat]["train"])
         vl = len(splits[cat]["val"])
         te = len(splits[cat]["test"])
-        status = "✅" if n >= args.target else ("⚠️" if n >= 500 else "❌")
-        print(f"  {status} {cat:<20} total={n:>6}  train={tr:>5}  val={vl:>4}  test={te:>4}")
+        status = "[OK]" if n >= args.target else ("[LOW]" if n >= 500 else "[MISS]")
+        print(f"  {status:<6} {cat:<20} total={n:>6}  train={tr:>5}  val={vl:>4}  test={te:>4}")
         total += n
 
     save_splits(splits, OUTPUT_DIR)
@@ -939,7 +942,7 @@ def main():
     print("\n  Siguiente paso:")
     print("    python scripts/train_multiagent.py --category algebra")
     print("    python scripts/train_multiagent.py --all")
-    print("\n✅ Balance completado.")
+    print("\n[DONE] Balance completado.")
 
 
 if __name__ == "__main__":
