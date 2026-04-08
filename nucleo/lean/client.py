@@ -121,6 +121,57 @@ class LeanClient:
         self.lean_path = lean_path
         self.timeout_s = timeout_ms / 1000.0
 
+    # Header mínimo garantizado para que ring, linarith, nlinarith, norm_num
+    # y las instancias de ℝ/ℕ/ℤ estén disponibles sin depender del LLM.
+    _SAFE_HEADER = (
+        "import Mathlib.Tactic.Ring\n"
+        "import Mathlib.Tactic.Linarith\n"
+        "import Mathlib.Tactic.NormNum\n"
+        "import Mathlib.Tactic.Omega\n"
+        "import Mathlib.Tactic.Positivity\n"
+        "import Mathlib.Algebra.Order.Field.Basic\n"
+        "import Mathlib.Data.Real.Basic\n"
+        "open Real\n\n"
+    )
+
+    def _normalize_code(self, code: str) -> str:
+        """
+        Asegura que el código tenga los imports mínimos necesarios.
+
+        - Si el código ya tiene `import Mathlib` (monolítico) lo deja.
+        - Si tiene imports parciales de Mathlib, prepend el _SAFE_HEADER
+          solo para los módulos que falten.
+        - Si no tiene ningún import, añade el header completo.
+        """
+        lines = code.lstrip().splitlines()
+        has_full_mathlib = any(
+            l.strip() == "import Mathlib" for l in lines
+        )
+        if has_full_mathlib:
+            return code  # Mathlib completo incluye todo
+
+        # Detectar imports existentes de Mathlib
+        existing = {l.strip() for l in lines if l.strip().startswith("import")}
+        needed = []
+        for imp_line in self._SAFE_HEADER.splitlines():
+            if imp_line.startswith("import") and imp_line.strip() not in existing:
+                needed.append(imp_line)
+
+        if not needed:
+            return code  # Ya tiene todos los imports necesarios
+
+        header = "\n".join(needed) + "\n"
+        # Insertar después de los imports existentes del usuario, antes del código
+        insert_at = 0
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            if stripped.startswith("import") or stripped.startswith("open") or stripped == "":
+                insert_at = i + 1
+            else:
+                break
+        result_lines = lines[:insert_at] + header.splitlines() + lines[insert_at:]
+        return "\n".join(result_lines)
+
     async def check_code(self, code: str) -> LeanResult:
         """
         Verificar codigo Lean arbitrario.
@@ -133,6 +184,8 @@ class LeanClient:
         """
         import time
         start = time.perf_counter()
+
+        code = self._normalize_code(code)
 
         # Crear archivo temporal con el codigo
         with tempfile.NamedTemporaryFile(

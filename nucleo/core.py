@@ -733,10 +733,24 @@ class Nucleo:
         else:
             error_info = self._analyze_lean_errors(result)
             first_err  = result.get_first_error() or "error desconocido"
+            err_type   = error_info.get("type", "unknown")
+            # Mensajes de diagnóstico específicos según el tipo de error
+            _LEAN_HINTS = {
+                "unknown identifier": "posiblemente falta un `open` o un import de Mathlib.",
+                "type mismatch":      "los tipos no coinciden; puede faltar una coerción o instancia.",
+                "application type mismatch": "argumentos aplicados incorrectamente; revisa la aridad.",
+                "failed to synthesize": "falta una instancia de typeclass (e.g., `Field ℝ`, `OrderedField`).",
+                "function expected":  "se usó algo como función que no lo es.",
+                "tactic failed":      "la táctica no cerró el goal; prueba `ring_nf` o `simp [*]` primero.",
+            }
+            hint = next(
+                (h for k, h in _LEAN_HINTS.items() if k in first_err.lower()),
+                "revisa la sintaxis Lean 4 y los imports de Mathlib."
+            )
             verification_status = "no_verificado"
             verification_note = (
-                f"Lean 4 reportó un error (`{error_info.get('type', 'unknown')}`): "
-                f"{first_err}. La formalización puede requerir ajustes."
+                f"Lean 4 detectó un error de tipo `{err_type}`: {first_err}. "
+                f"Diagnóstico: {hint}"
             )
             confidence    = 0.6
             success_value = 0.2
