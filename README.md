@@ -21,13 +21,14 @@
 4. [Memory Evolutive Systems (MES)](#4-memory-evolutive-systems-mes)
 5. [Red Neuronal GNN + PPO](#5-red-neuronal-gnn--ppo)
 6. [Co-Reguladores](#6-co-reguladores)
-7. [Tests](#7-tests)
-8. [Datasets](#datasets)
-9. [Aplicación Web](#9-aplicación-web)
-10. [Entrenamiento](#10-entrenamiento)
-11. [Estructura del Repositorio](#11-estructura-del-repositorio)
-12. [Instalación](#12-instalación)
-13. [Fundamento Teórico](#13-fundamento-teórico)
+7. [Cómo funciona: flujo completo de una consulta](#7-cómo-funciona-flujo-completo-de-una-consulta)
+8. [Tests](#8-tests)
+9. [Datasets](#datasets)
+10. [Aplicación Web](#10-aplicación-web)
+11. [Entrenamiento](#11-entrenamiento)
+12. [Estructura del Repositorio](#12-estructura-del-repositorio)
+13. [Instalación](#13-instalación)
+14. [Fundamento Teórico](#14-fundamento-teórico)
 
 ---
 
@@ -354,7 +355,187 @@ En la práctica, los 4 co-reguladores son filtros/enrutadores que procesan cada 
 
 ---
 
-## Datasets
+## 7. Cómo funciona: flujo completo de una consulta
+
+Esta sección explica, paso a paso y sin asumir conocimientos previos de IA, qué ocurre dentro del sistema desde el momento en que el usuario escribe una pregunta hasta que aparece la respuesta en pantalla.
+
+---
+
+### El principio fundamental
+
+> **El sistema nunca inventa matemáticas.** El LLM (Claude, Gemini, etc.) se usa únicamente como traductor — para convertir lenguaje natural en código Lean y para volver a convertir el resultado de Lean en palabras entendibles. La decisión de si algo es matemáticamente correcto la toma siempre Lean 4.
+
+Piénsalo así: el LLM es como un intérprete bilingüe que traduce entre español y el lenguaje formal de Lean. El juez que dice "esto es correcto" o "esto está mal" es Lean, no el intérprete.
+
+---
+
+### Vista panorámica
+
+```
+ ┌─────────────────────────────────────────────────────────────────────┐
+ │                        USUARIO                                      │
+ │   "demuestra que la raíz de 2 es irracional"                        │
+ └──────────────────────┬──────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 1 — ¿Es una pregunta matemática?                               │
+ │  El sistema busca símbolos (∀ ∃ ∈ ℝ), LaTeX (\sqrt) y palabras      │
+ │  clave (irracional, grupo, integral, primo, demostrar…)              │
+ │                                                                      │
+ │  SÍ → pipeline matemático (pasos 2–8)                                │
+ │  NO → responde directamente con el LLM (saludo, pregunta general)    │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │ (es matemática)
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 2 — Co-Reguladores votan la estrategia                         │
+ │                                                                      │
+ │  CR_tac  → "¿contiene código Lean ya escrito?" → ASSIST o RESPONSE   │
+ │  CR_org  → "¿es multi-paso?"                                         │
+ │  CR_str  → "¿qué estrategia global conviene?"                        │
+ │  CR_int  → árbitro: elige la opción con mayor consenso               │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 3 — Agente especializado (GNN + PPO)                           │
+ │                                                                      │
+ │  El MultiAgentOrchestrator clasifica la pregunta en una de           │
+ │  14 categorías (álgebra, análisis, topología, teoría de números…)    │
+ │  y activa el agente entrenado para esa categoría.                    │
+ │                                                                      │
+ │  Ejemplo: "raíz de 2 irracional" → agente number-theory             │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 4 — Búsqueda de ejemplos similares (few-shot)                  │
+ │                                                                      │
+ │  El sistema busca en su banco de 157 pruebas de miniF2F              │
+ │  ejemplos parecidos al problema actual. Estos ejemplos se            │
+ │  incluyen en el prompt para que el LLM tenga referencias concretas.  │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 5 — LLM formaliza el enunciado en Lean 4                       │
+ │                                                                      │
+ │  El LLM actúa como "formalizador": su única tarea es escribir        │
+ │  el enunciado y, si puede, la prueba en código Lean 4.               │
+ │                                                                      │
+ │  Entrada: "demuestra que √2 es irracional"                           │
+ │  Salida:  theorem sqrt2_irrat : Irrational (Real.sqrt 2) := by ...   │
+ │                                                                      │
+ │  Si el LLM no sabe la prueba completa, escribe `sorry` como          │
+ │  marcador (equivalente a "pendiente de demostrar").                  │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 5b — Normalización del código (automática)                     │
+ │                                                                      │
+ │  Antes de enviar a Lean, el sistema repara el código automáticamente:│
+ │  • Inyecta imports de Mathlib faltantes según el contenido           │
+ │    (InnerProductSpace, Topology, Calculus, etc.)                     │
+ │  • Renombra lemas obsoletos a sus nombres actuales                   │
+ │  • Añade la cabecera base con Ring, Linarith, NormNum, Omega         │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 6 — Lean 4 verifica el código                                  │
+ │                                                                      │
+ │  Lean compila el código. Hay tres posibles resultados:               │
+ │                                                                      │
+ │  ✅ ÉXITO    → la prueba es correcta, confianza: 95%                 │
+ │  ⚠ SORRY   → la estructura es válida pero hay huecos → Paso 6b      │
+ │  ❌ ERROR   → la prueba tiene errores → se diagnostica y reporta     │
+ └──────────────────┬───────────────┬──────────────────────────────────-┘
+                    │(sorry)        │(error)
+                    ▼               ▼
+ ┌──────────────────────┐  ┌────────────────────────────────────────────┐
+ │  PASO 6b             │  │  Diagnóstico de error                      │
+ │  SolverCascade       │  │                                            │
+ │  intenta tácticas    │  │  El sistema identifica el tipo de error:   │
+ │  automáticamente:    │  │  • unknown identifier → falta un import    │
+ │                      │  │  • type mismatch → tipos incompatibles     │
+ │  rfl   (trivial)     │  │  • failed to synthesize → falta typeclass  │
+ │  simp  (simplificar) │  │  • tactic failed → táctica no cierra goal  │
+ │  ring  (álgebra)     │  │                                            │
+ │  omega (aritmética)  │  │  Esta información se incluye en la         │
+ │  aesop (heurística)  │  │  respuesta para que el usuario entienda    │
+ │                      │  │  qué necesita corregirse.                  │
+ └──────────┬───────────┘  └────────────────────────────────────────────┘
+            │
+            ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 7 — LLM traduce el resultado a lenguaje natural                │
+ │                                                                      │
+ │  El LLM ahora actúa como "traductor": recibe el código Lean          │
+ │  y el estado de verificación, y genera una explicación en tres       │
+ │  secciones:                                                          │
+ │                                                                      │
+ │  ## ¿Qué dice este resultado?                                        │
+ │  [En tus palabras, sin jerga técnica]                                │
+ │                                                                      │
+ │  ## ¿Cómo lo demuestra Lean?                                         │
+ │  [Qué hace cada táctica importante]                                  │
+ │                                                                      │
+ │  ## ¿Por qué es correcto?                                            │
+ │  [La intuición matemática detrás del argumento]                      │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 8 — Aprendizaje y memoria                                      │
+ │                                                                      │
+ │  El resultado se registra en la memoria MES del sistema:             │
+ │  • ¿La prueba fue exitosa? → refuerzo positivo en PPO                │
+ │  • El patrón (query → táctica → resultado) se guarda                 │
+ │  • Si el mismo tipo de problema aparece de nuevo, el sistema         │
+ │    ya tiene experiencia previa y mejora su respuesta                 │
+ │  • Los pesos del agente se actualizan cada 10 interacciones          │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  RESPUESTA AL USUARIO                                                │
+ │                                                                      │
+ │  [Explicación en lenguaje natural]                                   │
+ │  ──────────────────────────────                                      │
+ │  ✅ Lean 4: verificado formalmente                                   │
+ │                                                                      │
+ │  ```lean                                                             │
+ │  theorem sqrt2_irrat : Irrational (Real.sqrt 2) := by               │
+ │    exact irrational_sqrt_two                                         │
+ │  ```                                                                 │
+ └──────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### ¿Qué ocurre si no es una pregunta matemática?
+
+Si el usuario escribe "hola" o "¿qué eres?", el sistema detecta que no hay contenido matemático y responde directamente con el LLM usando el contexto del grafo de skills, sin invocar Lean. El tiempo de respuesta es mucho menor en este caso.
+
+---
+
+### ¿Qué muestra la pestaña de Visualizaciones?
+
+Después de cada consulta, el botón **"📊 Ver grafo · embeddings…"** abre un panel con:
+
+| Pestaña | Qué muestra |
+|---|---|
+| **Grafo de Skills** | Los 76 nodos del grafo categórico. Los skills activados por tu consulta se resaltan en amarillo; sus dependencias en morado; las tácticas usadas en verde. |
+| **Embeddings** | Proyección t-SNE/PCA de los 76 skills en 2D. Las **estrellas naranjas** son tus consultas del chat, proyectadas en el mismo espacio vectorial — su posición indica qué dominio matemático el sistema asoció a cada pregunta. |
+| **MES / Complexificación** | El patrón P que activó tu consulta y el colímite resultante — cómo el sistema sintetizó conocimientos para responder. |
+| **Pipeline** | El diagrama de flujo completo del sistema en tiempo real. |
+| **Agentes** | El árbol jerárquico de los 14 agentes especializados y sus métricas de entrenamiento (F1/F2). |
+
+---
+
+## 9. Datasets
 
 El sistema integra **5.4M+ ejemplos matemáticos** de datasets públicos, organizados en 14 categorías balanceadas:
 
@@ -377,7 +558,7 @@ Los splits balanceados (80/10/10 con upsampling para categorías pequeñas como 
 
 ---
 
-## 7. Tests
+## 8. Tests
 
 ```bash
 python -m pytest tests/ -o "addopts=" -v
@@ -405,7 +586,7 @@ python -m pytest tests/ -o "addopts=" -v
 
 ---
 
-## 9. Aplicación Web
+## 10. Aplicación Web
 
 La interfaz Streamlit permite usar el sistema sin escribir código:
 
@@ -431,7 +612,7 @@ La visualización (`pages/1_Visualizaciones.py`) muestra el grafo de skills en t
 
 ---
 
-## 10. Entrenamiento
+## 11. Entrenamiento
 
 El entrenamiento del sistema tiene tres etapas independientes. Pueden correrse por separado.
 
@@ -500,7 +681,7 @@ Esto guarda 2,371 patrones iniciales en `data/memory.json`.
 
 ---
 
-## 11. Estructura del Repositorio
+## 12. Estructura del Repositorio
 
 ```
 Metamatematico/
@@ -576,7 +757,7 @@ Metamatematico/
 
 ---
 
-## 12. Instalación
+## 13. Instalación
 
 ```bash
 git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
@@ -626,7 +807,7 @@ python -m nucleo chat
 
 ---
 
-## 13. Fundamento Teórico
+## 14. Fundamento Teórico
 
 El NLE v7.0 está basado en el artículo **"Núcleo Lógico Evolutivo v7.0 — Memory Evolutive Systems y Razonamiento Formal"** (Jiménez Martínez, BIOMAT 2025), disponible en `docs/`.
 
