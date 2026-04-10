@@ -365,7 +365,15 @@ Esta sección explica, paso a paso y sin asumir conocimientos previos de IA, qu�
 
 > **El sistema nunca inventa matemáticas.** El LLM (Claude, Gemini, etc.) se usa únicamente como traductor — para convertir lenguaje natural en código Lean y para volver a convertir el resultado de Lean en palabras entendibles. La decisión de si algo es matemáticamente correcto la toma siempre Lean 4.
 
-Piénsalo así: el LLM es como un intérprete bilingüe que traduce entre español y el lenguaje formal de Lean. El juez que dice "esto es correcto" o "esto está mal" es Lean, no el intérprete.
+Piénsalo con esta analogía de tres actores:
+
+| Actor | Rol en la analogía | Rol real en el sistema |
+|---|---|---|
+| **NLE — Núcleo Lógico Evolutivo** | El **director de orquesta**: recibe la consulta, decide qué experto debe atenderla, coordina todos los pasos, aprende de cada interacción y gestiona la memoria del sistema | `nucleo/core.py` — orquesta CRs, agentes, Lean y LLM |
+| **LLM** (Claude, Gemini…) | El **intérprete bilingüe**: traduce la pregunta del usuario al lenguaje formal de Lean, y al final traduce el resultado de Lean de vuelta a palabras entendibles | Formalización → Lean 4; traducción → lenguaje natural |
+| **Lean 4** | El **juez inapelable**: recibe el código y dice "correcto" o "incorrecto". No negocia ni opina — solo verifica | Verificador formal, fuente de verdad matemática |
+
+El NLE es quien dirige: sin él, el LLM y Lean son herramientas sin conexión. El NLE decide *cuándo* llamar al LLM, *qué* enviar a Lean, *qué hacer* si Lean rechaza el código, *cómo* aprender del resultado y *qué* mostrarle finalmente al usuario.
 
 ---
 
