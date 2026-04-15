@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-379_passing-brightgreen.svg)](#7-tests)
+[![Tests](https://img.shields.io/badge/Tests-352_passing-brightgreen.svg)](#8-tests)
 [![Agentes](https://img.shields.io/badge/Agentes-18_col%C3%ADmites-blueviolet.svg)](#3-sistema-multi-agente-jerarquía-de-colímites)
 [![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-546K_params-red.svg)](#5-red-neuronal-gnn--ppo)
 [![Dataset](https://img.shields.io/badge/Dataset-5.4M_ejemplos-orange.svg)](#datasets)
@@ -316,6 +316,8 @@ Entrada: query (texto) + grafo de skills (PyG)
 
 El reward promedio de ~0.57 refleja la distribución real del dataset: ~70% problemas aritméticos donde `norm_num` verifica (+1.0) y ~30% álgebra abstracta donde no hay respuesta numérica (+0.5 base). Esta discriminación es la señal que el PPO aprende.
 
+> **Checkpoint activo**: `data/neural_agent.json.pt` contiene los pesos de la Fase 2 (`epoch_005`, avg_reward=0.578). Se cargan automáticamente al iniciar el sistema. Los pesos de Fase 1 (supervisado puro) están disponibles en `data/neural_agent.json.pt.phase1_backup`.
+
 ### Aprendizaje vivo
 
 Cada interacción del usuario alimenta el ciclo de aprendizaje:
@@ -388,11 +390,30 @@ El NLE es quien dirige: sin él, el LLM y Lean son herramientas sin conexión. E
                         ▼
  ┌──────────────────────────────────────────────────────────────────────┐
  │  PASO 1 — ¿Es una pregunta matemática?                               │
- │  El sistema busca símbolos (∀ ∃ ∈ ℝ), LaTeX (\sqrt) y palabras      │
- │  clave (irracional, grupo, integral, primo, demostrar…)              │
+ │  El sistema busca símbolos (∀ ∃ ∈ ℝ), LaTeX (\sqrt) y 80+           │
+ │  palabras clave, incluyendo nombres propios y variantes con acento   │
+ │  (pitágoras/pitagoras, raíz/raiz, irracional…)                       │
  │                                                                      │
- │  SÍ → pipeline matemático (pasos 2–8)                                │
+ │  SÍ → Paso 1b                                                        │
  │  NO → responde directamente con el LLM (saludo, pregunta general)    │
+ └──────────────────────┬───────────────────────────────────────────────┘
+                        │ (es matemática)
+                        ▼
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │  PASO 1b — ¿Es una consulta educativa/histórica/visual?              │
+ │                                                                      │
+ │  Si contiene patrones como "demostración geométrica",                │
+ │  "como lo enunció [autor]", "al estilo de Euclides",                 │
+ │  "prueba clásica", "intuición"… el sistema detecta que              │
+ │  el usuario quiere una explicación visual o histórica,               │
+ │  no un bloque de Lean 4.                                             │
+ │                                                                      │
+ │  SÍ → _math_educational_explanation()                                │
+ │        LLM responde en lenguaje natural rico con:                    │
+ │        1. Enunciado formal (LaTeX), 2. Contexto histórico,           │
+ │        3. Demostración geométrica/visual, 4. Nota Lean (breve)       │
+ │                                                                      │
+ │  NO → pipeline matemático Lean-primero (pasos 2–8)                   │
  └──────────────────────┬───────────────────────────────────────────────┘
                         │ (es matemática)
                         ▼
@@ -430,13 +451,19 @@ El NLE es quien dirige: sin él, el LLM y Lean son herramientas sin conexión. E
  │  PASO 5 — LLM formaliza el enunciado en Lean 4                       │
  │                                                                      │
  │  El LLM actúa como "formalizador": su única tarea es escribir        │
- │  el enunciado y, si puede, la prueba en código Lean 4.               │
+ │  UN SOLO bloque de código Lean 4 con el enunciado y, si puede,       │
+ │  la prueba. El prompt incluye referencias hardcoded de Mathlib       │
+ │  para los teoremas clásicos más pedidos.                             │
  │                                                                      │
  │  Entrada: "demuestra que √2 es irracional"                           │
- │  Salida:  theorem sqrt2_irrat : Irrational (Real.sqrt 2) := by ...   │
+ │  Salida:  theorem sqrt2_irrat : Irracional (Real.sqrt 2) := by ...   │
  │                                                                      │
- │  Si el LLM no sabe la prueba completa, escribe `sorry` como          │
- │  marcador (equivalente a "pendiente de demostrar").                  │
+ │  Si el LLM no sabe la prueba completa, usa `sorry` como marcador.   │
+ │                                                                      │
+ │  ⚠ Guardia anti-tautología: si el LLM genera código trivial         │
+ │  (toma la ecuación principal como hipótesis y la concluye           │
+ │  por simetría), el sistema detecta el patrón y regenera con         │
+ │  un prompt más estricto que exige tipos de Mathlib reales.          │
  └──────────────────────┬───────────────────────────────────────────────┘
                         │
                         ▼
@@ -607,14 +634,32 @@ PYTHONIOENCODING=utf-8 streamlit run app.py
 
 Abre en: `http://localhost:8501`
 
+### Diseño visual
+
+La interfaz usa una paleta cálida oscura (inspirada en plataformas de juegos de estrategia clásica): fondo carbón-marrón `#1c1917`, acentos ámbar/dorado `#d4a853`, tipografía Sora. El hero central incluye una textura de cuadrícula y una animación de pulso suave que enfatiza el carácter de sistema vivo y evolutivo.
+
+### Funcionalidades de la interfaz
+
+| Funcionalidad | Descripción |
+|---|---|
+| **Chat multi-turno** | Conversación continua con historial de sesión. El contexto se sincroniza con la memoria interna del NLE. |
+| **Adjuntar archivos (📎)** | Botón paperclip bajo la barra de chat. Soporta `.txt`, `.tex` y `.pdf`. El sistema extrae el texto y lanza un pipeline de verificación matemática de 6 pasos: identificar el tipo de resultado, verificar la demostración, evaluar conjeturas abiertas, sugerir Lean 4 y dar un veredicto. |
+| **Ejemplos rápidos** | 4 botones de ejemplo preconfigurados en la parte superior (√2 irracional, Lema de Yoneda, Lean 4 directo, Curry-Howard). |
+| **Visualizaciones** | Botón "📊 Ver grafo · embeddings · traza categórica" que abre el panel de visualización tras cada consulta. |
+| **Enrutamiento educativo** | Cuando el usuario pide una "demostración geométrica", "como lo enunció [autor]" o "al estilo de Euclides", el sistema detecta la intención histórica/visual y responde en lenguaje natural enriquecido antes de presentar el Lean 4. |
+
+### Modo Demo (sin API key)
+
+Si no se configura ninguna API key, el sistema entra en **modo demo**: en lugar de respuestas genéricas, entrega contenido matemático real estructurado que incluye enunciado formal, demostración clásica, código Lean 4 funcional con Mathlib, y referencias. Actualmente cubre: Teorema de Pitágoras, irracionalidad de √2, Lema de Yoneda, Correspondencia Curry-Howard.
+
 ### Proveedores LLM soportados
 
 | Proveedor | Modelos | Costo |
 |---|---|---|
-| **Google AI Studio** | Gemini 2.0 Flash, 1.5 Pro | Gratis (con cuota) |
+| **Google AI Studio** | Gemini 2.0 Flash, Gemini 1.5 Pro | Gratis (con cuota) |
 | **Groq** | Llama 3.3 70B, Mixtral 8x7B | Gratis |
-| **Anthropic** | Claude Haiku, Sonnet | De pago |
-| **Demo** | Respuesta local sin API | Sin key — funcionalidad limitada |
+| **Anthropic** | Claude Haiku 4.5, Claude Sonnet 4.6 | De pago |
+| **Demo** | Contenido matemático local | Sin key |
 
 La visualización (`pages/1_Visualizaciones.py`) muestra el grafo de skills en tiempo real, los morfismos activos, el historial de complexificaciones y la traza de la última prueba Lean.
 

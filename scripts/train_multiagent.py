@@ -435,14 +435,11 @@ def train_phase2_tactics(
                 state = record_to_state(rec, graph, category)
                 # Obtener embedding del query desde el agente
                 try:
-                    emb = encode_query(state.lean_goal or "")
+                    emb = encode_query(state.lean_goal or "").to(args.device)
                     if emb is None:
                         continue
                     logits = network.tactic_head(emb.unsqueeze(0))
-                    target = torch.tensor([tactic_idx], dtype=torch.long)
-                    if args.device != "cpu":
-                        logits = logits.to(args.device)
-                        target = target.to(args.device)
+                    target = torch.tensor([tactic_idx], dtype=torch.long, device=args.device)
                     loss = F.cross_entropy(logits, target)
                     batch_loss += loss
                     pred = logits.argmax(dim=-1).item()
@@ -468,7 +465,7 @@ def train_phase2_tactics(
                 for rec, tactic_idx in val_labeled:
                     try:
                         state = record_to_state(rec, graph, category)
-                        emb   = encode_query(state.lean_goal or "")
+                        emb   = encode_query(state.lean_goal or "").to(args.device)
                         if emb is None:
                             continue
                         logits = network.tactic_head(emb.unsqueeze(0))

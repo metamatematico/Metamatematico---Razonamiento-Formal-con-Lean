@@ -322,6 +322,26 @@ def build_graph():
     return G
 
 
+def build_graph_live(vd: dict) -> nx.DiGraph:
+    """Construye el grafo desde datos en vivo de get_viz_data() del sistema real."""
+    G = nx.DiGraph()
+    for node in vd.get("graph_nodes", []):
+        cat_display = _live_cat(node.get("category", "foundations"))
+        color = PALETTE.get(cat_display, "#42a5f5")
+        G.add_node(node["id"],
+                   name=node.get("name", node["id"]),
+                   level=node.get("level", 1),
+                   cat=cat_display,
+                   color=color)
+    for edge in vd.get("graph_edges", []):
+        src, tgt = edge.get("source"), edge.get("target")
+        mt = edge.get("morphism_type", "DEPENDENCY")
+        kind = ("trans" if "TRANS" in mt else "analogy" if "ANALOG" in mt else "dep")
+        if src and tgt and G.has_node(src) and G.has_node(tgt):
+            G.add_edge(src, tgt, kind=kind)
+    return G
+
+
 @st.cache_data
 def make_layout(_G):
     # Layout jerárquico: x = categoría, y = nivel
@@ -329,17 +349,44 @@ def make_layout(_G):
     pos = {}
     cat_counts = {c: 0 for c in cats}
     for sid, name, level, cat, _ in SKILLS:
-        cx = cats.index(cat)
-        cy = cat_counts[cat]
-        cat_counts[cat] += 1
+        cx = cats.index(cat) if cat in cats else 0
+        cy = cat_counts.get(cat, 0)
+        cat_counts[cat] = cy + 1
+        np.random.seed(hash(sid) % (2**31))
         pos[sid] = (cx * 2.5 + np.random.uniform(-0.4, 0.4),
                     level * -3.0 + cy * 0.28 + np.random.uniform(-0.05, 0.05))
     return pos
 
 
+def make_layout_live(G: nx.DiGraph) -> dict:
+    """Layout jerárquico para grafo en vivo (datos del sistema real)."""
+    cats = list(PALETTE.keys())
+    pos = {}
+    cat_counts: dict = {}
+    for nid, d in G.nodes(data=True):
+        cat = d.get("cat", "Fundamentos")
+        level = d.get("level", 1)
+        cx = cats.index(cat) if cat in cats else 0
+        cy = cat_counts.get(cat, 0)
+        cat_counts[cat] = cy + 1
+        np.random.seed(hash(nid) % (2**31))
+        pos[nid] = (cx * 2.5 + np.random.uniform(-0.4, 0.4),
+                    level * -3.0 + cy * 0.28 + np.random.uniform(-0.05, 0.05))
+    return pos
+
+
 def fig_skill_graph(filter_cat=None, query=None):
-    G = build_graph()
-    pos = make_layout(G)
+    # Usar grafo en vivo cuando hay datos del sistema real disponibles
+    vd = _vd()
+    if vd and vd.get("graph_nodes") and len(vd["graph_nodes"]) > 5:
+        G = build_graph_live(vd)
+        pos = make_layout_live(G)
+        data_source = "vivo"
+    else:
+        G = build_graph()
+        pos = make_layout(G)
+        data_source = "estático"
+    _ = data_source  # usado para depuración
 
     # Calcular nodos relevantes para la consulta
     TACTIC_CATS = ("Tácticas Lean", "Estrategias")
@@ -435,20 +482,30 @@ def fig_skill_graph(filter_cat=None, query=None):
 
 @st.cache_data
 def build_embeddings():
-    np.random.seed(42)
-    cats = list(PALETTE.keys())
+    """
+    Embeddings semánticos de los 76 skills usando el mismo BOW que el sistema real.
+    Skills del mismo dominio se agrupan porque comparten vocabulario matemático.
+    El espacio es compatible con los query embeddings generados por el chat.
+    """
+    from nucleo.graph.embeddings import semantic_embed
+    _cat_rev = {
+        "Fundamentos": "foundations",   "Álgebra": "algebra",
+        "Geometría": "geometry",        "Análisis": "analysis",
+        "Topología": "topology",        "Lógica": "logic",
+        "T. Números": "number-theory",  "Combinatoria": "combinatorics",
+        "Probabilidad": "probability",  "Categorías": "category-theory",
+        "Computación": "computation",   "Optimización": "optimization",
+        "Tácticas Lean": "lean-tactics","Estrategias": "proof-strategies",
+    }
     embs = []
     for sid, name, level, cat, _ in SKILLS:
-        # Hash-seed embedding (simula el SkillEmbeddingModel del sistema)
-        rng = np.random.RandomState(hash(sid) % (2**31))
-        text_emb = rng.randn(256) * 0.5
-        # Añadir señal semántica por categoría
-        cat_signal = np.zeros(256)
-        cat_idx = cats.index(cat)
-        cat_signal[cat_idx * 18: cat_idx * 18 + 18] = 2.0
-        cat_signal[level * 64: level * 64 + 32] += 1.5
-        embs.append(text_emb + cat_signal)
-    return np.array(embs)
+        cat_key = _cat_rev.get(cat, cat.lower())
+        # Texto: nombre del skill + tokens del ID (ej. "group-theory" → "group theory")
+        text = f"{name} {sid.replace('-', ' ')}"
+        text_emb = semantic_embed(text, category=cat_key, level=level, dim=256)
+        struct_emb = np.zeros(64)   # sin grafo en contexto estático
+        embs.append(np.concatenate([text_emb, struct_emb]))
+    return np.array(embs, dtype=np.float32)
 
 
 def fig_tsne(method="tsne", query=None):
@@ -463,17 +520,40 @@ def fig_tsne(method="tsne", query=None):
             embs = build_embeddings()
     else:
         embs = build_embeddings()
+
+    n_skills = len(skill_list)
+
+    # ── Historial de query embeddings del chat ────────────────────────────────
+    query_history = st.session_state.get("query_embeddings", [])
+    q_embs = np.array([q["embedding"] for q in query_history]) if query_history else None
+    q_texts = [q["text"] for q in query_history] if query_history else []
+
+    # Combinar skills + queries para proyección conjunta
+    if q_embs is not None and len(q_embs) > 0:
+        all_embs = np.vstack([embs, q_embs])
+    else:
+        all_embs = embs
+
     if method == "tsne":
-        proj = TSNE(n_components=2, random_state=42, perplexity=15,
-                    n_iter=1000, init="pca").fit_transform(embs)
+        perp = min(15, max(5, len(all_embs) // 3))
+        proj = TSNE(n_components=2, random_state=42, perplexity=perp,
+                    n_iter=1000, init="pca").fit_transform(all_embs)
         xlabel, ylabel = "t-SNE 1", "t-SNE 2"
-        title = "Espacio de Embeddings — t-SNE (76 skills)"
+        n_label = f"{n_skills} skills"
+        if q_embs is not None and len(q_embs) > 0:
+            n_label += f" + {len(q_embs)} quer{'y' if len(q_embs)==1 else 'ies'}"
+        title = f"Espacio de Embeddings — t-SNE ({n_label})"
+        subtitle = "Proximidad = vocabulario matemático compartido"
     else:
         pca = PCA(n_components=2, random_state=42)
-        proj = pca.fit_transform(embs)
-        xlabel = f"PC1 ({pca.explained_variance_ratio_[0]:.0%})"
-        ylabel = f"PC2 ({pca.explained_variance_ratio_[1]:.0%})"
-        title  = "Espacio de Embeddings — PCA (76 skills)"
+        proj = pca.fit_transform(all_embs)
+        xlabel = f"PC1 ({pca.explained_variance_ratio_[0]:.0%} varianza)"
+        ylabel = f"PC2 ({pca.explained_variance_ratio_[1]:.0%} varianza)"
+        n_label = f"{n_skills} skills"
+        if q_embs is not None and len(q_embs) > 0:
+            n_label += f" + {len(q_embs)} quer{'y' if len(q_embs)==1 else 'ies'}"
+        title  = f"Espacio de Embeddings — PCA ({n_label})"
+        subtitle = "PC1/PC2 capturan la mayor varianza entre los vectores BOW"
 
     # Calcular nodos relevantes
     TACTIC_CATS = ("Tácticas Lean", "Estrategias")
@@ -499,14 +579,14 @@ def fig_tsne(method="tsne", query=None):
                        c=[color], s=30, marker=markers[level],
                        edgecolors="#0d1117", linewidths=0.3, alpha=0.18, zorder=3)
 
-    # Luego los relevantes (encima)
+    # Luego los skills relevantes (encima)
     for i, (sid, name, level, cat, color) in enumerate(skill_list):
         in_matched = sid in matched_set
         in_tactic  = sid in tactic_set
         in_dep     = sid in dep_set
-        in_query   = in_matched or in_tactic or in_dep
+        in_q       = in_matched or in_tactic or in_dep
 
-        if query and not in_query:
+        if query and not in_q:
             continue  # ya dibujados arriba
 
         if in_matched:
@@ -523,7 +603,7 @@ def fig_tsne(method="tsne", query=None):
                    edgecolors=ec, linewidths=lw, alpha=0.95, zorder=zord)
 
         # Etiquetas
-        show = in_query or (not query and level == 0)
+        show = in_q or (not query and level == 0)
         if show:
             fc = "#fbbf24" if in_matched else "#4ade80" if in_tactic else \
                  "#93c5fd" if in_dep else color
@@ -534,10 +614,32 @@ def fig_tsne(method="tsne", query=None):
                         arrowprops=dict(arrowstyle="-", color=fc, lw=0.5, alpha=0.5)
                         if in_matched else None)
 
+    # ── Query embeddings del historial del chat ───────────────────────────────
+    if q_embs is not None and len(q_embs) > 0:
+        QUERY_COLOR = "#f97316"   # naranja
+        for j, txt in enumerate(q_texts):
+            qi = n_skills + j
+            is_current = (txt == query)
+            sz  = 380 if is_current else 200
+            ec  = "#ffffff" if is_current else "#f97316"
+            lw  = 2.5 if is_current else 1.5
+            ax.scatter(proj[qi, 0], proj[qi, 1],
+                       c=[QUERY_COLOR], s=sz, marker="*",
+                       edgecolors=ec, linewidths=lw, alpha=0.95, zorder=9)
+            label = (txt[:40] + "…") if len(txt) > 40 else txt
+            ax.annotate(
+                label, (proj[qi, 0], proj[qi, 1]),
+                fontsize=6.8 if is_current else 5.8,
+                color=QUERY_COLOR,
+                fontweight="bold" if is_current else "normal",
+                xytext=(8, 6), textcoords="offset points",
+                arrowprops=dict(arrowstyle="-", color=QUERY_COLOR, lw=0.6, alpha=0.6),
+            )
+
     # Leyenda
     if query:
         handles = [
-            mpatches.Patch(color="#fbbf24", label=f"Activados ({len(matched_set)})"),
+            mpatches.Patch(color="#fbbf24", label=f"Skills activados ({len(matched_set)})"),
             mpatches.Patch(color="#818cf8", label=f"Dependencias ({len(dep_set)})"),
             mpatches.Patch(color="#4ade80", label=f"Tácticas ({len(tactic_set)})"),
             mpatches.Patch(color="#3d444d", label="No involucrados"),
@@ -545,12 +647,16 @@ def fig_tsne(method="tsne", query=None):
         title += f'\n"{query[:55]}{"…" if len(query)>55 else ""}"'
     else:
         handles = [mpatches.Patch(color=c, label=k) for k, c in PALETTE.items()]
+    if q_embs is not None and len(q_embs) > 0:
+        handles.append(plt.Line2D([0], [0], marker="*", color="w",
+                                  markerfacecolor="#f97316", markersize=9,
+                                  label=f"Queries del chat ({len(q_embs)})"))
     ax.legend(handles=handles, loc="upper left", ncol=1, fontsize=6.5,
               framealpha=0.2, edgecolor="#21262d", labelcolor=FG)
 
     ax.set_xlabel(xlabel, color=FG, fontsize=9)
     ax.set_ylabel(ylabel, color=FG, fontsize=9)
-    ax.set_title(title, color=FG, fontsize=10, pad=10)
+    ax.set_title(f"{title}\n{subtitle}", color=FG, fontsize=9, pad=10)
     ax.tick_params(colors=FG, labelsize=7)
     for spine in ax.spines.values():
         spine.set_edgecolor("#21262d")
@@ -1367,18 +1473,61 @@ with tab1:
     st.caption("◆ Nivel 0 (fundamentos)  ●  Nivel 1 (dominios)  ▲ Nivel 2 (estrategias) · Aristas: gris=dependencia, azul=traducción, verde=analogía")
 
 with tab2:
+    _qh = st.session_state.get("query_embeddings", [])
+    st.markdown("### Espacio de embeddings del NLE")
+
+    # Explicación del espacio
+    with st.expander("¿Qué es este espacio y cómo se construye?", expanded=False):
+        st.markdown("""
+**Cada skill es un vector de 320 dimensiones** con tres partes:
+
+| Dims | Contenido | Qué captura |
+|---|---|---|
+| 0–63 | BOW sobre 64 términos matemáticos | Qué vocabulario técnico usa el skill |
+| 64–77 | Señal de categoría × 5.0 | A qué dominio pertenece (álgebra, análisis…) |
+| 78–80 | Nivel del skill | Fundamento (L0), dominio (L1) o estrategia (L2) |
+| 81–319 | Estructura del grafo | Grado de entrada/salida en el grafo categórico |
+
+**Las queries del chat** usan el mismo espacio (dims 0–63 y 64–77). Por eso puedes ver dónde "cae" cada consulta — si preguntas sobre grupos, la estrella aparecerá cerca del cluster de Álgebra.
+
+La reducción **t-SNE / PCA** proyecta estos 320 dims a 2D manteniendo la proximidad relativa.
+        """)
+
     if _cq:
-        st.markdown("**Espacio de embeddings** — skills relevantes a la consulta resaltados. "
-                    "Los clusters muestran la proximidad semántica entre skills.")
+        st.info(
+            f"🔎 Consulta activa resaltada. "
+            f"{'**' + str(len(_qh)) + ' quer' + ('y' if len(_qh)==1 else 'ies') + '** del historial proyectadas como ★' if _qh else 'Usa el chat para ver tus queries proyectadas como estrellas naranjas.'}"
+        )
+    elif _qh:
+        st.info(
+            f"**{len(_qh)} quer{'y' if len(_qh)==1 else 'ies'} del historial** "
+            "proyectadas como estrellas naranjas ★ — su posición indica qué dominio activaron."
+        )
     else:
-        st.markdown("**Proyección 2D del espacio de embeddings** — cada skill representado por un vector 256-dim + estructura de grafo.")
+        st.info(
+            "Aún no hay queries del chat. Escribe una pregunta matemática, "
+            "haz click en **'📊 Ver grafo · embeddings…'** y vuelve aquí para "
+            "ver dónde cae tu consulta en el espacio vectorial."
+        )
+
     method = st.radio("Método de reducción", ["tsne", "pca"], horizontal=True,
-                      format_func=lambda x: "t-SNE (preserva clusters)" if x=="tsne" else "PCA (preserva varianza)")
+                      format_func=lambda x: "t-SNE — preserva agrupaciones locales" if x=="tsne" else "PCA — preserva varianza máxima")
     with st.spinner("Calculando proyección..."):
         fig = fig_tsne(method, query=_cq or None)
     st.pyplot(fig, width="stretch")
     plt.close(fig)
-    st.caption("Los clusters visibles reflejan la organización semántica del grafo. Skills del mismo dominio se agrupan naturalmente.")
+
+    if _qh:
+        st.caption(
+            "★ Estrellas naranjas = queries del historial del chat. "
+            "La query activa (si la hay) aparece más grande con borde blanco. "
+            "Proximidad = vocabulario matemático compartido entre skill y consulta."
+        )
+    else:
+        st.caption(
+            "Cada punto = 1 skill. Agrupaciones por color = mismo dominio matemático. "
+            "Los skills de una misma categoría se agrupan porque comparten vocabulario técnico."
+        )
 
 with tab3:
     st.markdown("**Diagrama de bloques completo** — cómo interactúan todos los componentes del sistema.")
@@ -1601,21 +1750,22 @@ with tab8:
             "probability":     "#9ccc65", "proof-strategies":"#78909c",
             "set-theory":      "#ffee58", "topology":       "#26a69a",
         }
+        # IDs coinciden exactamente con los de SKILLS (validados)
         _CAT_SKILLS = {
-            "algebra": ["group-theory","ring-theory","field-theory","module-theory","comm-algebra","homological-alg","repres-theory"],
-            "analysis": ["real-analysis","complex-analysis","functional-analysis","measure-theory","differential-eq","fourier-analysis"],
-            "category-theory": ["category-basics","functors","nat-trans","limits","adjoint-functors","topos-theory","abelian-cat"],
-            "combinatorics": ["graph-theory","enumeration","generating-func","ramsey-theory","combinatorial-id"],
-            "computation": ["turing-computability","complexity-theory","automata","lambda-calculus","algo-design"],
-            "geometry": ["euclidean-geo","projective-geo","differential-geo","algebraic-geo","hyperbolic-geo","topology-geo"],
-            "lean-tactics": ["lean-kernel","tactic-simp","tactic-ring","tactic-omega","tactic-linarith","tactic-aesop"],
-            "logic": ["fol-deduction","fol-metatheory","propositional-logic","modal-logic","model-theory"],
-            "number-theory": ["elementary-nt","analytic-nt","algebraic-nt","diophantine","prime-theory"],
-            "optimization": ["linear-prog","convex-opt","integer-prog","combinatorial-opt"],
-            "probability": ["probability-theory","stochastic-proc","statistical-inference","markov-chains"],
-            "proof-strategies": ["induction","contradiction","constructive","pigeonhole","diagonal"],
-            "set-theory": ["zfc-axioms","ordinals","cardinals","forcing","descriptive-st"],
-            "topology": ["point-set-top","algebraic-top","differential-top","homotopy-theory"],
+            "algebra":          ["group-theory","ring-theory","field-theory","module-theory","comm-algebra","homological-alg","repres-theory"],
+            "analysis":         ["real-analysis","complex-analysis","func-analysis","harmonic-anal","pde-techniques","operator-theory"],
+            "category-theory":  ["category-basics","functors","nat-trans","limits","higher-cat","homol-cat"],
+            "combinatorics":    ["graph-theory","enumerative","ramsey-theory","extremal-comb","alg-comb","prob-method"],
+            "computation":      ["computability","complexity","algo-analysis","formal-verif"],
+            "geometry":         ["euclidean-geo","projective-geo","diff-geo","alg-geo","symplectic-geo","complex-geo"],
+            "lean-tactics":     ["lean-kernel","tactic-simp","tactic-ring","tactic-omega","tactic-linarith","tactic-aesop","tactic-exact","tactic-apply","tactic-induction","tactic-calc"],
+            "logic":            ["fol-deduction","fol-metatheory","model-theory","proof-theory","hott"],
+            "number-theory":    ["elem-nt","alg-nt","analytic-nt","arith-geo"],
+            "optimization":     ["convex-opt","discrete-opt","variational"],
+            "probability":      ["prob-theory","stochastic","martingale","ergodic"],
+            "proof-strategies": ["strat-backward","strat-forward","strat-contra","strat-cases","strat-inductive","strat-construct"],
+            "set-theory":       ["zfc-axioms","ordinals","category-basics","functors","nat-trans","limits"],
+            "topology":         ["point-set-topo","alg-topology","diff-topology","homotopy-theory","geometric-topo"],
         }
 
         G = nx.DiGraph()

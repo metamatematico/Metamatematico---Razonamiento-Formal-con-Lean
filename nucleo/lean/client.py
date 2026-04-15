@@ -121,8 +121,7 @@ class LeanClient:
         self.lean_path = lean_path
         self.timeout_s = timeout_ms / 1000.0
 
-    # Header mínimo garantizado para que ring, linarith, nlinarith, norm_num
-    # y las instancias de ℝ/ℕ/ℤ estén disponibles sin depender del LLM.
+    # Header mínimo garantizado para tácticas y tipos básicos
     _SAFE_HEADER = (
         "import Mathlib.Tactic.Ring\n"
         "import Mathlib.Tactic.Linarith\n"
@@ -131,46 +130,105 @@ class LeanClient:
         "import Mathlib.Tactic.Positivity\n"
         "import Mathlib.Algebra.Order.Field.Basic\n"
         "import Mathlib.Data.Real.Basic\n"
-        "open Real\n\n"
     )
+
+    # Imports adicionales disparados por palabras clave en el código
+    _TOPIC_IMPORTS: list[tuple[list[str], str]] = [
+        # Producto interno / normas
+        (["inner", "⟪", "InnerProductSpace", "norm_sq", "inner_self"],
+         "import Mathlib.Analysis.InnerProductSpace.Basic"),
+        (["inner", "⟪", "InnerProductSpace"],
+         "import Mathlib.Analysis.InnerProductSpace.PiL2"),
+        # Análisis real / complejo
+        (["Continuous", "continuous", "IsOpen", "isClosed", "Filter"],
+         "import Mathlib.Topology.Basic"),
+        (["deriv", "HasDerivAt", "differentiable"],
+         "import Mathlib.Analysis.Calculus.Deriv.Basic"),
+        (["integral", "MeasureTheory", "∫"],
+         "import Mathlib.MeasureTheory.Integral.IntervalIntegral"),
+        # Álgebra lineal
+        (["LinearMap", "Matrix", "det", "eigenvalue"],
+         "import Mathlib.LinearAlgebra.Matrix.Determinant"),
+        # Números
+        (["Nat.Prime", "prime", "Finset.sum"],
+         "import Mathlib.Data.Nat.Prime.Basic"),
+        (["Complex", "re ", "im ", "Complex.abs"],
+         "import Mathlib.Analysis.SpecialFunctions.Complex.Circle"),
+        # Grupos / anillos abstractos
+        (["Group", "Subgroup", "QuotientGroup"],
+         "import Mathlib.GroupTheory.QuotientGroup.Basic"),
+        (["Polynomial", "polynomial"],
+         "import Mathlib.RingTheory.Polynomial.Basic"),
+    ]
+
+    # Nombres de lemas obsoletos → reemplazo actual en Mathlib 4
+    _DEPRECATED_LEMMAS: list[tuple[str, str]] = [
+        ("inner_self_eq_norm_sq_to_K",   "real_inner_self_eq_norm_sq"),
+        ("inner_self_eq_norm_mul_norm",   "real_inner_self_eq_norm_sq"),
+        ("sq_abs",                         "sq_abs"),          # sigue igual, forzar import
+        ("norm_sq_eq_inner",               "real_inner_self_eq_norm_sq"),
+        ("abs_sq",                         "sq_abs"),
+        ("real_inner_comm",                "inner_comm"),
+        ("inner_add_left",                 "inner_add_left"),
+        ("inner_smul_left",                "inner_smul_left"),
+        ("norm_add_sq_real",               "norm_add_sq_real"),
+        ("norm_sub_sq_real",               "norm_sub_sq_real"),
+        # Tácticas renombradas
+        ("ring_nf;",                       "ring_nf\n  "),
+        ("nlinarith [sq_nonneg",           "nlinarith [sq_nonneg"),
+    ]
 
     def _normalize_code(self, code: str) -> str:
         """
-        Asegura que el código tenga los imports mínimos necesarios.
-
-        - Si el código ya tiene `import Mathlib` (monolítico) lo deja.
-        - Si tiene imports parciales de Mathlib, prepend el _SAFE_HEADER
-          solo para los módulos que falten.
-        - Si no tiene ningún import, añade el header completo.
+        Normaliza el código Lean antes de verificarlo:
+        1. Si tiene `import Mathlib` completo → no toca nada.
+        2. Añade el header mínimo seguro (ring, linarith, etc.).
+        3. Detecta el tema del código y añade imports específicos.
+        4. Reemplaza nombres de lemas obsoletos por los actuales.
         """
         lines = code.lstrip().splitlines()
-        has_full_mathlib = any(
-            l.strip() == "import Mathlib" for l in lines
-        )
-        if has_full_mathlib:
-            return code  # Mathlib completo incluye todo
 
-        # Detectar imports existentes de Mathlib
-        existing = {l.strip() for l in lines if l.strip().startswith("import")}
-        needed = []
-        for imp_line in self._SAFE_HEADER.splitlines():
-            if imp_line.startswith("import") and imp_line.strip() not in existing:
-                needed.append(imp_line)
+        # Si ya importa Mathlib completo, solo aplicar correcciones de nombres
+        has_full_mathlib = any(l.strip() == "import Mathlib" for l in lines)
 
-        if not needed:
-            return code  # Ya tiene todos los imports necesarios
+        code_lower = code.lower()
 
-        header = "\n".join(needed) + "\n"
-        # Insertar después de los imports existentes del usuario, antes del código
-        insert_at = 0
-        for i, line in enumerate(lines):
-            stripped = line.strip()
-            if stripped.startswith("import") or stripped.startswith("open") or stripped == "":
-                insert_at = i + 1
-            else:
-                break
-        result_lines = lines[:insert_at] + header.splitlines() + lines[insert_at:]
-        return "\n".join(result_lines)
+        if not has_full_mathlib:
+            existing = {l.strip() for l in lines if l.strip().startswith("import")}
+
+            # Header base
+            base_imports = [
+                ln for ln in self._SAFE_HEADER.splitlines()
+                if ln.startswith("import") and ln.strip() not in existing
+            ]
+
+            # Imports temáticos según contenido
+            topic_imports = []
+            for keywords, imp in self._TOPIC_IMPORTS:
+                if any(kw in code for kw in keywords):
+                    if imp.strip() not in existing:
+                        topic_imports.append(imp)
+
+            all_new = base_imports + topic_imports
+            if all_new:
+                header = "\n".join(all_new) + "\nopen Real\n"
+                insert_at = 0
+                for i, line in enumerate(lines):
+                    s = line.strip()
+                    if s.startswith("import") or s.startswith("open") or s == "":
+                        insert_at = i + 1
+                    else:
+                        break
+                lines = lines[:insert_at] + header.splitlines() + lines[insert_at:]
+                code = "\n".join(lines)
+
+        # Reemplazar lemas obsoletos
+        for old, new in self._DEPRECATED_LEMMAS:
+            if old in code and old != new:
+                code = code.replace(old, new)
+                logger.debug(f"Lean: reemplazado '{old}' → '{new}'")
+
+        return code
 
     async def check_code(self, code: str) -> LeanResult:
         """

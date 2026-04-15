@@ -451,6 +451,9 @@ class Nucleo:
                 return await self._math_via_lean(input_text)
 
             # Conversacion pura → LLM directamente
+            if self._llm is not None and self._llm.is_demo:
+                # Incluso en conversacion, intentar dar contenido educativo
+                return self._demo_educational_response(input_text)
             context = self._find_relevant_context(input_text, self._graph)
             context["mode"] = self._mode.name
             llm_response = await self._llm.generate(
@@ -492,6 +495,10 @@ class Nucleo:
           2. Código Lean 4 en bloque separado y limpio
           3. Estado de verificación
         """
+        # Demo mode: skip Lean pipeline
+        if self._llm is not None and self._llm.is_demo:
+            return self._demo_educational_response(input_text)
+
         from nucleo.llm.client import LLMClient
         lean_system = LLMClient.LEAN_SYSTEM_PROMPT
 
@@ -583,19 +590,27 @@ class Nucleo:
     _MATH_KEYWORDS = frozenset({
         # Español
         "teorema", "lema", "proposicion", "corolario", "demostracion",
-        "prueba", "demostrar", "probar", "verificar", "calcular", "hallar",
-        "encontrar", "derivada", "integral", "limite", "serie", "sucesion",
+        "prueba", "demostrar", "demuestra", "probar", "verifica", "verificar",
+        "calcular", "hallar", "encontrar", "enuncia", "enunciar",
+        "derivada", "integral", "limite", "serie", "sucesion",
         "convergencia", "divergencia", "continua", "diferenciable", "analitica",
         "grupo", "anillo", "campo", "espacio", "subespacio", "base", "dimension",
         "vector", "matriz", "determinante", "eigenvalor", "autovalor",
         "polinomio", "funcion", "biyeccion", "inyectiva", "sobreyectiva",
         "isomorfismo", "homomorfismo", "endomorfismo", "automorfismo",
         "conjunto", "subconjunto", "interseccion", "union", "complemento",
-        "cardinalidad", "infinito", "axioma", "hipotesis", "conclusion",
+        "cardinalidad", "infinito", "infinitos", "axioma", "hipotesis", "conclusion",
         "logica", "cuantificador", "implicacion", "equivalencia", "negacion",
         "topologia", "metrica", "norma", "producto", "suma", "algebra",
-        "geometria", "numero", "primo", "divisible", "modulo", "congruencia",
+        "geometria", "numero", "numeros", "primo", "primos", "divisible", "modulo", "congruencia",
         "categoria", "funtor", "transformacion", "natural", "adjunto",
+        # Términos matemáticos comunes (con y sin acento)
+        "irracional", "racional", "real", "complejo", "raiz", "raices",
+        "pitagoras", "pitágoras", "yoneda", "curry", "howard", "fermat",
+        "euler", "gauss", "riemann", "cantor", "galois", "noether",
+        "demostracion", "induccion", "contradiccion", "absurdo",
+        "inyectivo", "sobreyectivo", "biyectivo", "isomorfo",
+        "triangulo", "angulo", "hipotenusa", "cateto", "rectangulo",
         # English
         "theorem", "lemma", "proposition", "corollary", "proof",
         "prove", "show", "verify", "compute", "find", "calculate",
@@ -623,6 +638,15 @@ class Nucleo:
         r"\lim", r"\infty", r"\partial",
     )
 
+    @staticmethod
+    def _normalize_text(text: str) -> str:
+        """Quita acentos y pasa a minúsculas (para matching robusto)."""
+        import unicodedata
+        return "".join(
+            c for c in unicodedata.normalize("NFD", text.lower())
+            if unicodedata.category(c) != "Mn"
+        )
+
     def _is_mathematical(self, text: str) -> bool:
         """
         Clasificar si una consulta es matematica.
@@ -635,6 +659,8 @@ class Nucleo:
         Excluye frases puramente conversacionales como saludo/despedida.
         """
         low = text.lower()
+        # Versión sin acentos para matching más robusto
+        normalized = self._normalize_text(text)
 
         # Frases puramente conversacionales → no matematico
         conversational_starters = (
@@ -642,7 +668,7 @@ class Nucleo:
             "como estas", "como te llamas", "que eres", "quien eres",
             "hi ", "hello", "thanks", "bye",
         )
-        if any(low.strip().startswith(s) for s in conversational_starters):
+        if any(normalized.strip().startswith(s) for s in conversational_starters):
             return False
 
         # Simbolos matematicos Unicode
@@ -653,16 +679,235 @@ class Nucleo:
         if any(cmd in text for cmd in self._MATH_LATEX):
             return True
 
-        # Keywords: al menos 1 match sobre tokens de la query
-        tokens = set(
-            w.strip("¿?.,;:!()[]{}\"'") for w in low.split()
-        )
-        if tokens & self._MATH_KEYWORDS:
+        # Keywords: match sobre tokens (versión original y sin acentos)
+        punct = "¿?.,;:!()[]{}\"'"
+        tokens_raw = set(w.strip(punct) for w in low.split())
+        tokens_norm = set(w.strip(punct) for w in normalized.split())
+        if (tokens_raw | tokens_norm) & self._MATH_KEYWORDS:
+            return True
+
+        # Substring match para nombres propios y términos compuestos
+        if any(kw in normalized for kw in (
+            "pitagor", "pythag", "yoneda", "fermat", "euler", "gauss",
+            "riemann", "cantor", "noether", "galois", "curry-howard",
+            "irracional", "irracionalidad",
+        )):
             return True
 
         return False
 
-    async def _math_via_lean(self, input_text: str) -> NucleoResponse:
+    def _demo_educational_response(self, input_text: str) -> "NucleoResponse":
+        """
+        Respuesta educativa para modo demo (sin API key).
+
+        Clasifica la consulta usando el grafo de skills del NLE y construye
+        una respuesta matemática estructurada que incluye:
+        - Explicación del concepto/teorema
+        - Plantilla Lean 4 con sorry
+        - Nota sobre las capacidades completas del sistema
+        """
+        import unicodedata
+        def _norm(s: str) -> str:
+            """Quita acentos y pasa a minúsculas para matching robusto."""
+            return "".join(
+                c for c in unicodedata.normalize("NFD", s.lower())
+                if unicodedata.category(c) != "Mn"
+            )
+
+        q = _norm(input_text)
+
+        # ── Clasificar dominio y elegir contenido ─────────────────────────────
+        # Diccionario: (keywords sin acento) → (título, explicación, lean_template)
+        _KNOWN = {
+            ("pitagor", "pythag", "hipotenusa", "cateto"): (
+                "Teorema de Pitágoras",
+                (
+                    "El **Teorema de Pitágoras** establece que en todo triángulo rectángulo, "
+                    "el cuadrado de la longitud de la hipotenusa $c$ es igual a la suma de los "
+                    "cuadrados de los dos catetos $a$ y $b$:\n\n"
+                    "$$a^2 + b^2 = c^2$$\n\n"
+                    "**Prueba clásica (por álgebra de áreas):** Considera un cuadrado de lado "
+                    "$(a+b)$. Su área es $(a+b)^2 = a^2 + 2ab + b^2$. Coloca cuatro triángulos "
+                    "rectángulos iguales en sus esquinas: cada uno tiene área $\\frac{1}{2}ab$. "
+                    "El cuadrado interior tiene lado $c$, así que $c^2 = (a+b)^2 - 4\\cdot\\frac{ab}{2} "
+                    "= a^2 + b^2$. $\\blacksquare$\n\n"
+                    "**En Mathlib (Lean 4):** El teorema está disponible como "
+                    "`EuclideanGeometry.dist_sq_eq_dist_sq_add_dist_sq_of_angle_eq_pi_div_two` "
+                    "o, para vectores, vía el producto interno."
+                ),
+                (
+                    "import Mathlib.Geometry.Euclidean.Basic\n"
+                    "import Mathlib.Analysis.InnerProductSpace.Basic\n\n"
+                    "-- Pitágoras para vectores ortogonales en ℝ²\n"
+                    "example (a b : ℝ) : (a, b).1 ^ 2 + (a, b).2 ^ 2 =\n"
+                    "    ‖(a, b)‖ ^ 2 := by\n"
+                    "  simp [Prod.norm_sq, sq_abs]\n\n"
+                    "-- Para triángulos rectángulos reales:\n"
+                    "-- ver Mathlib.Geometry.Euclidean.Angle.Sphere"
+                ),
+            ),
+            ("yoneda",): (
+                "Lema de Yoneda",
+                (
+                    "El **Lema de Yoneda** es uno de los resultados centrales de la Teoría de "
+                    "Categorías. Dado un funtor $F : \\mathcal{C} \\to \\mathbf{Set}$ y un objeto "
+                    "$A \\in \\mathcal{C}$, existe una biyección natural:\n\n"
+                    "$$\\mathrm{Nat}(\\mathcal{C}(A, -),\\, F) \\cong F(A)$$\n\n"
+                    "**Significado:** Un objeto queda completamente determinado por los morfismos "
+                    "que salen de él. Dos objetos con los mismos funtores representables son "
+                    "isomorfos (full faithfulness de la inmersión de Yoneda).\n\n"
+                    "**Corolario clave:** La inmersión de Yoneda "
+                    "$\\mathbf{y}: \\mathcal{C} \\hookrightarrow [\\mathcal{C}^{op}, \\mathbf{Set}]$ "
+                    "es plena y fiel."
+                ),
+                (
+                    "import Mathlib.CategoryTheory.Yoneda\n\n"
+                    "open CategoryTheory\n\n"
+                    "-- El lema de Yoneda está en Mathlib:\n"
+                    "-- yonedaEquiv : (yoneda.obj X ⟶ F) ≃ F.obj X\n\n"
+                    "example {C : Type*} [Category C] (X : C)\n"
+                    "    (F : Cᵒᵖ ⥤ Type*) :\n"
+                    "    (yoneda.obj X ⟶ F) ≃ F.obj (Opposite.op X) :=\n"
+                    "  yonedaEquiv"
+                ),
+            ),
+            ("curry", "howard", "curry-howard"): (
+                "Correspondencia Curry-Howard",
+                (
+                    "La **Correspondencia Curry-Howard** (o isomorfismo proposiciones-tipos) "
+                    "establece una equivalencia profunda entre:\n\n"
+                    "| Lógica | Tipos |\n"
+                    "|---|---|\n"
+                    "| Proposición $P$ | Tipo $\\alpha$ |\n"
+                    "| Prueba de $P$ | Término $t : \\alpha$ |\n"
+                    "| $P \\Rightarrow Q$ | Función $\\alpha \\to \\beta$ |\n"
+                    "| $P \\wedge Q$ | Par $(\\alpha \\times \\beta)$ |\n"
+                    "| $P \\vee Q$ | Suma $\\alpha \\oplus \\beta$ |\n"
+                    "| $\\bot$ (falso) | Tipo vacío `Empty` |\n\n"
+                    "En Lean 4 (y Coq), las proposiciones **son** tipos. Una prueba de "
+                    "`P → Q` es literalmente una función que convierte pruebas de `P` en pruebas de `Q`."
+                ),
+                (
+                    "-- En Lean 4, proposiciones son tipos (Sort 0 = Prop)\n"
+                    "-- Una prueba es un término del tipo correspondiente\n\n"
+                    "-- Implicación = función\n"
+                    "example (P Q : Prop) (h : P → Q) (hp : P) : Q := h hp\n\n"
+                    "-- Conjunción = par\n"
+                    "example (P Q : Prop) (hp : P) (hq : Q) : P ∧ Q := ⟨hp, hq⟩\n\n"
+                    "-- Disyunción = suma\n"
+                    "example (P Q : Prop) (hp : P) : P ∨ Q := Or.inl hp"
+                ),
+            ),
+            ("irrac", "sqrt", "raiz", "irracional", "sqrt(2)", "raiz cuadrada"): (
+                "Irracionalidad de √2",
+                (
+                    "**Teorema:** $\\sqrt{2}$ es irracional.\n\n"
+                    "**Prueba (por contradicción):** Supón que $\\sqrt{2} = p/q$ con $p, q \\in \\mathbb{Z}$, "
+                    "$\\gcd(p, q) = 1$. Entonces $2 = p^2/q^2$, por lo que $p^2 = 2q^2$. "
+                    "Luego $p^2$ es par, entonces $p$ es par: $p = 2k$. Sustituyendo: "
+                    "$4k^2 = 2q^2$, o sea $q^2 = 2k^2$, así $q$ es par. "
+                    "Pero entonces $\\gcd(p,q) \\geq 2$, contradicción. $\\blacksquare$"
+                ),
+                (
+                    "import Mathlib.Data.Real.Irrational\n\n"
+                    "-- Disponible directamente en Mathlib:\n"
+                    "example : Irrational (Real.sqrt 2) :=\n"
+                    "  irrational_sqrt_two\n\n"
+                    "-- Versión manual con norm_num:\n"
+                    "example : ¬ ∃ (p q : ℤ), q ≠ 0 ∧ Real.sqrt 2 = p / q := by\n"
+                    "  sorry  -- demostración completa requiere API key"
+                ),
+            ),
+        }
+
+        title, explanation, lean_template = (
+            "Consulta matemática",
+            "",
+            "-- Formalización pendiente: conecta una API key para generar código Lean 4 real.",
+        )
+
+        for keywords, content in _KNOWN.items():
+            if any(k in q for k in keywords):
+                title, explanation, lean_template = content
+                break
+
+        if not explanation:
+            # Respuesta genérica pero útil para cualquier consulta matemática
+            ctx = self._find_relevant_context(input_text, self._graph)
+            skills_found = ctx.get("skills", [])
+            skills_str = (
+                ", ".join(f"`{s}`" for s in skills_found[:4])
+                if skills_found else "skills matemáticos relevantes"
+            )
+            category = ctx.get("category", "matemáticas")
+            explanation = (
+                f"El NLE identificó esta consulta como relacionada con **{category}** "
+                f"(skills: {skills_str}).\n\n"
+                f"Para obtener una respuesta completa que incluya:\n"
+                f"- Enunciado preciso del resultado\n"
+                f"- Demostración paso a paso\n"
+                f"- Código Lean 4 verificado con Mathlib\n\n"
+                f"**conecta una API key** (Anthropic, Google o Groq) en el panel lateral. "
+                f"El Núcleo Lógico Evolutivo usará su GNN+PPO para enrutar tu consulta al "
+                f"agente especializado correcto y generará una prueba formal verificada por Lean 4."
+            )
+
+        content = (
+            f"## {title}\n\n"
+            f"{explanation}\n\n"
+            f"---\n\n"
+            f"**Lean 4 — plantilla (modo demo)**\n\n"
+            f"```lean\n{lean_template}\n```\n\n"
+            f"> 🔑 **Modo demo activo.** Conecta una API key en el panel lateral "
+            f"para obtener: formalización Lean 4 completa generada por el LLM, "
+            f"verificación automática con Mathlib, y explicación detallada paso a paso."
+        )
+        return NucleoResponse(
+            content=content,
+            action_type=ActionType.ASSIST,
+            confidence=0.7,
+            metadata={"mode": "demo_educational"},
+        )
+
+    async def _math_educational_explanation(
+        self, input_text: str, context: dict
+    ) -> "NucleoResponse":
+        """
+        Respuesta educativa directa para queries históricas/geométricas/intuitivas.
+
+        Usa el LLM para dar una respuesta en lenguaje natural rico (demostración
+        geométrica, enunciado histórico, intuición), con Lean 4 como apéndice opcional.
+        No fuerza la formalización Lean como paso principal.
+        """
+        from nucleo.llm.client import LLMClient
+        edu_system = (
+            "Eres un matemático y divulgador experto, con profundo conocimiento de "
+            "la historia de las matemáticas y la demostración geométrica. "
+            "Respondes en lenguaje natural claro y didáctico. "
+            "Cuando explicas una demostración, la haces visual, paso a paso, con "
+            "figuras descritas con palabras. No generes código Lean 4 a menos que "
+            "el usuario lo pida explícitamente."
+        )
+        edu_prompt = (
+            f"Responde a la siguiente pregunta matemática de forma educativa y completa:\n\n"
+            f"{input_text}\n\n"
+            "Estructura tu respuesta con:\n"
+            "1. **Enunciado** — cómo se formula el resultado (con notación matemática $...$)\n"
+            "2. **Contexto histórico** — si aplica, quién lo descubrió y cuándo\n"
+            "3. **Demostración / Explicación** — paso a paso, geométrica/visual si se pide, "
+            "con intuición clara\n"
+            "4. **Nota Lean 4** (breve) — cómo se formaliza en Mathlib, sin código extenso\n\n"
+            "Responde en el mismo idioma que el usuario."
+        )
+        resp = await self._llm.generate(edu_prompt, system=edu_system, context=context)
+        return NucleoResponse(
+            content=resp.content,
+            action_type=ActionType.ASSIST,
+            confidence=0.88,
+            metadata={"mode": "educational_explanation"},
+        )
+
+    async def _math_via_lean(self, input_text: str) -> "NucleoResponse":
         """
         Pipeline principal para consultas matematicas.
 
@@ -675,30 +920,98 @@ class Nucleo:
 
         La verdad matematica viene de Lean, no del LLM.
         """
+        # Demo mode: skip Lean pipeline, return structured educational content
+        if self._llm is not None and self._llm.is_demo:
+            return self._demo_educational_response(input_text)
+
         from nucleo.llm.client import LLMClient
         lean_system = LLMClient.LEAN_SYSTEM_PROMPT
         context = self._find_relevant_context(input_text, self._graph)
         context["task"] = "lean_formalization"
 
+        # ── Detección de queries educativas/históricas (no necesitan Lean primero) ──
+        q_lower = self._normalize_text(input_text)
+        _educational_markers = (
+            "como lo enuncio", "como lo enuncio pitagoras", "como lo enuncio euclides",
+            "como lo dijo", "historicamente", "geometricamente como",
+            "demostracion geometrica", "demostracion visual", "demostracion clasica",
+            "prueba geometrica", "prueba visual", "prueba clasica",
+            "como lo haria euclides", "al estilo euclides", "segun pitagoras",
+            "segun euclides", "intuicion", "idea intuitiva", "explicacion intuitiva",
+        )
+        _is_educational_query = any(m in q_lower for m in _educational_markers)
+
+        if _is_educational_query:
+            return await self._math_educational_explanation(input_text, context)
+
         # ── Paso 1: LLM formaliza → Lean 4 ──────────────────────────────────
         # Construir ejemplos few-shot relevantes (miniF2F)
         few_shot_block = self._build_few_shot_context(input_text)
 
+        # ── Referencia hardcoded para teoremas clásicos ───────────────────
+        _HARDCODED_REFS = {
+            ("pitagor", "pythag", "hipotenusa"): (
+                "-- REFERENCIA: Teorema de Pitágoras en Lean 4 / Mathlib\n"
+                "-- El teorema NO toma a²+b²=c² como hipótesis; usa geometría.\n"
+                "-- Versión algebraica con norma (‖·‖²):\n"
+                "import Mathlib.Analysis.InnerProductSpace.Basic\n"
+                "-- ‖a‖² + ‖b‖² = ‖c‖² cuando ⟪a, b⟫ = 0\n"
+                "-- Mathlib: inner_mul_le_norm_mul_iff, norm_add_sq_real\n"
+                "-- Para enunciar: usa real_inner_eq_zero y norm_sq\n"
+                "example (a b : EuclideanSpace ℝ (Fin 2))\n"
+                "    (h : ⟪a, b⟫_ℝ = 0) :\n"
+                "    ‖a + b‖^2 = ‖a‖^2 + ‖b‖^2 := by\n"
+                "  rw [norm_add_sq_real, h, mul_zero, mul_comm, mul_zero, add_zero]"
+            ),
+            ("yoneda",): (
+                "import Mathlib.CategoryTheory.Yoneda\n"
+                "-- yonedaEquiv : (yoneda.obj X ⟶ F) ≃ F.obj X"
+            ),
+            ("curry", "howard"): (
+                "-- Propositions as types en Lean 4\n"
+                "example (P Q : Prop) (h : P → Q) (hp : P) : Q := h hp"
+            ),
+            ("irrac", "sqrt", "raiz cuadrada de 2", "sqrt(2)"): (
+                "import Mathlib.Data.Real.Irrational\n"
+                "example : Irrational (Real.sqrt 2) := irrational_sqrt_two"
+            ),
+        }
+
+        extra_ref = ""
+        q_norm = self._normalize_text(input_text)
+        for kws, ref in _HARDCODED_REFS.items():
+            if any(k in q_norm for k in kws):
+                extra_ref = f"\nReferencia de Mathlib para este tema:\n```lean\n{ref}\n```\n"
+                break
+
+        # Detectar si el usuario solo quiere el enunciado (no la prueba)
+        q_norm = self._normalize_text(input_text)
+        _enunciar = any(w in q_norm for w in ("enuncia", "enunciar", "enunciado", "que dice", "que establece", "que afirma"))
+        _solo_enunciar_hint = (
+            "- El usuario solo pide ENUNCIAR (no demostrar). Escribe ÚNICAMENTE el `theorem` con `sorry` en el cuerpo, sin intentar dar una prueba.\n"
+            if _enunciar else ""
+        )
+
         formalize_prompt = (
-            "Tu única tarea es escribir código Lean 4 que formalice el siguiente "
-            "enunciado o pregunta matemática.\n\n"
+            "Tu única tarea es escribir UN SOLO bloque de código Lean 4 (no varios) que formalice "
+            "el siguiente enunciado o pregunta matemática.\n\n"
             f"Enunciado: {input_text}\n\n"
+            + extra_ref
             + (
                 f"Ejemplos de referencia (Lean 3 — adapta la sintaxis a Lean 4):\n"
                 f"{few_shot_block}\n\n"
                 if few_shot_block else ""
             )
-            + "Instrucciones:\n"
-            "- Escribe SOLO el bloque de código Lean 4. Nada más.\n"
+            + "Instrucciones OBLIGATORIAS:\n"
+            "- Escribe SOLO UN bloque de código Lean 4. Nada más.\n"
             "- El código debe ser autocontenido (con los imports necesarios).\n"
             "- Si es una afirmación, escríbela como `theorem` o `lemma`.\n"
-            "- Si es una definición, usa `def` o `structure`.\n"
             "- Si no sabes la prueba completa, usa `sorry` como marcador.\n"
+            + _solo_enunciar_hint
+            + "- PROHIBIDO: tomar la afirmación principal como hipótesis y concluirla trivialmente.\n"
+            "  EJEMPLO PROHIBIDO: `(h : a^2+b^2=c^2) : c^2=a^2+b^2 := h.symm` — esto es una tautología.\n"
+            "- PROHIBIDO: generar múltiples versiones del mismo resultado.\n"
+            "- Usa los tipos y teoremas de Mathlib apropiados (InnerProductSpace, EuclideanSpace, etc.).\n"
             "- No pongas explicaciones fuera del bloque de código."
         )
         lean_gen = await self._llm.generate(
@@ -706,8 +1019,45 @@ class Nucleo:
         )
         lean_code = self._extract_lean_code(lean_gen.content)
         if not lean_code:
-            # Si el LLM no produjo un bloque, usar su respuesta completa
             lean_code = lean_gen.content.strip()
+
+        # ── Detección de formalización trivial → regenerar ─────────────────
+        def _is_trivial_lean(code: str) -> bool:
+            """Detecta el patrón tautológico: hipótesis = conclusión."""
+            import re
+            # Patrón: (h : X) : Y := h o h.symm donde X ≅ Y
+            trivial_patterns = [
+                r":\s*\w[\w\s\^+*=]+:=\s*\w+\.symm",   # h.symm
+                r":=\s*by\s+exact\s+\w+$",               # exact h (un solo paso)
+                r":=\s*\w+\s*$",                          # := h (único término)
+            ]
+            # Si hay solo una hipótesis que es la ecuación principal
+            has_trivial_hyp = bool(re.search(
+                r"\(\w+\s*:\s*\w+\^2\s*\+\s*\w+\^2\s*=\s*\w+\^2\)", code
+            ))
+            is_short = len([l for l in code.strip().splitlines() if l.strip()]) <= 5
+            if has_trivial_hyp and is_short:
+                return True
+            for pat in trivial_patterns:
+                # Solo trivial si el cuerpo es SOLO la hipótesis
+                if re.search(pat, code, re.MULTILINE) and is_short:
+                    return True
+            return False
+
+        if _is_trivial_lean(lean_code):
+            # Regenerar con prompt más fuerte
+            retry_prompt = (
+                f"{formalize_prompt}\n\n"
+                "ATENCIÓN: Tu respuesta anterior fue trivial (tomaste la ecuación como hipótesis). "
+                "Genera una formalización REAL usando la geometría euclidiana o espacios con producto interior. "
+                "Usa `inner_mul_le_norm_sq` o `norm_add_sq_real` de Mathlib, con `sorry` si no sabes la táctica exacta."
+            )
+            lean_gen2 = await self._llm.generate(
+                retry_prompt, system=lean_system, context=context
+            )
+            lean_code2 = self._extract_lean_code(lean_gen2.content) or lean_gen2.content.strip()
+            if not _is_trivial_lean(lean_code2):
+                lean_code = lean_code2
 
         # ── Paso 2: Lean verifier ─────────────────────────────────────────
         result = await self._lean.check_code(lean_code)
@@ -757,9 +1107,12 @@ class Nucleo:
 
         # ── Paso 4: LLM traduce a lenguaje natural amable ─────────────────
         translate_prompt = (
-            "Eres un traductor matemático. Tu trabajo es explicar el siguiente "
-            "código Lean 4 en lenguaje natural claro, preciso y amable. "
-            "No tienes que razonar ni inventar — solo explicar lo que Lean dice.\n\n"
+            "Eres un traductor matemático experto. Tu trabajo es explicar el siguiente "
+            "código Lean 4 en lenguaje natural claro, preciso y amable.\n\n"
+            "IMPORTANTE: Si el código Lean toma la afirmación principal como hipótesis "
+            "y la concluye trivialmente (e.g., `h_right_triangle : a^2 + b^2 = c^2` → "
+            "`c^2 = a^2 + b^2`), indícalo explícitamente y explica el teorema REAL "
+            "usando tu conocimiento matemático, no el código trivial.\n\n"
             f"Pregunta original del usuario:\n> {input_text}\n\n"
             f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
             f"Estado de verificación: {verification_note}\n\n"
@@ -1583,6 +1936,16 @@ class Nucleo:
             vec = np.concatenate([emb.text_embedding, emb.structure_embedding])
             embeddings.append(vec.tolist())
 
+        # Query embedding — mismo espacio semántico que los skills (BOW 256-dim)
+        # Usa semantic_embed() idéntico al de los skills: el query aterrizará
+        # geométricamente cerca de los skills cuyo vocabulario comparte.
+        from nucleo.graph.embeddings import semantic_embed
+        query_text_emb = semantic_embed(query, dim=256)   # 256-dim BOW semántico
+        query_struct_emb = np.zeros(64, dtype=np.float32) # sin estructura de grafo
+        query_embedding: list[float] = np.concatenate(
+            [query_text_emb, query_struct_emb]
+        ).tolist()
+
         # 5. Colimit / complexification info
         _pillar_cat = {"SET": "foundations", "CAT": "category-theory",
                        "LOG": "logic", "TYPE": "foundations"}
@@ -1612,6 +1975,7 @@ class Nucleo:
             "tactic_skills":     list(tactic_skills),
             "skill_ids_ordered": skill_ids_ordered,
             "embeddings":        embeddings,
+            "query_embedding":   query_embedding,
             "colimit_info": {
                 "pattern_skills":    matched,
                 "dominant_category": dominant_cat,

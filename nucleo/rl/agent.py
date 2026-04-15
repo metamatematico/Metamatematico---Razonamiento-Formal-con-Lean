@@ -37,9 +37,9 @@ ACTION_TYPES = [ActionType.RESPONSE, ActionType.REORGANIZE, ActionType.ASSIST]
 @dataclass
 class AgentConfig:
     """Configuracion del agente."""
-    # Arquitectura
+    # Arquitectura  (debe coincidir con los checkpoints entrenados: num_heads=4)
     hidden_dim: int = 256
-    num_heads: int = 8
+    num_heads: int = 4
     num_layers: int = 3
 
     # Entrenamiento

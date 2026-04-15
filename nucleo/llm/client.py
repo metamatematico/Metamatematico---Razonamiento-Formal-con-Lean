@@ -125,6 +125,16 @@ Responde en el mismo idioma que el usuario."""
         self._client = None
         self._conversation: list[LLMMessage] = []
 
+    @property
+    def is_demo(self) -> bool:
+        """True si el cliente está en modo demo (sin API key real)."""
+        if self.config.provider == LLMProvider.DEMO:
+            return True
+        # Sin API key efectiva → modo demo implícito
+        if self.config.provider == LLMProvider.ANTHROPIC and not self.config.api_key:
+            return True
+        return False
+
     def reconfigure(
         self,
         provider: "LLMProvider",

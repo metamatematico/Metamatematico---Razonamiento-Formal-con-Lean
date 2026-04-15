@@ -14,10 +14,16 @@ from datetime import datetime
 
 # Forzar UTF-8 en stdout/stderr para que caracteres como ℝ, ∀, ∃ no rompan
 # el logging de Streamlit en Windows (cp1252 por defecto).
-if sys.stdout and hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-if sys.stderr and hasattr(sys.stderr, "reconfigure"):
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+try:
+    if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except OSError:
+    pass
+try:
+    if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except OSError:
+    pass
 
 # Asegurar que el paquete nucleo sea importable desde el directorio del proyecto
 _proj_dir = os.path.dirname(os.path.abspath(__file__))
@@ -246,79 +252,163 @@ def call_demo(query: str, info: dict) -> dict:
     return {"content": text, "model": "demo", "in_tok": 0, "out_tok": 0, "error": None}
 
 
+# ── Helpers para adjuntos de archivo ─────────────────────────────────────────
+
+def _extract_file_text(uploaded_file) -> str:
+    """Extrae texto de un archivo subido (txt, tex, latex, pdf)."""
+    name = uploaded_file.name.lower()
+    if name.endswith(".pdf"):
+        try:
+            import fitz  # PyMuPDF
+            raw = uploaded_file.read()
+            doc = fitz.open(stream=raw, filetype="pdf")
+            return "\n".join(page.get_text() for page in doc)
+        except ImportError:
+            return "[Error: instala PyMuPDF → pip install pymupdf]"
+        except Exception as e:
+            return f"[Error al leer PDF: {e}]"
+    else:  # txt / tex / latex
+        raw = uploaded_file.read()
+        for enc in ("utf-8", "utf-8-sig", "latin-1"):
+            try:
+                return raw.decode(enc)
+            except UnicodeDecodeError:
+                continue
+        return raw.decode("latin-1", errors="replace")
+
+
+def _build_file_verify_prompt(text: str, filename: str) -> str:
+    """Construye prompt de verificación para contenido matemático de un archivo."""
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "txt"
+    is_latex = ext in ("tex", "latex") or "\\begin{" in text[:500] or "\\theorem" in text[:500]
+    type_label = "LaTeX matemático" if is_latex else "texto matemático"
+
+    max_chars = 3500
+    excerpt = text[:max_chars] + ("\n\n[… contenido truncado …]" if len(text) > max_chars else "")
+
+    return (
+        f"El usuario ha subido el archivo `{filename}` con el siguiente {type_label}:\n\n"
+        f"```\n{excerpt}\n```\n\n"
+        "Analiza el contenido y:\n"
+        "1. Identifica si contiene teoremas, lemas, demostraciones o conjeturas.\n"
+        "2. Verifica la corrección lógica y matemática.\n"
+        "3. Si hay una demostración, evalúa si es válida y señala posibles errores.\n"
+        "4. Si es una conjetura, evalúa su plausibilidad y sugiere estrategias de demostración.\n"
+        "5. Sugiere cómo formalizarlo en Lean 4 si es pertinente.\n"
+        "6. Da un veredicto final: ✅ Correcto, ⚠️ Parcialmente correcto, o ❌ Incorrecto/Incompleto.\n\n"
+        "Sé preciso y riguroso en tu análisis matemático."
+    )
+
+
 # ── Pagina principal ──────────────────────────────────────────────────────────
 
 def page_home():
     st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700;800&display=swap');
 
 *, body { font-family: 'Inter', sans-serif; }
 
-/* ── Scrollbar ───────────────────────────── */
+/* ─── CSS Variables (warm palette) ──────────────────────── */
+:root {
+    --bg-base:     #1c1917;
+    --bg-surface:  #242018;
+    --bg-raised:   #2e2923;
+    --bg-overlay:  #38322a;
+    --border:      #3d3830;
+    --border-hov:  #57504a;
+    --text-1:      #f0ebe3;
+    --text-2:      #a89e94;
+    --text-3:      #726861;
+    --accent:      #d4a853;
+    --accent-dim:  #c49340;
+    --accent-glow: #d4a85322;
+    --amber-soft:  #f0d090;
+    --stone:       #8c7e6e;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #080c12; }
-::-webkit-scrollbar-thumb { background: #1c2333; border-radius: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-/* ── Global bg ───────────────────────────── */
-.main .block-container { background: #080c12; padding-bottom: 5rem; }
-section[data-testid="stMain"]       { background: #080c12; }
+/* ── Global bg ───────────────────────────────────────────── */
+.main .block-container { background: var(--bg-base); padding-bottom: 5rem; }
+section[data-testid="stMain"] { background: var(--bg-base); }
 
-/* ── Sidebar ─────────────────────────────── */
+/* ── Sidebar ──────────────────────────────────────────────── */
 section[data-testid="stSidebar"] {
-    background: #060a10 !important;
-    border-right: 1px solid #151c28;
+    background: #161310 !important;
+    border-right: 1px solid #2a2520;
 }
 section[data-testid="stSidebar"] .stSelectbox label,
 section[data-testid="stSidebar"] .stSlider  label,
 section[data-testid="stSidebar"] .stTextInput label {
-    font-size: 0.75rem;
+    font-size: 0.73rem;
     font-weight: 600;
-    color: #7a8fa0;
+    color: var(--text-3);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.09em;
 }
 
-/* ── Animated gradient keyframes ────────── */
-@keyframes grad-shift {
+/* ── Keyframes ─────────────────────────────────────────────── */
+@keyframes warm-shift {
     0%,100% { background-position: 0% 50%; }
     50%      { background-position: 100% 50%; }
 }
 @keyframes float-in {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes stone-pulse {
+    0%,100% { opacity: 0.06; }
+    50%      { opacity: 0.12; }
+}
 
-/* ── Hero compacto ───────────────────────── */
+/* ── Hero ─────────────────────────────────────────────────── */
 .meta-hero {
-    background: linear-gradient(145deg, #090e1a 0%, #0f1729 50%, #0a0f1c 100%);
-    border: 1px solid #1a2236;
-    border-radius: 16px;
-    padding: 1.2rem 2rem 1rem;
+    background: linear-gradient(155deg, #211d18 0%, #2b261f 55%, #201c17 100%);
+    border: 1px solid #3a3428;
+    border-radius: 20px;
+    padding: 1.4rem 2rem 1.2rem;
     margin: 0 auto 1rem;
     position: relative;
     overflow: hidden;
     display: flex;
     align-items: center;
-    gap: 1.2rem;
+    gap: 1.4rem;
+    box-shadow: 0 1px 3px #00000040, inset 0 1px 0 #ffffff06;
 }
+/* Go-board grid texture */
 .meta-hero::before {
     content: "";
     position: absolute; inset: 0;
     background-image:
-        linear-gradient(#818cf808 1px, transparent 1px),
-        linear-gradient(90deg, #818cf808 1px, transparent 1px);
-    background-size: 32px 32px;
+        linear-gradient(#c8a86018 1px, transparent 1px),
+        linear-gradient(90deg, #c8a86018 1px, transparent 1px);
+    background-size: 36px 36px;
+    animation: stone-pulse 6s ease infinite;
     pointer-events: none;
 }
+/* Warm glow at top edge */
+.meta-hero::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 15%; right: 15%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4a85350, transparent);
+    pointer-events: none;
+}
+
+/* ── Title ──────────────────────────────────────────────────── */
 .meta-name {
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
-    font-size: 1.5rem;
+    font-family: 'Sora', 'Inter', sans-serif;
+    font-size: 1.55rem;
     font-weight: 800;
-    letter-spacing: 0.06em;
-    background: linear-gradient(120deg, #60a5fa 0%, #818cf8 40%, #c084fc 70%, #818cf8 100%);
-    background-size: 250% 250%;
-    animation: grad-shift 6s ease infinite;
+    letter-spacing: 0.04em;
+    background: linear-gradient(120deg, #f5e6c0 0%, #e8c070 35%, #c8983a 65%, #e8c070 100%);
+    background-size: 280% 280%;
+    animation: warm-shift 10s ease infinite;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -326,31 +416,32 @@ section[data-testid="stSidebar"] .stTextInput label {
     line-height: 1.1;
 }
 .meta-sub {
-    color: #5a7090;
-    font-size: 0.72rem;
+    color: var(--text-3);
+    font-size: 0.71rem;
     font-weight: 400;
-    letter-spacing: 0.04em;
-    margin: 0.15rem 0 0;
+    letter-spacing: 0.05em;
+    margin: 0.18rem 0 0;
 }
 .meta-badge {
     display: inline-block;
-    background: #0f1729;
-    border: 1px solid #1e2d47;
+    background: #1c180f;
+    border: 1px solid #3a3020;
     border-radius: 100px;
-    padding: 0.12rem 0.55rem;
-    font-size: 0.65rem;
-    color: #7a8fa0;
+    padding: 0.12rem 0.6rem;
+    font-size: 0.64rem;
+    color: var(--stone);
     margin: 0.15rem 0.15rem 0;
     font-weight: 500;
+    letter-spacing: 0.02em;
 }
 
-/* ── Example buttons ─────────────────────── */
+/* ── Quick-example buttons ───────────────────────────────────── */
 div[data-testid="column"] .stButton > button {
-    background: #0d1117;
-    border: 1px solid #1e2d40;
+    background: #201c16;
+    border: 1px solid #38322a;
     border-radius: 100px;
-    color: #6b7f99;
-    font-size: 0.74rem;
+    color: var(--text-3);
+    font-size: 0.73rem;
     font-weight: 600;
     padding: 0.35rem 0.5rem;
     transition: all 0.2s ease;
@@ -358,15 +449,16 @@ div[data-testid="column"] .stButton > button {
     letter-spacing: 0.02em;
 }
 div[data-testid="column"] .stButton > button:hover {
-    border-color: #4f46e580;
-    color: #93c5fd;
-    background: #0f1729;
+    border-color: #d4a85360;
+    color: var(--amber-soft);
+    background: #2a2418;
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px var(--accent-glow);
 }
 
-/* ── Chat messages ───────────────────────── */
+/* ── Chat messages ───────────────────────────────────────────── */
 [data-testid="stChatMessage"] {
-    animation: float-in 0.3s ease both;
+    animation: float-in 0.28s ease both;
     background: transparent !important;
     border: none !important;
     padding: 0.4rem 0 !important;
@@ -374,80 +466,160 @@ div[data-testid="column"] .stButton > button:hover {
 
 /* User bubble */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) > div:last-child {
-    background: #0f1729 !important;
-    border: 1px solid #1e2d47 !important;
-    border-radius: 14px 14px 4px 14px !important;
-    padding: 0.75rem 1rem !important;
-    color: #c9d1d9 !important;
+    background: #26211a !important;
+    border: 1px solid #3c3528 !important;
+    border-radius: 16px 16px 4px 16px !important;
+    padding: 0.78rem 1.05rem !important;
+    color: var(--text-1) !important;
     font-size: 0.94rem !important;
     margin-left: 2rem !important;
 }
 
 /* Assistant bubble */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) > div:last-child {
-    background: #0a0f1c !important;
-    border: 1px solid #151c2e !important;
-    border-left: 3px solid #6d28d9 !important;
-    border-radius: 14px 14px 14px 4px !important;
+    background: #1e1a14 !important;
+    border: 1px solid #302b22 !important;
+    border-left: 3px solid var(--accent) !important;
+    border-radius: 16px 16px 16px 4px !important;
     padding: 0.9rem 1.1rem !important;
-    color: #c9d1d9 !important;
+    color: var(--text-1) !important;
     font-size: 0.93rem !important;
-    line-height: 1.75 !important;
+    line-height: 1.78 !important;
     margin-right: 2rem !important;
 }
 
-/* ── Chat input ──────────────────────────── */
+/* ── Chat input ──────────────────────────────────────────────── */
 [data-testid="stChatInput"] {
-    background: #0d1117 !important;
-    border: 1px solid #1e2d40 !important;
+    background: #201c16 !important;
+    border: 1px solid var(--border) !important;
     border-radius: 14px !important;
+    box-shadow: 0 2px 8px #00000030 !important;
+}
+[data-testid="stChatInput"]:focus-within {
+    border-color: #d4a85350 !important;
+    box-shadow: 0 0 0 3px var(--accent-glow) !important;
 }
 [data-testid="stChatInput"] textarea {
     background: transparent !important;
-    color: #c9d1d9 !important;
+    color: var(--text-1) !important;
     font-size: 0.94rem !important;
 }
-[data-testid="stChatInput"] textarea::placeholder { color: #4a5c6e !important; }
+[data-testid="stChatInput"] textarea::placeholder { color: var(--text-3) !important; }
 
-/* ── Viz button ──────────────────────────── */
+/* ── Viz button ──────────────────────────────────────────────── */
 .viz-btn > button {
-    background: #0a0f1c !important;
-    border: 1px solid #1a2236 !important;
+    background: #1e1a14 !important;
+    border: 1px solid var(--border) !important;
     border-radius: 10px !important;
-    color: #6366f1 !important;
+    color: var(--accent) !important;
     font-size: 0.8rem !important;
     font-weight: 600 !important;
     transition: all 0.2s ease !important;
 }
 .viz-btn > button:hover {
-    background: #0f1729 !important;
-    border-color: #6366f1 !important;
-    box-shadow: 0 4px 16px #6366f120 !important;
+    background: #26211a !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 4px 18px var(--accent-glow) !important;
 }
 
-/* Code blocks inside chat */
+/* ── File attach (paperclip strip) ──────────────────────────── */
+.file-attach { margin-bottom: 0.3rem; }
+.file-attach [data-testid="stFileUploader"] {
+    background: #1e1a14 !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    padding: 0.3rem 0.8rem !important;
+}
+.file-attach [data-testid="stFileUploaderDropzone"] {
+    background: transparent !important;
+    border: 1px dashed var(--border) !important;
+    border-radius: 8px !important;
+    padding: 0.35rem 0.8rem !important;
+    min-height: unset !important;
+}
+.file-attach [data-testid="stFileUploaderDropzone"] > div {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+.file-attach [data-testid="stFileUploaderDropzone"] small,
+.file-attach [data-testid="stFileUploaderDropzone"] p {
+    font-size: 0.71rem !important;
+    color: var(--text-3) !important;
+    margin: 0 !important;
+}
+.file-attach [data-testid="stFileUploaderDropzone"] button {
+    background: #26211a !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    color: var(--text-2) !important;
+    font-size: 0.72rem !important;
+    padding: 0.2rem 0.65rem !important;
+    min-height: unset !important;
+    line-height: 1.5 !important;
+}
+.file-attach [data-testid="stFileUploaderDropzone"] button:hover {
+    border-color: #d4a85360 !important;
+    color: var(--amber-soft) !important;
+    background: #2a2418 !important;
+}
+
+/* ── Code blocks inside chat ─────────────────────────────────── */
 [data-testid="stChatMessage"] code {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.83em;
-    background: #111827;
-    color: #7dd3fc;
+    background: #1a1610;
+    color: var(--amber-soft);
     padding: 2px 6px;
     border-radius: 4px;
-    border: 1px solid #1e293b;
+    border: 1px solid #3a3020;
 }
 [data-testid="stChatMessage"] pre {
-    background: #080c12;
-    border: 1px solid #1e293b;
+    background: #161210;
+    border: 1px solid #302820;
     border-radius: 10px;
     padding: 1rem 1.1rem;
     overflow-x: auto;
 }
 [data-testid="stChatMessage"] pre code {
-    background: transparent; border: none; padding: 0; color: #a5f3fc;
+    background: transparent; border: none; padding: 0; color: #d4b878;
 }
 
-/* Divider */
-hr { border-color: #141c2a !important; }
+/* ── Divider ────────────────────────────────────────────────── */
+hr { border-color: #2a2520 !important; }
+
+/* ── Streamlit misc overrides ───────────────────────────────── */
+.stButton > button {
+    background: #26211a;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-2);
+    transition: all 0.2s ease;
+}
+.stButton > button:hover {
+    border-color: var(--accent-dim);
+    color: var(--amber-soft);
+    background: #2e2820;
+}
+.stSelectbox > div > div,
+.stTextInput > div > div > input {
+    background: #201c16 !important;
+    border-color: var(--border) !important;
+    color: var(--text-1) !important;
+}
+.stSlider [data-baseweb="slider"] [data-testid="stThumbValue"] {
+    color: var(--accent) !important;
+}
+[data-baseweb="slider"] [role="slider"] {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+div[data-testid="stCaption"] { color: var(--text-3) !important; }
+[data-testid="stExpander"] {
+    background: #201c16 !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -457,13 +629,13 @@ hr { border-color: #141c2a !important; }
     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
         st.markdown("""
-<div style="padding:0.8rem 0 0.4rem">
-  <div style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:800;
-              letter-spacing:0.06em;
-              background:linear-gradient(120deg,#60a5fa,#818cf8,#c084fc);
+<div style="padding:0.8rem 0 0.5rem">
+  <div style="font-family:'Sora','Inter',sans-serif;font-size:1.05rem;font-weight:800;
+              letter-spacing:0.04em;
+              background:linear-gradient(120deg,#f5e6c0,#e8c070,#c8983a);
               -webkit-background-clip:text;-webkit-text-fill-color:transparent;
               background-clip:text">METAMATEMÁTICO</div>
-  <div style="font-size:0.68rem;color:#2d3748;margin-top:4px;letter-spacing:0.06em;
+  <div style="font-size:0.67rem;color:#4a4038;margin-top:5px;letter-spacing:0.07em;
               text-transform:uppercase;font-weight:600">BIOMAT · Centro de Biomatemáticas</div>
 </div>
 """, unsafe_allow_html=True)
@@ -497,10 +669,10 @@ hr { border-color: #141c2a !important; }
 
         n_hist = len(st.session_state.history)
         st.markdown(
-            f'<div style="font-size:0.68rem;color:#6080a0;text-transform:uppercase;'
+            f'<div style="font-size:0.67rem;color:#5a5048;text-transform:uppercase;'
             f'letter-spacing:.1em;font-weight:700;margin-bottom:.5rem">Sesión activa</div>'
-            f'<div style="font-size:2rem;font-weight:800;color:#c9d1d9;line-height:1">{n_hist}'
-            f'<span style="font-size:.78rem;font-weight:400;color:#7a8fa0"> consultas</span></div>',
+            f'<div style="font-size:2rem;font-weight:800;color:#f0ebe3;line-height:1">{n_hist}'
+            f'<span style="font-size:.78rem;font-weight:400;color:#8c7e6e"> consultas</span></div>',
             unsafe_allow_html=True,
         )
         if n_hist:
@@ -527,7 +699,7 @@ El **Núcleo Lógico Evolutivo** integra cuatro pilares en un único marco:
 Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patrones exitosos.
 """)
         st.markdown(
-            '<div style="font-size:0.65rem;color:#4a6080;line-height:1.6;margin-top:.5rem">'
+            '<div style="font-size:0.64rem;color:#4a4038;line-height:1.7;margin-top:.5rem">'
             '76 skills matemáticos · 14 categorías<br>'
             'GNN + PPO · Memory Evolutive Systems<br>'
             'Lean 4 · FOL · ZFC · Teoría de Tipos'
@@ -603,6 +775,31 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
         else:
             st.session_state.pop("_pending_feedback", None)
 
+    # ── Adjuntar archivo (📎 paperclip) ─────────────────────────────────────
+    st.markdown('<div class="file-attach">', unsafe_allow_html=True)
+    uploaded_file = st.file_uploader(
+        "📎 Adjuntar archivo matemático (.txt, .tex, .pdf)",
+        type=["txt", "tex", "latex", "pdf"],
+        label_visibility="collapsed",
+        key="_file_attach",
+        help="Sube un .txt, .tex o .pdf con un teorema o demostración para verificarlo",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Archivo subido → preparar como consulta de verificación
+    _file_key = f"_pf_{getattr(uploaded_file, 'name', '')}_{getattr(uploaded_file, 'size', 0)}"
+    if uploaded_file is not None and st.session_state.get("_processed_file") != _file_key:
+        st.session_state["_processed_file"] = _file_key
+        _ftext = _extract_file_text(uploaded_file)
+        if _ftext.strip() and not _ftext.startswith("[Error"):
+            st.session_state["_pending_file"] = {
+                "display": f"📎 Verificar archivo: `{uploaded_file.name}`",
+                "prompt":  _build_file_verify_prompt(_ftext, uploaded_file.name),
+            }
+            st.rerun()
+        elif _ftext.startswith("[Error"):
+            st.error(_ftext)
+
     # ── Input de chat (fixed al fondo) ────────────────────────────────────────
     prompt = st.chat_input("Escribe un teorema, problema matemático o goal de Lean 4…")
 
@@ -610,10 +807,18 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
     if st.session_state.get("_pending_query"):
         prompt = st.session_state.pop("_pending_query")
 
+    # Archivo adjunto pendiente → convertir en prompt (preserva display vs real)
+    _pending_file = st.session_state.pop("_pending_file", None)
+    if _pending_file and not prompt:
+        prompt = _pending_file["prompt"]
+
+    # Texto que se muestra al usuario en la burbuja
+    _display_query = _pending_file["display"] if _pending_file else prompt
+
     if prompt and prompt.strip():
-        # Mostrar mensaje del usuario
+        # Mostrar mensaje del usuario (display limpio cuando hay archivo)
         with st.chat_message("user", avatar="🧑‍💻"):
-            st.markdown(prompt)
+            st.markdown(_display_query)
 
         # Procesar
         nucleo = _get_nucleo()
@@ -636,7 +841,16 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
                     elapsed = time.time() - t0
 
                 try:
-                    st.session_state["viz_data"] = nucleo.get_viz_data(prompt)
+                    vd = nucleo.get_viz_data(prompt)
+                    st.session_state["viz_data"] = vd
+                    # Acumular historial de query embeddings para la visualización
+                    qe = vd.get("query_embedding")
+                    if qe:
+                        history = st.session_state.get("query_embeddings", [])
+                        history.append({"text": prompt, "embedding": qe})
+                        if len(history) > 20:          # máximo 20 queries
+                            history = history[-20:]
+                        st.session_state["query_embeddings"] = history
                 except Exception:
                     st.session_state.pop("viz_data", None)
 
@@ -705,7 +919,7 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
                 # Guardar en historial para persistir al navegar
                 st.session_state.history.insert(0, {
                     "ts":     datetime.now().strftime("%H:%M"),
-                    "q":      prompt,
+                    "q":      _display_query,   # nombre de archivo o texto original
                     "a":      res["content"],
                     "model":  res.get("_meta", model),
                     "in_tok": res.get("in_tok", 0),

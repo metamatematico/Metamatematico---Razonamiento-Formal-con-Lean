@@ -34,6 +34,102 @@ from nucleo.types import Skill
 from nucleo.graph.category import SkillCategory
 
 
+# ─── Vocabulario semántico para embeddings ────────────────────────────────────
+# 64 términos matemáticos organizados por dominio.
+# Un skill que menciona "group" y "ring" quedará cerca de otros de álgebra;
+# un query que mencione "topology" quedará cerca de los skills topológicos.
+_SEMANTIC_VOCAB: List[str] = [
+    # Fundamentos / Teoría de conjuntos (0-7)
+    "set", "zfc", "axiom", "ordinal", "cardinal", "logic", "formal", "proof",
+    # Teoría de categorías (8-15)
+    "category", "functor", "morphism", "natural", "adjoint", "colimit", "limit", "topos",
+    # Álgebra (16-23)
+    "group", "ring", "field", "module", "algebra", "homomorphism", "ideal", "quotient",
+    # Álgebra lineal / Representaciones (24-27)
+    "linear", "vector", "matrix", "representation",
+    # Análisis (28-35)
+    "analysis", "real", "complex", "convergence", "integral", "derivative", "continuous", "norm",
+    # Topología (36-43)
+    "topology", "open", "compact", "homeomorphism", "homotopy", "homology", "manifold", "bundle",
+    # Teoría de números (44-51)
+    "number", "prime", "integer", "rational", "modular", "arithmetic", "elliptic", "divisibility",
+    # Geometría (52-55)
+    "geometry", "euclidean", "differential", "curvature",
+    # Combinatoria / Probabilidad (56-59)
+    "combinatorics", "graph", "probability", "stochastic",
+    # Tipos / Lean / Tácticas (60-63)
+    "type", "lean", "tactic", "induction",
+]
+_VOCAB_LEN = len(_SEMANTIC_VOCAB)  # 64
+
+# Índice de categorías (para señal estructural que fuerza agrupación por dominio)
+_CAT_TO_IDX: Dict[str, int] = {
+    "foundations": 0,    "algebra": 1,       "geometry": 2,      "analysis": 3,
+    "topology": 4,       "logic": 5,         "number-theory": 6, "combinatorics": 7,
+    "probability": 8,    "category-theory": 9, "computation": 10, "optimization": 11,
+    "lean-tactics": 12,  "proof-strategies": 13,
+}
+_N_CATS = 14
+
+
+def semantic_embed(text: str, category: str = "", level: int = 1, dim: int = 256) -> np.ndarray:
+    """
+    Embedding semántico de texto matemático usando BOW sobre vocabulario fijo.
+
+    Produce vectores donde skills con vocabulario similar (del mismo dominio)
+    son geométricamente cercanos. Funciona igual para skills y para queries:
+    una consulta sobre "grupos" aterrizará cerca de los skills de álgebra.
+
+    Estructura del vector (256 dims por defecto):
+      dims  0-63  → presencia de términos en el vocabulario matemático (BOW)
+      dims 64-77  → señal de categoría × 5.0 (fuerza agrupación por dominio)
+      dims 78-80  → nivel del skill (0=fundamentos, 1=dominio, 2=estrategias)
+      dims 81-255 → relleno con cero
+
+    Args:
+        text:     Nombre + descripción del skill, o texto de una consulta
+        category: Categoría del skill (ej. "algebra", "analysis")
+        level:    Nivel del skill (0, 1 o 2); ignorado para queries
+        dim:      Dimensión total del vector (default 256)
+
+    Returns:
+        ndarray float32 de dimensión `dim`
+    """
+    text_lower = text.lower().replace("-", " ").replace("_", " ")
+    tokens = set(text_lower.split())
+
+    emb = np.zeros(dim, dtype=np.float32)
+
+    # ── Segmento 1: BOW (dims 0-63) ─────────────────────────────────────────
+    for i, term in enumerate(_SEMANTIC_VOCAB):
+        if i >= dim:
+            break
+        if term in tokens or term in text_lower:
+            emb[i] = 1.0
+
+    # Normalizar segmento BOW para que la magnitud no dependa del tamaño del texto
+    bow_norm = np.linalg.norm(emb[:min(_VOCAB_LEN, dim)])
+    if bow_norm > 0:
+        emb[:min(_VOCAB_LEN, dim)] /= bow_norm
+
+    # ── Segmento 2: señal de categoría (dims 64-77) ──────────────────────────
+    # Peso 5.0 para que skills del mismo dominio se agrupen fuertemente en t-SNE
+    cat_key = category.lower().replace(" ", "-")
+    cat_idx = _CAT_TO_IDX.get(cat_key, -1)
+    if 0 <= cat_idx < _N_CATS:
+        target_dim = 64 + cat_idx
+        if target_dim < dim:
+            emb[target_dim] = 5.0
+
+    # ── Segmento 3: nivel del skill (dims 78-80) ─────────────────────────────
+    if 0 <= level <= 2:
+        target_dim = 78 + level
+        if target_dim < dim:
+            emb[target_dim] = 3.0
+
+    return emb
+
+
 @dataclass
 class SkillEmbedding:
     """
@@ -100,9 +196,10 @@ class SkillEmbeddingModel:
         Returns:
             SkillEmbedding
         """
-        # Text embedding (placeholder - usar modelo real)
-        text = f"{skill.name} {skill.description}"
-        text_emb = self._simple_text_embedding(text)
+        # Text embedding semántico — BOW sobre vocabulario matemático
+        text = f"{skill.name} {skill.description or ''}"
+        category = skill.metadata.get("category", "") if skill.metadata else ""
+        text_emb = self._simple_text_embedding(text, category=category, level=skill.level)
 
         # Structure embedding
         if graph and self.use_gnn:
@@ -178,15 +275,14 @@ class SkillEmbeddingModel:
         similarities.sort(key=lambda x: x[1], reverse=True)
         return similarities[:top_k]
 
-    def _simple_text_embedding(self, text: str) -> np.ndarray:
+    def _simple_text_embedding(self, text: str, category: str = "", level: int = 1) -> np.ndarray:
         """
-        Embedding de texto simple (placeholder).
+        Embedding semántico basado en BOW sobre vocabulario matemático fijo.
 
-        En produccion, usar sentence-transformers o similar.
+        Skills del mismo dominio quedan geométricamente cercanos porque
+        comparten vocabulario técnico. Compatible con proyecciones t-SNE/PCA.
         """
-        # Hash simple para generar vector
-        np.random.seed(hash(text) % (2**32))
-        return np.random.randn(self.text_dim).astype(np.float32)
+        return semantic_embed(text, category=category, level=level, dim=self.text_dim)
 
     def _compute_structure_embedding(
         self,
