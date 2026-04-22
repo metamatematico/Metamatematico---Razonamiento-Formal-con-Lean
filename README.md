@@ -9,7 +9,7 @@
 [![Streamlit](https://img.shields.io/badge/App-Streamlit-ff4b4b.svg)](#9-aplicación-web)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · UNAM**
+**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
 
 ---
 
