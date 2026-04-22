@@ -406,7 +406,12 @@ def page_home():
 }
 
 /* ── Global bg ───────────────────────────────────────────── */
-.main .block-container { background: var(--bg-base); padding-bottom: 5rem; }
+.main .block-container {
+    background: var(--bg-base);
+    padding-bottom: 5rem;
+    max-width: 900px;
+    padding-top: 2rem;
+}
 section[data-testid="stMain"] { background: var(--bg-base); }
 
 /* ── Sidebar ──────────────────────────────────────────────── */
@@ -448,8 +453,8 @@ section[data-testid="stSidebar"] .stTextInput label {
     background: linear-gradient(135deg, #0f0f1e 0%, #16163a 50%, #0f0f1e 100%);
     border: 1px solid #3a3a70;
     border-radius: 20px;
-    padding: 1.6rem 2.2rem 1.4rem;
-    margin: 0 auto 1rem;
+    padding: 2rem 2.6rem 1.8rem;
+    margin: 0 auto 1.8rem;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -522,12 +527,13 @@ div[data-testid="column"] .stButton > button {
     border: 1px solid #2a2a50;
     border-radius: 100px;
     color: var(--text-2);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.38rem 0.5rem;
+    padding: 0.5rem 0.7rem;
     transition: all 0.22s ease;
     width: 100%;
     letter-spacing: 0.03em;
+    margin-bottom: 0.3rem;
 }
 div[data-testid="column"] .stButton > button:hover {
     border-color: var(--accent);
@@ -884,53 +890,59 @@ los resultados se muestran aquí.
 </div>
 """, unsafe_allow_html=True)
 
-    # ── Bienvenida para usuarios nuevos ───────────────────────────────────────
-    if not st.session_state.get("onboarded", False):
-        st.info("👋 **Bienvenido a METAMATEMÁTICO** — configura estas 3 cosas para usar todo el poder del sistema. Sin ellas la app funciona en modo demo, sin verificación formal.")
+    # ── Bienvenida para usuarios nuevos (modal dialog) ────────────────────────
+    @st.dialog("👋 Bienvenido a METAMATEMÁTICO", width="large")
+    def _show_onboarding():
+        st.markdown(
+            "Para usar **todo el poder del sistema** configura estas tres cosas. "
+            "Con solo la API key ya puedes empezar a chatear.",
+            help=None,
+        )
+        st.divider()
 
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.markdown("""
-**🔑 ① API Key** *(obligatorio)*
+        # Paso 1
+        st.markdown("#### 🔑 Paso 1 — API Key &nbsp;*(obligatorio para chatear)*")
+        cola, colb = st.columns([2, 1])
+        with cola:
+            st.markdown(
+                "1. Abre el **panel izquierdo** (sidebar ←)\n"
+                "2. Selecciona proveedor: **Anthropic**, Google AI Studio o Groq\n"
+                "3. Pega tu clave en el campo contraseña"
+            )
+        with colb:
+            st.info("💡 **Groq es gratis**\nconsole.groq.com", icon=None)
+        st.divider()
 
-1. Abre el **panel izquierdo** (sidebar)
-2. Selecciona proveedor: **Anthropic**, Google o Groq
-3. Pega tu clave en el campo contraseña
+        # Paso 2
+        st.markdown("#### ⚙️ Paso 2 — Instalar Lean 4 en tu PC &nbsp;*(verificación formal)*")
+        st.caption("Opcional pero recomendado — permite verificar matemáticamente cada demostración.")
+        st.markdown("**En terminal (Linux / macOS / WSL2 en Windows):**")
+        st.code("curl https://elan.lean-lang.org/elan-init.sh -sSf | sh", language="bash")
+        st.markdown("**Luego descarga Mathlib** (200 000+ teoremas verificados, ~500 MB):")
+        st.code("lake exe cache get", language="bash")
+        st.caption("Guía paso a paso completa → página **⚙️ Instalar Lean 4** en el menú lateral izquierdo.")
+        st.divider()
 
-¿No tienes? **Groq es gratis** → [console.groq.com](https://console.groq.com)
-""")
-        with c2:
-            st.markdown("""
-**⚙️ ② Lean 4 en tu PC** *(para verificación formal)*
+        # Paso 3
+        st.markdown("#### ⚡ Paso 3 — Conectar tu Lean con la app &nbsp;*(agente local)*")
+        st.caption("Con Lean instalado, clona el repo y lanza el agente. Tu PC verificará las pruebas.")
+        st.code(
+            "git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git\n"
+            "cd Metamatematico---Razonamiento-Formal-con-Lean\n"
+            "python scripts/local_agent.py",
+            language="bash",
+        )
+        st.divider()
 
-1. Instala `elan` (gestor de Lean):
-```bash
-curl https://elan.lean-lang.org/elan-init.sh -sSf | sh
-```
-2. Descarga Mathlib (~500 MB):
-```bash
-lake exe cache get
-```
-Guía completa → página **"Instalar Lean 4"** en el menú izquierdo.
-""")
-        with c3:
-            st.markdown("""
-**⚡ ③ Agente local** *(conecta tu Lean con la app)*
+        st.caption("✅ Solo con la API key ya puedes usar el chat y explorar matemáticas.  \n"
+                   "✅ Con Lean + agente cada demostración se verifica formalmente en tiempo real.")
 
-Con Lean instalado, clona el repo y ejecuta:
-```bash
-git clone https://github.com/metamatematico/\\
-  Metamatematico---Razonamiento-Formal-con-Lean.git
-cd Metamatematico---Razonamiento-Formal-con-Lean
-python scripts/local_agent.py
-```
-Tu PC verificará demostraciones formales en tiempo real.
-""")
-
-        st.caption("✅ Con solo la **API key** ya puedes chatear. ✅ Con **Lean + agente** cada demostración se verifica formalmente.")
-        if st.button("✓ Entendido, comenzar", type="primary"):
+        if st.button("✓ Entendido, ¡comenzar!", type="primary", use_container_width=True):
             st.session_state["onboarded"] = True
             st.rerun()
+
+    if not st.session_state.get("onboarded", False):
+        _show_onboarding()
 
     # ── Ejemplos rápidos ───────────────────────────────────────────────────────
     examples = [
@@ -946,7 +958,7 @@ Tu PC verificará demostraciones formales en tiempo real.
                 st.session_state["_pending_query"] = ex
                 st.rerun()
 
-    st.markdown('<div style="height:.4rem"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height:1.2rem"></div>', unsafe_allow_html=True)
 
     # ── Historial como burbujas de chat ───────────────────────────────────────
     # Mostrar del más antiguo al más reciente (history[0] es el más reciente)
