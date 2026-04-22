@@ -367,6 +367,56 @@ def _build_file_verify_prompt(text: str, filename: str) -> str:
     )
 
 
+# ── Onboarding modal (nivel de módulo — @st.dialog no puede estar dentro de funciones) ──
+
+@st.dialog("👋 Bienvenido a METAMATEMÁTICO", width="large")
+def _show_onboarding():
+    st.markdown(
+        "Para usar **todo el poder del sistema** configura estas tres cosas. "
+        "Con solo la API key ya puedes empezar a chatear."
+    )
+    st.divider()
+
+    st.markdown("#### 🔑 Paso 1 — API Key &nbsp;*(obligatorio para chatear)*")
+    cola, colb = st.columns([2, 1])
+    with cola:
+        st.markdown(
+            "1. Abre el **panel izquierdo** (sidebar ←)\n"
+            "2. Selecciona proveedor: **Anthropic**, Google AI Studio o Groq\n"
+            "3. Pega tu clave en el campo contraseña"
+        )
+    with colb:
+        st.info("💡 **Groq es gratis**\nconsole.groq.com")
+    st.divider()
+
+    st.markdown("#### ⚙️ Paso 2 — Instalar Lean 4 en tu PC &nbsp;*(verificación formal)*")
+    st.caption("Opcional pero recomendado — verifica matemáticamente cada demostración.")
+    st.markdown("**En terminal (Linux / macOS / WSL2 en Windows):**")
+    st.code("curl https://elan.lean-lang.org/elan-init.sh -sSf | sh", language="bash")
+    st.markdown("**Luego descarga Mathlib** (200 000+ teoremas, ~500 MB):")
+    st.code("lake exe cache get", language="bash")
+    st.caption("Guía completa → página **⚙️ Instalar Lean 4** en el menú lateral izquierdo.")
+    st.divider()
+
+    st.markdown("#### ⚡ Paso 3 — Conectar tu Lean con la app &nbsp;*(agente local)*")
+    st.caption("Tu PC verificará las demostraciones en tiempo real.")
+    st.code(
+        "git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git\n"
+        "cd Metamatematico---Razonamiento-Formal-con-Lean\n"
+        "python scripts/local_agent.py",
+        language="bash",
+    )
+    st.divider()
+
+    st.caption(
+        "✅ Con solo la **API key** ya puedes chatear y explorar matemáticas.  \n"
+        "✅ Con **Lean + agente** cada demostración se verifica formalmente en tiempo real."
+    )
+    if st.button("✓ Entendido, ¡comenzar!", type="primary", use_container_width=True):
+        st.session_state["onboarded"] = True
+        st.rerun()
+
+
 # ── Pagina principal ──────────────────────────────────────────────────────────
 
 def page_home():
@@ -890,57 +940,7 @@ los resultados se muestran aquí.
 </div>
 """, unsafe_allow_html=True)
 
-    # ── Bienvenida para usuarios nuevos (modal dialog) ────────────────────────
-    @st.dialog("👋 Bienvenido a METAMATEMÁTICO", width="large")
-    def _show_onboarding():
-        st.markdown(
-            "Para usar **todo el poder del sistema** configura estas tres cosas. "
-            "Con solo la API key ya puedes empezar a chatear.",
-            help=None,
-        )
-        st.divider()
-
-        # Paso 1
-        st.markdown("#### 🔑 Paso 1 — API Key &nbsp;*(obligatorio para chatear)*")
-        cola, colb = st.columns([2, 1])
-        with cola:
-            st.markdown(
-                "1. Abre el **panel izquierdo** (sidebar ←)\n"
-                "2. Selecciona proveedor: **Anthropic**, Google AI Studio o Groq\n"
-                "3. Pega tu clave en el campo contraseña"
-            )
-        with colb:
-            st.info("💡 **Groq es gratis**\nconsole.groq.com", icon=None)
-        st.divider()
-
-        # Paso 2
-        st.markdown("#### ⚙️ Paso 2 — Instalar Lean 4 en tu PC &nbsp;*(verificación formal)*")
-        st.caption("Opcional pero recomendado — permite verificar matemáticamente cada demostración.")
-        st.markdown("**En terminal (Linux / macOS / WSL2 en Windows):**")
-        st.code("curl https://elan.lean-lang.org/elan-init.sh -sSf | sh", language="bash")
-        st.markdown("**Luego descarga Mathlib** (200 000+ teoremas verificados, ~500 MB):")
-        st.code("lake exe cache get", language="bash")
-        st.caption("Guía paso a paso completa → página **⚙️ Instalar Lean 4** en el menú lateral izquierdo.")
-        st.divider()
-
-        # Paso 3
-        st.markdown("#### ⚡ Paso 3 — Conectar tu Lean con la app &nbsp;*(agente local)*")
-        st.caption("Con Lean instalado, clona el repo y lanza el agente. Tu PC verificará las pruebas.")
-        st.code(
-            "git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git\n"
-            "cd Metamatematico---Razonamiento-Formal-con-Lean\n"
-            "python scripts/local_agent.py",
-            language="bash",
-        )
-        st.divider()
-
-        st.caption("✅ Solo con la API key ya puedes usar el chat y explorar matemáticas.  \n"
-                   "✅ Con Lean + agente cada demostración se verifica formalmente en tiempo real.")
-
-        if st.button("✓ Entendido, ¡comenzar!", type="primary", use_container_width=True):
-            st.session_state["onboarded"] = True
-            st.rerun()
-
+    # ── Bienvenida para usuarios nuevos (modal, definida a nivel de módulo) ─────
     if not st.session_state.get("onboarded", False):
         _show_onboarding()
 
