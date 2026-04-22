@@ -1,120 +1,125 @@
 # METAMATEMÁTICO — Guía de Despliegue
 
-## Comparación de opciones
+## Comparación de opciones (con opciones LATAM)
 
-| Plataforma | Lean 4 | GPU | Costo/mes | Dificultad | Recomendado para |
+| Plataforma | Lean 4 | GPU | Costo/mes | LATAM | Recomendado para |
 |---|---|---|---|---|---|
-| **Hetzner CX31** (VPS) | ✅ completo | ❌ CPU | ~€10 | Media | Producción completa |
-| **DigitalOcean 8GB** | ✅ completo | ❌ CPU | ~$48 | Media | Producción completa |
-| **HuggingFace Spaces** | ❌ sin Lean | opcional T4 | $0–$50 | Baja | Demo pública |
-| **RunPod A4000** | ✅ completo | ✅ GPU | ~$0.44/h | Media | Máximo rendimiento |
-| **Streamlit Cloud** | ❌ | ❌ | $0 | Muy baja | ❌ No funciona (1GB RAM) |
+| **Vultr — Guadalajara MX** | ✅ completo | ❌ CPU | ~$24 | ✅ México | **LATAM producción** |
+| **Vultr — São Paulo BR** | ✅ completo | ❌ CPU | ~$24 | ✅ Brasil | LATAM producción |
+| **DigitalOcean — São Paulo** | ✅ completo | ❌ CPU | ~$48 | ✅ Brasil | Alternativa |
+| **Hetzner CX31** | ✅ completo | ❌ CPU | ~€10 | ❌ EU/US | Europa |
+| **HuggingFace Spaces** | ❌ sin Lean | opcional T4 | $0–$50 | ❌ | Demo pública |
+| **RunPod A4000** | ✅ completo | ✅ GPU | ~$0.44/h | ❌ | Máximo rendimiento |
+| **Streamlit Cloud** | ❌ | ❌ | $0 | ❌ | ❌ No funciona (1GB RAM) |
 
-## Opción A — VPS con Lean completo (recomendada)
+> **Nota Hetzner**: No tiene data centers en México ni América Latina. Para usuarios
+> en México, la mejor opción es **Vultr Guadalajara** (el único proveedor mayor
+> con nodo en territorio mexicano).
 
-### 1. Crear servidor en Hetzner
+---
 
-1. Registrarse en [hetzner.com/cloud](https://www.hetzner.com/cloud)
-2. New Project → Add Server
+## Opción A — Vultr Guadalajara (recomendada para México/LATAM)
+
+### 1. Crear servidor
+
+1. Registrarse en [vultr.com](https://www.vultr.com) (tienen opción de pago en MXN)
+2. **Deploy New Server** → **Cloud Compute — Optimized**
 3. Configuración:
-   - **Imagen**: Ubuntu 22.04
-   - **Tipo**: CX31 (4 vCPU, 8 GB RAM, 80 GB SSD) → €10.52/mes
-   - **Ubicación**: Nuremberg o Helsinki (más rápido para Europa/LATAM)
-   - **SSH key**: pegar tu clave pública
+   - **Server Location**: Guadalajara, Mexico 🇲🇽
+   - **Server Image**: Ubuntu 22.04 LTS x64
+   - **Plan**: 8 GB RAM / 4 vCPU / 160 GB SSD → ~$24/mes
+     *(mínimo recomendado para Lean + Mathlib)*
+   - **Additional features**: Enable IPv6, Backups (opcional)
+4. Anotar la IP del servidor en el dashboard
+
+### 2. Conectar e instalar
 
 ```bash
 # Conectar al servidor
 ssh root@<IP_DEL_SERVIDOR>
 
-# Ejecutar script de instalación
-curl -sSL https://raw.githubusercontent.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean/main/deploy/setup_vps.sh | bash
+# Instalación automática (tarda ~40 min, principalmente Mathlib)
+curl -sSL https://raw.githubusercontent.com/metamatematico/\
+Metamatematico---Razonamiento-Formal-con-Lean/main/deploy/setup_vps.sh | bash
 ```
 
-### 2. Configurar API keys
+### 3. Configurar API keys
 
 ```bash
 nano /opt/metamat/.streamlit/secrets.toml
-# Agregar:
-# ANTHROPIC_API_KEY = "sk-ant-..."
-# GOOGLE_API_KEY    = "AIza..."
-# GROQ_API_KEY      = "gsk_..."
 ```
 
-### 3. Dominio propio (opcional)
+```toml
+ANTHROPIC_API_KEY = "sk-ant-..."   # console.anthropic.com
+GOOGLE_API_KEY    = "AIza..."      # aistudio.google.com (gratis)
+GROQ_API_KEY      = "gsk_..."      # console.groq.com (gratis)
+```
 
 ```bash
-# Instalar certbot para HTTPS
+systemctl restart metamat
+```
+
+### 4. Dominio propio + HTTPS (opcional pero recomendado)
+
+```bash
+# Apuntar tu dominio a la IP en tu registrador (A record)
 apt install certbot python3-certbot-nginx -y
 certbot --nginx -d tudominio.com
 ```
 
-La app quedará en `http://<IP>` (o `https://tudominio.com` con HTTPS).
+La app queda en `https://tudominio.com`.
 
 ### Comandos de administración
 
 ```bash
-systemctl status metamat      # estado
-systemctl restart metamat     # reiniciar
-journalctl -u metamat -f      # logs en vivo
-cd /opt/metamat && git pull   # actualizar código
+systemctl status metamat      # estado del servicio
+journalctl -u metamat -f      # logs en tiempo real
+systemctl restart metamat     # reiniciar app
+cd /opt/metamat && git pull && systemctl restart metamat  # actualizar
 ```
 
 ---
 
-## Opción B — HuggingFace Spaces (demo gratuita, sin Lean)
+## Opción B — DigitalOcean São Paulo (alternativa LATAM)
 
-### 1. Crear el Space
-
-1. Ir a [huggingface.co/new-space](https://huggingface.co/new-space)
-2. Configurar:
-   - **Space name**: `metamatematico`
-   - **SDK**: Docker
-   - **Hardware**: CPU Basic (gratis) o T4 Small ($0.60/h)
-
-### 2. Conectar repositorio
+1. [digitalocean.com](https://www.digitalocean.com) → Create Droplet
+2. **Region**: São Paulo (BRA1)
+3. **Plan**: 8 GB / 4 vCPU → $48/mes
+4. Mismo script de instalación:
 
 ```bash
-# En tu máquina local
-git remote add hf https://huggingface.co/spaces/TU_USUARIO/metamatematico
-git push hf main
+curl -sSL https://raw.githubusercontent.com/metamatematico/\
+Metamatematico---Razonamiento-Formal-con-Lean/main/deploy/setup_vps.sh | bash
 ```
-
-### 3. Configurar secrets
-
-En HuggingFace → Settings → Variables and secrets:
-- `ANTHROPIC_API_KEY`
-- `GOOGLE_API_KEY`
-- `GROQ_API_KEY`
 
 ---
 
-## Opción C — RunPod (GPU completa, pay-per-use)
+## Opción C — HuggingFace Spaces (demo pública gratuita, sin Lean)
 
-1. Crear cuenta en [runpod.io](https://runpod.io)
-2. Deploy → GPU Cloud
-3. Template: PyTorch 2.2 + CUDA 12.1
-4. GPU: RTX A4000 (~$0.44/h) o A10 (~$0.76/h)
-5. En la terminal del pod:
+1. [huggingface.co/new-space](https://huggingface.co/new-space)
+   - SDK: **Docker**, Hardware: CPU Basic (gratis) o T4 ($0.60/h)
+2. Conectar repo:
+   ```bash
+   git remote add hf https://huggingface.co/spaces/TU_USUARIO/metamatematico
+   git push hf main
+   ```
+3. Secrets en HF → Settings → Variables and secrets:
+   `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `GROQ_API_KEY`
 
-```bash
-git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
-cd Metamatematico---Razonamiento-Formal-con-Lean
-bash deploy/setup_vps.sh
-```
-
-Exponer el puerto 8501 en la configuración del pod.
+> Sin Lean: el sistema funciona con GNN+PPO + LLM + MES.
+> La verificación formal queda en modo "formalización pendiente".
 
 ---
 
-## Tamaños de componentes a considerar
+## Tamaños de componentes
 
-| Componente | Tamaño | Dónde |
-|---|---|---|
-| Código fuente | ~2 MB | GitHub (versionado) |
-| Pesos GNN+PPO | ~2.2 MB | `data/neural_agent.json.pt` |
-| Dependencias Python | ~4–6 GB | pip install |
-| Lean 4 + elan | ~200 MB | elan install |
-| **Mathlib compilado** | **~4–8 GB** | `lake update` |
-| **Total disco mínimo** | **~15–20 GB** | — |
-| RAM mínima (runtime) | ~2–3 GB | — |
-| RAM recomendada | 8 GB | — |
+| Componente | Tamaño |
+|---|---|
+| Código fuente | ~2 MB |
+| Pesos GNN+PPO (`data/*.pt`) | ~2.2 MB |
+| Dependencias Python (con torch) | ~4–6 GB |
+| Lean 4 + elan | ~200 MB |
+| **Mathlib compilado** | **~4–8 GB** |
+| **Total disco mínimo** | **~15–20 GB** |
+| RAM mínima en runtime | ~2–3 GB |
+| RAM recomendada | 8 GB |
