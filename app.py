@@ -372,32 +372,38 @@ def _build_file_verify_prompt(text: str, filename: str) -> str:
 def page_home():
     st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Sora:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
 
-*, body { font-family: 'Inter', sans-serif; }
+*, body { font-family: 'Space Grotesk', 'Inter', sans-serif; }
 
-/* ─── CSS Variables (warm palette) ──────────────────────── */
+/* ─── CSS Variables (vibrant dark palette) ────────────────── */
 :root {
-    --bg-base:     #1c1917;
-    --bg-surface:  #242018;
-    --bg-raised:   #2e2923;
-    --bg-overlay:  #38322a;
-    --border:      #3d3830;
-    --border-hov:  #57504a;
-    --text-1:      #f0ebe3;
-    --text-2:      #a89e94;
-    --text-3:      #726861;
-    --accent:      #d4a853;
-    --accent-dim:  #c49340;
-    --accent-glow: #d4a85322;
-    --amber-soft:  #f0d090;
-    --stone:       #8c7e6e;
+    --bg-base:      #0d0d14;
+    --bg-surface:   #12121e;
+    --bg-raised:    #1a1a2e;
+    --bg-overlay:   #22223a;
+    --border:       #2a2a48;
+    --border-hov:   #4a4a80;
+    --text-1:       #e8e8ff;
+    --text-2:       #9898c0;
+    --text-3:       #5858a0;
+    --accent:       #7c6af5;
+    --accent-2:     #06d6c7;
+    --accent-3:     #f72585;
+    --accent-glow:  #7c6af530;
+    --accent-glow2: #06d6c720;
+    --neon-purple:  #b04fff;
+    --neon-cyan:    #00f5e9;
+    --neon-pink:    #ff2d78;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 4px;
+}
 
 /* ── Global bg ───────────────────────────────────────────── */
 .main .block-container { background: var(--bg-base); padding-bottom: 5rem; }
@@ -405,8 +411,8 @@ section[data-testid="stMain"] { background: var(--bg-base); }
 
 /* ── Sidebar ──────────────────────────────────────────────── */
 section[data-testid="stSidebar"] {
-    background: #161310 !important;
-    border-right: 1px solid #2a2520;
+    background: #0a0a12 !important;
+    border-right: 1px solid var(--border);
 }
 section[data-testid="stSidebar"] .stSelectbox label,
 section[data-testid="stSidebar"] .stSlider  label,
@@ -419,63 +425,70 @@ section[data-testid="stSidebar"] .stTextInput label {
 }
 
 /* ── Keyframes ─────────────────────────────────────────────── */
-@keyframes warm-shift {
-    0%,100% { background-position: 0% 50%; }
-    50%      { background-position: 100% 50%; }
+@keyframes neon-shift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 @keyframes float-in {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes stone-pulse {
-    0%,100% { opacity: 0.06; }
-    50%      { opacity: 0.12; }
+@keyframes grid-pulse {
+    0%,100% { opacity: 0.04; }
+    50%      { opacity: 0.10; }
+}
+@keyframes border-glow {
+    0%,100% { box-shadow: 0 0 12px #7c6af540, 0 0 40px #7c6af510; }
+    50%      { box-shadow: 0 0 20px #06d6c740, 0 0 60px #06d6c710; }
 }
 
 /* ── Hero ─────────────────────────────────────────────────── */
 .meta-hero {
-    background: linear-gradient(155deg, #211d18 0%, #2b261f 55%, #201c17 100%);
-    border: 1px solid #3a3428;
+    background: linear-gradient(135deg, #0f0f1e 0%, #16163a 50%, #0f0f1e 100%);
+    border: 1px solid #3a3a70;
     border-radius: 20px;
-    padding: 1.4rem 2rem 1.2rem;
+    padding: 1.6rem 2.2rem 1.4rem;
     margin: 0 auto 1rem;
     position: relative;
     overflow: hidden;
     display: flex;
     align-items: center;
     gap: 1.4rem;
-    box-shadow: 0 1px 3px #00000040, inset 0 1px 0 #ffffff06;
+    animation: border-glow 6s ease infinite;
 }
-/* Go-board grid texture */
+/* Grid neon texture */
 .meta-hero::before {
     content: "";
     position: absolute; inset: 0;
     background-image:
-        linear-gradient(#c8a86018 1px, transparent 1px),
-        linear-gradient(90deg, #c8a86018 1px, transparent 1px);
-    background-size: 36px 36px;
-    animation: stone-pulse 6s ease infinite;
+        linear-gradient(#7c6af518 1px, transparent 1px),
+        linear-gradient(90deg, #06d6c712 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: grid-pulse 5s ease infinite;
     pointer-events: none;
 }
-/* Warm glow at top edge */
+/* Neon top glow line */
 .meta-hero::after {
     content: "";
     position: absolute;
-    top: 0; left: 15%; right: 15%;
+    top: 0; left: 10%; right: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, #d4a85350, transparent);
+    background: linear-gradient(90deg, transparent, #7c6af580, #06d6c780, transparent);
     pointer-events: none;
 }
 
 /* ── Title ──────────────────────────────────────────────────── */
 .meta-name {
-    font-family: 'Sora', 'Inter', sans-serif;
-    font-size: 1.55rem;
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 1.65rem;
     font-weight: 800;
-    letter-spacing: 0.04em;
-    background: linear-gradient(120deg, #f5e6c0 0%, #e8c070 35%, #c8983a 65%, #e8c070 100%);
-    background-size: 280% 280%;
-    animation: warm-shift 10s ease infinite;
+    letter-spacing: 0.02em;
+    background: linear-gradient(120deg,
+        #e8e8ff 0%, #b04fff 25%, #7c6af5 45%,
+        #06d6c7 65%, #b04fff 80%, #e8e8ff 100%);
+    background-size: 300% 300%;
+    animation: neon-shift 8s ease infinite;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -486,41 +499,42 @@ section[data-testid="stSidebar"] .stTextInput label {
     color: var(--text-3);
     font-size: 0.71rem;
     font-weight: 400;
-    letter-spacing: 0.05em;
-    margin: 0.18rem 0 0;
+    letter-spacing: 0.06em;
+    margin: 0.2rem 0 0;
 }
 .meta-badge {
     display: inline-block;
-    background: #1c180f;
-    border: 1px solid #3a3020;
+    background: linear-gradient(135deg, #1a1a3a, #12122a);
+    border: 1px solid #3a3a70;
     border-radius: 100px;
-    padding: 0.12rem 0.6rem;
-    font-size: 0.64rem;
-    color: var(--stone);
+    padding: 0.12rem 0.65rem;
+    font-size: 0.63rem;
+    color: var(--accent-2);
     margin: 0.15rem 0.15rem 0;
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 /* ── Quick-example buttons ───────────────────────────────────── */
 div[data-testid="column"] .stButton > button {
-    background: #201c16;
-    border: 1px solid #38322a;
+    background: #12122a;
+    border: 1px solid #2a2a50;
     border-radius: 100px;
-    color: var(--text-3);
-    font-size: 0.73rem;
+    color: var(--text-2);
+    font-size: 0.72rem;
     font-weight: 600;
-    padding: 0.35rem 0.5rem;
-    transition: all 0.2s ease;
+    padding: 0.38rem 0.5rem;
+    transition: all 0.22s ease;
     width: 100%;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
 }
 div[data-testid="column"] .stButton > button:hover {
-    border-color: #d4a85360;
-    color: var(--amber-soft);
-    background: #2a2418;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--neon-cyan);
+    background: #1e1e40;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--accent-glow), 0 0 0 1px #7c6af530;
 }
 
 /* ── Chat messages ───────────────────────────────────────────── */
@@ -533,10 +547,10 @@ div[data-testid="column"] .stButton > button:hover {
 
 /* User bubble */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) > div:last-child {
-    background: #26211a !important;
-    border: 1px solid #3c3528 !important;
-    border-radius: 16px 16px 4px 16px !important;
-    padding: 0.78rem 1.05rem !important;
+    background: linear-gradient(135deg, #1a1a35, #14142a) !important;
+    border: 1px solid #3a3a70 !important;
+    border-radius: 18px 18px 4px 18px !important;
+    padding: 0.82rem 1.1rem !important;
     color: var(--text-1) !important;
     font-size: 0.94rem !important;
     margin-left: 2rem !important;
@@ -544,27 +558,28 @@ div[data-testid="column"] .stButton > button:hover {
 
 /* Assistant bubble */
 [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) > div:last-child {
-    background: #1e1a14 !important;
-    border: 1px solid #302b22 !important;
+    background: linear-gradient(135deg, #101025, #0e0e1e) !important;
+    border: 1px solid #2a2a50 !important;
     border-left: 3px solid var(--accent) !important;
-    border-radius: 16px 16px 16px 4px !important;
-    padding: 0.9rem 1.1rem !important;
+    border-radius: 18px 18px 18px 4px !important;
+    padding: 0.95rem 1.15rem !important;
     color: var(--text-1) !important;
     font-size: 0.93rem !important;
-    line-height: 1.78 !important;
+    line-height: 1.8 !important;
     margin-right: 2rem !important;
+    box-shadow: -4px 0 20px var(--accent-glow) !important;
 }
 
 /* ── Chat input ──────────────────────────────────────────────── */
 [data-testid="stChatInput"] {
-    background: #201c16 !important;
+    background: #12122a !important;
     border: 1px solid var(--border) !important;
-    border-radius: 14px !important;
-    box-shadow: 0 2px 8px #00000030 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 2px 12px #00000050 !important;
 }
 [data-testid="stChatInput"]:focus-within {
-    border-color: #d4a85350 !important;
-    box-shadow: 0 0 0 3px var(--accent-glow) !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow), 0 0 20px var(--accent-glow2) !important;
 }
 [data-testid="stChatInput"] textarea {
     background: transparent !important;
@@ -575,31 +590,31 @@ div[data-testid="column"] .stButton > button:hover {
 
 /* ── Viz button ──────────────────────────────────────────────── */
 .viz-btn > button {
-    background: #1e1a14 !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 10px !important;
-    color: var(--accent) !important;
+    background: linear-gradient(135deg, #12122a, #1a1a40) !important;
+    border: 1px solid var(--accent) !important;
+    border-radius: 12px !important;
+    color: var(--neon-cyan) !important;
     font-size: 0.8rem !important;
     font-weight: 600 !important;
-    transition: all 0.2s ease !important;
+    transition: all 0.22s ease !important;
 }
 .viz-btn > button:hover {
-    background: #26211a !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 4px 18px var(--accent-glow) !important;
+    background: linear-gradient(135deg, #1e1e40, #26265a) !important;
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 4px 20px var(--accent-glow), 0 0 30px var(--accent-glow2) !important;
 }
 
 /* ── File attach (paperclip strip) ──────────────────────────── */
 .file-attach { margin-bottom: 0.3rem; }
 .file-attach [data-testid="stFileUploader"] {
-    background: #1e1a14 !important;
+    background: #12122a !important;
     border: 1px solid var(--border) !important;
     border-radius: 10px !important;
     padding: 0.3rem 0.8rem !important;
 }
 .file-attach [data-testid="stFileUploaderDropzone"] {
     background: transparent !important;
-    border: 1px dashed var(--border) !important;
+    border: 1px dashed #3a3a70 !important;
     border-radius: 8px !important;
     padding: 0.35rem 0.8rem !important;
     min-height: unset !important;
@@ -616,7 +631,7 @@ div[data-testid="column"] .stButton > button:hover {
     margin: 0 !important;
 }
 .file-attach [data-testid="stFileUploaderDropzone"] button {
-    background: #26211a !important;
+    background: #1a1a3a !important;
     border: 1px solid var(--border) !important;
     border-radius: 8px !important;
     color: var(--text-2) !important;
@@ -626,7 +641,7 @@ div[data-testid="column"] .stButton > button:hover {
     line-height: 1.5 !important;
 }
 .file-attach [data-testid="stFileUploaderDropzone"] button:hover {
-    border-color: #d4a85360 !important;
+    border-color: var(--accent) !important;
     color: var(--amber-soft) !important;
     background: #2a2418 !important;
 }
@@ -697,12 +712,12 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
     with st.sidebar:
         st.markdown("""
 <div style="padding:0.8rem 0 0.5rem">
-  <div style="font-family:'Sora','Inter',sans-serif;font-size:1.05rem;font-weight:800;
+  <div style="font-family:'Space Grotesk','Inter',sans-serif;font-size:1.05rem;font-weight:800;
               letter-spacing:0.04em;
-              background:linear-gradient(120deg,#f5e6c0,#e8c070,#c8983a);
+              background:linear-gradient(120deg,#e8e8ff,#b04fff,#06d6c7);
               -webkit-background-clip:text;-webkit-text-fill-color:transparent;
               background-clip:text">METAMATEMÁTICO</div>
-  <div style="font-size:0.67rem;color:#4a4038;margin-top:5px;letter-spacing:0.07em;
+  <div style="font-size:0.67rem;color:#5858a0;margin-top:5px;letter-spacing:0.07em;
               text-transform:uppercase;font-weight:600">BIOMAT · Centro de Biomatemáticas</div>
 </div>
 """, unsafe_allow_html=True)
@@ -736,10 +751,10 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
 
         n_hist = len(st.session_state.history)
         st.markdown(
-            f'<div style="font-size:0.67rem;color:#5a5048;text-transform:uppercase;'
+            f'<div style="font-size:0.67rem;color:#5858a0;text-transform:uppercase;'
             f'letter-spacing:.1em;font-weight:700;margin-bottom:.5rem">Sesión activa</div>'
-            f'<div style="font-size:2rem;font-weight:800;color:#f0ebe3;line-height:1">{n_hist}'
-            f'<span style="font-size:.78rem;font-weight:400;color:#8c7e6e"> consultas</span></div>',
+            f'<div style="font-size:2rem;font-weight:800;color:#e8e8ff;line-height:1">{n_hist}'
+            f'<span style="font-size:.78rem;font-weight:400;color:#9898c0"> consultas</span></div>',
             unsafe_allow_html=True,
         )
         if n_hist:
@@ -766,7 +781,7 @@ El **Núcleo Lógico Evolutivo** integra cuatro pilares en un único marco:
 Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patrones exitosos.
 """)
         st.markdown(
-            '<div style="font-size:0.64rem;color:#4a4038;line-height:1.7;margin-top:.5rem">'
+            '<div style="font-size:0.64rem;color:#5858a0;line-height:1.7;margin-top:.5rem">'
             '76 skills matemáticos · 14 categorías<br>'
             'GNN + PPO · Memory Evolutive Systems<br>'
             'Lean 4 · FOL · ZFC · Teoría de Tipos'
@@ -781,15 +796,15 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
 
         if upd["behind"] == 0:
             st.markdown(
-                f'<div style="font-size:0.65rem;color:#5a7a5a;font-weight:600">'
-                f'✔ Al día · <code style="color:#8c7e6e">{sha}</code></div>',
+                f'<div style="font-size:0.65rem;color:#06d6c7;font-weight:600">'
+                f'✔ Al día · <code style="color:#5858a0">{sha}</code></div>',
                 unsafe_allow_html=True,
             )
         else:
             st.markdown(
-                f'<div style="font-size:0.65rem;color:#c8983a;font-weight:700">'
+                f'<div style="font-size:0.65rem;color:#b04fff;font-weight:700">'
                 f'⬆ {upd["behind"]} actualización(es) disponible(s)</div>'
-                f'<div style="font-size:0.6rem;color:#8c7e6e;margin-top:2px">'
+                f'<div style="font-size:0.6rem;color:#5858a0;margin-top:2px">'
                 f'Local: <code>{sha}</code></div>',
                 unsafe_allow_html=True,
             )
