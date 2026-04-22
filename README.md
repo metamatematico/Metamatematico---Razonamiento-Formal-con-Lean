@@ -882,4 +882,4 @@ La teoría de categorías es el lenguaje natural de las matemáticas modernas: e
 
 ---
 
-**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · UNAM · 2025**
+**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · 2025**
