@@ -220,12 +220,17 @@ class NucleoAgent(BaseAgent):
         self._procedural_memory = None  # Set externally for memory-guided decisions
 
         if use_neural:
-            self._init_network()
+            try:
+                self._init_network()
+            except ImportError:
+                self._use_neural = False
 
     def _init_network(self) -> None:
         """Inicializar red neuronal actor-critic."""
         import torch
-        from nucleo.rl.networks import ActorCriticNetwork
+        from nucleo.rl.networks import ActorCriticNetwork, TORCH_AVAILABLE
+        if not TORCH_AVAILABLE:
+            raise ImportError("torch no disponible")
 
         self._network = ActorCriticNetwork(
             hidden_dim=self.config.hidden_dim,
