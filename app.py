@@ -886,79 +886,51 @@ los resultados se muestran aquí.
 
     # ── Bienvenida para usuarios nuevos ───────────────────────────────────────
     if not st.session_state.get("onboarded", False):
-        st.markdown("""
-<div style="
-    background: linear-gradient(135deg, #12121e 0%, #1a1030 100%);
-    border: 1px solid #3a2a70;
-    border-left: 4px solid #7c6af5;
-    border-radius: 14px;
-    padding: 1.4rem 1.8rem 1rem;
-    margin-bottom: 1.2rem;
-">
-  <div style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;
-              color:#e8e8ff;margin-bottom:.6rem;">
-    👋 Bienvenido a METAMATEMÁTICO
-  </div>
-  <div style="font-size:.88rem;color:#9898c0;line-height:1.75;margin-bottom:.9rem;">
-    Para usar <strong style="color:#e8e8ff">todo el poder del sistema</strong> necesitas configurar
-    tres cosas. Sin ellas la app funciona en modo demo, sin verificación formal.
-  </div>
+        st.info("👋 **Bienvenido a METAMATEMÁTICO** — configura estas 3 cosas para usar todo el poder del sistema. Sin ellas la app funciona en modo demo, sin verificación formal.")
 
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem;margin-bottom:.9rem;">
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.markdown("""
+**🔑 ① API Key** *(obligatorio)*
 
-    <div style="background:#0d0d1a;border:1px solid #2a2a48;border-radius:10px;padding:.9rem 1rem;">
-      <div style="font-size:.78rem;font-weight:700;color:#7c6af5;text-transform:uppercase;
-                  letter-spacing:.08em;margin-bottom:.35rem;">① API Key</div>
-      <div style="font-size:.82rem;color:#9898c0;line-height:1.6;">
-        Pon tu clave de <strong style="color:#e8e8ff">Anthropic</strong> en el panel izquierdo.<br>
-        ¿No tienes? <strong style="color:#06d6c7">Groq</strong> es gratis.<br>
-        <span style="font-size:.75rem;color:#5858a0">console.anthropic.com · console.groq.com</span>
-      </div>
-    </div>
+1. Abre el **panel izquierdo** (sidebar)
+2. Selecciona proveedor: **Anthropic**, Google o Groq
+3. Pega tu clave en el campo contraseña
 
-    <div style="background:#0d0d1a;border:1px solid #2a2a48;border-radius:10px;padding:.9rem 1rem;">
-      <div style="font-size:.78rem;font-weight:700;color:#06d6c7;text-transform:uppercase;
-                  letter-spacing:.08em;margin-bottom:.35rem;">② Lean 4 local</div>
-      <div style="font-size:.82rem;color:#9898c0;line-height:1.6;">
-        Instala <strong style="color:#e8e8ff">Lean 4 + Mathlib</strong> en tu PC para verificación
-        formal de demostraciones.<br>
-        <span style="font-size:.75rem;color:#5858a0">Guía completa → página "Instalar Lean 4"</span>
-      </div>
-    </div>
+¿No tienes? **Groq es gratis** → [console.groq.com](https://console.groq.com)
+""")
+        with c2:
+            st.markdown("""
+**⚙️ ② Lean 4 en tu PC** *(para verificación formal)*
 
-    <div style="background:#0d0d1a;border:1px solid #2a2a48;border-radius:10px;padding:.9rem 1rem;">
-      <div style="font-size:.78rem;font-weight:700;color:#f72585;text-transform:uppercase;
-                  letter-spacing:.08em;margin-bottom:.35rem;">③ Agente local</div>
-      <div style="font-size:.82rem;color:#9898c0;line-height:1.6;">
-        Con Lean instalado, ejecuta:<br>
-        <code style="background:#1a1a3a;padding:.1rem .4rem;border-radius:4px;font-size:.78rem;
-                     color:#06d6c7;">python scripts/local_agent.py</code><br>
-        <span style="font-size:.75rem;color:#5858a0">Tu PC verifica pruebas para la app</span>
-      </div>
-    </div>
+1. Instala `elan` (gestor de Lean):
+```bash
+curl https://elan.lean-lang.org/elan-init.sh -sSf | sh
+```
+2. Descarga Mathlib (~500 MB):
+```bash
+lake exe cache get
+```
+Guía completa → página **"Instalar Lean 4"** en el menú izquierdo.
+""")
+        with c3:
+            st.markdown("""
+**⚡ ③ Agente local** *(conecta tu Lean con la app)*
 
-  </div>
+Con Lean instalado, clona el repo y ejecuta:
+```bash
+git clone https://github.com/metamatematico/\\
+  Metamatematico---Razonamiento-Formal-con-Lean.git
+cd Metamatematico---Razonamiento-Formal-con-Lean
+python scripts/local_agent.py
+```
+Tu PC verificará demostraciones formales en tiempo real.
+""")
 
-  <div style="font-size:.78rem;color:#5858a0;">
-    ✅ Con solo la <strong style="color:#9898c0">API key</strong> ya puedes chatear y explorar matemáticas.
-    &nbsp;|&nbsp;
-    ✅ Con <strong style="color:#9898c0">Lean + agente</strong> cada demostración se verifica formalmente.
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-        col_ok, col_lean = st.columns([1, 3])
-        with col_ok:
-            if st.button("✓ Entendido, comenzar", type="primary", use_container_width=True):
-                st.session_state["onboarded"] = True
-                st.rerun()
-        with col_lean:
-            st.markdown(
-                '<div style="padding:.4rem 0;font-size:.82rem;color:#5858a0;">'
-                '← Pon tu API key en el panel izquierdo &nbsp;|&nbsp; '
-                'Guía de instalación Lean → menú lateral izquierdo</div>',
-                unsafe_allow_html=True,
-            )
+        st.caption("✅ Con solo la **API key** ya puedes chatear. ✅ Con **Lean + agente** cada demostración se verifica formalmente.")
+        if st.button("✓ Entendido, comenzar", type="primary"):
+            st.session_state["onboarded"] = True
+            st.rerun()
 
     # ── Ejemplos rápidos ───────────────────────────────────────────────────────
     examples = [
