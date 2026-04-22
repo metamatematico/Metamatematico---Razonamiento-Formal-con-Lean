@@ -31,6 +31,73 @@ if _proj_dir not in sys.path:
     sys.path.insert(0, _proj_dir)
 
 
+import subprocess
+
+# ── Utilidades de actualización ───────────────────────────────────────────────
+
+def _git_run(*args, cwd=None) -> tuple[int, str]:
+    """Ejecuta un comando git y retorna (returncode, stdout+stderr)."""
+    try:
+        r = subprocess.run(
+            ["git"] + list(args),
+            cwd=cwd or _proj_dir,
+            capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace",
+        )
+        return r.returncode, (r.stdout + r.stderr).strip()
+    except Exception as e:
+        return 1, str(e)
+
+
+@st.cache_data(ttl=300)   # refresca cada 5 min
+def _check_updates() -> dict:
+    """Consulta GitHub para ver si hay commits nuevos. Cache 5 min."""
+    # Versión local
+    _, local_sha  = _git_run("rev-parse", "--short", "HEAD")
+    _, local_msg  = _git_run("log", "--oneline", "-1")
+
+    # Fetch silencioso
+    _git_run("fetch", "origin", "main")
+
+    # Commits adelante de origin/main
+    _, ahead_behind = _git_run("rev-list", "--left-right", "--count",
+                               "HEAD...origin/main")
+    try:
+        behind = int(ahead_behind.split()[-1])
+    except Exception:
+        behind = 0
+
+    # Lista de commits nuevos (si los hay)
+    _, new_commits = _git_run("log", "HEAD..origin/main", "--oneline")
+
+    return {
+        "sha":         local_sha[:7],
+        "local_msg":   local_msg,
+        "behind":      behind,
+        "new_commits": new_commits,
+    }
+
+
+def _do_update() -> tuple[bool, str]:
+    """Ejecuta git pull + pip install -r requirements.txt."""
+    code1, out1 = _git_run("pull", "origin", "main")
+    if code1 != 0:
+        return False, f"git pull falló:\n{out1}"
+
+    try:
+        req = os.path.join(_proj_dir, "requirements.txt")
+        r = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "-r", req, "-q"],
+            capture_output=True, text=True, timeout=120,
+            encoding="utf-8", errors="replace",
+        )
+        pip_out = (r.stdout + r.stderr).strip()
+    except Exception as e:
+        pip_out = str(e)
+
+    return True, f"{out1}\n\n{pip_out}".strip()
+
+
 @st.cache_resource(show_spinner="Iniciando Núcleo Lógico Evolutivo…")
 def _get_nucleo():
     """Singleton del Nucleo — persiste entre reruns de Streamlit."""
@@ -706,6 +773,42 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
             '</div>',
             unsafe_allow_html=True,
         )
+
+        # ── Panel de actualizaciones ──────────────────────────────────────────
+        st.divider()
+        upd = _check_updates()
+        sha = upd["sha"]
+
+        if upd["behind"] == 0:
+            st.markdown(
+                f'<div style="font-size:0.65rem;color:#5a7a5a;font-weight:600">'
+                f'✔ Al día · <code style="color:#8c7e6e">{sha}</code></div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f'<div style="font-size:0.65rem;color:#c8983a;font-weight:700">'
+                f'⬆ {upd["behind"]} actualización(es) disponible(s)</div>'
+                f'<div style="font-size:0.6rem;color:#8c7e6e;margin-top:2px">'
+                f'Local: <code>{sha}</code></div>',
+                unsafe_allow_html=True,
+            )
+            with st.expander("Ver cambios"):
+                st.code(upd["new_commits"] or "(sin detalles)", language="")
+
+            if st.button("⬆ Actualizar ahora", width="stretch", type="primary"):
+                with st.spinner("Descargando actualización…"):
+                    ok, msg = _do_update()
+                if ok:
+                    _check_updates.clear()
+                    st.success("✔ Actualización aplicada. Reinicia la app para cargar los cambios.")
+                    st.code(msg[:800] if msg else "")
+                else:
+                    st.error(f"No se pudo actualizar:\n{msg[:400]}")
+
+        if st.button("🔄 Comprobar actualizaciones", width="stretch"):
+            _check_updates.clear()
+            st.rerun()
 
     # ── Hero compacto ──────────────────────────────────────────────────────────
     st.markdown("""
