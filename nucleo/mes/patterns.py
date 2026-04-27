@@ -451,15 +451,26 @@ class PatternManager:
 
 class ColimitBuilder:
     """
-    Constructor de colimites (Def. 2.2 y Teorema 2.10 v7.0).
+    Constructor de nodos de integración — análogos a colímites en la subcategoría finita.
 
-    El colimite de un patron P es el skill compuesto que integra
-    la funcionalidad colectiva del patron.
+    PRECISIÓN MATEMÁTICA IMPORTANTE:
+    Lo que este builder construye es un nodo I con morfismos desde cada componente
+    del patrón P, tal que I satisface la propiedad universal del colímite dentro
+    de la SUBCATEGORÍA FINITA de skills actualmente conocidos.
+
+    Claim correcto: "I es colímite de P en la subcategoría finita G_n"
+    Claim incorrecto (no afirmado aquí): "I es colímite en la categoría libre infinita"
+
+    La verificación es DECIDIBLE porque G_n es finito: el cuantificador universal
+    ∀X. ∀co-cono sobre X. ∃!h: I→X se verifica exhaustivamente sobre los n skills.
+
+    Para verificación formal (no solo estructural), usar lean_proof_generator.py:
+        from nucleo.graph.lean_proof_generator import verify_colimit_in_lean
 
     Implementa:
-    - Construccion de co-cono con verificacion (Def 2.2a)
-    - Propiedad universal con morfismos mediadores (Def 2.2b)
-    - Complejificacion preservando multiplicidad (Thm 2.10)
+    - Construcción de co-cono con verificación estructural
+    - Propiedad universal sobre todos los co-conos conocidos (subcategoría finita)
+    - Complexificación: añadir nodo de integración preservando coherencia
     """
 
     def __init__(self, pattern_manager: PatternManager):
@@ -583,24 +594,27 @@ class ColimitBuilder:
         graph: SkillCategory,
     ) -> bool:
         """
-        Verificar propiedad universal del colimite (Def 2.2b v7.0).
+        Verificar propiedad universal del colímite en la subcategoría finita.
 
-        Para todo objeto B y familia compatible (g_i: P_i -> B),
-        existe unico h: cP -> B tal que h . c_i = g_i para todo i.
+        PRECISIÓN MATEMÁTICA:
+        Verifica: ∀ X ∈ obj(G_n). si X es co-cono sobre P → ∃ h: cocone_skill_id → X.
+        El cuantificador ∀ recorre TODOS los nodos actualmente en graph (finito),
+        no todos los objetos posibles de una categoría infinita.
 
-        "Compatible" significa: para todo d: i -> j en I, g_j . P(d) = g_i.
+        Esto es CORRECTO y COMPLETO dentro de G_n. El claim que se puede hacer es:
+          "cocone_skill_id es colímite de P en la subcategoría finita G_n con n={len(graph.skills)} skills"
 
-        En la practica, verificamos para todo B existente en el grafo
-        que tenga morfismos entrantes desde TODOS los componentes del patron.
+        Para verificación formal con Lean, usar:
+          from nucleo.graph.lean_proof_generator import verify_colimit_in_lean
 
         Args:
-            pattern: Patron con datos de funtor
-            cocone_skill_id: ID del skill colimite
+            pattern: Patrón con datos de funtor
+            cocone_skill_id: ID del skill candidato a colímite (nodo de integración)
             cocone_map: Mapeo component_id -> cocone_morphism_id
-            graph: Grafo de skills
+            graph: Subcategoría finita de skills (universo de verificación)
 
         Returns:
-            True si la propiedad universal se satisface
+            True si la propiedad universal se satisface en G_n
         """
         # Encontrar todos los B candidatos: skills que reciben morfismos
         # de TODOS los componentes del patron
