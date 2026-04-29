@@ -131,6 +131,7 @@ class SorryFiller:
         self,
         context: SorryContext,
         full_code: str,
+        skip_cascade: bool = False,
     ) -> SorryFillingResult:
         """
         Try to fill a sorry using solver cascade first, then candidates.
@@ -142,6 +143,9 @@ class SorryFiller:
         Args:
             context: Sorry context with location and goal
             full_code: Full Lean source containing the sorry
+            skip_cascade: If True, skip step 0 (solver cascade). Use when
+                the caller already ran try_fill_sorry_smart() to avoid
+                retrying the same N solvers in a different order.
 
         Returns:
             SorryFillingResult (may be solved by cascade alone)
@@ -149,7 +153,7 @@ class SorryFiller:
         cascade_result = None
 
         # Step 0: Try solver cascade (handles 40-60% of simple cases)
-        if self._solver_cascade:
+        if self._solver_cascade and not skip_cascade:
             cascade_result = await self._solver_cascade.try_fill_sorry(
                 code=full_code,
                 sorry_line=context.line_number,

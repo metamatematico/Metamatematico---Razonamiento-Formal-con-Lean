@@ -1251,6 +1251,7 @@ class Nucleo:
                 surrounding_code="\n".join(sorry.context_before),
             )
             filled = False
+            cascade_already_ran = False
             # Smart cascade: domain_tactic placed first (paper §3.5)
             if self._solver_cascade and (domain_tactic or ctx.goal):
                 cascade_result = await self._solver_cascade.try_fill_sorry_smart(
@@ -1259,12 +1260,15 @@ class Nucleo:
                     goal_text=ctx.goal,
                     domain_tactic=domain_tactic,
                 )
+                cascade_already_ran = True
                 if cascade_result.success:
                     solved.append(cascade_result.replacement_code or "")
                     filled = True
             if not filled and self._sorry_filler:
+                # skip_cascade=True avoids re-running the same N solvers
+                # in original order after smart cascade already tried them all
                 fill_result = await self._sorry_filler.fill_sorry_with_cascade(
-                    ctx, code
+                    ctx, code, skip_cascade=cascade_already_ran
                 )
                 if fill_result.chosen_solution:
                     solved.append(fill_result.chosen_solution.code)

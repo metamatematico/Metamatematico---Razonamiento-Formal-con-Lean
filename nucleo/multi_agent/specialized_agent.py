@@ -37,39 +37,79 @@ CATEGORIES: List[str] = [
 # Palabras clave para clasificación rápida (subconjunto compacto)
 _CATEGORY_KEYWORDS: Dict[str, List[str]] = {
     "algebra": ["polynomial", "ring", "field", "group", "linear", "matrix", "vector",
-                "equation", "factor", "root", "eigenvalue", "ideal", "module"],
+                "equation", "factor", "root", "eigenvalue", "ideal", "module",
+                # español
+                "grupo", "anillo", "campo", "modulo", "polinomio", "ecuacion",
+                "algebra", "conmutativ", "abelian"],
     "analysis": ["limit", "continuity", "derivative", "integral", "series", "convergence",
-                 "measure", "metric", "sequence", "cauchy", "real analysis", "complex"],
+                 "measure", "metric", "sequence", "cauchy", "real analysis", "complex",
+                 # español
+                 "limite", "continuid", "derivada", "integral", "serie", "convergencia",
+                 "medida", "sucesion", "analisis real", "analisis complejo"],
     "category-theory": ["functor", "morphism", "category", "adjoint", "topos", "natural transformation",
-                        "colimit", "pushout", "pullback", "yoneda", "monad"],
+                        "colimit", "pushout", "pullback", "yoneda", "monad",
+                        # español
+                        "funtor", "morfismo", "categoria", "colimite", "adjunto", "transformacion natural"],
     "combinatorics": ["combinat", "permutation", "combination", "graph coloring", "chromatic",
-                      "partition", "enumerat", "pigeonhole", "binomial", "catalan"],
+                      "partition", "enumerat", "pigeonhole", "binomial", "catalan",
+                      # español
+                      "combinatoria", "permutacion", "combinacion", "coloracion", "particion"],
     "computation": ["algorithm", "complexity", "computab", "turing", "automaton", "recursion",
-                    "decidab", "halting", "polynomial time", "np-hard"],
+                    "decidab", "halting", "polynomial time", "np-hard",
+                    # español
+                    "algoritmo", "complejidad", "computabilidad", "automatón", "decidib", "recursion"],
     "geometry": ["triangle", "circle", "angle", "polygon", "area", "volume", "euclidean",
-                 "coordinate", "distance", "convex", "conic", "perpendicular"],
+                 "coordinate", "distance", "convex hull", "conic", "perpendicular",
+                 # español
+                 "triangulo", "circulo", "angulo", "poligono", "euclidiana", "coordenada",
+                 "distancia", "perpendicular", "geometria"],
     "lean-tactics": ["lean", "mathlib", "lean4", "tactic", "simp", "ring_nf",
                      "norm_num", "omega", "linarith", "cases", "exact", "apply", "rw", "have",
-                     "lean proof", "lean theorem", "by simp", "by ring"],
+                     "lean proof", "lean theorem", "by simp", "by ring",
+                     # español
+                     "tactica", "verificador lean", "prueba lean"],
     "logic": ["propositional", "predicate", "satisfiab", "validity", "inference", "entailment",
               "modal", "boolean", "truth table", "quantifier", "axiom", "implication",
-              "logical formula", "tautology", "first-order"],
+              "logical formula", "tautology", "first-order", "fol",
+              # español
+              "logica", "proposicional", "predicado", "validez", "inferencia",
+              "cuantificador", "formula logica", "tautologia", "primer orden",
+              "deduccion logica", "logica modal", "logica clasica"],
     "number-theory": ["prime", "divisib", "congruence", "modular", "diophantine", "gcd", "lcm",
                       "euler", "fermat", "number theory", "arithmetic", "integer",
                       "irrational", "rational number", "sqrt(2)", "floor", "ceiling",
-                      "perfect square", "fibonacci", "pythagorean"],
+                      "perfect square", "fibonacci", "pythagorean",
+                      # español
+                      "primo", "divisibilidad", "congruencia", "modular", "diofantin",
+                      "teoria de numeros", "aritmetica", "entero", "irracional",
+                      "numero racional", "raiz cuadrada", "cuadrado perfecto"],
     "optimization": ["maximiz", "minimiz", "gradient", "convex optim", "linear program",
-                     "constraint", "lagrange", "objective", "optim", "loss function"],
+                     "constraint", "lagrange", "objective", "optim", "loss function",
+                     # español
+                     "maximizar", "minimizar", "gradiente", "optimizacion", "restriccion",
+                     "programacion lineal", "objetivo", "funcion de perdida"],
     "probability": ["probability", "random variable", "expectation", "variance", "distribution",
                     "markov", "bayes", "stochastic", "statistic", "sample space",
                     "p(a|b)", "p(a", "bernoulli", "binomial distribution", "normal distribution",
-                    "expected value", "random walk"],
+                    "expected value", "random walk",
+                    # español
+                    "probabilidad", "variable aleatoria", "esperanza", "varianza",
+                    "distribucion", "estocastico", "estadistica", "espacio muestral"],
     "proof-strategies": ["induction", "contradiction", "contrapositive", "direct proof",
-                         "existence", "uniqueness", "well-ordering", "pigeonhole"],
+                         "existence", "uniqueness", "well-ordering", "pigeonhole",
+                         # español
+                         "induccion", "contradiccion", "contrapositivo", "prueba directa",
+                         "existencia", "unicidad", "buen orden"],
     "set-theory": ["set", "subset", "union", "intersection", "cardinality", "ordinal",
-                   "zfc", "axiom of choice", "cantor", "power set", "bijection"],
+                   "zfc", "axiom of choice", "cantor", "power set", "bijection",
+                   # español
+                   "conjunto", "subconjunto", "union", "interseccion", "cardinalidad",
+                   "ordinal", "axioma de eleccion", "conjunto potencia", "biyeccion"],
     "topology": ["topology", "open set", "closed set", "compact", "connected", "homeomorphism",
-                 "manifold", "homotopy", "continuous map", "hausdorff"],
+                 "manifold", "homotopy", "continuous map", "hausdorff",
+                 # español
+                 "topologia", "abierto", "cerrado", "compacto", "conexo", "homeomorfismo",
+                 "variedad", "homotopia", "hausdorff", "espacio topologico"],
 }
 
 # Pesos por defecto (directorio donde cada agente guarda sus pesos)
