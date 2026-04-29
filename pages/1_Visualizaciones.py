@@ -5,6 +5,12 @@ Grafos, embeddings, arquitectura y diagramas explicativos.
 BIOMAT · Centro de Biomatemáticas
 """
 
+import os, sys
+# Ensure nucleo is importable when page is accessed directly on Streamlit Cloud
+_page_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _page_dir not in sys.path:
+    sys.path.insert(0, _page_dir)
+
 import streamlit as st
 import numpy as np
 import matplotlib
@@ -1466,10 +1472,13 @@ with tab1:
         st.markdown("**Grafo categórico completo de los 76 skills** — nodos por dominio, aristas por tipo de morfismo.")
     cats_filter = ["Todos"] + list(PALETTE.keys())
     sel = st.selectbox("Filtrar por categoría", cats_filter, key="cat_filter")
-    with st.spinner("Generando grafo..."):
-        fig = fig_skill_graph(None if sel == "Todos" else sel, query=_cq or None)
-    st.pyplot(fig, width="stretch")
-    plt.close(fig)
+    try:
+        with st.spinner("Generando grafo..."):
+            fig = fig_skill_graph(None if sel == "Todos" else sel, query=_cq or None)
+        st.pyplot(fig, width="stretch")
+        plt.close(fig)
+    except Exception as _e:
+        st.error(f"Error al renderizar grafo de skills: {_e}")
     st.caption("◆ Nivel 0 (fundamentos)  ●  Nivel 1 (dominios)  ▲ Nivel 2 (estrategias) · Aristas: gris=dependencia, azul=traducción, verde=analogía")
 
 with tab2:
@@ -1512,10 +1521,13 @@ La reducción **t-SNE / PCA** proyecta estos 320 dims a 2D manteniendo la proxim
 
     method = st.radio("Método de reducción", ["tsne", "pca"], horizontal=True,
                       format_func=lambda x: "t-SNE — preserva agrupaciones locales" if x=="tsne" else "PCA — preserva varianza máxima")
-    with st.spinner("Calculando proyección..."):
-        fig = fig_tsne(method, query=_cq or None)
-    st.pyplot(fig, width="stretch")
-    plt.close(fig)
+    try:
+        with st.spinner("Calculando proyección..."):
+            fig = fig_tsne(method, query=_cq or None)
+        st.pyplot(fig, width="stretch")
+        plt.close(fig)
+    except Exception as _e:
+        st.error(f"Error al renderizar embeddings: {_e}")
 
     if _qh:
         st.caption(
@@ -1531,10 +1543,13 @@ La reducción **t-SNE / PCA** proyecta estos 320 dims a 2D manteniendo la proxim
 
 with tab3:
     st.markdown("**Diagrama de bloques completo** — cómo interactúan todos los componentes del sistema.")
-    with st.spinner("Generando arquitectura..."):
-        fig = fig_architecture()
-    st.pyplot(fig, width="stretch")
-    plt.close(fig)
+    try:
+        with st.spinner("Generando arquitectura..."):
+            fig = fig_architecture()
+        st.pyplot(fig, width="stretch")
+        plt.close(fig)
+    except Exception as _e:
+        st.error(f"Error al renderizar arquitectura: {_e}")
 
 with tab4:
     col1, col2 = st.columns([2, 1])
@@ -1546,10 +1561,13 @@ with tab4:
             )
         else:
             st.markdown("**Proceso de complexificación** — cómo el sistema genera skills emergentes mediante colímites categoriales (ejemplo: Álgebra Abstracta).")
-        with st.spinner("Generando diagrama MES..."):
-            fig = fig_mes_complexification(query=_cq or None)
-        st.pyplot(fig, width="stretch")
-        plt.close(fig)
+        try:
+            with st.spinner("Generando diagrama MES..."):
+                fig = fig_mes_complexification(query=_cq or None)
+            st.pyplot(fig, width="stretch")
+            plt.close(fig)
+        except Exception as _e:
+            st.error(f"Error al renderizar complexificación MES: {_e}")
     with col2:
         st.markdown("**¿Qué es la complexificación?**")
         if _cq:
@@ -1600,32 +1618,44 @@ Este proceso modela cómo el sistema *aprende*: combina skills conocidos para cr
 
 with tab5:
     st.markdown("**Flujo de una consulta** — desde el texto del usuario hasta la respuesta con prueba Lean.")
-    with st.spinner("Generando pipeline..."):
-        fig = fig_pipeline()
-    st.pyplot(fig, width="stretch")
-    plt.close(fig)
+    try:
+        with st.spinner("Generando pipeline..."):
+            fig = fig_pipeline()
+        st.pyplot(fig, width="stretch")
+        plt.close(fig)
+    except Exception as _e:
+        st.error(f"Error al renderizar pipeline: {_e}")
     st.divider()
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**Mapa de calor inter-categorías**")
         st.caption("Similitud coseno entre embeddings centroide de cada dominio matemático.")
-        with st.spinner("Calculando similitudes..."):
-            fig = fig_heatmap()
-        st.pyplot(fig, width="stretch")
-        plt.close(fig)
+        try:
+            with st.spinner("Calculando similitudes..."):
+                fig = fig_heatmap()
+            st.pyplot(fig, width="stretch")
+            plt.close(fig)
+        except Exception as _e:
+            st.error(f"Error al renderizar heatmap: {_e}")
     with col2:
         st.markdown("**Distribución de skills**")
-        with st.spinner("Generando distribución..."):
-            fig = fig_distribution()
-        st.pyplot(fig, width="stretch")
-        plt.close(fig)
+        try:
+            with st.spinner("Generando distribución..."):
+                fig = fig_distribution()
+            st.pyplot(fig, width="stretch")
+            plt.close(fig)
+        except Exception as _e:
+            st.error(f"Error al renderizar distribución: {_e}")
 
 with tab6:
     st.markdown("**Red neuronal GNN + PPO** — arquitectura del sistema de aprendizaje por refuerzo.")
-    with st.spinner("Generando diagrama GNN..."):
-        fig = fig_gnn()
-    st.pyplot(fig, width="stretch")
-    plt.close(fig)
+    try:
+        with st.spinner("Generando diagrama GNN..."):
+            fig = fig_gnn()
+        st.pyplot(fig, width="stretch")
+        plt.close(fig)
+    except Exception as _e:
+        st.error(f"Error al renderizar GNN: {_e}")
 
     st.divider()
     col1, col2, col3, col4 = st.columns(4)
@@ -1855,10 +1885,13 @@ with tab8:
         fig.tight_layout()
         return fig
 
-    with st.spinner("Generando grafo de agentes..."):
-        _fig_ag = _fig_agents()
-    st.pyplot(_fig_ag, width="stretch")
-    plt.close(_fig_ag)
+    try:
+        with st.spinner("Generando grafo de agentes..."):
+            _fig_ag = _fig_agents()
+        st.pyplot(_fig_ag, width="stretch")
+        plt.close(_fig_ag)
+    except Exception as _e:
+        st.error(f"Error al renderizar grafo de agentes: {_e}")
 
     # ── Tabla de estadísticas ────────────────────────────────────────────────────
     st.markdown("### Resultados de entrenamiento por agente")

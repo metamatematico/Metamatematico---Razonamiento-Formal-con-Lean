@@ -104,6 +104,7 @@ class GoalAnalyzer:
         self,
         goal: str,
         graph: Optional[SkillCategory] = None,
+        domain_tactic: str = "",
     ) -> list[tuple[str, int]]:
         """
         Reorder SOLVER_CASCADE based on goal structure and graph context.
@@ -111,22 +112,31 @@ class GoalAnalyzer:
         Args:
             goal: The Lean goal text to analyze
             graph: Optional skill graph for domain-aware ordering
+            domain_tactic: Tactic provided by the ColimitAgent of the detected
+                area (paper §3.5, Principio 3.1). When present, it is placed
+                first in the cascade before any other heuristic reordering.
 
         Returns:
             Reordered list of (solver_name, timeout) tuples
         """
         priority_names: list[str] = []
 
+        # 0. Domain tactic from ColimitAgent (highest priority — paper §3.5)
+        solver_names = {name for name, _ in SOLVER_CASCADE}
+        if domain_tactic and domain_tactic in solver_names:
+            priority_names.append(domain_tactic)
+
         # 1. Pattern matching on goal text
         for pattern, tactics in self.GOAL_PATTERNS:
             if re.search(pattern, goal):
-                priority_names.extend(tactics)
+                for t in tactics:
+                    if t not in priority_names:
+                        priority_names.append(t)
                 break  # First match wins
 
         # 2. Graph-based: find tactic skills connected to matched domains
         if graph is not None:
             graph_tactics = self._tactics_from_graph(goal, graph)
-            # Add graph-suggested tactics after pattern-based ones
             for t in graph_tactics:
                 if t not in priority_names:
                     priority_names.append(t)
@@ -278,12 +288,14 @@ class SolverCascade:
         goal_text: str = "",
         error_type: Optional[str] = None,
         imports: Optional[list[str]] = None,
+        domain_tactic: str = "",
     ) -> CascadeResult:
         """
         Goal-aware solver cascade that reorders tactics by goal structure.
 
-        Uses GoalAnalyzer to prioritize tactics based on the goal text
-        and the skill graph, then runs the cascade in the optimized order.
+        Uses GoalAnalyzer to prioritize tactics based on the goal text,
+        the skill graph, and the domain tactic provided by the ColimitAgent
+        of the detected mathematical area (paper NLE v7.0 §3.5).
 
         Args:
             code: Full Lean source code containing sorry
@@ -291,18 +303,23 @@ class SolverCascade:
             goal_text: The Lean goal to analyze for tactic ordering
             error_type: If known, skip cascade for incompatible errors
             imports: Additional imports to prepend
+            domain_tactic: Default tactic of the ColimitAgent for the
+                detected area (e.g. "ring" for algebra, "linarith" for
+                optimization). Placed first in the cascade.
 
         Returns:
             CascadeResult with success status and solver used
         """
-        if not goal_text:
+        if not goal_text and not domain_tactic:
             return await self.try_fill_sorry(code, sorry_line, error_type, imports)
 
-        # Reorder solvers based on goal analysis
-        smart_order = self._goal_analyzer.prioritize(goal_text, self._graph)
+        # Reorder solvers: domain_tactic first, then goal-pattern heuristics
+        smart_order = self._goal_analyzer.prioritize(
+            goal_text, self._graph, domain_tactic=domain_tactic
+        )
         logger.debug(
-            f"Smart cascade order for goal: "
-            f"{[s for s, _ in smart_order[:3]]}..."
+            f"Smart cascade order (domain={domain_tactic!r}): "
+            f"{[s for s, _ in smart_order[:4]]}..."
         )
 
         # Temporarily swap solver order and run

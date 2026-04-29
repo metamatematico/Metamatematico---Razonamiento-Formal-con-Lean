@@ -925,9 +925,18 @@ class Nucleo:
             return self._demo_educational_response(input_text)
 
         from nucleo.llm.client import LLMClient
+        from nucleo.multi_agent.specialized_agent import classify_query
+        from nucleo.multi_agent.colimit_agents import domain_default_tactic
         lean_system = LLMClient.LEAN_SYSTEM_PROMPT
         context = self._find_relevant_context(input_text, self._graph)
         context["task"] = "lean_formalization"
+
+        # ── Clasificación de área → táctica por defecto del ColimitAgent ─────
+        # El join-envoltorio del área detectada provee la táctica de entrada
+        # al SolverCascade (paper §3.5, Principio 3.1).
+        _area = classify_query(input_text)
+        _domain_tactic = domain_default_tactic(_area)
+        logger.debug(f"_math_via_lean: area={_area!r}, domain_tactic={_domain_tactic!r}")
 
         # ── Detección de queries educativas/históricas (no necesitan Lean primero) ──
         q_lower = self._normalize_text(input_text)
@@ -1072,8 +1081,10 @@ class Nucleo:
 
         elif result.status == LeanResultStatus.SORRY:
             # ── Paso 3: Solver cascade intenta llenar los sorry ───────────
+            # domain_tactic: táctica por defecto del ColimitAgent del área
+            # detectada, colocada primera en la cascada (paper §3.5).
             sorry_msg, confidence, success_value = await self._try_solve_sorries(
-                lean_code, result
+                lean_code, result, domain_tactic=_domain_tactic
             )
             verification_status = "parcial"
             verification_note = (
@@ -1211,9 +1222,17 @@ class Nucleo:
         return "\n\n".join(lines)
 
     async def _try_solve_sorries(
-        self, code: str, result: LeanResult
+        self, code: str, result: LeanResult, domain_tactic: str = ""
     ) -> tuple[str, float, float]:
-        """Try solver cascade on sorry-containing code."""
+        """Try solver cascade on sorry-containing code.
+
+        Args:
+            code: Lean source with sorries
+            result: LeanResult from prior check
+            domain_tactic: Default tactic from the ColimitAgent of the
+                detected area (paper §3.5). Placed first in the cascade
+                via GoalAnalyzer.prioritize() → try_fill_sorry_smart().
+        """
         sorries = find_sorries_in_text(code)
         if not sorries and self._solver_cascade:
             return (
@@ -1231,7 +1250,19 @@ class Nucleo:
                 goal_type="",
                 surrounding_code="\n".join(sorry.context_before),
             )
-            if self._sorry_filler:
+            filled = False
+            # Smart cascade: domain_tactic placed first (paper §3.5)
+            if self._solver_cascade and (domain_tactic or ctx.goal):
+                cascade_result = await self._solver_cascade.try_fill_sorry_smart(
+                    code=code,
+                    sorry_line=ctx.line_number,
+                    goal_text=ctx.goal,
+                    domain_tactic=domain_tactic,
+                )
+                if cascade_result.success:
+                    solved.append(cascade_result.replacement_code or "")
+                    filled = True
+            if not filled and self._sorry_filler:
                 fill_result = await self._sorry_filler.fill_sorry_with_cascade(
                     ctx, code
                 )
@@ -1239,6 +1270,8 @@ class Nucleo:
                     solved.append(fill_result.chosen_solution.code)
                 else:
                     failed.append(sorry.line)
+            elif not filled:
+                failed.append(sorry.line)
 
         if solved and not failed:
             content = f"Todos los sorry resueltos: {', '.join(solved)}"

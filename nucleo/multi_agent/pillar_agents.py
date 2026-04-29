@@ -1,38 +1,48 @@
 """
-PillarAgent — cada pilar fundacional tiene su propio agente-colímite.
-=====================================================================
+PillarAgent — envoltorio computacional del join verificado de un pilar fundacional.
+====================================================================================
 
-Los 4 pilares (ZFC, CatThy, Logic, TypeThy) son más fundacionales
-que las 14 categorías matemáticas. Sus agentes son colímites de los
-skills L0 de cada pilar — el nivel más bajo de la jerarquía activa.
+Principio 3.1 (Separación proceso/objeto, paper NLE v7.0 §3.5.3):
+  Cada PillarAgent es un ENVOLTORIO COMPUTACIONAL sobre el join verificado
+  por is_join() del patrón de skills L0 de su pilar. El reclamo matemático
+  recae exclusivamente sobre ese join (objeto del grafo, certificado por
+  is_join); el envoltorio aporta la interfaz Python y los métodos de
+  invocación, pero estos NO son atributos categóricos del join.
 
-Jerarquía completa:
+  El agente ENVUELVE el join — no ES el join.
+
+Jerarquía de agentes-join estructurales (paper §3.5.1):
 
   L0: skills atómicos de los pilares (31 skills)
       ZFC: naive-sets, zfc-axioms, ordinals, cardinals...
       CatThy: cat-basics, functors, nat-trans, limits...
       Logic: propositional, fol-syntax, fol-semantics...
       TypeThy: stlc, system-f, dependent-types...
-            │ co-conos
+            │ join verificado por is_join()
             ▼
-  L1 (PillarAgent): 4 agentes pilar
-      colim[ZFC]     colim[CatThy]
-      colim[Logic]   colim[TypeThy]
-            │ morfismos hacia las categorías que los usan
+  L1 (PillarAgent): 4 envoltorios de join[pilar]
+      join[ZFC]     join[CatThy]
+      join[Logic]   join[TypeThy]
+            │ morfismos en el preorden G hacia las áreas que nutren
             ▼
-  L2 (ColimitAgent): 14 agentes categoría
-      colim[algebra] ──usa──► colim[ZFC] + colim[Logic]
-      colim[topology]──usa──► colim[CatThy] + colim[ZFC]
-      colim[lean-tactics]──►  colim[TypeThy] + colim[Logic]
-            │ co-conos
+  L2 (ColimitAgent): 14 envoltorios de join[área]
+      join[algebra] ──nutre──► join[ZFC] + join[Logic]
+      join[topology]──nutre──► join[CatThy] + join[ZFC]
+      join[lean-tactics]──►    join[TypeThy] + join[Logic]
+            │ join verificado por is_join()
             ▼
-  L3: colímite del orquestador
+  L3: envoltorio del join[orquestador]
 
-Cada pilar sabe qué categorías "nutren":
+Cada pilar nutre las áreas matemáticas que dependen de sus fundamentos:
   ZFC       → algebra, set-theory, combinatorics, number-theory, probability
   CatThy    → category-theory, topology, algebra (abstracta), analysis
   Logic     → logic, proof-strategies, lean-tactics, computation
   TypeThy   → lean-tactics, proof-strategies, computation
+
+Distinción con los reguladores (paper §3.4):
+  Los PillarAgents son objetos estáticos del grafo (joins verificados).
+  Los monitores Rtac/Rorg/Rstr/Rint son procesos de retroalimentación
+  que producen y verifican joins, pero no son ellos mismos joins.
 """
 
 from __future__ import annotations
@@ -84,14 +94,19 @@ PILLAR_NAMES = {
 
 class PillarAgent:
     """
-    Agente-colímite de un pilar fundacional.
+    Envoltorio computacional del join verificado de un pilar fundacional (L1).
 
-    Es el colímite de todos los skills L0 del pilar.
-    Actúa como base fundacional para los ColimitAgents L2:
-    envía señales (morfismos) a las categorías que dependen de él.
+    Principio 3.1: este objeto envuelve el nodo join[pilar] del grafo G —
+    ese nodo es la cota superior mínima de los skills L0 del pilar,
+    certificada por is_join(). El reclamo matemático es sobre el nodo;
+    este envoltorio provee la interfaz Python y el registro de uso.
 
-    Analogía: es la "neurona fundacional" — aprende los axiomas
-    y principios base, y los transmite a los agentes especializados.
+    Rol en la jerarquía (paper §3.5.1):
+      - Es un nodo persistente del grafo, no un proceso de regulación.
+      - Los reguladores (Rstr, Rint) pueden producir nuevos joins, pero
+        no son PillarAgents; los PillarAgents son los productos ya creados.
+      - Envía morfismos en el preorden G hacia las áreas matemáticas L2
+        que dependen de sus fundamentos.
     """
 
     def __init__(
@@ -133,11 +148,12 @@ class PillarAgent:
         colimit_builder,
     ) -> "PillarAgent":
         """
-        Construye el PillarAgent para un pilar.
+        Construye el PillarAgent: registra los skills L0 del pilar en el
+        grafo y verifica el join del patrón formado por esos skills.
 
-        1. Instancia el Pillar y obtiene sus skills L0
+        1. Carga los skills L0 del pilar e instancia el Pillar
         2. Los registra en el grafo global (si no existen)
-        3. Crea el patrón y construye el colímite L1
+        3. Crea el patrón y verifica el join L1 mediante is_join()
         """
         # 1. Obtener skills L0 del pilar
         pillar_skills = _load_pillar_skills(pillar_name)
@@ -217,14 +233,14 @@ class PillarAgent:
 
     def inject_into_category_agent(self, category_agent) -> bool:
         """
-        Crea un morfismo desde este pilar hacia un agente de categoría.
+        Añade un morfismo join[pilar] → join[área] en el preorden G.
 
-        Este morfismo representa "el agente de categoría usa este pilar".
-        En términos categóricos: es parte del co-cono que hace que
-        el agente de categoría sea colímite de sus skills + los pilares.
+        Representa la relación de alcanzabilidad: el join del pilar es
+        cota inferior del join del área que lo usa. Es un morfismo del
+        preorden G, no un co-cono en el sentido de colímite general.
 
         Args:
-            category_agent: ColimitAgent de la categoría que usa este pilar
+            category_agent: ColimitAgent del área que depende de este pilar
 
         Returns:
             True si el morfismo fue creado correctamente
@@ -302,10 +318,11 @@ class PillarAgent:
 
 class PillarAgentSystem:
     """
-    Los 4 PillarAgents + conexión con los 14 ColimitAgents.
+    Los 4 PillarAgents (envoltorios de joins L1) + conexión con los 14 ColimitAgents.
 
-    Construye la jerarquía L0 → L1(pilares) → L2(categorías).
-    Inyecta morfismos desde cada pilar hacia las categorías que usa.
+    Construye la jerarquía L0 → L1(joins de pilares) → L2(joins de áreas).
+    Añade morfismos en el preorden G desde cada join de pilar hacia los
+    joins de áreas que dependen de él.
     """
 
     def __init__(self, graph, pattern_manager, colimit_builder):

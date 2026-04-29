@@ -1,28 +1,42 @@
 """
-ColimitAgent — cada agente ES el colímite de los skills de su categoría.
-========================================================================
+ColimitAgent — envoltorio computacional del join verificado de un área matemática.
+==================================================================================
 
-En lugar de un agente externo que LEE el grafo de skills, cada agente
-es el NODO COLÍMITE construido por ColimitBuilder a partir de los skills
-de su categoría. Es el objeto universal que los resume a todos.
+Principio 3.1 (Separación proceso/objeto, paper NLE v7.0 §3.5.3):
+  Cada ColimitAgent es un ENVOLTORIO COMPUTACIONAL sobre el join verificado
+  por is_join() del patrón de skills de su área. El reclamo matemático
+  recae exclusivamente sobre ese join (nodo del grafo G, cota superior
+  mínima de los skills del área dentro de la categoría delgada finita Gn).
+  El envoltorio aporta la interfaz Python, la táctica Lean por defecto y
+  los métodos de selección de táctica, pero estos NO son atributos
+  categóricos del join.
 
-Jerarquía:
-  L0: skills fundacionales  (parse_query, call_lean, ...)
-      │ co-conos
-  L1: skills de dominio     (factor_poly, norm_num, ...)
-      │ co-conos
-  L2: colímite[categoría]   = agente  ← AQUÍ
-      │ co-conos
-  L3: colímite[colímites]   = orquestador
+  El agente ENVUELVE el join — no ES el join.
 
-El agente (colímite L2) tiene:
-  - Morfismos de entrada desde todos sus skills (co-cono)
-  - Memoria procedimental propia (qué tácticas funcionaron)
-  - Capacidad de actualizar sus co-conos cuando llegan skills nuevos
-  - Propiedad universal: cualquier solución que use sus skills
-    factoriza a través del agente
+Jerarquía de agentes-join estructurales (paper §3.5.1):
 
-Referencia: Teorema 2.10 (Complejificación), paper NLE v7.0
+  L0/L1: skills del área (parse_query, call_lean, factor_poly, ...)
+            │ join verificado por is_join() en Gn
+            ▼
+  L2 (ColimitAgent): 14 envoltorios de join[área]
+      join[algebra], join[analysis], ..., join[topology]
+            │ join verificado por is_join() en Gn
+            ▼
+  L3 (Orquestador): 1 envoltorio de join[todos los ColimitAgents]
+
+Atributos del envoltorio (NO del join):
+  - Táctica Lean por defecto por área (ring, norm_num, linarith, ...)
+  - Memoria procedimental (qué tácticas funcionaron para qué queries)
+  - Morfismo mediador entre agentes (táctica compartida entre áreas)
+
+Distinción con los reguladores (paper §3.4):
+  Los ColimitAgents son nodos persistentes del grafo — objetos estáticos.
+  Los monitores Rtac/Rorg/Rstr/Rint son procesos que observan el grafo y
+  producen nuevos joins; cuando un join es certificado, entra al grafo
+  como un ColimitAgent nuevo. El regulador es el productor; el
+  ColimitAgent es el producto.
+
+Referencia: paper NLE v7.0 §3.5, JoinColimit.lean
 """
 
 from __future__ import annotations
@@ -59,14 +73,19 @@ class ColimitAgentState:
 
 class ColimitAgent:
     """
-    Agente matemático que ES el colímite de los skills de su categoría.
+    Envoltorio computacional del join verificado de un área matemática (L2).
+
+    Principio 3.1: este objeto envuelve el nodo join[área] del grafo G —
+    ese nodo es la cota superior mínima de los skills del área en Gn,
+    certificada por is_join(). El reclamo matemático es sobre el nodo;
+    este envoltorio provee la interfaz de selección de táctica y memoria.
 
     Construcción:
-      1. Se recopilan todos los SkillNodes de la categoría (L0 + L1)
-      2. PatternManager crea un patrón con todos ellos
-      3. ColimitBuilder construye el colímite → crea un SkillNode L2
-         con co-conos verificados desde cada skill componente
-      4. Este agente ENVUELVE ese SkillNode L2
+      1. Se recopilan los SkillNodes del área (L0 + L1) del grafo
+      2. PatternManager crea el patrón con todos ellos
+      3. ColimitBuilder verifica el join → crea un SkillNode L2 con
+         is_join() certificando las condiciones de cota superior y minimalidad
+      4. Este envoltorio almacena ese SkillNode L2 y provee la interfaz
 
     Uso:
       agent = ColimitAgent.build(category, graph, pattern_manager, colimit_builder)
@@ -120,20 +139,21 @@ class ColimitAgent:
         colimit_builder,
     ) -> "ColimitAgent":
         """
-        Construye el ColimitAgent para una categoría.
+        Construye el ColimitAgent: recopila los skills del área, crea el
+        patrón y verifica el join mediante is_join().
 
-        Recopila todos los skills de la categoría del grafo,
-        crea el patrón, y llama a ColimitBuilder para obtener
-        el nodo colímite L2.
+        El join verificado es el nodo que entra al grafo como cota superior
+        mínima de los skills del área en Gn (categoría delgada finita actual).
+        El envoltorio resultante almacena ese nodo y provee la interfaz Python.
 
         Args:
-            category:        Nombre de la categoría
+            category:        Nombre del área matemática
             graph:           SkillCategory (grafo global de skills)
-            pattern_manager: PatternManager del MES
-            colimit_builder: ColimitBuilder del MES
+            pattern_manager: PatternManager de la memoria MES
+            colimit_builder: ColimitBuilder (verifica is_join)
 
         Returns:
-            ColimitAgent con el nodo colímite construido y co-conos verificados
+            ColimitAgent envolviendo el join verificado del área
         """
         # 1. Recopilar skills de la categoría
         skill_ids = _collect_category_skills(category, graph)
@@ -321,16 +341,18 @@ class ColimitAgent:
 
     def absorb_new_skill(self, new_skill_id: str) -> bool:
         """
-        Integra un nuevo skill en el colímite (re-complejificación).
+        Extiende el patrón del área con un nuevo skill (Graph Extension).
 
-        Cuando se añade un nuevo skill a la categoría, el colímite
-        debe actualizarse para incluirlo — se añade un nuevo co-cono.
+        Cuando se añade un nuevo skill al área, el patrón se amplía y se
+        añade el morfismo de alcanzabilidad skill → join[área] en el preorden.
+        Nota: tras esta extensión, el join debe re-verificarse con is_join()
+        según el Teorema 3.1(4) del paper (relatividad de joins).
 
         Args:
             new_skill_id: ID del nuevo skill en el grafo
 
         Returns:
-            True si el skill fue absorbido correctamente
+            True si el skill fue incorporado al patrón correctamente
         """
         if self.pattern is None or self.graph is None:
             return False
@@ -387,18 +409,17 @@ class ColimitAgent:
 
     def mediate(self, other_colimit: "ColimitAgent", query: str) -> Optional[str]:
         """
-        Morfismo mediador hacia otro colímite (propiedad universal).
+        Detecta táctica compartida entre dos envoltorios de join (morfismo mediador).
 
-        Si otro colímite B también puede resolver esta query, existe
-        un único morfismo mediador h: self → B tal que los co-conos
-        son compatibles. Esto modela la factorización universal.
+        En el preorden G, si join[A] ≤ join[B], existe un único morfismo
+        join[A] → join[B]. En la práctica computacional esto se manifiesta
+        como una táctica Lean compartida entre ambas áreas para la misma query.
 
-        En la práctica: si algebra puede resolver algo que también
-        resuelve number-theory, el morfismo mediador es la táctica
-        compartida que ambos usan.
+        Nota: este método opera sobre la memoria del envoltorio (atributo
+        computacional), no sobre el join mismo (objeto categórico).
 
         Returns:
-            Táctica común (morfismo mediador) o None
+            Táctica compartida con mayor tasa de éxito combinada, o None
         """
         my_tactics = set(self._tactic_success.keys())
         other_tactics = set(other_colimit._tactic_success.keys())
@@ -590,19 +611,22 @@ class ColimitAgent:
 
 class ColimitAgentSystem:
     """
-    Sistema completo de colímites jerárquicos:
+    Jerarquía completa de 19 agentes-join estructurales (paper §3.5.2):
 
       L0: skills atómicos de pilares (31 skills)
-              │ co-conos
-      L1: 4 PillarAgents (colímites de pilares)
-          colim[ZFC], colim[CatThy], colim[Logic], colim[TypeThy]
-              │ morfismos pilar→categoría
-      L2: 14 ColimitAgents (colímites de categorías)
-          colim[algebra], colim[geometry], ..., colim[topology]
-              │ co-conos
-      L3: colimit_of_colimits = orquestador
+              │ join verificado por is_join()
+      L1: 4 PillarAgents — envoltorios de join[pilar]
+          join[ZFC], join[CatThy], join[Logic], join[TypeThy]
+              │ morfismos en el preorden G (pilar → área)
+      L2: 14 ColimitAgents — envoltorios de join[área]
+          join[algebra], join[geometry], ..., join[topology]
+              │ join verificado por is_join()
+      L3: Orquestador — envoltorio de join[todos los L2]
 
-    El colímite L3 es el punto de entrada único.
+    El orquestador L3 es el punto de entrada único del sistema.
+    Las dos clases de agentes (join-estructurales y reguladores) son
+    disjuntas: este sistema gestiona solo los join-estructurales.
+    Los reguladores (Rtac/Rorg/Rstr/Rint) están en co_regulators.py.
     """
 
     def __init__(self, graph, pattern_manager, colimit_builder):
@@ -723,33 +747,33 @@ class ColimitAgentSystem:
                     )
 
     def print_hierarchy(self):
-        """Muestra la jerarquía completa de colímites L0→L1→L2→L3."""
+        """Muestra la jerarquía completa de agentes-join L0→L1→L2→L3."""
         from nucleo.multi_agent.pillar_agents import PILLAR_NAMES, PILLAR_FEEDS_CATEGORIES
         print(f"\n{'='*65}")
-        print(f"  Jerarquía de Colímites — NLE v7.0")
+        print(f"  Jerarquía de Agentes-Join Estructurales — NLE v7.0")
         print(f"{'='*65}")
 
         # L3
         if self._top_colimit:
-            print(f"\n  L3  [orquestador]")
-            print(f"      colim(14 agentes) = {self._top_colimit.id}")
+            print(f"\n  L3  [orquestador — join(14 áreas)]")
+            print(f"      join(14 agentes) = {self._top_colimit.id}")
 
         # L2
-        print(f"\n  L2  [14 agentes-categoría]")
+        print(f"\n  L2  [14 envoltorios de join por área matemática]")
         for cat, agent in self._agents.items():
             n = len(agent.pattern.component_ids) if agent.pattern else 0
             sid = agent.colimit_skill.id if agent.colimit_skill else "stub"
-            print(f"      [{cat:<20}] colim({n:2d} skills) → {sid}")
+            print(f"      [{cat:<20}] join({n:2d} skills) → {sid}")
 
         # L1 pilares
         if self._pillar_system:
-            print(f"\n  L1  [4 agentes-pilar]")
+            print(f"\n  L1  [4 envoltorios de join por pilar fundacional]")
             for pillar, pa in self._pillar_system._agents.items():
                 name = PILLAR_NAMES.get(pillar, pillar)
                 n = len(pa.pillar_skills)
                 cats = ", ".join(PILLAR_FEEDS_CATEGORIES.get(pillar, []))
                 sid = pa.colimit_skill.id if pa.colimit_skill else "stub"
-                print(f"      [{name:<30}] colim({n} skills L0) → {sid}")
+                print(f"      [{name:<30}] join({n} skills L0) → {sid}")
                 print(f"        nutre: {cats}")
 
         # L0 count
@@ -805,25 +829,32 @@ def _collect_category_morphisms(skill_ids: List[str], graph) -> List[str]:
     return morphism_ids
 
 
+CATEGORY_DEFAULT_TACTICS: dict[str, str] = {
+    "algebra":          "ring",
+    "analysis":         "norm_num",
+    "category-theory":  "simp",
+    "combinatorics":    "omega",
+    "computation":      "decide",
+    "geometry":         "norm_num",
+    "lean-tactics":     "simp",
+    "logic":            "tauto",
+    "number-theory":    "norm_num",
+    "optimization":     "linarith",
+    "probability":      "norm_num",
+    "proof-strategies": "exact",
+    "set-theory":       "simp",
+    "topology":         "simp",
+}
+
+
+def domain_default_tactic(category: str) -> str:
+    """Táctica Lean por defecto del join-envoltorio de un área matemática."""
+    return CATEGORY_DEFAULT_TACTICS.get(category, "simp")
+
+
 def _default_tactic(category: str) -> str:
-    """Táctica Lean por defecto para cada categoría."""
-    defaults = {
-        "algebra":         "ring",
-        "analysis":        "norm_num",
-        "category-theory": "simp",
-        "combinatorics":   "omega",
-        "computation":     "decide",
-        "geometry":        "norm_num",
-        "lean-tactics":    "simp",
-        "logic":           "tauto",
-        "number-theory":   "norm_num",
-        "optimization":    "linarith",
-        "probability":     "norm_num",
-        "proof-strategies":"exact",
-        "set-theory":      "simp",
-        "topology":        "simp",
-    }
-    return defaults.get(category, "simp")
+    """Alias interno mantenido por compatibilidad."""
+    return domain_default_tactic(category)
 
 
 def _make_stub_skill(category: str):
