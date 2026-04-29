@@ -17,6 +17,8 @@
 -- Category theory foundations for the skill graph
 import MetamathProver.CategoryFoundations.SkillCategory
 import MetamathProver.CategoryFoundations.ColimitVerifier
+-- Central theorem: join = colimit in the preorder (thin) interpretation
+import MetamathProver.CategoryFoundations.JoinColimit
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism

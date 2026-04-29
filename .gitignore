@@ -16,7 +16,29 @@ build/
 data/memory.json
 data/neural_agent.json
 data/neural_agent.json.pt
+data/neural_agent.json.pt.bak
+data/neural_agent.json.pt.phase1_backup
+data/experience_buffer.pkl
 data/eval_results/
+
+# Training weights and large datasets (regenerables, no se versionan)
+training/agents/*.pt
+training/agents/best/
+training/balanced_train.jsonl
+training/by_category/
+training/logs/
+training/balance_log.txt
+
+# Logs locales
+_robocopy_log.txt
+balance_log.txt
+
+# Versiones antiguas del paper (el canónico es docs/NLE_v7_PaperNN.pdf)
+NLE_v7_Paper_Mejorado_2.pdf
+NLE_v7_Paper_Mejorado_3.pdf
+
+# Claude Code internals
+.claude/
 
 # Lean temp files
 tmp*.lean

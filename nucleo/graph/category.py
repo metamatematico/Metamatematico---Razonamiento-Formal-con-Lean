@@ -248,7 +248,14 @@ class SkillCategory:
         self._outgoing[morphism.source_id].add(morphism.id)
         self._incoming[morphism.target_id].add(morphism.id)
 
-        # Indice de pares para busqueda rapida
+        # Índice de pares para búsqueda rápida.
+        # NOTA SOBRE SEMÁNTICA THIN: este dict almacena solo UN morfismo por par
+        # (source, target). Si se añaden dos morfismos distintos entre el mismo par,
+        # el segundo sobreescribe al primero en este índice.
+        # Esto hace que `get_morphism_between` y `has_morphism` tengan semántica
+        # de PREORDEN (thin category): Hom(a,b) tiene ≤ 1 elemento accesible via índice.
+        # Los distintos MorphismKind son etiquetas, no morfismos categóricamente distintos.
+        # Esta propiedad es usada explícitamente por is_preorder_leq() y is_join().
         pair = (morphism.source_id, morphism.target_id)
         self._morphism_pairs[pair] = morphism.id
 
@@ -443,6 +450,55 @@ class SkillCategory:
         pair = (source_id, target_id)
         mor_id = self._morphism_pairs.get(pair)
         return self._morphisms.get(mor_id) if mor_id else None
+
+    def reachable_from(self, source_id: str) -> set[str]:
+        """
+        Conjunto de todos los skills alcanzables desde source_id por cualquier ruta.
+
+        Esto es el cierre transitivo de la relación de morfismos, que corresponde
+        a los objetos alcanzables en la CATEGORÍA LIBRE (morfismos = rutas finitas).
+
+        Semánticamente: s' es alcanzable desde s iff Hom(s, s') ≠ ∅ en la cat. libre.
+        Para la verificación de colímites en la subcategoría finita G_n, necesitamos
+        este cierre y NO solo las aristas directas.
+
+        Complejidad: O(n + m) BFS.
+        """
+        if source_id not in self._skills:
+            return set()
+        visited: set[str] = set()
+        queue = [source_id]
+        while queue:
+            curr = queue.pop()
+            if curr in visited:
+                continue
+            visited.add(curr)
+            for mor_id in self._outgoing.get(curr, []):
+                mor = self._morphisms[mor_id]
+                if mor.morphism_type != MorphismType.IDENTITY:
+                    tgt = mor.target_id
+                    if tgt not in visited:
+                        queue.append(tgt)
+        visited.discard(source_id)  # excluir el nodo mismo (la identidad no es ruta no-trivial)
+        return visited
+
+    def is_preorder_leq(self, a: str, b: str) -> bool:
+        """
+        Relación de preorden: a ≤ b iff existe alguna ruta de a a b (o a == b).
+
+        La categoría de skills, interpretada como preorden (thin category), tiene:
+          Hom(a, b) = {*}  si a ≤ b
+          Hom(a, b) = ∅    en caso contrario
+
+        Esta es la interpretación matemáticamente HONESTA del sistema:
+        la categoría libre sobre el quiver de skills se quotienta a un preorden.
+        Los distintos tipos de morfismo (dep/an/tr) son etiquetas en el único
+        morfismo entre dos nodos, no morfismos categóricamente distintos.
+        (Evidencia: _morphism_pairs guarda solo UN morfismo por par (src,tgt).)
+        """
+        if a == b:
+            return True
+        return b in self.reachable_from(a)
 
     # =========================================================================
     # CONSULTAS JERARQUICAS (MES v7.0)

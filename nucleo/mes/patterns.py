@@ -583,6 +583,91 @@ class ColimitBuilder:
         return True
 
     # =========================================================================
+    # IS_JOIN — verificación directa en el preorden inducido (Lean-aligned)
+    # =========================================================================
+
+    def is_join(
+        self,
+        apex_id: str,
+        component_ids: list[str],
+        graph: SkillCategory,
+    ) -> dict[str, Any]:
+        """
+        Verificar que apex_id es el JOIN (ínfimo superior) de component_ids
+        en el preorden inducido por el grafo de skills.
+
+        FUNDAMENTO MATEMÁTICO (probado en JoinColimit.lean):
+        En una categoría thin (preorden), join = colímite.
+        El preorden del sistema: s ≤ t  iff  existe ruta de s a t en el grafo.
+
+        Condiciones verificadas:
+          1. COTA SUPERIOR: ∀ c ∈ components, c ≤ apex  (apex es co-cono)
+          2. MINIMALIDAD: ∀ x ∈ G_n, (∀ c ≤ x) → apex ≤ x  (apex es la menor)
+
+        La condición 2 es lo que convierte una cota superior en colímite.
+        verify_universal_property() verifica esto; is_join() lo expresa directamente
+        en términos del preorden sin pasar por morfismos explícitos.
+
+        Returns:
+            {
+              "is_join": bool,
+              "upper_bound": bool,      # condición 1
+              "minimal": bool,          # condición 2
+              "failed_minimality": list[str],  # skills x que violan minimalidad
+              "n_skills": int,          # tamaño de G_n (universo de verificación)
+            }
+        """
+        result: dict[str, Any] = {
+            "is_join": False,
+            "upper_bound": False,
+            "minimal": False,
+            "failed_minimality": [],
+            "n_skills": len(graph.skills),
+        }
+
+        # Condición 1: apex es cota superior (upper bound)
+        for c_id in component_ids:
+            if not graph.is_preorder_leq(c_id, apex_id):
+                result["is_join"] = False
+                return result
+        result["upper_bound"] = True
+
+        # Condición 2: minimalidad — para cada x ∈ G_n que sea cota superior,
+        # debe existir ruta apex → x  (apex es el mínimo entre todas las cotas).
+        minimal = True
+        failed: list[str] = []
+        for x_id in graph.skill_ids:
+            if x_id == apex_id:
+                continue
+            # ¿Es x cota superior de todos los componentes?
+            x_is_upper_bound = all(
+                graph.is_preorder_leq(c_id, x_id) for c_id in component_ids
+            )
+            if x_is_upper_bound:
+                # Debe existir morfismo apex → x (apex ≤ x en el preorden)
+                if not graph.is_preorder_leq(apex_id, x_id):
+                    minimal = False
+                    failed.append(x_id)
+
+        result["minimal"] = minimal
+        result["failed_minimality"] = failed
+        result["is_join"] = minimal  # upper_bound ya se verificó arriba
+
+        if not minimal:
+            n_failed = len(failed)
+            logger.warning(
+                f"is_join falla: {apex_id} es cota superior pero NO minimal. "
+                f"{n_failed} skill(s) son cotas superiores menores: {failed[:5]}"
+            )
+        else:
+            logger.debug(
+                f"is_join OK: {apex_id} es join de {component_ids} "
+                f"en G_{result['n_skills']} (preorden de skills)"
+            )
+
+        return result
+
+    # =========================================================================
     # PROPIEDAD UNIVERSAL (Def 2.2b)
     # =========================================================================
 
@@ -632,13 +717,23 @@ class ColimitBuilder:
                 if not self._is_compatible_family(pattern, g_morphisms, graph):
                     continue  # Familia no compatible, no aplica
 
-            # Verificar: existe h: cP -> B
-            h = graph.get_morphism_between(cocone_skill_id, b_id)
-            if h is None:
+            # Verificar: existe h ÚNICO h: cP -> B  (∃!h es la condición de colímite)
+            all_h = graph.hom(cocone_skill_id, b_id)
+            # Filtrar morfismos identidad — no cuentan como morfismos mediadores
+            all_h = [m for m in all_h if m.morphism_type != MorphismType.IDENTITY]
+            if len(all_h) == 0:
                 logger.warning(
                     f"Propiedad universal falla: no existe h: {cocone_skill_id} -> {b_id}"
                 )
                 return False
+            if len(all_h) > 1:
+                logger.warning(
+                    f"Propiedad universal falla: h no es único "
+                    f"({len(all_h)} morfismos {cocone_skill_id} -> {b_id}); "
+                    f"un colímite requiere ∃!h, no solo ∃h"
+                )
+                return False
+            h = all_h[0]
 
             # Verificar: h . c_i tiene misma estructura que g_i para todo i
             for comp_id in pattern.component_ids:
@@ -672,30 +767,37 @@ class ColimitBuilder:
         Returns:
             Dict {b_id: {comp_id: morphism}} para cada B candidato
         """
-        # Para cada componente, obtener targets alcanzables (no-triviales)
-        targets_per_component: list[dict[str, Morphism]] = []
+        # Para cada componente, obtener targets alcanzables por CUALQUIER RUTA
+        # (no solo aristas directas). En la categoría libre, un co-cono sobre X
+        # existe si hay ALGÚN morfismo (ruta) de cada componente a X.
+        # Usamos reachable_from() en lugar de outgoing_morphisms() para capturar
+        # todos los objetos donde existe un morfismo mediador en la cat. libre.
+        targets_per_component: list[set[str]] = []
         for comp_id in pattern.component_ids:
-            comp_targets: dict[str, Morphism] = {}
-            for morph in graph.outgoing_morphisms(comp_id):
-                tid = morph.target_id
-                if tid != comp_id and tid != cocone_skill_id:
-                    if morph.morphism_type != MorphismType.IDENTITY:
-                        comp_targets[tid] = morph
-            targets_per_component.append(comp_targets)
+            reachable = graph.reachable_from(comp_id)
+            reachable.discard(cocone_skill_id)  # excluir el propio colímite candidato
+            targets_per_component.append(reachable)
 
         if not targets_per_component:
             return {}
 
-        # Interseccion: B debe ser alcanzable desde TODOS los componentes
-        common_targets = set(targets_per_component[0].keys())
-        for comp_targets in targets_per_component[1:]:
-            common_targets &= set(comp_targets.keys())
+        # Intersección: B debe ser alcanzable desde TODOS los componentes
+        common_targets = targets_per_component[0].copy()
+        for reachable in targets_per_component[1:]:
+            common_targets &= reachable
 
+        # Reconstruir dict con el morfismo DIRECTO más cercano para cada comp->B
+        # (para compatibilidad con _is_compatible_family que espera Morphism objects)
         result: dict[str, dict[str, Morphism]] = {}
         for b_id in common_targets:
             family: dict[str, Morphism] = {}
-            for i, comp_id in enumerate(pattern.component_ids):
-                family[comp_id] = targets_per_component[i][b_id]
+            for comp_id in pattern.component_ids:
+                # Buscar morfismo directo comp→b (si existe); si no, marcar None
+                direct = graph.get_morphism_between(comp_id, b_id)
+                if direct:
+                    family[comp_id] = direct
+                # Si no hay morfismo directo la ruta es multi-salto; la propiedad
+                # universal se verifica a nivel de existencia de h: apex→B (ya hecho arriba)
             result[b_id] = family
 
         return result
