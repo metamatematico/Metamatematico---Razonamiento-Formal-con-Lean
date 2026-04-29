@@ -817,7 +817,7 @@ def fig_mes_complexification(query=None):
         ax = axes[1]
         ax.set_facecolor(BG); ax.axis("off")
         ax.set_xlim(-3.2, 3.2); ax.set_ylim(-2.8, 2.6)
-        ax.set_title("2. Colímite cP\n(skill emergente: síntesis categórica)",
+        ax.set_title("2. join[P]\n(cota superior mínima verificada por is_join())",
                      color=FG, fontsize=8.5, pad=6)
 
         # Pattern skills tenues
@@ -921,14 +921,14 @@ def fig_mes_complexification(query=None):
                 mpatches.Patch(color="#fbbf24", label=f"Activados ({len(matched)})"),
                 mpatches.Patch(color="#818cf8", label=f"Dependencias ({len(dep_set)})"),
                 mpatches.Patch(color="#4ade80", label=f"Tácticas ({len(tactic_set)})"),
-                mpatches.Patch(color="#f59e0b", label="cP — colímite emergente"),
+                mpatches.Patch(color="#f59e0b", label="join[P] — cota sup. mínima verificada"),
             ],
             loc="lower right", fontsize=6,
             facecolor="#161b22", edgecolor="#30363d", labelcolor=FG,
         )
 
         fig.suptitle(
-            f"MES — Complexificación para «{q_short}»  "
+            f"MES — Extensión del grafo para «{q_short}»  "
             f"(Axiomas 8.1–8.4 · Teoremas 8.5–8.7)",
             color=FG, fontsize=10, y=1.01,
         )
@@ -939,8 +939,8 @@ def fig_mes_complexification(query=None):
     fig, axes = plt.subplots(1, 3, figsize=(14, 5), facecolor=BG)
     titles = [
         "1. Patrón P: I → K\n(colección de skills)",
-        "2. Colímite cP\n(nuevo skill emergente)",
-        "3. Complexificación K'\n(grafo evolucionado)",
+        "2. join[P]\n(cota superior mínima verificada)",
+        "3. Extensión K'\n(grafo extendido)",
     ]
 
     for idx, ax in enumerate(axes):
@@ -1014,7 +1014,7 @@ def fig_mes_complexification(query=None):
             fontsize=7, color="#9ca3af",
             bbox=dict(boxstyle="round", facecolor="#161b22", edgecolor="#21262d"))
 
-    fig.suptitle("Memory Evolutive Systems — Complexificación y Emergencia", color=FG, fontsize=11, y=1.01)
+    fig.suptitle("Memory Evolutive Systems — Extensión del Grafo y Emergencia", color=FG, fontsize=11, y=1.01)
     fig.tight_layout()
     return fig
 
@@ -1457,7 +1457,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "⬡ Grafo de Skills",
     "◎ Espacio de Embeddings",
     "⚙ Arquitectura NLE",
-    "◈ Complexificación MES",
+    "◈ Extensión del Grafo",
     "→ Pipeline",
     "⊛ GNN + Estadísticas",
     "🔍 Traza de Prueba",
@@ -1556,11 +1556,11 @@ with tab4:
     with col1:
         if _cq:
             st.markdown(
-                f"**Complexificación MES para la consulta activa** — los tres paneles muestran "
-                f"el patrón P, el colímite cP y la estructura K' específicos del teorema analizado."
+                f"**Extensión del grafo para la consulta activa** — los tres paneles muestran "
+                f"el patrón P, el join[P] (cota superior mínima verificada) y la estructura K' extendida."
             )
         else:
-            st.markdown("**Proceso de complexificación** — cómo el sistema genera skills emergentes mediante colímites categoriales (ejemplo: Álgebra Abstracta).")
+            st.markdown("**Extensión del grafo** — cómo el sistema genera skills emergentes calculando el join del patrón en la categoría thin G (ejemplo: Álgebra Abstracta).")
         try:
             with st.spinner("Generando diagrama MES..."):
                 fig = fig_mes_complexification(query=_cq or None)
@@ -1603,15 +1603,15 @@ with tab4:
         st.markdown("""
 Un **patrón** P es un funtor P: I → K que selecciona una colección de skills conectados.
 
-El **colímite** cP es el skill "más pequeño" que recibe morfismos de todos los componentes del patrón — representa la *síntesis* de esos conocimientos.
+El **join[P]** es la cota superior mínima del patrón en la categoría thin G — el skill emergente que todos los componentes de P alcanzan. Verificado por `is_join()` (Principio 3.1).
 
-La **complexificación** K'  añade cP al grafo junto con los morfismos co-cono, generando un nuevo nivel de abstracción.
+La **extensión del grafo** K' añade join[P] al grafo junto con los morfismos del co-cono, generando un nuevo nivel de abstracción. El reclamo matemático recae sobre el join (objeto del grafo), no sobre el agente-envoltorio.
 
-Este proceso modela cómo el sistema *aprende*: combina skills conocidos para crear competencias emergentes (Axiomas 8.1–8.4 del paper MES v7.0).
+Este proceso modela cómo el sistema *aprende*: combina skills conocidos para crear competencias emergentes (Axiomas 8.1–8.4 del paper NLE v7.0).
 
 **Verificado formalmente**: 379 tests confirman:
-- Universalidad del colímite
-- Functorialidad de la complexificación
+- Propiedad universal del join (is_join)
+- Functorialidad de la extensión del grafo
 - Principio de multiplicidad
 - Conectividad del grafo
         """)
@@ -1763,7 +1763,7 @@ with tab8:
             _summary = _json.load(_f)
 
     # ── Grafo jerárquico de agentes ─────────────────────────────────────────────
-    st.markdown("### Grafo categórico: Skills → ColimitAgents → Orchestrator")
+    st.markdown("### Jerarquía de joins verificados: Skills L0 → join-envoltorios L2 → Orchestrador L3")
 
     def _fig_agents():
         import matplotlib.pyplot as plt
@@ -1801,7 +1801,7 @@ with tab8:
         G = nx.DiGraph()
         # Nodo orquestador (L3)
         G.add_node("ORCHESTRATOR", kind="orch", label="Orchestrator\nL3", color="#f59e0b")
-        # 14 ColimitAgents (L2)
+        # 14 join-envoltorios L2 (Principio 3.1: el agente ENVUELVE el join, no ES el join)
         for cat in _CAT_COLORS:
             G.add_node(cat, kind="agent", label=cat.replace("-", "\n"), color=_CAT_COLORS[cat])
             G.add_edge(cat, "ORCHESTRATOR")
@@ -1875,12 +1875,12 @@ with tab8:
         # Leyenda
         legend_h = [
             mpatches.Patch(color="#f59e0b", label="L3 Orchestrator"),
-            mpatches.Patch(color="#6366f1", label="L2 ColimitAgent (borde blanco = pesos cargados)"),
+            mpatches.Patch(color="#6366f1", label="L2 join-envoltorio (Principio 3.1 — borde blanco = pesos cargados)"),
             mpatches.Patch(color="#6b7280", label="L1 Skills (3 por agente)"),
         ]
         ax.legend(handles=legend_h, loc="lower center", bbox_to_anchor=(0.5, -0.02),
                   ncol=3, fontsize=7, facecolor="#0d1117", edgecolor="#21262d", labelcolor="#9ca3af")
-        ax.set_title("Jerarquía L0→L1→L2→L3 · 14 ColimitAgents · 76 skills",
+        ax.set_title("Jerarquía L0→L1→L2→L3 · 14 join-envoltorios (Principio 3.1) · 76 skills",
                      color="#c9d1d9", fontsize=11, pad=8)
         fig.tight_layout()
         return fig
