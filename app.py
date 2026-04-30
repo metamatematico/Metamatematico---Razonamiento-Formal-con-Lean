@@ -167,6 +167,15 @@ PROVIDERS = {
         "key_placeholder": "gsk_...",
         "key_help": "Obtener gratis en console.groq.com",
     },
+    "DeepSeek": {
+        "models": [
+            "deepseek-chat",
+            "deepseek-reasoner",
+        ],
+        "key_label": "DeepSeek API Key",
+        "key_placeholder": "sk-...",
+        "key_help": "Obtener en platform.deepseek.com",
+    },
     "Demo (sin API key)": {
         "models": ["demo"],
         "key_label": None,
@@ -297,6 +306,37 @@ def call_anthropic(prompt: str, model: str, api_key: str, max_tokens: int) -> di
         return {"content": "", "error": "Instala: pip install anthropic"}
     except Exception as e:
         return {"content": "", "error": str(e)}
+
+
+def call_deepseek(prompt: str, model: str, api_key: str, max_tokens: int) -> dict:
+    try:
+        from openai import OpenAI
+        client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+        kwargs: dict = dict(
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user",   "content": prompt},
+            ],
+            max_tokens=max_tokens,
+            stream=False,
+        )
+        if "reasoner" not in model:
+            kwargs["temperature"] = 0.7
+        r = client.chat.completions.create(**kwargs)
+        u = r.usage
+        return {
+            "content": r.choices[0].message.content or "",
+            "model": r.model,
+            "in_tok": u.prompt_tokens if u else 0,
+            "out_tok": u.completion_tokens if u else 0,
+            "error": None,
+        }
+    except ImportError:
+        return {"content": "", "error": "Instala: pip install openai"}
+    except Exception as e:
+        return {"content": "", "error": str(e)}
+
 
 
 def call_demo(query: str, info: dict) -> dict:
@@ -787,7 +827,7 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
 
         api_key = None
         if cfg["key_label"]:
-            _secret_map = {"Anthropic": "ANTHROPIC_API_KEY", "Google AI Studio": "GOOGLE_API_KEY", "Groq (gratis)": "GROQ_API_KEY"}
+            _secret_map = {"Anthropic": "ANTHROPIC_API_KEY", "Google AI Studio": "GOOGLE_API_KEY", "Groq (gratis)": "GROQ_API_KEY", "DeepSeek": "DEEPSEEK_API_KEY"}
             _env_key = ""
             _sname = _secret_map.get(provider, "")
             if _sname:
@@ -966,6 +1006,7 @@ los resultados se muestran aquí.
         "Google AI Studio":   "google",
         "Groq (gratis)":      "groq",
         "Anthropic":          "anthropic",
+        "DeepSeek":           "deepseek",
         "Demo (sin API key)": "demo",
     }
 
@@ -1106,6 +1147,8 @@ los resultados se muestran aquí.
                     res = call_groq(enriched, model, api_key, max_tokens)
                 elif provider == "Anthropic" and api_key:
                     res = call_anthropic(enriched, model, api_key, max_tokens)
+                elif provider == "DeepSeek" and api_key:
+                    res = call_deepseek(enriched, model, api_key, max_tokens)
                 elif provider != "Demo (sin API key)" and not api_key:
                     res = {"content": "", "error": "Introduce tu API key en el panel lateral."}
                 else:

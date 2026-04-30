@@ -25,6 +25,7 @@ class LLMProvider(Enum):
     ANTHROPIC = "anthropic"
     GOOGLE    = "google"
     GROQ      = "groq"
+    DEEPSEEK  = "deepseek"
     DEMO      = "demo"
 
 
@@ -73,7 +74,10 @@ class LLMConfig:
 
     def __post_init__(self):
         if self.api_key is None:
-            self.api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if self.provider == LLMProvider.DEEPSEEK:
+                self.api_key = os.environ.get("DEEPSEEK_API_KEY")
+            else:
+                self.api_key = os.environ.get("ANTHROPIC_API_KEY")
 
 
 class LLMClient:
@@ -131,7 +135,8 @@ Responde en el mismo idioma que el usuario."""
         if self.config.provider == LLMProvider.DEMO:
             return True
         # Sin API key efectiva → modo demo implícito
-        if self.config.provider == LLMProvider.ANTHROPIC and not self.config.api_key:
+        if self.config.provider in (LLMProvider.ANTHROPIC, LLMProvider.DEEPSEEK) \
+                and not self.config.api_key:
             return True
         return False
 
@@ -185,6 +190,17 @@ Responde en el mismo idioma que el usuario."""
                 self._client = Groq(api_key=self.config.api_key)
             except ImportError:
                 logger.warning("groq not installed, using demo mode")
+                self._client = DemoLLMClient()
+
+        elif provider == LLMProvider.DEEPSEEK:
+            try:
+                from openai import OpenAI
+                self._client = OpenAI(
+                    api_key=self.config.api_key,
+                    base_url="https://api.deepseek.com",
+                )
+            except ImportError:
+                logger.warning("openai package not installed, using demo mode")
                 self._client = DemoLLMClient()
 
         else:
@@ -270,6 +286,24 @@ Responde en el mismo idioma que el usuario."""
                     max_tokens=self.config.max_tokens,
                     temperature=self.config.temperature,
                 )
+                content = resp.choices[0].message.content or ""
+                if resp.usage:
+                    in_tok  = resp.usage.prompt_tokens
+                    out_tok = resp.usage.completion_tokens
+
+            elif provider == LLMProvider.DEEPSEEK:
+                messages = [{"role": "system", "content": sys_prompt}] + \
+                           [m.to_dict() for m in self._conversation]
+                # deepseek-reasoner (R1) no acepta temperature
+                kwargs: dict = dict(
+                    model=model_name,
+                    messages=messages,
+                    max_tokens=self.config.max_tokens,
+                    stream=False,
+                )
+                if "reasoner" not in model_name:
+                    kwargs["temperature"] = self.config.temperature
+                resp = client.chat.completions.create(**kwargs)
                 content = resp.choices[0].message.content or ""
                 if resp.usage:
                     in_tok  = resp.usage.prompt_tokens
