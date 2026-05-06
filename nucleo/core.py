@@ -938,51 +938,112 @@ class Nucleo:
         _domain_tactic = domain_default_tactic(_area)
         logger.debug(f"_math_via_lean: area={_area!r}, domain_tactic={_domain_tactic!r}")
 
-        # ── Detección de queries educativas/históricas (no necesitan Lean primero) ──
+        # ── Clasificación del tipo de query ───────────────────────────────────
+        # Lean es siempre la fuente de verdad. Solo bypass para demostraciones
+        # EXPLÍCITAMENTE geométricas/visuales donde no hay código que verificar.
         q_lower = self._normalize_text(input_text)
-        _educational_markers = (
-            "como lo enuncio", "como lo enuncio pitagoras", "como lo enuncio euclides",
-            "como lo dijo", "historicamente", "geometricamente como",
-            "demostracion geometrica", "demostracion visual", "demostracion clasica",
-            "prueba geometrica", "prueba visual", "prueba clasica",
-            "como lo haria euclides", "al estilo euclides", "segun pitagoras",
-            "segun euclides", "intuicion", "idea intuitiva", "explicacion intuitiva",
-        )
-        _is_educational_query = any(m in q_lower for m in _educational_markers)
 
-        if _is_educational_query:
+        _visual_only = (
+            "demostracion geometrica", "demostracion visual", "prueba visual",
+            "prueba geometrica", "como lo haria euclides", "al estilo euclides",
+            "geometricamente como", "prueba sin palabras",
+        )
+        if any(m in q_lower for m in _visual_only):
             return await self._math_educational_explanation(input_text, context)
+
+        # Detectar queries definitionales: "qué es X", "define X", "explícame X"
+        # → Lean formaliza la DEFINICIÓN (no una prueba): #check, structure, class
+        _definitional_markers = (
+            "que es", "que son", "define ", "definicion de", "definir ",
+            "explicame", "explicar ", "que significa", "como funciona",
+            "que es un", "que es una", "que es el", "que es la",
+            "que son los", "que son las", "describe ", "descripcion de",
+            "what is", "what are", "definition of", "explain what",
+            "what does", "how does", "describe ",
+        )
+        _is_definitional = any(m in q_lower for m in _definitional_markers)
 
         # ── Paso 1: LLM formaliza → Lean 4 ──────────────────────────────────
         # Construir ejemplos few-shot relevantes (miniF2F)
         few_shot_block = self._build_few_shot_context(input_text)
 
-        # ── Referencia hardcoded para teoremas clásicos ───────────────────
+        # ── Referencias hardcoded (verdad matemática anclada en Mathlib) ────
+        # Estas referencias son la fuente de verdad categorial que el LLM
+        # NO puede inventar. Lean verifica que type-check.
         _HARDCODED_REFS = {
             ("pitagor", "pythag", "hipotenusa"): (
-                "-- REFERENCIA: Teorema de Pitágoras en Lean 4 / Mathlib\n"
-                "-- El teorema NO toma a²+b²=c² como hipótesis; usa geometría.\n"
-                "-- Versión algebraica con norma (‖·‖²):\n"
+                "-- Teorema de Pitágoras en Lean 4 / Mathlib (versión norma)\n"
                 "import Mathlib.Analysis.InnerProductSpace.Basic\n"
-                "-- ‖a‖² + ‖b‖² = ‖c‖² cuando ⟪a, b⟫ = 0\n"
-                "-- Mathlib: inner_mul_le_norm_mul_iff, norm_add_sq_real\n"
-                "-- Para enunciar: usa real_inner_eq_zero y norm_sq\n"
-                "example (a b : EuclideanSpace ℝ (Fin 2))\n"
-                "    (h : ⟪a, b⟫_ℝ = 0) :\n"
+                "example (a b : EuclideanSpace ℝ (Fin 2)) (h : ⟪a, b⟫_ℝ = 0) :\n"
                 "    ‖a + b‖^2 = ‖a‖^2 + ‖b‖^2 := by\n"
                 "  rw [norm_add_sq_real, h, mul_zero, mul_comm, mul_zero, add_zero]"
             ),
             ("yoneda",): (
                 "import Mathlib.CategoryTheory.Yoneda\n"
-                "-- yonedaEquiv : (yoneda.obj X ⟶ F) ≃ F.obj X"
+                "-- yonedaEquiv : (yoneda.obj X ⟶ F) ≃ F.obj X\n"
+                "#check CategoryTheory.yonedaEquiv"
             ),
             ("curry", "howard"): (
-                "-- Propositions as types en Lean 4\n"
-                "example (P Q : Prop) (h : P → Q) (hp : P) : Q := h hp"
+                "-- Propositions as types (Curry-Howard) en Lean 4\n"
+                "example (P Q : Prop) (h : P → Q) (hp : P) : Q := h hp\n"
+                "-- La implicación P → Q ES el tipo de funciones P → Q"
             ),
-            ("irrac", "sqrt", "raiz cuadrada de 2", "sqrt(2)"): (
+            ("irrac", "raiz cuadrada de 2", "sqrt 2"): (
                 "import Mathlib.Data.Real.Irrational\n"
                 "example : Irrational (Real.sqrt 2) := irrational_sqrt_two"
+            ),
+            # Teoría de categorías — definiciones clave
+            ("cartesianamente cerrada", "ccc", "closed cartesian", "cartesian closed"): (
+                "import Mathlib.CategoryTheory.Closed.Cartesian\n"
+                "-- CartesianClosed: categoría con productos finitos y exponenciales\n"
+                "#check CartesianClosed\n"
+                "-- eval : B^A × A → B  (NO C^A — el exponencial es B^A)\n"
+                "#check CategoryTheory.CartesianClosed.curry\n"
+                "-- curry : Hom(C × A, B) ≅ Hom(C, B^A)"
+            ),
+            ("funtor", "functor"): (
+                "import Mathlib.CategoryTheory.Functor.Basic\n"
+                "#check CategoryTheory.Functor\n"
+                "-- Functor C D : tipo de funtores entre categorías C y D\n"
+                "#check CategoryTheory.Functor.map"
+            ),
+            ("colimite", "colimit", "colimits"): (
+                "import Mathlib.CategoryTheory.Limits.HasLimits\n"
+                "#check CategoryTheory.Limits.IsColimit\n"
+                "-- IsColimit: propiedad universal del colímite"
+            ),
+            ("adjuncion", "adjoint", "adjunction"): (
+                "import Mathlib.CategoryTheory.Adjunction.Basic\n"
+                "#check CategoryTheory.Adjunction\n"
+                "-- Adjunction F G : F ⊣ G  (F adjunto izquierdo de G)\n"
+                "#check CategoryTheory.Adjunction.homEquiv"
+            ),
+            ("transformacion natural", "natural transformation"): (
+                "import Mathlib.CategoryTheory.NatTrans\n"
+                "#check CategoryTheory.NatTrans\n"
+                "-- NatTrans F G : transformación natural entre funtores F y G"
+            ),
+            ("grupo", "group theory"): (
+                "import Mathlib.Algebra.Group.Basic\n"
+                "#check Group\n"
+                "-- Group: tipo de grupos (mul, inv, one, axiomas)\n"
+                "#check mul_comm  -- en grupos abelianos"
+            ),
+            ("anillo", "ring theory"): (
+                "import Mathlib.Algebra.Ring.Basic\n"
+                "#check Ring\n"
+                "example (R : Type*) [Ring R] (a b : R) : a * b + b * a = b * a + a * b := by ring"
+            ),
+            ("espacio vectorial", "vector space", "modulo"): (
+                "import Mathlib.Algebra.Module.Basic\n"
+                "#check Module\n"
+                "#check Submodule"
+            ),
+            ("topologia", "espacio topologico", "topological space"): (
+                "import Mathlib.Topology.Basic\n"
+                "#check TopologicalSpace\n"
+                "#check IsOpen\n"
+                "#check IsClosed"
             ),
         }
 
@@ -1001,28 +1062,52 @@ class Nucleo:
             if _enunciar else ""
         )
 
-        formalize_prompt = (
-            "Tu única tarea es escribir UN SOLO bloque de código Lean 4 (no varios) que formalice "
-            "el siguiente enunciado o pregunta matemática.\n\n"
-            f"Enunciado: {input_text}\n\n"
-            + extra_ref
-            + (
-                f"Ejemplos de referencia (Lean 3 — adapta la sintaxis a Lean 4):\n"
-                f"{few_shot_block}\n\n"
-                if few_shot_block else ""
+        # ── Paso 1: Prompt de formalización — diferente para definiciones vs pruebas
+        if _is_definitional:
+            # Queries "qué es X" → Lean muestra la definición/tipo que ya existe
+            # en Mathlib. El LLM NO inventa; Lean confirma que el tipo existe.
+            formalize_prompt = (
+                "Tu única tarea es escribir UN SOLO bloque de código Lean 4 que "
+                "formalice la DEFINICIÓN o muestre el concepto en Mathlib.\n\n"
+                f"Consulta: {input_text}\n\n"
+                + (f"Referencias de Mathlib para este tema:\n```lean\n{extra_ref}\n```\n\n"
+                   if extra_ref else "")
+                + "Instrucciones OBLIGATORIAS:\n"
+                "- Si el concepto existe en Mathlib, usa `#check NombreDelConcepto`.\n"
+                "- Si es una estructura o clase, escribe la `structure`/`class` con sus campos.\n"
+                "- Incluye los imports necesarios de Mathlib.\n"
+                "- Para definiciones con propiedades universales, muestra la firma de la función\n"
+                "  evaluación o la adjunción, con los tipos correctos.\n"
+                "- NO intentes demostrar ningún teorema — solo formaliza la definición.\n"
+                "- Usa `sorry` solo si necesitas un término auxiliar desconocido.\n"
+                "- SOLO el bloque Lean 4, nada más.\n"
+                "- CRITICAL: verifica que los tipos sean consistentes. Ejemplo correcto:\n"
+                "  eval : B^A × A → B  (el exponencial es B^A, NO C^A ni ningún otro)."
             )
-            + "Instrucciones OBLIGATORIAS:\n"
-            "- Escribe SOLO UN bloque de código Lean 4. Nada más.\n"
-            "- El código debe ser autocontenido (con los imports necesarios).\n"
-            "- Si es una afirmación, escríbela como `theorem` o `lemma`.\n"
-            "- Si no sabes la prueba completa, usa `sorry` como marcador.\n"
-            + _solo_enunciar_hint
-            + "- PROHIBIDO: tomar la afirmación principal como hipótesis y concluirla trivialmente.\n"
-            "  EJEMPLO PROHIBIDO: `(h : a^2+b^2=c^2) : c^2=a^2+b^2 := h.symm` — esto es una tautología.\n"
-            "- PROHIBIDO: generar múltiples versiones del mismo resultado.\n"
-            "- Usa los tipos y teoremas de Mathlib apropiados (InnerProductSpace, EuclideanSpace, etc.).\n"
-            "- No pongas explicaciones fuera del bloque de código."
-        )
+        else:
+            # Queries de prueba → formalización estándar
+            formalize_prompt = (
+                "Tu única tarea es escribir UN SOLO bloque de código Lean 4 (no varios) que formalice "
+                "el siguiente enunciado o pregunta matemática.\n\n"
+                f"Enunciado: {input_text}\n\n"
+                + extra_ref
+                + (
+                    f"Ejemplos de referencia (Lean 3 — adapta la sintaxis a Lean 4):\n"
+                    f"{few_shot_block}\n\n"
+                    if few_shot_block else ""
+                )
+                + "Instrucciones OBLIGATORIAS:\n"
+                "- Escribe SOLO UN bloque de código Lean 4. Nada más.\n"
+                "- El código debe ser autocontenido (con los imports necesarios).\n"
+                "- Si es una afirmación, escríbela como `theorem` o `lemma`.\n"
+                "- Si no sabes la prueba completa, usa `sorry` como marcador.\n"
+                + _solo_enunciar_hint
+                + "- PROHIBIDO: tomar la afirmación principal como hipótesis y concluirla trivialmente.\n"
+                "  EJEMPLO PROHIBIDO: `(h : a^2+b^2=c^2) : c^2=a^2+b^2 := h.symm` — tautología.\n"
+                "- PROHIBIDO: generar múltiples versiones del mismo resultado.\n"
+                "- Usa los tipos y teoremas de Mathlib apropiados.\n"
+                "- No pongas explicaciones fuera del bloque de código."
+            )
         lean_gen = await self._llm.generate(
             formalize_prompt, system=lean_system, context=context
         )
@@ -1116,43 +1201,69 @@ class Nucleo:
             confidence    = 0.6
             success_value = 0.2
 
-        # ── Paso 4: LLM traduce a lenguaje natural amable ─────────────────
-        translate_prompt = (
-            "Eres un traductor matemático experto. Tu trabajo es explicar el siguiente "
-            "código Lean 4 en lenguaje natural claro, preciso y amable.\n\n"
-            "IMPORTANTE: Si el código Lean toma la afirmación principal como hipótesis "
-            "y la concluye trivialmente (e.g., `h_right_triangle : a^2 + b^2 = c^2` → "
-            "`c^2 = a^2 + b^2`), indícalo explícitamente y explica el teorema REAL "
-            "usando tu conocimiento matemático, no el código trivial.\n\n"
-            f"Pregunta original del usuario:\n> {input_text}\n\n"
-            f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
-            f"Estado de verificación: {verification_note}\n\n"
-            "Escribe tu explicación con estas secciones:\n\n"
-            "## ¿Qué dice este resultado?\n"
-            "[Explica el enunciado con tus palabras, como si hablaras con "
-            "alguien que sabe matemáticas pero no conoce Lean.]\n\n"
-            "## ¿Cómo lo demuestra Lean?\n"
-            "[Explica la estrategia de la prueba y qué hace cada táctica "
-            "importante. Sin copiar el código — solo en palabras.]\n\n"
-            "## ¿Por qué es correcto?\n"
-            "[Explica la intuición matemática detrás de la prueba. "
-            "¿Qué hace que este argumento sea válido?]"
-            + (
-                "\n\n## Nota sobre la verificación\n"
-                f"[{verification_note}]"
-                if verification_status != "verificado" else ""
+        # ── Paso 4: LLM traduce — el LLM es solo la boca, Lean es el cerebro ─
+        # El LLM explica lo que Lean ya verificó. No razona por sí solo.
+        if _is_definitional:
+            translate_prompt = (
+                "Eres un matemático experto. Tu trabajo es explicar la definición "
+                "matemática que Lean 4 acaba de formalizar.\n\n"
+                "IMPORTANTE: El código Lean de abajo es la fuente de verdad. "
+                "Tu explicación debe ser CONSISTENTE con los tipos que aparecen en él. "
+                "Si el código dice `eval : B^A × A → B`, tu explicación debe usar exactamente eso.\n\n"
+                f"Pregunta original:\n> {input_text}\n\n"
+                f"Código Lean 4 (formalización de la definición):\n```lean\n{lean_code}\n```\n\n"
+                f"Estado de verificación Lean: {verification_note}\n\n"
+                "Estructura tu respuesta así:\n\n"
+                "## Definición formal\n"
+                "[Enuncia la definición con notación matemática $...$ exactamente "
+                "como aparece en el código Lean — mismos tipos, mismas firmas.]\n\n"
+                "## Intuición\n"
+                "[Explica qué *significa* esta definición en palabras simples. "
+                "Un ejemplo concreto siempre ayuda.]\n\n"
+                "## Propiedades clave\n"
+                "[Las 2-3 propiedades más importantes, ancladas en el código Lean.]\n\n"
+                "## En Lean / Mathlib\n"
+                f"[Cómo se llama en Mathlib y qué hace `{verification_note[:60]}`.]\n\n"
+                + (f"## Nota de verificación\n[{verification_note}]\n\n"
+                   if verification_status != "verificado" else "")
             )
-        )
+        else:
+            translate_prompt = (
+                "Eres un traductor matemático experto. Tu trabajo es explicar el siguiente "
+                "código Lean 4 en lenguaje natural claro, preciso y amable.\n\n"
+                "IMPORTANTE: Si el código Lean toma la afirmación principal como hipótesis "
+                "y la concluye trivialmente, indícalo y explica el teorema REAL.\n\n"
+                f"Pregunta original del usuario:\n> {input_text}\n\n"
+                f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
+                f"Estado de verificación: {verification_note}\n\n"
+                "Escribe tu explicación con estas secciones:\n\n"
+                "## ¿Qué dice este resultado?\n"
+                "[Explica el enunciado con tus palabras.]\n\n"
+                "## ¿Cómo lo demuestra Lean?\n"
+                "[Estrategia de la prueba, sin copiar código.]\n\n"
+                "## ¿Por qué es correcto?\n"
+                "[Intuición matemática detrás del argumento.]"
+                + (f"\n\n## Nota sobre la verificación\n[{verification_note}]"
+                   if verification_status != "verificado" else "")
+            )
         translation = await self._llm.generate(
             translate_prompt, system=lean_system, context=context
         )
 
         # ── Ensamblaje final ───────────────────────────────────────────────
-        status_badge = {
-            "verificado":    "**Lean 4: verificado formalmente**",
-            "parcial":       "**Lean 4: estructura verificada (sorry parcial)**",
-            "no_verificado": "**Lean 4: formalización pendiente de ajuste**",
-        }[verification_status]
+        # Badge diferenciado: definición vs prueba
+        if _is_definitional:
+            status_badge = {
+                "verificado":    f"**Lean 4 ✓ — definición verificada formalmente** · área: `{_area}`",
+                "parcial":       f"**Lean 4 ~ — definición formalizada (parcial)** · área: `{_area}`",
+                "no_verificado": f"**Lean 4 ↯ — definición pendiente de ajuste Mathlib** · área: `{_area}`",
+            }[verification_status]
+        else:
+            status_badge = {
+                "verificado":    f"**Lean 4 ✓ — prueba verificada formalmente** · área: `{_area}`",
+                "parcial":       f"**Lean 4 ~ — estructura verificada (sorry parcial)** · área: `{_area}`",
+                "no_verificado": f"**Lean 4 ↯ — formalización pendiente de ajuste** · área: `{_area}`",
+            }[verification_status]
 
         content = (
             f"{translation.content}\n\n"
