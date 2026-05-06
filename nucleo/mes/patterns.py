@@ -1049,6 +1049,82 @@ class ColimitBuilder:
         """Obtener colimite por ID."""
         return self._colimits.get(colimit_id)
 
+    @property
+    def all_colimits(self) -> list[Colimit]:
+        """Todos los colimites registrados."""
+        return list(self._colimits.values())
+
+    # =========================================================================
+    # REGISTER HELPERS (used by nucleo/graph/complexity.py)
+    # =========================================================================
+
+    def _register_existing_join(
+        self,
+        pattern: Pattern,
+        join_id: str,
+        graph: SkillCategory,
+    ) -> Colimit:
+        """
+        Register an existing skill as the verified join of a pattern.
+
+        Called by build_join_for_pattern when find_existing_join succeeds.
+        Builds the cocone_map from existing graph morphisms (direct edges only;
+        the universal property was confirmed by is_join()).
+        """
+        cocone_map: dict[str, str] = {}
+        for comp_id in pattern.component_ids:
+            morph = graph.get_morphism_between(comp_id, join_id)
+            if morph:
+                cocone_map[comp_id] = morph.id
+
+        colimit = Colimit(
+            pattern_id=pattern.id,
+            skill_id=join_id,
+            cocone_map=cocone_map,
+            cocone_morphisms=list(cocone_map.values()),
+            cocone_verified=True,
+            universal_property_verified=True,
+        )
+        self._colimits[colimit.id] = colimit
+        self._pattern_to_colimit[pattern.id] = colimit.id
+        logger.debug(
+            f"_register_existing_join: {join_id} as join of pattern {pattern.id}"
+        )
+        return colimit
+
+    def _register_new_colimit(
+        self,
+        pattern: Pattern,
+        join_id: str,
+        cocone_map: dict[str, str],
+        graph: SkillCategory,
+    ) -> Colimit:
+        """
+        Register a newly created join skill as a colimit.
+
+        Runs verify_cocone and verify_universal_property to set the
+        verification flags. Called by build_join_for_pattern after the
+        new skill and its cocone/universal morphisms are in the graph.
+        """
+        cocone_ok = self.verify_cocone(pattern, join_id, cocone_map, graph)
+        up_ok = self.verify_universal_property(pattern, join_id, cocone_map, graph)
+
+        colimit = Colimit(
+            pattern_id=pattern.id,
+            skill_id=join_id,
+            cocone_map=cocone_map,
+            cocone_morphisms=list(cocone_map.values()),
+            cocone_verified=cocone_ok,
+            universal_property_verified=up_ok,
+        )
+        self._colimits[colimit.id] = colimit
+        self._pattern_to_colimit[pattern.id] = colimit.id
+        logger.debug(
+            f"_register_new_colimit: {join_id} for pattern {pattern.id} "
+            f"(cocone={cocone_ok}, UP={up_ok})"
+        )
+        return colimit
+
     # =========================================================================
     # COMPLEJIFICACION (Thm 2.10)
     # =========================================================================

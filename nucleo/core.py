@@ -276,6 +276,25 @@ class Nucleo:
         except Exception as e:
             logger.warning(f"MultiAgentOrchestrator no disponible: {e}")
 
+        # ── Emergent hierarchy via complexity order ────────────────────────────
+        # Replace manually-assigned levels with cn(X) computed from the
+        # colimit structure of the skill graph (Ehresmann MES §2, v7.0).
+        # The number of levels is NOT preset — it emerges from the fixpoint.
+        try:
+            from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+            cn = build_hierarchy_to_fixpoint(
+                self._graph,
+                self._pattern_manager,
+                self._colimit_builder,
+            )
+            max_cn = max(cn.values(), default=0)
+            logger.info(
+                f"Emergent hierarchy: {max_cn + 1} level(s), "
+                f"{sum(1 for v in cn.values() if v > 0)} join-skills"
+            )
+        except Exception as e:
+            logger.warning(f"build_hierarchy_to_fixpoint failed: {e}")
+
         self._initialized = True
         logger.info("Nucleo inicializado correctamente (PPO activo)")
 

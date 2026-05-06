@@ -530,6 +530,39 @@ class SkillCategory:
         skill_ids = self._by_pillar.get(pillar, set())
         return [self._skills[sid].skill for sid in skill_ids if sid in self._skills]
 
+    def apply_complexity_order(self, cn_dict: dict[str, int]) -> None:
+        """
+        Update skill.level for all skills using the computed complexity order.
+
+        Called by build_hierarchy_to_fixpoint after the fixpoint is reached.
+        Updates the _by_level index so get_skills_at_level() reflects the
+        emergent hierarchy (not the manually assigned levels).
+
+        Args:
+            cn_dict: mapping skill_id → cn value (from compute_complexity_order)
+        """
+        updated = 0
+        for skill_id, cn in cn_dict.items():
+            node = self._skills.get(skill_id)
+            if node is None:
+                continue
+            old_level = node.skill.level
+            if old_level == cn:
+                continue
+            self._by_level[old_level].discard(skill_id)
+            node.skill.level = cn
+            self._by_level[cn].add(skill_id)
+            updated += 1
+
+        self._stats["max_level"] = max(
+            (s.skill.level for s in self._skills.values()),
+            default=0,
+        )
+        logger.debug(
+            f"apply_complexity_order: {updated} skills updated, "
+            f"max_level={self._stats['max_level']}"
+        )
+
     def get_level_distribution(self) -> dict[int, int]:
         """
         Obtener distribucion de skills por nivel.
