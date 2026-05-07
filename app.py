@@ -12,6 +12,8 @@ import sys
 import os
 from datetime import datetime
 
+print("[METAMAT] app.py: module loading…", file=sys.stderr, flush=True)
+
 # Forzar UTF-8 en stdout/stderr para que caracteres como ℝ, ∀, ∃ no rompan
 # el logging de Streamlit en Windows (cp1252 por defecto).
 try:
@@ -439,10 +441,10 @@ def _build_file_verify_prompt(text: str, filename: str) -> str:
     )
 
 
-# ── Onboarding modal (nivel de módulo — @st.dialog no puede estar dentro de funciones) ──
+# ── Onboarding modal ─────────────────────────────────────────────────────────
+# @st.dialog must be applied at module level; wrapped in try/except for safety.
 
-@st.dialog("👋 Bienvenido a METAMATEMÁTICO", width="large")
-def _show_onboarding():
+def _onboarding_body():
     st.markdown(
         "Para usar **todo el poder del sistema** configura estas tres cosas. "
         "Con solo la API key ya puedes empezar a chatear."
@@ -487,6 +489,17 @@ def _show_onboarding():
     if st.button("✓ Entendido, ¡comenzar!", type="primary", use_container_width=True):
         st.session_state["onboarded"] = True
         st.rerun()
+
+
+print("[METAMAT] registering st.dialog…", file=sys.stderr, flush=True)
+try:
+    _show_onboarding = st.dialog(
+        "👋 Bienvenido a METAMATEMÁTICO", width="large"
+    )(_onboarding_body)
+    print("[METAMAT] st.dialog OK", file=sys.stderr, flush=True)
+except Exception as _dialog_err:
+    print(f"[METAMAT] st.dialog FAILED: {_dialog_err}", file=sys.stderr, flush=True)
+    _show_onboarding = _onboarding_body  # fallback: render inline
 
 
 # ── Pagina principal ──────────────────────────────────────────────────────────
@@ -1238,17 +1251,21 @@ los resultados se muestran aquí.
 
 # ── Navegacion ────────────────────────────────────────────────────────────────
 
-pg = st.navigation([
-    st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
-    st.Page("pages/1_Visualizaciones.py", title="Visualizaciones", icon="📊"),
-    st.Page("pages/2_Verificador.py", title="Verificador", icon="🔬"),
-    st.Page("pages/3_Instalar_Lean.py", title="Instalar Lean 4", icon="⚙️"),
-    st.Page("pages/4_Consultores_Avanzados.py", title="Consultores Avanzados", icon="🔭"),
-])
+print("[METAMAT] calling st.navigation…", file=sys.stderr, flush=True)
 try:
+    pg = st.navigation([
+        st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
+        st.Page("pages/1_Visualizaciones.py", title="Visualizaciones", icon="📊"),
+        st.Page("pages/2_Verificador.py", title="Verificador", icon="🔬"),
+        st.Page("pages/3_Instalar_Lean.py", title="Instalar Lean 4", icon="⚙️"),
+        st.Page("pages/4_Consultores_Avanzados.py", title="Consultores Avanzados", icon="🔭"),
+    ])
+    print("[METAMAT] calling pg.run()…", file=sys.stderr, flush=True)
     pg.run()
+    print("[METAMAT] pg.run() returned OK", file=sys.stderr, flush=True)
 except Exception as _run_err:
     import traceback as _tb
-    st.error(f"⚠ Error al iniciar la página: `{type(_run_err).__name__}: {_run_err}`")
+    print(f"[METAMAT] CRASH: {_run_err}\n{_tb.format_exc()}", file=sys.stderr, flush=True)
+    st.error(f"⚠ Error: `{type(_run_err).__name__}: {_run_err}`")
     with st.expander("Ver traceback completo"):
         st.code(_tb.format_exc(), language="text")
