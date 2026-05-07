@@ -1061,16 +1061,6 @@ los resultados se muestran aquí.
             st.switch_page("pages/1_Visualizaciones.py")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Estado del NLE en sidebar ────────────────────────────────────────────
-    with st.sidebar:
-        _nle_ok = _get_nucleo()
-        if _nle_ok is not None:
-            st.success("NLE activo", icon="🟢")
-        else:
-            st.error("NLE no disponible", icon="🔴")
-            with st.expander("Ver error"):
-                st.code(_get_nucleo_error() or "(sin detalle)", language="text")
-
     # ── Aplicar feedback pendiente ────────────────────────────────────────────
     if st.session_state.get("_pending_feedback") is not None:
         _nucleo_fb = _get_nucleo()
