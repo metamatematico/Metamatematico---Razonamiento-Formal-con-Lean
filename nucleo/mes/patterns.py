@@ -1,4 +1,4 @@
-"""
+n"""
 Patterns and Colimits - MES v7.0
 ================================
 
@@ -655,7 +655,7 @@ class ColimitBuilder:
 
         if not minimal:
             n_failed = len(failed)
-            logger.warning(
+            logger.debug(
                 f"is_join falla: {apex_id} es cota superior pero NO minimal. "
                 f"{n_failed} skill(s) son cotas superiores menores: {failed[:5]}"
             )
