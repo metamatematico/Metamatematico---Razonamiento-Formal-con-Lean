@@ -534,6 +534,8 @@ Abre en `http://localhost:8501` · Demo en Streamlit Cloud disponible.
 | **Chat multi-turno** | Conversación continua. El contexto se sincroniza con la memoria interna del NLE. |
 | **Adjuntar archivos (📎)** | Soporta `.txt`, `.tex`, `.pdf`. Pipeline de verificación matemática de 6 pasos. |
 | **Visualizaciones** | Grafo de skills, embeddings t-SNE/PCA, diagrama MES, traza de prueba, árbol de agentes. |
+| **Verificador Lean 4** | Editor Lean 4 interactivo con verificación en tiempo real. |
+| **Consultores Avanzados** | Genera N artefactos matemáticos verificables: `.lean`, skeletons de demostración, scripts Python, puentes de verificación. Cada candidato se verifica en Lean y se rankea por puntuación. |
 | **Ejemplos rápidos** | Botones preconfigurados: √2 irracional, Lema de Yoneda, Lean 4 directo, Curry-Howard. |
 
 ### Pestaña de Visualizaciones
@@ -592,10 +594,13 @@ Metamatematico/
 │
 ├── app.py                         # App Streamlit — interfaz de chat
 ├── pages/
-│   └── 1_Visualizaciones.py       # Grafos, embeddings, MES, traza de prueba
+│   ├── 1_Visualizaciones.py       # Grafos, embeddings, MES, traza de prueba
+│   ├── 2_Verificador.py           # Verificador Lean 4 interactivo
+│   ├── 3_Instalar_Lean.py         # Guía de instalación Lean 4 con verificación en vivo
+│   └── 4_Consultores_Avanzados.py # Módulo experto: N artefactos .lean verificados + reranker
 │
 ├── nucleo/                        # Núcleo Lógico Evolutivo (~13,500 LOC)
-│   ├── core.py                    # Orquestador: Lean-first + multi-agente + domain_tactic
+│   ├── core.py                    # Orquestador: Lean-first + multi-agente + domain_tactic + consultores
 │   ├── config.py                  # Configuración centralizada
 │   │
 │   ├── multi_agent/               # Sistema multi-agente
@@ -635,6 +640,13 @@ Metamatematico/
 │   │   ├── category_theory.py     # 8 skills CatThy
 │   │   ├── logic.py               # 7 skills Logic
 │   │   └── type_theory.py         # 8 skills TypeThy
+│   │
+│   ├── consultores/               # Módulo experto opcional
+│   │   ├── artifacts.py           # Dataclasses: Candidate, CandidateMetrics, ConsultingResult
+│   │   ├── master_prompt.py       # Prompt maestro con bloques %%MARKER%% parseables
+│   │   ├── classifier.py          # RequestType: PROOF / DEFINITION / COMPUTATION / EXPLORATION
+│   │   ├── reranker.py            # score_and_rank(): Lean score + completitud + complejidad
+│   │   └── orchestrator.py        # ConsultoresModule.process(): N candidatos → Lean → rerank
 │   │
 │   └── eval/
 │       └── math_evaluator.py      # \boxed{} extraction, tolerancia numérica, sympy
