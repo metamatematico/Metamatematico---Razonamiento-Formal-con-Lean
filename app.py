@@ -98,9 +98,12 @@ def _do_update() -> tuple[bool, str]:
     return True, f"{out1}\n\n{pip_out}".strip()
 
 
+_nucleo_init_error: str = ""
+
 @st.cache_resource(show_spinner="Iniciando Núcleo Lógico Evolutivo…")
 def _get_nucleo():
     """Singleton del Nucleo — persiste entre reruns de Streamlit."""
+    global _nucleo_init_error
     try:
         import asyncio
         import concurrent.futures
@@ -109,19 +112,31 @@ def _get_nucleo():
 
         n = Nucleo(NucleoConfig())
 
+        _init_error: list[str] = []
+
         def _init():
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
                 loop.run_until_complete(n.initialize())
+            except Exception as exc:
+                _init_error.append(str(exc))
             finally:
                 loop.close()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-            pool.submit(_init).result(timeout=60)
+            pool.submit(_init).result(timeout=90)
+
+        if _init_error:
+            _nucleo_init_error = _init_error[0]
+            import logging
+            logging.getLogger(__name__).warning(f"Nucleo init error: {_init_error[0]}")
+            return None
 
         return n
     except Exception as e:
+        import traceback
+        _nucleo_init_error = traceback.format_exc()
         import logging
         logging.getLogger(__name__).warning(f"Nucleo no disponible: {e}")
         return None
