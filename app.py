@@ -1227,6 +1227,11 @@ los resultados se muestran aquí.
 
 # ── Navegacion ────────────────────────────────────────────────────────────────
 
+# Warm the nucleo cache before the active page runs.
+# @st.cache_resource guarantees this only initializes once per deployment,
+# so subpages always receive the already-initialized Nucleo instance.
+_get_nucleo()
+
 pg = st.navigation([
     st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
     st.Page("pages/1_Visualizaciones.py", title="Visualizaciones", icon="📊"),
