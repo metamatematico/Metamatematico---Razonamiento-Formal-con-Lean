@@ -67,15 +67,13 @@ nucleo = _get_nucleo()
 if nucleo is None:
     st.error("El Núcleo Lógico Evolutivo no está disponible.")
 
-    # Show the actual init error if accessible
     for mod_name in ("__main__", "app"):
         mod = sys.modules.get(mod_name)
-        if mod is not None:
-            err = getattr(mod, "_nucleo_init_error", "")
-            if err:
-                with st.expander("🔍 Detalle del error de inicialización"):
-                    st.code(err, language="text")
-                break
+        if mod is not None and hasattr(mod, "_get_nucleo_error"):
+            err = mod._get_nucleo_error()
+            with st.expander("🔍 Detalle del error de inicialización"):
+                st.code(err if err else "(sin detalle — ver logs en Manage app)", language="text")
+            break
 
     st.info(
         "Intenta ir al **chat principal** primero para inicializar el sistema, "

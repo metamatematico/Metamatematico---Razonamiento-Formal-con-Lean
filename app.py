@@ -98,21 +98,17 @@ def _do_update() -> tuple[bool, str]:
     return True, f"{out1}\n\n{pip_out}".strip()
 
 
-_nucleo_init_error: str = ""
-
 @st.cache_resource(show_spinner="Iniciando Núcleo Lógico Evolutivo…")
-def _get_nucleo():
-    """Singleton del Nucleo — persiste entre reruns de Streamlit."""
-    global _nucleo_init_error
+def _init_nucleo():
+    """Inicializa el Nucleo y devuelve (instancia_o_None, error_str).
+    El error es parte del valor cacheado — no se pierden globals."""
+    import asyncio, concurrent.futures, traceback, logging
     try:
-        import asyncio
-        import concurrent.futures
         from nucleo.core import Nucleo
         from nucleo.config import NucleoConfig
 
         n = Nucleo(NucleoConfig())
-
-        _init_error: list[str] = []
+        init_errors: list[str] = []
 
         def _init():
             loop = asyncio.new_event_loop()
@@ -120,26 +116,32 @@ def _get_nucleo():
             try:
                 loop.run_until_complete(n.initialize())
             except Exception as exc:
-                _init_error.append(str(exc))
+                init_errors.append(traceback.format_exc())
             finally:
                 loop.close()
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
             pool.submit(_init).result(timeout=90)
 
-        if _init_error:
-            _nucleo_init_error = _init_error[0]
-            import logging
-            logging.getLogger(__name__).warning(f"Nucleo init error: {_init_error[0]}")
-            return None
+        if init_errors:
+            logging.getLogger(__name__).warning("Nucleo init error: %s", init_errors[0][:200])
+            return None, init_errors[0]
 
-        return n
-    except Exception as e:
-        import traceback
-        _nucleo_init_error = traceback.format_exc()
-        import logging
-        logging.getLogger(__name__).warning(f"Nucleo no disponible: {e}")
-        return None
+        return n, ""
+    except Exception:
+        err = traceback.format_exc()
+        logging.getLogger(__name__).warning("Nucleo no disponible: %s", err[:200])
+        return None, err
+
+
+def _get_nucleo():
+    nucleo, _ = _init_nucleo()
+    return nucleo
+
+
+def _get_nucleo_error() -> str:
+    _, err = _init_nucleo()
+    return err
 
 st.set_page_config(
     page_title="METAMATEMÁTICO",
@@ -1233,9 +1235,9 @@ with st.sidebar:
         st.success("NLE activo", icon="🟢")
     else:
         st.error("NLE no disponible", icon="🔴")
-        if _nucleo_init_error:
-            with st.expander("Ver error de inicialización"):
-                st.code(_nucleo_init_error, language="text")
+        _err = _get_nucleo_error()
+        with st.expander("Ver error de inicialización"):
+            st.code(_err if _err else "(sin detalle — ver logs)", language="text")
 
 # ── Navegacion ────────────────────────────────────────────────────────────────
 
