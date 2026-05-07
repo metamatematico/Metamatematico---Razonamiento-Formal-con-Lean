@@ -101,48 +101,31 @@ def _do_update() -> tuple[bool, str]:
 @st.cache_resource(show_spinner="Iniciando Núcleo Lógico Evolutivo…")
 def _init_nucleo():
     """Inicializa el Nucleo y devuelve (instancia_o_None, error_str)."""
-    import asyncio, traceback, logging
+    import traceback, logging
+    log = logging.getLogger(__name__)
     try:
+        log.info("NLE init: importing core…")
         from nucleo.core import Nucleo
         from nucleo.config import NucleoConfig
 
+        log.info("NLE init: creating Nucleo instance…")
         n = Nucleo(NucleoConfig())
 
-        # Run initialize() directly — avoids ThreadPoolExecutor+asyncio
-        # deadlocks on Python 3.14 / Streamlit Cloud.
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Already inside an event loop (some Streamlit versions):
-                # run in a new thread with its own loop.
-                import concurrent.futures
-                err_holder: list[str] = []
+        # initialize() is async def but contains NO await calls —
+        # drive it with a minimal event loop.
+        log.info("NLE init: calling initialize()…")
+        import asyncio
 
-                def _run():
-                    _loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(_loop)
-                    try:
-                        _loop.run_until_complete(n.initialize())
-                    except Exception:
-                        err_holder.append(traceback.format_exc())
-                    finally:
-                        _loop.close()
+        async def _run():
+            await asyncio.wait_for(n.initialize(), timeout=25)
 
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-                    pool.submit(_run).result(timeout=30)
+        asyncio.run(_run())
 
-                if err_holder:
-                    return None, err_holder[0]
-            else:
-                loop.run_until_complete(n.initialize())
-        except RuntimeError:
-            # No event loop — create one
-            asyncio.run(n.initialize())
-
+        log.info("NLE init: done.")
         return n, ""
     except Exception:
         err = traceback.format_exc()
-        logging.getLogger(__name__).warning("Nucleo no disponible: %s", err[:200])
+        log.warning("Nucleo no disponible:\n%s", err)
         return None, err
 
 
