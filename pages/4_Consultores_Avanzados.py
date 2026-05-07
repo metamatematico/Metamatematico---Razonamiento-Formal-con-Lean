@@ -64,6 +64,13 @@ def _get_nucleo():
 
 nucleo = _get_nucleo()
 
+if nucleo is None:
+    st.error(
+        "El Núcleo Lógico Evolutivo no está disponible. "
+        "Revisa los logs en 'Manage app' para más detalles."
+    )
+    st.stop()
+
 # ─── Panel de configuración ───────────────────────────────────────────────────
 
 with st.sidebar:
