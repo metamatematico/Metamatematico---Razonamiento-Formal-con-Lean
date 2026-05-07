@@ -1225,12 +1225,19 @@ los resultados se muestran aquí.
             st.markdown('</div>', unsafe_allow_html=True)
 
 
-# ── Navegacion ────────────────────────────────────────────────────────────────
+# ── Estado del Núcleo (sidebar global) ───────────────────────────────────────
 
-# Warm the nucleo cache before the active page runs.
-# @st.cache_resource guarantees this only initializes once per deployment,
-# so subpages always receive the already-initialized Nucleo instance.
-_get_nucleo()
+_nucleo_check = _get_nucleo()
+with st.sidebar:
+    if _nucleo_check is not None:
+        st.success("NLE activo", icon="🟢")
+    else:
+        st.error("NLE no disponible", icon="🔴")
+        if _nucleo_init_error:
+            with st.expander("Ver error de inicialización"):
+                st.code(_nucleo_init_error, language="text")
+
+# ── Navegacion ────────────────────────────────────────────────────────────────
 
 pg = st.navigation([
     st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
