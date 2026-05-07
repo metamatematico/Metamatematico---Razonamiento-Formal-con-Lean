@@ -103,14 +103,16 @@ def _is_latex_content(text: str) -> bool:
 
 def _get_nucleo():
     """Reutiliza la instancia de Nucleo ya inicializada por app.py."""
-    # Importar la función cacheada del módulo principal
-    # @st.cache_resource garantiza que es el mismo objeto en toda la sesión
-    import importlib, sys
+    import sys
+    for mod_name in ("__main__", "app"):
+        mod = sys.modules.get(mod_name)
+        if mod is not None and hasattr(mod, "_get_nucleo"):
+            return mod._get_nucleo()
+    import importlib
     root = str(Path(__file__).parent.parent)
     if root not in sys.path:
         sys.path.insert(0, root)
-    app_mod = importlib.import_module("app")
-    return app_mod._get_nucleo()
+    return importlib.import_module("app")._get_nucleo()
 
 
 # ─── Construcción del prompt de verificación ──────────────────────────────────

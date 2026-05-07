@@ -48,12 +48,18 @@ st.markdown(
 # ─── Nucleo — compartido con app.py ───────────────────────────────────────────
 
 def _get_nucleo():
+    # app.py runs as __main__ under st.navigation — look there first to
+    # avoid re-executing app.py (which would cause DuplicateElementId).
+    for mod_name in ("__main__", "app"):
+        mod = sys.modules.get(mod_name)
+        if mod is not None and hasattr(mod, "_get_nucleo"):
+            return mod._get_nucleo()
+    # Fallback: fresh import (only on direct page reload edge cases)
     import importlib
     root = str(Path(__file__).parent.parent)
     if root not in sys.path:
         sys.path.insert(0, root)
-    app_mod = importlib.import_module("app")
-    return app_mod._get_nucleo()
+    return importlib.import_module("app")._get_nucleo()
 
 
 nucleo = _get_nucleo()
