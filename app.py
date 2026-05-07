@@ -1215,5 +1215,8 @@ los resultados se muestran aquí.
 pg = st.navigation([
     st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
     st.Page("pages/1_Visualizaciones.py", title="Visualizaciones", icon="📊"),
+    st.Page("pages/2_Verificador.py", title="Verificador", icon="🔬"),
+    st.Page("pages/3_Instalar_Lean.py", title="Instalar Lean 4", icon="⚙️"),
+    st.Page("pages/4_Consultores_Avanzados.py", title="Consultores Avanzados", icon="🔭"),
 ])
 pg.run()
