@@ -100,28 +100,38 @@ def _do_update() -> tuple[bool, str]:
 
 @st.cache_resource(show_spinner="Iniciando Núcleo Lógico Evolutivo…")
 def _init_nucleo():
-    """Inicializa el Nucleo y devuelve (instancia_o_None, error_str)."""
-    import traceback, logging
+    """Inicializa el Nucleo y devuelve (instancia_o_None, error_str).
+
+    Runs initialize() in a daemon thread with its own event loop so it
+    never conflicts with Streamlit's own asyncio loop (Python 3.14).
+    """
+    import traceback, logging, threading, asyncio
     log = logging.getLogger(__name__)
     try:
-        log.info("NLE init: importing core…")
         from nucleo.core import Nucleo
         from nucleo.config import NucleoConfig
-
-        log.info("NLE init: creating Nucleo instance…")
         n = Nucleo(NucleoConfig())
 
-        # initialize() is async def but contains NO await calls —
-        # drive it with a minimal event loop.
-        log.info("NLE init: calling initialize()…")
-        import asyncio
+        error_holder: list[str] = []
 
-        async def _run():
-            await asyncio.wait_for(n.initialize(), timeout=25)
+        def _worker():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(n.initialize())
+            except Exception:
+                error_holder.append(traceback.format_exc())
+            finally:
+                loop.close()
 
-        asyncio.run(_run())
+        t = threading.Thread(target=_worker, daemon=True)
+        t.start()
+        t.join(timeout=20)
 
-        log.info("NLE init: done.")
+        if t.is_alive():
+            return None, "Timeout: initialize() tardó más de 20 s"
+        if error_holder:
+            return None, error_holder[0]
         return n, ""
     except Exception:
         err = traceback.format_exc()
@@ -1051,6 +1061,16 @@ los resultados se muestran aquí.
             st.switch_page("pages/1_Visualizaciones.py")
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # ── Estado del NLE en sidebar ────────────────────────────────────────────
+    with st.sidebar:
+        _nle_ok = _get_nucleo()
+        if _nle_ok is not None:
+            st.success("NLE activo", icon="🟢")
+        else:
+            st.error("NLE no disponible", icon="🔴")
+            with st.expander("Ver error"):
+                st.code(_get_nucleo_error() or "(sin detalle)", language="text")
+
     # ── Aplicar feedback pendiente ────────────────────────────────────────────
     if st.session_state.get("_pending_feedback") is not None:
         _nucleo_fb = _get_nucleo()
@@ -1221,18 +1241,6 @@ los resultados se muestran aquí.
                 st.switch_page("pages/1_Visualizaciones.py")
             st.markdown('</div>', unsafe_allow_html=True)
 
-
-# ── Estado del Núcleo (sidebar global) ───────────────────────────────────────
-
-_nucleo_check = _get_nucleo()
-with st.sidebar:
-    if _nucleo_check is not None:
-        st.success("NLE activo", icon="🟢")
-    else:
-        st.error("NLE no disponible", icon="🔴")
-        _err = _get_nucleo_error()
-        with st.expander("Ver error de inicialización"):
-            st.code(_err if _err else "(sin detalle — ver logs)", language="text")
 
 # ── Navegacion ────────────────────────────────────────────────────────────────
 
