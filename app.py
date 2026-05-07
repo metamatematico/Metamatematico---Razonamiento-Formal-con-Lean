@@ -119,7 +119,7 @@ def _init_nucleo():
             asyncio.set_event_loop(loop)
             try:
                 loop.run_until_complete(n.initialize())
-            except Exception:
+            except BaseException:
                 error_holder.append(traceback.format_exc())
             finally:
                 loop.close()
@@ -957,9 +957,13 @@ Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patro
             st.rerun()
 
         # ── Panel: usa tu cómputo local ───────────────────────────────────
+        try:
+            _ctx_host = (st.context.headers or {}).get("host", "")
+        except Exception:
+            _ctx_host = ""
         _is_remote = not (
             os.environ.get("STREAMLIT_SERVER_ADDRESS", "localhost") in ("localhost", "127.0.0.1")
-            or st.context.headers.get("host", "").startswith("localhost")
+            or _ctx_host.startswith("localhost")
         )
         if _is_remote:
             st.divider()
@@ -1241,4 +1245,10 @@ pg = st.navigation([
     st.Page("pages/3_Instalar_Lean.py", title="Instalar Lean 4", icon="⚙️"),
     st.Page("pages/4_Consultores_Avanzados.py", title="Consultores Avanzados", icon="🔭"),
 ])
-pg.run()
+try:
+    pg.run()
+except Exception as _run_err:
+    import traceback as _tb
+    st.error(f"⚠ Error al iniciar la página: `{type(_run_err).__name__}: {_run_err}`")
+    with st.expander("Ver traceback completo"):
+        st.code(_tb.format_exc(), language="text")
