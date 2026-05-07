@@ -154,6 +154,9 @@ class Nucleo:
         # Multi-agent orchestrator (14 specialized agents, one per category)
         self._multi_agent_orchestrator = None
 
+        # Consultores Avanzados (optional module)
+        self._consultores: Optional["ConsultoresModule"] = None
+
         # Feedback tracking — last experience for retroactive update
         self._last_experience_id: Optional[str] = None
         self._last_action_type = None
@@ -1654,6 +1657,47 @@ class Nucleo:
         learns from real chat rewards.
         """
         self._neural_agent = agent
+
+    # ------------------------------------------------------------------
+    # Consultores Avanzados
+    # ------------------------------------------------------------------
+
+    def set_consultores_mode(self, n_candidates: int = 3) -> None:
+        """
+        Activar el módulo Consultores Avanzados.
+
+        Reutiliza los mismos LLMClient, LeanClient, PatternManager y
+        MESMemory ya instanciados. Requiere que initialize() haya sido
+        llamado previamente.
+
+        Args:
+            n_candidates: Número de candidatos a generar (mínimo 1).
+        """
+        if not self._initialized:
+            raise RuntimeError(
+                "Nucleo no inicializado — llama initialize() primero."
+            )
+        from nucleo.consultores.orchestrator import ConsultoresModule
+        self._consultores = ConsultoresModule(
+            llm_client=self._llm,
+            lean_client=self._lean,
+            pattern_manager=self._pattern_manager,
+            memory=self._memory,
+            n_candidates=max(1, n_candidates),
+        )
+        logger.info(
+            "Consultores Avanzados activado (n_candidates=%d)", n_candidates
+        )
+
+    def disable_consultores_mode(self) -> None:
+        """Desactivar el módulo Consultores Avanzados."""
+        self._consultores = None
+        logger.info("Consultores Avanzados desactivado")
+
+    @property
+    def consultores_active(self) -> bool:
+        """True si el módulo Consultores Avanzados está activo."""
+        return self._consultores is not None
 
     def reconfigure_llm(
         self,
