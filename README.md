@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-382_passing-brightgreen.svg)](#8-tests)
+[![Tests](https://img.shields.io/badge/Tests-381_passing-brightgreen.svg)](#8-tests)
 [![Join-envoltorios](https://img.shields.io/badge/Agentes-19_join--envoltorios-blueviolet.svg)](#3-sistema-multi-agente-jerarquía-de-joins)
 [![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-546K_params-red.svg)](#5-red-neuronal-gnn--ppo)
 [![Dataset](https://img.shields.io/badge/Dataset-5.4M_ejemplos-orange.svg)](#datasets)
@@ -642,9 +642,8 @@ Metamatematico/
 │   │   └── type_theory.py         # 8 skills TypeThy
 │   │
 │   ├── consultores/               # Módulo experto opcional
-│   │   ├── artifacts.py           # Dataclasses: Candidate, CandidateMetrics, ConsultingResult
+│   │   ├── artifacts.py           # Dataclasses: Candidate, CandidateMetrics, ConsultingResult, RequestType
 │   │   ├── master_prompt.py       # Prompt maestro con bloques %%MARKER%% parseables
-│   │   ├── classifier.py          # RequestType: PROOF / DEFINITION / COMPUTATION / EXPLORATION
 │   │   ├── reranker.py            # score_and_rank(): Lean score + completitud + complejidad
 │   │   └── orchestrator.py        # ConsultoresModule.process(): N candidatos → Lean → rerank
 │   │
