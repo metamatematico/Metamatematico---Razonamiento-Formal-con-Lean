@@ -141,9 +141,8 @@ Responde en el mismo idioma que el usuario."""
         """True si el cliente está en modo demo (sin API key real)."""
         if self.config.provider == LLMProvider.DEMO:
             return True
-        # Sin API key efectiva → modo demo implícito
-        if self.config.provider in (LLMProvider.ANTHROPIC, LLMProvider.DEEPSEEK) \
-                and not self.config.api_key:
+        # Sin API key efectiva → modo demo implícito (todos los proveedores)
+        if not self.config.api_key:
             return True
         return False
 
@@ -466,8 +465,28 @@ Responde SOLO con el codigo {target}, sin explicaciones adicionales."""
 class DemoLLMClient:
     """Cliente demo para modo sin API key."""
 
-    def generate(self, prompt: str, system: str = "") -> str:
-        p = prompt.lower()
+    _GREETING_STARTS = (
+        "hola", "hi ", "hello", "buenos", "buenas", "hey ", "oye",
+        "good morning", "good afternoon", "saludos",
+    )
+
+    def generate(self, prompt: str, system: str = "", **kwargs) -> str:
+        p = prompt.lower().strip()
+
+        # Saludo o mensaje corto no matemático
+        if any(p.startswith(g) for g in self._GREETING_STARTS) or len(p) < 25:
+            return (
+                "¡Hola! Soy el **Núcleo Lógico Evolutivo** (NLE).\n\n"
+                "Estoy en **modo demo** — para activar el asistente matemático completo "
+                "introduce tu API key en el panel lateral (Anthropic, Google AI Studio o Groq).\n\n"
+                "Con una API key puedes:\n"
+                "- Demostrar teoremas y formalizarlos en **Lean 4**\n"
+                "- Verificar pruebas con **Mathlib**\n"
+                "- Obtener explicaciones matemáticas paso a paso\n\n"
+                "> 💡 Prueba con una pregunta matemática como: "
+                "*\"Demuestra que √2 es irracional\"* o *\"¿Qué es el Lema de Yoneda?\"*"
+            )
+
         if "tactica" in p or "tactic" in p:
             return "simp"
         if "explica" in p or "explain" in p:
@@ -481,7 +500,11 @@ class DemoLLMClient:
                 "theorem example : ∀ n : Nat, n + 0 = n := by\n"
                 "  intro n\n  induction n <;> simp_all"
             )
-        return f"[Demo] Procesando: {prompt[:120]}…"
+        # Fallback genérico — ya no expone el prompt crudo
+        return (
+            "**Modo demo activo.** Conecta una API key en el panel lateral para "
+            "obtener respuestas matemáticas completas con verificación Lean 4."
+        )
 
 
 # Alias para compatibilidad con tests existentes
