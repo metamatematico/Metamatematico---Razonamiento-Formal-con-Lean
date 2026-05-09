@@ -514,7 +514,7 @@ class NucleoAgent(BaseAgent):
     def save(self, path: str) -> None:
         """Guardar agente (config + metricas + pesos de red)."""
         import json
-        with open(path, 'w') as f:
+        with open(path, 'w', encoding="utf-8") as f:
             json.dump({
                 "config": self.config.__dict__,
                 "metrics": self.metrics,
@@ -532,7 +532,7 @@ class NucleoAgent(BaseAgent):
     def load(cls, path: str, graph: SkillCategory) -> NucleoAgent:
         """Cargar agente (config + metricas + pesos de red)."""
         import json
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         use_neural = data.get("use_neural", False)

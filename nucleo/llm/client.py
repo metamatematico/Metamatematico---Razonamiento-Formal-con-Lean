@@ -141,7 +141,7 @@ Responde en el mismo idioma que el usuario."""
         """True si el cliente está en modo demo (sin API key real)."""
         if self.config.provider == LLMProvider.DEMO:
             return True
-        # Sin API key → demo implícito para CUALQUIER proveedor
+        # Sin API key efectiva → modo demo implícito (todos los proveedores)
         if not self.config.api_key:
             return True
         return False
@@ -473,26 +473,29 @@ class DemoLLMClient:
     def generate(self, prompt: str, system: str = "", **kwargs) -> str:
         p = prompt.lower().strip()
 
-        # Saludo o mensaje muy corto
+        # Saludo o mensaje corto no matemático
         if any(p.startswith(g) for g in self._GREETING_STARTS) or len(p) < 25:
             return (
-                "¡Hola! Soy **METAMATEMÁTICO**.\n\n"
-                "Estoy en **modo demo** — introduce tu API key en el panel lateral "
-                "(Anthropic, Google AI Studio o Groq) para activar el sistema completo.\n\n"
+                "¡Hola! Soy el **Núcleo Lógico Evolutivo** (NLE).\n\n"
+                "Estoy en **modo demo** — para activar el asistente matemático completo "
+                "introduce tu API key en el panel lateral (Anthropic, Google AI Studio o Groq).\n\n"
                 "Con una API key puedes:\n"
                 "- Demostrar teoremas y formalizarlos en **Lean 4**\n"
                 "- Verificar pruebas con **Mathlib**\n"
-                "- Obtener explicaciones matemáticas paso a paso"
+                "- Obtener explicaciones matemáticas paso a paso\n\n"
+                "> 💡 Prueba con una pregunta matemática como: "
+                "*\"Demuestra que √2 es irracional\"* o *\"¿Qué es el Lema de Yoneda?\"*"
             )
 
-        # suggest_tactic() usa prompts cortos con "tactica"/"tactic" como palabra clave
+        # suggest_tactic() pasa un prompt corto con "tactica" o "tactic" como
+        # palabra clave principal — seguro de detectar sin falsos positivos.
         if ("tactica" in p or "tactic" in p) and len(p) < 400:
             return "simp"
 
-        # Fallback genérico — NO usar substring de "explica"/"traduce" que
-        # dispara en los prompts largos de _math_via_lean ("explicaciones", "explicar")
+        # Fallback genérico para cualquier otro prompt (incluye los prompts
+        # largos de _math_via_lean: formalize_prompt y translate_prompt).
         return (
-            "**Modo demo activo.** Introduce tu API key en el panel lateral para "
+            "**Modo demo activo.** Conecta una API key en el panel lateral para "
             "obtener respuestas matemáticas completas con verificación Lean 4."
         )
 

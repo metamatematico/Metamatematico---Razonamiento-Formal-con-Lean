@@ -12,18 +12,43 @@ import sys
 import os
 from datetime import datetime
 
-# Forzar UTF-8 en stdout/stderr para que caracteres como ℝ, ∀, ∃ no rompan
-# el logging de Streamlit en Windows (cp1252 por defecto).
-try:
-    if sys.stdout and hasattr(sys.stdout, "reconfigure"):
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-except OSError:
-    pass
-try:
-    if sys.stderr and hasattr(sys.stderr, "reconfigure"):
-        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-except OSError:
-    pass
+# Forzar UTF-8 globalmente — necesario en Streamlit Cloud (Linux, locale ASCII).
+# Debe ir ANTES de cualquier import que use logging o I/O.
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+os.environ.setdefault("PYTHONUTF8", "1")
+
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        if _stream and hasattr(_stream, "reconfigure"):
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+    except OSError:
+        pass
+
+import logging as _logging
+import io as _io
+
+def _fix_logging_utf8() -> None:
+    """Reconfigura todos los StreamHandlers del logger raíz para usar UTF-8."""
+    for _h in _logging.root.handlers:
+        if isinstance(_h, _logging.StreamHandler):
+            try:
+                if hasattr(_h.stream, "reconfigure"):
+                    _h.stream.reconfigure(encoding="utf-8", errors="replace")
+                elif hasattr(_h, "setStream"):
+                    # Python < 3.11: reemplazar el stream por un wrapper UTF-8
+                    _h.setStream(_io.TextIOWrapper(
+                        _h.stream.buffer if hasattr(_h.stream, "buffer") else _io.BytesIO(),
+                        encoding="utf-8", errors="replace", line_buffering=True,
+                    ))
+            except Exception:
+                pass
+    # Handler por defecto si no hay ninguno configurado
+    if not _logging.root.handlers:
+        _h = _logging.StreamHandler(sys.stderr)
+        _h.setFormatter(_logging.Formatter("%(levelname)s:%(name)s:%(message)s"))
+        _logging.root.addHandler(_h)
+
+_fix_logging_utf8()
 
 # Asegurar que el paquete nucleo sea importable desde el directorio del proyecto
 _proj_dir = os.path.dirname(os.path.abspath(__file__))

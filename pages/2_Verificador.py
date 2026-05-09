@@ -345,10 +345,11 @@ mc1.metric("Confianza NLE", f"{conf:.0%}")
 mc2.metric("Tiempo", f"{elapsed:.1f} s")
 if lean_res:
     status_label = {
-        "SUCCESS": "✅ Lean OK",
-        "SORRY": "⚠️ Sorry parcial",
-        "ERROR": "❌ Error Lean",
-        "TIMEOUT": "⏱ Timeout",
+        "SUCCESS":       "✅ Lean OK",
+        "SORRY":         "⚠️ Sorry parcial",
+        "ERROR":         "❌ Error Lean",
+        "TIMEOUT":       "⏱ Timeout",
+        "NOT_AVAILABLE": "☁️ Sin entorno",
     }.get(lean_res.status.name if hasattr(lean_res.status, "name") else str(lean_res.status), "—")
     mc3.metric("Lean 4", status_label)
 else:

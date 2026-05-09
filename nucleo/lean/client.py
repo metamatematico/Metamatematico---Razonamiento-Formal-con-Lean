@@ -28,11 +28,12 @@ logger = logging.getLogger(__name__)
 
 class LeanResultStatus(Enum):
     """Estado del resultado de Lean."""
-    SUCCESS = auto()       # Prueba completada
-    ERROR = auto()         # Error de compilacion/tipo
-    TIMEOUT = auto()       # Timeout excedido
-    INCOMPLETE = auto()    # Prueba incompleta (goals pendientes)
-    SORRY = auto()         # Contiene sorry
+    SUCCESS = auto()        # Prueba completada
+    ERROR = auto()          # Error de compilacion/tipo
+    TIMEOUT = auto()        # Timeout excedido
+    INCOMPLETE = auto()     # Prueba incompleta (goals pendientes)
+    SORRY = auto()          # Contiene sorry
+    NOT_AVAILABLE = auto()  # lake/lean no instalado en este entorno
 
 
 @dataclass
@@ -363,7 +364,20 @@ class LeanClient:
                 status=LeanResultStatus.TIMEOUT,
                 output=f"Timeout after {self.timeout_s}s"
             )
+        except FileNotFoundError:
+            logger.info(f"lake/lean no encontrado en PATH ({self.lean_path!r}) — entorno sin Lean")
+            return LeanResult(
+                status=LeanResultStatus.NOT_AVAILABLE,
+                output="lake no está instalado en este entorno",
+            )
         except Exception as e:
+            # También cubrir PermissionError / OSError que ocultan la ausencia de lake
+            if "No such file" in str(e) or "cannot find" in str(e).lower() or "not found" in str(e).lower():
+                logger.info(f"lake/lean no disponible: {e}")
+                return LeanResult(
+                    status=LeanResultStatus.NOT_AVAILABLE,
+                    output=str(e),
+                )
             logger.error(f"Error running Lean: {e}")
             return LeanResult(
                 status=LeanResultStatus.ERROR,
