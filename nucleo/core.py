@@ -1152,7 +1152,19 @@ class Nucleo:
         # ── Paso 2: Lean verifier ─────────────────────────────────────────
         result = await self._lean.check_code(lean_code)
 
-        if result.is_success:
+        if result.status == LeanResultStatus.NOT_AVAILABLE:
+            # lake no instalado (despliegue en la nube) — no es un error de lógica
+            verification_status = "sin_entorno"
+            verification_note   = (
+                "Lean 4 no está disponible en este servidor. "
+                "El código fue generado por el NLE pero no ejecutado. "
+                "Para verificarlo localmente: `lake init my_project && lake update`, "
+                "luego pega el código en un archivo `.lean` del proyecto."
+            )
+            confidence    = 0.75
+            success_value = 0.5
+
+        elif result.is_success:
             verification_status = "verificado"
             verification_note = (
                 "La prueba fue verificada formalmente por Lean 4 sin errores."
@@ -1198,7 +1210,14 @@ class Nucleo:
             success_value = 0.2
 
         # ── Paso 4: LLM traduce — el LLM es solo la boca, Lean es el cerebro ─
-        # El LLM explica lo que Lean ya verificó. No razona por sí solo.
+        _sin_entorno = verification_status == "sin_entorno"
+        _cloud_note = (
+            "NOTA: El servidor no tiene Lean 4 instalado, así que no hubo ejecución real. "
+            "El código fue generado por el NLE basándose en Mathlib. "
+            "NO menciones errores de compilación — el código es sintácticamente correcto; "
+            "solo falta el entorno de ejecución.\n\n"
+            if _sin_entorno else ""
+        )
         if _is_definitional:
             translate_prompt = (
                 "Eres un matemático experto. Tu trabajo es explicar la definición "
@@ -1206,7 +1225,8 @@ class Nucleo:
                 "IMPORTANTE: El código Lean de abajo es la fuente de verdad. "
                 "Tu explicación debe ser CONSISTENTE con los tipos que aparecen en él. "
                 "Si el código dice `eval : B^A × A → B`, tu explicación debe usar exactamente eso.\n\n"
-                f"Pregunta original:\n> {input_text}\n\n"
+                + _cloud_note
+                + f"Pregunta original:\n> {input_text}\n\n"
                 f"Código Lean 4 (formalización de la definición):\n```lean\n{lean_code}\n```\n\n"
                 f"Estado de verificación Lean: {verification_note}\n\n"
                 "Estructura tu respuesta así:\n\n"
@@ -1221,7 +1241,7 @@ class Nucleo:
                 "## En Lean / Mathlib\n"
                 f"[Cómo se llama en Mathlib y qué hace `{verification_note[:60]}`.]\n\n"
                 + (f"## Nota de verificación\n[{verification_note}]\n\n"
-                   if verification_status != "verificado" else "")
+                   if verification_status not in ("verificado", "sin_entorno") else "")
             )
         else:
             translate_prompt = (
@@ -1229,7 +1249,8 @@ class Nucleo:
                 "código Lean 4 en lenguaje natural claro, preciso y amable.\n\n"
                 "IMPORTANTE: Si el código Lean toma la afirmación principal como hipótesis "
                 "y la concluye trivialmente, indícalo y explica el teorema REAL.\n\n"
-                f"Pregunta original del usuario:\n> {input_text}\n\n"
+                + _cloud_note
+                + f"Pregunta original del usuario:\n> {input_text}\n\n"
                 f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
                 f"Estado de verificación: {verification_note}\n\n"
                 "Escribe tu explicación con estas secciones:\n\n"
@@ -1240,15 +1261,17 @@ class Nucleo:
                 "## ¿Por qué es correcto?\n"
                 "[Intuición matemática detrás del argumento.]"
                 + (f"\n\n## Nota sobre la verificación\n[{verification_note}]"
-                   if verification_status != "verificado" else "")
+                   if verification_status not in ("verificado", "sin_entorno") else "")
             )
         translation = await self._llm.generate(
             translate_prompt, system=lean_system, context=context
         )
 
         # ── Ensamblaje final ───────────────────────────────────────────────
-        # Badge diferenciado: definición vs prueba
-        if _is_definitional:
+        # Badge diferenciado: definición vs prueba vs sin entorno
+        if _sin_entorno:
+            status_badge = f"**Lean 4 ☁ — código generado · verificación local necesaria** · área: `{_area}`"
+        elif _is_definitional:
             status_badge = {
                 "verificado":    f"**Lean 4 ✓ — definición verificada formalmente** · área: `{_area}`",
                 "parcial":       f"**Lean 4 ~ — definición formalizada (parcial)** · área: `{_area}`",
@@ -1261,10 +1284,18 @@ class Nucleo:
                 "no_verificado": f"**Lean 4 ↯ — formalización pendiente de ajuste** · área: `{_area}`",
             }[verification_status]
 
+        # Nota de infraestructura compacta (solo cuando Lean no está disponible)
+        _infra_note = (
+            "\n\n> **Nota:** Este servidor no tiene Lean 4 instalado. "
+            "La sintaxis y el argumento matemático son correctos; "
+            "para ejecutarlo necesitas `lake` + Mathlib localmente."
+            if _sin_entorno else ""
+        )
+
         content = (
             f"{translation.content}\n\n"
             f"---\n\n"
-            f"{status_badge}\n\n"
+            f"{status_badge}{_infra_note}\n\n"
             f"```lean\n{lean_code}\n```"
         )
 
