@@ -1211,12 +1211,11 @@ class Nucleo:
 
         # ── Paso 4: LLM traduce — el LLM es solo la boca, Lean es el cerebro ─
         _sin_entorno = verification_status == "sin_entorno"
-        _cloud_note = (
-            "NOTA: El servidor no tiene Lean 4 instalado, así que no hubo ejecución real. "
-            "El código fue generado por el NLE basándose en Mathlib. "
-            "NO menciones errores de compilación — el código es sintácticamente correcto; "
-            "solo falta el entorno de ejecución.\n\n"
-            if _sin_entorno else ""
+        # Cuando lake no está disponible, el LLM NO debe ver el error de infraestructura.
+        # Le pasamos un estado neutro para que se centre en el contenido matemático.
+        _vn_for_llm = (
+            "Código generado por el NLE, pendiente de ejecución local."
+            if _sin_entorno else verification_note
         )
         if _is_definitional:
             translate_prompt = (
@@ -1225,10 +1224,9 @@ class Nucleo:
                 "IMPORTANTE: El código Lean de abajo es la fuente de verdad. "
                 "Tu explicación debe ser CONSISTENTE con los tipos que aparecen en él. "
                 "Si el código dice `eval : B^A × A → B`, tu explicación debe usar exactamente eso.\n\n"
-                + _cloud_note
                 + f"Pregunta original:\n> {input_text}\n\n"
                 f"Código Lean 4 (formalización de la definición):\n```lean\n{lean_code}\n```\n\n"
-                f"Estado de verificación Lean: {verification_note}\n\n"
+                f"Estado: {_vn_for_llm}\n\n"
                 "Estructura tu respuesta así:\n\n"
                 "## Definición formal\n"
                 "[Enuncia la definición con notación matemática $...$ exactamente "
@@ -1239,7 +1237,7 @@ class Nucleo:
                 "## Propiedades clave\n"
                 "[Las 2-3 propiedades más importantes, ancladas en el código Lean.]\n\n"
                 "## En Lean / Mathlib\n"
-                f"[Cómo se llama en Mathlib y qué hace `{verification_note[:60]}`.]\n\n"
+                f"[Cómo se llama en Mathlib y cómo usarlo.]\n\n"
                 + (f"## Nota de verificación\n[{verification_note}]\n\n"
                    if verification_status not in ("verificado", "sin_entorno") else "")
             )
@@ -1249,10 +1247,9 @@ class Nucleo:
                 "código Lean 4 en lenguaje natural claro, preciso y amable.\n\n"
                 "IMPORTANTE: Si el código Lean toma la afirmación principal como hipótesis "
                 "y la concluye trivialmente, indícalo y explica el teorema REAL.\n\n"
-                + _cloud_note
                 + f"Pregunta original del usuario:\n> {input_text}\n\n"
                 f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
-                f"Estado de verificación: {verification_note}\n\n"
+                f"Estado: {_vn_for_llm}\n\n"
                 "Escribe tu explicación con estas secciones:\n\n"
                 "## ¿Qué dice este resultado?\n"
                 "[Explica el enunciado con tus palabras.]\n\n"
