@@ -197,8 +197,15 @@ class Nucleo:
         )
         self._llm = LLMClient(llm_config)
 
-        # Lean Client
+        # Lean Client — project_path fijado al root del repo (donde está lakefile.toml)
+        # independientemente de desde qué directorio se lanzó `streamlit run`.
+        _lean_project = (
+            Path(self.config.lean.project_path)
+            if self.config.lean.project_path
+            else Path(__file__).parent.parent  # nucleo/core.py → nucleo/ → repo root
+        )
         self._lean = LeanClient(
+            project_path=_lean_project,
             timeout_ms=self.config.lean.timeout_ms
         )
 
