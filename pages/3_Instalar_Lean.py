@@ -316,7 +316,8 @@ if st.button("▶ Comprobar si Lean está instalado aquí", type="primary"):
         for cmd in ["lean", os.path.expanduser("~/.elan/bin/lean")]:
             try:
                 r = subprocess.run([cmd, "--version"],
-                                   capture_output=True, text=True, timeout=8)
+                                   capture_output=True, text=True, timeout=8,
+                                   encoding="utf-8", errors="replace")
                 if r.returncode == 0:
                     results["lean"] = ("ok", r.stdout.strip() or r.stderr.strip())
                     break
@@ -329,7 +330,8 @@ if st.button("▶ Comprobar si Lean está instalado aquí", type="primary"):
         for cmd in ["lake", os.path.expanduser("~/.elan/bin/lake")]:
             try:
                 r = subprocess.run([cmd, "--version"],
-                                   capture_output=True, text=True, timeout=8)
+                                   capture_output=True, text=True, timeout=8,
+                                   encoding="utf-8", errors="replace")
                 if r.returncode == 0:
                     results["lake"] = ("ok", r.stdout.strip() or r.stderr.strip())
                     break
@@ -351,7 +353,8 @@ if st.button("▶ Comprobar si Lean está instalado aquí", type="primary"):
                 lean_cmd = "lean" if results["lean"][0]=="ok" else lean_bin
                 r = subprocess.run(
                     [os.path.expanduser("~/.elan/bin/lake"), "env", lean_cmd, tmp],
-                    capture_output=True, text=True, timeout=45
+                    capture_output=True, text=True, timeout=45,
+                    encoding="utf-8", errors="replace",
                 )
                 os.unlink(tmp)
                 if r.returncode == 0:

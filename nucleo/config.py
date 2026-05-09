@@ -195,7 +195,7 @@ class NucleoConfig:
     def from_yaml(cls, path: Path | str) -> NucleoConfig:
         """Cargar configuracion desde archivo YAML."""
         path = Path(path)
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
         return cls.from_dict(data)
 
@@ -277,8 +277,8 @@ class NucleoConfig:
         """Guardar configuracion a archivo YAML."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
-            yaml.dump(self.to_dict(), f, default_flow_style=False)
+        with open(path, "w", encoding="utf-8") as f:
+            yaml.dump(self.to_dict(), f, default_flow_style=False, allow_unicode=True)
 
 
 # Configuracion por defecto
