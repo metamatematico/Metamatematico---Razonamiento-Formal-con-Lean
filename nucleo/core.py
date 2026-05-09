@@ -197,8 +197,14 @@ class Nucleo:
         )
         self._llm = LLMClient(llm_config)
 
-        # Lean Client
+        # Lean Client — project_path anclado al root del repo (donde está lakefile.toml)
+        _lean_project = (
+            Path(self.config.lean.project_path)
+            if self.config.lean.project_path
+            else Path(__file__).parent.parent  # nucleo/core.py → nucleo/ → repo root
+        )
         self._lean = LeanClient(
+            project_path=_lean_project,
             timeout_ms=self.config.lean.timeout_ms
         )
 
@@ -920,7 +926,13 @@ class Nucleo:
         if self._llm is not None and self._llm.is_demo:
             return self._demo_educational_response(input_text)
 
-        from nucleo.llm.client import LLMClient
+        # Guardia extra: si el proveedor no está instalado, _get_client() regresa
+        # DemoLLMClient aunque api_key esté seteada (is_demo sería False).
+        # Correr el pipeline con DemoLLMClient produce output basura.
+        from nucleo.llm.client import LLMClient, DemoLLMClient as _DemoClient
+        if self._llm is not None and isinstance(self._llm._get_client(), _DemoClient):
+            return self._demo_educational_response(input_text)
+
         from nucleo.multi_agent.specialized_agent import classify_query
         from nucleo.multi_agent.colimit_agents import domain_default_tactic
         lean_system = LLMClient.LEAN_SYSTEM_PROMPT

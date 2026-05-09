@@ -141,9 +141,8 @@ Responde en el mismo idioma que el usuario."""
         """True si el cliente está en modo demo (sin API key real)."""
         if self.config.provider == LLMProvider.DEMO:
             return True
-        # Sin API key efectiva → modo demo implícito
-        if self.config.provider in (LLMProvider.ANTHROPIC, LLMProvider.DEEPSEEK) \
-                and not self.config.api_key:
+        # Sin API key → demo implícito para CUALQUIER proveedor
+        if not self.config.api_key:
             return True
         return False
 
@@ -466,22 +465,36 @@ Responde SOLO con el codigo {target}, sin explicaciones adicionales."""
 class DemoLLMClient:
     """Cliente demo para modo sin API key."""
 
-    def generate(self, prompt: str, system: str = "") -> str:
-        p = prompt.lower()
-        if "tactica" in p or "tactic" in p:
+    _GREETING_STARTS = (
+        "hola", "hi ", "hello", "buenos", "buenas", "hey ", "oye",
+        "good morning", "good afternoon", "saludos",
+    )
+
+    def generate(self, prompt: str, system: str = "", **kwargs) -> str:
+        p = prompt.lower().strip()
+
+        # Saludo o mensaje muy corto
+        if any(p.startswith(g) for g in self._GREETING_STARTS) or len(p) < 25:
+            return (
+                "¡Hola! Soy **METAMATEMÁTICO**.\n\n"
+                "Estoy en **modo demo** — introduce tu API key en el panel lateral "
+                "(Anthropic, Google AI Studio o Groq) para activar el sistema completo.\n\n"
+                "Con una API key puedes:\n"
+                "- Demostrar teoremas y formalizarlos en **Lean 4**\n"
+                "- Verificar pruebas con **Mathlib**\n"
+                "- Obtener explicaciones matemáticas paso a paso"
+            )
+
+        # suggest_tactic() usa prompts cortos con "tactica"/"tactic" como palabra clave
+        if ("tactica" in p or "tactic" in p) and len(p) < 400:
             return "simp"
-        if "explica" in p or "explain" in p:
-            return (
-                "Esta prueba utiliza inducción estructural sobre los naturales. "
-                "El caso base se resuelve por reflexividad, y el paso inductivo "
-                "usa la hipótesis de inducción junto con propiedades de la suma."
-            )
-        if "traduce" in p or "translate" in p:
-            return (
-                "theorem example : ∀ n : Nat, n + 0 = n := by\n"
-                "  intro n\n  induction n <;> simp_all"
-            )
-        return f"[Demo] Procesando: {prompt[:120]}…"
+
+        # Fallback genérico — NO usar substring de "explica"/"traduce" que
+        # dispara en los prompts largos de _math_via_lean ("explicaciones", "explicar")
+        return (
+            "**Modo demo activo.** Introduce tu API key en el panel lateral para "
+            "obtener respuestas matemáticas completas con verificación Lean 4."
+        )
 
 
 # Alias para compatibilidad con tests existentes
