@@ -487,20 +487,13 @@ class DemoLLMClient:
                 "*\"Demuestra que √2 es irracional\"* o *\"¿Qué es el Lema de Yoneda?\"*"
             )
 
-        if "tactica" in p or "tactic" in p:
+        # suggest_tactic() pasa un prompt corto con "tactica" o "tactic" como
+        # palabra clave principal — seguro de detectar sin falsos positivos.
+        if ("tactica" in p or "tactic" in p) and len(p) < 400:
             return "simp"
-        if "explica" in p or "explain" in p:
-            return (
-                "Esta prueba utiliza inducción estructural sobre los naturales. "
-                "El caso base se resuelve por reflexividad, y el paso inductivo "
-                "usa la hipótesis de inducción junto con propiedades de la suma."
-            )
-        if "traduce" in p or "translate" in p:
-            return (
-                "theorem example : ∀ n : Nat, n + 0 = n := by\n"
-                "  intro n\n  induction n <;> simp_all"
-            )
-        # Fallback genérico — ya no expone el prompt crudo
+
+        # Fallback genérico para cualquier otro prompt (incluye los prompts
+        # largos de _math_via_lean: formalize_prompt y translate_prompt).
         return (
             "**Modo demo activo.** Conecta una API key en el panel lateral para "
             "obtener respuestas matemáticas completas con verificación Lean 4."

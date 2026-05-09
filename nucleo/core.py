@@ -920,7 +920,13 @@ class Nucleo:
         if self._llm is not None and self._llm.is_demo:
             return self._demo_educational_response(input_text)
 
-        from nucleo.llm.client import LLMClient
+        # Extra guard: provider package not installed → _get_client() falls back
+        # to DemoLLMClient even when api_key is set (is_demo would be False).
+        # Running the pipeline with DemoLLMClient produces garbled output.
+        from nucleo.llm.client import LLMClient, DemoLLMClient as _DemoClient
+        if self._llm is not None and isinstance(self._llm._get_client(), _DemoClient):
+            return self._demo_educational_response(input_text)
+
         from nucleo.multi_agent.specialized_agent import classify_query
         from nucleo.multi_agent.colimit_agents import domain_default_tactic
         lean_system = LLMClient.LEAN_SYSTEM_PROMPT
