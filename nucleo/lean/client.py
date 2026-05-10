@@ -119,8 +119,32 @@ class LeanClient:
             timeout_ms: Timeout en milisegundos
         """
         self.project_path = Path(project_path) if project_path else Path.cwd()
-        self.lean_path = lean_path
+        self.lean_path = self._resolve_lake(lean_path)
         self.timeout_s = timeout_ms / 1000.0
+
+    @staticmethod
+    def _resolve_lake(lean_path: str) -> str:
+        """Resolver ruta real de lake: PATH → elan default → argumento original."""
+        import shutil
+        # Si ya es una ruta absoluta existente, usarla directamente
+        if Path(lean_path).is_absolute() and Path(lean_path).exists():
+            return lean_path
+        # Buscar en PATH (funciona en Linux/Mac y Windows si elan está en PATH)
+        found = shutil.which(lean_path)
+        if found:
+            return found
+        # Fallback: ubicación por defecto de elan en Windows y Unix
+        candidates = [
+            Path.home() / ".elan" / "bin" / "lake",
+            Path.home() / ".elan" / "bin" / "lake.exe",
+            Path("/usr/local/bin/lake"),
+        ]
+        for c in candidates:
+            if c.exists():
+                logger.info(f"lake encontrado en: {c}")
+                return str(c)
+        logger.warning(f"lake no encontrado — usando '{lean_path}' (puede fallar)")
+        return lean_path
 
     # Header mínimo garantizado para tácticas y tipos básicos
     _SAFE_HEADER = (
