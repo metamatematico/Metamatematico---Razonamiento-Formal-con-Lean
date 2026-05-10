@@ -1272,8 +1272,10 @@ los resultados se muestran aquí.
 # ── Navegacion ────────────────────────────────────────────────────────────────
 
 try:
+    _home_page = st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True)
+    st.session_state["_home_page"] = _home_page
     pg = st.navigation([
-        st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
+        _home_page,
         st.Page("pages/1_Visualizaciones.py", title="Visualizaciones", icon="📊"),
         st.Page("pages/2_Verificador.py", title="Verificador", icon="🔬"),
         st.Page("pages/3_Instalar_Lean.py", title="Instalar Lean 4", icon="⚙️"),

@@ -30,7 +30,11 @@ h1, h2, h3 { color: #c9d1d9; }
 _c1, _ = st.columns([1, 5])
 with _c1:
     if st.button("← Volver al chat", width="stretch"):
-        st.switch_page("app.py")
+        home = st.session_state.get("_home_page")
+        if home:
+            st.switch_page(home)
+        else:
+            st.rerun()
 
 st.title("🔬 Verificador de Demostraciones")
 st.markdown(
@@ -390,4 +394,8 @@ with col_v2:
             f"Analiza y explica la verificación del archivo `{fname}` "
             f"que arrojó confianza {conf:.0%}"
         )
-        st.switch_page("app.py")
+        home = st.session_state.get("_home_page")
+        if home:
+            st.switch_page(home)
+        else:
+            st.rerun()

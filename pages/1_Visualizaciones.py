@@ -36,7 +36,11 @@ h1, h2, h3 { color: #c9d1d9; }
 _back_col, _ = st.columns([1, 5])
 with _back_col:
     if st.button("← Volver al chat", width="stretch"):
-        st.switch_page("app.py")
+        home = st.session_state.get("_home_page")
+        if home:
+            st.switch_page(home)
+        else:
+            st.rerun()
 st.title("📊 Visualizaciones — Núcleo Lógico Evolutivo")
 
 # ── Consulta activa desde el Demostrador ──────────────────────────────────────
