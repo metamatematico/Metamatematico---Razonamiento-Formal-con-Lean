@@ -252,10 +252,96 @@ for tab, rc in zip(tabs, result.ranked_candidates):
             with st.expander("🧩 Skeleton / estrategia de demostración"):
                 st.markdown(cand.proof_skeleton)
 
-        # Solver script
+        # Solver script + botón de ejecución
         if cand.solver_script:
             with st.expander("🐍 Script Python (solver numérico / OR-Tools)"):
                 st.code(cand.solver_script, language="python")
+
+            # ── Ejecución del solver ──────────────────────────────────
+            run_key = f"run_solver_{rc.rank}"
+            res_key = f"solver_result_{rc.rank}"
+
+            col_run, col_timeout = st.columns([2, 1])
+            with col_timeout:
+                solver_timeout = st.number_input(
+                    "Timeout (s)", min_value=5, max_value=300,
+                    value=60, key=f"timeout_{rc.rank}",
+                    label_visibility="collapsed",
+                    help="Tiempo máximo de ejecución del solver",
+                )
+            with col_run:
+                do_run = st.button(
+                    "▶ Ejecutar solver",
+                    key=run_key,
+                    type="primary",
+                    use_container_width=True,
+                    help="Ejecuta el script Python y corre el bridge → Lean",
+                )
+
+            if do_run:
+                from nucleo.consultores.solver_runner import run_full_pipeline
+                with st.spinner("Ejecutando solver…"):
+                    sr = _run_async(run_full_pipeline(
+                        solver_script=cand.solver_script,
+                        bridge_script=cand.verification_bridge or "",
+                        lean_client=nucleo._lean,
+                        solver_timeout=int(solver_timeout),
+                    ))
+                st.session_state[res_key] = sr
+
+            # ── Mostrar resultado del solver ──────────────────────────
+            sr = st.session_state.get(res_key)
+            if sr is not None:
+                st.markdown("##### Resultado del solver")
+                s_col1, s_col2, s_col3 = st.columns(3)
+                s_col1.metric("Estado", "OK" if sr.success else "Error")
+                s_col2.metric("Tiempo", f"{sr.elapsed_s:.1f}s")
+                lean_badge = (
+                    "✓ Lean OK" if sr.lean_verified
+                    else "✗ Lean error" if sr.lean_verified is False
+                    else "— sin bridge" if sr.lean_instance is None
+                    else "☁ sin entorno"
+                )
+                s_col3.metric("Verificación formal", lean_badge)
+
+                if sr.error_msg:
+                    st.error(sr.error_msg)
+
+                if sr.stdout:
+                    with st.expander("📤 Output del solver", expanded=True):
+                        st.code(sr.stdout, language="text")
+
+                if sr.stderr:
+                    with st.expander("⚠️ Stderr"):
+                        st.code(sr.stderr, language="text")
+
+                if sr.solution:
+                    with st.expander("📦 solution.json generado", expanded=True):
+                        st.json(sr.solution)
+
+                if sr.lean_instance:
+                    with st.expander("📐 Lean generado por el bridge", expanded=True):
+                        st.code(sr.lean_instance, language="lean")
+                    if sr.lean_errors:
+                        with st.expander("❌ Errores Lean del bridge"):
+                            for e in sr.lean_errors:
+                                st.code(e, language="text")
+
+                # Badge final integrado
+                if sr.lean_verified:
+                    st.success(
+                        "Solución encontrada por el optimizador y "
+                        "**verificada formalmente por Lean 4**"
+                    )
+                elif sr.lean_verified is False:
+                    st.warning(
+                        "Solución encontrada pero la verificación Lean reportó errores. "
+                        "Revisa el bridge o el archivo `.lean`."
+                    )
+                elif sr.success and sr.solution:
+                    st.info(
+                        "Solución encontrada. Configura el bridge para verificación formal."
+                    )
 
         # Bridge
         if cand.verification_bridge:

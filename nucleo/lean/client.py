@@ -14,9 +14,10 @@ Flujo:
 from __future__ import annotations
 
 import asyncio
-import subprocess
 import json
+import os
 import tempfile
+import urllib.request
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
@@ -283,10 +284,14 @@ class LeanClient:
 
         try:
             result = await self._run_lean_check(temp_file)
+            # Si Lean no está instalado localmente, intentar API HTTP externa
+            if result.status == LeanResultStatus.NOT_AVAILABLE:
+                http_result = await self._verify_via_http(code)
+                if http_result is not None:
+                    result = http_result
             result.elapsed_ms = (time.perf_counter() - start) * 1000
             return result
         finally:
-            # Limpiar archivo temporal
             temp_file.unlink(missing_ok=True)
 
     async def check_theorem(
@@ -356,44 +361,75 @@ class LeanClient:
         code = f"{current_state}\n  {tactic}"
         return await self.check_code(code)
 
+    async def _verify_via_http(self, code: str) -> Optional[LeanResult]:
+        """
+        Llama al microservicio externo de verificación Lean (si LEAN_VERIFY_URL
+        está configurado).  Retorna None si el servicio no está disponible.
+        """
+        url = os.environ.get("LEAN_VERIFY_URL", "").rstrip("/")
+        if not url:
+            return None
+        try:
+            payload = json.dumps({"code": code, "timeout": int(self.timeout_s)}).encode()
+            req = urllib.request.Request(
+                f"{url}/verify",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=self.timeout_s + 10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            result = self._parse_lean_output(
+                data.get("stdout", ""),
+                data.get("stderr", ""),
+                data.get("returncode", 0),
+            )
+            logger.info("Lean verificado via HTTP API")
+            return result
+        except Exception as e:
+            logger.warning(f"Lean HTTP API no disponible: {e}")
+            return None
+
+    def _run_lean_check_sync(self, file_path: Path) -> LeanResult:
+        """subprocess.run síncrono — evita problemas de ProactorEventLoop en Windows."""
+        import subprocess
+        try:
+            r = subprocess.run(
+                [self.lean_path, "env", "lean", str(file_path), "--json"],
+                cwd=self.project_path,
+                capture_output=True,
+                timeout=self.timeout_s,
+            )
+            output = r.stdout.decode("utf-8", errors="replace")
+            errors = r.stderr.decode("utf-8", errors="replace")
+            return self._parse_lean_output(output, errors, r.returncode)
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Lean timeout after {self.timeout_s}s")
+            return LeanResult(status=LeanResultStatus.TIMEOUT,
+                              output=f"Timeout after {self.timeout_s}s")
+        except FileNotFoundError:
+            logger.info(f"lake no encontrado ({self.lean_path!r})")
+            return LeanResult(status=LeanResultStatus.NOT_AVAILABLE,
+                              output="lake no está instalado en este entorno")
+        except Exception as e:
+            err = str(e)
+            if any(s in err.lower() for s in ("no such file", "cannot find", "not found")):
+                logger.info(f"lake/lean no disponible: {e}")
+                return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=err)
+            logger.error(f"Error running Lean: {e}")
+            return LeanResult(status=LeanResultStatus.ERROR,
+                              messages=[{"severity": "error", "message": err}],
+                              output=err)
+
     async def _run_lean_check(self, file_path: Path) -> LeanResult:
         """
         Ejecutar verificacion de Lean en un archivo.
+        Usa un thread executor para que subprocess.run no bloquee el event loop
+        y evita el problema de ProactorEventLoop en Windows con create_subprocess_exec.
         """
         try:
-            proc = await asyncio.create_subprocess_exec(
-                self.lean_path,
-                "env",
-                "lean",
-                str(file_path),
-                "--json",
-                cwd=self.project_path,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=self.timeout_s
-            )
-
-            output = stdout.decode("utf-8", errors="replace")
-            errors = stderr.decode("utf-8", errors="replace")
-
-            return self._parse_lean_output(output, errors, proc.returncode or 0)
-
-        except asyncio.TimeoutError:
-            logger.warning(f"Lean timeout after {self.timeout_s}s")
-            return LeanResult(
-                status=LeanResultStatus.TIMEOUT,
-                output=f"Timeout after {self.timeout_s}s"
-            )
-        except FileNotFoundError:
-            logger.info(f"lake/lean no encontrado en PATH ({self.lean_path!r}) — entorno sin Lean")
-            return LeanResult(
-                status=LeanResultStatus.NOT_AVAILABLE,
-                output="lake no está instalado en este entorno",
-            )
+            loop = asyncio.get_event_loop()
+            return await loop.run_in_executor(None, self._run_lean_check_sync, file_path)
         except Exception as e:
             # También cubrir PermissionError / OSError que ocultan la ausencia de lake
             if "No such file" in str(e) or "cannot find" in str(e).lower() or "not found" in str(e).lower():

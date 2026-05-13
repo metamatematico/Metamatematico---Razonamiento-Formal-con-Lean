@@ -157,6 +157,31 @@ def _init_nucleo():
             return None, "Timeout: initialize() tardó más de 20 s"
         if error_holder:
             return None, error_holder[0]
+
+        # Pre-calentar Lean en background: la primera carga de Mathlib
+        # tarda ~3 min en Windows (lee los .olean del disco). Lanzarla aquí
+        # hace que cuando el usuario pida verificación formal, ya esté caliente.
+        if getattr(n, "_lean", None) is not None:
+            warmup_code = (
+                "import Mathlib.Tactic.Ring\n"
+                "import Mathlib.Tactic.Linarith\n"
+                "import Mathlib.Tactic.NormNum\n"
+                "theorem _nle_warmup : (1 : ℕ) + 1 = 2 := by norm_num\n"
+            )
+
+            def _lean_warmup():
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(n._lean.check_code(warmup_code))
+                    log.info(f"Lean warmup: {result.status.name} ({result.elapsed_ms:.0f} ms)")
+                except Exception as e:
+                    log.info(f"Lean warmup omitido: {e}")
+                finally:
+                    loop.close()
+
+            threading.Thread(target=_lean_warmup, daemon=True, name="lean-warmup").start()
+
         return n, ""
     except Exception:
         err = traceback.format_exc()

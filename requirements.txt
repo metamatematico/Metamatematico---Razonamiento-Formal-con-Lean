@@ -24,6 +24,9 @@ scikit-learn>=1.3.0
 # En Streamlit Cloud se omiten (límite 1 GB RAM); el sistema degrada graciosamente.
 # Para instalación local/VPS: pip install torch>=2.1.0 torch-geometric>=2.4.0
 
+# ── Optimización (Consultores Avanzados) ──────────────────────────────
+ortools>=9.10.0        # Google OR-Tools: LP, MIP, routing, scheduling
+
 # ── Utils ─────────────────────────────────────────────────────────────
 python-dotenv>=1.0.0
 requests>=2.31.0

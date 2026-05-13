@@ -27,7 +27,7 @@ rl:
 # Integracion Lean 4
 lean:
   lean_path: "lake"
-  timeout_ms: 30000
+  timeout_ms: 360000
   project_path: null
   use_mathlib: true
   mathlib_cache: true
