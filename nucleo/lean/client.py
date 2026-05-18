@@ -119,8 +119,29 @@ class LeanClient:
             timeout_ms: Timeout en milisegundos
         """
         self.project_path = Path(project_path) if project_path else Path.cwd()
-        self.lean_path = lean_path
+        self.lean_path = self._resolve_lake(lean_path)
         self.timeout_s = timeout_ms / 1000.0
+
+    @staticmethod
+    def _resolve_lake(lean_path: str) -> str:
+        """Resolver ruta real de lake: PATH → elan default → argumento original."""
+        import shutil
+        if Path(lean_path).is_absolute() and Path(lean_path).exists():
+            return lean_path
+        found = shutil.which(lean_path)
+        if found:
+            return found
+        candidates = [
+            Path.home() / ".elan" / "bin" / "lake",
+            Path.home() / ".elan" / "bin" / "lake.exe",
+            Path("/usr/local/bin/lake"),
+        ]
+        for c in candidates:
+            if c.exists():
+                logger.info(f"lake encontrado en: {c}")
+                return str(c)
+        logger.warning(f"lake no encontrado — usando '{lean_path}' (puede fallar)")
+        return lean_path
 
     # Header mínimo garantizado para tácticas y tipos básicos
     _SAFE_HEADER = (
@@ -332,58 +353,79 @@ class LeanClient:
         code = f"{current_state}\n  {tactic}"
         return await self.check_code(code)
 
+    @staticmethod
+    def _kill_process_tree(pid: int) -> None:
+        """Mata el árbol de procesos (padre + hijos) en Windows."""
+        import sys, subprocess as _sp
+        if sys.platform == "win32":
+            try:
+                _sp.run(["taskkill", "/F", "/T", "/PID", str(pid)],
+                        capture_output=True, timeout=10)
+            except Exception:
+                pass
+
+    def _run_lean_check_sync(self, file_path: Path) -> LeanResult:
+        """Usa Popen para poder matar el árbol de procesos en timeout (Windows)."""
+        import subprocess
+        try:
+            proc = subprocess.Popen(
+                [self.lean_path, "env", "lean", str(file_path), "--json"],
+                cwd=self.project_path,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        except FileNotFoundError:
+            logger.info(f"lake no encontrado ({self.lean_path!r})")
+            return LeanResult(status=LeanResultStatus.NOT_AVAILABLE,
+                              output="lake no está instalado en este entorno")
+        except Exception as e:
+            err = str(e)
+            if any(s in err.lower() for s in ("no such file", "cannot find", "not found")):
+                return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=err)
+            return LeanResult(status=LeanResultStatus.ERROR,
+                              messages=[{"severity": "error", "message": err}], output=err)
+
+        try:
+            stdout_b, stderr_b = proc.communicate(timeout=self.timeout_s)
+            output = stdout_b.decode("utf-8", errors="replace")
+            errors = stderr_b.decode("utf-8", errors="replace")
+            return self._parse_lean_output(output, errors, proc.returncode)
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Lean timeout after {self.timeout_s}s")
+            self._kill_process_tree(proc.pid)
+            try:
+                proc.communicate(timeout=5)
+            except Exception:
+                pass
+            try:
+                proc.kill()
+            except Exception:
+                pass
+            return LeanResult(status=LeanResultStatus.TIMEOUT,
+                              output=f"Timeout after {self.timeout_s}s")
+        except Exception as e:
+            err = str(e)
+            if any(s in err.lower() for s in ("no such file", "cannot find", "not found")):
+                return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=err)
+            return LeanResult(status=LeanResultStatus.ERROR,
+                              messages=[{"severity": "error", "message": err}], output=err)
+
     async def _run_lean_check(self, file_path: Path) -> LeanResult:
         """
         Ejecutar verificacion de Lean en un archivo.
+        Usa thread executor para evitar ProactorEventLoop issues en Windows.
         """
         try:
-            proc = await asyncio.create_subprocess_exec(
-                self.lean_path,
-                "env",
-                "lean",
-                str(file_path),
-                "--json",
-                cwd=self.project_path,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(),
-                timeout=self.timeout_s
-            )
-
-            output = stdout.decode("utf-8", errors="replace")
-            errors = stderr.decode("utf-8", errors="replace")
-
-            return self._parse_lean_output(output, errors, proc.returncode or 0)
-
-        except asyncio.TimeoutError:
-            logger.warning(f"Lean timeout after {self.timeout_s}s")
-            return LeanResult(
-                status=LeanResultStatus.TIMEOUT,
-                output=f"Timeout after {self.timeout_s}s"
-            )
-        except FileNotFoundError:
-            logger.info(f"lake/lean no encontrado en PATH ({self.lean_path!r}) — entorno sin Lean")
-            return LeanResult(
-                status=LeanResultStatus.NOT_AVAILABLE,
-                output="lake no está instalado en este entorno",
-            )
+            loop = asyncio.get_running_loop()
+            return await loop.run_in_executor(None, self._run_lean_check_sync, file_path)
         except Exception as e:
-            # También cubrir PermissionError / OSError que ocultan la ausencia de lake
             if "No such file" in str(e) or "cannot find" in str(e).lower() or "not found" in str(e).lower():
                 logger.info(f"lake/lean no disponible: {e}")
-                return LeanResult(
-                    status=LeanResultStatus.NOT_AVAILABLE,
-                    output=str(e),
-                )
+                return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=str(e))
             logger.error(f"Error running Lean: {e}")
-            return LeanResult(
-                status=LeanResultStatus.ERROR,
-                messages=[{"severity": "error", "message": str(e)}],
-                output=str(e)
-            )
+            return LeanResult(status=LeanResultStatus.ERROR,
+                              messages=[{"severity": "error", "message": str(e)}],
+                              output=str(e))
 
     def _parse_lean_output(
         self,

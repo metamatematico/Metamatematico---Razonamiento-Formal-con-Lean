@@ -1280,7 +1280,7 @@ class Nucleo:
         # ── Ensamblaje final ───────────────────────────────────────────────
         # Badge diferenciado: definición vs prueba vs sin entorno
         if _sin_entorno:
-            status_badge = f"**Lean 4 ☁ — código generado · verificación local necesaria** · área: `{_area}`"
+            status_badge = f"**Lean 4 ☁ — código generado** · área: `{_area}`"
         elif _is_definitional:
             status_badge = {
                 "verificado":    f"**Lean 4 ✓ — definición verificada formalmente** · área: `{_area}`",
@@ -1294,18 +1294,10 @@ class Nucleo:
                 "no_verificado": f"**Lean 4 ↯ — formalización pendiente de ajuste** · área: `{_area}`",
             }[verification_status]
 
-        # Nota de infraestructura compacta (solo cuando Lean no está disponible)
-        _infra_note = (
-            "\n\n> **Nota:** Este servidor no tiene Lean 4 instalado. "
-            "La sintaxis y el argumento matemático son correctos; "
-            "para ejecutarlo necesitas `lake` + Mathlib localmente."
-            if _sin_entorno else ""
-        )
-
         content = (
             f"{translation.content}\n\n"
             f"---\n\n"
-            f"{status_badge}{_infra_note}\n\n"
+            f"{status_badge}\n\n"
             f"```lean\n{lean_code}\n```"
         )
 
@@ -1846,7 +1838,7 @@ class Nucleo:
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
             future = pool.submit(_run_in_thread)
-            return future.result(timeout=120)  # 2 min timeout
+            return future.result(timeout=420)  # 7 min: Lean cold-start puede tardar ~100s
 
     # =========================================================================
     # PROPIEDADES
