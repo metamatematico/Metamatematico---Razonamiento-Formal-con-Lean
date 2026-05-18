@@ -135,7 +135,9 @@ def _init_nucleo():
     try:
         from nucleo.core import Nucleo
         from nucleo.config import NucleoConfig
-        n = Nucleo(NucleoConfig())
+        _cfg_yaml = os.path.join(_proj_dir, "nucleo_config.yaml")
+        _cfg = NucleoConfig.from_yaml(_cfg_yaml) if os.path.exists(_cfg_yaml) else NucleoConfig()
+        n = Nucleo(_cfg)
 
         error_holder: list[str] = []
 
@@ -935,6 +937,12 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
 
         model = st.selectbox("Modelo", cfg["models"])
         max_tokens = st.slider("Tokens máx.", 256, 4096, 1024, 128)
+
+        # Persist API config so other pages (Verificador, etc.) can reuse it
+        st.session_state["_api_key"]    = api_key or ""
+        st.session_state["_provider"]   = provider
+        st.session_state["_model"]      = model
+        st.session_state["_max_tokens"] = max_tokens
 
         st.divider()
 

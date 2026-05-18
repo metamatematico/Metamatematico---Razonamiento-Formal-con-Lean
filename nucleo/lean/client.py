@@ -83,6 +83,19 @@ class LeanResult:
         errors = self.error_messages
         return errors[0] if errors else None
 
+    # Backwards-compat aliases used across codebase
+    @property
+    def success(self) -> bool:
+        return self.is_success
+
+    @property
+    def errors(self) -> list[str]:
+        return self.error_messages
+
+    @property
+    def error_message(self) -> Optional[str]:
+        return self.get_first_error()
+
 
 class LeanClient:
     """
@@ -390,23 +403,29 @@ class LeanClient:
             logger.warning(f"Lean HTTP API no disponible: {e}")
             return None
 
+    @staticmethod
+    def _kill_process_tree(pid: int) -> None:
+        """Mata el árbol de procesos (padre + hijos) en Windows para evitar zombies de lean.exe."""
+        import sys, subprocess as _sp
+        if sys.platform == "win32":
+            try:
+                _sp.run(
+                    ["taskkill", "/F", "/T", "/PID", str(pid)],
+                    capture_output=True, timeout=10,
+                )
+            except Exception:
+                pass
+
     def _run_lean_check_sync(self, file_path: Path) -> LeanResult:
-        """subprocess.run síncrono — evita problemas de ProactorEventLoop en Windows."""
-        import subprocess
+        """Usa Popen para poder matar el árbol de procesos en timeout (Windows)."""
+        import subprocess, sys
         try:
-            r = subprocess.run(
+            proc = subprocess.Popen(
                 [self.lean_path, "env", "lean", str(file_path), "--json"],
                 cwd=self.project_path,
-                capture_output=True,
-                timeout=self.timeout_s,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
-            output = r.stdout.decode("utf-8", errors="replace")
-            errors = r.stderr.decode("utf-8", errors="replace")
-            return self._parse_lean_output(output, errors, r.returncode)
-        except subprocess.TimeoutExpired:
-            logger.warning(f"Lean timeout after {self.timeout_s}s")
-            return LeanResult(status=LeanResultStatus.TIMEOUT,
-                              output=f"Timeout after {self.timeout_s}s")
         except FileNotFoundError:
             logger.info(f"lake no encontrado ({self.lean_path!r})")
             return LeanResult(status=LeanResultStatus.NOT_AVAILABLE,
@@ -416,10 +435,34 @@ class LeanClient:
             if any(s in err.lower() for s in ("no such file", "cannot find", "not found")):
                 logger.info(f"lake/lean no disponible: {e}")
                 return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=err)
+            logger.error(f"Error al iniciar Lean: {e}")
+            return LeanResult(status=LeanResultStatus.ERROR,
+                              messages=[{"severity": "error", "message": err}], output=err)
+
+        try:
+            stdout_b, stderr_b = proc.communicate(timeout=self.timeout_s)
+            output = stdout_b.decode("utf-8", errors="replace")
+            errors = stderr_b.decode("utf-8", errors="replace")
+            return self._parse_lean_output(output, errors, proc.returncode)
+        except subprocess.TimeoutExpired:
+            logger.warning(f"Lean timeout after {self.timeout_s}s — matando proceso {proc.pid}")
+            # Matar árbol completo (lake + lean hijos) para que communicate() no cuelgue
+            self._kill_process_tree(proc.pid)
+            try:
+                proc.communicate(timeout=5)  # drena el buffer con tiempo límite
+            except Exception:
+                pass
+            proc.kill()
+            return LeanResult(status=LeanResultStatus.TIMEOUT,
+                              output=f"Timeout after {self.timeout_s}s")
+        except Exception as e:
+            err = str(e)
+            if any(s in err.lower() for s in ("no such file", "cannot find", "not found")):
+                logger.info(f"lake/lean no disponible: {e}")
+                return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=err)
             logger.error(f"Error running Lean: {e}")
             return LeanResult(status=LeanResultStatus.ERROR,
-                              messages=[{"severity": "error", "message": err}],
-                              output=err)
+                              messages=[{"severity": "error", "message": err}], output=err)
 
     async def _run_lean_check(self, file_path: Path) -> LeanResult:
         """
