@@ -135,7 +135,9 @@ def _init_nucleo():
     try:
         from nucleo.core import Nucleo
         from nucleo.config import NucleoConfig
-        n = Nucleo(NucleoConfig())
+        _cfg_yaml = os.path.join(_proj_dir, "nucleo_config.yaml")
+        _cfg = NucleoConfig.from_yaml(_cfg_yaml) if os.path.exists(_cfg_yaml) else NucleoConfig()
+        n = Nucleo(_cfg)
 
         error_holder: list[str] = []
 
@@ -157,6 +159,31 @@ def _init_nucleo():
             return None, "Timeout: initialize() tardó más de 20 s"
         if error_holder:
             return None, error_holder[0]
+
+        # Pre-calentar Lean en background: la primera carga de Mathlib
+        # tarda ~3 min en Windows (lee los .olean del disco). Lanzarla aquí
+        # hace que cuando el usuario pida verificación formal, ya esté caliente.
+        if getattr(n, "_lean", None) is not None:
+            warmup_code = (
+                "import Mathlib.Tactic.Ring\n"
+                "import Mathlib.Tactic.Linarith\n"
+                "import Mathlib.Tactic.NormNum\n"
+                "theorem _nle_warmup : (1 : ℕ) + 1 = 2 := by norm_num\n"
+            )
+
+            def _lean_warmup():
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(n._lean.check_code(warmup_code))
+                    log.info(f"Lean warmup: {result.status.name} ({result.elapsed_ms:.0f} ms)")
+                except Exception as e:
+                    log.info(f"Lean warmup omitido: {e}")
+                finally:
+                    loop.close()
+
+            threading.Thread(target=_lean_warmup, daemon=True, name="lean-warmup").start()
+
         return n, ""
     except Exception:
         err = traceback.format_exc()
@@ -911,6 +938,12 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
         model = st.selectbox("Modelo", cfg["models"])
         max_tokens = st.slider("Tokens máx.", 256, 4096, 1024, 128)
 
+        # Persist API config so other pages (Verificador, etc.) can reuse it
+        st.session_state["_api_key"]    = api_key or ""
+        st.session_state["_provider"]   = provider
+        st.session_state["_model"]      = model
+        st.session_state["_max_tokens"] = max_tokens
+
         st.divider()
 
         n_hist = len(st.session_state.history)
@@ -1272,8 +1305,10 @@ los resultados se muestran aquí.
 # ── Navegacion ────────────────────────────────────────────────────────────────
 
 try:
+    _home_page = st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True)
+    st.session_state["_home_page"] = _home_page
     pg = st.navigation([
-        st.Page(page_home, title="METAMATEMÁTICO", icon="🧮", default=True),
+        _home_page,
         st.Page("pages/1_Visualizaciones.py", title="Visualizaciones", icon="📊"),
         st.Page("pages/2_Verificador.py", title="Verificador", icon="🔬"),
         st.Page("pages/3_Instalar_Lean.py", title="Instalar Lean 4", icon="⚙️"),

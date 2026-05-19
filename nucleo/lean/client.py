@@ -14,9 +14,10 @@ Flujo:
 from __future__ import annotations
 
 import asyncio
-import subprocess
 import json
+import os
 import tempfile
+import urllib.request
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
@@ -81,6 +82,19 @@ class LeanResult:
     def get_first_error(self) -> Optional[str]:
         errors = self.error_messages
         return errors[0] if errors else None
+
+    # Backwards-compat aliases used across codebase
+    @property
+    def success(self) -> bool:
+        return self.is_success
+
+    @property
+    def errors(self) -> list[str]:
+        return self.error_messages
+
+    @property
+    def error_message(self) -> Optional[str]:
+        return self.get_first_error()
 
 
 class LeanClient:
@@ -280,10 +294,14 @@ class LeanClient:
 
         try:
             result = await self._run_lean_check(temp_file)
+            # Si Lean no está instalado localmente, intentar API HTTP externa
+            if result.status == LeanResultStatus.NOT_AVAILABLE:
+                http_result = await self._verify_via_http(code)
+                if http_result is not None:
+                    result = http_result
             result.elapsed_ms = (time.perf_counter() - start) * 1000
             return result
         finally:
-            # Limpiar archivo temporal
             temp_file.unlink(missing_ok=True)
 
     async def check_theorem(
@@ -353,20 +371,51 @@ class LeanClient:
         code = f"{current_state}\n  {tactic}"
         return await self.check_code(code)
 
+    async def _verify_via_http(self, code: str) -> Optional[LeanResult]:
+        """
+        Llama al microservicio externo de verificación Lean (si LEAN_VERIFY_URL
+        está configurado).  Retorna None si el servicio no está disponible.
+        """
+        url = os.environ.get("LEAN_VERIFY_URL", "").rstrip("/")
+        if not url:
+            return None
+        try:
+            payload = json.dumps({"code": code, "timeout": int(self.timeout_s)}).encode()
+            req = urllib.request.Request(
+                f"{url}/verify",
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=self.timeout_s + 10) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            result = self._parse_lean_output(
+                data.get("stdout", ""),
+                data.get("stderr", ""),
+                data.get("returncode", 0),
+            )
+            logger.info("Lean verificado via HTTP API")
+            return result
+        except Exception as e:
+            logger.warning(f"Lean HTTP API no disponible: {e}")
+            return None
+
     @staticmethod
     def _kill_process_tree(pid: int) -> None:
-        """Mata el árbol de procesos (padre + hijos) en Windows."""
+        """Mata el árbol de procesos (padre + hijos) en Windows para evitar zombies de lean.exe."""
         import sys, subprocess as _sp
         if sys.platform == "win32":
             try:
-                _sp.run(["taskkill", "/F", "/T", "/PID", str(pid)],
-                        capture_output=True, timeout=10)
+                _sp.run(
+                    ["taskkill", "/F", "/T", "/PID", str(pid)],
+                    capture_output=True, timeout=10,
+                )
             except Exception:
                 pass
 
     def _run_lean_check_sync(self, file_path: Path) -> LeanResult:
         """Usa Popen para poder matar el árbol de procesos en timeout (Windows)."""
-        import subprocess
+        import subprocess, sys
         try:
             proc = subprocess.Popen(
                 [self.lean_path, "env", "lean", str(file_path), "--json"],
@@ -381,7 +430,9 @@ class LeanClient:
         except Exception as e:
             err = str(e)
             if any(s in err.lower() for s in ("no such file", "cannot find", "not found")):
+                logger.info(f"lake/lean no disponible: {e}")
                 return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=err)
+            logger.error(f"Error al iniciar Lean: {e}")
             return LeanResult(status=LeanResultStatus.ERROR,
                               messages=[{"severity": "error", "message": err}], output=err)
 
@@ -391,7 +442,7 @@ class LeanClient:
             errors = stderr_b.decode("utf-8", errors="replace")
             return self._parse_lean_output(output, errors, proc.returncode)
         except subprocess.TimeoutExpired:
-            logger.warning(f"Lean timeout after {self.timeout_s}s")
+            logger.warning(f"Lean timeout after {self.timeout_s}s — matando proceso {proc.pid}")
             self._kill_process_tree(proc.pid)
             try:
                 proc.communicate(timeout=5)
@@ -406,7 +457,9 @@ class LeanClient:
         except Exception as e:
             err = str(e)
             if any(s in err.lower() for s in ("no such file", "cannot find", "not found")):
+                logger.info(f"lake/lean no disponible: {e}")
                 return LeanResult(status=LeanResultStatus.NOT_AVAILABLE, output=err)
+            logger.error(f"Error running Lean: {e}")
             return LeanResult(status=LeanResultStatus.ERROR,
                               messages=[{"severity": "error", "message": err}], output=err)
 

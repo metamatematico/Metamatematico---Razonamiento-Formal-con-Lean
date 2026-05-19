@@ -33,11 +33,6 @@ h1, h2, h3 { color: #c9d1d9; }
 """, unsafe_allow_html=True)
 
 # ─── Botón volver ─────────────────────────────────────────────────────────────
-_c1, _ = st.columns([1, 5])
-with _c1:
-    if st.button("← Volver al chat", use_container_width=True):
-        st.switch_page("app.py")
-
 st.title("🔭 Consultores Avanzados")
 st.markdown(
     "Genera **N artefactos matemáticos verificables**: archivos `.lean` autocontenidos, "
@@ -80,13 +75,117 @@ if nucleo is None:
         "luego vuelve aquí."
     )
     if st.button("→ Ir al chat principal"):
-        st.switch_page("app.py")
+        home = st.session_state.get("_home_page")
+        if home:
+            st.switch_page(home)
+        else:
+            st.rerun()
     st.stop()
+
+# ─── Proveedores (misma tabla que app.py) ────────────────────────────────────
+
+import os as _os
+
+_PROVIDERS_CA = {
+    "Anthropic": {
+        "models": ["claude-haiku-4-5-20251001", "claude-sonnet-4-6"],
+        "key_label": "Anthropic API Key",
+        "key_placeholder": "sk-ant-...",
+        "key_help": "Obtener en console.anthropic.com",
+        "env_var": "ANTHROPIC_API_KEY",
+    },
+    "Google AI Studio": {
+        "models": ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash", "gemini-1.5-pro"],
+        "key_label": "Google AI Studio API Key",
+        "key_placeholder": "AIza...",
+        "key_help": "Obtener gratis en aistudio.google.com",
+        "env_var": "GOOGLE_API_KEY",
+    },
+    "Groq (gratis)": {
+        "models": ["llama-3.3-70b-versatile", "gemma2-9b-it", "mixtral-8x7b-32768"],
+        "key_label": "Groq API Key",
+        "key_placeholder": "gsk_...",
+        "key_help": "Obtener gratis en console.groq.com",
+        "env_var": "GROQ_API_KEY",
+    },
+    "DeepSeek": {
+        "models": ["deepseek-chat", "deepseek-reasoner"],
+        "key_label": "DeepSeek API Key",
+        "key_placeholder": "sk-...",
+        "key_help": "Obtener en platform.deepseek.com",
+        "env_var": "DEEPSEEK_API_KEY",
+    },
+    "Demo (sin API key)": {
+        "models": ["demo"],
+        "key_label": None,
+        "env_var": None,
+    },
+}
+
+_PROVIDER_MAP_CA = {
+    "Google AI Studio":   "google",
+    "Groq (gratis)":      "groq",
+    "Anthropic":          "anthropic",
+    "DeepSeek":           "deepseek",
+    "Demo (sin API key)": "demo",
+}
 
 # ─── Panel de configuración ───────────────────────────────────────────────────
 
 with st.sidebar:
-    st.header("⚙️ Configuración")
+    st.markdown("""
+<div style="padding:0.6rem 0 0.4rem">
+  <div style="font-family:'Space Grotesk','Inter',sans-serif;font-size:1rem;font-weight:800;
+              background:linear-gradient(120deg,#e8e8ff,#b04fff,#06d6c7);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+              background-clip:text">METAMATEMÁTICO</div>
+  <div style="font-size:0.65rem;color:#5858a0;margin-top:4px;letter-spacing:.07em;
+              text-transform:uppercase;font-weight:600">🔭 Consultores Avanzados</div>
+</div>
+""", unsafe_allow_html=True)
+    st.divider()
+
+    # ── API key (misma lógica que Verificador) ──────────────────────────────
+    _prov_list_ca = list(_PROVIDERS_CA.keys())
+    _default_prov_ca = st.session_state.get("_provider", "Anthropic")
+    _default_idx_ca = _prov_list_ca.index(_default_prov_ca) if _default_prov_ca in _prov_list_ca else 0
+
+    ca_provider = st.selectbox("Proveedor", _prov_list_ca, index=_default_idx_ca, key="_ca_provider")
+    ca_cfg = _PROVIDERS_CA[ca_provider]
+
+    ca_api_key = ""
+    if ca_cfg["key_label"]:
+        _pre_ca = st.session_state.get("_api_key", "")
+        if not _pre_ca and ca_cfg["env_var"]:
+            try:
+                _pre_ca = st.secrets.get(ca_cfg["env_var"], "")
+            except Exception:
+                _pre_ca = _os.environ.get(ca_cfg["env_var"], "")
+        # Force-sync: Streamlit ignores value= once a key is in session_state.
+        # We must write directly so navigating from main chat always propagates the key.
+        if _pre_ca:
+            st.session_state["_ca_api_key_input"] = _pre_ca
+        ca_api_key = st.text_input(
+            ca_cfg["key_label"],
+            value=_pre_ca,
+            type="password",
+            placeholder=ca_cfg["key_placeholder"],
+            help=ca_cfg.get("key_help", ""),
+            key="_ca_api_key_input",
+        )
+
+    ca_model = st.selectbox("Modelo", ca_cfg["models"], key="_ca_model")
+    ca_max_tokens = st.slider(
+        "Tokens máx.", 512, 8192,
+        st.session_state.get("_max_tokens", 4096),
+        256,
+        key="_ca_max_tokens",
+    )
+
+    st.divider()
+
+    # ── Configuración del módulo ────────────────────────────────────────────
+    st.header("⚙️ Módulo")
     n_candidates = st.slider("Número de candidatos", min_value=1, max_value=6, value=3)
     activate = st.toggle("Activar módulo", value=nucleo.consultores_active)
 
@@ -106,10 +205,12 @@ with st.sidebar:
             st.success(f"Actualizado a {n_candidates} candidatos")
 
     st.divider()
-    st.caption(
-        "El módulo usa el mismo LLM y Lean 4 configurados en el chat principal. "
-        "No requiere clave de API adicional."
-    )
+    if st.button("← Volver al chat", use_container_width=True, key="_ca_back"):
+        home = st.session_state.get("_home_page")
+        if home:
+            st.switch_page(home)
+        else:
+            st.rerun()
 
 # ─── Estado del módulo ────────────────────────────────────────────────────────
 
@@ -119,6 +220,15 @@ if not nucleo.consultores_active:
         "Actívalo en el panel lateral para continuar."
     )
     st.stop()
+
+# ─── Validar API key ──────────────────────────────────────────────────────────
+
+if not ca_api_key and ca_provider != "Demo (sin API key)":
+    st.warning(
+        f"⚠️ Introduce tu **{ca_cfg['key_label']}** en el panel izquierdo para usar los Consultores. "
+        "Si ya la pusiste en el chat principal y estás en la misma pestaña, "
+        "debería aparecer pre-rellenada arriba."
+    )
 
 # ─── Formulario de consulta ───────────────────────────────────────────────────
 
@@ -134,7 +244,9 @@ query = st.text_area(
     key="consultores_query",
 )
 
-run_btn = st.button("🚀 Generar artefactos", type="primary", disabled=not query.strip())
+_no_key = not ca_api_key and ca_provider != "Demo (sin API key)"
+run_btn = st.button("🚀 Generar artefactos", type="primary",
+                    disabled=not query.strip() or _no_key)
 
 # ─── Ejecución ────────────────────────────────────────────────────────────────
 
@@ -153,6 +265,17 @@ def _run_async(coro):
 
 
 if run_btn and query.strip():
+    # Aplicar la API key seleccionada en el sidebar de esta página
+    try:
+        nucleo.reconfigure_llm(
+            _PROVIDER_MAP_CA.get(ca_provider, "demo"),
+            ca_model,
+            ca_api_key,
+            ca_max_tokens,
+        )
+    except Exception as _recfg_err:
+        st.warning(f"No se pudo reconfigurar el LLM: {_recfg_err}")
+
     with st.spinner("Generando y verificando artefactos (puede tardar 30-90 s)…"):
         try:
             result = _run_async(nucleo._consultores.process(query.strip()))
@@ -244,10 +367,96 @@ for tab, rc in zip(tabs, result.ranked_candidates):
             with st.expander("🧩 Skeleton / estrategia de demostración"):
                 st.markdown(cand.proof_skeleton)
 
-        # Solver script
+        # Solver script + botón de ejecución
         if cand.solver_script:
             with st.expander("🐍 Script Python (solver numérico / OR-Tools)"):
                 st.code(cand.solver_script, language="python")
+
+            # ── Ejecución del solver ──────────────────────────────────
+            run_key = f"run_solver_{rc.rank}"
+            res_key = f"solver_result_{rc.rank}"
+
+            col_run, col_timeout = st.columns([2, 1])
+            with col_timeout:
+                solver_timeout = st.number_input(
+                    "Timeout (s)", min_value=5, max_value=300,
+                    value=60, key=f"timeout_{rc.rank}",
+                    label_visibility="collapsed",
+                    help="Tiempo máximo de ejecución del solver",
+                )
+            with col_run:
+                do_run = st.button(
+                    "▶ Ejecutar solver",
+                    key=run_key,
+                    type="primary",
+                    use_container_width=True,
+                    help="Ejecuta el script Python y corre el bridge → Lean",
+                )
+
+            if do_run:
+                from nucleo.consultores.solver_runner import run_full_pipeline
+                with st.spinner("Ejecutando solver…"):
+                    sr = _run_async(run_full_pipeline(
+                        solver_script=cand.solver_script,
+                        bridge_script=cand.verification_bridge or "",
+                        lean_client=nucleo._lean,
+                        solver_timeout=int(solver_timeout),
+                    ))
+                st.session_state[res_key] = sr
+
+            # ── Mostrar resultado del solver ──────────────────────────
+            sr = st.session_state.get(res_key)
+            if sr is not None:
+                st.markdown("##### Resultado del solver")
+                s_col1, s_col2, s_col3 = st.columns(3)
+                s_col1.metric("Estado", "OK" if sr.success else "Error")
+                s_col2.metric("Tiempo", f"{sr.elapsed_s:.1f}s")
+                lean_badge = (
+                    "✓ Lean OK" if sr.lean_verified
+                    else "✗ Lean error" if sr.lean_verified is False
+                    else "— sin bridge" if sr.lean_instance is None
+                    else "☁ sin entorno"
+                )
+                s_col3.metric("Verificación formal", lean_badge)
+
+                if sr.error_msg:
+                    st.error(sr.error_msg)
+
+                if sr.stdout:
+                    with st.expander("📤 Output del solver", expanded=True):
+                        st.code(sr.stdout, language="text")
+
+                if sr.stderr:
+                    with st.expander("⚠️ Stderr"):
+                        st.code(sr.stderr, language="text")
+
+                if sr.solution:
+                    with st.expander("📦 solution.json generado", expanded=True):
+                        st.json(sr.solution)
+
+                if sr.lean_instance:
+                    with st.expander("📐 Lean generado por el bridge", expanded=True):
+                        st.code(sr.lean_instance, language="lean")
+                    if sr.lean_errors:
+                        with st.expander("❌ Errores Lean del bridge"):
+                            for e in sr.lean_errors:
+                                st.code(e, language="text")
+
+                # Badge final integrado
+                if sr.lean_verified:
+                    st.success(
+                        "Solución encontrada por el optimizador y "
+                        "**verificada formalmente por Lean 4**"
+                    )
+                elif sr.lean_verified is False:
+                    st.warning(
+                        "Solución encontrada pero la verificación Lean reportó errores. "
+                        "Revisa el bridge o el archivo `.lean`."
+                    )
+                elif sr.success and sr.solution:
+                    st.info(
+                        "Solución encontrada. Configura el bridge para verificación formal."
+                    )
 
         # Bridge
         if cand.verification_bridge:

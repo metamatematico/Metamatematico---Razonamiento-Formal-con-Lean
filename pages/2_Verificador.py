@@ -6,7 +6,7 @@ El NLE la analiza, intenta formalizarla en Lean 4 y reporta si es correcta.
 """
 from __future__ import annotations
 
-import io
+import os
 import re
 import sys
 import time
@@ -23,14 +23,137 @@ h1, h2, h3 { color: #c9d1d9; }
     background: #131c2e; border: 1px solid #30363d;
     border-radius: 10px; padding: 1rem 1.2rem; margin-top: 1rem;
 }
+section[data-testid="stSidebar"] {
+    background: #0a0a12 !important;
+    border-right: 1px solid #2a2a48;
+}
+section[data-testid="stSidebar"] .stSelectbox label,
+section[data-testid="stSidebar"] .stSlider  label,
+section[data-testid="stSidebar"] .stTextInput label {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: #5858a0;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# ─── Botón volver ─────────────────────────────────────────────────────────────
-_c1, _ = st.columns([1, 5])
-with _c1:
-    if st.button("← Volver al chat", width="stretch"):
-        st.switch_page("app.py")
+# ─── Sidebar: configuración API (independiente del chat principal) ─────────────
+
+_PROVIDERS = {
+    "Anthropic": {
+        "models": ["claude-haiku-4-5-20251001", "claude-sonnet-4-6"],
+        "key_label": "Anthropic API Key",
+        "key_placeholder": "sk-ant-...",
+        "key_help": "Obtener en console.anthropic.com",
+        "env_var": "ANTHROPIC_API_KEY",
+    },
+    "Google AI Studio": {
+        "models": ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash", "gemini-1.5-pro"],
+        "key_label": "Google AI Studio API Key",
+        "key_placeholder": "AIza...",
+        "key_help": "Obtener gratis en aistudio.google.com",
+        "env_var": "GOOGLE_API_KEY",
+    },
+    "Groq (gratis)": {
+        "models": ["llama-3.3-70b-versatile", "gemma2-9b-it", "mixtral-8x7b-32768", "llama-3.1-8b-instant"],
+        "key_label": "Groq API Key",
+        "key_placeholder": "gsk_...",
+        "key_help": "Obtener gratis en console.groq.com",
+        "env_var": "GROQ_API_KEY",
+    },
+    "DeepSeek": {
+        "models": ["deepseek-chat", "deepseek-reasoner"],
+        "key_label": "DeepSeek API Key",
+        "key_placeholder": "sk-...",
+        "key_help": "Obtener en platform.deepseek.com",
+        "env_var": "DEEPSEEK_API_KEY",
+    },
+    "Demo (sin API key)": {
+        "models": ["demo"],
+        "key_label": None,
+        "env_var": None,
+    },
+}
+
+_PROVIDER_MAP = {
+    "Google AI Studio":   "google",
+    "Groq (gratis)":      "groq",
+    "Anthropic":          "anthropic",
+    "DeepSeek":           "deepseek",
+    "Demo (sin API key)": "demo",
+}
+
+with st.sidebar:
+    st.markdown("""
+<div style="padding:0.8rem 0 0.5rem">
+  <div style="font-family:'Space Grotesk','Inter',sans-serif;font-size:1.05rem;font-weight:800;
+              letter-spacing:0.04em;
+              background:linear-gradient(120deg,#e8e8ff,#b04fff,#06d6c7);
+              -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+              background-clip:text">METAMATEMÁTICO</div>
+  <div style="font-size:0.67rem;color:#5858a0;margin-top:5px;letter-spacing:0.07em;
+              text-transform:uppercase;font-weight:600">🔬 Verificador</div>
+</div>
+""", unsafe_allow_html=True)
+    st.divider()
+
+    # Pre-seleccionar el proveedor del chat principal si está en la misma sesión
+    _prov_list = list(_PROVIDERS.keys())
+    _default_prov = st.session_state.get("_provider", "Anthropic")
+    _default_idx = _prov_list.index(_default_prov) if _default_prov in _prov_list else 0
+
+    v_provider = st.selectbox("Proveedor", _prov_list, index=_default_idx)
+    v_cfg = _PROVIDERS[v_provider]
+
+    v_api_key = ""
+    if v_cfg["key_label"]:
+        # Pre-rellenar con el valor del chat principal (misma sesión) o variable de entorno
+        _pre = st.session_state.get("_api_key", "")
+        if not _pre and v_cfg["env_var"]:
+            try:
+                _pre = st.secrets.get(v_cfg["env_var"], "")
+            except Exception:
+                _pre = os.environ.get(v_cfg["env_var"], "")
+        # Force-sync: once a keyed widget exists in session_state, value= is ignored.
+        if _pre:
+            st.session_state["_v_api_key_input"] = _pre
+        v_api_key = st.text_input(
+            v_cfg["key_label"],
+            value=_pre,
+            type="password",
+            placeholder=v_cfg["key_placeholder"],
+            help=v_cfg.get("key_help", ""),
+            key="_v_api_key_input",
+        )
+
+    v_model = st.selectbox("Modelo", v_cfg["models"])
+    v_max_tokens = st.slider(
+        "Tokens máx.", 256, 4096,
+        st.session_state.get("_max_tokens", 1024),
+        128,
+    )
+
+    st.divider()
+    if st.button("← Volver al chat", use_container_width=True):
+        home = st.session_state.get("_home_page")
+        if home:
+            st.switch_page(home)
+        else:
+            st.rerun()
+
+    st.divider()
+    st.markdown(
+        '<div style="font-size:0.64rem;color:#5858a0;line-height:1.7">'
+        '76 skills matemáticos · 14 categorías<br>'
+        'GNN + PPO · Lean 4 · Mathlib'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+# ─── Cabecera ────────────────────────────────────────────────────────────────
 
 st.title("🔬 Verificador de Demostraciones")
 st.markdown(
@@ -44,20 +167,16 @@ st.divider()
 # ─── Extracción de texto ──────────────────────────────────────────────────────
 
 def _extract_pdf(data: bytes) -> str:
-    """Extrae texto de un PDF usando PyMuPDF (fitz)."""
     try:
-        import fitz  # PyMuPDF — ya instalado
+        import fitz
         doc = fitz.open(stream=data, filetype="pdf")
-        pages_text = []
-        for page in doc:
-            pages_text.append(page.get_text("text"))
+        pages_text = [page.get_text("text") for page in doc]
         doc.close()
         return "\n\n".join(pages_text)
     except Exception as e:
         return f"[Error al leer el PDF: {e}]"
 
 
-# Entornos LaTeX que contienen matemáticas relevantes
 _LATEX_ENVS = re.compile(
     r'\\begin\{(theorem|Theorem|lemma|Lemma|proposition|Proposition|'
     r'corollary|Corollary|definition|Definition|proof|Proof|'
@@ -67,13 +186,8 @@ _LATEX_ENVS = re.compile(
     re.DOTALL,
 )
 
-_LATEX_TITLE = re.compile(
-    r'\\(title|section|subsection)\{([^}]+)\}'
-)
-
 
 def _extract_latex_blocks(tex: str) -> list[dict]:
-    """Extrae bloques theorem/lemma/proof de fuente LaTeX."""
     blocks = []
     for m in _LATEX_ENVS.finditer(tex):
         env = m.group(1).lower()
@@ -84,7 +198,6 @@ def _extract_latex_blocks(tex: str) -> list[dict]:
 
 
 def _strip_latex(tex: str) -> str:
-    """Limpia comandos LaTeX decorativos, conserva notación matemática."""
     tex = re.sub(r'\\(text|mathrm|mathit|mathbf|mathbb|emph)\{([^}]+)\}', r'\2', tex)
     tex = re.sub(r'\\(label|ref|cite|footnote|index)\{[^}]*\}', '', tex)
     tex = re.sub(r'%.*', '', tex)
@@ -93,7 +206,6 @@ def _strip_latex(tex: str) -> str:
 
 
 def _is_latex_content(text: str) -> bool:
-    """Detecta si el texto contiene marcadores LaTeX."""
     markers = [r'\begin{', r'\end{', r'\frac', r'\forall', r'\exists',
                r'\mathbb', r'\mathcal', r'\sum', r'\prod', r'\int']
     return any(m in text for m in markers)
@@ -102,8 +214,6 @@ def _is_latex_content(text: str) -> bool:
 # ─── Nucleo — compartido con app.py via cache_resource ────────────────────────
 
 def _get_nucleo():
-    """Reutiliza la instancia de Nucleo ya inicializada por app.py."""
-    import sys
     for mod_name in ("__main__", "app"):
         mod = sys.modules.get(mod_name)
         if mod is not None and hasattr(mod, "_get_nucleo"):
@@ -119,7 +229,6 @@ def _get_nucleo():
 
 def _build_verify_prompt(content: str, filename: str, mode: str,
                          content_type: str) -> str:
-    """Construye el prompt que el NLE envía a Lean + LLM."""
     is_latex = _is_latex_content(content)
     fmt_tag  = "[LaTeX]" if is_latex else "[Texto plano]"
 
@@ -153,7 +262,6 @@ def _build_verify_prompt(content: str, filename: str, mode: str,
     }
 
     instr = mode_instructions.get(mode, mode_instructions["Verificar demostración"])
-
     return (
         f"{instr}\n\n"
         f"Archivo: `{filename}` — Tipo: {content_type} {fmt_tag}\n\n"
@@ -199,9 +307,9 @@ if not uploaded:
 
 # ─── Procesar archivo ─────────────────────────────────────────────────────────
 
-raw_bytes  = uploaded.read()
-fname      = uploaded.name
-ext        = Path(fname).suffix.lower()
+raw_bytes = uploaded.read()
+fname     = uploaded.name
+ext       = Path(fname).suffix.lower()
 
 with st.spinner("Leyendo archivo…"):
     if ext == ".pdf":
@@ -212,7 +320,7 @@ with st.spinner("Leyendo archivo…"):
         text_original = raw_bytes.decode("utf-8", errors="replace")
         latex_blocks  = _extract_latex_blocks(text_original)
         is_latex      = True
-    else:  # .txt
+    else:
         text_original = raw_bytes.decode("utf-8", errors="replace")
         is_latex      = _is_latex_content(text_original)
         latex_blocks  = _extract_latex_blocks(text_original) if is_latex else []
@@ -279,7 +387,6 @@ else:
     content_to_verify = text_original[:max_chars]
     content_type = "texto"
 
-# Mostrar preview del contenido seleccionado
 with st.expander("Ver lo que se enviará al NLE", expanded=False):
     st.code(content_to_verify[:1500], language="latex" if _is_latex_content(content_to_verify) else "text")
     if len(content_to_verify) > 1500:
@@ -290,15 +397,25 @@ with st.expander("Ver lo que se enviará al NLE", expanded=False):
 
 st.divider()
 
+# Validar que hay API key antes de mostrar el botón
+if not v_api_key and v_provider != "Demo (sin API key)":
+    st.warning(
+        f"⚠️ Introduce tu **{v_cfg['key_label']}** en el panel izquierdo para usar el Verificador. "
+        f"Si acabas de ponerla en el chat principal y estás en la misma pestaña, "
+        f"ya debería aparecer pre-rellenada arriba."
+    )
+
 col_btn, col_hint = st.columns([2, 3])
 with col_btn:
-    run = st.button("🔬 Verificar con Lean 4", type="primary", use_container_width=True)
+    run = st.button("🔬 Verificar con Lean 4", type="primary", use_container_width=True,
+                    disabled=(not v_api_key and v_provider != "Demo (sin API key)"))
 with col_hint:
+    _model_str = f"`{v_model}`" if v_provider != "Demo (sin API key)" else "modo demo"
     st.markdown(
-        "<div style='padding:.6rem;color:#6e7681;font-size:.85rem'>"
-        "El NLE intentará formalizar el contenido en Lean 4 y verificarlo formalmente. "
-        "Puede tardar 10–30 segundos dependiendo de la complejidad.</div>",
-        unsafe_allow_html=True
+        f"<div style='padding:.6rem;color:#6e7681;font-size:.85rem'>"
+        f"Proveedor: <b>{v_provider}</b> · modelo {_model_str}<br>"
+        f"Primera verificación del día puede tardar <b>~2 min</b> (carga de Mathlib).</div>",
+        unsafe_allow_html=True,
     )
 
 if not run:
@@ -310,26 +427,44 @@ prompt = _build_verify_prompt(content_to_verify, fname, mode, content_type)
 
 nucleo = _get_nucleo()
 if nucleo is None:
-    st.error("El Núcleo no está disponible. Configura un proveedor LLM en la página principal.")
+    st.error("El Núcleo no está disponible. Recarga la aplicación.")
     st.stop()
 
+# Configurar el LLM con los valores del sidebar de esta página
+try:
+    nucleo.reconfigure_llm(
+        _PROVIDER_MAP.get(v_provider, "demo"),
+        v_model,
+        v_api_key,
+        v_max_tokens,
+    )
+except Exception as _recfg_err:
+    st.warning(f"No se pudo reconfigurar el LLM: {_recfg_err}")
+
 t0 = time.time()
-with st.spinner("El NLE está analizando… (Paso 1/3: clasificando) "):
-    pass
+_lean_info = st.info(
+    "⏳ El NLE está formalizando en Lean 4… "
+    "La **primera verificación del día** puede tardar hasta ~2 minutos "
+    "mientras Mathlib carga sus módulos compilados (.olean). "
+    "Las verificaciones siguientes serán rápidas (~10 s).",
+    icon=None,
+)
 
 try:
-    nr = nucleo.process_sync(prompt)
+    with st.spinner("Verificando con Lean 4 + Mathlib…"):
+        nr = nucleo.process_sync(prompt)
     elapsed = time.time() - t0
+    _lean_info.empty()
 except Exception as e:
+    _lean_info.empty()
     st.error(f"Error durante la verificación: {e}")
     st.stop()
 
 # ─── Mostrar resultado ────────────────────────────────────────────────────────
 
-conf      = getattr(nr, "confidence", 0.5)
-lean_res  = getattr(nr, "lean_result", None)
+conf     = getattr(nr, "confidence", 0.5)
+lean_res = getattr(nr, "lean_result", None)
 
-# Badge principal
 if conf >= 0.9:
     st.success(f"✅ **Verificado formalmente por Lean 4** — confianza: {conf:.0%}")
 elif conf >= 0.7:
@@ -339,7 +474,6 @@ elif conf >= 0.5:
 else:
     st.error(f"❌ **No verificado** — confianza: {conf:.0%}")
 
-# Métricas
 mc1, mc2, mc3 = st.columns(3)
 mc1.metric("Confianza NLE", f"{conf:.0%}")
 mc2.metric("Tiempo", f"{elapsed:.1f} s")
@@ -356,8 +490,6 @@ else:
     mc3.metric("Lean 4", "—")
 
 st.divider()
-
-# Respuesta completa del NLE
 st.markdown("### 📊 Análisis del NLE")
 st.markdown(nr.content)
 
@@ -365,9 +497,8 @@ st.markdown(nr.content)
 try:
     short_prompt = content_to_verify[:300]
     vd = nucleo.get_viz_data(short_prompt)
-    st.session_state["viz_data"]       = vd
-    st.session_state["current_query"]  = short_prompt
-    # Acumular en historial de embeddings
+    st.session_state["viz_data"]      = vd
+    st.session_state["current_query"] = short_prompt
     qe = vd.get("query_embedding")
     if qe:
         hist = st.session_state.get("query_embeddings", [])
@@ -378,7 +509,6 @@ try:
 except Exception:
     pass
 
-# Botón para ir a visualizaciones
 st.divider()
 col_v1, col_v2 = st.columns(2)
 with col_v1:
@@ -390,4 +520,8 @@ with col_v2:
             f"Analiza y explica la verificación del archivo `{fname}` "
             f"que arrojó confianza {conf:.0%}"
         )
-        st.switch_page("app.py")
+        home = st.session_state.get("_home_page")
+        if home:
+            st.switch_page(home)
+        else:
+            st.rerun()
