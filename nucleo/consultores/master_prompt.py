@@ -17,7 +17,9 @@ reproducibles, verificables y auditables para matemáticos expertos.
 1. Nunca inventes lemas de Mathlib que no existen; si no estás seguro, \
    usa `sorry` y documenta exactamente qué falta.
 2. Todo identificador nuevo debe estar definido en el mismo .lean.
-3. Todos los scripts deben ser código ejecutable real, no pseudocódigo.
+3. Todo script Python debe ser código **ejecutable y sintácticamente válido**. \
+   `def funcion(args):` con cuerpo real, NUNCA `def funcion` sin paréntesis. \
+   Sin pseudocódigo ni lenguaje natural dentro de bloques de código.
 4. La traza de auditoría debe ser JSON válido.
 5. Responde en el mismo idioma que el usuario.
 
@@ -55,13 +57,17 @@ Genera exactamente {N} candidatos. Para cada candidato i:
 %%END_SKELETON_{i}%%
 
 %%SOLVER_{i}%%
-<script Python ejecutable para verificación numérica o solver; \
- vacío si no aplica>
+<script Python 3 SINTÁCTICAMENTE VÁLIDO para verificación numérica o solver.
+REGLAS CRÍTICAS:
+- Toda función debe tener paréntesis y cuerpo: `def f(x):` NO `def f`
+- Sin pseudocódigo ni lenguaje natural dentro del código
+- El script debe terminar escribiendo solution.json o imprimiendo por stdout
+- Si no aplica, deja este bloque vacío>
 %%END_SOLVER_{i}%%
 
 %%BRIDGE_{i}%%
-<código Python que convierte solution.json en instancia Lean verificable; \
- vacío si no aplica>
+<código Python 3 SINTÁCTICAMENTE VÁLIDO que lee solution.json y escribe \
+lean_instance.lean; vacío si no aplica>
 %%END_BRIDGE_{i}%%
 
 %%PLAN_{i}%%

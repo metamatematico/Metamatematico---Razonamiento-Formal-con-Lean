@@ -420,7 +420,15 @@ for tab, rc in zip(tabs, result.ranked_candidates):
                 s_col3.metric("Verificación formal", lean_badge)
 
                 if sr.error_msg:
-                    st.error(sr.error_msg)
+                    if "SyntaxError" in sr.error_msg:
+                        st.error(
+                            f"**El código Python generado tiene un error de sintaxis** "
+                            f"y no se ejecutó.\n\n"
+                            f"```\n{sr.error_msg}\n```\n\n"
+                            "Puedes editar el script en el bloque de código arriba y volver a intentarlo."
+                        )
+                    else:
+                        st.error(sr.error_msg)
 
                 if sr.stdout:
                     with st.expander("📤 Output del solver", expanded=True):

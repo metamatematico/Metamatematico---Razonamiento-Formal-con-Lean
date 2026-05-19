@@ -74,12 +74,27 @@ def run_solver(
     result = SolverResult()
     t0 = time.perf_counter()
 
+    # Validar sintaxis antes de ejecutar: evita SyntaxError críptico en subproceso
+    full_script = _PREAMBLE + script
+    try:
+        compile(full_script, "solver_generated.py", "exec")
+    except SyntaxError as e:
+        result.error_msg = (
+            f"SyntaxError en el código generado (línea {e.lineno}): {e.msg}\n"
+            f"  >> {(e.text or '').strip()}"
+        )
+        result.stderr = result.error_msg
+        result.success = False
+        result.elapsed_s = 0.0
+        return result
+
     with tempfile.TemporaryDirectory() as tmp:
         if work_dir is None:
             work_dir = Path(tmp)
 
         script_path = work_dir / "solver_generated.py"
-        script_path.write_text(_PREAMBLE + script, encoding="utf-8")
+        script_path.write_text(full_script, encoding="utf-8")
+        # full_script ya validado arriba; no se repite _PREAMBLE
 
         try:
             proc = subprocess.run(
