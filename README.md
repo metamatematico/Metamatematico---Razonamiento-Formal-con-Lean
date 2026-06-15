@@ -78,18 +78,29 @@ import Mathlib.CategoryTheory.Closed.Cartesian
 
 Lean confirma que estos tipos existen en Mathlib. El LLM entonces explica *exactamente lo que Lean mostró* — sin margen para inventar tipos incorrectos.
 
-### SolverCascade con táctica por área (domain_tactic)
+### SolverCascade con ranking GNN + táctica por área
 
-Cuando la formalización contiene `sorry`, el sistema no intenta las tácticas en orden fijo. El **ColimitAgent del área detectada** aporta la táctica con mayor probabilidad de éxito para ese dominio matemático, que se coloca primera en la cascada:
+Cuando la formalización contiene `sorry`, el orden de la cascada se determina en **tres etapas sucesivas**:
 
 ```
 classify_query("Demuestra que todo grupo abeliano es conmutativo")
   → área: "algebra"
   → domain_default_tactic("algebra") = "ring"
 
-GoalAnalyzer.prioritize(goal, domain_tactic="ring")
-  → ["ring", "rfl", "simp", "linarith", "nlinarith", "omega", "exact?", "apply?", "aesop"]
+Etapa 1 — GoalAnalyzer (heurística):
+  prioriza domain_tactic + patrones regex del goal
+  → ["ring", "rfl", "simp", "linarith", "omega", "exact?", "apply?", "aesop"]
+
+Etapa 2 — GNNTacticRanker (embeddings aprendidos por PPO):
+  goal_encoder(goal_text) → vector 256-dim
+  SkillGNN.forward_nodes() → embeddings de nodo de cada táctica
+  similitud coseno → reordena la permutación de la Etapa 1
+  → ["ring", "omega", "simp", "rfl", "aesop", …]   ← orden final GNN
+
+Etapa 3 — Cascada: prueba cada táctica, para en la primera exitosa
 ```
+
+El ranking GNN es una **permutación** de la lista original: no añade ni elimina tácticas. La soundness es invariante al orden, probado formalmente en `CoRegulatorNetwork.lean §VII.5` (`cascade_gnn_iff_exists`).
 
 | Área | Táctica por defecto |
 |---|---|
@@ -259,23 +270,28 @@ Entrada: query (texto) + grafo de skills (PyG)
          │
          ▼
   encode_query()          encode_goal()
-  TF-IDF → 256-dim        "prove ..." → 128-dim
+  bag-of-kw → 256-dim     hash-seed → 256-dim
          │                      │
          └──────────┬───────────┘
-                    │  concat → 384-dim
+                    │  cat → 768-dim → fusion(256)
                     ▼
-  SkillGNN (propaga información por morfismos del grafo):
-    node_proj  →  feat_dim × 64
-    GATConv 1  →  64  × 256  × 4 heads   ~  66,560 params
-    GATConv 2  →  256 × 256  × 4 heads   ~ 262,144 params
-    GATConv 3  →  256 × 256  × 4 heads   ~ 262,144 params
-    out_proj   →  256 × 128              ~  32,896 params
-                    │  graph_embedding 128-dim
+  SkillGNN (GATConv × 3, edge_attr, hidden_dim=256):
+    input_proj  9 → 256
+    GATConv 1   256 × 4 heads   ~  66,560 params
+    GATConv 2   256 × 4 heads   ~ 262,144 params
+    GATConv 3   256 × 4 heads   ~ 262,144 params
+    forward()         → global_mean_pool → graph_emb (256)
+    forward_nodes()   → per-node emb (N × 256)   ← usado por GNNTacticRanker
   ActorCriticNetwork:
-    shared_net →  384 × 256 × 128        ~ 148,736 params
-    actor 128×3 · critic 128×1
+    actor 256→3 · critic 256→1
     ▼
-  Acción:  ASSIST_LEAN | RESPOND_DIRECT | REQUEST_CLARIFICATION
+  Acción (routing):  ASSIST | RESPOND | REORGANIZE
+
+  GNNTacticRanker (selección de tácticas dentro de Lean):
+    goal_encoder(goal_text) → 256-dim
+    SkillGNN.forward_nodes()[tactic_idx] → 256-dim por táctica
+    cosine_similarity(goal_emb, tactic_emb) → score ∈ [-1, 1]
+    sorted(solvers, key=score) → permutación GNN-óptima
 ```
 
 **Total: 546,820 parámetros — 2.2 MB**
@@ -298,6 +314,15 @@ Entrada: query (texto) + grafo de skills (PyG)
 
 El reward ~0.57 refleja la distribución real: ~70% aritmética (`norm_num` +1.0) y ~30% álgebra abstracta (+0.5).
 
+### Dos usos del GNN entrenado
+
+| Uso | Entrada | Salida |
+|---|---|---|
+| **Routing** (`select_action`) | grafo + query_emb + goal_emb | ASSIST / RESPOND / REORGANIZE |
+| **Tactic ranking** (`GNNTacticRanker.rank`) | goal_text + lista de solvers | permutación ordenada por similitud coseno |
+
+El segundo uso no requiere entrenamiento adicional: usa `forward_nodes()` del GNN ya entrenado con PPO. Los embeddings de nodo de `tactic-ring`, `tactic-omega`, etc. codifican su rol estructural en el grafo (conectados a skills de álgebra, aritmética…), lo que sirve naturalmente para rankear tácticas por relevancia al goal.
+
 ### Aprendizaje vivo
 
 Cada interacción actualiza el sistema:
@@ -307,6 +332,7 @@ Consulta → join-env selecciona táctica → Lean verifica
          → memoria procedimental actualizada
          → Transition → buffer PPO
          → cada 10 interacciones: agent.update() + save weights
+         → GNNTacticRanker.invalidate_cache()   ← los nuevos pesos mejoran el ranking
 ```
 
 ---
@@ -315,12 +341,24 @@ Consulta → join-env selecciona táctica → Lean verifica
 
 4 co-reguladores controlan el flujo antes de llegar a los join-envoltorios:
 
-| Co-regulador | Umbral | Función |
+| Co-regulador | Prioridad (Axioma 9.5) | Función |
 |---|---|---|
-| **TACTICAL (CR_tac)** | 80% del tráfico | Clasifica la consulta: ¿pipeline Lean-primero o respuesta directa? |
-| **ORGANIZATIONAL (CR_org)** | Multi-paso | Organiza secuencia de tácticas en demostraciones largas |
-| **STRATEGIC (CR_str)** | 20% del tráfico | Decide estrategia global: backward reasoning, casos, inducción |
-| **INTEGRATIVE (CR_int)** | Resultados parciales | Integra sub-demostraciones en una prueba coherente |
+| **TACTICAL (CR_tac)** | 0 (base) | Clasifica la consulta: ¿pipeline Lean-primero o respuesta directa? |
+| **ORGANIZATIONAL (CR_org)** | 1 | Organiza secuencia de tácticas en demostraciones largas |
+| **STRATEGIC (CR_str)** | 2 | Decide estrategia global: backward reasoning, casos, inducción |
+| **INTEGRATIVE (CR_int)** | 3 (máxima) | Integra sub-demostraciones; su voto prevalece sobre los demás |
+
+**Propiedades formalmente probadas** en [`MetamathProver/CategoryFoundations/CoRegulatorNetwork.lean`](MetamathProver/CategoryFoundations/CoRegulatorNetwork.lean) (sin `sorry`):
+
+| Teorema | Qué garantiza |
+|---|---|
+| `integrity_max_priority` | CR_int domina a todos los demás (Axioma 9.5) |
+| `globalDecision_deterministic` | El protocolo de decisión es total y determinista |
+| `integrity_dominates` | Si CR_int propone una acción, esa ES la decisión global |
+| `routing_dichotomy` | El routing produce ASSIST o RESPOND, nunca REORGANIZE |
+| `EEquiv_is_equivalence` | La E-equivalencia de clasificadores es una relación de equivalencia |
+| `cascade_gnn_iff_exists` | La cascada GNN-ordenada es sound (misma garantía que orden fijo) |
+| `pipeline_gnn_verified_implies_proof` | `Verified` con GNN ranking → existe táctica que cierra el goal |
 
 ---
 
@@ -404,10 +442,12 @@ El LLM formaliza (antes de Lean) y traduce (después de Lean). Nunca razona por 
                         │
                         ▼
  ┌──────────────────────────────────────────────────────────────────────┐
- │  PASO 5b — SolverCascade (solo si hay sorry)                         │
+ │  PASO 5b — SolverCascade GNN-ordenada (solo si hay sorry)            │
  │                                                                      │
- │  try_fill_sorry_smart(domain_tactic=táctica_del_área)               │
- │  Orden: [táctica_área, rfl, simp, ring, linarith, omega, aesop]     │
+ │  try_fill_sorry_smart(goal_text, domain_tactic=táctica_del_área)    │
+ │  Etapa 1 GoalAnalyzer: [táctica_área, …patrones regex…]             │
+ │  Etapa 2 GNNTacticRanker: reordena por cosine(goal_emb, tactic_emb) │
+ │  Garantía formal: permutación → soundness preservada                 │
  │  Si falla → fill_sorry_with_cascade(skip_cascade=True)              │
  │           → candidatos LLM (sin repetir los mismos N solvers)       │
  └──────────────────────┬───────────────────────────────────────────────┘
@@ -750,8 +790,8 @@ La teoría de categorías es el lenguaje natural de las matemáticas modernas: e
 |---|---|
 | join[P] es cota superior mínima en G_n | ✓ verificado por `is_join()` en Python |
 | Conexión formal con `CategoryTheory.Limits.IsColimit` de Mathlib | Trabajo futuro |
-| GNN entrenada para selección de tácticas dentro de Lean | Especificación formal completa en `CoRegulatorNetwork.lean` (routing ASSIST/RESPOND probado; selección de tácticas: trabajo futuro) |
-| Co-reguladores: analogías Python del formalismo MES categórico | ✓ Prueba formal completa en `MetamathProver/CategoryFoundations/CoRegulatorNetwork.lean` (Axioma 9.5, E-equivalencia, cascada, pipeline; sin sorry) |
+| GNN usada para selección de tácticas dentro de Lean | ✓ `GNNTacticRanker` usa `SkillGNN.forward_nodes()` + `goal_encoder` del modelo PPO-entrenado; ranking por similitud coseno, integrado en `try_fill_sorry_smart`. Prueba formal: `cascade_gnn_iff_exists` en `CoRegulatorNetwork.lean §VII.5` (sin sorry) |
+| Co-reguladores: analogías Python del formalismo MES categórico | ✓ Prueba formal completa en `CoRegulatorNetwork.lean` (Axioma 9.5, orden lineal total, decisión determinista, E-equivalencia, cascada, pipeline GNN; sin sorry) |
 
 ---
 
