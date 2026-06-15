@@ -2,13 +2,15 @@ name: Lean CI
 
 # Verifica que los archivos .lean del repositorio compilan correctamente.
 #
-# Usa el cache oficial de Mathlib (lake exe cache get) para descargar
-# los .olean precompilados en lugar de recompilar Mathlib desde cero.
-# Esto reduce el tiempo de CI de 30+ min a ~2-5 min.
+# Estrategia:
+#   1. Instala elan directamente (sin lean-action, más robusto con RC toolchains)
+#   2. Instala el toolchain exacto de lean-toolchain
+#   3. Descarga cache de Mathlib (oleans precompilados)
+#   4. Compila el proyecto con lake build
 #
-# Se dispara:
-#   - En cada push o PR que modifique archivos Lean o la configuración de lake
-#   - Manualmente desde la pestaña Actions de GitHub (workflow_dispatch)
+# Cache en capas:
+#   - ~/.elan  (binarios de Lean/lake — ~200 MB, cambia poco)
+#   - .lake    (dependencias del proyecto — ~6 GB, cambia con lake-manifest.json)
 #
 # Para correr localmente:
 #   lake exe cache get   # descarga cache de Mathlib
@@ -38,17 +40,41 @@ jobs:
       - name: Checkout repositorio
         uses: actions/checkout@v4
 
-      - name: Instalar Lean 4 via elan
-        uses: leanprover/lean-action@v1
-        with:
-          # Usa el cache de Mathlib precompilado (oleans oficiales)
-          # Evita recompilar Mathlib desde cero (~6 GB, 30+ min)
-          use-mathlib-cache: true
-          # No falla si lake update encuentra diferencias menores de versión
-          lake-package-directory: '.'
+      - name: Leer versión del toolchain
+        id: toolchain
+        run: echo "version=$(cat lean-toolchain)" >> $GITHUB_OUTPUT
 
-      - name: Descargar cache de Mathlib
-        run: lake exe cache get || echo "Cache parcial — continuando con lo disponible"
+      - name: Instalar elan
+        run: |
+          curl -sSf https://elan.lean-lang.org/elan-init.sh | \
+            sh -s -- --default-toolchain none --no-modify-path -y
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Cache de elan + toolchain Lean
+        uses: actions/cache@v4
+        with:
+          path: ~/.elan
+          key: elan-${{ runner.os }}-${{ steps.toolchain.outputs.version }}
+          restore-keys: |
+            elan-${{ runner.os }}-
+
+      - name: Instalar toolchain Lean 4
+        run: elan toolchain install ${{ steps.toolchain.outputs.version }} --no-self-update
+
+      - name: Fijar toolchain activo
+        run: elan override set ${{ steps.toolchain.outputs.version }}
+
+      - name: Cache de dependencias lake (.lake/)
+        uses: actions/cache@v4
+        with:
+          path: .lake
+          key: lake-${{ runner.os }}-${{ steps.toolchain.outputs.version }}-${{ hashFiles('lake-manifest.json') }}
+          restore-keys: |
+            lake-${{ runner.os }}-${{ steps.toolchain.outputs.version }}-
+            lake-${{ runner.os }}-
+
+      - name: Descargar cache de Mathlib (oleans precompilados)
+        run: lake exe cache get || echo "Cache parcial o no disponible — continuando"
 
       - name: Compilar proyecto
         run: lake build
@@ -57,4 +83,5 @@ jobs:
         run: |
           echo "=== Archivos Lean verificados ==="
           find . -name "*.lean" -not -path "./.lake/*" | sort
-          echo "================================="
+          echo "==================================="
+          echo "Build OK - $(find . -name '*.lean' -not -path './.lake/*' | wc -l) archivos"
