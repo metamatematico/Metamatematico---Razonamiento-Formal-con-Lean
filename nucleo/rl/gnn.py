@@ -142,9 +142,10 @@ if TORCH_AVAILABLE:
                 self.norms.append(nn.LayerNorm(hidden_dim))
             self.dropout = nn.Dropout(dropout)
 
-        def forward(self, data) -> "torch.Tensor":
+        def _encode_nodes(self, data) -> "torch.Tensor":
+            """Shared encoder: input_proj → GATConv layers → per-node tensor (N, hidden_dim)."""
             if data.x.size(0) == 0:
-                return torch.zeros(1, self.hidden_dim, device=data.x.device)
+                return torch.zeros(0, self.hidden_dim, device=data.x.device)
             x = self.input_proj(data.x)
             for conv, norm in zip(self.convs, self.norms):
                 x_res = x
@@ -152,10 +153,20 @@ if TORCH_AVAILABLE:
                 x = norm(x + x_res)
                 x = torch.relu(x)
                 x = self.dropout(x)
+            return x
+
+        def forward(self, data) -> "torch.Tensor":
+            x = self._encode_nodes(data)
+            if x.size(0) == 0:
+                return torch.zeros(1, self.hidden_dim, device=data.x.device)
             batch = getattr(data, 'batch', None)
             if batch is None:
                 batch = torch.zeros(x.size(0), dtype=torch.long, device=x.device)
             return global_mean_pool(x, batch)
+
+        def forward_nodes(self, data) -> "torch.Tensor":
+            """Per-node embeddings (N, hidden_dim) — used by GNNTacticRanker."""
+            return self._encode_nodes(data)
 
 else:
     class SkillGNN:  # type: ignore[no-redef]

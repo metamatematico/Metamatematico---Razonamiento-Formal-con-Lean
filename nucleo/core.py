@@ -1700,9 +1700,24 @@ class Nucleo:
         Set neural agent for live PPO learning.
 
         When set, each interaction feeds a PPO update so the agent
-        learns from real chat rewards.
+        learns from real chat rewards. Also wires the GNNTacticRanker
+        into the SolverCascade so tactic ordering uses learned embeddings
+        (CoRegulatorNetwork.lean §VI.5, cascade_gnn_iff_exists).
         """
         self._neural_agent = agent
+        if (
+            agent is not None
+            and agent.has_network
+            and self._solver_cascade is not None
+            and self._graph is not None
+        ):
+            try:
+                from nucleo.lean.solver_cascade import GNNTacticRanker
+                ranker = GNNTacticRanker(agent.network, self._graph)
+                self._solver_cascade.set_gnn_ranker(ranker)
+                logger.info("GNNTacticRanker wired into SolverCascade")
+            except Exception as _exc:
+                logger.warning("GNNTacticRanker setup failed: %s", _exc)
 
     # ------------------------------------------------------------------
     # Consultores Avanzados

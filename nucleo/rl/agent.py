@@ -247,6 +247,11 @@ class NucleoAgent(BaseAgent):
         """Verificar si la red neuronal esta disponible."""
         return self._network is not None
 
+    @property
+    def network(self):
+        """Acceso directo a la red Actor-Critic (para GNNTacticRanker)."""
+        return self._network
+
     def select_action(self, state: State) -> Action:
         """
         Seleccionar accion.

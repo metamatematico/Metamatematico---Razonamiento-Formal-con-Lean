@@ -35,6 +35,7 @@ from nucleo.lean.client import LeanClient, LeanResult, LeanResultStatus
 
 if TYPE_CHECKING:
     from nucleo.graph.category import SkillCategory
+    from nucleo.rl.networks import ActorCriticNetwork
 
 logger = logging.getLogger(__name__)
 
@@ -185,6 +186,120 @@ class GoalAnalyzer:
         return tactics
 
 
+class GNNTacticRanker:
+    """
+    Rankea los solvers de la cascada usando los embeddings aprendidos por el GNN.
+
+    El ActorCriticNetwork fue entrenado con PPO + recompensas de verificación Lean.
+    Su componente GNN produce embeddings de nodo que codifican el rol estructural
+    de cada skill/táctica en el grafo. El goal_encoder mapea el texto del goal
+    al mismo espacio latente. Rankear por similitud coseno usa esta representación
+    conjunta aprendida para ordenar tácticas — no es una heurística fija.
+
+    Implementa CoRegulatorNetwork.lean §VI.5: gnnRankTactics es una permutación
+    de la lista original, por lo que la soundness se preserva (teorema
+    cascade_gnn_iff_exists).
+    """
+
+    # Inverso de GoalAnalyzer._SKILL_TO_SOLVER: nombre solver → skill ID en el grafo
+    _SOLVER_TO_SKILL: dict[str, str] = {
+        "simp":   "tactic-simp",
+        "ring":   "tactic-ring",
+        "omega":  "tactic-omega",
+        "exact?": "tactic-exact",
+        "apply?": "tactic-apply",
+        "aesop":  "tactic-aesop",
+        "rw":     "tactic-rewrite",
+        "calc":   "tactic-calc",
+    }
+
+    def __init__(self, network: "ActorCriticNetwork", graph: "SkillCategory") -> None:
+        self._net = network
+        self._graph = graph
+        self._node_embs = None          # Tensor (N, 256), cached tras primer uso
+        self._skill_id_to_idx: dict[str, int] = {}
+
+    def _ensure_cached(self) -> bool:
+        """Calcula y cachea los embeddings de nodo del GNN para el grafo actual."""
+        if self._node_embs is not None:
+            return True
+        try:
+            from nucleo.rl.gnn import graph_to_pyg, TORCH_AVAILABLE
+            if not TORCH_AVAILABLE:
+                return False
+            import torch
+            data = graph_to_pyg(self._graph)
+            if data is None or data.x.size(0) == 0:
+                return False
+            self._net.gnn.eval()
+            with torch.no_grad():
+                self._node_embs = self._net.gnn.forward_nodes(data)  # (N, 256)
+            self._skill_id_to_idx = {
+                s.id: i for i, s in enumerate(self._graph.skills)
+            }
+            return True
+        except Exception as exc:
+            logger.warning("GNNTacticRanker: no se pudo calcular embeddings: %s", exc)
+            return False
+
+    def rank(
+        self,
+        goal_text: str,
+        solvers: list[tuple[str, int]],
+    ) -> list[tuple[str, int]]:
+        """
+        Devuelve una PERMUTACIÓN de `solvers` ordenada por similitud GNN.
+
+        Cada táctica con un nodo en el grafo recibe como score la similitud coseno
+        entre el embedding del goal (goal_encoder) y el embedding del nodo de táctica
+        (GNN.forward_nodes). Las tácticas sin nodo correspondiente reciben score 0.
+
+        Garantía: el conjunto de tácticas no cambia — solo el orden.
+        Esto corresponde al axioma gnnRankTactics_perm en CoRegulatorNetwork.lean.
+        """
+        if not self._ensure_cached():
+            return solvers
+        try:
+            import torch
+            import torch.nn.functional as F
+            from nucleo.rl.networks import encode_goal, GOAL_DIM
+
+            goal_raw = encode_goal(goal_text, GOAL_DIM)   # (32,)
+            self._net.eval()
+            with torch.no_grad():
+                goal_emb = self._net.goal_encoder(
+                    goal_raw.unsqueeze(0)
+                ).squeeze(0)                               # (256,)
+
+            scores: dict[str, float] = {}
+            for name, _ in solvers:
+                skill_id = self._SOLVER_TO_SKILL.get(name)
+                idx = self._skill_id_to_idx.get(skill_id, -1) if skill_id else -1
+                if idx >= 0 and self._node_embs is not None:
+                    node_emb = self._node_embs[idx]        # (256,)
+                    scores[name] = F.cosine_similarity(
+                        goal_emb.unsqueeze(0), node_emb.unsqueeze(0)
+                    ).item()
+                else:
+                    scores[name] = 0.0
+
+            ranked = sorted(solvers, key=lambda p: scores.get(p[0], 0.0), reverse=True)
+            logger.debug(
+                "GNN tactic ranking: %s (scores: %s)",
+                [n for n, _ in ranked[:4]],
+                [f"{scores.get(n, 0):.3f}" for n, _ in ranked[:4]],
+            )
+            return ranked
+        except Exception as exc:
+            logger.warning("GNNTacticRanker.rank: %s", exc)
+            return solvers
+
+    def invalidate_cache(self) -> None:
+        """Invalida el caché de embeddings (llamar si el grafo cambia)."""
+        self._node_embs = None
+        self._skill_id_to_idx = {}
+
+
 @dataclass
 class CascadeResult:
     """Result of running the solver cascade."""
@@ -218,12 +333,18 @@ class SolverCascade:
         self,
         lean_client: LeanClient,
         solvers: Optional[list[tuple[str, int]]] = None,
-        graph: Optional[SkillCategory] = None,
+        graph: Optional["SkillCategory"] = None,
+        gnn_ranker: Optional[GNNTacticRanker] = None,
     ):
         self._lean = lean_client
         self._solvers = solvers or list(SOLVER_CASCADE)
         self._graph = graph
         self._goal_analyzer = GoalAnalyzer()
+        self._gnn_ranker: Optional[GNNTacticRanker] = gnn_ranker
+
+    def set_gnn_ranker(self, ranker: GNNTacticRanker) -> None:
+        """Conecta el GNNTacticRanker (llamado desde core.py tras cargar pesos)."""
+        self._gnn_ranker = ranker
 
     async def try_fill_sorry(
         self,
@@ -313,14 +434,23 @@ class SolverCascade:
         if not goal_text and not domain_tactic:
             return await self.try_fill_sorry(code, sorry_line, error_type, imports)
 
-        # Reorder solvers: domain_tactic first, then goal-pattern heuristics
+        # Stage 1: heuristic reordering (domain_tactic first, then regex patterns)
         smart_order = self._goal_analyzer.prioritize(
             goal_text, self._graph, domain_tactic=domain_tactic
         )
-        logger.debug(
-            f"Smart cascade order (domain={domain_tactic!r}): "
-            f"{[s for s, _ in smart_order[:4]]}..."
-        )
+
+        # Stage 2: GNN reranking on top of heuristic order (permutation — soundness kept)
+        if self._gnn_ranker is not None and goal_text:
+            smart_order = self._gnn_ranker.rank(goal_text, smart_order)
+            logger.debug(
+                "GNN+heuristic cascade order: %s...",
+                [s for s, _ in smart_order[:4]],
+            )
+        else:
+            logger.debug(
+                "Heuristic cascade order (no GNN): %s...",
+                [s for s, _ in smart_order[:4]],
+            )
 
         # Temporarily swap solver order and run
         original_solvers = self._solvers

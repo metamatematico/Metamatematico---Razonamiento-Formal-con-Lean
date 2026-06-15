@@ -392,6 +392,78 @@ theorem pipeline_respects_EEquiv
   rw [heq q]
 
 -- ============================================================================
+-- §VII.5.  PIPELINE CON RANKING DE TÁCTICAS APRENDIDO POR GNN
+-- ============================================================================
+
+/-!
+En Python: `GNNTacticRanker.rank(goal_text, solvers)` devuelve una permutación
+de los solvers ordenada por similitud coseno entre el embedding del goal
+(goal_encoder del ActorCriticNetwork, entrenado con PPO + Lean rewards) y los
+embeddings de nodo de cada táctica (SkillGNN.forward_nodes).
+
+Esta sección prueba que usar ese ranking es correcto: la soundness de la cascada
+no depende del orden — el GNN solo afecta eficiencia, no corrección.
+-/
+
+/-- Función de ranking aprendida por el GNN (Python: GNNTacticRanker.rank).
+    Recibe el goal y la lista de tácticas; devuelve una lista reordenada. -/
+opaque gnnRankTactics : LeanGoal → List String → List String
+
+/-- El GNN produce una permutación: no añade ni elimina tácticas.
+    Equivalente Python: GNNTacticRanker garantiza que el conjunto de tácticas
+    es invariante (solo cambia el orden para maximizar la probabilidad de éxito
+    temprano, usando embeddings aprendidos por PPO). -/
+axiom gnnRankTactics_perm (goal : LeanGoal) (tactics : List String) :
+    (gnnRankTactics goal tactics).Perm tactics
+
+theorem gnnRankTactics_length (goal : LeanGoal) (tactics : List String) :
+    (gnnRankTactics goal tactics).length = tactics.length :=
+  (gnnRankTactics_perm goal tactics).length_eq
+
+theorem gnnRankTactics_mem_iff (goal : LeanGoal) (tactics : List String) (t : String) :
+    t ∈ gnnRankTactics goal tactics ↔ t ∈ tactics :=
+  (gnnRankTactics_perm goal tactics).mem_iff
+
+/-- **Teorema central — correctitud del ranking GNN**:
+    La cascada con orden aprendido por GNN tiene éxito ↔ existe alguna táctica
+    que cierra el goal.  La soundness NO depende del orden. -/
+theorem cascade_gnn_iff_exists {goal : LeanGoal} {tactics : List String} :
+    tryTacticCascade goal (gnnRankTactics goal tactics) = true ↔
+    ∃ t ∈ tactics, applyTactic goal t = .Success := by
+  rw [cascade_success_iff_exists]
+  constructor
+  · rintro ⟨t, ht, hres⟩
+    exact ⟨t, (gnnRankTactics_mem_iff goal tactics t).mp ht, hres⟩
+  · rintro ⟨t, ht, hres⟩
+    exact ⟨t, (gnnRankTactics_mem_iff goal tactics t).mpr ht, hres⟩
+
+/-- Pipeline completo con GNN tactic ranking. -/
+def nleFullPipelineGNN
+    (isMath  : String → Bool)
+    (goal    : LeanGoal)
+    (tactics : List String)
+    (query   : String) : PipelineResult :=
+  nleFullPipeline isMath goal (gnnRankTactics goal tactics) query
+
+/-- El pipeline GNN es correcto: Verified → existe táctica formal. -/
+theorem pipeline_gnn_verified_implies_proof
+    (isMath : String → Bool) (goal : LeanGoal) (tactics : List String) (q : String)
+    (h : nleFullPipelineGNN isMath goal tactics q = .Verified) :
+    ∃ t ∈ tactics, applyTactic goal t = .Success := by
+  unfold nleFullPipelineGNN at h
+  obtain ⟨t, ht, hres⟩ :=
+    pipeline_verified_implies_proof isMath goal (gnnRankTactics goal tactics) q h
+  exact ⟨t, (gnnRankTactics_mem_iff goal tactics t).mp ht, hres⟩
+
+/-- El pipeline GNN respeta la E-equivalencia. -/
+theorem pipeline_gnn_respects_EEquiv
+    (f g : String → Bool) (heq : EEquivalent f g)
+    (goal : LeanGoal) (tactics : List String) (q : String) :
+    nleFullPipelineGNN f goal tactics q = nleFullPipelineGNN g goal tactics q := by
+  unfold nleFullPipelineGNN
+  exact pipeline_respects_EEquiv f g heq goal (gnnRankTactics goal tactics) q
+
+-- ============================================================================
 -- §VIII.  RESUMEN
 -- ============================================================================
 
@@ -416,17 +488,23 @@ theorem pipeline_respects_EEquiv
 - `EEquiv_iff_classifier_agree`: f ≡_E g ↔ ∀ q, f q = g q
 - `classifierSetoid`: setoid formal
 
-### Cascada de tácticas (especificación del componente GNN pendiente)
-- `cascade_success_iff_exists`: correctitud bidireccional
+### Cascada de tácticas con GNN ordering (cierra ambos pendientes del README)
+- `cascade_success_iff_exists`: correctitud bidireccional (orden fijo)
 - `cascade_monotone`: monotonía (más tácticas = no peor resultado)
 - `cascade_first_success_wins`, `cascade_skip_failure`: semántica de orden
 - `pipeline_verified_implies_proof`: Verified → prueba formal existe
 - `pipeline_respects_EEquiv`: el pipeline respeta las clases de E-equivalencia
+- `gnnRankTactics_perm`: el ranking GNN es una permutación (invariante de conjunto)
+- `cascade_gnn_iff_exists`: soundness del pipeline con GNN ordering
+- `pipeline_gnn_verified_implies_proof`: Verified (GNN) → prueba formal existe
+- `pipeline_gnn_respects_EEquiv`: pipeline GNN respeta E-equivalencia
 
-### Brecha pendiente (trabajo futuro)
-La cascada usa un orden FIJO de tácticas. El trabajo futuro es entrenar un selector
-GNN `(LeanGoal × Context) → String` que sustituya el orden fijo por uno aprendido,
-con la misma interfaz especificada en este archivo.
+### Estado actual
+El GNN (ActorCriticNetwork, entrenado con PPO + Lean rewards) rankea tácticas por
+similitud coseno embedding-goal vs embedding-nodo en Python (GNNTacticRanker.rank).
+El ranking es una permutación: la soundness se preserva por `cascade_gnn_iff_exists`.
+Trabajo futuro: entrenar una cabeza de selección de tácticas específica usando datos
+(goal, táctica, éxito/fallo) generados por verificación exhaustiva de Lean.
 -/
 
 end MetamathProver.CoRegulatorNetwork
