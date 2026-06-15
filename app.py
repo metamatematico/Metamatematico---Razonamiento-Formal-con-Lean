@@ -161,26 +161,40 @@ def _init_nucleo():
             return None, error_holder[0]
 
         # Pre-calentar Lean en background: la primera carga de Mathlib
-        # tarda ~3 min en Windows (lee los .olean del disco). Lanzarla aquí
-        # hace que cuando el usuario pida verificación formal, ya esté caliente.
+        # tarda ~12 min en Windows (lee 5.3 GB de .olean del disco E:).
+        # Usamos subprocess directamente SIN timeout de LeanClient para que
+        # el proceso pueda completarse y dejar los ficheros en caché del SO.
+        # Tras el warmup, las queries normales (360 s) van rápido desde caché.
         if getattr(n, "_lean", None) is not None:
-            warmup_code = (
-                "import Mathlib.Tactic.Ring\n"
-                "import Mathlib.Tactic.Linarith\n"
-                "import Mathlib.Tactic.NormNum\n"
-                "theorem _nle_warmup : (1 : ℕ) + 1 = 2 := by norm_num\n"
-            )
+            _lean_exe   = n._lean.lean_path
+            _lean_cwd   = str(n._lean.project_path)
 
             def _lean_warmup():
+                import subprocess, time, pathlib
+                warmup_file = pathlib.Path(_lean_cwd) / "_nle_warmup.lean"
+                warmup_file.write_text(
+                    "import Mathlib.Tactic\n"
+                    "theorem _nle_warmup : (1 : ℕ) + 1 = 2 := by norm_num\n",
+                    encoding="utf-8",
+                )
+                t0 = time.perf_counter()
                 try:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    result = loop.run_until_complete(n._lean.check_code(warmup_code))
-                    log.info(f"Lean warmup: {result.status.name} ({result.elapsed_ms:.0f} ms)")
+                    proc = subprocess.run(
+                        [_lean_exe, "env", "lean", str(warmup_file), "--json"],
+                        cwd=_lean_cwd,
+                        capture_output=True,
+                        timeout=1080,  # 18 min — más que los ~12 min medidos
+                    )
+                    elapsed = time.perf_counter() - t0
+                    log.info(f"Lean warmup completado en {elapsed:.0f}s — Mathlib en caché del SO (exit {proc.returncode})")
+                    # Señal para la UI
+                    pathlib.Path(_lean_cwd, ".lean_warm").write_text(f"{elapsed:.0f}", encoding="utf-8")
+                except subprocess.TimeoutExpired:
+                    log.warning("Lean warmup excedió 18 min — se cancela (Lean seguirá siendo lento en primera query)")
                 except Exception as e:
-                    log.info(f"Lean warmup omitido: {e}")
+                    log.info(f"Lean warmup error (no crítico): {e}")
                 finally:
-                    loop.close()
+                    warmup_file.unlink(missing_ok=True)
 
             threading.Thread(target=_lean_warmup, daemon=True, name="lean-warmup").start()
 
@@ -943,6 +957,17 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
         st.session_state["_provider"]   = provider
         st.session_state["_model"]      = model
         st.session_state["_max_tokens"] = max_tokens
+        # Sincronizar env vars para que el LLMClient las detecte automáticamente
+        if api_key:
+            _provider_env = {
+                "Anthropic":          "ANTHROPIC_API_KEY",
+                "Google AI Studio":   "GOOGLE_API_KEY",
+                "Groq (gratis)":      "GROQ_API_KEY",
+                "DeepSeek":           "DEEPSEEK_API_KEY",
+            }
+            _env_name = _provider_env.get(provider, "")
+            if _env_name:
+                os.environ[_env_name] = api_key
 
         st.divider()
 
@@ -961,6 +986,27 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
                 st.session_state.pop("current_query", None)
                 st.session_state.pop("viz_data", None)
                 st.rerun()
+
+        # ── Estado de Lean 4 (warmup) ─────────────────────────────────────────
+        _warm_sentinel = os.path.join(_proj_dir, ".lean_warm")
+        if os.path.exists(_warm_sentinel):
+            try:
+                _warm_s = open(_warm_sentinel, encoding="utf-8").read().strip()
+                st.success(f"**Lean 4 ✓ listo** — caché caliente ({_warm_s}s carga inicial)", icon="🔥")
+            except Exception:
+                st.success("**Lean 4 ✓ listo**", icon="🔥")
+        else:
+            # Verificar si hay un proceso lake corriendo (warmup activo)
+            _warmup_running = any(t.name == "lean-warmup" for t in __import__("threading").enumerate())
+            if _warmup_running:
+                st.warning(
+                    "**Lean 4 ⏳ cargando Mathlib…**\n\n"
+                    "Primera carga: ~12 min (lee 5.3 GB de .olean del disco).\n"
+                    "Las verificaciones funcionarán una vez completado.",
+                    icon="⏳",
+                )
+            else:
+                st.info("**Lean 4** disponible (no iniciado aún)", icon="🔵")
 
         st.divider()
 
@@ -1150,19 +1196,36 @@ los resultados se muestran aquí.
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Archivo subido → preparar como consulta de verificación
+    # Archivo subido → preparar como consulta de verificación y persistir texto
     _file_key = f"_pf_{getattr(uploaded_file, 'name', '')}_{getattr(uploaded_file, 'size', 0)}"
     if uploaded_file is not None and st.session_state.get("_processed_file") != _file_key:
         st.session_state["_processed_file"] = _file_key
         _ftext = _extract_file_text(uploaded_file)
         if _ftext.strip() and not _ftext.startswith("[Error"):
+            # Guardar texto completo para consultas posteriores
+            st.session_state["_active_file"] = {
+                "name": uploaded_file.name,
+                "text": _ftext,
+            }
             st.session_state["_pending_file"] = {
-                "display": f"📎 Verificar archivo: `{uploaded_file.name}`",
+                "display": f"📎 `{uploaded_file.name}` cargado — analizando…",
                 "prompt":  _build_file_verify_prompt(_ftext, uploaded_file.name),
             }
             st.rerun()
         elif _ftext.startswith("[Error"):
             st.error(_ftext)
+
+    # Mostrar indicador de archivo activo
+    _active_file = st.session_state.get("_active_file")
+    if _active_file:
+        col_fa, col_fc = st.columns([5, 1])
+        with col_fa:
+            st.caption(f"📎 Archivo activo: **{_active_file['name']}** — puedes hacer preguntas sobre él")
+        with col_fc:
+            if st.button("✕", key="_clear_file", help="Quitar archivo"):
+                st.session_state.pop("_active_file", None)
+                st.session_state.pop("_processed_file", None)
+                st.rerun()
 
     # ── Input de chat (fixed al fondo) ────────────────────────────────────────
     prompt = st.chat_input("Escribe un teorema, problema matemático o goal de Lean 4…")
@@ -1171,13 +1234,25 @@ los resultados se muestran aquí.
     if st.session_state.get("_pending_query"):
         prompt = st.session_state.pop("_pending_query")
 
-    # Archivo adjunto pendiente → convertir en prompt (preserva display vs real)
+    # Archivo adjunto pendiente → primer análisis automático
     _pending_file = st.session_state.pop("_pending_file", None)
     if _pending_file and not prompt:
         prompt = _pending_file["prompt"]
 
+    # Si hay archivo activo y el usuario escribe una pregunta → enriquecer prompt con el archivo
+    elif _active_file and prompt and "```" not in prompt:
+        _ctx_snippet = _active_file["text"][:2000]
+        prompt = (
+            f"El usuario tiene cargado el archivo `{_active_file['name']}`:\n\n"
+            f"```\n{_ctx_snippet}\n```\n\n"
+            f"Pregunta del usuario sobre ese archivo: {prompt}"
+        )
+
     # Texto que se muestra al usuario en la burbuja
-    _display_query = _pending_file["display"] if _pending_file else prompt
+    _display_query = _pending_file["display"] if _pending_file else (
+        st.session_state.get("_pending_query_display") or prompt
+    )
+    st.session_state.pop("_pending_query_display", None)
 
     if prompt and prompt.strip():
         # Mostrar mensaje del usuario (display limpio cuando hay archivo)
@@ -1232,9 +1307,9 @@ los resultados se muestran aquí.
                     "error":    "",
                 }
             except Exception as _nucleo_err:
-                import logging
+                import logging, traceback
                 logging.getLogger(__name__).warning(
-                    f"Nucleo.process_sync falló: {_nucleo_err}"
+                    f"Nucleo.process_sync falló: {_nucleo_err}\n{traceback.format_exc()}"
                 )
                 st.warning(f"⚠ El Núcleo encontró un error: {_nucleo_err}", icon="⚠️")
 

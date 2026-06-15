@@ -73,11 +73,11 @@ class LeanMessage:
         }
 
         pos = None
-        if "pos" in data:
+        if data.get("pos") is not None:
             pos = Position.from_dict(data["pos"])
 
         end_pos = None
-        if "endPos" in data:
+        if data.get("endPos") is not None:
             end_pos = Position.from_dict(data["endPos"])
 
         return cls(

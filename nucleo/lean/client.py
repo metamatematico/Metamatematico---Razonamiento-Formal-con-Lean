@@ -122,7 +122,7 @@ class LeanClient:
         self,
         project_path: Optional[Path | str] = None,
         lean_path: str = "lake",
-        timeout_ms: int = 30000,
+        timeout_ms: int = 120000,
     ):
         """
         Inicializar cliente Lean.
@@ -162,7 +162,6 @@ class LeanClient:
         "import Mathlib.Tactic.Ring\n"
         "import Mathlib.Tactic.Linarith\n"
         "import Mathlib.Tactic.NormNum\n"
-        "import Mathlib.Tactic.Omega\n"
         "import Mathlib.Tactic.Positivity\n"
         "import Mathlib.Algebra.Order.Field.Basic\n"
         "import Mathlib.Data.Real.Basic\n"

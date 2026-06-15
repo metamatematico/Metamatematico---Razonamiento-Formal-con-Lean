@@ -134,6 +134,18 @@ with st.sidebar:
         st.session_state.get("_max_tokens", 1024),
         128,
     )
+    # Sincronizar API key en env var y session_state para que persista entre páginas
+    if v_api_key:
+        st.session_state["_api_key"] = v_api_key
+        _key_env_map = {
+            "anthropic": "ANTHROPIC_API_KEY",
+            "google":    "GOOGLE_API_KEY",
+            "groq":      "GROQ_API_KEY",
+            "deepseek":  "DEEPSEEK_API_KEY",
+        }
+        _env_name = _key_env_map.get(_PROVIDER_MAP.get(v_provider, ""), "")
+        if _env_name:
+            os.environ[_env_name] = v_api_key
 
     st.divider()
     if st.button("← Volver al chat", use_container_width=True):
@@ -456,8 +468,14 @@ try:
     elapsed = time.time() - t0
     _lean_info.empty()
 except Exception as e:
+    import traceback, logging
+    logging.getLogger(__name__).error(
+        f"Error verificador: {e}\n{traceback.format_exc()}"
+    )
     _lean_info.empty()
     st.error(f"Error durante la verificación: {e}")
+    with st.expander("🔍 Traceback completo"):
+        st.code(traceback.format_exc())
     st.stop()
 
 # ─── Mostrar resultado ────────────────────────────────────────────────────────

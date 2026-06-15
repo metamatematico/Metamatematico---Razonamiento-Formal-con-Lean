@@ -189,14 +189,15 @@ class Nucleo:
         self._graph = SkillCategory(name="NucleoSkillGraph")
         self._load_foundational_skills()
 
-        # LLM Client
-        llm_config = LLMConfig(
-            model=self.config.llm.model,
-            max_tokens=self.config.llm.max_tokens,
-            temperature=self.config.llm.temperature,
-            api_key=self.config.llm.api_key,
-        )
-        self._llm = LLMClient(llm_config)
+        # LLM Client — no sobreescribir si ya fue configurado via reconfigure_llm()
+        if self._llm is None:
+            llm_config = LLMConfig(
+                model=self.config.llm.model,
+                max_tokens=self.config.llm.max_tokens,
+                temperature=self.config.llm.temperature,
+                api_key=self.config.llm.api_key,
+            )
+            self._llm = LLMClient(llm_config)
 
         # Lean Client — project_path fijado al root del repo (donde está lakefile.toml)
         # independientemente de desde qué directorio se lanzó `streamlit run`.
@@ -209,6 +210,7 @@ class Nucleo:
             project_path=_lean_project,
             timeout_ms=self.config.lean.timeout_ms
         )
+
 
         # lean4-skills integration: Solver Cascade + Sorry Filler (graph-aware)
         self._solver_cascade = SolverCascade(self._lean, graph=self._graph)
@@ -1198,11 +1200,21 @@ class Nucleo:
                 f"Lean 4 aceptó la estructura de la prueba. {sorry_msg}"
             )
 
+        elif result.status == LeanResultStatus.TIMEOUT:
+            verification_status = "timeout"
+            verification_note = (
+                "Lean 4 tardó demasiado verificando con Mathlib. "
+                "El código fue generado correctamente pero no se pudo verificar en el tiempo límite. "
+                "Esto es normal en la primera ejecución del día mientras Lean carga Mathlib (~500 MB de .olean). "
+                "Intenta de nuevo — la segunda verificación será mucho más rápida."
+            )
+            confidence    = 0.65
+            success_value = 0.0
+
         else:
             error_info = self._analyze_lean_errors(result)
             first_err  = result.get_first_error() or "error desconocido"
             err_type   = error_info.get("type", "unknown")
-            # Mensajes de diagnóstico específicos según el tipo de error
             _LEAN_HINTS = {
                 "unknown identifier": "posiblemente falta un `open` o un import de Mathlib.",
                 "type mismatch":      "los tipos no coinciden; puede faltar una coerción o instancia.",
@@ -1282,6 +1294,8 @@ class Nucleo:
         # Badge diferenciado: definición vs prueba vs sin entorno
         if _sin_entorno:
             status_badge = f"**Lean 4 ☁ — código generado** · área: `{_area}`"
+        elif verification_status == "timeout":
+            status_badge = f"**Lean 4 ⏱ — timeout en primera carga de Mathlib** · área: `{_area}`"
         elif _is_definitional:
             status_badge = {
                 "verificado":    f"**Lean 4 ✓ — definición verificada formalmente** · área: `{_area}`",

@@ -136,15 +136,24 @@ Responde en el mismo idioma que el usuario."""
         self._client = None
         self._conversation: list[LLMMessage] = []
 
+    _ENV_KEYS = {
+        LLMProvider.ANTHROPIC: "ANTHROPIC_API_KEY",
+        LLMProvider.GOOGLE:    "GOOGLE_API_KEY",
+        LLMProvider.GROQ:      "GROQ_API_KEY",
+        LLMProvider.DEEPSEEK:  "DEEPSEEK_API_KEY",
+    }
+
     @property
     def is_demo(self) -> bool:
         """True si el cliente está en modo demo (sin API key real)."""
+        import os
         if self.config.provider == LLMProvider.DEMO:
             return True
-        # Sin API key efectiva → modo demo implícito (todos los proveedores)
-        if not self.config.api_key:
-            return True
-        return False
+        if self.config.api_key:
+            return False
+        # Fallback: leer variable de entorno del proveedor activo
+        env_var = self._ENV_KEYS.get(self.config.provider, "")
+        return not bool(env_var and os.environ.get(env_var, ""))
 
     def reconfigure(
         self,
@@ -164,20 +173,29 @@ Responde en el mismo idioma que el usuario."""
         if provider != prev_provider:
             self._conversation.clear()
 
+    def _effective_api_key(self) -> str:
+        """Retorna la API key efectiva: config > variable de entorno."""
+        import os
+        if self.config.api_key:
+            return self.config.api_key
+        env_var = self._ENV_KEYS.get(self.config.provider, "")
+        return os.environ.get(env_var, "") if env_var else ""
+
     def _get_client(self):
         """Obtener cliente según provider (lazy loading)."""
         if self._client is not None:
             return self._client
 
         provider = self.config.provider
+        api_key  = self._effective_api_key()
 
-        if provider == LLMProvider.DEMO:
+        if provider == LLMProvider.DEMO or not api_key:
             self._client = DemoLLMClient()
 
         elif provider == LLMProvider.ANTHROPIC:
             try:
                 from anthropic import Anthropic
-                self._client = Anthropic(api_key=self.config.api_key)
+                self._client = Anthropic(api_key=api_key)
             except ImportError:
                 logger.warning("anthropic not installed, using demo mode")
                 self._client = DemoLLMClient()
@@ -185,7 +203,7 @@ Responde en el mismo idioma que el usuario."""
         elif provider == LLMProvider.GOOGLE:
             try:
                 from google import genai
-                self._client = genai.Client(api_key=self.config.api_key)
+                self._client = genai.Client(api_key=api_key)
             except ImportError:
                 logger.warning("google-genai not installed, using demo mode")
                 self._client = DemoLLMClient()
@@ -193,7 +211,7 @@ Responde en el mismo idioma que el usuario."""
         elif provider == LLMProvider.GROQ:
             try:
                 from groq import Groq
-                self._client = Groq(api_key=self.config.api_key)
+                self._client = Groq(api_key=api_key)
             except ImportError:
                 logger.warning("groq not installed, using demo mode")
                 self._client = DemoLLMClient()
@@ -202,7 +220,7 @@ Responde en el mismo idioma que el usuario."""
             try:
                 from openai import OpenAI
                 self._client = OpenAI(
-                    api_key=self.config.api_key,
+                    api_key=api_key,
                     base_url="https://api.deepseek.com",
                 )
             except ImportError:

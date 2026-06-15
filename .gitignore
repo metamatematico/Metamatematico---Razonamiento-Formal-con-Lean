@@ -46,3 +46,7 @@ tmp*.lean
 # OS
 .DS_Store
 Thumbs.db
+.lean_warm
+_nle_warmup.lean
+.lean_warm
+_nle_warmup.lean

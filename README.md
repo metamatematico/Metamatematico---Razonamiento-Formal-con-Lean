@@ -399,6 +399,7 @@ El LLM formaliza (antes de Lean) y traduce (después de Lean). Nunca razona por 
  │  ✅ ÉXITO (SUCCESS)  → confianza 95%                                 │
  │  ⚠  SORRY           → SolverCascade con domain_tactic primero       │
  │  ❌ ERROR            → diagnóstico estructurado de tipo de error     │
+ │  ⏱ TIMEOUT          → mensaje informativo + invitación a reintentar  │
  └──────────────────────┬───────────────────────────────────────────────┘
                         │
                         ▼
@@ -532,11 +533,12 @@ Abre en `http://localhost:8501` · Demo en Streamlit Cloud disponible.
 | Funcionalidad | Descripción |
 |---|---|
 | **Chat multi-turno** | Conversación continua. El contexto se sincroniza con la memoria interna del NLE. |
-| **Adjuntar archivos (📎)** | Soporta `.txt`, `.tex`, `.pdf`. Pipeline de verificación matemática de 6 pasos. |
+| **Adjuntar archivos (📎)** | Soporta `.txt`, `.tex`, `.pdf`. El archivo **persiste** en sesión: las consultas de seguimiento lo usan automáticamente sin necesidad de volver a subirlo. |
 | **Visualizaciones** | Grafo de skills, embeddings t-SNE/PCA, diagrama MES, traza de prueba, árbol de agentes. |
 | **Verificador Lean 4** | Editor Lean 4 interactivo con verificación en tiempo real. |
 | **Consultores Avanzados** | Genera N artefactos matemáticos verificables: `.lean`, skeletons de demostración, scripts Python, puentes de verificación. Cada candidato se verifica en Lean y se rankea por puntuación. |
 | **Ejemplos rápidos** | Botones preconfigurados: √2 irracional, Lema de Yoneda, Lean 4 directo, Curry-Howard. |
+| **Estado de Lean 4** | El sidebar muestra el estado del warmup: ⏳ cargando Mathlib / 🔥 listo. |
 
 ### Pestaña de Visualizaciones
 
@@ -682,6 +684,16 @@ lake update   # descarga Mathlib (~20-30 min la primera vez)
 
 > Sin Lean instalado, el sistema funciona con el pipeline completo excepto la verificación formal — el badge mostrará `Lean 4 ↯` en lugar de `Lean 4 ✓`.
 
+#### Nota sobre cold-start en Windows
+
+En Windows, la primera carga de Mathlib tras reiniciar el sistema tarda **~12 minutos** (lee ~5.3 GB de archivos `.olean` del disco). El sistema mitiga esto con un proceso de calentamiento automático (_warmup_) que arranca en background al iniciar la app. Una vez que los `.olean` están en caché del sistema operativo, las verificaciones posteriores toman **< 30 segundos**.
+
+El sidebar muestra el estado en tiempo real:
+- `⏳ Lean cargando Mathlib…` — warmup en progreso; las consultas de Claude funcionan con normalidad
+- `🔥 Lean 4 listo` — verificación formal disponible a plena velocidad
+
+Si una verificación llega antes de que el warmup complete, el sistema responde con el badge `⏱ timeout` e invita a reintentar (la segunda llamada será rápida).
+
 ### Dependencias principales
 
 ```
@@ -697,9 +709,18 @@ numpy, scikit-learn, sympy
 ### Lanzar
 
 ```bash
+# Linux / macOS
 PYTHONIOENCODING=utf-8 streamlit run app.py   # interfaz web
 python -m nucleo chat                          # CLI interactivo
 ```
+
+```powershell
+# Windows (PowerShell)
+$env:PYTHONIOENCODING = "utf-8"
+streamlit run app.py --server.port 8501        # interfaz web en http://localhost:8501
+```
+
+La API key del proveedor LLM puede configurarse mediante variable de entorno (`ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, `GROQ_API_KEY`, `DEEPSEEK_API_KEY`) o introducirse directamente en el sidebar de la aplicación. Ambas vías son equivalentes.
 
 ---
 
