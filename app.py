@@ -1158,16 +1158,40 @@ los resultados se muestran aquí.
         "Demo (sin API key)": "demo",
     }
 
-    for item in reversed(st.session_state.history):
+    for _hist_idx, item in enumerate(reversed(st.session_state.history)):
         with st.chat_message("user", avatar="🧑‍💻"):
             st.markdown(item["q"])
         with st.chat_message("assistant", avatar="🧮"):
             st.markdown(item["a"])
             tok_str = (f' · {item["in_tok"]}→{item["out_tok"]} tok'
                        if item.get("in_tok") else "")
-            st.caption(
-                f'◆ {item["model"]} · {item["t"]}s{tok_str}'
-            )
+            _cap_c, _pdf_c = st.columns([8, 2])
+            with _cap_c:
+                st.caption(f'◆ {item["model"]} · {item["t"]}s{tok_str}')
+            with _pdf_c:
+                try:
+                    from nucleo.utils.pdf_export import generate_pdf
+                    import re as _re2
+                    _lm = _re2.search(r'```lean\n(.*?)```', item["a"], _re2.DOTALL)
+                    _pdf_h = generate_pdf(
+                        query=item["q"],
+                        response=item["a"],
+                        lean_code=_lm.group(1).strip() if _lm else "",
+                        timestamp=datetime.strptime(
+                            datetime.now().strftime(f"%Y%m%d {item.get('ts','00:00')}"),
+                            "%Y%m%d %H:%M"
+                        ),
+                    )
+                    st.download_button(
+                        "⬇️ PDF",
+                        data=_pdf_h,
+                        file_name=f"metamat_hist_{_hist_idx}.pdf",
+                        mime="application/pdf",
+                        key=f"_pdf_hist_{_hist_idx}",
+                        help="Descargar esta respuesta como PDF",
+                    )
+                except Exception:
+                    pass
 
     # Botón de visualizaciones (si hay consulta activa)
     if st.session_state.get("current_query"):
@@ -1298,13 +1322,26 @@ los resultados se muestran aquí.
                     if hasattr(nr, "confidence") else ""
                 )
                 cr_src = nr.metadata.get("source_cr", "") if hasattr(nr, "metadata") else ""
+
+                # Extraer lean_code del contenido para el PDF
+                import re as _re
+                _lean_match = _re.search(r'```lean\n(.*?)```', nr.content, _re.DOTALL)
+                _lean_code  = _lean_match.group(1).strip() if _lean_match else ""
+                _conf       = getattr(nr, "confidence", 0.0)
+                _area       = (nr.metadata.get("area", "") if hasattr(nr, "metadata") else "")
+                _vstatus    = (nr.metadata.get("verification_status", "") if hasattr(nr, "metadata") else "")
+
                 res = {
-                    "content":  nr.content,
-                    "model":    model,
-                    "in_tok":   0,
-                    "out_tok":  0,
-                    "_meta":    f'{model}{confidence_badge}' + (f' · CR:{cr_src}' if cr_src else ''),
-                    "error":    "",
+                    "content":   nr.content,
+                    "model":     model,
+                    "in_tok":    0,
+                    "out_tok":   0,
+                    "_meta":     f'{model}{confidence_badge}' + (f' · CR:{cr_src}' if cr_src else ''),
+                    "error":     "",
+                    "_lean_code": _lean_code,
+                    "_conf":      _conf,
+                    "_area":      _area,
+                    "_vstatus":   _vstatus,
                 }
             except Exception as _nucleo_err:
                 import logging, traceback
@@ -1343,15 +1380,37 @@ los resultados se muestran aquí.
                            if res.get("in_tok") else "")
                 st.caption(f'◆ {res.get("_meta", model)} · {elapsed:.1f}s{tok_str}')
 
-                # Feedback
+                # Feedback + descarga PDF
                 _fb_key = len(st.session_state.history)
-                fb_c1, fb_c2, _ = st.columns([1, 1, 10])
+                fb_c1, fb_c2, _, pdf_col = st.columns([1, 1, 6, 3])
                 with fb_c1:
                     if st.button("👍", key=f"_fb_pos_{_fb_key}", help="Útil"):
                         st.session_state["_pending_feedback"] = 1.0
                 with fb_c2:
                     if st.button("👎", key=f"_fb_neg_{_fb_key}", help="No útil"):
                         st.session_state["_pending_feedback"] = -0.5
+                with pdf_col:
+                    try:
+                        from nucleo.utils.pdf_export import generate_pdf
+                        _pdf_bytes = generate_pdf(
+                            query=prompt,
+                            response=res["content"],
+                            lean_code=res.get("_lean_code", ""),
+                            confidence=res.get("_conf", 0.0),
+                            area=res.get("_area", ""),
+                            status=res.get("_vstatus", ""),
+                        )
+                        _fn = f"metamat_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                        st.download_button(
+                            "⬇️ PDF",
+                            data=_pdf_bytes,
+                            file_name=_fn,
+                            mime="application/pdf",
+                            key=f"_pdf_{_fb_key}",
+                            help="Descargar resultado como PDF",
+                        )
+                    except Exception as _pdf_err:
+                        st.caption(f"PDF: {_pdf_err}")
 
             if not res.get("error"):
                 st.session_state["current_query"]    = prompt

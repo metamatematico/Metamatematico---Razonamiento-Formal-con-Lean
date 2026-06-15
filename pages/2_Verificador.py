@@ -511,6 +511,57 @@ st.divider()
 st.markdown("### 📊 Análisis del NLE")
 st.markdown(nr.content)
 
+# ─── Detalle del error Lean (cuando hay error real de compilación) ────────────
+if lean_res and hasattr(lean_res, "status") and lean_res.status.name == "ERROR":
+    with st.expander("🔍 Ver error exacto de Lean 4"):
+        _lean_msgs = getattr(lean_res, "messages", []) or []
+        if _lean_msgs:
+            for _m in _lean_msgs:
+                _sev  = getattr(_m, "severity", None)
+                _msg  = getattr(_m, "message", str(_m))
+                _pos  = getattr(_m, "position", None)
+                _loc  = f" (línea {_pos.line})" if _pos else ""
+                if hasattr(_sev, "name") and _sev.name == "ERROR":
+                    st.error(f"**Error{_loc}:** {_msg}")
+                elif hasattr(_sev, "name") and _sev.name == "WARNING":
+                    st.warning(f"**Advertencia{_loc}:** {_msg}")
+                else:
+                    st.info(f"{_msg}")
+        else:
+            st.code(getattr(lean_res, "output", "sin output"), language="text")
+        st.caption(
+            "💡 Este error proviene del código Lean 4 generado por el LLM. "
+            "Intenta reformular tu pregunta con más detalle, o usa el **Verificador** "
+            "para pegar y editar el código Lean directamente."
+        )
+
+# ─── Descarga PDF ─────────────────────────────────────────────────────────────
+try:
+    import re as _re
+    from nucleo.utils.pdf_export import generate_pdf
+    from datetime import datetime as _dt
+    _lean_match = _re.search(r'```lean\n(.*?)```', nr.content, _re.DOTALL)
+    _lean_code  = _lean_match.group(1).strip() if _lean_match else ""
+    _pdf_bytes  = generate_pdf(
+        query=content_to_verify[:600],
+        response=nr.content,
+        lean_code=_lean_code,
+        confidence=conf,
+        area=getattr(nr, "metadata", {}).get("area", "") if hasattr(nr, "metadata") else "",
+        status=getattr(nr, "metadata", {}).get("verification_status", "") if hasattr(nr, "metadata") else "",
+        title=f"Verificación: {fname}",
+    )
+    _fn = f"verificacion_{fname.replace('.','_')}_{_dt.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    st.download_button(
+        "⬇️ Descargar resultado como PDF",
+        data=_pdf_bytes,
+        file_name=_fn,
+        mime="application/pdf",
+        use_container_width=True,
+    )
+except Exception as _pdf_err:
+    st.caption(f"PDF no disponible: {_pdf_err}")
+
 # ─── Guardar para visualizaciones ────────────────────────────────────────────
 try:
     short_prompt = content_to_verify[:300]
