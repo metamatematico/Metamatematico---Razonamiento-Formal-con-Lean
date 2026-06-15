@@ -410,19 +410,27 @@ with st.expander("Ver lo que se enviará al NLE", expanded=False):
 st.divider()
 
 # Validar que hay API key antes de mostrar el botón
-if not v_api_key and v_provider != "Demo (sin API key)":
+_is_demo_mode = (v_provider == "Demo (sin API key)")
+if not v_api_key and not _is_demo_mode:
     st.warning(
         f"⚠️ Introduce tu **{v_cfg['key_label']}** en el panel izquierdo para usar el Verificador. "
         f"Si acabas de ponerla en el chat principal y estás en la misma pestaña, "
         f"ya debería aparecer pre-rellenada arriba."
     )
+if _is_demo_mode:
+    st.info(
+        "ℹ️ **Modo demo** — sin API key solo se muestra contenido educativo estático. "
+        "Para verificación real con Lean 4, selecciona **Anthropic**, **Google** o **Groq** "
+        "e introduce tu API key en el panel izquierdo.",
+        icon=None,
+    )
 
 col_btn, col_hint = st.columns([2, 3])
 with col_btn:
     run = st.button("🔬 Verificar con Lean 4", type="primary", use_container_width=True,
-                    disabled=(not v_api_key and v_provider != "Demo (sin API key)"))
+                    disabled=(not v_api_key and not _is_demo_mode))
 with col_hint:
-    _model_str = f"`{v_model}`" if v_provider != "Demo (sin API key)" else "modo demo"
+    _model_str = f"`{v_model}`" if not _is_demo_mode else "modo demo"
     st.markdown(
         f"<div style='padding:.6rem;color:#6e7681;font-size:.85rem'>"
         f"Proveedor: <b>{v_provider}</b> · modelo {_model_str}<br>"
@@ -517,16 +525,25 @@ if lean_res and hasattr(lean_res, "status") and lean_res.status.name == "ERROR":
         _lean_msgs = getattr(lean_res, "messages", []) or []
         if _lean_msgs:
             for _m in _lean_msgs:
-                _sev  = getattr(_m, "severity", None)
-                _msg  = getattr(_m, "message", str(_m))
-                _pos  = getattr(_m, "position", None)
-                _loc  = f" (línea {_pos.line})" if _pos else ""
-                if hasattr(_sev, "name") and _sev.name == "ERROR":
+                # messages is list[dict] from Lean JSON output
+                if isinstance(_m, dict):
+                    _sev_str = str(_m.get("severity", "info")).lower()
+                    _msg     = _m.get("data", _m.get("message", str(_m)))
+                    _pos_d   = _m.get("pos") or {}
+                    _loc     = f" (línea {_pos_d['line']})" if _pos_d.get("line") else ""
+                else:
+                    # LeanMessage object (future-proof)
+                    _sev_obj = getattr(_m, "severity", None)
+                    _sev_str = (getattr(_sev_obj, "name", str(_sev_obj)) or "info").lower()
+                    _msg     = getattr(_m, "message", str(_m))
+                    _pos_obj = getattr(_m, "position", None)
+                    _loc     = f" (línea {_pos_obj.line})" if _pos_obj else ""
+                if _sev_str == "error":
                     st.error(f"**Error{_loc}:** {_msg}")
-                elif hasattr(_sev, "name") and _sev.name == "WARNING":
+                elif _sev_str == "warning":
                     st.warning(f"**Advertencia{_loc}:** {_msg}")
                 else:
-                    st.info(f"{_msg}")
+                    st.info(_msg)
         else:
             st.code(getattr(lean_res, "output", "sin output"), language="text")
         st.caption(

@@ -1125,6 +1125,14 @@ class Nucleo:
         lean_gen = await self._llm.generate(
             formalize_prompt, system=lean_system, context=context
         )
+        # Si DemoLLMClient fue usado (race condition con reconfigure()),
+        # la respuesta no contiene código Lean — abortar el pipeline aquí.
+        from nucleo.llm.client import DemoLLMClient as _DemoClientPipe
+        if (
+            isinstance(self._llm._get_client(), _DemoClientPipe)
+            or "Modo demo activo" in lean_gen.content
+        ):
+            return self._demo_educational_response(input_text)
         lean_code = self._extract_lean_code(lean_gen.content)
         if not lean_code:
             lean_code = lean_gen.content.strip()
@@ -1288,9 +1296,19 @@ class Nucleo:
                 + (f"\n\n## Nota sobre la verificación\n[{verification_note}]"
                    if verification_status not in ("verificado", "sin_entorno") else "")
             )
-        translation = await self._llm.generate(
-            translate_prompt, system=lean_system, context=context
-        )
+        # Re-verificar que el cliente sigue siendo real antes de la traducción
+        # (guard contra race condition con reconfigure() de otra sesión Streamlit)
+        if isinstance(self._llm._get_client(), _DemoClientPipe):
+            _translation_text = verification_note
+        else:
+            translation = await self._llm.generate(
+                translate_prompt, system=lean_system, context=context
+            )
+            _translation_text = (
+                translation.content
+                if "Modo demo activo" not in translation.content
+                else verification_note
+            )
 
         # ── Ensamblaje final ───────────────────────────────────────────────
         # Badge diferenciado: definición vs prueba vs sin entorno
@@ -1312,7 +1330,7 @@ class Nucleo:
             }[verification_status]
 
         content = (
-            f"{translation.content}\n\n"
+            f"{_translation_text}\n\n"
             f"---\n\n"
             f"{status_badge}\n\n"
             f"```lean\n{lean_code}\n```"
