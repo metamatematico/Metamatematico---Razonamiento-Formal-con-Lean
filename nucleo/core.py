@@ -410,7 +410,9 @@ class Nucleo:
         # Ejecutar accion segun decision de los CRs
         action = Action(action_type=decision.action_type)
         response = await self._execute_action(action, input_text)
-        response.confidence = decision.confidence
+        # Preservar confianza calculada por Lean; usar la de los CRs solo como fallback
+        if response.confidence == 0.0:
+            response.confidence = decision.confidence
         response.metadata["source_cr"] = decision.source_cr.name
         response.metadata["cr_proposals"] = decision.cr_proposals
 
@@ -1323,6 +1325,10 @@ class Nucleo:
             action_type=ActionType.ASSIST,
             lean_result=result,
             confidence=confidence,
+            metadata={
+                "verification_status": verification_status,
+                "area": _area,
+            },
         )
 
     def _build_few_shot_context(self, query: str) -> str:
