@@ -19,6 +19,11 @@ import MetamathProver.CategoryFoundations.SkillCategory
 import MetamathProver.CategoryFoundations.ColimitVerifier
 -- Central theorem: join = colimit in the preorder (thin) interpretation
 import MetamathProver.CategoryFoundations.JoinColimit
+-- Emergent hierarchy: complexity order and its well-foundedness
+import MetamathProver.CategoryFoundations.ComplexityOrder
+-- Co-regulator network: priority order, global decision protocol, E-equivalence,
+-- ASSIST/RESPOND routing, and tactic cascade specification
+import MetamathProver.CategoryFoundations.CoRegulatorNetwork
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism

@@ -750,8 +750,8 @@ La teoría de categorías es el lenguaje natural de las matemáticas modernas: e
 |---|---|
 | join[P] es cota superior mínima en G_n | ✓ verificado por `is_join()` en Python |
 | Conexión formal con `CategoryTheory.Limits.IsColimit` de Mathlib | Trabajo futuro |
-| GNN entrenada para selección de tácticas dentro de Lean | Pendiente (actualmente: routing ASSIST/RESPOND) |
-| Co-reguladores: analogías Python del formalismo MES categórico | Sin prueba formal completa |
+| GNN entrenada para selección de tácticas dentro de Lean | Especificación formal completa en `CoRegulatorNetwork.lean` (routing ASSIST/RESPOND probado; selección de tácticas: trabajo futuro) |
+| Co-reguladores: analogías Python del formalismo MES categórico | ✓ Prueba formal completa en `MetamathProver/CategoryFoundations/CoRegulatorNetwork.lean` (Axioma 9.5, E-equivalencia, cascada, pipeline; sin sorry) |
 
 ---
 
