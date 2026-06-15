@@ -24,6 +24,10 @@ import MetamathProver.CategoryFoundations.ComplexityOrder
 -- Co-regulator network: priority order, global decision protocol, E-equivalence,
 -- ASSIST/RESPOND routing, and tactic cascade specification
 import MetamathProver.CategoryFoundations.CoRegulatorNetwork
+-- Formal bridge closing the IsColimit gap:
+--   IsJoin S j ↔ ∃ hub, Nonempty (CategoryTheory.Limits.IsColimit (joinCocone S j hub))
+-- Proved in any preorder (thin category). 0 sorry.
+import MetamathProver.CategoryFoundations.IsColimitBridge
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism
