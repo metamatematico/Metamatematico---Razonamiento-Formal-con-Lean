@@ -262,9 +262,7 @@ That is: comap (map J) = I + J = J (when I <= J).
 theorem inverseMap_forwardMap (I J : Ideal R) (hIJ : I ≤ J) :
     inverseMap I (forwardMap I J) = J := by
   simp only [forwardMap, inverseMap]
-  have h : Ideal.comap (Ideal.Quotient.mk I) ⊥ = I := by
-    ext x
-    simp only [Ideal.mem_comap, Ideal.mem_bot, Ideal.Quotient.eq_zero_iff_mem]
+  have h : Ideal.comap (Ideal.Quotient.mk I) ⊥ = I := Ideal.mk_ker
   rw [Ideal.comap_map_of_surjective _ (mk_surjective I), h, sup_comm, sup_eq_right.mpr hIJ]
 
 /--
@@ -272,9 +270,7 @@ The comap of map J equals I + J.
 -/
 theorem comap_map_eq_sup (I J : Ideal R) :
     Ideal.comap (Ideal.Quotient.mk I) (Ideal.map (Ideal.Quotient.mk I) J) = I ⊔ J := by
-  have h : Ideal.comap (Ideal.Quotient.mk I) ⊥ = I := by
-    ext x
-    simp only [Ideal.mem_comap, Ideal.mem_bot, Ideal.Quotient.eq_zero_iff_mem]
+  have h : Ideal.comap (Ideal.Quotient.mk I) ⊥ = I := Ideal.mk_ker
   rw [Ideal.comap_map_of_surjective _ (mk_surjective I), h, sup_comm]
 
 end Bijection

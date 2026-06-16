@@ -31,9 +31,9 @@ The identity morphism of a skill is the "no-op" path (a skill trivially relates 
 -/
 
 import Mathlib.CategoryTheory.Category.Basic
-import Mathlib.CategoryTheory.Quiver.Basic
-import Mathlib.CategoryTheory.Quiver.Path
-import Mathlib.CategoryTheory.Paths
+import Mathlib.Combinatorics.Quiver.Basic
+import Mathlib.Combinatorics.Quiver.Path
+import Mathlib.CategoryTheory.PathCategory.Basic
 
 namespace MetamathProver.SkillGraph
 

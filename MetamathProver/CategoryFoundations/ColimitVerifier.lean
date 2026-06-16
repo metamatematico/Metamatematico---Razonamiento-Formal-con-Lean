@@ -71,11 +71,13 @@ the longest simple path in a graph of n nodes has at most n-1 edges.
 def FinSkillGraph.step {n : ℕ} (G : FinSkillGraph n) (i j : Fin n) : Bool :=
   i == j || G.morphism_matrix i j
 
-/-- Reachability in at most `k` steps -/
+/-- Reachability in at most `k` steps.
+    Uses `List.finRange n` (computable, Lean 4.29+ compatible; `Finset.toList` is noncomputable). -/
 def reach_in {n : ℕ} (G : FinSkillGraph n) (i j : Fin n) : ℕ → Bool
   | 0       => G.step i j
   | k + 1   => G.step i j ||
-                Finset.univ.any (fun mid => G.morphism_matrix i mid && reach_in G mid j k)
+                (List.finRange n).any
+                  (fun mid => G.morphism_matrix i mid && reach_in G mid j k)
 
 /-- Full reachability: ∃ finite path i → j (includes i = j) -/
 def FinSkillGraph.reachable {n : ℕ} (G : FinSkillGraph n) (i j : Fin n) : Bool :=
@@ -87,11 +89,17 @@ def FinSkillGraph.reachable {n : ℕ} (G : FinSkillGraph n) (i j : Fin n) : Bool
 
 theorem reachable_refl {n : ℕ} (G : FinSkillGraph n) (i : Fin n) :
     G.reachable i i = true := by
-  simp [FinSkillGraph.reachable, reach_in, FinSkillGraph.step]
+  cases n with
+  | zero => exact absurd i.isLt (Nat.not_lt_zero _)
+  | succ m =>
+    simp [FinSkillGraph.reachable, reach_in, FinSkillGraph.step]
 
 theorem reachable_of_edge {n : ℕ} (G : FinSkillGraph n) (i j : Fin n)
     (h : G.morphism_matrix i j = true) : G.reachable i j = true := by
-  simp [FinSkillGraph.reachable, reach_in, FinSkillGraph.step, h]
+  cases n with
+  | zero => exact absurd i.isLt (Nat.not_lt_zero _)
+  | succ m =>
+    simp [FinSkillGraph.reachable, reach_in, FinSkillGraph.step, h]
 
 /-!
 ## The preorder / thin-category interpretation
@@ -130,7 +138,8 @@ Therefore, for the thin-category / preorder interpretation:
     ∧ apex is the LEAST upper bound     (universal property = minimality)
 -/
 
-/-- apex is a colimit of diagram in the finite thin category G -/
+/-- apex is a colimit of diagram in the finite thin category G.
+    Uses `List.finRange n` (computable; `Finset.toList` is noncomputable in Lean 4). -/
 def isColimitInFiniteCategory {n : ℕ} (G : FinSkillGraph n)
     (diagram : List (Fin n))
     (apex : Fin n) : Bool :=
@@ -138,8 +147,7 @@ def isColimitInFiniteCategory {n : ℕ} (G : FinSkillGraph n)
   isCocone G diagram apex &&
   -- Condition 2: apex is the LEAST upper bound
   -- For every X that is also a co-cone, there must be a morphism apex → X
-  -- In the thin category, this is exactly: G.reachable apex X = true
-  Finset.univ.all (fun x =>
+  (List.finRange n).all (fun x =>
     !isCocone G diagram x ||   -- X is not a co-cone: no obligation
     G.reachable apex x          -- X is a co-cone: apex ≤ X (mediating morphism exists)
   )
@@ -149,16 +157,6 @@ def isColimitInFiniteCategory {n : ℕ} (G : FinSkillGraph n)
 
 In a thin (preorder) category, there is AT MOST ONE morphism between any two objects.
 Therefore the "∃!" (unique existence) condition reduces to "∃" — uniqueness is free.
-
-This is the key mathematical simplification:
-  In a general category: colimit requires ∃! mediating morphism
-  In a thin category: colimit requires ∃ mediating morphism (uniqueness is automatic)
-
-The Python code's uniqueness check in verify_universal_property (introduced in the
-2026-04 fix) correctly filters multiple morphisms when the implementation deviates
-from the thin-category model (e.g., if two morphism types are added between the same
-pair of skills). The Lean check here is the MATHEMATICAL SPECIFICATION; the Python
-check is the COMPUTATIONAL ENFORCEMENT.
 -/
 
 /-!
@@ -166,37 +164,40 @@ check is the COMPUTATIONAL ENFORCEMENT.
 
 If `isColimitInFiniteCategory G diagram apex = true`, then apex is a colimit
 of `diagram` in the finite thin category defined by G.
-
-In the preorder/thin-category setting, this means:
-1. apex is an upper bound: ∀ d ∈ diagram, d ≤ apex
-2. apex is the least upper bound: ∀ x, (∀ d ∈ diagram, d ≤ x) → apex ≤ x
-
-We state and prove both conditions directly from the decision procedure.
 -/
+
+-- Helper: b ≠ true → b = false  (Bool has exactly two values)
+private theorem bool_ne_true_eq_false {b : Bool} (h : b ≠ true) : b = false := by
+  cases b <;> simp_all
+
+-- Helper: every Fin n element is in List.finRange n
+private theorem mem_finRange_all {n : ℕ} (x : Fin n) : x ∈ List.finRange n :=
+  List.mem_finRange x
 
 theorem colimit_is_upper_bound {n : ℕ} (G : FinSkillGraph n)
     (diagram : List (Fin n)) (apex : Fin n)
     (h : isColimitInFiniteCategory G diagram apex = true) :
     ∀ d ∈ diagram, G.reachable d apex = true := by
-  simp [isColimitInFiniteCategory, isCocone, Bool.and_eq_true, List.all_iff_forall] at h
-  exact h.1
+  simp only [isColimitInFiniteCategory, Bool.and_eq_true] at h
+  have hcone := h.1
+  simp only [isCocone, List.all_eq_true] at hcone
+  exact hcone
 
 theorem colimit_is_least_upper_bound {n : ℕ} (G : FinSkillGraph n)
     (diagram : List (Fin n)) (apex : Fin n)
     (h : isColimitInFiniteCategory G diagram apex = true) :
     ∀ x : Fin n, (∀ d ∈ diagram, G.reachable d x = true) → G.reachable apex x = true := by
-  simp [isColimitInFiniteCategory, isCocone, Bool.and_eq_true,
-        Finset.all_iff_forall, Bool.or_eq_true, Bool.not_eq_true'] at h
+  simp only [isColimitInFiniteCategory, Bool.and_eq_true, List.all_eq_true] at h
   intro x hx
-  have := h.2 x
-  simp [List.all_iff_forall, hx] at this
-  exact this
+  have hres := h.2 x (mem_finRange_all x)
+  -- hres : !isCocone G diagram x || G.reachable apex x = true
+  have hxcone : isCocone G diagram x = true := by
+    simp only [isCocone, List.all_eq_true]; exact hx
+  simp only [hxcone, Bool.not_true, Bool.false_or] at hres
+  exact hres
 
 /-!
 ## Completeness theorem
-
-If apex is a join (least upper bound) of diagram in the preorder, then
-`isColimitInFiniteCategory` returns true. This shows the procedure is complete.
 -/
 
 theorem join_implies_colimit {n : ℕ} (G : FinSkillGraph n)
@@ -204,12 +205,15 @@ theorem join_implies_colimit {n : ℕ} (G : FinSkillGraph n)
     (hUB : ∀ d ∈ diagram, G.reachable d apex = true)
     (hLUB : ∀ x : Fin n, (∀ d ∈ diagram, G.reachable d x = true) → G.reachable apex x = true) :
     isColimitInFiniteCategory G diagram apex = true := by
-  simp [isColimitInFiniteCategory, isCocone, Bool.and_eq_true,
-        Finset.all_iff_forall, Bool.or_eq_true, Bool.not_eq_true', List.all_iff_forall]
-  refine ⟨hUB, fun x => ?_⟩
-  by_cases hxCone : ∀ d ∈ diagram, G.reachable d x = true
-  · right; exact hLUB x hxCone
-  · left; push_neg at hxCone; simp [List.all_iff_forall]; exact hxCone
+  simp only [isColimitInFiniteCategory, Bool.and_eq_true, List.all_eq_true]
+  refine ⟨?_, ?_⟩
+  · simp only [isCocone, List.all_eq_true]; exact hUB
+  · intro x _
+    by_cases hxcone : isCocone G diagram x = true
+    · simp only [hxcone, Bool.not_true, Bool.false_or]
+      exact hLUB x (List.all_eq_true.mp (by simp only [isCocone] at hxcone; exact hxcone))
+    · have hf := bool_ne_true_eq_false hxcone
+      simp [hf]
 
 /-!
 ## Summary

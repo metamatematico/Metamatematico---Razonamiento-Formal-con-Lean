@@ -159,8 +159,8 @@ The kernel of the restricted quotient map is S cap I.
 theorem ker_quotientMapRestrict (S : Subring R) (I : Ideal R) :
     RingHom.ker (quotientMapRestrict S I) = intersectionIdeal S I := by
   ext x
-  simp only [RingHom.mem_ker, quotientMapRestrict, RingHom.coe_comp, Function.comp_apply,
-    Ideal.Quotient.eq_zero_iff_mem, intersectionIdeal, Ideal.mem_comap]
+  simp only [RingHom.mem_ker, quotientMapRestrict, intersectionIdeal, Ideal.mem_comap]
+  exact Ideal.Quotient.eq_zero_iff_mem
 
 /--
 An element maps to zero in the quotient iff it is in the intersection.

@@ -1,3 +1,8 @@
+-- ComplexityOrder.lean: Formal Foundations for the NLE Emergent Skill Hierarchy
+-- (Imports must precede the module docstring in Lean 4.29+)
+
+import Mathlib.Tactic
+
 /-!
 # ComplexityOrder.lean
 
@@ -37,12 +42,6 @@ constructive version of Theorem `hierarchy_well_founded`:
 it runs at most diameter(G_n) iterations before reaching a fixpoint.
 -/
 
-import Mathlib.Order.Lattice
-import Mathlib.Data.Finset.Lattice
-import Mathlib.Data.Finset.Basic
-import Mathlib.Order.Defs
-import Mathlib.Data.List.Basic
-
 /-! ## §1  Thin categories: all diagrams commute -/
 
 /-- In a preorder, any two proofs of `a ≤ b` are definitionally equal.
@@ -62,9 +61,9 @@ theorem thin_all_diagrams_commute {α : Type*} [Preorder α]
 
 /-- The join (supremum) of a finite set is the colimit of the
     corresponding discrete diagram in the preorder. -/
-theorem join_is_upper_bound {α : Type*} [SemilatticeSup α]
+theorem join_is_upper_bound {α : Type*} [SemilatticeSup α] [OrderBot α]
     (s : Finset α) (a : α) (ha : a ∈ s) : a ≤ s.sup id := by
-  exact Finset.le_sup ha
+  exact Finset.le_sup (f := id) ha
 
 /-- Universal property: the join is the SMALLEST upper bound. -/
 theorem join_is_minimal_upper_bound {α : Type*} [SemilatticeSup α] [OrderBot α]
@@ -80,11 +79,11 @@ theorem join_iff_colimit {α : Type*} [SemilatticeSup α] [OrderBot α]
   constructor
   · intro h
     subst h
-    exact ⟨fun a ha => Finset.le_sup ha,
+    exact ⟨fun a ha => Finset.le_sup (f := id) ha,
            fun x hx => Finset.sup_le hx⟩
   · intro ⟨hub, hmin⟩
     apply le_antisymm
-    · exact hmin _ (fun a ha => Finset.le_sup ha)
+    · exact hmin _ (fun a ha => Finset.le_sup (f := id) ha)
     · exact Finset.sup_le hub
 
 /-! ## §3  Fubini theorem for joins — stacked cocones commute -/
@@ -100,18 +99,21 @@ theorem join_iff_colimit {α : Type*} [SemilatticeSup α] [OrderBot α]
     construction is coherent: cn-levels are consistent across depths.
 
     **Proof**: direct from `Finset.sup_biUnion` in Mathlib. -/
-theorem fubini_joins {α : Type*} [SemilatticeSup α] [OrderBot α]
+-- Lean 4.29+: Finset.biUnion requires DecidableEq on the element type
+theorem fubini_joins {α : Type*} [SemilatticeSup α] [OrderBot α] [DecidableEq α]
     (S : Finset (Finset α)) :
     S.sup (fun t => t.sup id) = (S.biUnion id).sup id := by
   simp [Finset.sup_biUnion]
 
 /-- Corollary: a two-step join equals a one-step join over the union.
     This is the Python `build_hierarchy_to_fixpoint` invariant. -/
-theorem two_step_join_eq_flat {α : Type*} [SemilatticeSup α] [OrderBot α]
+theorem two_step_join_eq_flat {α : Type*} [SemilatticeSup α] [OrderBot α] [DecidableEq α]
     (P Q : Finset α) :
     (({P, Q} : Finset (Finset α)).sup (fun t => t.sup id)) =
     (P ∪ Q).sup id := by
-  simp [fubini_joins, Finset.biUnion_insert, Finset.biUnion_singleton]
+  rw [fubini_joins]
+  congr 1
+  simp [Finset.biUnion_insert]
 
 /-! ## §4  Complexity order -/
 
@@ -147,11 +149,7 @@ theorem cn_join_gt_component {n : ℕ}
     (c : Fin n) (hc : c ∈ comps) :
     complexityOrderIter isJoinOf n c <
     complexityOrderIter isJoinOf n x := by
-  simp [complexityOrderIter, hx]
-  apply Nat.lt_succ_of_le
-  apply le_trans (le_refl _)
-  apply List.le_foldr_max (f := id) hc
-  sorry -- provable by structural induction; non-trivial termination argument
+  sorry -- provable by structural induction on the join DAG; non-trivial termination argument
 
 /-! ## §5  Well-foundedness of the hierarchy -/
 
@@ -185,8 +183,11 @@ structure ComplexityCertificate (n : ℕ) where
   isJoinOf    : Fin n → Option (List (Fin n))
   /-- The cn values match the fixpoint computation. -/
   consistent  : ∀ x : Fin n, cn x = complexityOrder isJoinOf x
-  /-- Stacked cocones commute (free from Fubini). -/
-  stacked_commute : ∀ (S : Finset (Finset (Fin n))),
+  /-- Stacked cocones commute for any semilattice with bottom (free from Fubini).
+      Stated universally over α so it doesn't require OrderBot (Fin n).
+      DecidableEq α needed for Finset.biUnion in Lean 4.29+. -/
+  stacked_commute : ∀ {α : Type*} [SemilatticeSup α] [OrderBot α] [DecidableEq α]
+      (S : Finset (Finset α)),
       S.sup (fun t => t.sup id) = (S.biUnion id).sup id :=
     fun S => fubini_joins S
   /-- All diagrams commute (free from thin-category property). -/

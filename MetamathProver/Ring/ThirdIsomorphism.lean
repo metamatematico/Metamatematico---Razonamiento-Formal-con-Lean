@@ -198,9 +198,7 @@ For ideals J containing I, map then comap gives J + I = J (since I <= J).
 -/
 theorem map_comap_eq_self_of_le (I J : Ideal R) (hIJ : I ≤ J) :
     Ideal.comap (Ideal.Quotient.mk I) (Ideal.map (Ideal.Quotient.mk I) J) = J := by
-  have h : Ideal.comap (Ideal.Quotient.mk I) ⊥ = I := by
-    ext x
-    simp only [Ideal.mem_comap, Ideal.mem_bot, Ideal.Quotient.eq_zero_iff_mem]
+  have h : Ideal.comap (Ideal.Quotient.mk I) ⊥ = I := Ideal.mk_ker
   rw [Ideal.comap_map_of_surjective _ (mk_surjective I), h]
   rw [sup_comm]
   exact sup_eq_right.mpr hIJ
