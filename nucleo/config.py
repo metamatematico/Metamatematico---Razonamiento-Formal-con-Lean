@@ -186,6 +186,13 @@ class NucleoConfig:
     debug: bool = False
     verbose: bool = False
 
+    # Live learning: por defecto NO sobreescribe el checkpoint validado en disco.
+    # El PPO online sigue actualizando los pesos en memoria durante la sesion,
+    # pero persistirlos automaticamente cada 10 interacciones causaba drift
+    # acumulado (bias/norm de la GNN se alejaban >60% del checkpoint de 100% acc).
+    # Activar explicitamente solo si se quiere persistir aprendizaje online.
+    live_learning_autosave: bool = False
+
     def validate(self) -> None:
         """Validar toda la configuracion."""
         self.rl.validate()
@@ -213,6 +220,7 @@ class NucleoConfig:
             logs_dir=Path(data.get("logs_dir", "logs")),
             debug=data.get("debug", False),
             verbose=data.get("verbose", False),
+            live_learning_autosave=data.get("live_learning_autosave", False),
         )
 
     def to_dict(self) -> dict[str, Any]:

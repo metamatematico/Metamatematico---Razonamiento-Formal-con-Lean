@@ -1220,31 +1220,33 @@ los resultados se muestran aquí.
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Archivo subido → preparar como consulta de verificación y persistir texto
+    # Archivo subido → solo se guarda como contexto activo. NO se dispara
+    # ningun analisis automatico: el nucleo espera una orden explicita del
+    # usuario (ej. "detecta errores", "verifica este teorema").
     _file_key = f"_pf_{getattr(uploaded_file, 'name', '')}_{getattr(uploaded_file, 'size', 0)}"
     if uploaded_file is not None and st.session_state.get("_processed_file") != _file_key:
         st.session_state["_processed_file"] = _file_key
         _ftext = _extract_file_text(uploaded_file)
         if _ftext.strip() and not _ftext.startswith("[Error"):
-            # Guardar texto completo para consultas posteriores
             st.session_state["_active_file"] = {
                 "name": uploaded_file.name,
                 "text": _ftext,
-            }
-            st.session_state["_pending_file"] = {
-                "display": f"📎 `{uploaded_file.name}` cargado — analizando…",
-                "prompt":  _build_file_verify_prompt(_ftext, uploaded_file.name),
             }
             st.rerun()
         elif _ftext.startswith("[Error"):
             st.error(_ftext)
 
-    # Mostrar indicador de archivo activo
+    # Mostrar indicador de archivo activo + accion explicita opcional
     _active_file = st.session_state.get("_active_file")
     if _active_file:
-        col_fa, col_fc = st.columns([5, 1])
+        col_fa, col_fb, col_fc = st.columns([4, 2, 1])
         with col_fa:
-            st.caption(f"📎 Archivo activo: **{_active_file['name']}** — puedes hacer preguntas sobre él")
+            st.caption(f"📎 Archivo activo: **{_active_file['name']}** — escribe que quieres que haga con él")
+        with col_fb:
+            if st.button("🔍 Verificar completo", key="_verify_file", help="Analisis automatico completo (correccion, Lean 4, veredicto)"):
+                st.session_state["_pending_query"] = _build_file_verify_prompt(_active_file["text"], _active_file["name"])
+                st.session_state["_pending_query_display"] = f"📎 `{_active_file['name']}` — verificación completa"
+                st.rerun()
         with col_fc:
             if st.button("✕", key="_clear_file", help="Quitar archivo"):
                 st.session_state.pop("_active_file", None)
@@ -1254,14 +1256,9 @@ los resultados se muestran aquí.
     # ── Input de chat (fixed al fondo) ────────────────────────────────────────
     prompt = st.chat_input("Escribe un teorema, problema matemático o goal de Lean 4…")
 
-    # Ejemplo rápido pulsado → inyectar como prompt
+    # Ejemplo rápido pulsado (o "Verificar completo" de un archivo) → inyectar como prompt
     if st.session_state.get("_pending_query"):
         prompt = st.session_state.pop("_pending_query")
-
-    # Archivo adjunto pendiente → primer análisis automático
-    _pending_file = st.session_state.pop("_pending_file", None)
-    if _pending_file and not prompt:
-        prompt = _pending_file["prompt"]
 
     # Si hay archivo activo y el usuario escribe una pregunta → enriquecer prompt con el archivo
     elif _active_file and prompt and "```" not in prompt:
@@ -1273,9 +1270,7 @@ los resultados se muestran aquí.
         )
 
     # Texto que se muestra al usuario en la burbuja
-    _display_query = _pending_file["display"] if _pending_file else (
-        st.session_state.get("_pending_query_display") or prompt
-    )
+    _display_query = st.session_state.get("_pending_query_display") or prompt
     st.session_state.pop("_pending_query_display", None)
 
     if prompt and prompt.strip():

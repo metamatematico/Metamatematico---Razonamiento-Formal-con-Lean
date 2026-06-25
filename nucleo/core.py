@@ -915,6 +915,58 @@ class Nucleo:
             metadata={"mode": "educational_explanation"},
         )
 
+    async def _review_document_for_errors(
+        self, input_text: str, context: dict
+    ) -> "NucleoResponse":
+        """
+        Revision critica de un documento/paper completo (no un objetivo unico).
+
+        A diferencia de _math_via_lean (que formaliza UN enunciado puntual),
+        aqui el LLM recorre TODO el texto adjunto — teoremas, corolarios,
+        lemas, proposiciones — y lista errores concretos de cada uno, citando
+        cual es el resultado afectado. No inventa ni sustituye un teorema
+        distinto al pedido por el usuario.
+        """
+        from nucleo.llm.client import LLMClient
+
+        if self._llm is not None and self._llm.is_demo:
+            return self._demo_educational_response(input_text)
+
+        review_system = (
+            "Eres un revisor matematico riguroso (estilo referee de revista). "
+            "Tu unica tarea es encontrar errores REALES en el documento que el "
+            "usuario adjunta: errores logicos, definiciones mal planteadas, "
+            "pasos de demostracion que no se siguen, hipotesis faltantes, "
+            "notacion inconsistente, o enunciados formalmente vacios/triviales. "
+            "Debes recorrer TODOS los teoremas, corolarios, lemas y "
+            "proposiciones presentes en el texto adjunto, uno por uno — no "
+            "selecciones solo uno ni inventes un enunciado distinto al que "
+            "esta en el documento. Si un resultado esta correcto, dilo "
+            "brevemente y sigue con el siguiente; no fuerces una critica "
+            "donde no la hay. Cuando un error involucre codigo Lean 4, puedes "
+            "citar el fragmento exacto, pero NO conviertas la respuesta en un "
+            "intento de formalizar/probar el teorema desde cero."
+        )
+        review_prompt = (
+            f"{input_text}\n\n"
+            "Estructura tu respuesta como una lista, un item por cada "
+            "teorema/corolario/lema/proposicion identificado en el documento:\n\n"
+            "### [Nombre o numero del resultado]\n"
+            "- **Enunciado**: (cita breve)\n"
+            "- **Veredicto**: ✅ Correcto / ⚠️ Parcialmente correcto / ❌ Incorrecto\n"
+            "- **Error encontrado**: (explicacion precisa y especifica; si no hay "
+            "error, escribe 'Ninguno')\n\n"
+            "Al final agrega un resumen general de cuantos resultados tienen "
+            "errores y cuales son los mas graves."
+        )
+        resp = await self._llm.generate(review_prompt, system=review_system, context=context)
+        return NucleoResponse(
+            content=resp.content,
+            action_type=ActionType.ASSIST,
+            confidence=0.85,
+            metadata={"mode": "document_review"},
+        )
+
     async def _math_via_lean(self, input_text: str) -> "NucleoResponse":
         """
         Pipeline principal para consultas matematicas.
@@ -964,6 +1016,25 @@ class Nucleo:
         )
         if any(m in q_lower for m in _visual_only):
             return await self._math_educational_explanation(input_text, context)
+
+        # Peticion de revision de documento/paper ("encuentra los errores", etc.):
+        # NO es un objetivo unico para formalizar — es una revision sobre TODO
+        # el texto adjunto. Forzar _math_via_lean aqui hace que el LLM invente
+        # un unico teorema (a veces ajeno al pedido) y lo intente formalizar,
+        # en vez de listar los errores reales del documento completo.
+        _review_markers = (
+            "encuentra los errores", "encuentra errores", "busca los errores",
+            "busca errores", "errores que encuentres", "señala los errores",
+            "señala errores", "identifica los errores", "identifica errores",
+            "detecta los errores", "detecta errores", "que errores tiene",
+            "revisa el documento", "revisa el paper", "revisa el archivo",
+            "revisa este documento", "revisa este paper", "revisa este archivo",
+            "encuentra los fallos", "encuentra fallos", "encuentra problemas",
+            "find the errors", "find errors", "review this paper",
+            "review this document", "what errors",
+        )
+        if any(m in q_lower for m in _review_markers):
+            return await self._review_document_for_errors(input_text, context)
 
         # Detectar queries definitionales: "qué es X", "define X", "explícame X"
         # → Lean formaliza la DEFINICIÓN (no una prueba): #check, structure, class
@@ -1598,8 +1669,14 @@ class Nucleo:
                 self._neural_agent.update([transition])
                 self._live_learning_steps += 1
 
-                # Save weights periodically
-                if self._live_learning_steps % 10 == 0:
+                # Persistir a disco solo si se activa explicitamente
+                # (config.live_learning_autosave). Por defecto el aprendizaje
+                # online queda solo en memoria de la sesion, para no
+                # sobreescribir el checkpoint validado con drift acumulado.
+                if (
+                    self.config.live_learning_autosave
+                    and self._live_learning_steps % 10 == 0
+                ):
                     self._save_neural_weights()
             except Exception as e:
                 logger.warning(f"Live PPO update failed: {e}")
