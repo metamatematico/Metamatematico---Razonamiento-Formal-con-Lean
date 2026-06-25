@@ -32,4 +32,4 @@ python-dotenv>=1.0.0
 requests>=2.31.0
 pyyaml>=6.0
 rich>=13.0.0               # CLI interactivo (python -m nucleo chat)
-fpdf>=2.7.9
+fpdf2>=2.7.9            # paquete "fpdf" original solo llega a 1.7.2 en PyPI; fpdf2 es el fork activo (mismo import "fpdf")
