@@ -516,6 +516,20 @@ class Nucleo:
         # ── Caso A: usuario pide formalizacion sin adjuntar codigo ───────────
         # El pipeline Lean-primero aplica siempre: Lean verifica, LLM traduce.
         if "```lean" not in input_text:
+            # Defensa en profundidad: la rama RESPONSE filtra por
+            # _is_mathematical, pero ASSIST no lo hacia. Si el clasificador se
+            # equivoca (o la red devuelve ASSIST para todo), un saludo acababa
+            # formalizandose en Lean 4: una llamada al LLM y una ejecucion de
+            # Lean tiradas para devolver un sinsentido.
+            if not self._is_mathematical(input_text):
+                context = self._find_relevant_context(input_text, self._graph)
+                context["mode"] = self._mode.name
+                llm_response = await self._llm.generate(input_text, context=context)
+                return NucleoResponse(
+                    content=llm_response.content,
+                    action_type=ActionType.RESPONSE,
+                    confidence=0.8,
+                )
             return await self._math_via_lean(input_text)
 
         # ── Caso B: usuario envió código Lean → verificar, luego explicar ───
@@ -1784,7 +1798,7 @@ class Nucleo:
         self._neural_agent = agent
         if (
             agent is not None
-            and agent.has_network
+            and getattr(agent, "has_network", False)
             and self._solver_cascade is not None
             and self._graph is not None
         ):
@@ -2051,6 +2065,14 @@ class Nucleo:
                 elif nbr_id.startswith("strategy-") and nbr_id not in strategies:
                     strategies.append(nbr_id)
 
+        # Segundo salto: las estrategias dependen de tacticas, no de dominios,
+        # asi que se alcanzan a traves de la tactica en vez de inventar aristas
+        # dominio->estrategia que no estarian justificadas.
+        for tid in tactics:
+            for nbr_id in graph.neighbors(tid):
+                if nbr_id.startswith("strategy-") and nbr_id not in strategies:
+                    strategies.append(nbr_id)
+
         pillar = self._dominant_pillar(matched, graph)
 
         return {
@@ -2070,6 +2092,8 @@ class Nucleo:
         Tokenizes the query and compares against skill IDs and names.
         Returns skill IDs sorted by match relevance (most tokens matched first).
         """
+        import re as _re_kw
+
         # Tokenize query: lowercase, split on whitespace and punctuation
         query_lower = query.lower()
         query_tokens = set(
@@ -2093,6 +2117,22 @@ class Nucleo:
             )
 
             overlap = len(query_tokens & skill_tokens)
+
+            # Terminos declarados en la skill (ES + EN). Sin esto, los IDs y
+            # nombres en ingles hacen que ninguna consulta en español case, y
+            # todo acaba cayendo al mapa de palabras clave de get_viz_data().
+            # Se comparan como frase completa delimitada por limites de
+            # palabra, para no repetir el fallo de "prime" dentro de "primer".
+            for kw in (skill.metadata or {}).get("keywords", []) or []:
+                kw = kw.lower().strip()
+                if not kw:
+                    continue
+                if " " in kw:
+                    if _re_kw.search(rf"\b{_re_kw.escape(kw)}\b", query_lower):
+                        overlap += 2   # una frase acierta mas que un token
+                elif kw in query_tokens:
+                    overlap += 2
+
             if overlap > 0:
                 scored.append((skill_id, overlap))
 
@@ -2232,11 +2272,38 @@ class Nucleo:
                 "geometria":    ["euclidean-geometry", "differential-geometry"],
                 "geometry":     ["euclidean-geometry"],
                 "algebr":       ["group-theory", "ring-theory", "field-theory"],
+                # Teoria de grupos / homomorfismos
+                "homomorf":     ["group-theory", "ring-theory"],
+                "homomorph":    ["group-theory", "ring-theory"],
+                "isomorf":      ["group-theory", "cat-basics"],
+                "isomorph":     ["group-theory", "cat-basics"],
+                "cociente":     ["group-theory"],
+                "quotient":     ["group-theory"],
+                "nucleo":       ["group-theory"],
+                "núcleo":       ["group-theory"],
+                "kernel":       ["group-theory"],
+                # Aritmetica / factorizacion
+                "aritmetica":   ["elementary-number-theory"],
+                "aritmética":   ["elementary-number-theory"],
+                "arithmetic":   ["elementary-number-theory"],
+                "factoriz":     ["elementary-number-theory", "ring-theory"],
+                "divisib":      ["elementary-number-theory"],
             }
+            # Claves que son prefijos deliberados (deben casar "topolog" dentro
+            # de "topologia"/"topological"). El resto se compara como palabra
+            # completa: con subcadena cruda, "prime" casaba dentro de "primer"
+            # y "el primer teorema de homomorfismo" acababa en teoria de numeros.
+            _VIZ_STEMS = {
+                "homolog", "topolog", "algebr", "demostr", "homotop",
+                "categor", "homomorf", "homomorph", "isomorf", "isomorph",
+                "factoriz", "divisib", "geometr",
+            }
+            import re as _re
             q_lower = query.lower()
             m_set: set[str] = set()
             for kw, sids in _VIZ_KW.items():
-                if kw in q_lower:
+                patron = rf"\b{_re.escape(kw)}" if kw in _VIZ_STEMS else rf"\b{_re.escape(kw)}\b"
+                if _re.search(patron, q_lower):
                     m_set.update(s for s in sids if graph.get_skill(s))
             if not m_set:
                 m_set = {s for s in ["zfc-axioms", "fol-deduction", "strategy-contradiction", "proof-theory"]

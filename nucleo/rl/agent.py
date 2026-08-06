@@ -218,6 +218,8 @@ class NucleoAgent(BaseAgent):
         self._network = None
         self._optimizer = None
         self._procedural_memory = None  # Set externally for memory-guided decisions
+        # True solo si load() restauro pesos entrenados desde disco
+        self.weights_pretrained = False
 
         if use_neural:
             try:
@@ -554,5 +556,9 @@ class NucleoAgent(BaseAgent):
             agent._network.load_state_dict(
                 torch.load(pt_path, weights_only=True)
             )
+            # Marca que la red viene entrenada desde disco (no init aleatorio).
+            # CR_tac lo usa para permitir routing neuronal sin esperar a que
+            # el buffer de esta sesion acumule 50 transiciones.
+            agent.weights_pretrained = True
 
         return agent

@@ -227,6 +227,8 @@ PALETTE = {
     "Optimización":  "#bcaaa4",
     "Tácticas Lean": "#f48fb1",
     "Estrategias":   "#fff59d",
+    # Sin entrada propia caia en el azul por defecto, indistinguible de Álgebra
+    "T. Conjuntos":  "#9fa8da",
 }
 
 BG = "#0d1117"
@@ -254,6 +256,7 @@ _LIVE_CMAP = {
     "category-theory": "Categorías", "computation": "Computación",
     "optimization": "Optimización", "lean-tactics": "Tácticas Lean",
     "proof-strategies": "Estrategias", "foundations": "Fundamentos",
+    "set-theory": "T. Conjuntos",
     "SET": "Fundamentos", "CAT": "Categorías",
     "LOG": "Lógica", "TYPE": "Fundamentos",
 }
@@ -579,14 +582,17 @@ def fig_tsne(method="tsne", query=None):
     fig, ax = plt.subplots(figsize=(11, 7), facecolor=BG)
     ax.set_facecolor(BG)
 
-    markers = {0: "D", 1: "o", 2: "^"}
+    # Nivel 3 = sub-ramas. Antes el diccionario llegaba solo a 2 y cualquier
+    # skill de nivel 3 reventaba la vista entera con "KeyError: 3".
+    markers = {0: "D", 1: "o", 2: "^", 3: "s"}
+    _MARK_DEF = "o"
 
     # Dibuja primero los nodos no relevantes (fondo)
     for i, (sid, name, level, cat, color) in enumerate(skill_list):
         in_query = sid in (matched_set | dep_set | tactic_set)
         if query and not in_query:
             ax.scatter(proj[i, 0], proj[i, 1],
-                       c=[color], s=30, marker=markers[level],
+                       c=[color], s=30, marker=markers.get(level, _MARK_DEF),
                        edgecolors="#0d1117", linewidths=0.3, alpha=0.18, zorder=3)
 
     # Luego los skills relevantes (encima)
@@ -609,7 +615,7 @@ def fig_tsne(method="tsne", query=None):
             clr, sz, ec, lw, zord = color, 80 if level == 0 else 55, "#0d1117", 0.4, 5
 
         ax.scatter(proj[i, 0], proj[i, 1],
-                   c=[clr], s=sz, marker=markers[level],
+                   c=[clr], s=sz, marker=markers.get(level, _MARK_DEF),
                    edgecolors=ec, linewidths=lw, alpha=0.95, zorder=zord)
 
         # Etiquetas
@@ -1338,7 +1344,9 @@ def fig_proof_trace(query: str):
         buckets[level_of[n]].append(n)
 
     pos = {}
-    y_of = {0: 4.0, 1: 2.0, 2: 0.0}
+    # Nivel 3 = sub-ramas; continua la escalera 4/2/0/-2 en vez de caer al
+    # -6.0 que daba el fallback generico y separaba la fila del resto.
+    y_of = {0: 4.0, 1: 2.0, 2: 0.0, 3: -2.0}
     for lvl, nodes in buckets.items():
         for i, nd in enumerate(nodes):
             x = (i - (len(nodes) - 1) / 2) * 2.2

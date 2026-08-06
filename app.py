@@ -10,6 +10,7 @@ import re
 import time
 import sys
 import os
+import threading
 from datetime import datetime
 
 # Forzar UTF-8 globalmente — necesario en Streamlit Cloud (Linux, locale ASCII).
@@ -49,6 +50,20 @@ def _fix_logging_utf8() -> None:
         _logging.root.addHandler(_h)
 
 _fix_logging_utf8()
+
+# Nivel de log: sin esto el logger raiz se queda en WARNING y los logger.info
+# del nucleo (warmup, carga de pesos, decisiones de los CRs) nunca se escriben,
+# dejando el fichero de log vacio. Configurable con NLE_LOG_LEVEL.
+_logging.root.setLevel(
+    getattr(_logging, os.environ.get("NLE_LOG_LEVEL", "INFO").upper(), _logging.INFO)
+)
+# Las librerias de red son ruidosas en DEBUG y tapan la traza del nucleo.
+for _noisy in ("httpcore", "urllib3", "anthropic", "watchdog", "PIL",
+               "fontTools", "fpdf", "matplotlib", "asyncio", "streamlit"):
+    _logging.getLogger(_noisy).setLevel(_logging.WARNING)
+# httpx se queda en INFO a proposito: su linea por peticion es la unica señal
+# de que el LLM se llamo de verdad, y silenciarla deja la traza ciega.
+_logging.getLogger("httpx").setLevel(_logging.INFO)
 
 # Asegurar que el paquete nucleo sea importable desde el directorio del proyecto
 _proj_dir = os.path.dirname(os.path.abspath(__file__))
@@ -160,21 +175,36 @@ def _init_nucleo():
         if error_holder:
             return None, error_holder[0]
 
-        # Pre-calentar Lean en background: la primera carga de Mathlib
-        # tarda ~12 min en Windows (lee 5.3 GB de .olean del disco E:).
-        # Usamos subprocess directamente SIN timeout de LeanClient para que
-        # el proceso pueda completarse y dejar los ficheros en caché del SO.
-        # Tras el warmup, las queries normales (360 s) van rápido desde caché.
+        # Pre-calentar Lean en background. Se usa subprocess directamente SIN
+        # el timeout de LeanClient, para que el proceso pueda completarse y
+        # dejar los .olean en la caché del SO.
+        #
+        # Calienta EXACTAMENTE los modulos que LeanClient._SAFE_HEADER inyecta
+        # en cada consulta, en vez de `import Mathlib.Tactic`. Ese agregado
+        # cargaba muchisimo mas de lo necesario y ademas no garantizaba cubrir
+        # lo que las consultas piden de verdad (Data.Real.Basic, etc.): se
+        # pagaban minutos calentando modulos que luego nadie usaba.
         if getattr(n, "_lean", None) is not None:
             _lean_exe   = n._lean.lean_path
             _lean_cwd   = str(n._lean.project_path)
+            # Mismo header que se inyecta en cada verificacion: si cambia alli,
+            # el warmup lo sigue automaticamente y no se desalinean.
+            _warm_header = n._lean._SAFE_HEADER
+
+            # La caché del SO se pierde al reiniciar, asi que un centinela viejo
+            # miente. Se borra al arrancar y solo lo reescribe el warmup al
+            # terminar: existe .lean_warm  <=>  el warmup completo EN ESTE proceso.
+            try:
+                os.remove(os.path.join(_lean_cwd, ".lean_warm"))
+            except OSError:
+                pass
 
             def _lean_warmup():
                 import subprocess, time, pathlib
                 warmup_file = pathlib.Path(_lean_cwd) / "_nle_warmup.lean"
                 warmup_file.write_text(
-                    "import Mathlib.Tactic\n"
-                    "theorem _nle_warmup : (1 : ℕ) + 1 = 2 := by norm_num\n",
+                    _warm_header
+                    + "\ntheorem _nle_warmup : (1 : ℕ) + 1 = 2 := by norm_num\n",
                     encoding="utf-8",
                 )
                 t0 = time.perf_counter()
@@ -226,6 +256,8 @@ st.set_page_config(
 PROVIDERS = {
     "Anthropic": {
         "models": [
+            "claude-sonnet-5",
+            "claude-opus-5",
             "claude-haiku-4-5-20251001",
             "claude-sonnet-4-6",
         ],
@@ -394,7 +426,9 @@ def call_anthropic(prompt: str, model: str, api_key: str, max_tokens: int) -> di
             messages=[{"role": "user", "content": prompt}],
         )
         return {
-            "content": r.content[0].text,
+            # Con pensamiento adaptativo el primer bloque es un ThinkingBlock
+            # (sin .text); hay que quedarse con el bloque de tipo "text".
+            "content": next((b.text for b in r.content if b.type == "text"), ""),
             "model": r.model,
             "in_tok": r.usage.input_tokens,
             "out_tok": r.usage.output_tokens,
@@ -941,16 +975,26 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
                     _env_key = st.secrets[_sname]
                 except Exception:
                     _env_key = os.environ.get(_sname, "")
+            # El widget necesita `key=` estable: sin el, cualquier st.rerun()
+            # (por ejemplo al adjuntar un PDF) lo redibuja con value=_env_key y
+            # BORRA la clave que el usuario acababa de pegar -> modo demo.
+            # Con key=, Streamlit la conserva en session_state entre reruns.
+            _key_widget = f"_apikey_{provider}"
+            if _key_widget not in st.session_state:
+                st.session_state[_key_widget] = _env_key
             api_key = st.text_input(
                 cfg["key_label"],
-                value=_env_key,
                 type="password",
+                key=_key_widget,
                 placeholder=cfg["key_placeholder"],
                 help=cfg.get("key_help", ""),
             )
 
         model = st.selectbox("Modelo", cfg["models"])
-        max_tokens = st.slider("Tokens máx.", 256, 4096, 1024, 128)
+        # Los modelos actuales piensan por defecto y `max_tokens` es el tope
+        # de razonamiento + respuesta juntos: con 4096 la respuesta se trunca.
+        # 16000 es el maximo prudente sin streaming (evita timeouts HTTP).
+        max_tokens = st.slider("Tokens máx.", 256, 16000, 8192, 256)
 
         # Persist API config so other pages (Verificador, etc.) can reuse it
         st.session_state["_api_key"]    = api_key or ""
@@ -999,10 +1043,16 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
             # Verificar si hay un proceso lake corriendo (warmup activo)
             _warmup_running = any(t.name == "lean-warmup" for t in __import__("threading").enumerate())
             if _warmup_running:
+                # Cifras medidas, no estimadas: Mathlib son 1,58 GB en 7.753
+                # .olean. Con la cache del SO caliente el warmup baja a ~20 s;
+                # en frio (tras reiniciar el equipo) sube a varios minutos.
                 st.warning(
                     "**Lean 4 ⏳ cargando Mathlib…**\n\n"
-                    "Primera carga: ~12 min (lee 5.3 GB de .olean del disco).\n"
-                    "Las verificaciones funcionarán una vez completado.",
+                    "Lee 1,58 GB de `.olean` del disco. Con la caché del "
+                    "sistema caliente tarda ~20 s; en frío, tras reiniciar el "
+                    "equipo, varios minutos.\n\n"
+                    "Puedes preguntar cosas no matemáticas mientras tanto: "
+                    "solo las verificaciones necesitan Lean.",
                     icon="⏳",
                 )
             else:
@@ -1282,6 +1332,32 @@ los resultados se muestran aquí.
         nucleo = _get_nucleo()
         res = None
         elapsed = 0.0
+
+        # Si el warmup de Lean sigue en vuelo, la consulta y el warmup pelean
+        # por el mismo disco: en la practica el warmup tarda ~10 min y la
+        # consulta expira a los 360 s sin devolver nada. Mas vale avisar que
+        # quemar 7 minutos para acabar en TimeoutError.
+        # Solo estorba a las consultas que van a usar Lean: un saludo o una
+        # pregunta no matematica no toca el verificador, asi que bloquearla
+        # seria gratuito.
+        _warm_listo = os.path.exists(os.path.join(_proj_dir, ".lean_warm"))
+        _warm_curro = any(t.name == "lean-warmup" for t in threading.enumerate())
+        _usa_lean = False
+        if nucleo is not None and _warm_curro and not _warm_listo:
+            try:
+                _usa_lean = nucleo._is_mathematical(prompt) or "```lean" in prompt
+            except Exception:
+                _usa_lean = True   # ante la duda, proteger
+        if _usa_lean:
+            st.warning(
+                "**Lean está cargando Mathlib en este momento.** Si lanzas la "
+                "consulta ahora, ambas tareas compiten por el disco y la "
+                "verificación expira sin resultado.\n\n"
+                "Espera a que la barra lateral muestre **Lean 4 ✓ listo** y "
+                "vuelve a enviarla — con la caché caliente tarda ~15 s.",
+                icon="⏳",
+            )
+            st.stop()
 
         if nucleo is not None:
             try:

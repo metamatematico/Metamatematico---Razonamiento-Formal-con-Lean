@@ -1,4 +1,6 @@
 /.lake
+# Respaldo temporal del traslado de .lake al SSD (borrar tras confirmar en frio)
+/.lake_old
 
 # Python
 __pycache__/
@@ -43,10 +45,18 @@ NLE_v7_Paper_Mejorado_3.pdf
 # Lean temp files
 tmp*.lean
 
+# Secretos — NUNCA versionar (.streamlit/config.toml si va, secrets.toml no)
+.streamlit/secrets.toml
+*.key
+
+# Instalacion local: logs, temporales y caches redirigidos a E: (env_local.ps1)
+logs/
+tmp/
+cache/
+data/neural_agent.json.pt.drifted_backup_*
+
 # OS
 .DS_Store
 Thumbs.db
-.lean_warm
-_nle_warmup.lean
 .lean_warm
 _nle_warmup.lean

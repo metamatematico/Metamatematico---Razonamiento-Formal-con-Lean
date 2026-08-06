@@ -122,7 +122,7 @@ class LeanClient:
         self,
         project_path: Optional[Path | str] = None,
         lean_path: str = "lake",
-        timeout_ms: int = 120000,
+        timeout_ms: int = 360000,
     ):
         """
         Inicializar cliente Lean.
@@ -187,8 +187,16 @@ class LeanClient:
         # Números
         (["Nat.Prime", "prime", "Finset.sum"],
          "import Mathlib.Data.Nat.Prime.Basic"),
+        # Factorizacion en primos: aqui viven primeFactorsList y sus lemas
+        (["primeFactorsList", "factors", "factorization"],
+         "import Mathlib.Data.Nat.Factors"),
         (["Complex", "re ", "im ", "Complex.abs"],
          "import Mathlib.Analysis.SpecialFunctions.Complex.Circle"),
+        # Teorema fundamental del algebra: aqui vive Complex.exists_root, y
+        # tambien la instancia IsAlgClosed de C. Sin este import, al sustituir
+        # `import Mathlib` por el header estrecho el lema quedaba inaccesible.
+        (["exists_root", "IsRoot", "IsAlgClosed", "ℂ[X]", "raiz", "root"],
+         "import Mathlib.Analysis.Complex.Polynomial.Basic"),
         # Grupos / anillos abstractos
         (["Group", "Subgroup", "QuotientGroup"],
          "import Mathlib.GroupTheory.QuotientGroup.Basic"),
@@ -211,51 +219,123 @@ class LeanClient:
         # Tácticas renombradas
         ("ring_nf;",                       "ring_nf\n  "),
         ("nlinarith [sq_nonneg",           "nlinarith [sq_nonneg"),
+        # Factorizacion en primos: `Nat.factors` ya no existe en Mathlib
+        # (verificado en Mathlib/Data/Nat/Factors.lean de este proyecto).
+        # El orden importa: la sustitucion es textual y secuencial, asi que
+        # los nombres largos van antes que los cortos.
+        ("Nat.prime_of_mem_factors",       "Nat.prime_of_mem_primeFactorsList"),
+        ("Nat.prod_factors",               "Nat.prod_primeFactorsList"),
+        ("Nat.factors_unique",             "Nat.primeFactorsList_unique"),
+        ("Nat.factors",                    "Nat.primeFactorsList"),
+        # Notacion de proyeccion (`n.factors`). Va la ultima: para entonces
+        # los nombres cualificados ya son `primeFactorsList` y no reaparecen.
+        # Riesgo acotado: `.factorization` y `.primeFactorsList` no contienen
+        # `.factors`, asi que no se corrompen.
+        (".factors",                       ".primeFactorsList"),
     ]
+
+    def _mathlib_src_root(self) -> Optional[Path]:
+        """Raiz de las fuentes de Mathlib, o None si no esta disponible."""
+        if not hasattr(self, "_ml_root_cache"):
+            root = self.project_path / ".lake" / "packages" / "mathlib"
+            self._ml_root_cache = root if (root / "Mathlib").is_dir() else None
+        return self._ml_root_cache
+
+    def _is_unknown_mathlib_import(self, line: str) -> bool:
+        """True si la linea importa un modulo `Mathlib.*` que no existe.
+
+        Se valida contra el arbol de fuentes: `Mathlib.Data.Nat.Factors`
+        corresponde a `Mathlib/Data/Nat/Factors.lean`. Solo se juzgan los
+        imports de Mathlib; `Init`, `Std`, `Batteries` y demas se respetan.
+        Si Mathlib no esta instalado (despliegue en la nube) no se descarta
+        nada, para no romper entornos donde no se puede comprobar.
+        """
+        s = line.strip()
+        if not s.startswith("import Mathlib"):
+            return False
+        root = self._mathlib_src_root()
+        if root is None:
+            return False
+        module = s[len("import "):].strip()
+        if not module or module == "Mathlib":
+            return False
+        rel = Path(*module.split("."))
+        return not (root / rel.with_suffix(".lean")).is_file()
 
     def _normalize_code(self, code: str) -> str:
         """
         Normaliza el código Lean antes de verificarlo:
-        1. Si tiene `import Mathlib` completo → no toca nada.
+        1. Sustituye `import Mathlib` completo por imports estrechos.
         2. Añade el header mínimo seguro (ring, linarith, etc.).
         3. Detecta el tema del código y añade imports específicos.
         4. Reemplaza nombres de lemas obsoletos por los actuales.
         """
         lines = code.lstrip().splitlines()
 
-        # Si ya importa Mathlib completo, solo aplicar correcciones de nombres
-        has_full_mathlib = any(l.strip() == "import Mathlib" for l in lines)
+        # `import Mathlib` a secas carga los ~1.58 GB de .olean: 742 s medidos,
+        # muy por encima del timeout de 360 s, asi que SIEMPRE expiraba. Se
+        # descarta esa linea y se deja que el header estrecho la sustituya
+        # (~11 s). Si la prueba necesitaba un modulo fuera del header, Lean
+        # dara "unknown identifier" en segundos — un error diagnosticable por
+        # la cascada de solvers es mejor que un timeout seguro sin resultado.
+        if any(l.strip() == "import Mathlib" for l in lines):
+            lines = [l for l in lines if l.strip() != "import Mathlib"]
+            code = "\n".join(lines)
+
+        # Descartar imports de Mathlib que no existen. El LLM los inventa con
+        # frecuencia (p.ej. `Mathlib.GroupTheory.QuotientGroup`, cuando el
+        # modulo real es `...QuotientGroup.Basic`) y un modulo inexistente
+        # aborta la compilacion entera antes de mirar el teorema. Al quitarlo,
+        # los imports tematicos de abajo suelen aportar el modulo correcto.
+        dropped = [l for l in lines if self._is_unknown_mathlib_import(l)]
+        if dropped:
+            for l in dropped:
+                logger.debug(f"Lean: descartado import inexistente '{l.strip()}'")
+            lines = [l for l in lines if l not in dropped]
+            code = "\n".join(lines)
 
         code_lower = code.lower()
 
-        if not has_full_mathlib:
-            existing = {l.strip() for l in lines if l.strip().startswith("import")}
+        existing = {l.strip() for l in lines if l.strip().startswith("import")}
 
-            # Header base
-            base_imports = [
-                ln for ln in self._SAFE_HEADER.splitlines()
-                if ln.startswith("import") and ln.strip() not in existing
-            ]
+        # Header base
+        base_imports = [
+            ln for ln in self._SAFE_HEADER.splitlines()
+            if ln.startswith("import") and ln.strip() not in existing
+        ]
 
-            # Imports temáticos según contenido
-            topic_imports = []
-            for keywords, imp in self._TOPIC_IMPORTS:
-                if any(kw in code for kw in keywords):
-                    if imp.strip() not in existing:
-                        topic_imports.append(imp)
+        # Imports temáticos según contenido
+        topic_imports = []
+        for keywords, imp in self._TOPIC_IMPORTS:
+            if any(kw in code for kw in keywords):
+                if imp.strip() not in existing:
+                    topic_imports.append(imp)
 
-            all_new = base_imports + topic_imports
-            if all_new:
-                header = "\n".join(all_new) + "\nopen Real\n"
-                insert_at = 0
-                for i, line in enumerate(lines):
-                    s = line.strip()
-                    if s.startswith("import") or s.startswith("open") or s == "":
-                        insert_at = i + 1
-                    else:
-                        break
-                lines = lines[:insert_at] + header.splitlines() + lines[insert_at:]
-                code = "\n".join(lines)
+        # `open` condicionales. `open Real` va siempre (historico); `open List`
+        # solo si el codigo usa permutaciones: la notacion `l ~ l'` es *scoped*
+        # al espacio List, asi que sin abrirlo Lean falla con "type expected".
+        # No se abre siempre para no introducir ambigüedades de nombres
+        # (length, prod, sum...) en pruebas que no lo necesitan.
+        extra_opens = ["open Real"]
+        if " ~ " in code or "Perm" in code:
+            extra_opens.append("open List")
+
+        all_new = base_imports + topic_imports
+        if all_new:
+            header = "\n".join(all_new) + "\n" + "\n".join(extra_opens) + "\n"
+            # Los `import` solo son validos al principio del fichero: hay que
+            # detenerse en la primera linea que NO sea vacia ni un import. Si
+            # se avanzara tambien sobre los `open`, el header caeria detras de
+            # ellos y Lean fallaria con "invalid 'import' command".
+            insert_at = 0
+            for i, line in enumerate(lines):
+                s = line.strip()
+                if s.startswith("import") or s == "":
+                    insert_at = i + 1
+                else:
+                    break
+            lines = lines[:insert_at] + header.splitlines() + lines[insert_at:]
+            code = "\n".join(lines)
 
         # Reemplazar lemas obsoletos
         for old, new in self._DEPRECATED_LEMMAS:

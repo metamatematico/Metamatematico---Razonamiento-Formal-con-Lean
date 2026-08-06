@@ -271,14 +271,21 @@ Responde en el mismo idioma que el usuario."""
 
             if provider == LLMProvider.ANTHROPIC:
                 messages = [m.to_dict() for m in self._conversation]
+                # Sin `temperature`: los modelos actuales (Sonnet 5, Opus 5,
+                # Opus 4.7/4.8) rechazan los parametros de muestreo con un 400.
+                # El comportamiento se guia por el prompt, no por temperature.
                 resp = client.messages.create(
                     model=model_name,
                     max_tokens=self.config.max_tokens,
-                    temperature=self.config.temperature,
                     system=sys_prompt,
                     messages=messages,
                 )
-                content = resp.content[0].text if resp.content else ""
+                # resp.content mezcla bloques: con pensamiento adaptativo (activo
+                # por defecto en Sonnet 5 / Opus 5) el primero es un ThinkingBlock
+                # sin atributo .text. Hay que buscar el bloque de tipo "text".
+                content = next(
+                    (b.text for b in resp.content if b.type == "text"), ""
+                )
                 in_tok  = resp.usage.input_tokens
                 out_tok = resp.usage.output_tokens
                 model_name = resp.model

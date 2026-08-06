@@ -153,7 +153,10 @@ def generate_pdf(
     pdf.set_font(font_name, "", 10)
     pdf.set_text_color(30, 30, 30)
     q_clean = _safe_text(query[:800])
-    pdf.multi_cell(0, 5.5, q_clean)
+    # new_x="LMARGIN": por defecto multi_cell deja el cursor en el borde
+    # derecho de la celda; con w=0 eso es el margen derecho, y la siguiente
+    # llamada calcularia un ancho ~0 ("Not enough horizontal space").
+    pdf.multi_cell(0, 5.5, q_clean, new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
 
     # ── Respuesta ─────────────────────────────────────────────────────────────
@@ -169,7 +172,7 @@ def generate_pdf(
         para = para.strip()
         if not para:
             continue
-        pdf.multi_cell(0, 5.5, para)
+        pdf.multi_cell(0, 5.5, para, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
 
     # ── Código Lean ───────────────────────────────────────────────────────────
@@ -189,7 +192,10 @@ def generate_pdf(
         lean_clean = lean_clean.encode('latin-1', errors='replace').decode('latin-1')
 
         for line in lean_clean.splitlines():
-            pdf.multi_cell(0, 5, line, fill=True, border=0)
+            # Sin new_x="LMARGIN" el cursor se queda en el margen derecho y la
+            # segunda linea de codigo aborta la exportacion entera.
+            pdf.multi_cell(0, 5, line or " ", fill=True, border=0,
+                           new_x="LMARGIN", new_y="NEXT")
 
     # ── Pie ───────────────────────────────────────────────────────────────────
     pdf.ln(8)

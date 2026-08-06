@@ -57,7 +57,10 @@ def _build_graph_with_foundations() -> SkillCategory:
     # F_Type foundations
     g.add_skill(Skill(id="cic", name="CIC", pillar=PillarType.TYPE, level=0))
     g.add_skill(Skill(id="lean-kernel", name="Lean Kernel", pillar=PillarType.TYPE, level=0))
-    g.add_skill(Skill(id="type-theory", name="Type Theory", pillar=PillarType.TYPE, level=0))
+    # Ojo: no añadir un "type-theory" aqui. No existe en
+    # core._load_foundational_skills(), y tenerlo en la fixture fue lo que
+    # oculto durante meses que las 9 tacticas no cargaban en produccion:
+    # dependian de ese nombre inventado, verde en tests y skipped en real.
 
     # Connectivity morphisms
     g.add_morphism("zfc-axioms", "cat-basics", MorphismType.ANALOGY)
@@ -80,8 +83,14 @@ class TestSkillDefinitions:
     """Verify skill definition integrity."""
 
     def test_total_domain_skills(self):
-        """Total domain skills count is 66 (51 math + 9 lean tactics + 6 proof strategies)."""
-        assert get_domain_skill_count() == 66
+        """El contador refleja el catalogo, y el catalogo no encoge.
+
+        Se deriva de ALL_DOMAIN_SKILLS en vez de fijar un numero magico: el
+        catalogo crece al añadir sub-ramas y el test no debe romperse por eso.
+        La cota inferior sigue protegiendo contra perdidas accidentales.
+        """
+        assert get_domain_skill_count() == len(ALL_DOMAIN_SKILLS)
+        assert get_domain_skill_count() >= 150
 
     def test_all_skills_have_required_fields(self):
         """Every skill has id, name, description, pillar, level."""
@@ -90,7 +99,8 @@ class TestSkillDefinitions:
             assert s.name, f"Skill {s.id} missing name"
             assert s.description, f"Skill {s.id} missing description"
             assert s.pillar is not None, f"Skill {s.id} missing pillar"
-            assert s.level in (1, 2), f"Skill {s.id} has invalid level {s.level}"
+            # Nivel 3 = sub-rama (granularidad fina dentro de un campo)
+            assert s.level in (1, 2, 3), f"Skill {s.id} has invalid level {s.level}"
 
     def test_unique_ids(self):
         """All skill IDs are unique."""
@@ -156,10 +166,10 @@ class TestLoadMathDomains:
     """Verify loading domain skills into a SkillCategory."""
 
     def test_load_with_foundations(self):
-        """All 66 skills load when foundations are present."""
+        """Todas las skills del catalogo cargan cuando estan las fundaciones."""
         g = _build_graph_with_foundations()
         result = load_math_domains(g)
-        assert result["added"] == 66
+        assert result["added"] == len(ALL_DOMAIN_SKILLS)
         assert result["skipped"] == 0
 
     def test_load_adds_morphisms(self):
@@ -182,16 +192,16 @@ class TestLoadMathDomains:
         g = _build_graph_with_foundations()
         r1 = load_math_domains(g)
         r2 = load_math_domains(g)
-        assert r1["added"] == 66
+        assert r1["added"] == len(ALL_DOMAIN_SKILLS)
         assert r2["added"] == 0
-        assert r2["skipped"] == 66
+        assert r2["skipped"] == len(ALL_DOMAIN_SKILLS)
 
     def test_load_empty_graph_skips_most(self):
         """Loading on empty graph skips skills with missing deps."""
         g = SkillCategory(name="Empty")
         result = load_math_domains(g)
         assert result["added"] == 0
-        assert result["skipped"] == 66
+        assert result["skipped"] == len(ALL_DOMAIN_SKILLS)
 
     def test_load_partial_graph(self):
         """Loading with partial foundations adds available skills."""
@@ -200,7 +210,7 @@ class TestLoadMathDomains:
         result = load_math_domains(g)
         # Should add at least group-theory, ring-theory, etc. that only need zfc-axioms
         assert result["added"] > 0
-        assert result["added"] < 66
+        assert result["added"] < len(ALL_DOMAIN_SKILLS)
 
     def test_skills_have_correct_levels(self):
         """Loaded skills maintain their level assignments."""
@@ -321,11 +331,12 @@ class TestGraphProperties:
         assert result["all_satisfied"] is True
 
     def test_total_skill_count(self):
-        """Graph has foundations + 51 domain skills."""
+        """El grafo queda con las fundaciones mas todo el catalogo de dominios."""
         g = _build_graph_with_foundations()
+        n_fundaciones = len(g.skill_ids)   # medido, no fijado a mano
         load_math_domains(g)
         stats = g.stats
-        assert stats["num_skills"] == 11 + 66  # 11 foundations + 66 domains
+        assert stats["num_skills"] == n_fundaciones + len(ALL_DOMAIN_SKILLS)
 
 
 # =============================================================================

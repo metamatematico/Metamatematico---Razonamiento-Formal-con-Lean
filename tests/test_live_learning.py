@@ -30,7 +30,10 @@ from nucleo.rl.mdp import Transition
 def graph_with_foundations():
     """Grafo con skills L0 necesarios para cargar dominios."""
     g = SkillCategory(name="TestLiveLearning")
-    for sid in ["zfc-axioms", "category-basics", "fol-deduction", "type-theory"]:
+    # IDs reales de core._load_foundational_skills(). Antes usaba
+    # "category-basics" y "type-theory", que no existen en produccion: la
+    # fixture pasaba y el cargador real descartaba 14 skills en silencio.
+    for sid in ["zfc-axioms", "cat-basics", "fol-deduction", "cic", "lean-kernel"]:
         g.add_skill(Skill(id=sid, name=sid, pillar=PillarType.SET, level=0))
     return g
 
@@ -56,9 +59,15 @@ class TestLeanTacticSkills:
         for s in LEAN_TACTICS_SKILLS:
             assert s.level == 1
 
-    def test_lean_tactics_depend_on_type_theory(self):
+    def test_lean_tactics_depend_on_type_foundations(self):
+        """Las tacticas cuelgan de fundaciones que existen de verdad.
+
+        El nombre anterior, "type-theory", no esta en
+        core._load_foundational_skills(): con el, las 9 tacticas se descartaban
+        en produccion aunque el test pasara.
+        """
         for s in LEAN_TACTICS_SKILLS:
-            assert "type-theory" in s.dependencies
+            assert "cic" in s.dependencies or "lean-kernel" in s.dependencies
 
     def test_lean_tactics_category(self):
         for s in LEAN_TACTICS_SKILLS:

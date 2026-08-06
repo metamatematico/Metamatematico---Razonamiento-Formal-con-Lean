@@ -43,7 +43,7 @@ graph:
 
 # LLM (Claude)
 llm:
-  model: "claude-sonnet-4-20250514"
+  model: "claude-sonnet-5"
   max_tokens: 4096
   temperature: 0.7
   embedding_dim: 1536

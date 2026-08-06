@@ -78,6 +78,25 @@ import Mathlib.CategoryTheory.Closed.Cartesian
 
 Lean confirma que estos tipos existen en Mathlib. El LLM entonces explica *exactamente lo que Lean mostró* — sin margen para inventar tipos incorrectos.
 
+### Normalización del código antes de verificar
+
+Un LLM que escribe Lean falla casi siempre por los mismos tres motivos, y ninguno
+es matemático: inventa rutas de import, usa lemas renombrados en versiones
+recientes de Mathlib, y recurre a `import Mathlib` completo. `LeanClient._normalize_code()`
+corrige los tres antes de invocar al verificador:
+
+| Problema | Qué hace el sistema |
+|---|---|
+| `import Mathlib` completo | Se descarta y se sustituye por un header estrecho. Medido en este proyecto: el import completo tarda **742 s** frente a los 360 s de timeout, así que **siempre** expiraba; el header estrecho compila en ~11 s. |
+| Imports inexistentes | Cada `import Mathlib.*` se valida contra el árbol de fuentes real (`Mathlib/Foo/Bar.lean`) y se descarta si no existe. Ejemplos cazados: `Mathlib.GroupTheory.QuotientGroup` (lo real es `…QuotientGroup.Basic`) y `Mathlib.GroupTheory.Subgroup.Basic` (migrado a `Mathlib.Algebra.Group.Subgroup.Basic`). |
+| Lemas renombrados | Tabla `_DEPRECATED_LEMMAS`. Por ejemplo `Nat.factors` → `Nat.primeFactorsList`, con sus derivados `prime_of_mem_*`, `prod_*` y `*_unique`. |
+| Imports temáticos | Según palabras clave del código se añaden módulos concretos (producto interno, topología, polinomios complejos para el teorema fundamental del álgebra…). |
+| `open` condicional | La notación `l ~ l'` de permutación es *scoped* al espacio `List`; se abre solo cuando el código la usa, para no introducir ambigüedades en el resto. |
+
+El efecto medible: pruebas que antes expiraban a los 6 minutos sin devolver nada
+ahora compilan con `exit 0` en ~11-19 s, o fallan con un error concreto y
+diagnosticable en segundos — que es lo que la cascada de solvers puede atacar.
+
 ### SolverCascade con ranking GNN + táctica por área
 
 Cuando la formalización contiene `sorry`, el orden de la cascada se determina en **tres etapas sucesivas**:
@@ -139,17 +158,22 @@ L2: 14 join-envoltorios    ← uno por área matemática (algebra, topology, …
        ↑
 L1:  4 PillarAgents        ← ZFC · CatThy · Logic · TypeThy
        ↑
-L0: 76 skills atómicos     ← los objetos del grafo (no agentes)
+L0: 172 skills atómicos    ← los objetos del grafo (no agentes)
 ```
 
 ### La jerarquía de 4 niveles
 
 ```
-L0: 76 skills atómicos (fundamentos + dominios + estrategias)
-    ┌──────────────────────────────────────────────────────┐
-    │  ZFC (8)  │  CatThy (8)  │  Logic (7)  │  TypeThy (8) │  (10 L0)
-    │  + 66 skills de dominio distribuidos en 14 categorías  │
-    └──────────────────────────────────────────────────────┘
+L0: 172 skills atómicos (fundamentos + dominios + sub-ramas + estrategias)
+    ┌────────────────────────────────────────────────────────────┐
+    │  ZFC (8)  │  CatThy (8)  │  Logic (7)  │  TypeThy (8)       │  (10 L0)
+    │  + 162 skills de dominio en 15 categorías, en tres niveles: │
+    │      L1 campo (group-theory, real-analysis…)                │
+    │      L2 sub-área (homological-algebra, measure-theory…)     │
+    │      L3 sub-rama (group-homomorphisms, prime-factorization, │
+    │                   galois-theory, residue-theorem…)          │
+    │  + 9 tácticas Lean y 6 estrategias de prueba                │
+    └────────────────────────────────────────────────────────────┘
          │  co-conos verificados por is_join()
          ▼
 L1: 4 PillarAgents  — join-envoltorios de sus skills L0
@@ -190,6 +214,27 @@ L3: Orchestrator  — join-envoltorio de los 14 joins de área
 | **4** | Señal de pilar (L1→L2) | Lee morfismos L1→L2, detecta keywords del pilar dominante |
 | **5** | `domain_default_tactic` | Tabla estática por área: algebra→`ring`, number-theory→`norm_num`, etc. |
 
+Ese mapeo área→táctica **también existe como morfismos del grafo**, no solo como
+tabla en Python: `load_math_domains()` genera 165 morfismos de tipo `TRANSLATION`
+que conectan cada skill de dominio con la táctica Lean de su área. El tipo es
+TRANSLATION y no DEPENDENCY porque cruza pilares — las tácticas viven en TYPE y
+los dominios en SET/CAT/LOG (Definición 4.2).
+
+Gracias a eso, `_find_relevant_context()` puede recorrer el grafo desde la skill
+que casa con la consulta hasta su táctica, e inyectar ambas en el prompt del LLM:
+
+```
+Contexto actual:
+- relevant_skills: group-homomorphisms
+- prerequisites: group-theory
+- suggested_tactics: tactic-ring
+- pillar: SET
+```
+
+Las skills declaran además términos en español e inglés (`keywords`), sin los
+cuales ninguna consulta en castellano casaba con nombres de skill escritos en
+inglés y el bloque de contexto salía vacío.
+
 ### MES Bridge — extensión del grafo y skills emergentes
 
 ```
@@ -228,7 +273,7 @@ Selección de skills relevantes para un tipo de problema. Funtor de una categor�
 **join[P] — cota superior mínima verificada**
 El join del patrón en la categoría thin G es el skill emergente que los sintetiza. `is_join()` verifica explícitamente la propiedad universal: todo objeto que recibe morfismos de todos los componentes del patrón se factoriza de manera única a través de join[P].
 
-> **Nota**: el reclamo matemático es que join[P] es la cota superior mínima en la *subcategoría thin finita* G_n (~76-100 skills). No se reclama colímite en el sentido de `CategoryTheory.Limits.IsColimit` de Mathlib — esa conexión formal es trabajo futuro.
+> **Nota**: el reclamo matemático es que join[P] es la cota superior mínima en la *subcategoría thin finita* G_n (~170-200 skills). No se reclama colímite en el sentido de `CategoryTheory.Limits.IsColimit` de Mathlib — esa conexión formal es trabajo futuro.
 
 **Extensión del grafo K'**
 Cuando el sistema añade join[P] con sus co-conos, el grafo pasa de K a K'. El conocimiento crece sin destruir la estructura anterior.
@@ -514,7 +559,7 @@ python -m pytest tests/ -o "addopts=" -v
 | `test_cli.py` | 10 | `python -m nucleo chat` REPL |
 | `test_multi_agent.py` | 35 | join-envoltorios, PillarAgent, MES Bridge, classify_query() |
 | `test_patterns.py` | 26 | Axiomas 8.1–8.4, Teoremas 8.5–8.7, is_join() |
-| `test_math_domains.py` | 32 | 76 skills en 14 categorías |
+| `test_math_domains.py` | 32 | 162 definiciones de dominio en 15 categorías |
 | `test_domain_tactic_pipeline.py` | 30 | classify_query ES+EN, domain_default_tactic, GoalAnalyzer.prioritize, try_fill_sorry_smart, skip_cascade, pipeline completo |
 | + 3 suites auxiliares | ~41 | Config, types, eval, graph base |
 
@@ -584,8 +629,8 @@ Abre en `http://localhost:8501` · Demo en Streamlit Cloud disponible.
 
 | Pestaña | Qué muestra |
 |---|---|
-| **Grafo de Skills** | 76 nodos. Skills activados: amarillo. Dependencias: morado. Tácticas: verde. |
-| **Embeddings** | t-SNE/PCA de los 76 skills. Estrellas naranjas = tus queries del chat. |
+| **Grafo de Skills** | 172 nodos y 553 morfismos. Skills activados: amarillo. Dependencias: morado. Tácticas: verde. |
+| **Embeddings** | t-SNE/PCA de los 172 skills (320 dims). Estrellas naranjas = tus queries del chat. |
 | **Extensión del Grafo** | Patrón P, join[P] verificado por `is_join()` y la estructura K' extendida. |
 | **Pipeline** | Diagrama de flujo del sistema. |
 | **Agentes** | Jerarquía de 19 join-envoltorios, métricas F1/F2, pesos cargados. |
@@ -655,7 +700,7 @@ Metamatematico/
 │   ├── graph/                     # Grafo categórico de skills
 │   │   ├── category.py            # SkillCategory: nodos, morfismos, reachable_from()
 │   │   ├── evolution.py           # Extensión del grafo, snapshots, functores de transición
-│   │   └── math_domains.py        # 76 skills en 14 categorías
+│   │   └── math_domains.py        # 162 skills L1-L3 en 15 categorías
 │   │
 │   ├── mes/                       # Memory Evolutive Systems
 │   │   ├── patterns.py            # Patrones, is_join(), propiedad universal verificada

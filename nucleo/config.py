@@ -81,8 +81,10 @@ class LeanConfig:
     # Ruta al ejecutable de Lean
     lean_path: str = "lake"
 
-    # Timeout para comandos (ms)
-    timeout_ms: int = 30000
+    # Timeout para comandos (ms).
+    # Mathlib vive en E: (USB): una verificacion trivial tarda 167-282 s,
+    # asi que el default debe ser holgado. Ver tambien LeanClient.__init__.
+    timeout_ms: int = 360000
 
     # Proyecto Lean
     project_path: Optional[str] = None
