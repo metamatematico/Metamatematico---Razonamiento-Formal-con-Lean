@@ -16,6 +16,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import tempfile
 import urllib.request
 from dataclasses import dataclass, field
@@ -77,7 +78,14 @@ class LeanResult:
 
     @property
     def error_messages(self) -> list[str]:
-        return [m.get("message", "") for m in self.messages if m.get("severity") == "error"]
+        # Lean emite el texto en "data"; "message" es de otros formatos. Leer
+        # solo "message" devolvia [''] siempre, lo que dejaba ciego todo el
+        # diagnostico de errores (incluidos los _LEAN_HINTS del nucleo).
+        return [
+            (m.get("data") or m.get("message") or "")
+            for m in self.messages
+            if m.get("severity") == "error"
+        ]
 
     def get_first_error(self) -> Optional[str]:
         errors = self.error_messages
@@ -181,9 +189,13 @@ class LeanClient:
          "import Mathlib.Analysis.Calculus.Deriv.Basic"),
         (["integral", "MeasureTheory", "∫"],
          "import Mathlib.MeasureTheory.Integral.IntervalIntegral"),
-        # Álgebra lineal
+        # Álgebra lineal. Determinant se movio a un subdirectorio: el modulo
+        # antiguo no existe, y al inyectarlo Lean abortaba con "object file
+        # ... does not exist" antes de mirar el teorema.
         (["LinearMap", "Matrix", "det", "eigenvalue"],
-         "import Mathlib.LinearAlgebra.Matrix.Determinant"),
+         "import Mathlib.LinearAlgebra.Matrix.Determinant.Basic"),
+        (["trace", "Matrix.trace"],
+         "import Mathlib.LinearAlgebra.Matrix.Trace"),
         # Números
         (["Nat.Prime", "prime", "Finset.sum"],
          "import Mathlib.Data.Nat.Prime.Basic"),
@@ -262,6 +274,160 @@ class LeanClient:
         rel = Path(*module.split("."))
         return not (root / rel.with_suffix(".lean")).is_file()
 
+    # ── Reparacion de imports a partir del error de Lean ───────────────────
+    #
+    # Un LLM escribiendo Lean falla una y otra vez por lo mismo: usa un lema
+    # que existe pero no importa su modulo. En vez de mantener a mano una
+    # tabla de parches por area, se busca la declaracion en las fuentes de
+    # Mathlib y se deduce el modulo. Medido: 2,2 s de escaneo frente a los
+    # ~15 s que cuesta una ejecucion de Lean, asi que reintentar sale a cuenta.
+
+    # Lean nombra un identificador ausente de varias formas segun el contexto
+    # en que aparezca. Con solo "unknown identifier" se escapaban los casos en
+    # que el nombre se usa como tipo o como funcion.
+    _RE_UNKNOWN = [
+        re.compile(r"unknown (?:identifier|constant)\s+'([^']+)'", re.I),
+        re.compile(r"unknown (?:identifier|constant)\s+([A-Za-z_][\w.']*)", re.I),
+        re.compile(r"Function expected at\s*\n\s*([A-Za-z_][\w.']*)"),
+        re.compile(r"unknown namespace\s+'?([A-Za-z_][\w.']*)'?", re.I),
+    ]
+    _RE_DECL = re.compile(
+        r"^\s*(?:@\[[^\]]*\]\s*)?"
+        r"(?:private\s+|protected\s+|noncomputable\s+|nonrec\s+)*"
+        r"(?:theorem|lemma|def|abbrev|structure|class|instance|opaque)\s+"
+        r"([A-Za-z_][A-Za-z0-9_'!?.]*)"
+    )
+    _RE_NS = re.compile(r"^namespace\s+([A-Za-z_][A-Za-z0-9_'.]*)")
+
+    def _mathlib_lean_files(self) -> list[Path]:
+        """Lista cacheada de fuentes .lean de Mathlib."""
+        if getattr(self, "_ml_files_cache", None) is None:
+            root = self._mathlib_src_root()
+            self._ml_files_cache = (
+                sorted((root / "Mathlib").rglob("*.lean")) if root else []
+            )
+        return self._ml_files_cache
+
+    def find_modules_for_identifiers(
+        self, cualificados: list[str]
+    ) -> dict[str, str]:
+        """Localiza varios identificadores en UNA sola pasada por las fuentes.
+
+        Escanear Mathlib cuesta ~2 s; hacerlo una vez por identificador seria
+        lineal en el numero de errores. Se resuelven todos a la vez.
+
+        Se prefiere el candidato cuyo `namespace` coincide con el prefijo del
+        identificador (`Complex.exists_root` -> namespace `Complex`); si
+        ninguno coincide, se devuelve el primero hallado.
+        """
+        ficheros = self._mathlib_lean_files()
+        if not ficheros or not cualificados:
+            return {}
+
+        # base -> lista de identificadores cualificados que la piden
+        por_base: dict[str, list[str]] = {}
+        for q in cualificados:
+            por_base.setdefault(q.split(".")[-1], []).append(q)
+
+        # base -> [(namespace, modulo)]
+        hallados: dict[str, list[tuple[str, str]]] = {b: [] for b in por_base}
+        raiz = self._mathlib_src_root()
+
+        for f in ficheros:
+            try:
+                texto = f.read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            bases_aqui = [b for b in por_base if b in texto]
+            if not bases_aqui:
+                continue                          # descarte rapido
+            pila: list[str] = []
+            for linea in texto.splitlines():
+                m_ns = self._RE_NS.match(linea)
+                if m_ns:
+                    pila.append(m_ns.group(1))
+                    continue
+                if linea.startswith("end "):
+                    if pila:
+                        pila.pop()
+                    continue
+                m = self._RE_DECL.match(linea)
+                if m and m.group(1) in bases_aqui:
+                    modulo = ".".join(
+                        f.with_suffix("").relative_to(raiz).parts
+                    )
+                    hallados[m.group(1)].append((".".join(pila), modulo))
+
+        resultado: dict[str, str] = {}
+        for base, quals in por_base.items():
+            candidatos = hallados.get(base) or []
+            if not candidatos:
+                continue
+            for q in quals:
+                *prefijo, _ = q.split(".")
+                ns_buscado = ".".join(prefijo)
+                elegido = None
+                if ns_buscado:
+                    elegido = next(
+                        (mod for ns, mod in candidatos if ns == ns_buscado), None
+                    )
+                resultado[q] = elegido or candidatos[0][1]
+        return resultado
+
+    def find_module_for_identifier(self, qualified: str) -> Optional[str]:
+        """Modulo de Mathlib que declara `qualified`, o None."""
+        return self.find_modules_for_identifiers([qualified]).get(qualified)
+
+    def repair_imports(self, code: str, errores: list[str]) -> Optional[str]:
+        """Añade los imports que faltan segun los errores de Lean.
+
+        Devuelve el codigo con los imports nuevos, o None si no hay nada que
+        reparar (ni identificadores desconocidos, ni modulo localizable).
+        """
+        desconocidos: list[str] = []
+        for err in errores:
+            for patron in self._RE_UNKNOWN:
+                for m in patron.finditer(err or ""):
+                    ident = m.group(1).strip(" '\"")
+                    # Los nombres muy cortos son casi siempre variables de los
+                    # propios mensajes de Lean ("where C is a constant"), y
+                    # arrastran imports irrelevantes que solo cuestan tiempo
+                    # de compilacion.
+                    if len(ident.split(".")[-1]) < 3:
+                        continue
+                    if ident and ident not in desconocidos:
+                        desconocidos.append(ident)
+        if not desconocidos:
+            return None
+
+        ya = {l.strip() for l in code.splitlines() if l.strip().startswith("import")}
+        nuevos: list[str] = []
+        # cota: no perseguir 40 errores en cascada, y una sola pasada por las
+        # fuentes para todos los candidatos
+        modulos = self.find_modules_for_identifiers(desconocidos[:8])
+        for ident in desconocidos[:8]:
+            modulo = modulos.get(ident)
+            if not modulo:
+                logger.debug(f"Lean: sin modulo para '{ident}'")
+                continue
+            linea = f"import {modulo}"
+            if linea not in ya and linea not in nuevos:
+                nuevos.append(linea)
+                logger.info(f"Lean: reparando '{ident}' con '{linea}'")
+
+        if not nuevos:
+            return None
+
+        lineas = code.splitlines()
+        insert_at = 0
+        for i, l in enumerate(lineas):
+            s = l.strip()
+            if s.startswith("import") or s == "":
+                insert_at = i + 1
+            else:
+                break
+        return "\n".join(lineas[:insert_at] + nuevos + lineas[insert_at:])
+
     def _normalize_code(self, code: str) -> str:
         """
         Normaliza el código Lean antes de verificarlo:
@@ -320,7 +486,15 @@ class LeanClient:
         if " ~ " in code or "Perm" in code:
             extra_opens.append("open List")
 
-        all_new = base_imports + topic_imports
+        # Los imports que inyecta el propio sistema pasan por el mismo filtro
+        # que los del LLM. Sin esto, un modulo renombrado en _TOPIC_IMPORTS
+        # (le paso a Matrix.Determinant) tumba la compilacion entera y el
+        # fallo es mucho mas dificil de atribuir, porque no lo escribio nadie
+        # a la vista.
+        all_new = [
+            ln for ln in (base_imports + topic_imports)
+            if not self._is_unknown_mathlib_import(ln)
+        ]
         if all_new:
             header = "\n".join(all_new) + "\n" + "\n".join(extra_opens) + "\n"
             # Los `import` solo son validos al principio del fichero: hay que

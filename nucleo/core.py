@@ -1263,6 +1263,30 @@ class Nucleo:
         # ── Paso 2: Lean verifier ─────────────────────────────────────────
         result = await self._lean.check_code(lean_code)
 
+        # ── Paso 2b: reparacion de imports y reintento ────────────────────
+        # El fallo mas comun de un LLM escribiendo Lean es usar un lema que
+        # existe pero cuyo modulo no importa. En vez de mantener parches por
+        # area, se busca la declaracion en las fuentes de Mathlib (~2 s) y se
+        # reintenta una vez. Solo se acepta el reintento si mejora: no se
+        # sustituye un resultado por otro peor.
+        if result.status == LeanResultStatus.ERROR:
+            _reparado = self._lean.repair_imports(
+                lean_code, result.error_messages
+            )
+            if _reparado:
+                _r2 = await self._lean.check_code(_reparado)
+                _mejora = (
+                    _r2.status in (LeanResultStatus.SUCCESS,
+                                   LeanResultStatus.SORRY)
+                    or len(_r2.error_messages) < len(result.error_messages)
+                )
+                if _mejora:
+                    logger.info(
+                        f"Lean: reparacion de imports efectiva "
+                        f"({result.status.name} -> {_r2.status.name})"
+                    )
+                    lean_code, result = _reparado, _r2
+
         if result.status == LeanResultStatus.NOT_AVAILABLE:
             # lake no instalado (despliegue en la nube) — no es un error de lógica
             verification_status = "sin_entorno"

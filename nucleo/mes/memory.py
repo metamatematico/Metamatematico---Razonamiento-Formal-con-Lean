@@ -564,6 +564,13 @@ class MESMemory:
                 "action_sequence": proc.action_sequence,
                 "success_rate": proc.success_rate,
                 "invocation_count": proc.invocation_count,
+                # Sin estos tres campos la memoria procedimental es inservible:
+                # get_best_for_query() filtra por query_text, asi que al
+                # perderse en el guardado ningun procedimiento volvia a casar
+                # nunca (medido: 0 de 1000 con query_text tras recargar).
+                "query_text": proc.query_text,
+                "tactic_used": proc.tactic_used,
+                "lean_goal": proc.lean_goal,
             }
 
         # Serialize E-concepts
@@ -654,6 +661,9 @@ class MESMemory:
                     action_sequence=pdata.get("action_sequence", []),
                     success_rate=pdata.get("success_rate", 0.0),
                     invocation_count=pdata.get("invocation_count", 0),
+                    query_text=pdata.get("query_text", ""),
+                    tactic_used=pdata.get("tactic_used", ""),
+                    lean_goal=pdata.get("lean_goal", ""),
                 )
                 self.procedural._procedures[pid] = proc
                 self.procedural._by_pattern[proc.pattern_id].append(pid)
