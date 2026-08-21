@@ -198,51 +198,99 @@ def _do_update() -> tuple[bool, str]:
     return True, f"{out1}\n\n{pip_out}".strip()
 
 
-@st.cache_resource(show_spinner="Iniciando Núcleo Lógico Evolutivo…")
-def _init_nucleo():
-    """Inicializa el Nucleo y devuelve (instancia_o_None, error_str).
-
-    Runs initialize() in a daemon thread with its own event loop so it
-    never conflicts with Streamlit's own asyncio loop (Python 3.14).
+@st.cache_resource(show_spinner=False)
+def _nucleo_holder() -> dict:
     """
-    import traceback, logging, threading, asyncio
-    try:
-        from nucleo.core import Nucleo
-        from nucleo.config import NucleoConfig
-        _cfg_yaml = os.path.join(_proj_dir, "nucleo_config.yaml")
-        _cfg = NucleoConfig.from_yaml(_cfg_yaml) if os.path.exists(_cfg_yaml) else NucleoConfig()
-        n = Nucleo(_cfg)
+    Estado del arranque del Nucleo, unico por proceso.
 
-        error_holder: list[str] = []
+    Es un dict mutable bajo cache_resource porque los globals del script se
+    recrean en cada rerun de Streamlit: solo lo cacheado sobrevive.
+    """
+    return {"nucleo": None, "error": "", "thread": None, "arrancado": False}
+
+
+# Espera del PRIMER render. El coste real no es initialize() —medido en 0,5 s—
+# sino los imports de torch y torch_geometric que dispara por dentro: 25 s
+# largos en frio. El limite anterior de 20 s se quedaba corto y, al estar
+# _init_nucleo bajo cache_resource, el (None, "Timeout") se cacheaba PARA
+# SIEMPRE: el Nucleo terminaba de arrancar a los 26 s y la app ya no lo
+# recogia nunca. Toda la sesion quedaba sin NLE.
+_ESPERA_PRIMER_RENDER = 45.0
+
+
+def _init_nucleo():
+    """
+    Devuelve (nucleo_o_None, error_str).
+
+    error_str vacio con nucleo None significa ARRANCANDO, no fallido: el hilo
+    sigue vivo y un rerun posterior recogera el resultado. Solo se considera
+    fallo si el hilo termino con excepcion.
+    """
+    import traceback, threading, asyncio
+
+    h = _nucleo_holder()
+    if h["nucleo"] is not None or h["error"]:
+        return h["nucleo"], h["error"]
+
+    if not h["arrancado"]:
+        try:
+            from nucleo.core import Nucleo
+            from nucleo.config import NucleoConfig
+            _cfg_yaml = os.path.join(_proj_dir, "nucleo_config.yaml")
+            _cfg = (NucleoConfig.from_yaml(_cfg_yaml)
+                    if os.path.exists(_cfg_yaml) else NucleoConfig())
+            n = Nucleo(_cfg)
+        except Exception:
+            h["error"] = traceback.format_exc()
+            log.warning("Nucleo no disponible:\n%s", h["error"])
+            return None, h["error"]
+
+        fallo: list[str] = []
 
         def _worker():
+            # Loop propio: no debe competir con el de Streamlit (Python 3.14).
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
                 loop.run_until_complete(n.initialize())
             except BaseException:
-                error_holder.append(traceback.format_exc())
+                fallo.append(traceback.format_exc())
             finally:
                 loop.close()
 
-        t = threading.Thread(target=_worker, daemon=True)
+        t = threading.Thread(target=_worker, daemon=True, name="nucleo-init")
         t.start()
-        t.join(timeout=20)
+        h.update({"arrancado": True, "thread": t,
+                  "_pendiente": n, "_fallo": fallo})
+        espera = _ESPERA_PRIMER_RENDER
+    else:
+        # Reruns siguientes: solo comprobar, sin bloquear la interfaz.
+        espera = 0.5
 
-        if t.is_alive():
-            return None, "Timeout: initialize() tardó más de 20 s"
-        if error_holder:
-            return None, error_holder[0]
+    t = h["thread"]
+    fallo = h["_fallo"]
+    n = h["_pendiente"]
+    t.join(timeout=espera)
 
-        # El precalentamiento de Lean ya NO se lanza desde aqui: vive en
-        # _arranca_warmup_lean(), que se dispara al renderizar la pagina para
-        # que Mathlib empiece a cargarse en cuanto se abre la app, sin esperar
-        # a que el usuario escriba nada.
-        return n, ""
-    except Exception:
-        err = traceback.format_exc()
-        log.warning("Nucleo no disponible:\n%s", err)
-        return None, err
+    if t.is_alive():
+        return None, ""            # arrancando; NO se cachea como fallo
+    if fallo:
+        h["error"] = fallo[0]
+        log.warning("Nucleo fallo al inicializar:\n%s", h["error"])
+        return None, h["error"]
+
+    h["nucleo"] = n
+    log.info("Nucleo listo")
+    return n, ""
+
+
+def _nucleo_arrancando() -> bool:
+    """True si el Nucleo sigue inicializandose (ni listo ni fallido)."""
+    h = _nucleo_holder()
+    if h["nucleo"] is not None or h["error"]:
+        return False
+    t = h.get("thread")
+    return bool(t is not None and t.is_alive())
 
 
 def _get_nucleo():
@@ -1455,6 +1503,23 @@ los resultados se muestran aquí.
         nucleo = _get_nucleo()
         res = None
         elapsed = 0.0
+
+        # El Nucleo puede seguir arrancando: los imports de torch tardan ~25 s
+        # en frio. No es un fallo — se avisa y se reintenta, en vez de caer al
+        # camino "sin NLE" y responder como si el nucleo no existiera.
+        if nucleo is None and _nucleo_arrancando():
+            st.info(
+                "**El Núcleo Lógico Evolutivo está arrancando** (carga de "
+                "PyTorch y del grafo, ~25 s la primera vez). Tu consulta se "
+                "enviará en cuanto esté listo.",
+                icon="⏳",
+            )
+            with st.spinner("Iniciando Núcleo Lógico Evolutivo…"):
+                _h = _nucleo_holder()
+                _t = _h.get("thread")
+                if _t is not None:
+                    _t.join(timeout=120)
+            nucleo = _get_nucleo()
 
         # Si el warmup de Lean sigue en vuelo, la consulta y el warmup pelean
         # por el mismo disco: la consulta expira a los 360 s sin devolver nada.
