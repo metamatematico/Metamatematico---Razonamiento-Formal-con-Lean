@@ -1587,9 +1587,18 @@ los resultados se muestran aquí.
                 except Exception:
                     st.session_state.pop("viz_data", None)
 
+                # Modo demo: la respuesta es una plantilla escrita a mano, no
+                # la genero ningun modelo. Mostrar "claude-sonnet-5 · 70%" ahi
+                # atribuye a un LLM un texto que no produjo, y presenta como
+                # confianza un valor fijo del codigo. Se rotula como lo que es.
+                _es_demo = (
+                    nr.metadata.get("mode") == "demo_educational"
+                    if hasattr(nr, "metadata") else False
+                )
                 confidence_badge = (
-                    f' · ⬡ {nr.confidence:.0%}'
-                    if hasattr(nr, "confidence") else ""
+                    ""
+                    if _es_demo
+                    else (f' · ⬡ {nr.confidence:.0%}' if hasattr(nr, "confidence") else "")
                 )
                 cr_src = nr.metadata.get("source_cr", "") if hasattr(nr, "metadata") else ""
 
@@ -1622,7 +1631,7 @@ los resultados se muestran aquí.
                     "model":     model,
                     "in_tok":    0,
                     "out_tok":   0,
-                    "_meta":     f'{model}{confidence_badge}'
+                    "_meta":     f'{"modo demo — sin API key" if _es_demo else model}{confidence_badge}'
                                  + (f' · CR:{cr_src}' if cr_src else '')
                                  + (' · ⚠ sin Lean' if _sin_lean else ''),
                     "error":     "",
