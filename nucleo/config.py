@@ -195,6 +195,13 @@ class NucleoConfig:
     # Activar explicitamente solo si se quiere persistir aprendizaje online.
     live_learning_autosave: bool = False
 
+    # Multi-agente (14 especialistas por categoria, training/agents/best/*.pt):
+    # activado por defecto porque solo enruta metadata y sugiere tacticas via
+    # memoria procedimental (nunca sobreescribe pesos en disco) — riesgo bajo,
+    # a diferencia de live_learning_autosave. Poner en False para volver al
+    # comportamiento previo (agente global unico).
+    enable_multi_agent: bool = True
+
     def validate(self) -> None:
         """Validar toda la configuracion."""
         self.rl.validate()
@@ -223,6 +230,7 @@ class NucleoConfig:
             debug=data.get("debug", False),
             verbose=data.get("verbose", False),
             live_learning_autosave=data.get("live_learning_autosave", False),
+            enable_multi_agent=data.get("enable_multi_agent", True),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -275,12 +283,16 @@ class NucleoConfig:
                 "econcept_min_records": self.mes.econcept_min_records,
                 "colimit_threshold": self.mes.colimit_threshold,
                 "pattern_similarity": self.mes.pattern_similarity,
+                "fracture_check_interval": self.mes.fracture_check_interval,
+                "max_repair_attempts": self.mes.max_repair_attempts,
             },
             "data_dir": str(self.data_dir),
             "models_dir": str(self.models_dir),
             "logs_dir": str(self.logs_dir),
             "debug": self.debug,
             "verbose": self.verbose,
+            "live_learning_autosave": self.live_learning_autosave,
+            "enable_multi_agent": self.enable_multi_agent,
         }
 
     def save_yaml(self, path: Path | str) -> None:

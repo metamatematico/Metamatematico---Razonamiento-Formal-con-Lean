@@ -754,9 +754,13 @@ SUBBRANCH_SKILLS = [
     _sb("divisibility-gcd", "Divisibility and GCD",
         "Divisibility, gcd and lcm, Bezout's identity, Euclidean algorithm",
         ["elementary-number-theory"], "number-theory",
+        # La paridad es divisibilidad por 2: se indexa aqui. Se evita el termino
+        # suelto "par" (colisiona con "un par de ..."); "pares"/"impar" bastan.
         ["divisibilidad", "divisor", "divisores", "multiplo", "mcd", "mcm",
          "maximo comun divisor", "bezout", "euclides", "algoritmo de euclides",
-         "divisibility", "gcd", "lcm", "euclidean algorithm"]),
+         "divisibility", "gcd", "lcm", "euclidean algorithm",
+         "pares", "impar", "impares", "paridad", "numero par", "numero impar",
+         "even", "odd", "parity"]),
     _sb("prime-factorization", "Prime Factorization",
         "Primes, the fundamental theorem of arithmetic, sieves",
         ["divisibility-gcd"], "number-theory",
@@ -1272,6 +1276,24 @@ CATEGORY_TACTIC_SKILL: dict[str, str] = {
 
 # Inter-pillar translation morphisms between domain skills
 INTER_PILLAR_TRANSLATIONS = [
+    # -- Orden faltante entre teorias de nivel medio (revision 2026-08-21) ----
+    # Solo aristas inequivocas: el algebra homologica es prerrequisito real de
+    # la (co)homologia y de su version categorica. Se anaden como DEPENDENCY
+    # porque son relaciones de ORDEN (teoria ⊃ subteoria), no traducciones.
+    #
+    # NO se anaden aristas para "cerrar" los huecos [module+ring theory] ni
+    # [functors+module theory]: exigirian commutative-algebra <= tensor-products
+    # o homological-algebra <= abelian-categories, que son FALSAS (los productos
+    # tensoriales y las categorias abelianas son mas primitivos). Esos huecos
+    # son genuinos: el patron no tiene minima cota superior porque la matematica
+    # se ramifica ahi. Forzarlos seria justo el error que se elimino de
+    # build_join_for_pattern.
+    ("homological-algebra", "cohomology", MorphismType.DEPENDENCY,
+     {"relation": "derived-functors-give-cohomology"}),
+    ("homological-algebra", "homology", MorphismType.DEPENDENCY,
+     {"relation": "chain-complexes-give-homology"}),
+    ("homological-algebra", "homological-algebra-cat", MorphismType.DEPENDENCY,
+     {"relation": "module-version-precedes-categorical-version"}),
     # Algebra <-> Category Theory
     ("homological-algebra", "algebraic-topology", MorphismType.ANALOGY,
      {"analogy": "homology-in-algebra-and-topology"}),

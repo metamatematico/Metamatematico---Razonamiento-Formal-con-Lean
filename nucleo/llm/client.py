@@ -361,6 +361,116 @@ Responde en el mismo idioma que el usuario."""
             logger.error(f"Error generating response ({provider.value}): {e}")
             raise  # Re-raise para que process_sync() lo capture y lo muestre
 
+    async def generate_stream(
+        self,
+        prompt: str,
+        system: Optional[str] = None,
+        context: Optional[dict[str, Any]] = None,
+    ) -> AsyncIterator[str]:
+        """
+        Version en streaming de generate(): produce el texto por fragmentos
+        a medida que el proveedor los emite, en vez de esperar la respuesta
+        completa. El parametro `stream` de generate() nunca se conecto a
+        nada — este metodo es el que realmente transmite.
+
+        Mantiene la misma gestion de conversacion que generate() (agrega
+        el turno de usuario, acumula la respuesta y la agrega al final,
+        revierte el turno de usuario si algo falla).
+
+        Yields:
+            Fragmentos de texto (str) segun llegan del proveedor.
+        """
+        sys_prompt = system or self.MATH_SYSTEM_PROMPT
+        if context:
+            ctx_str = self._format_context(context)
+            sys_prompt = f"{sys_prompt}\n\nContexto actual:\n{ctx_str}"
+
+        self._conversation.append(LLMMessage(LLMRole.USER, prompt))
+
+        provider = self.config.provider
+        client = self._get_client()
+        full_content = ""
+
+        try:
+            if provider == LLMProvider.ANTHROPIC:
+                messages = [m.to_dict() for m in self._conversation]
+                with client.messages.stream(
+                    model=self.config.model,
+                    max_tokens=self.config.max_tokens,
+                    system=sys_prompt,
+                    messages=messages,
+                ) as stream:
+                    for chunk in stream.text_stream:
+                        full_content += chunk
+                        yield chunk
+
+            elif provider == LLMProvider.GOOGLE:
+                from google.genai import types as gtypes
+                contents = []
+                for msg in self._conversation:
+                    role = "user" if msg.role == LLMRole.USER else "model"
+                    contents.append({"role": role, "parts": [{"text": msg.content}]})
+                resp_stream = client.models.generate_content_stream(
+                    model=self.config.model,
+                    contents=contents,
+                    config=gtypes.GenerateContentConfig(
+                        system_instruction=sys_prompt,
+                        max_output_tokens=self.config.max_tokens,
+                        temperature=self.config.temperature,
+                    ),
+                )
+                for chunk in resp_stream:
+                    piece = chunk.text or ""
+                    if piece:
+                        full_content += piece
+                        yield piece
+
+            elif provider == LLMProvider.GROQ:
+                messages = [{"role": "system", "content": sys_prompt}] + \
+                           [m.to_dict() for m in self._conversation]
+                resp_stream = client.chat.completions.create(
+                    model=self.config.model,
+                    messages=messages,
+                    max_tokens=self.config.max_tokens,
+                    temperature=self.config.temperature,
+                    stream=True,
+                )
+                for chunk in resp_stream:
+                    piece = chunk.choices[0].delta.content or ""
+                    if piece:
+                        full_content += piece
+                        yield piece
+
+            elif provider == LLMProvider.DEEPSEEK:
+                messages = [{"role": "system", "content": sys_prompt}] + \
+                           [m.to_dict() for m in self._conversation]
+                kwargs: dict = dict(
+                    model=self.config.model,
+                    messages=messages,
+                    max_tokens=self.config.max_tokens,
+                    stream=True,
+                )
+                if "reasoner" not in self.config.model:
+                    kwargs["temperature"] = self.config.temperature
+                resp_stream = client.chat.completions.create(**kwargs)
+                for chunk in resp_stream:
+                    piece = chunk.choices[0].delta.content or ""
+                    if piece:
+                        full_content += piece
+                        yield piece
+
+            else:  # DEMO — sin API real que transmitir; se entrega de una vez
+                full_content = client.generate(prompt, sys_prompt)
+                yield full_content
+
+            self._conversation.append(LLMMessage(LLMRole.ASSISTANT, full_content))
+
+        except Exception as e:
+            if self._conversation and self._conversation[-1].role == LLMRole.USER:
+                self._conversation.pop()
+            logger.error(f"Error streaming response ({provider.value}): {e}")
+            raise
+
     async def suggest_tactic(
         self,
         goal: str,

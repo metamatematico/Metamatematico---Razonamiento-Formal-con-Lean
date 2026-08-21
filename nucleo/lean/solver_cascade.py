@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Optional, TYPE_CHECKING
 from pathlib import Path
@@ -378,6 +379,7 @@ class SolverCascade:
             return CascadeResult(success=False, solvers_tried=0)
 
         solvers_tried = 0
+        statuses: list[str] = []
         for solver, _timeout in self._solvers:
             solvers_tried += 1
             modified_code = self._replace_sorry(lines, sorry_line - 1, solver)
@@ -399,7 +401,22 @@ class SolverCascade:
                     lean_result=result,
                 )
 
-        logger.debug(f"Solver cascade exhausted after {solvers_tried} attempts")
+            # Sin esto la cascada agotada es indistinguible entre "el enunciado
+            # no compila" y "las tacticas no cierran el goal" -- diagnosticos
+            # opuestos. El status separa ademas el caso NOT_AVAILABLE (lake no
+            # resuelto en este entorno), que no tiene nada que ver con tacticas.
+            statuses.append(result.status.name)
+            err = (result.get_first_error() or "").replace("\n", " ")[:200]
+            logger.debug(
+                f"Solver {solver} failed: status={result.status.name}"
+                + (f" | {err}" if err else "")
+            )
+
+        summary = dict(Counter(statuses))
+        logger.debug(
+            f"Solver cascade exhausted after {solvers_tried} attempts "
+            f"(statuses: {summary})"
+        )
         return CascadeResult(success=False, solvers_tried=solvers_tried)
 
     async def try_fill_sorry_smart(

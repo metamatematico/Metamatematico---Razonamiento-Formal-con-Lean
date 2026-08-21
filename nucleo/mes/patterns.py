@@ -625,9 +625,15 @@ class ColimitBuilder:
             "n_skills": len(graph.skills),
         }
 
+        # El preorden se genera SOLO con los morfismos de orden (jerarquia
+        # teoria ⊃ subteoria). Si se siguiera TRANSLATION, las skills-tactica
+        # —sumideros del pilar TYPE— saldrian certificadas como colimites de
+        # dominios matematicos arbitrarios. Ver SkillCategory.ORDER_MORPHISMS.
+        _ORD = type(graph).ORDER_MORPHISMS
+
         # Condición 1: apex es cota superior (upper bound)
         for c_id in component_ids:
-            if not graph.is_preorder_leq(c_id, apex_id):
+            if not graph.is_preorder_leq(c_id, apex_id, _ORD):
                 result["is_join"] = False
                 return result
         result["upper_bound"] = True
@@ -641,11 +647,11 @@ class ColimitBuilder:
                 continue
             # ¿Es x cota superior de todos los componentes?
             x_is_upper_bound = all(
-                graph.is_preorder_leq(c_id, x_id) for c_id in component_ids
+                graph.is_preorder_leq(c_id, x_id, _ORD) for c_id in component_ids
             )
             if x_is_upper_bound:
                 # Debe existir morfismo apex → x (apex ≤ x en el preorden)
-                if not graph.is_preorder_leq(apex_id, x_id):
+                if not graph.is_preorder_leq(apex_id, x_id, _ORD):
                     minimal = False
                     failed.append(x_id)
 
@@ -880,17 +886,29 @@ class ColimitBuilder:
             existing_skill = graph.get_skill(existing.skill_id)
             return existing_skill, existing
 
-        # Determinar nivel del colimite
+        # Determinar nivel taxonomico y orden de complejidad del colimite.
+        #
+        # Son dos cuentas distintas sobre las mismas componentes:
+        #   level = 1 + max(level de componentes)  -> estimacion taxonomica
+        #   cn    = 1 + max(cn de componentes)     -> orden constructivo real
+        #
+        # cn es la formula de ComplexityOrder.lean (cn_strict_increase). Antes
+        # se calculaba con los `level`, mezclando taxonomia curada dentro de un
+        # conteo constructivo: un join de dos sub-ramas L3 nacia con 4, que no
+        # es ni su profundidad taxonomica ni su orden de construccion.
         max_component_level = 0
+        max_component_cn = 0
         component_pillars = set()
         for comp_id in pattern.component_ids:
             skill = graph.get_skill(comp_id)
             if skill:
                 max_component_level = max(max_component_level, skill.level)
+                max_component_cn = max(max_component_cn, skill.cn)
                 if skill.pillar:
                     component_pillars.add(skill.pillar)
 
         colimit_level = max_component_level + 1
+        colimit_cn = max_component_cn + 1
 
         # Determinar pilar del colimite
         # Si todos los componentes son del mismo pilar, heredar
@@ -899,16 +917,37 @@ class ColimitBuilder:
         if len(component_pillars) == 1:
             colimit_pillar = list(component_pillars)[0]
 
-        # Crear skill colimite
-        colimit_name = name or f"colim_{pattern.id}"
+        # Crear skill colimite.
+        #
+        # El nombre se deriva de lo que el colimite INTEGRA, no de un hash.
+        # Un "colim_pat_edfa0746" es ilegible y, sobre todo, no puede
+        # inyectarse en el prompt del LLM con ningun sentido. El colimite es
+        # el skill compuesto que integra la funcionalidad colectiva del patron
+        # (Seccion 2.1), asi que su nombre debe decir que integra.
+        if not name:
+            partes = [
+                (graph.get_skill(cid).name if graph.get_skill(cid) else cid)
+                for cid in pattern.component_ids[:3]
+            ]
+            resto = len(pattern.component_ids) - len(partes)
+            name = " + ".join(partes) + (f" (+{resto})" if resto > 0 else "")
+        colimit_name = name
         colimit_skill = Skill(
             id=f"skill_{uuid.uuid4().hex[:8]}",
             name=colimit_name,
-            description=f"Colimite del patron {pattern.id}",
+            description=(
+                "Competencia emergente: integra "
+                + ", ".join(pattern.component_ids)
+            ),
             pillar=colimit_pillar,
             level=colimit_level,
+            cn=colimit_cn,
             pattern_ids=pattern.component_ids.copy(),
-            metadata={"pattern_id": pattern.id},
+            metadata={
+                "pattern_id": pattern.id,
+                "emergent": True,
+                "components": list(pattern.component_ids),
+            },
         )
 
         # Agregar skill al grafo

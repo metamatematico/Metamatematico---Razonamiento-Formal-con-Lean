@@ -90,6 +90,109 @@ class NucleoResponse:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+
+# ── Referencias ancladas de Mathlib ─────────────────────────────────────
+# Fuente de verdad que el LLM NO debe improvisar: nombres de lemas y modulos
+# reales, comprobados con `lake env lean`. Se consultan tanto en la ruta de
+# formalizacion como en la ruta educativa, para que ninguna respuesta cite
+# Mathlib de memoria.
+_MATHLIB_REFS: dict[tuple[str, ...], str] = {
+    # Verificado con `lake env lean` (exit 0). Notas:
+    #  - EuclideanSpace vive en PiL2, no en InnerProductSpace.Basic.
+    #  - La notacion ⟪·,·⟫ exige `open scoped RealInnerProductSpace`.
+    #  - norm_add_sq_real es la EXPANSION (deja el termino cruzado
+    #    2*⟪a,b⟫); Pitagoras necesita ademas la hipotesis h.
+    #  - norm_add_sq_eq_norm_sq_add_norm_sq_real se enuncia con
+    #    producto (‖·‖*‖·‖), no con potencia: de ahi el `simpa [sq]`.
+    ("pitagor", "pythag", "hipotenusa"): (
+        "-- Teorema de Pitágoras en Lean 4 / Mathlib (versión norma)\n"
+        "import Mathlib.Analysis.InnerProductSpace.PiL2\n"
+        "open scoped RealInnerProductSpace\n\n"
+        "example (a b : EuclideanSpace ℝ (Fin 2)) (h : ⟪a, b⟫ = 0) :\n"
+        "    ‖a + b‖^2 = ‖a‖^2 + ‖b‖^2 := by\n"
+        "  rw [norm_add_sq_real, h, mul_zero, add_zero]\n\n"
+        "-- Vía el lema dedicado de Mathlib\n"
+        "example (a b : EuclideanSpace ℝ (Fin 2)) (h : ⟪a, b⟫ = 0) :\n"
+        "    ‖a + b‖^2 = ‖a‖^2 + ‖b‖^2 := by\n"
+        "  simpa [sq] using norm_add_sq_eq_norm_sq_add_norm_sq_real h"
+    ),
+    ("yoneda",): (
+        "import Mathlib.CategoryTheory.Yoneda\n"
+        "-- yonedaEquiv : (yoneda.obj X ⟶ F) ≃ F.obj X\n"
+        "#check CategoryTheory.yonedaEquiv"
+    ),
+    ("curry", "howard"): (
+        "-- Propositions as types (Curry-Howard) en Lean 4\n"
+        "example (P Q : Prop) (h : P → Q) (hp : P) : Q := h hp\n"
+        "-- La implicación P → Q ES el tipo de funciones P → Q"
+    ),
+    ("irrac", "raiz cuadrada de 2", "sqrt 2"): (
+        "import Mathlib.Data.Real.Irrational\n"
+        "example : Irrational (Real.sqrt 2) := irrational_sqrt_two"
+    ),
+    # Teoría de categorías — definiciones clave
+    ("cartesianamente cerrada", "ccc", "closed cartesian", "cartesian closed"): (
+        "import Mathlib.CategoryTheory.Closed.Cartesian\n"
+        "-- CartesianClosed: categoría con productos finitos y exponenciales\n"
+        "#check CartesianClosed\n"
+        "-- eval : B^A × A → B  (NO C^A — el exponencial es B^A)\n"
+        "#check CategoryTheory.CartesianClosed.curry\n"
+        "-- curry : Hom(C × A, B) ≅ Hom(C, B^A)"
+    ),
+    ("funtor", "functor"): (
+        "import Mathlib.CategoryTheory.Functor.Basic\n"
+        "#check CategoryTheory.Functor\n"
+        "-- Functor C D : tipo de funtores entre categorías C y D\n"
+        "#check CategoryTheory.Functor.map"
+    ),
+    ("colimite", "colimit", "colimits"): (
+        "import Mathlib.CategoryTheory.Limits.HasLimits\n"
+        "#check CategoryTheory.Limits.IsColimit\n"
+        "-- IsColimit: propiedad universal del colímite"
+    ),
+    ("adjuncion", "adjoint", "adjunction"): (
+        "import Mathlib.CategoryTheory.Adjunction.Basic\n"
+        "#check CategoryTheory.Adjunction\n"
+        "-- Adjunction F G : F ⊣ G  (F adjunto izquierdo de G)\n"
+        "#check CategoryTheory.Adjunction.homEquiv"
+    ),
+    ("transformacion natural", "natural transformation"): (
+        "import Mathlib.CategoryTheory.NatTrans\n"
+        "#check CategoryTheory.NatTrans\n"
+        "-- NatTrans F G : transformación natural entre funtores F y G"
+    ),
+    ("grupo", "group theory"): (
+        "import Mathlib.Algebra.Group.Basic\n"
+        "#check Group\n"
+        "-- Group: tipo de grupos (mul, inv, one, axiomas)\n"
+        "#check mul_comm  -- en grupos abelianos"
+    ),
+    ("anillo", "ring theory"): (
+        "import Mathlib.Algebra.Ring.Basic\n"
+        "#check Ring\n"
+        "example (R : Type*) [Ring R] (a b : R) : a * b + b * a = b * a + a * b := by ring"
+    ),
+    ("espacio vectorial", "vector space", "modulo"): (
+        "import Mathlib.Algebra.Module.Basic\n"
+        "#check Module\n"
+        "#check Submodule"
+    ),
+    ("topologia", "espacio topologico", "topological space"): (
+        "import Mathlib.Topology.Basic\n"
+        "#check TopologicalSpace\n"
+        "#check IsOpen\n"
+        "#check IsClosed"
+    ),
+}
+
+
+def _mathlib_ref_for(texto_normalizado: str) -> str:
+    """Devuelve el snippet Mathlib anclado para la consulta, o cadena vacia."""
+    for claves, ref in _MATHLIB_REFS.items():
+        if any(k in texto_normalizado for k in claves):
+            return ref
+    return ""
+
 class Nucleo:
     """
     Nucleo Logico Evolutivo.
@@ -158,12 +261,20 @@ class Nucleo:
         # Consultores Avanzados (optional module)
         self._consultores: Optional["ConsultoresModule"] = None
 
+        # Huecos conceptuales: patrones con co-conos pero sin co-cono limite.
+        # Los llena build_hierarchy_to_fixpoint en initialize().
+        self._concept_gaps: list = []
+
         # Feedback tracking — last experience for retroactive update
         self._last_experience_id: Optional[str] = None
         self._last_action_type = None
 
         # Math answer evaluator (MATH / GSM8K benchmarks)
         self._evaluator: MathEvaluator = MathEvaluator()
+
+        # Cache perezosa del pilar formal de teoria de conjuntos, usada por
+        # _formal_pillar_note para anclar el LLM a la formula exacta de ZFC.
+        self._set_theory_pillar = None
 
         # Callbacks
         self._on_action: Optional[Callable] = None
@@ -233,7 +344,15 @@ class Nucleo:
             consolidation_threshold=self.config.mes.consolidation_threshold,
             econcept_min_records=self.config.mes.econcept_min_records,
         )
-        self._evolution = EvolutionarySystem(self._graph)
+        # Se comparten el gestor de patrones y el constructor de colimites con
+        # los co-reguladores. Sin esto, el sistema evolutivo se creaba un
+        # registro vacio propio y las ligaduras propuestas por los CRs no se
+        # encontraban: la complejificacion se descartaba sin dejar rastro.
+        self._evolution = EvolutionarySystem(
+            self._graph,
+            pattern_manager=self._pattern_manager,
+            colimit_builder=self._colimit_builder,
+        )
         self._cr_network = CoRegulatorNetwork(
             memory=self._memory,
             pattern_manager=self._pattern_manager,
@@ -247,6 +366,51 @@ class Nucleo:
         memory_path = self.config.data_dir / "memory.json"
         if memory_path.exists():
             self._memory.load(memory_path)
+
+        # ── Jerarquia emergente: MEDIR el orden de complejidad ─────────────
+        # ComplexityOrder.lean: cn(J) = 1 + max{cn(Pi)} para J = join[P].
+        # Se escribe en skill.cn; skill.level (taxonomia curada) no se toca.
+        #
+        # Se DESCUBREN los co-conos limite que ya existen en el grafo; no se
+        # fabrica ningun vertice. Por eso converge (punto fijo en la iteracion
+        # 2) y no muta la estructura que analiza.
+        #
+        # Los patrones con co-conos pero SIN limite se devuelven como
+        # ConceptGap: son los huecos conceptuales del grafo de conocimiento y
+        # el disparador legitimo de complexificacion para el MES.
+        #
+        # Con 0 colimites el resultado correcto es cn = 0 para todos: nada ha
+        # sido construido todavia, solo declarado. Ese 0 no es un fallo — es la
+        # medicion de partida. max_cn y num_joins son el KPI de si el motor de
+        # complejificacion esta produciendo algo.
+        try:
+            from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+            _cn, self._concept_gaps = build_hierarchy_to_fixpoint(
+                self._graph, self._pattern_manager, self._colimit_builder
+            )
+            logger.info(
+                f"Jerarquia emergente: max_cn={self._graph.stats['max_cn']}, "
+                f"colimites={self._graph.stats['num_joins']}, "
+                f"huecos conceptuales={len(self._concept_gaps)}, "
+                f"skills={len(self._graph.skill_ids)}"
+            )
+        except Exception as e:
+            logger.warning(
+                f"build_hierarchy_to_fixpoint fallo (no bloqueante): {e}",
+                exc_info=True,
+            )
+            self._concept_gaps = []
+
+        # Los huecos son el material de trabajo de CR_org y CR_str: cada uno
+        # señala donde falta el concepto que unifica un patron.
+        #
+        # Va en su propio try: cuando esto vivia dentro del bloque anterior,
+        # un AttributeError aqui reseteaba self._concept_gaps a [] y los 26
+        # huecos ya calculados desaparecian sin rastro visible.
+        try:
+            self._cr_network.set_concept_gaps(self._concept_gaps)
+        except Exception as e:
+            logger.warning(f"set_concept_gaps fallo: {e}", exc_info=True)
 
         # ── Neural agent con PPO (use_neural=True) ─────────────────────────
         from nucleo.rl.agent import NucleoAgent, AgentConfig
@@ -281,6 +445,19 @@ class Nucleo:
         # Conectar: live PPO + CR_tac usa GNN para clasificar queries
         self.set_neural_agent(neural_agent)
         self._cr_network.set_neural_agent(neural_agent)
+
+        # ── Sistema multi-agente (14 especialistas por categoria) ──────────
+        # Antes se construia pero nunca se activaba (set_multi_agent_orchestrator
+        # no se llamaba desde ningun punto de la app). Los pesos por categoria
+        # SI existen en disco (training/agents/best/*.pt), asi que activarlo
+        # aporta sugerencias de tactica por memoria procedimental especifica
+        # de cada area, ademas de la metadata de categoria ya expuesta en
+        # las respuestas. No sobreescribe ningun checkpoint en disco.
+        if self.config.enable_multi_agent:
+            try:
+                self.set_multi_agent_orchestrator()
+            except Exception as e:
+                logger.warning(f"MultiAgentOrchestrator no se pudo activar: {e}")
 
         self._initialized = True
         logger.info("Nucleo inicializado correctamente (PPO activo)")
@@ -436,6 +613,11 @@ class Nucleo:
 
         # Registrar en memoria MES
         self._record_experience(input_text, decision, success)
+
+        # Complejificacion del grafo. Va DESPUES de producir la respuesta para
+        # que la consulta actual se resuelva sobre un grafo estable; los
+        # cambios benefician a las siguientes.
+        self._apply_structural_evolution()
 
         return response
 
@@ -854,25 +1036,44 @@ class Nucleo:
                 break
 
         if not explanation:
-            # Respuesta genérica pero útil para cualquier consulta matemática
+            # Sin plantilla conocida: describir lo que el grafo sí sabe de la consulta.
             ctx = self._find_relevant_context(input_text, self._graph)
-            skills_found = ctx.get("skills", [])
-            skills_str = (
-                ", ".join(f"`{s}`" for s in skills_found[:4])
-                if skills_found else "skills matemáticos relevantes"
-            )
-            category = ctx.get("category", "matemáticas")
-            explanation = (
-                f"El NLE identificó esta consulta como relacionada con **{category}** "
-                f"(skills: {skills_str}).\n\n"
-                f"Para obtener una respuesta completa que incluya:\n"
-                f"- Enunciado preciso del resultado\n"
-                f"- Demostración paso a paso\n"
-                f"- Código Lean 4 verificado con Mathlib\n\n"
-                f"**conecta una API key** (Anthropic, Google o Groq) en el panel lateral. "
-                f"El Núcleo Lógico Evolutivo usará su GNN+PPO para enrutar tu consulta al "
-                f"agente especializado correcto y generará una prueba formal verificada por Lean 4."
-            )
+            # Las claves son las que devuelve _find_relevant_context, no "skills".
+            skills_found = ctx.get("relevant_skills", [])
+            pilar = ctx.get("pillar") or "—"
+            competencia = ctx.get("competencia_emergente")
+
+            if not self._is_mathematical(input_text):
+                title = "Modo demo"
+                explanation = (
+                    "Esta consulta no es matemática, así que el NLE no la envía a Lean. "
+                    "Sin API key no hay conversación disponible: **conecta una clave** "
+                    "(Anthropic, Google o Groq) en el panel lateral."
+                )
+                lean_template = "-- Sin formalización: la consulta no es matemática."
+            else:
+                lineas = [
+                    f"El NLE clasificó la consulta en el pilar **{pilar}**.",
+                    "",
+                ]
+                if skills_found:
+                    lineas.append(
+                        "Skills activados: "
+                        + ", ".join(f"`{s}`" for s in skills_found[:4])
+                    )
+                else:
+                    lineas.append(
+                        "No se activó ningún skill concreto del grafo para esta consulta."
+                    )
+                if competencia:
+                    lineas.append(f"Competencia emergente reconocida: **{competencia}**.")
+                lineas += [
+                    "",
+                    "Para obtener enunciado preciso, demostración paso a paso y "
+                    "código Lean 4 verificado con Mathlib, **conecta una API key** "
+                    "en el panel lateral.",
+                ]
+                explanation = "\n".join(lineas)
 
         content = (
             f"## {title}\n\n"
@@ -910,6 +1111,28 @@ class Nucleo:
             "figuras descritas con palabras. No generes código Lean 4 a menos que "
             "el usuario lo pida explícitamente."
         )
+        # Esta ruta NO ejecuta Lean (una prueba por reordenamiento de areas no
+        # es formalizable directamente). Por eso el paso 4 es el punto debil:
+        # si se le pide al LLM que hable de Mathlib sin material, improvisa
+        # nombres de lemas. Se le ancla con la referencia verificada, y si no
+        # hay ninguna se le prohibe nombrar lemas concretos.
+        ref = _mathlib_ref_for(self._normalize_text(input_text))
+        if ref:
+            paso4 = (
+                "4. **Nota Lean 4** (breve) — usa EXCLUSIVAMENTE la referencia "
+                "verificada de abajo. No cites ningún otro nombre de lema ni de "
+                "módulo, y no alteres los que aparecen ahí.\n\n"
+                f"Referencia de Mathlib verificada con `lake env lean`:\n"
+                f"```lean\n{ref}\n```\n"
+            )
+        else:
+            paso4 = (
+                "4. **Nota Lean 4** (breve) — describe en prosa CÓMO se abordaría "
+                "la formalización. No inventes nombres de lemas, teoremas ni "
+                "módulos de Mathlib: si no estás seguro de un nombre exacto, di "
+                "que habría que localizarlo en Mathlib en vez de escribirlo.\n"
+            )
+
         edu_prompt = (
             f"Responde a la siguiente pregunta matemática de forma educativa y completa:\n\n"
             f"{input_text}\n\n"
@@ -918,7 +1141,7 @@ class Nucleo:
             "2. **Contexto histórico** — si aplica, quién lo descubrió y cuándo\n"
             "3. **Demostración / Explicación** — paso a paso, geométrica/visual si se pide, "
             "con intuición clara\n"
-            "4. **Nota Lean 4** (breve) — cómo se formaliza en Mathlib, sin código extenso\n\n"
+            f"{paso4}\n"
             "Responde en el mismo idioma que el usuario."
         )
         resp = await self._llm.generate(edu_prompt, system=edu_system, context=context)
@@ -926,7 +1149,9 @@ class Nucleo:
             content=resp.content,
             action_type=ActionType.ASSIST,
             confidence=0.88,
-            metadata={"mode": "educational_explanation"},
+            # sin_verificacion_lean: la UI debe poder avisar de que esta ruta
+            # no paso por el verificador.
+            metadata={"mode": "educational_explanation", "sin_verificacion_lean": True},
         )
 
     async def _review_document_for_errors(
@@ -1016,6 +1241,26 @@ class Nucleo:
         # al SolverCascade (paper §3.5, Principio 3.1).
         _area = classify_query(input_text)
         _domain_tactic = domain_default_tactic(_area)
+
+        # Si el sistema multi-agente esta activo, preferir una tactica
+        # aprendida de exito real en esta categoria (memoria procedimental
+        # del agente especializado) sobre el valor estatico por defecto.
+        # query_best_tactic nunca inventa: si no hay experiencia previa
+        # suficiente devuelve None y _domain_tactic no cambia.
+        if self._multi_agent_orchestrator is not None:
+            try:
+                _learned = self._multi_agent_orchestrator.mes_bridge.query_best_tactic(
+                    _area, input_text
+                )
+                if _learned:
+                    logger.debug(
+                        f"_math_via_lean: tactica aprendida '{_learned}' "
+                        f"reemplaza default '{_domain_tactic}' para area={_area!r}"
+                    )
+                    _domain_tactic = _learned
+            except Exception as e:
+                logger.debug(f"query_best_tactic error (no bloqueante): {e}")
+
         logger.debug(f"_math_via_lean: area={_area!r}, domain_tactic={_domain_tactic!r}")
 
         # ── Clasificación del tipo de query ───────────────────────────────────
@@ -1066,95 +1311,16 @@ class Nucleo:
         # Construir ejemplos few-shot relevantes (miniF2F)
         few_shot_block = self._build_few_shot_context(input_text)
 
-        # ── Referencias hardcoded (verdad matemática anclada en Mathlib) ────
-        # Estas referencias son la fuente de verdad categorial que el LLM
-        # NO puede inventar. Lean verifica que type-check.
-        _HARDCODED_REFS = {
-            ("pitagor", "pythag", "hipotenusa"): (
-                "-- Teorema de Pitágoras en Lean 4 / Mathlib (versión norma)\n"
-                "import Mathlib.Analysis.InnerProductSpace.Basic\n"
-                "example (a b : EuclideanSpace ℝ (Fin 2)) (h : ⟪a, b⟫_ℝ = 0) :\n"
-                "    ‖a + b‖^2 = ‖a‖^2 + ‖b‖^2 := by\n"
-                "  rw [norm_add_sq_real, h, mul_zero, mul_comm, mul_zero, add_zero]"
-            ),
-            ("yoneda",): (
-                "import Mathlib.CategoryTheory.Yoneda\n"
-                "-- yonedaEquiv : (yoneda.obj X ⟶ F) ≃ F.obj X\n"
-                "#check CategoryTheory.yonedaEquiv"
-            ),
-            ("curry", "howard"): (
-                "-- Propositions as types (Curry-Howard) en Lean 4\n"
-                "example (P Q : Prop) (h : P → Q) (hp : P) : Q := h hp\n"
-                "-- La implicación P → Q ES el tipo de funciones P → Q"
-            ),
-            ("irrac", "raiz cuadrada de 2", "sqrt 2"): (
-                "import Mathlib.Data.Real.Irrational\n"
-                "example : Irrational (Real.sqrt 2) := irrational_sqrt_two"
-            ),
-            # Teoría de categorías — definiciones clave
-            ("cartesianamente cerrada", "ccc", "closed cartesian", "cartesian closed"): (
-                "import Mathlib.CategoryTheory.Closed.Cartesian\n"
-                "-- CartesianClosed: categoría con productos finitos y exponenciales\n"
-                "#check CartesianClosed\n"
-                "-- eval : B^A × A → B  (NO C^A — el exponencial es B^A)\n"
-                "#check CategoryTheory.CartesianClosed.curry\n"
-                "-- curry : Hom(C × A, B) ≅ Hom(C, B^A)"
-            ),
-            ("funtor", "functor"): (
-                "import Mathlib.CategoryTheory.Functor.Basic\n"
-                "#check CategoryTheory.Functor\n"
-                "-- Functor C D : tipo de funtores entre categorías C y D\n"
-                "#check CategoryTheory.Functor.map"
-            ),
-            ("colimite", "colimit", "colimits"): (
-                "import Mathlib.CategoryTheory.Limits.HasLimits\n"
-                "#check CategoryTheory.Limits.IsColimit\n"
-                "-- IsColimit: propiedad universal del colímite"
-            ),
-            ("adjuncion", "adjoint", "adjunction"): (
-                "import Mathlib.CategoryTheory.Adjunction.Basic\n"
-                "#check CategoryTheory.Adjunction\n"
-                "-- Adjunction F G : F ⊣ G  (F adjunto izquierdo de G)\n"
-                "#check CategoryTheory.Adjunction.homEquiv"
-            ),
-            ("transformacion natural", "natural transformation"): (
-                "import Mathlib.CategoryTheory.NatTrans\n"
-                "#check CategoryTheory.NatTrans\n"
-                "-- NatTrans F G : transformación natural entre funtores F y G"
-            ),
-            ("grupo", "group theory"): (
-                "import Mathlib.Algebra.Group.Basic\n"
-                "#check Group\n"
-                "-- Group: tipo de grupos (mul, inv, one, axiomas)\n"
-                "#check mul_comm  -- en grupos abelianos"
-            ),
-            ("anillo", "ring theory"): (
-                "import Mathlib.Algebra.Ring.Basic\n"
-                "#check Ring\n"
-                "example (R : Type*) [Ring R] (a b : R) : a * b + b * a = b * a + a * b := by ring"
-            ),
-            ("espacio vectorial", "vector space", "modulo"): (
-                "import Mathlib.Algebra.Module.Basic\n"
-                "#check Module\n"
-                "#check Submodule"
-            ),
-            ("topologia", "espacio topologico", "topological space"): (
-                "import Mathlib.Topology.Basic\n"
-                "#check TopologicalSpace\n"
-                "#check IsOpen\n"
-                "#check IsClosed"
-            ),
-        }
-
-        extra_ref = ""
+        # ── Referencias ancladas (verdad matemática anclada en Mathlib) ─────
+        # Ver _MATHLIB_REFS: el LLM no debe inventar nombres de lemas.
         q_norm = self._normalize_text(input_text)
-        for kws, ref in _HARDCODED_REFS.items():
-            if any(k in q_norm for k in kws):
-                extra_ref = f"\nReferencia de Mathlib para este tema:\n```lean\n{ref}\n```\n"
-                break
+        _ref = _mathlib_ref_for(q_norm)
+        extra_ref = (
+            f"\nReferencia de Mathlib para este tema:\n```lean\n{_ref}\n```\n"
+            if _ref else ""
+        )
 
         # Detectar si el usuario solo quiere el enunciado (no la prueba)
-        q_norm = self._normalize_text(input_text)
         _enunciar = any(w in q_norm for w in ("enuncia", "enunciar", "enunciado", "que dice", "que establece", "que afirma"))
         _solo_enunciar_hint = (
             "- El usuario solo pide ENUNCIAR (no demostrar). Escribe ÚNICAMENTE el `theorem` con `sorry` en el cuerpo, sin intentar dar una prueba.\n"
@@ -1353,6 +1519,17 @@ class Nucleo:
             )
             confidence    = 0.6
             success_value = 0.2
+
+        # Cerrar el ciclo con el sistema multi-agente: sin esto, report_lean_result
+        # existia pero nunca se llamaba, la memoria procedimental por categoria
+        # se quedaba vacia para siempre y query_best_tactic() (arriba) jamas
+        # tenia nada que devolver. "sin_entorno" se omite: no es un intento real.
+        if self._multi_agent_orchestrator is not None and verification_status != "sin_entorno":
+            _lean_outcome = {
+                "verificado": "success",
+                "parcial": "partial",
+            }.get(verification_status, "failed")
+            self.report_lean_result(input_text, _domain_tactic, _lean_outcome, success_value)
 
         # ── Paso 4: LLM traduce — el LLM es solo la boca, Lean es el cerebro ─
         _sin_entorno = verification_status == "sin_entorno"
@@ -1609,6 +1786,233 @@ class Nucleo:
         # Try to form E-concept
         self._memory.try_form_concept(pattern_id, CoRegulatorType.TACTICAL)
 
+    # =========================================================================
+    # COMPLEXIFICACION QUE PRODUCE CONOCIMIENTO
+    # =========================================================================
+
+    async def llenar_hueco_conceptual(self, gap) -> dict:
+        """
+        Llena un hueco conceptual con un concepto matematico REAL.
+
+        Un ConceptGap es un patron con co-conos pero sin co-cono limite: existen
+        cotas superiores de las componentes pero ninguna es minimal, asi que el
+        colimite no existe en G_n. Falta el concepto que las unifica.
+
+        Ciclo (esto es lo que convierte la complexificacion en conocimiento en
+        vez de topologia):
+
+          1. El LLM PROPONE el concepto: nombre, definicion y su enunciado en
+             Lean 4. No inventa un nodo "A + B" — nombra la matematica que
+             realmente unifica las componentes.
+          2. Lean VERIFICA que el concepto existe en Mathlib o que la definicion
+             tipa. Si no verifica, no entra: el hueco sigue abierto, y eso es un
+             resultado honesto.
+          3. El nodo entra CON CONTENIDO (definicion + codigo Lean verificado) y
+             con los morfismos DEPENDENCY del co-cono desde cada componente.
+          4. Se RE-TESTEA el colimite con find_colimit. Si el nodo nuevo no
+             resulta ser el co-cono limite, se REVIERTE: la propiedad universal
+             es un test, y un nodo que no la cumple no se queda "por si acaso".
+
+        Returns:
+            dict con ok, motivo, skill_id, nombre, lean_code, lean_status.
+        """
+        from nucleo.graph.complexity import find_colimit
+        from nucleo.llm.client import LLMClient as _LLMC, DemoLLMClient as _Demo
+        from nucleo.types import Skill as _Skill, MorphismType as _MT
+        import re
+
+        comps = list(gap.component_ids)
+        nombres = [
+            (self._graph.get_skill(c).name if self._graph.get_skill(c) else c)
+            for c in comps
+        ]
+        res = {
+            "ok": False, "motivo": "", "skill_id": None, "nombre": None,
+            "lean_code": None, "lean_status": None, "componentes": comps,
+        }
+
+        if self._llm is None or self._llm.is_demo or isinstance(
+            self._llm._get_client(), _Demo
+        ):
+            res["motivo"] = "sin API key: el concepto lo debe proponer el LLM"
+            return res
+
+        # -- Paso 1: el LLM propone el concepto --------------------------------
+        lineas = [
+            "En un grafo de conocimiento matematico, estas areas forman un "
+            "patron sin concepto unificador registrado:",
+            "",
+        ]
+        lineas += [f"  - {n}" for n in nombres]
+        lineas += [
+            "",
+            "Nombra la teoria matematica ESTABLECIDA que las unifica: la que un "
+            "matematico reconoceria como el lugar donde estas areas convergen. "
+            "Debe ser un area real y estandar, no un nombre inventado ni una "
+            "yuxtaposicion de las anteriores.",
+            "",
+            "Responde EXACTAMENTE en este formato, sin nada mas:",
+            "NOMBRE: <nombre del area>",
+            "ID: <identificador-en-kebab-case>",
+            "DEFINICION: <una frase: que estudia y por que unifica a las anteriores>",
+            "LEAN:",
+            "```lean",
+            "<imports de Mathlib y un #check de una definicion central del area>",
+            "```",
+            "",
+            "Si NO existe una teoria establecida que las unifique, responde "
+            "unicamente: NINGUNA",
+        ]
+        prompt = "\n".join(lineas)
+
+        try:
+            gen = await self._llm.generate(prompt, system=_LLMC.LEAN_SYSTEM_PROMPT)
+        except Exception as e:
+            res["motivo"] = f"fallo del LLM: {e}"
+            return res
+
+        texto = gen.content.strip()
+        if "NINGUNA" in texto[:40].upper():
+            res["motivo"] = "el LLM no reconoce una teoria establecida que unifique"
+            return res
+
+        def _campo(clave: str) -> str:
+            m = re.search(r"^" + clave + r":\s*(.+)$", texto, re.MULTILINE)
+            return m.group(1).strip() if m else ""
+
+        nombre = _campo("NOMBRE")
+        sid = _campo("ID").lower().replace(" ", "-")
+        definicion = _campo("DEFINICION")
+        lean_code = self._extract_lean_code(texto)
+
+        if not (nombre and sid and lean_code):
+            res["motivo"] = "respuesta del LLM incompleta (falta NOMBRE/ID/LEAN)"
+            return res
+        if self._graph.get_skill(sid) is not None:
+            res["motivo"] = f"el skill '{sid}' ya existe en el grafo"
+            return res
+
+        res["nombre"] = nombre
+        res["lean_code"] = lean_code
+
+        # -- Paso 2: Lean verifica --------------------------------------------
+        try:
+            lean_res = await self._lean.check_code(lean_code)
+        except Exception as e:
+            res["motivo"] = f"fallo al verificar con Lean: {e}"
+            return res
+
+        res["lean_status"] = lean_res.status.name
+        if lean_res.status not in (
+            LeanResultStatus.SUCCESS, LeanResultStatus.SORRY
+        ):
+            primer = (lean_res.get_first_error() or "")[:120]
+            res["motivo"] = (
+                f"Lean rechazo el concepto ({lean_res.status.name}): {primer}. "
+                "El hueco sigue abierto."
+            )
+            return res
+
+        # -- Paso 3: el nodo entra CON CONTENIDO ------------------------------
+        try:
+            pilar = self._dominant_pillar(comps)
+        except Exception:
+            pilar = None
+        max_cn = max(
+            (self._graph.get_skill(c).cn for c in comps if self._graph.get_skill(c)),
+            default=0,
+        )
+        max_lv = max(
+            (self._graph.get_skill(c).level for c in comps if self._graph.get_skill(c)),
+            default=0,
+        )
+
+        nuevo = _Skill(
+            id=sid,
+            name=nombre,
+            description=definicion or ("Concepto que unifica " + ", ".join(nombres)),
+            pillar=pilar,
+            level=max_lv,
+            cn=max_cn + 1,
+            pattern_ids=list(comps),
+            content={"lean_code": lean_code, "lean_status": lean_res.status.name},
+            metadata={
+                "origen": "hueco_conceptual",
+                "componentes": list(comps),
+                "verificado_por_lean": True,
+            },
+        )
+        self._graph.add_skill(nuevo)
+        for c in comps:
+            self._graph.add_morphism(
+                c, sid, morphism_type=_MT.DEPENDENCY, weight=1.0,
+                metadata={"is_cocone": True, "origen": "hueco_conceptual"},
+            )
+
+        # -- Paso 4: re-testear el colimite; si no lo es, revertir -------------
+        apex = find_colimit(comps, self._graph, self._colimit_builder)
+        if apex != sid:
+            self._graph.remove_skill(sid)
+            res["motivo"] = (
+                f"'{nombre}' verifico en Lean pero NO resulta ser el co-cono "
+                f"limite del patron (find_colimit dio {apex!r}). Revertido: la "
+                "propiedad universal es un test, no una concesion."
+            )
+            return res
+
+        res["ok"] = True
+        res["skill_id"] = sid
+        res["motivo"] = f"'{nombre}' verificado por Lean y confirmado como colimite"
+        logger.info(
+            f"Hueco llenado: {sorted(comps)} -> {sid} ('{nombre}'), "
+            f"lean={lean_res.status.name}, cn={nuevo.cn}"
+        )
+        return res
+
+    def _apply_structural_evolution(self) -> None:
+        """Aplicar al grafo las opciones de los co-reguladores estructurales.
+
+        Paper v7.0, Seccion 6.1: `Skill_{t+1} = Compl(Skill_t, Op_t)`.
+
+        CR_org, CR_str y CR_int tienen como efector el GRAFO, no la respuesta
+        (Def. 4.1: motor de reorganizacion, motor de complejificacion y sistema
+        de reparacion de fracturas). Corren a su propia escala temporal, que
+        `should_activate()` ya gobierna: CR_org cada k interacciones, CR_str
+        cada K sesiones.
+
+        Hasta ahora ejecutaban su ciclo en cada consulta y su Option se tiraba,
+        porque `decide()` solo conserva el tipo de accion del ganador y
+        `_reorganize_graph()` unicamente se invoca con la accion REORGANIZE,
+        que en la practica no se elige nunca. Resultado: el grafo era
+        `Skill_t -> Skill_t` y la complejificacion no ocurria jamas.
+
+        CR_tac se excluye a proposito: su efector es la interfaz LLM<->Lean.
+        """
+        if not (self._evolution and self._cr_network):
+            return
+        resultados = getattr(self._cr_network, "_last_cycle_results", None) or []
+        for cr_type, _accion, option in resultados:
+            if cr_type == CoRegulatorType.TACTICAL:
+                continue
+            if not (option.bindings or option.absorptions or option.eliminations):
+                continue
+            try:
+                antes = len(self._graph.skill_ids)
+                self._evolution.apply_option(option)
+                despues = len(self._graph.skill_ids)
+                logger.info(
+                    f"Complejificacion por {cr_type.name}: "
+                    f"{antes} -> {despues} skills "
+                    f"(ligaduras={len(option.bindings)}, "
+                    f"absorciones={len(option.absorptions)}, "
+                    f"eliminaciones={len(option.eliminations)})"
+                )
+            except Exception as exc:
+                logger.warning(
+                    f"Complejificacion de {cr_type.name} fallo: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+
     def _reorganize_graph(self) -> None:
         """Reorganizar el grafo de skills via co-reguladores MES."""
         if self._cr_network and self._graph:
@@ -1779,7 +2183,15 @@ class Nucleo:
         if orchestrator is None:
             try:
                 from nucleo.multi_agent import MultiAgentOrchestrator
+                # MultiAgentOrchestrator por defecto busca pesos en
+                # <repo>/data/agents (vacio); los 14 pesos reales entrenados
+                # por scripts/train_multiagent.py viven en
+                # <repo>/training/agents/best/{categoria}.pt — hay que
+                # apuntar ahi explicitamente o cada agente "especializado"
+                # cae en silencio al checkpoint global colapsado.
+                _weights_dir = Path(__file__).parent.parent / "training" / "agents" / "best"
                 orchestrator = MultiAgentOrchestrator(
+                    weights_dir=_weights_dir if _weights_dir.exists() else None,
                     lazy=True,
                     pattern_manager=self._pattern_manager,
                     colimit_builder=self._colimit_builder,
@@ -2014,6 +2426,22 @@ class Nucleo:
     # =========================================================================
 
     @property
+    def concept_gaps(self) -> list:
+        """
+        Patrones con co-conos pero sin co-cono limite.
+
+        Cada uno señala un lugar del grafo de conocimiento donde existen
+        cotas superiores de un patron pero ninguna es minimal: falta el
+        concepto que unifica las componentes, o falta una arista de orden
+        en la base estructural.
+
+        NO son errores. Son el disparador legitimo de complexificacion:
+        el concepto que llena el hueco debe aportarlo la matematica
+        (el LLM lo propone, Lean lo verifica), no la cirugia sobre el grafo.
+        """
+        return list(self._concept_gaps)
+
+    @property
     def graph(self) -> SkillCategory:
         """Grafo de skills."""
         if not self._graph:
@@ -2036,6 +2464,19 @@ class Nucleo:
             "num_skills": self._graph.stats["num_skills"] if self._graph else 0,
             "num_interactions": len(self._state.history),
         }
+        # Jerarquia: taxonomia curada (level) vs construccion emergente (cn).
+        # max_cn = 0 y num_joins = 0 significa que el sistema aun no ha
+        # construido ningun concepto propio — es la metrica honesta del
+        # motor de complejificacion, no un error.
+        if self._graph:
+            result["hierarchy"] = {
+                "max_level": self._graph.stats.get("max_level", 0),
+                "max_cn": self._graph.stats.get("max_cn", 0),
+                "num_joins": self._graph.stats.get("num_joins", 0),
+                "level_distribution": self._graph.get_level_distribution(),
+                "cn_distribution": self._graph.get_cn_distribution(),
+                "concept_gaps": len(self._concept_gaps),
+            }
         # Dinamica Global stats (v7.0)
         if self._cr_network:
             result["co_regulators"] = self._cr_network.stats
@@ -2097,15 +2538,92 @@ class Nucleo:
                 if nbr_id.startswith("strategy-") and nbr_id not in strategies:
                     strategies.append(nbr_id)
 
+        # ── Competencias emergentes ──────────────────────────────────────
+        # Si una skill que casa con la consulta pertenece a un colimite, ese
+        # colimite es el objeto por el que factoriza toda accion colectiva del
+        # patron (Def. 2.2). Alcanzarlo cuesta un salto —el co-cono va de cada
+        # componente al colimite— y desde el se recuperan los demas
+        # componentes, que la consulta no habia nombrado.
+        #
+        # Aqui es donde la complejificacion deja de ser andamiaje: el sistema
+        # recuerda que esos skills resuelven problemas juntos y los aporta
+        # aunque el usuario solo haya mencionado uno.
+        competencias: list[str] = []
+        hermanos: list[str] = []
+        for sid in matched:
+            for nbr_id in graph.neighbors(sid):
+                nbr = graph.get_skill(nbr_id)
+                meta = (nbr.metadata or {}) if nbr else {}
+                if not meta.get("emergent"):
+                    continue
+                if nbr.name not in competencias:
+                    competencias.append(nbr.name)
+                for comp in meta.get("components", []):
+                    if comp not in matched and comp not in hermanos:
+                        hermanos.append(comp)
+
         pillar = self._dominant_pillar(matched, graph)
 
-        return {
+        # Alimentar el paisaje de uso de CR_org: estos son los skills que han
+        # trabajado juntos en esta consulta. Cuando un grupo se repite, CR_org
+        # lo liga en un colimite (Def. 4.1 + Seccion 6.2).
+        # getattr: `_find_relevant_context` se invoca tambien sobre instancias
+        # construidas a medias (los tests de jerarquia lo hacen), donde el
+        # atributo aun no existe.
+        _red = getattr(self, "_cr_network", None)
+        if _red is not None and matched:
+            try:
+                _red.record_activation(matched[:6])
+            except Exception as exc:
+                logger.debug(f"record_activation fallo: {exc}")
+
+        ctx = {
             "relevant_skills": matched[:5],
             "prerequisites": deps[:5],
             "suggested_tactics": tactics,
             "proof_strategies": strategies,
             "pillar": pillar,
         }
+        # Solo se anaden si existen: un bloque vacio en el prompt es ruido.
+        if competencias:
+            ctx["competencia_emergente"] = competencias[:2]
+        if hermanos:
+            ctx["skills_que_suelen_acompanar"] = hermanos[:5]
+
+        formal_note = self._formal_pillar_note(matched)
+        if formal_note:
+            ctx["formal_definitions"] = formal_note
+
+        return ctx
+
+    def _formal_pillar_note(self, matched_skill_ids: list[str]) -> Optional[str]:
+        """
+        Enriquecimiento con las formulas exactas de los 4 pilares formales
+        (nucleo/pillars/{set_theory,category_theory,logic,type_theory}.py).
+        Esas clases existian pero nada las consultaba: el grafo real usa
+        Skill.description (texto libre), nunca las formulas/traductores que
+        SI tienen SetTheoryPillar.describe_axiom, CurryHoward, etc. Aqui se
+        ancla el prompt del LLM a la formula literal cuando la consulta toca
+        una de esas skills, en vez de dejar que el LLM la recuerde de memoria.
+
+        Devuelve None si ninguna skill emparejada tiene una nota formal
+        conocida (caso comun) — no se inventa contenido para el resto.
+        """
+        if "zfc-axioms" not in matched_skill_ids:
+            return None
+        try:
+            if self._set_theory_pillar is None:
+                from nucleo.pillars.set_theory import SetTheoryPillar
+                self._set_theory_pillar = SetTheoryPillar()
+            from nucleo.pillars.set_theory import ZFCAxiom
+            lines = [
+                f"- {axiom.name}: {self._set_theory_pillar.describe_axiom(axiom)}"
+                for axiom in ZFCAxiom
+            ]
+            return "Axiomas de ZFC (formula de primer orden exacta):\n" + "\n".join(lines)
+        except Exception as e:
+            logger.debug(f"_formal_pillar_note error (no bloqueante): {e}")
+            return None
 
     def _match_skills_to_query(
         self, query: str, graph: SkillCategory

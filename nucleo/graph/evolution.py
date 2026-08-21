@@ -195,16 +195,23 @@ class EvolutionarySystem:
         graph: SkillCategory,
         pattern_manager: Optional[PatternManager] = None,
         max_history: int = 100,
+        colimit_builder: Optional[ColimitBuilder] = None,
     ):
         """
         Args:
             graph: Categoria de skills actual
-            pattern_manager: Gestor de patrones (crea uno nuevo si None)
+            pattern_manager: Gestor de patrones. DEBE ser el mismo que usan los
+                co-reguladores: si se deja en None se crea uno vacio propio, y
+                entonces las ligaduras que proponen los CRs apuntan a patrones
+                que este sistema no conoce. `apply_option` haria get_pattern()
+                -> None y descartaria la complejificacion en silencio.
             max_history: Maximo de snapshots a mantener en historial
+            colimit_builder: Constructor de colimites; por el mismo motivo debe
+                compartirse, o `has_colimit()` consultara un registro distinto.
         """
         self._graph = graph
         self._pattern_manager = pattern_manager or PatternManager()
-        self._colimit_builder = ColimitBuilder(self._pattern_manager)
+        self._colimit_builder = colimit_builder or ColimitBuilder(self._pattern_manager)
         self._max_history = max_history
 
         # Historial

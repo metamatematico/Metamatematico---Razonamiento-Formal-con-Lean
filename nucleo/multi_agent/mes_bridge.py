@@ -201,13 +201,18 @@ class MESBridge:
             f"Convergencia detectada: [{cats_str}] en query {query[:50]!r}"
         )
 
-        # Colímite real si está disponible
+        # Colímite real si está disponible.
+        # Los componentes del patrón deben ser IDs de skills que YA existen
+        # en el grafo (no marcadores sintéticos "skill_<categoria>", que
+        # nunca fueron nodos reales — build_colimit fallaba silenciosamente
+        # contra ellos). Se usa el skill representativo de cada categoría,
+        # identificado por metadata["category"] tal como lo etiqueta
+        # nucleo/pillars/math_domains.py::load_math_domains.
         if self.colimit_builder is not None and self.skill_graph is not None:
             try:
-                from nucleo.mes.patterns import Pattern as MESPattern
-                skill_ids = [f"skill_{c}" for c in categories]
+                skill_ids = self._representative_skill_ids(categories)
                 pat = None
-                if self.pattern_manager:
+                if self.pattern_manager and len(skill_ids) >= 2:
                     pat = self.pattern_manager.create_pattern(
                         component_ids=skill_ids,
                         distinguished_links=[],
@@ -215,8 +220,8 @@ class MESBridge:
                         graph=self.skill_graph,
                     )
                 if pat:
-                    colimit = self.colimit_builder.build_colimit(pat, self.skill_graph)
-                    logger.info(f"Skill emergente construida: {colimit}")
+                    _, colimit = self.colimit_builder.build_colimit(pat, self.skill_graph, verify=False)
+                    logger.info(f"Skill emergente construida: {colimit.id}")
             except Exception as e:
                 logger.debug(f"ColimitBuilder error (no bloqueante): {e}")
 
@@ -232,20 +237,43 @@ class MESBridge:
         self._emergent_skills.append(emergent)
         self.total_emergent += 1
 
-        # Añadir al grafo de skills si está disponible
-        if self.skill_graph is not None:
+        # Añadir al grafo de skills si está disponible.
+        # nucleo.graph.skills no existe: el módulo real es nucleo.graph.category,
+        # y add_skill() espera un nucleo.types.Skill, no un SkillNode (ese es un
+        # wrapper interno que SkillCategory construye por sí sola).
+        if self.skill_graph is not None and not self.skill_graph.get_skill(emergent_id):
             try:
-                from nucleo.graph.skills import SkillNode, SkillLevel
-                node = SkillNode(
-                    skill_id=emergent_id,
+                from nucleo.types import Skill
+                skill = Skill(
+                    id=emergent_id,
                     name=f"Emergent: {cats_str}",
-                    level=SkillLevel.L2,
+                    description=f"Habilidad emergente por convergencia de agentes: {cats_str}",
+                    level=2,
                     metadata={"emergent": True, "categories": list(categories)},
                 )
-                self.skill_graph.add_skill(node)
+                self.skill_graph.add_skill(skill)
                 logger.info(f"Skill emergente añadida al grafo: {emergent_id}")
             except Exception as e:
                 logger.debug(f"No se pudo añadir skill emergente al grafo: {e}")
+
+    def _representative_skill_ids(self, categories: set) -> List[str]:
+        """
+        Para cada categoria, devuelve el ID de un skill real del grafo
+        etiquetado con metadata["category"] == categoria (el esquema que usa
+        nucleo/pillars/math_domains.py). Se prefiere el skill de menor nivel
+        (mas fundamental) de cada categoria. Categorias sin ningun skill
+        etiquetado se omiten en vez de inventar un ID sintetico.
+        """
+        if self.skill_graph is None:
+            return []
+        by_category: Dict[str, Tuple[int, str]] = {}
+        for sk in self.skill_graph.skills:
+            cat = sk.metadata.get("category") if sk.metadata else None
+            if cat in categories:
+                best = by_category.get(cat)
+                if best is None or sk.level < best[0]:
+                    by_category[cat] = (sk.level, sk.id)
+        return [skill_id for _, skill_id in by_category.values()]
 
     def query_best_tactic(self, category: str, query: str) -> Optional[str]:
         """

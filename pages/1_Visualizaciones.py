@@ -496,7 +496,7 @@ def fig_skill_graph(filter_cat=None, query=None):
 @st.cache_data
 def build_embeddings():
     """
-    Embeddings semánticos de los 76 skills usando el mismo BOW que el sistema real.
+    Embeddings semánticos de los skills usando el mismo BOW que el sistema real.
     Skills del mismo dominio se agrupan porque comparten vocabulario matemático.
     El espacio es compatible con los query embeddings generados por el chat.
     """
@@ -1031,6 +1031,142 @@ def fig_mes_complexification(query=None):
 
 # ─── PIPELINE CR_TAC ─────────────────────────────────────────────────────────
 
+# =============================================================================
+# EMERGENCIA — co-conos, co-conos limite y huecos conceptuales
+# =============================================================================
+
+def _get_nucleo_viz():
+    """Nucleo compartido con app.py via cache_resource (mismo patron que pag. 2)."""
+    import sys as _sys
+    from pathlib import Path as _Path
+    for mod_name in ("__main__", "app"):
+        mod = _sys.modules.get(mod_name)
+        if mod is not None and hasattr(mod, "_get_nucleo"):
+            return mod._get_nucleo()
+    import importlib
+    root = str(_Path(__file__).parent.parent)
+    if root not in _sys.path:
+        _sys.path.insert(0, root)
+    return importlib.import_module("app")._get_nucleo()
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def _emergencia_data():
+    """
+    Extrae del Nucleo los co-conos limite descubiertos y los huecos.
+
+    Devuelve dicts planos (cacheables), no objetos del grafo.
+    """
+    nucleo = _get_nucleo_viz()
+    if nucleo is None or nucleo.graph is None:
+        return None
+    g = nucleo.graph
+    colimites, vistos = [], set()
+    for c in nucleo._colimit_builder.all_colimits:
+        pat = nucleo._pattern_manager.get_pattern(c.pattern_id)
+        if not pat:
+            continue
+        clave = frozenset(pat.component_ids)
+        if clave in vistos:
+            continue
+        vistos.add(clave)
+        apex = g.get_skill(c.skill_id)
+        if apex is None:
+            continue
+        colimites.append({
+            "componentes": list(pat.component_ids),
+            "apex": c.skill_id,
+            "apex_nombre": apex.name,
+            "cn": apex.cn,
+            "level": apex.level,
+            # Espurio = una TACTICA/ESTRATEGIA aparece como colimite de
+            # DOMINIOS MATEMATICOS. Que una estrategia sea el colimite de
+            # tacticas (strategy-forward = join(tactic-rewrite, tactic-apply))
+            # es legitimo: es la jerarquia interna del pilar de pruebas.
+            "espurio": (
+                c.skill_id.startswith(("tactic-", "strategy-"))
+                and any(not x.startswith(("tactic-", "strategy-"))
+                        for x in pat.component_ids)
+            ),
+        })
+    huecos = [
+        {"componentes": list(gp.component_ids),
+         "n_cocones": gp.n_cocones,
+         "cocones": list(gp.cocones)[:12]}
+        for gp in nucleo.concept_gaps
+    ]
+    return {
+        "colimites": sorted(colimites, key=lambda d: (-d["cn"], d["apex"])),
+        "huecos": sorted(huecos, key=lambda d: -d["n_cocones"]),
+        "hierarchy": nucleo.stats.get("hierarchy", {}),
+        "nombres": {sid: (g.get_skill(sid).name if g.get_skill(sid) else sid)
+                    for sid in g.skill_ids},
+    }
+
+
+def fig_cocone_diagram(componentes, apex, apex_nombre, cocones_extra, nombres):
+    """
+    Dibuja el co-cono limite: componentes -> apex, y el mediador unico
+    apex -> X hacia cualquier otro co-cono X.
+
+    En la categoria thin el mediador es unico automaticamente
+    (thin_unique_hom, ComplexityOrder.lean), por eso se dibuja punteado.
+    """
+    fig, ax = plt.subplots(figsize=(11, 5.6), facecolor=BG)
+    ax.set_facecolor(BG); ax.axis("off")
+    ax.set_xlim(-1.2, 11.2); ax.set_ylim(-1.4, 4.6)
+
+    n = len(componentes)
+    xs = np.linspace(1.0, 6.0, max(n, 2))[:n] if n > 1 else np.array([3.5])
+    y_comp, y_apex = 0.2, 2.9
+    x_apex = float(np.mean(xs))
+
+    # Componentes del patron P
+    for x, cid in zip(xs, componentes):
+        ax.add_patch(FancyBboxPatch((x - 0.72, y_comp - 0.28), 1.44, 0.56,
+                                    boxstyle="round,pad=0.05",
+                                    facecolor="#1f2937", edgecolor="#4b5563",
+                                    linewidth=1.2, zorder=3))
+        ax.text(x, y_comp, nombres.get(cid, cid)[:20], ha="center", va="center",
+                color=FG, fontsize=7.6, zorder=4)
+        ax.annotate("", xy=(x_apex, y_apex - 0.30), xytext=(x, y_comp + 0.30),
+                    arrowprops=dict(arrowstyle="-|>", color="#22c55e",
+                                    linewidth=1.7, shrinkA=1, shrinkB=1))
+
+    # Apex = co-cono limite
+    ax.add_patch(FancyBboxPatch((x_apex - 1.15, y_apex - 0.34), 2.30, 0.68,
+                                boxstyle="round,pad=0.06",
+                                facecolor="#166534", edgecolor="#22c55e",
+                                linewidth=2.0, zorder=3))
+    ax.text(x_apex, y_apex, apex_nombre[:24], ha="center", va="center",
+            color="#dcfce7", fontsize=9, fontweight="bold", zorder=4)
+    ax.text(x_apex, y_apex + 0.62, "co-cono LÍMITE  (colim P)", ha="center",
+            color="#22c55e", fontsize=8, zorder=4)
+
+    # Otros co-conos + mediador unico
+    if cocones_extra:
+        ys = np.linspace(3.9, 0.2, min(len(cocones_extra), 4))
+        for y, xid in zip(ys, cocones_extra[:4]):
+            ax.add_patch(FancyBboxPatch((8.5, y - 0.24), 2.3, 0.48,
+                                        boxstyle="round,pad=0.04",
+                                        facecolor="#161b22", edgecolor="#30363d",
+                                        linewidth=1.0, zorder=3))
+            ax.text(9.65, y, nombres.get(xid, xid)[:22], ha="center", va="center",
+                    color="#9ca3af", fontsize=7.2, zorder=4)
+            ax.annotate("", xy=(8.45, y), xytext=(x_apex + 1.2, y_apex),
+                        arrowprops=dict(arrowstyle="-|>", color="#f59e0b",
+                                        linewidth=1.3, linestyle=(0, (4, 2)),
+                                        shrinkA=2, shrinkB=2))
+        ax.text(9.65, 4.32, "otros co-conos", ha="center",
+                color="#9ca3af", fontsize=8)
+        ax.text((x_apex + 9.0) / 2, y_apex + 0.30, "∃! mediador",
+                ha="center", color="#f59e0b", fontsize=7.6, style="italic")
+
+    ax.text(x_apex, -1.05, "patrón P", ha="center", color="#6b7280", fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
 def fig_pipeline():
     fig, ax = plt.subplots(figsize=(13, 4.5), facecolor=BG)
     ax.set_facecolor(BG)
@@ -1465,7 +1601,7 @@ def fig_proof_trace(query: str):
 
 # ─── INTERFAZ STREAMLIT ───────────────────────────────────────────────────────
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "⬡ Grafo de Skills",
     "◎ Espacio de Embeddings",
     "⚙ Arquitectura NLE",
@@ -1474,6 +1610,7 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
     "⊛ GNN + Estadísticas",
     "🔍 Traza de Prueba",
     "🤖 Agentes",
+    "⧉ Emergencia",
 ])
 
 with tab1:
@@ -1481,7 +1618,7 @@ with tab1:
         st.markdown(f"**Grafo completo** — nodos resaltados según la consulta activa. "
                     f"🟡 activados · 🟣 dependencias · 🟢 tácticas · gris=no involucrados")
     else:
-        st.markdown("**Grafo categórico completo de los 76 skills** — nodos por dominio, aristas por tipo de morfismo.")
+        st.markdown("**Grafo categórico completo** — nodos por dominio, aristas por tipo de morfismo.")
     cats_filter = ["Todos"] + list(PALETTE.keys())
     sel = st.selectbox("Filtrar por categoría", cats_filter, key="cat_filter")
     try:
@@ -1621,7 +1758,7 @@ La **extensión del grafo** K' añade join[P] al grafo junto con los morfismos d
 
 Este proceso modela cómo el sistema *aprende*: combina skills conocidos para crear competencias emergentes (Axiomas 8.1–8.4 del paper NLE v7.0).
 
-**Verificado formalmente**: 379 tests confirman:
+**Verificado formalmente**: 435 tests confirman:
 - Propiedad universal del join (is_join)
 - Functorialidad de la extensión del grafo
 - Principio de multiplicidad
@@ -1672,10 +1809,22 @@ with tab6:
     st.divider()
     col1, col2, col3, col4 = st.columns(4)
     _vd6 = _vd()
-    _n_skills6 = len(_vd6["graph_nodes"]) if _vd6 and _vd6.get("graph_nodes") else 76
-    col1.metric("Skills totales", str(_n_skills6), "10 fundamentos + 66 dominio")
+    # Cifras en vivo desde el grafo real; los literales quedaban obsoletos con
+    # cada ampliacion del dominio (decian 76 con 172 skills cargados).
+    _n_skills6, _sub6 = None, ""
+    try:
+        _em6 = _emergencia_data()
+        if _em6:
+            _ld6 = {int(k): v for k, v in _em6["hierarchy"].get("level_distribution", {}).items()}
+            _n_skills6 = sum(_ld6.values())
+            _sub6 = f"{_ld6.get(0, 0)} fundamentos + {_n_skills6 - _ld6.get(0, 0)} dominio"
+    except Exception:
+        pass
+    if _n_skills6 is None:
+        _n_skills6 = len(_vd6["graph_nodes"]) if _vd6 and _vd6.get("graph_nodes") else 0
+    col1.metric("Skills totales", str(_n_skills6), _sub6 or None)
     col2.metric("Parámetros GNN+PPO", "124,420", "3 capas GATConv")
-    col3.metric("Tests", "379", "17 suites")
+    col3.metric("Tests", "435", "19 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
@@ -1892,7 +2041,7 @@ with tab8:
         ]
         ax.legend(handles=legend_h, loc="lower center", bbox_to_anchor=(0.5, -0.02),
                   ncol=3, fontsize=7, facecolor="#0d1117", edgecolor="#21262d", labelcolor="#9ca3af")
-        ax.set_title("Jerarquía L0→L1→L2→L3 · 14 join-envoltorios (Principio 3.1) · 76 skills",
+        ax.set_title("Jerarquía L0→L1→L2→L3 · 14 join-envoltorios (Principio 3.1) · 172 skills",
                      color="#c9d1d9", fontsize=11, pad=8)
         fig.tight_layout()
         return fig
@@ -1954,3 +2103,153 @@ with tab8:
         _fig_b.tight_layout()
         st.pyplot(_fig_b, width="stretch")
         plt.close(_fig_b)
+
+
+# =============================================================================
+with tab9:
+    st.markdown("### ⧉ Emergencia — co-conos límite y huecos conceptuales")
+    st.caption(
+        "El grafo **descubre** sus colímites; no los fabrica. Un co-cono sobre un "
+        "patrón P es una cota superior de sus componentes; el **co-cono límite** es "
+        "la minimal entre ellas — el colímite. En la categoría delgada la unicidad "
+        "del mediador es automática (`thin_unique_hom`, `ComplexityOrder.lean`)."
+    )
+
+    _em, _stale = None, False
+    try:
+        _em = _emergencia_data()
+    except AttributeError:
+        # El Nucleo cacheado por @st.cache_resource es de una version anterior
+        # del codigo (sin cn / concept_gaps). Streamlit recarga los .py al
+        # vuelo, pero NO reconstruye los objetos de cache_resource.
+        _stale = True
+    except Exception as _e:
+        st.error(f"No se pudo leer el estado de emergencia: {_e}")
+
+    if _stale:
+        st.warning(
+            "**Reinicia la aplicación para ver esta vista.** "
+            "El Núcleo en memoria se creó con una versión anterior del código y "
+            "`@st.cache_resource` no lo reconstruye al recargar la página. "
+            "Cierra la app y vuelve a abrirla desde el acceso directo "
+            "*Metamatemático*, o pulsa «Clear cache» en el menú ⋮ de Streamlit.",
+            icon="🔄",
+        )
+    elif _em is None:
+        st.info("El Núcleo no está inicializado todavía. Vuelve al chat y espera al arranque.")
+    else:
+        _h = _em["hierarchy"]
+        _legit = [c for c in _em["colimites"] if not c["espurio"]]
+        _esp   = [c for c in _em["colimites"] if c["espurio"]]
+
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Co-conos límite", len(_em["colimites"]),
+                  help="Colímites descubiertos en el grafo. No se fabrica ninguno.")
+        c2.metric("Profundidad cn", _h.get("max_cn", 0),
+                  help="Orden de complejidad constructivo máximo. cn(J)=1+max{cn(Pi)}.")
+        c3.metric("Huecos conceptuales", len(_em["huecos"]),
+                  help="Patrones con co-conos pero sin co-cono límite.")
+        c4.metric("Skills", sum(_h.get("level_distribution", {}).values()) or 0,
+                  help="El grafo no crece al descubrir: se descubre, no se fabrica.")
+
+        st.divider()
+
+        # ── Jerarquía: taxonomía vs construcción ─────────────────────────────
+        st.markdown("#### Taxonomía curada vs. construcción emergente")
+        st.caption(
+            "`level` = dónde sitúan las matemáticas al concepto (lo cura el humano). "
+            "`cn` = cuántas capas de colímites construyó el sistema. "
+            "**Son ortogonales**: una sub-rama L3 recién declarada tiene `level=3` y `cn=0`."
+        )
+        _ld = {int(k): v for k, v in _h.get("level_distribution", {}).items()}
+        _cd = {int(k): v for k, v in _h.get("cn_distribution", {}).items()}
+        _figh, _axh = plt.subplots(1, 2, figsize=(11, 3.2), facecolor=BG)
+        for _ax, _d, _t, _c in (
+            (_axh[0], _ld, "level — taxonomía curada", "#60a5fa"),
+            (_axh[1], _cd, "cn — construcción emergente", "#22c55e"),
+        ):
+            _ax.set_facecolor(BG)
+            _ks = sorted(_d)
+            _ax.bar([str(k) for k in _ks], [_d[k] for k in _ks], color=_c, alpha=0.85)
+            _ax.set_title(_t, color=FG, fontsize=9)
+            _ax.tick_params(colors="#8b949e", labelsize=8)
+            for _sp in _ax.spines.values():
+                _sp.set_color("#30363d")
+            for _k in _ks:
+                _ax.text(str(_k), _d[_k], str(_d[_k]), ha="center", va="bottom",
+                         color=FG, fontsize=8)
+        _figh.tight_layout()
+        st.pyplot(_figh, width="stretch")
+        plt.close(_figh)
+
+        st.divider()
+
+        # ── Co-conos límite descubiertos ─────────────────────────────────────
+        st.markdown(f"#### Co-conos límite descubiertos ({len(_legit)} legítimos)")
+        if not _legit:
+            st.info("Aún no se ha descubierto ningún colímite.")
+        else:
+            _nom = _em["nombres"]
+            _opts = [
+                f"cn={c['cn']} · {' + '.join(_nom.get(x, x) for x in c['componentes'][:3])} → {c['apex_nombre']}"
+                for c in _legit
+            ]
+            _sel = st.selectbox("Selecciona un colímite para ver su diagrama", _opts, key="colim_sel")
+            _c = _legit[_opts.index(_sel)]
+
+            _gap_map = {frozenset(g["componentes"]): g for g in _em["huecos"]}
+            _extra = [x for x in _gap_map.get(frozenset(_c["componentes"]), {}).get("cocones", [])
+                      if x != _c["apex"]]
+            try:
+                _figc = fig_cocone_diagram(_c["componentes"], _c["apex"],
+                                           _c["apex_nombre"], _extra, _nom)
+                st.pyplot(_figc, width="stretch")
+                plt.close(_figc)
+            except Exception as _e:
+                st.error(f"Error al dibujar el co-cono: {_e}")
+
+            st.markdown("**Todos los colímites descubiertos**")
+            st.dataframe(
+                [{"cn": c["cn"],
+                  "componentes (patrón P)": " + ".join(_nom.get(x, x) for x in c["componentes"]),
+                  "co-cono límite": c["apex_nombre"]}
+                 for c in _legit],
+                width="stretch", hide_index=True,
+            )
+            if _esp:
+                with st.expander(f"⚠ {len(_esp)} colímite(s) con ápex en una táctica — revisar aristas de orden"):
+                    st.caption(
+                        "Una táctica o estrategia como colímite de **dominios matemáticos** "
+                        "indica una arista `DEPENDENCY` mal puesta: los dominios deben "
+                        "conectarse a las tácticas con `TRANSLATION`, que queda fuera del orden. "
+                        "(Una estrategia como colímite de *tácticas* sí es legítima y no aparece aquí.)"
+                    )
+                    st.dataframe(
+                        [{"componentes": " + ".join(_nom.get(x, x) for x in c["componentes"]),
+                          "ápex": c["apex"]} for c in _esp],
+                        width="stretch", hide_index=True,
+                    )
+
+        st.divider()
+
+        # ── Huecos conceptuales ──────────────────────────────────────────────
+        st.markdown(f"#### Huecos conceptuales ({len(_em['huecos'])})")
+        st.caption(
+            "Patrones con co-conos pero **ninguno minimal**: el colímite no existe en el grafo. "
+            "No son errores — señalan dónde falta el concepto que unifica las componentes, "
+            "o una arista de orden en la base estructural. Es el disparador legítimo de "
+            "complexificación: el concepto lo debe aportar la matemática (el LLM lo propone, "
+            "Lean lo verifica), no la cirugía sobre el grafo."
+        )
+        if not _em["huecos"]:
+            st.success("Sin huecos: todo patrón de convergencia tiene su co-cono límite.")
+        else:
+            _nom = _em["nombres"]
+            st.dataframe(
+                [{"patrón P": " + ".join(_nom.get(x, x) for x in g["componentes"]),
+                  "co-conos": g["n_cocones"],
+                  "algunas cotas superiores": ", ".join(
+                      _nom.get(x, x) for x in g["cocones"][:4])}
+                 for g in _em["huecos"]],
+                width="stretch", hide_index=True,
+            )

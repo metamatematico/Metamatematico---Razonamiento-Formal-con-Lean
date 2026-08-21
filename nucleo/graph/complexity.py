@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import logging
 import uuid
+from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
 
 from nucleo.types import Skill, MorphismType, PillarType
@@ -108,124 +109,189 @@ def compute_complexity_order(
 # JOIN DISCOVERY
 # =============================================================================
 
-def find_existing_join(
+@dataclass
+class ConceptGap:
+    """
+    Un patron que tiene CO-CONOS pero ningun CO-CONO LIMITE.
+
+    Es decir: existen cotas superiores de las componentes, pero ninguna es
+    minimal. Categoricamente, el colimite del patron NO existe en G_n.
+
+    Esto NO es un defecto que parchear — es informacion. Significa que al
+    grafo de conocimiento le falta el concepto que unifica las componentes,
+    o que la base estructural esta incompleta (falta una arista de orden).
+
+    Es el disparador legitimo de complexificacion (Ehresmann): el concepto
+    nuevo debe aportarlo la matematica (LLM propone, Lean verifica), no la
+    cirugia sobre el grafo. Fabricar un vertice y cablearlo para que cumpla
+    la propiedad universal es asumir la conclusion.
+    """
+    component_ids: list[str]
+    cocones: list[str]          # cotas superiores encontradas (co-conos)
+    pattern_id: Optional[str] = None
+
+    @property
+    def n_cocones(self) -> int:
+        return len(self.cocones)
+
+    def __repr__(self) -> str:
+        comps = ", ".join(self.component_ids[:3])
+        resto = len(self.component_ids) - 3
+        if resto > 0:
+            comps += f" (+{resto})"
+        return f"ConceptGap([{comps}], {len(self.cocones)} co-conos, sin limite)"
+
+
+def find_cocones(
+    component_ids: list[str],
+    graph: "SkillCategory",
+) -> list[str]:
+    """
+    Encuentra los CO-CONOS del patron: los objetos X con Pi ≤ X para todo i.
+
+    En una categoria thin, un co-cono sobre P con vertice X es exactamente una
+    cota superior de las componentes: la familia {Pi → X} conmuta automaticamente
+    porque Hom tiene a lo sumo un elemento (thin_unique_hom, ComplexityOrder.lean).
+
+    NO filtra por minimalidad — eso es find_colimit. Puede devolver 0, 1 o muchos.
+    No crea nada.
+    """
+    if not component_ids:
+        return []
+    _ORD = type(graph).ORDER_MORPHISMS
+    reachable_sets = [graph.reachable_from(c, _ORD) for c in component_ids]
+    common = reachable_sets[0].copy()
+    for r in reachable_sets[1:]:
+        common &= r
+    for c in component_ids:
+        common.discard(c)
+    return sorted(common)
+
+
+def find_colimit(
     component_ids: list[str],
     graph: "SkillCategory",
     colimit_builder: "ColimitBuilder",
 ) -> Optional[str]:
     """
-    Find a skill already in the graph that is the join of component_ids.
+    Encuentra el CO-CONO LIMITE: el co-cono universal (inicial) del patron.
 
-    A skill J is the join of S iff:
-      1. ∀ c ∈ S: c ≤ J  (J is an upper bound)
-      2. ∀ X ∈ G_n: (∀ c ≤ X) → J ≤ X  (J is the minimal upper bound)
+    Un skill J es el colimite de S iff:
+      1. ∀ c ∈ S: c ≤ J          (J es co-cono / cota superior)
+      2. ∀ X ∈ G_n: (∀c ≤ X) → J ≤ X   (J es minimal entre los co-conos)
 
-    Returns the skill_id if found, None otherwise.
+    En la categoria thin esto es el join, y la unicidad del mediador es
+    automatica (JoinColimit.lean, IsColimitBridge.lean).
+
+    La universalidad es un TEST, nunca una construccion: si ningun objeto de
+    G_n la cumple, el colimite no existe y se devuelve None. Ver ConceptGap.
+
+    Returns:
+        skill_id del colimite, o None si el patron no tiene co-cono limite.
     """
-    for skill_id in graph.skill_ids:
-        if skill_id in component_ids:
-            continue
-        result = colimit_builder.is_join(skill_id, component_ids, graph)
-        if result["is_join"]:
-            return skill_id
+    cocones = find_cocones(component_ids, graph)
+    if not cocones:
+        return None
+
+    # Minimalidad: apex ≤ X para toda cota superior X. Las cotas superiores son
+    # EXACTAMENTE los co-conos, asi que basta comparar dentro de `cocones` en vez
+    # de recorrer los 172 skills del grafo por candidato (que es lo que hace
+    # is_join). Mismo resultado, O(|cocones|^2) en lugar de O(|cocones| * |G_n|).
+    _ORD = type(graph).ORDER_MORPHISMS
+    for apex in cocones:
+        if all(
+            graph.is_preorder_leq(apex, x, _ORD)
+            for x in cocones if x != apex
+        ):
+            # Confirmacion con la verificacion completa (upper bound + minimalidad)
+            if colimit_builder.is_join(apex, component_ids, graph)["is_join"]:
+                return apex
     return None
+
+
+def find_existing_join(
+    component_ids: list[str],
+    graph: "SkillCategory",
+    colimit_builder: "ColimitBuilder",
+) -> Optional[str]:
+    """Alias historico de find_colimit(). Mantener por compatibilidad."""
+    return find_colimit(component_ids, graph, colimit_builder)
 
 
 def build_join_for_pattern(
     pattern: "Pattern",
     graph: "SkillCategory",
     colimit_builder: "ColimitBuilder",
-) -> Optional["Colimit"]:
+) -> "Optional[Colimit] | ConceptGap":
     """
-    Find or create the join skill for a pattern.
+    Descubre y registra el CO-CONO LIMITE de un patron. Nunca lo fabrica.
 
-    Steps:
-      1. Check if a join already exists in the graph (is_join check).
-      2. If yes: register it as a colimit and return.
-      3. If no: create a new join skill, add cocone morphisms (comp → join),
-         then add outgoing morphisms to all existing upper bounds to ensure
-         minimality (join ≤ X for every upper bound X).
+    Pasos:
+      1. Si el patron ya tiene colimite registrado, devolverlo.
+      2. Buscar el co-cono limite entre los objetos de G_n (find_colimit).
+      3. Si existe: registrarlo (operacion PURA, no muta el grafo).
+      4. Si no existe: devolver ConceptGap con los co-conos encontrados.
 
-    In the thin category, the join is the minimal upper bound.
+    POR QUE NO SE FABRICA
+    ---------------------
+    La version anterior, cuando no encontraba colimite, creaba un skill nuevo
+    y le añadia (a) morfismos co-cono desde las componentes y (b) morfismos
+    salientes a todas las cotas superiores "para asegurar minimalidad".
+
+    Eso tenia tres problemas:
+
+    1. No es emergencia. Inventar un vertice y cablearlo para que cumpla la
+       propiedad universal es asumir la conclusion. El colimite debe
+       DESCUBRIRSE como el co-cono universal entre los que ya hay; la
+       universalidad es un test, no una construccion.
+
+    2. No terminaba. Cada nodo fabricado quedaba por encima de >= 2
+       componentes, luego era un nuevo punto de convergencia, luego se
+       fabricaba otro encima. Medido sobre el grafo real (172 skills):
+       iter 1 -> 44 patrones, 41 joins, grafo 172->195;
+       iter 2 -> 94 patrones. Crecia en vez de converger.
+
+    3. Reescribia el objeto que analizaba. Insertar el nodo entre las
+       componentes y sus cotas superiores reales cambia el preorden, asi que
+       colimites que antes eran validos dejaban de ser minimales.
+
+    Sin fabricacion la terminacion es estructural: no se añaden nodos, luego no
+    aparecen puntos de convergencia nuevos, luego el conjunto de patrones es
+    estable y el punto fijo llega en la iteracion 2. Y entonces si aplica
+    `hierarchy_well_founded` de ComplexityOrder.lean, que mide cn sobre una
+    estructura FIJA.
 
     Returns:
-        Colimit object if successful, None if pattern has < 2 components
-        or the join already has a registered colimit.
+        Colimit    si el patron tiene co-cono limite en G_n.
+        ConceptGap si tiene co-conos pero ninguno es minimal.
+        None       si el patron tiene menos de 2 componentes.
     """
     if len(pattern.component_ids) < 2:
         return None
 
-    # Already registered?
-    if colimit_builder.get_colimit_for_pattern(pattern.id) is not None:
-        return colimit_builder.get_colimit_for_pattern(pattern.id)
+    # Ya registrado?
+    existing = colimit_builder.get_colimit_for_pattern(pattern.id)
+    if existing is not None:
+        return existing
 
-    # Step 1: look for an existing join in the graph
-    existing_join_id = find_existing_join(
-        pattern.component_ids, graph, colimit_builder
+    join_id = find_colimit(pattern.component_ids, graph, colimit_builder)
+    if join_id is not None:
+        # Registro puro: construye el cocone_map desde morfismos existentes.
+        # No añade skills ni aristas.
+        return colimit_builder._register_existing_join(pattern, join_id, graph)
+
+    # Sin co-cono limite: el colimite NO existe en G_n. Es un hueco conceptual,
+    # no un fallo. Lo emitimos para que el MES lo trate (CR_org/CR_str proponen
+    # la complexificacion; el concepto que la llena lo aporta la matematica).
+    cocones = find_cocones(pattern.component_ids, graph)
+    logger.debug(
+        f"ConceptGap: patron {pattern.id} tiene {len(cocones)} co-conos "
+        f"pero ninguno minimal — no se fabrica vertice"
     )
-    if existing_join_id:
-        return colimit_builder._register_existing_join(
-            pattern, existing_join_id, graph
-        )
-
-    # Step 2: create a new join skill
-    dominant_pillar = _dominant_pillar(pattern.component_ids, graph)
-    max_level = max(
-        (graph.get_skill(c).level if graph.get_skill(c) else 0)
-        for c in pattern.component_ids
-    )
-
-    join_skill = Skill(
-        id=f"join_{uuid.uuid4().hex[:8]}",
-        name=_join_name(pattern.component_ids, graph),
-        description=(
-            "Emergent join — complexity order cn="
-            + str(max_level + 1)
-            + " (auto-computed by build_hierarchy_to_fixpoint)"
-        ),
-        pillar=dominant_pillar,
-        level=max_level + 1,  # preliminary; overwritten by apply_complexity_order
-        pattern_ids=list(pattern.component_ids),
-        metadata={
-            "is_emergent_join": True,
-            "pattern_id": pattern.id,
-            "cn_estimate": max_level + 1,
-        },
-    )
-    graph.add_skill(join_skill)
-
-    # Step 3: cocone morphisms — component → join
-    cocone_map: dict[str, str] = {}
-    for comp_id in pattern.component_ids:
-        morph = graph.add_morphism(
-            comp_id,
-            join_skill.id,
-            morphism_type=MorphismType.DEPENDENCY,
-            weight=1.0,
-            metadata={"is_cocone": True, "pattern_id": pattern.id},
-        )
-        if morph:
-            cocone_map[comp_id] = morph.id
-
-    # Step 4: outgoing morphisms to all existing upper bounds
-    # This enforces minimality: join ≤ X for every upper bound X.
-    # (In the preorder, "join ≤ X" = there is a morphism join → X.)
-    upper_bounds = _find_upper_bounds(
-        pattern.component_ids, graph, join_skill.id
-    )
-    for ub_id in upper_bounds:
-        if not graph.has_morphism(join_skill.id, ub_id):
-            graph.add_morphism(
-                join_skill.id,
-                ub_id,
-                morphism_type=MorphismType.DEPENDENCY,
-                weight=1.0,
-                metadata={"universal_mediator": True},
-            )
-
-    # Step 5: register as colimit (with verification)
-    return colimit_builder._register_new_colimit(
-        pattern, join_skill.id, cocone_map, graph
+    return ConceptGap(
+        component_ids=list(pattern.component_ids),
+        cocones=cocones,
+        pattern_id=pattern.id,
     )
 
 
@@ -287,87 +353,98 @@ def build_hierarchy_to_fixpoint(
     pattern_manager: "PatternManager",
     colimit_builder: "ColimitBuilder",
     max_iterations: int = 20,
-) -> dict[str, int]:
+) -> "tuple[dict[str, int], list[ConceptGap]]":
     """
-    Build the emergent skill hierarchy iteratively until fixpoint.
+    Descubre la jerarquia emergente hasta el punto fijo.
 
-    At each step:
-      1. Detect convergence patterns (nodes with ≥ 2 direct predecessors).
-      2. For each pattern without a registered join: find or build one.
-      3. Stop when no new joins are created (fixpoint).
+    En cada paso:
+      1. Detecta patrones de convergencia (nodos con >= 2 predecesores).
+      2. Para cada patron sin colimite registrado: busca su co-cono limite.
+      3. Para en cuanto no se registra ningun colimite nuevo (punto fijo).
 
-    Convergence patterns — not arbitrary connected components — are used
-    because they correctly identify the JOIN points in the preorder:
-    a node X with predecessors A, B is the join of {A, B} if X is the
-    minimal element above both.  This matches the MES definition of
-    complejificación (Thm 2.10).
+    Se usan patrones de convergencia —no componentes conexas arbitrarias—
+    porque identifican correctamente los puntos JOIN del preorden: un nodo X
+    con predecesores A, B es el join de {A, B} si es el minimal por encima de
+    ambos. `is_join` verifica esa minimalidad (Thm 2.10).
 
-    After fixpoint, compute cn for all skills and update skill.level
-    in the graph via apply_complexity_order.
+    El NUMERO DE NIVELES no esta prefijado: emerge de la estructura.
 
-    The NUMBER OF LEVELS is not predetermined — it emerges from the
-    structure of the colimit construction. The iteration terminates
-    because each new join skill is strictly "above" its components
-    in the preorder, so no infinite chains can form in a finite graph.
+    TERMINACION (estructural, desde 2026-08-21)
+    -------------------------------------------
+    Esta funcion ya NO fabrica vertices: `build_join_for_pattern` solo descubre
+    colimites que ya existen en G_n, y su registro es puro. Como no se añaden
+    skills, no aparecen puntos de convergencia nuevos, el conjunto de patrones
+    es estable y el punto fijo llega en la iteracion 2.
 
-    Args:
-        graph: The skill category
-        pattern_manager: Detects and stores patterns
-        colimit_builder: Builds and registers colimits
-        max_iterations: Safety limit (default 20; depth rarely exceeds 5)
+    La version anterior si fabricaba, y no convergia: iter 1 -> 44 patrones,
+    41 joins, grafo 172->195 skills; iter 2 -> 94 patrones. Ver el docstring
+    de build_join_for_pattern.
+
+    Tras el punto fijo se calcula cn para todos los skills y se escribe en
+    skill.cn via apply_complexity_order. skill.level (taxonomia curada) no se
+    toca — son magnitudes ortogonales.
 
     Returns:
-        dict mapping skill_id → cn (complexity order)
+        (cn, gaps) donde
+          cn   : dict skill_id -> orden de complejidad constructivo
+          gaps : patrones con co-conos pero sin co-cono limite. NO son errores:
+                 son los huecos conceptuales del grafo de conocimiento, y el
+                 disparador legitimo de complexificacion para el MES.
     """
-    logger.info("build_hierarchy_to_fixpoint: starting")
+    logger.info("build_hierarchy_to_fixpoint: comenzando")
+    gaps: dict[frozenset, ConceptGap] = {}
+    # Deduplicacion por CONJUNTO DE COMPONENTES, no por pattern.id.
+    # _detect_convergence_patterns crea un Pattern nuevo (id nuevo) en cada
+    # iteracion para el mismo conjunto, asi que get_colimit_for_pattern(id)
+    # nunca acertaba: el mismo colimite se re-registraba una vez por iteracion
+    # (360 registros para 18 joins distintos) y `nuevos` nunca llegaba a 0,
+    # agotando las 20 iteraciones.
+    resueltos: set[frozenset] = set()
 
     for iteration in range(max_iterations):
-        # Detect convergence patterns (local join candidates)
-        new_patterns = _detect_convergence_patterns(graph, pattern_manager)
+        patterns = _detect_convergence_patterns(graph, pattern_manager)
 
-        new_joins = 0
-        for pattern in new_patterns:
+        nuevos = 0
+        for pattern in patterns:
+            clave = frozenset(pattern.component_ids)
+            if clave in resueltos or clave in gaps:
+                continue
             if colimit_builder.get_colimit_for_pattern(pattern.id) is not None:
+                resueltos.add(clave)
                 continue
             result = build_join_for_pattern(pattern, graph, colimit_builder)
-            if result is not None:
-                new_joins += 1
+            if isinstance(result, ConceptGap):
+                gaps[clave] = result
+            elif result is not None:
+                resueltos.add(clave)
+                nuevos += 1
 
         logger.debug(
-            f"  iter {iteration + 1}: "
-            f"{len(new_patterns)} patterns, {new_joins} new joins"
+            f"  iter {iteration + 1}: {len(patterns)} patrones, "
+            f"{nuevos} colimites nuevos, {len(gaps)} huecos"
         )
 
-        if new_joins == 0:
+        if nuevos == 0:
             logger.info(
-                f"build_hierarchy_to_fixpoint: fixpoint at iteration {iteration + 1}"
+                f"build_hierarchy_to_fixpoint: punto fijo en iteracion {iteration + 1}"
             )
             break
     else:
         logger.warning(
-            "build_hierarchy_to_fixpoint: max_iterations reached without fixpoint"
+            "build_hierarchy_to_fixpoint: max_iterations sin punto fijo"
         )
 
-    # Compute cn and update graph
     cn = compute_complexity_order(graph, colimit_builder)
     graph.apply_complexity_order(cn)
 
     max_cn = max(cn.values(), default=0)
-    distribution = {
-        k: sum(1 for v in cn.values() if v == k)
-        for k in range(max_cn + 1)
-    }
+    n_joins = sum(1 for v in cn.values() if v > 0)
     logger.info(
-        f"Hierarchy built: {len(cn)} skills, "
-        f"{max_cn + 1} emergent level(s), "
-        f"distribution={distribution}"
+        f"Jerarquia: {len(cn)} skills, max_cn={max_cn}, "
+        f"colimites={n_joins}, huecos conceptuales={len(gaps)}"
     )
-    return cn
+    return cn, list(gaps.values())
 
-
-# =============================================================================
-# HELPERS
-# =============================================================================
 
 def _find_upper_bounds(
     component_ids: list[str],

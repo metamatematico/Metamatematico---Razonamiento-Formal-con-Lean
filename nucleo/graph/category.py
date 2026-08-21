@@ -66,6 +66,26 @@ class SkillCategory:
     - Niveles: Jerarquia 0-N
     """
 
+    #: Tipos de morfismo que generan el ORDEN de la categoria: la jerarquia
+    #: matematica teoria ⊃ subteoria. Es el preorden sobre el que se calculan
+    #: co-conos y colimites (JoinColimit.lean, IsColimitBridge.lean).
+    #:
+    #: Se excluyen a proposito:
+    #:   TRANSLATION — es la FIBRA, no el orden. Cruza pilares (dominio SET/CAT/LOG
+    #:       -> tactica del pilar TYPE, Def. 4.2). Las skills-tactica son sumideros,
+    #:       asi que si entran en el preorden salen certificadas como cotas
+    #:       superiores minimales de dominios arbitrarios. Medido sobre el grafo
+    #:       real (172 skills): con TRANSLATION aparecen 5 colimites espurios
+    #:       (`join(large-cardinals, cohomology, algebraic-topology) = tactic-simp`)
+    #:       y se PIERDEN 3 legitimos (algebraic-geometry, compactness-theorem,
+    #:       homotopy-type-theory), porque los atajos rompen la minimalidad.
+    #:   ANALOGY — "es analogo a" no es una relacion de orden.
+    #:   IDENTITY — ruta trivial.
+    ORDER_MORPHISMS: frozenset = frozenset({
+        MorphismType.DEPENDENCY,
+        MorphismType.SPECIALIZATION,
+    })
+
     def __init__(self, name: str = "SkillCategory", max_levels: int = 10):
         self.name = name
         self.created_at = datetime.now()
@@ -82,6 +102,14 @@ class SkillCategory:
 
         # Indices MES v7.0
         self._by_level: dict[int, set[str]] = defaultdict(set)  # level -> {skill_ids}
+        self._by_cn: dict[int, set[str]] = defaultdict(set)     # cn -> {skill_ids}
+        # Cache del cierre transitivo: (source_id, morphism_types) -> set.
+        # reachable_from es O(n+m) por llamada, e is_join la invoca O(n*|P|)
+        # veces por patron. Sin cache, descubrir los colimites del grafo real
+        # tardaba 126 s. El grafo es estatico durante el punto fijo (no se
+        # fabrican vertices), asi que el cache es valido; se invalida entero
+        # en cualquier mutacion de skills o morfismos.
+        self._reach_cache: dict[tuple, set[str]] = {}
         self._by_pillar: dict[PillarType, set[str]] = defaultdict(set)  # pillar -> {skill_ids}
         self._morphism_pairs: dict[tuple[str, str], str] = {}  # (src, tgt) -> morphism_id
 
@@ -91,6 +119,8 @@ class SkillCategory:
             "num_morphisms": 0,
             "total_weight": 0.0,
             "max_level": 0,
+            "max_cn": 0,
+            "num_joins": 0,   # skills con cn > 0 (construidos, no declarados)
         }
 
     # =========================================================================
@@ -106,6 +136,7 @@ class SkillCategory:
         Crea automaticamente el morfismo identidad.
         Actualiza indices de nivel y pilar.
         """
+        self._reach_cache.clear()
         if skill.id in self._skills:
             return  # Ya existe
 
@@ -119,12 +150,17 @@ class SkillCategory:
 
         # Indices MES v7.0
         self._by_level[skill.level].add(skill.id)
+        self._by_cn[skill.cn].add(skill.id)
         if skill.pillar:
             self._by_pillar[skill.pillar].add(skill.id)
 
         # Actualizar nivel maximo
         if skill.level > self._stats["max_level"]:
             self._stats["max_level"] = skill.level
+        if skill.cn > self._stats["max_cn"]:
+            self._stats["max_cn"] = skill.cn
+        if skill.cn > 0:
+            self._stats["num_joins"] += 1
 
         # Crear morfismo identidad
         identity = Morphism(
@@ -153,6 +189,7 @@ class SkillCategory:
         Tambien elimina todos los morfismos conectados
         y actualiza los indices MES.
         """
+        self._reach_cache.clear()
         if skill_id not in self._skills:
             return False
 
@@ -169,6 +206,7 @@ class SkillCategory:
 
         # Limpiar indices MES v7.0
         self._by_level[skill.level].discard(skill_id)
+        self._by_cn[skill.cn].discard(skill_id)
         if skill.pillar and skill_id in self._by_pillar.get(skill.pillar, set()):
             self._by_pillar[skill.pillar].discard(skill_id)
 
@@ -185,6 +223,13 @@ class SkillCategory:
         if skill.level == self._stats["max_level"]:
             self._stats["max_level"] = max(
                 (s.skill.level for s in self._skills.values()),
+                default=0
+            )
+        if skill.cn > 0:
+            self._stats["num_joins"] -= 1
+        if skill.cn == self._stats["max_cn"]:
+            self._stats["max_cn"] = max(
+                (s.skill.cn for s in self._skills.values()),
                 default=0
             )
 
@@ -227,6 +272,7 @@ class SkillCategory:
         Returns:
             Morfismo creado o None si skills no existen
         """
+        self._reach_cache.clear()
         if source_id not in self._skills or target_id not in self._skills:
             return None
 
@@ -268,6 +314,7 @@ class SkillCategory:
 
     def _remove_morphism_internal(self, morphism_id: str) -> None:
         """Eliminar morfismo (interno)."""
+        self._reach_cache.clear()
         if morphism_id not in self._morphisms:
             return
 
@@ -451,21 +498,39 @@ class SkillCategory:
         mor_id = self._morphism_pairs.get(pair)
         return self._morphisms.get(mor_id) if mor_id else None
 
-    def reachable_from(self, source_id: str) -> set[str]:
+    def reachable_from(
+        self,
+        source_id: str,
+        morphism_types: Optional[frozenset] = None,
+    ) -> set[str]:
         """
-        Conjunto de todos los skills alcanzables desde source_id por cualquier ruta.
+        Conjunto de skills alcanzables desde source_id por cualquier ruta.
 
-        Esto es el cierre transitivo de la relación de morfismos, que corresponde
-        a los objetos alcanzables en la CATEGORÍA LIBRE (morfismos = rutas finitas).
+        Cierre transitivo de la relación de morfismos: los objetos alcanzables
+        en la CATEGORÍA LIBRE (morfismos = rutas finitas). s' es alcanzable
+        desde s iff Hom(s, s') ≠ ∅. Para verificar colímites en la subcategoría
+        finita G_n hace falta este cierre y NO solo las aristas directas.
 
-        Semánticamente: s' es alcanzable desde s iff Hom(s, s') ≠ ∅ en la cat. libre.
-        Para la verificación de colímites en la subcategoría finita G_n, necesitamos
-        este cierre y NO solo las aristas directas.
+        Args:
+            morphism_types: tipos de morfismo que generan la relación.
+                None (defecto) = todos salvo IDENTITY — la categoría libre completa.
+                ORDER_MORPHISMS = solo la jerarquía teoría ⊃ subteoría.
+
+                Para calcular co-conos y colímites hay que pasar ORDER_MORPHISMS:
+                si se sigue TRANSLATION, las skills-táctica (que son sumideros
+                del pilar TYPE) entran en el preorden y salen certificadas como
+                cotas superiores minimales de dominios matemáticos arbitrarios.
+                Medido: `join(large-cardinals, cohomology, algebraic-topology)
+                = tactic-simp`. Ver ORDER_MORPHISMS.
 
         Complejidad: O(n + m) BFS.
         """
         if source_id not in self._skills:
             return set()
+        _key = (source_id, morphism_types)
+        _hit = self._reach_cache.get(_key)
+        if _hit is not None:
+            return set(_hit)
         visited: set[str] = set()
         queue = [source_id]
         while queue:
@@ -475,14 +540,23 @@ class SkillCategory:
             visited.add(curr)
             for mor_id in self._outgoing.get(curr, []):
                 mor = self._morphisms[mor_id]
-                if mor.morphism_type != MorphismType.IDENTITY:
-                    tgt = mor.target_id
-                    if tgt not in visited:
-                        queue.append(tgt)
-        visited.discard(source_id)  # excluir el nodo mismo (la identidad no es ruta no-trivial)
-        return visited
+                if mor.morphism_type == MorphismType.IDENTITY:
+                    continue
+                if morphism_types is not None and mor.morphism_type not in morphism_types:
+                    continue
+                tgt = mor.target_id
+                if tgt not in visited:
+                    queue.append(tgt)
+        visited.discard(source_id)  # la identidad no es ruta no-trivial
+        self._reach_cache[_key] = visited
+        return set(visited)
 
-    def is_preorder_leq(self, a: str, b: str) -> bool:
+    def is_preorder_leq(
+        self,
+        a: str,
+        b: str,
+        morphism_types: Optional[frozenset] = None,
+    ) -> bool:
         """
         Relación de preorden: a ≤ b iff existe alguna ruta de a a b (o a == b).
 
@@ -498,7 +572,7 @@ class SkillCategory:
         """
         if a == b:
             return True
-        return b in self.reachable_from(a)
+        return b in self.reachable_from(a, morphism_types)
 
     # =========================================================================
     # CONSULTAS JERARQUICAS (MES v7.0)
@@ -532,36 +606,71 @@ class SkillCategory:
 
     def apply_complexity_order(self, cn_dict: dict[str, int]) -> None:
         """
-        Update skill.level for all skills using the computed complexity order.
+        Escribe el orden de complejidad emergente en skill.cn.
 
-        Called by build_hierarchy_to_fixpoint after the fixpoint is reached.
-        Updates the _by_level index so get_skills_at_level() reflects the
-        emergent hierarchy (not the manually assigned levels).
+        NO toca skill.level. Son magnitudes distintas y ortogonales:
+
+          level : profundidad TAXONOMICA — donde situan las matematicas al
+                  concepto. La cura el humano. Estatica.
+          cn    : profundidad CONSTRUCTIVA — cuantas capas de colimites
+                  construyo el sistema para llegar aqui. cn = 0 significa
+                  "declarado, no construido".
+
+        Antes esta funcion escribia en `level`, lo que era un error de tipo:
+        con 0 colimites registrados, cn = 0 para todos los skills, y aplicarlo
+        aplanaba los 172 skills al nivel 0 — destruyendo la taxonomia curada y
+        moviendo de paso la clasificacion simple/complejo (`get_link_complexity`),
+        el alcance de los co-reguladores (`level <= 1`) y la feature 4 del GNN.
+
+        Llamado por build_hierarchy_to_fixpoint tras alcanzar el punto fijo.
+        Mantiene el indice _by_cn para get_skills_at_cn().
 
         Args:
-            cn_dict: mapping skill_id → cn value (from compute_complexity_order)
+            cn_dict: mapping skill_id → cn value (de compute_complexity_order)
         """
         updated = 0
         for skill_id, cn in cn_dict.items():
             node = self._skills.get(skill_id)
             if node is None:
                 continue
-            old_level = node.skill.level
-            if old_level == cn:
+            old_cn = node.skill.cn
+            if old_cn == cn:
                 continue
-            self._by_level[old_level].discard(skill_id)
-            node.skill.level = cn
-            self._by_level[cn].add(skill_id)
+            self._by_cn[old_cn].discard(skill_id)
+            node.skill.cn = cn
+            self._by_cn[cn].add(skill_id)
             updated += 1
 
-        self._stats["max_level"] = max(
-            (s.skill.level for s in self._skills.values()),
+        self._stats["max_cn"] = max(
+            (s.skill.cn for s in self._skills.values()),
             default=0,
         )
-        logger.debug(
-            f"apply_complexity_order: {updated} skills updated, "
-            f"max_level={self._stats['max_level']}"
+        self._stats["num_joins"] = sum(
+            1 for s in self._skills.values() if s.skill.cn > 0
         )
+        logger.debug(
+            f"apply_complexity_order: {updated} skills actualizados, "
+            f"max_cn={self._stats['max_cn']}, "
+            f"num_joins={self._stats['num_joins']}"
+        )
+
+    def get_skills_at_cn(self, cn: int) -> list[Skill]:
+        """
+        Skills con un orden de complejidad constructivo dado.
+
+        cn = 0 → skills declarados (atomicos para el sistema).
+        cn = k → skills construidos como colimite tras k capas.
+        """
+        skill_ids = self._by_cn.get(cn, set())
+        return [self._skills[sid].skill for sid in skill_ids if sid in self._skills]
+
+    def get_cn_distribution(self) -> dict[int, int]:
+        """Distribucion de skills por orden de complejidad constructivo."""
+        return {
+            cn: len(skills)
+            for cn, skills in self._by_cn.items()
+            if skills
+        }
 
     def get_level_distribution(self) -> dict[int, int]:
         """
@@ -1036,6 +1145,7 @@ class SkillCategory:
                     "description": node.skill.description,
                     "pillar": node.skill.pillar.name if node.skill.pillar else None,
                     "level": node.skill.level,
+                    "cn": node.skill.cn,
                     "pattern_ids": node.skill.pattern_ids,
                 }
                 for node in self._skills.values()

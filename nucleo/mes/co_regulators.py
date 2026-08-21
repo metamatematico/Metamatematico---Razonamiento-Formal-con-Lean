@@ -522,6 +522,24 @@ class OrganizationalCoRegulator(CoRegulator):
             colimit_builder=colimit_builder,
         )
 
+    # Coactivaciones observadas: frozenset de skills -> veces que aparecieron
+    # juntos resolviendo una consulta. Es el "paisaje de estadisticas de uso"
+    # de la Def. 4.1, y la materia prima del procedimiento `merge`: skills que
+    # el sistema usa siempre a la vez son candidatos a ligarse en un colimite
+    # (Seccion 6.2, merge como ligadura de patron).
+    _MIN_COACTIVACIONES = 3
+    _MIN_SKILLS_PATRON = 2
+
+    def record_activation(self, skill_ids: list[str]) -> None:
+        """Registrar que estos skills resolvieron juntos una consulta."""
+        if not hasattr(self, "_coactivaciones"):
+            self._coactivaciones: dict[frozenset, int] = {}
+        utiles = [s for s in skill_ids if s]
+        if len(utiles) < self._MIN_SKILLS_PATRON:
+            return
+        clave = frozenset(utiles[:6])       # cota: patrones manejables
+        self._coactivaciones[clave] = self._coactivaciones.get(clave, 0) + 1
+
     def build_landscape(self, graph: SkillCategory) -> Landscape:
         """Construir paisaje organizativo: estadisticas y coherencia."""
         stats = graph.stats
@@ -532,8 +550,17 @@ class OrganizationalCoRegulator(CoRegulator):
                 if not self._colimit_builder.has_colimit(p.id)
             )
 
+        # Huecos conceptuales: patrones con co-conos pero sin co-cono limite.
+        # Son el material de trabajo propio de CR_org — señalan donde al grafo
+        # de conocimiento le falta el concepto que unifica un patron.
+        gaps = getattr(self, "_concept_gaps", None) or []
+        gap_skills: list[str] = []
+        for g in gaps[:10]:
+            gap_skills.extend(g.component_ids)
+
         return Landscape(
             co_regulator_type=self.cr_type,
+            relevant_skills=list(dict.fromkeys(gap_skills))[:50],
             metrics={
                 "num_skills": stats.get("num_skills", 0),
                 "num_morphisms": stats.get("num_morphisms", 0),
@@ -542,8 +569,13 @@ class OrganizationalCoRegulator(CoRegulator):
                     / max(stats.get("num_skills", 1), 1)
                 ),
                 "num_unbound_patterns": float(num_unbound),
+                "num_concept_gaps": float(len(gaps)),
             }
         )
+
+    def set_concept_gaps(self, gaps: list) -> None:
+        """Recibir los huecos conceptuales detectados por el punto fijo."""
+        self._concept_gaps = list(gaps or [])
 
     def select_objectives(self, landscape: Landscape) -> Option:
         """
@@ -555,6 +587,112 @@ class OrganizationalCoRegulator(CoRegulator):
         graph = self._current_graph
         if not graph:
             return Option()
+
+        # 0.a Huecos conceptuales primero (Seccion 6.1, ligadura).
+        #
+        # Un ConceptGap es un patron con co-conos pero sin co-cono limite: el
+        # colimite NO existe en G_n. Es exactamente "un patron que debe adquirir
+        # colimite" (Def. 2.9, ligadura), asi que se propone como binding.
+        #
+        # La ligadura solo tendra exito cuando el concepto que unifica las
+        # componentes exista con contenido matematico. De eso se encarga
+        # Nucleo._llenar_hueco_conceptual: LLM propone, Lean verifica, y solo
+        # entonces entra el nodo. Aqui CR_org unicamente señala DONDE.
+        _gaps = getattr(self, "_concept_gaps", None) or []
+        if _gaps and self._pattern_manager and self._colimit_builder:
+            _propuestos = getattr(self, "_gaps_propuestos", None)
+            if _propuestos is None:
+                _propuestos = self._gaps_propuestos = set()
+            for gap in sorted(_gaps, key=lambda g: -g.n_cocones):
+                clave = frozenset(gap.component_ids)
+                if clave in _propuestos:
+                    continue
+                presentes = [s for s in gap.component_ids if graph.get_skill(s)]
+                if len(presentes) < self._MIN_SKILLS_PATRON:
+                    continue
+                link_ids = [
+                    m.id for m in graph.morphisms
+                    if m.morphism_type != MorphismType.IDENTITY
+                    and m.source_id in presentes and m.target_id in presentes
+                ]
+                pattern = self._pattern_manager.create_pattern(
+                    presentes, link_ids, graph=graph
+                )
+                _propuestos.add(clave)
+                logger.info(
+                    f"CR_org: hueco conceptual {sorted(presentes)} "
+                    f"({gap.n_cocones} co-conos, sin limite) -> ligadura"
+                )
+                return Option(bindings=[pattern.id])
+
+        # 0.b Ligar coactivaciones frecuentes (procedimiento `merge`).
+        #
+        # Este es el trabajo propio de CR_org segun la Def. 4.1: su paisaje son
+        # las estadisticas de uso. Si un grupo de skills resuelve consultas
+        # juntos de forma repetida, ese grupo ES un patron con enlaces
+        # colectivos, y ligarlo produce el skill compuesto que integra su
+        # funcionalidad (Seccion 2.1). Antes CR_org solo ligaba patrones que
+        # otro co-regulador hubiera creado, asi que nunca aportaba nada propio.
+        coact = getattr(self, "_coactivaciones", None) or {}
+        if coact and self._pattern_manager and self._colimit_builder:
+            frecuentes = sorted(
+                (g for g, n in coact.items() if n >= self._MIN_COACTIVACIONES),
+                key=lambda g: -coact[g],
+            )
+            ya_ligados = getattr(self, "_grupos_ligados", None)
+            if ya_ligados is None:
+                ya_ligados = self._grupos_ligados = set()
+
+            for grupo in frecuentes:
+                # `create_pattern` acuña un id nuevo en cada llamada, asi que
+                # `has_colimit(pattern.id)` siempre da False y el mismo grupo
+                # se ligaria una y otra vez, haciendo crecer el grafo sin
+                # limite con colimites duplicados. Se lleva registro del grupo,
+                # no del patron.
+                if grupo in ya_ligados:
+                    continue
+                presentes = [s for s in grupo if graph.get_skill(s)]
+                if len(presentes) < self._MIN_SKILLS_PATRON:
+                    continue
+
+                # Cerrar el grupo con sus puentes a un salto. Dos skills que
+                # se coactivan rara vez tienen arista directa: group-theory y
+                # quotient-groups se conectan a traves de group-homomorphisms.
+                # Sin el intermediario el patron queda inconexo y sin enlaces
+                # distinguidos, y no habria nada que ligar.
+                puentes = []
+                for cand in graph.skill_ids:
+                    if cand in presentes:
+                        continue
+                    vecinos = set(graph.neighbors(cand))
+                    if len(vecinos & set(presentes)) >= 2:
+                        puentes.append(cand)
+                componentes = presentes + puentes[:2]
+
+                link_ids = [
+                    m.id for m in graph.morphisms
+                    if m.morphism_type != MorphismType.IDENTITY
+                    and m.source_id in componentes and m.target_id in componentes
+                ]
+                if not link_ids:
+                    # Un patron sobre una categoria indice discreta es valido
+                    # (Def. 2.1): los enlaces colectivos son la coactivacion
+                    # misma. Se liga igual.
+                    logger.debug(
+                        f"CR_org: patron discreto sobre {sorted(presentes)}"
+                    )
+                presentes = componentes
+                pattern = self._pattern_manager.create_pattern(
+                    presentes, link_ids, graph=graph
+                )
+                if self._colimit_builder.has_colimit(pattern.id):
+                    continue
+                ya_ligados.add(grupo)
+                logger.info(
+                    f"CR_org: coactivacion x{coact[grupo]} de "
+                    f"{sorted(presentes)} -> patron {pattern.id}"
+                )
+                return Option(bindings=[pattern.id])
 
         # 1. Bind unbound patterns
         if self._pattern_manager and self._colimit_builder:
@@ -645,6 +783,8 @@ class StrategicCoRegulator(CoRegulator):
                 level_counts[level] = level_counts.get(level, 0) + 1
 
         num_complex = len(graph.get_complex_links())
+        _stats = graph.stats
+        _gaps = getattr(self, "_concept_gaps", None) or []
 
         return Landscape(
             co_regulator_type=self.cr_type,
@@ -652,8 +792,18 @@ class StrategicCoRegulator(CoRegulator):
                 "max_level": max(level_counts.keys()) if level_counts else 0,
                 "level_distribution": level_counts,
                 "num_complex_links": float(num_complex),
+                # cn es la magnitud que le toca vigilar a CR_str: mide si el
+                # sistema esta CONSTRUYENDO conceptos propios, no cuantos se
+                # le declararon. max_cn = 0 significa que no ha construido nada.
+                "max_cn": float(_stats.get("max_cn", 0)),
+                "num_joins": float(_stats.get("num_joins", 0)),
+                "num_concept_gaps": float(len(_gaps)),
             }
         )
+
+    def set_concept_gaps(self, gaps: list) -> None:
+        """Recibir los huecos conceptuales detectados por el punto fijo."""
+        self._concept_gaps = list(gaps or [])
 
     def select_objectives(self, landscape: Landscape) -> Option:
         """
@@ -679,7 +829,23 @@ class StrategicCoRegulator(CoRegulator):
         if len(skills_in_complex) < 2:
             return Option()
 
-        skill_list = list(skills_in_complex)[:5]
+        # El patron se construye DESDE los enlaces, no cortando skills sueltos.
+        #
+        # Antes se tomaban 5 skills arbitrarios del conjunto y luego se exigia
+        # que ambos extremos de un enlace cayeran dentro de esos cinco. Con
+        # 151 enlaces complejos repartidos por decenas de skills eso salia
+        # vacio casi siempre, y cuando salia era por el orden azaroso del set:
+        # la complejificacion dependia de un golpe de suerte.
+        #
+        # Ahora se toman los primeros enlaces complejos y se usan SUS extremos
+        # como componentes: el sub-grafo resultante es conexo por construccion
+        # y link_ids nunca queda vacio.
+        enlaces_semilla = complex_links[:4]
+        skill_list = []
+        for m in enlaces_semilla:
+            for sid in (m.source_id, m.target_id):
+                if sid not in skill_list:
+                    skill_list.append(sid)
         link_ids = [
             m.id for m in complex_links
             if m.source_id in skill_list and m.target_id in skill_list
@@ -965,6 +1131,28 @@ class CoRegulatorNetwork:
                 cr.tick()
         return results
 
+    def set_concept_gaps(self, gaps: list) -> None:
+        """
+        Distribuir los huecos conceptuales a los CRs estructurales.
+
+        Llamado por Nucleo tras build_hierarchy_to_fixpoint. CR_tac no los
+        recibe: su efector es la interfaz LLM<->Lean, no el grafo.
+        """
+        self._concept_gaps = list(gaps or [])
+        for cr in (self.organizational, self.strategic):
+            if hasattr(cr, "set_concept_gaps"):
+                cr.set_concept_gaps(self._concept_gaps)
+
+    def record_activation(self, skill_ids: list[str]) -> None:
+        """Informar a CR_org de que estos skills resolvieron juntos una consulta.
+
+        Alimenta su paisaje de estadisticas de uso (Def. 4.1), que es de donde
+        salen los patrones a ligar con `merge`.
+        """
+        org = getattr(self, "organizational", None)
+        if org is not None and hasattr(org, "record_activation"):
+            org.record_activation(skill_ids)
+
     def decide(self, query: str, graph: SkillCategory) -> GlobalDecision:
         """
         Protocolo de transicion global (Seccion 8 v7.0).
@@ -987,6 +1175,12 @@ class CoRegulatorNetwork:
 
         # Fase 2: Recoger propuestas de todos los CRs activos
         proposals = self.step(graph)
+        # Se conservan los resultados completos del ciclo. decide() solo
+        # devuelve el tipo de accion del ganador, asi que las Option de los
+        # co-reguladores estructurales se perdian aqui: calculaban su objetivo
+        # en cada ciclo y nadie lo aplicaba nunca al grafo. El nucleo las lee
+        # despues para ejecutar la complejificacion (paper v7.0, Seccion 6.1).
+        self._last_cycle_results = proposals
         cr_proposals = {
             cr_type.name: action.name
             for cr_type, action, _ in proposals
@@ -1018,14 +1212,23 @@ class CoRegulatorNetwork:
         # CR_tac es autoritativo para la clasificacion del query.
         # Solo CR_int con REPAIR_FRACTURE puede sobreescribir (Axioma 9.5).
         # CRs estructurales (CR_str, CR_org) hacen mantenimiento en background
-        # pero no cambian el tipo de accion del query del usuario.
+        # sobre el GRAFO —lo aplica _apply_structural_evolution— pero no
+        # cambian el tipo de accion del query del usuario.
+        #
+        # `decidor` es el CR que realmente determino final_action. Antes se
+        # reportaba `winner_cr` como source_cr Y su confianza, aunque su accion
+        # se hubiera descartado: se veian decisiones con source_cr=STRATEGIC y
+        # confidence=0.85 sobre una accion que la eligio CR_tac. La confianza
+        # mostrada al usuario no correspondia a quien decidio.
         if (winner_cr == CoRegulatorType.INTEGRITY
                 and winner_action == MESActionType.REPAIR_FRACTURE):
             final_action = ActionType.REORGANIZE
+            decidor = CoRegulatorType.INTEGRITY
         else:
             final_action = action_type
+            decidor = CoRegulatorType.TACTICAL
 
-        # Confidence based on source
+        # Confidence del CR que decidio la accion, no del ganador del arbitraje.
         confidence_map = {
             CoRegulatorType.INTEGRITY: 0.95,
             CoRegulatorType.STRATEGIC: 0.85,
@@ -1035,9 +1238,9 @@ class CoRegulatorNetwork:
 
         return GlobalDecision(
             action_type=final_action,
-            source_cr=winner_cr,
+            source_cr=decidor,
             option=winner_option,
-            confidence=confidence_map.get(winner_cr, 0.7),
+            confidence=confidence_map.get(decidor, 0.7),
             cr_proposals=cr_proposals,
         )
 

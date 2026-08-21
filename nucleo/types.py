@@ -165,7 +165,19 @@ class Skill:
         name: Nombre del skill
         description: Descripcion del skill
         pillar: Pilar fundacional al que pertenece
-        level: Nivel jerarquico (0 = atomo, >= 1 = colimite)
+        level: Nivel jerarquico TAXONOMICO (curado por el humano).
+            Dice donde se situa el concepto en la jerarquia de las
+            matematicas. Es un hecho sobre las matematicas, estatico.
+        cn: Orden de complejidad CONSTRUCTIVO (emergente, lo fija el
+            sistema). cn(J) = 1 + max{cn(Pi)} si J = join[P]; cn = 0 si el
+            skill es atomico, es decir, fue declarado y no construido como
+            colimite. Es un hecho sobre la historia del sistema.
+            Formalizado en MetamathProver/CategoryFoundations/ComplexityOrder.lean
+            (cn_strict_increase, hierarchy_well_founded).
+
+            level y cn son ORTOGONALES: una sub-rama L3 recien declarada
+            tiene level=3 y cn=0. Un join de dos atomos L0 tiene cn=1 y
+            level bajo. No se sustituyen entre si.
         content: Contenido del skill (tacticas, lemas, etc.)
         metadata: Metadatos adicionales
         status: Estado del skill
@@ -177,7 +189,8 @@ class Skill:
     name: str = ""
     description: str = ""
     pillar: Optional[PillarType] = None
-    level: int = 0  # v7.0: Nivel jerarquico
+    level: int = 0  # v7.0: Nivel jerarquico taxonomico (curado, estatico)
+    cn: int = 0     # Orden de complejidad constructivo (emergente, calculado)
     content: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
     status: SkillStatus = SkillStatus.ACTIVE
