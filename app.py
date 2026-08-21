@@ -1143,6 +1143,25 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
                 help=cfg.get("key_help", ""),
             )
 
+        # Estado REAL del cliente LLM. Sin esto, si la clave no llega el usuario
+        # solo ve una respuesta de modo demo y no puede saber por que: si el
+        # campo se vacio, si el proveedor no coincide, o si el paquete falta.
+        _n_diag = _get_nucleo()
+        if _n_diag is not None and getattr(_n_diag, "_llm", None) is not None:
+            try:
+                from nucleo.llm.client import DemoLLMClient as _DemoDiag
+                _cli = type(_n_diag._llm._get_client()).__name__
+                _dem = _n_diag._llm.is_demo or _cli == "DemoLLMClient"
+                if _dem:
+                    st.caption(
+                        f":orange[● LLM en modo demo] — cliente `{_cli}`. "
+                        "Pega la clave arriba y envía una consulta nueva."
+                    )
+                else:
+                    st.caption(f":green[● LLM activo] — cliente `{_cli}`")
+            except Exception:
+                pass
+
         model = st.selectbox("Modelo", cfg["models"])
         # Los modelos actuales piensan por defecto y `max_tokens` es el tope
         # de razonamiento + respuesta juntos: con 4096 la respuesta se trunca.

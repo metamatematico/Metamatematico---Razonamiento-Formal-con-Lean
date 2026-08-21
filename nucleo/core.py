@@ -1453,6 +1453,24 @@ class Nucleo:
                     )
                     lean_code, result = _reparado, _r2
 
+        # ── Paso 2c: revision con el veredicto de Lean como realimentacion ──
+        # Triaje por severidad. repair_imports solo arregla errores MECANICOS
+        # (modulo que falta). Si el error es SEMANTICO —type mismatch, tactic
+        # failed, unsolved goals— hay que reformular la prueba, y para eso el
+        # generador necesita ver lo que Lean dijo.
+        #
+        # Antes ese diagnostico se calculaba y solo se imprimia para el usuario;
+        # el intento moria ahi. Ahora vuelve al LLM, acotado a 2 rondas y
+        # aceptando la revision solo si mejora.
+        _rondas_revision = 0
+        if result.status == LeanResultStatus.ERROR:
+            _primer_err = (result.get_first_error() or "").lower()
+            _es_mecanico = any(m in _primer_err for m in self._ERRORES_MECANICOS)
+            if not _es_mecanico:
+                lean_code, result, _rondas_revision = await self._revisar_con_lean(
+                    lean_code, result, formalize_prompt, lean_system, context
+                )
+
         if result.status == LeanResultStatus.NOT_AVAILABLE:
             # lake no instalado (despliegue en la nube) — no es un error de lógica
             verification_status = "sin_entorno"
@@ -1500,22 +1518,15 @@ class Nucleo:
             error_info = self._analyze_lean_errors(result)
             first_err  = result.get_first_error() or "error desconocido"
             err_type   = error_info.get("type", "unknown")
-            _LEAN_HINTS = {
-                "unknown identifier": "posiblemente falta un `open` o un import de Mathlib.",
-                "type mismatch":      "los tipos no coinciden; puede faltar una coerción o instancia.",
-                "application type mismatch": "argumentos aplicados incorrectamente; revisa la aridad.",
-                "failed to synthesize": "falta una instancia de typeclass (e.g., `Field ℝ`, `OrderedField`).",
-                "function expected":  "se usó algo como función que no lo es.",
-                "tactic failed":      "la táctica no cerró el goal; prueba `ring_nf` o `simp [*]` primero.",
-            }
-            hint = next(
-                (h for k, h in _LEAN_HINTS.items() if k in first_err.lower()),
-                "revisa la sintaxis Lean 4 y los imports de Mathlib."
-            )
+            hint = self._lean_hint(first_err)
             verification_status = "no_verificado"
+            _tras = (
+                f" Tras {_rondas_revision} ronda(s) de revisión con el error de Lean."
+                if _rondas_revision else ""
+            )
             verification_note = (
                 f"Lean 4 detectó un error de tipo `{err_type}`: {first_err}. "
-                f"Diagnóstico: {hint}"
+                f"Diagnóstico: {hint}.{_tras}"
             )
             confidence    = 0.6
             success_value = 0.2
@@ -1785,6 +1796,131 @@ class Nucleo:
 
         # Try to form E-concept
         self._memory.try_form_concept(pattern_id, CoRegulatorType.TACTICAL)
+
+    # Diagnostico por tipo de error de Lean. Se usa DOS veces: como pista para
+    # el usuario y —desde 2026-08-21— como realimentacion al generador.
+    _LEAN_HINTS: dict[str, str] = {
+        "unknown identifier": "posiblemente falta un `open` o un import de Mathlib.",
+        "unknown constant": "ese nombre no existe en Mathlib; usa `exact?` o busca el lema real.",
+        "type mismatch": "los tipos no coinciden; puede faltar una coerción o instancia.",
+        "application type mismatch": "argumentos aplicados incorrectamente; revisa la aridad.",
+        "failed to synthesize": "falta una instancia de typeclass (e.g., `Field ℝ`, `OrderedField`).",
+        "function expected": "se usó algo como función que no lo es.",
+        "tactic failed": "la táctica no cerró el goal; prueba `ring_nf` o `simp [*]` primero.",
+        "unsolved goals": "la prueba no cierra todos los objetivos; faltan casos.",
+    }
+
+    # Errores que repair_imports puede arreglar solo: son de MODULO, no de
+    # matematicas. El resto son semanticos y necesitan reformular la prueba.
+    _ERRORES_MECANICOS = ("unknown identifier", "unknown constant", "unknown module")
+
+    def _lean_hint(self, error: str) -> str:
+        low = (error or "").lower()
+        return next(
+            (h for k, h in self._LEAN_HINTS.items() if k in low),
+            "revisa la sintaxis Lean 4 y los imports de Mathlib.",
+        )
+
+    async def _revisar_con_lean(
+        self,
+        lean_code: str,
+        result: "LeanResult",
+        formalize_prompt: str,
+        lean_system: str,
+        context: dict,
+        max_rondas: int = 2,
+    ) -> tuple[str, "LeanResult", int]:
+        """
+        Bucle de revision: realimenta el veredicto de Lean al generador.
+
+        Este es el eslabon que faltaba respecto a un lazo generador-verificador
+        clasico (Aletheia y similares): el sistema YA calculaba el diagnostico
+        —tipo de error, mensaje de Lean, sugerencia de tactica— pero solo lo
+        imprimia para el usuario. Nunca volvia al LLM, asi que un rechazo de
+        Lean por `type mismatch` o `tactic failed` terminaba el intento.
+
+        Triaje por severidad, sobre el VEREDICTO de Lean (no sobre una regex):
+
+          SUCCESS / SORRY   -> no se toca (SORRY lo cubre SolverCascade)
+          ERROR mecanico    -> ya lo intento repair_imports antes de llegar aqui
+          ERROR semantico   -> REGENERAR con el error como contexto
+
+        Solo se acepta la revision si MEJORA, con el mismo criterio que
+        repair_imports: nunca se sustituye un resultado por otro peor.
+
+        Args:
+            max_rondas: cota dura. Cada ronda cuesta una llamada al LLM mas una
+                verificacion de Lean (~20 s), asi que 2 es el limite util.
+
+        Returns:
+            (codigo, resultado, rondas_usadas) — el mejor par obtenido.
+        """
+        if result.status != LeanResultStatus.ERROR:
+            return lean_code, result, 0
+
+        mejor_code, mejor_res = lean_code, result
+
+        for ronda in range(1, max_rondas + 1):
+            errores = mejor_res.error_messages or []
+            primero = (mejor_res.get_first_error() or "").strip()
+            if not primero:
+                break
+
+            pista = self._lean_hint(primero)
+            bloque_errores = "\n".join(f"  - {e.strip()[:300]}" for e in errores[:4])
+
+            revise_prompt = (
+                f"{formalize_prompt}\n\n"
+                "─────────────────────────────────────────────\n"
+                f"INTENTO {ronda}: Lean 4 RECHAZÓ tu código anterior.\n\n"
+                "Código que enviaste:\n"
+                f"```lean\n{mejor_code}\n```\n\n"
+                "Errores exactos que devolvió Lean:\n"
+                f"{bloque_errores}\n\n"
+                f"Diagnóstico: {pista}\n\n"
+                "Corrígelo. Instrucciones:\n"
+                "- Arregla EXACTAMENTE los errores listados; no reescribas lo que ya funcionaba.\n"
+                "- Si un lema no existe con ese nombre, usa otro de Mathlib o deja `sorry`.\n"
+                "- `sorry` es preferible a un lema inventado: un `sorry` se detecta, "
+                "un nombre falso hace fallar todo el archivo.\n"
+                "- Devuelve SOLO el bloque Lean 4 corregido, completo y autocontenido."
+            )
+
+            try:
+                gen = await self._llm.generate(
+                    revise_prompt, system=lean_system, context=context
+                )
+            except Exception as e:
+                logger.debug(f"_revisar_con_lean: fallo del LLM en ronda {ronda}: {e}")
+                break
+
+            code_n = self._extract_lean_code(gen.content) or gen.content.strip()
+            if not code_n or code_n == mejor_code:
+                break
+
+            res_n = await self._lean.check_code(code_n)
+
+            # Mismo criterio de mejora que repair_imports.
+            mejora = (
+                res_n.status in (LeanResultStatus.SUCCESS, LeanResultStatus.SORRY)
+                or len(res_n.error_messages) < len(mejor_res.error_messages)
+            )
+            logger.info(
+                f"_revisar_con_lean ronda {ronda}: "
+                f"{mejor_res.status.name} -> {res_n.status.name} "
+                f"({len(mejor_res.error_messages)} -> {len(res_n.error_messages)} errores), "
+                f"{'aceptada' if mejora else 'descartada'}"
+            )
+            if not mejora:
+                break
+
+            mejor_code, mejor_res = code_n, res_n
+            if mejor_res.status != LeanResultStatus.ERROR:
+                return mejor_code, mejor_res, ronda
+
+        rondas = 0 if mejor_res is result else max_rondas
+        return mejor_code, mejor_res, rondas
+
 
     # =========================================================================
     # COMPLEXIFICACION QUE PRODUCE CONOCIMIENTO
