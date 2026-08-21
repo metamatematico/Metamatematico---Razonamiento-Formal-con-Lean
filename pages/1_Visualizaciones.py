@@ -1198,47 +1198,137 @@ def fig_cocone_diagram(componentes, apex, apex_nombre, cocones_extra, nombres):
 
 
 def fig_pipeline():
-    fig, ax = plt.subplots(figsize=(13, 4.5), facecolor=BG)
+    """
+    Flujo de trabajo real del NLE, tal como lo ejecuta Nucleo.process().
+
+    El diagrama anterior contradecia la tesis del sistema: ponia
+    LLM -> Respuesta -> Lean, es decir Lean como sello de aprobacion al final.
+    El pipeline real es Lean-PRIMERO (core.py::_math_via_lean):
+
+        LLM formaliza  ->  LEAN VERIFICA  ->  LLM traduce
+
+    Lean va EN MEDIO y es la fuente de verdad; el LLM actua de formalizador y
+    despues de traductor, nunca de razonador. Faltaban ademas la reparacion de
+    imports, la cascada de solvers, y la complexificacion posterior.
+    """
+    fig, ax = plt.subplots(figsize=(14.5, 9.6), facecolor=BG)
     ax.set_facecolor(BG)
-    ax.set_xlim(0, 13)
-    ax.set_ylim(0, 4.5)
+    ax.set_xlim(0, 14)
+    ax.set_ylim(0, 9.6)
     ax.axis("off")
 
-    steps = [
-        (0.4, 2.0, 1.6, 1.6, "Consulta\ndel usuario", "#1e3a5f", "#60a5fa"),
-        (2.5, 2.0, 1.8, 1.6, "CR_tac\nClasificación", "#1a2a1a", "#4ade80"),
-        (5.0, 3.0, 1.8, 1.2, "RESPONDER\nExplicación", "#1f1107", "#fb923c"),
-        (5.0, 0.8, 1.8, 1.2, "ASISTIR\nPrueba Lean", "#0d1f0d", "#4ade80"),
-        (7.3, 3.0, 1.8, 1.2, "Grafo de Skills\nContexto", "#1a1a2e", "#818cf8"),
-        (7.3, 0.8, 1.8, 1.2, "GoalAnalyzer\nOrden tácticas", "#1a1a2e", "#818cf8"),
-        (9.6, 2.0, 1.8, 1.6, "LLM\nRespuesta", "#1f1107", "#fb923c"),
-        (11.8, 2.0, 1.0, 1.6, "✓\nLean 4", "#0d1f0d", "#4ade80"),
-    ]
+    VERDE, NARANJA, AZUL, MORADO, GRIS = "#4ade80", "#fb923c", "#60a5fa", "#818cf8", "#9ca3af"
 
-    for x, y, w, h, lbl, bg, fg in steps:
-        rect = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.1",
-                              facecolor=bg, edgecolor=fg, linewidth=1.2, zorder=3)
-        ax.add_patch(rect)
-        ax.text(x + w/2, y + h/2, lbl, ha="center", va="center",
-                fontsize=8.5, color=fg, fontweight="bold", zorder=4)
+    def caja(x, y, w, h, titulo, borde, relleno="#161b22", sub="", fs=8.4, fs_sub=6.6):
+        """Caja con titulo y, opcionalmente, un subtitulo DENTRO (sin colisiones)."""
+        ax.add_patch(FancyBboxPatch(
+            (x, y), w, h, boxstyle="round,pad=0.08",
+            facecolor=relleno, edgecolor=borde, linewidth=1.4, zorder=3))
+        cx = x + w / 2
+        if sub:
+            ax.text(cx, y + h * 0.62, titulo, ha="center", va="center",
+                    fontsize=fs, color=borde, fontweight="bold", zorder=4)
+            ax.text(cx, y + h * 0.26, sub, ha="center", va="center",
+                    fontsize=fs_sub, color=GRIS, style="italic", zorder=4)
+        else:
+            ax.text(cx, y + h / 2, titulo, ha="center", va="center",
+                    fontsize=fs, color=borde, fontweight="bold", zorder=4)
 
-    # Flechas
-    arrows = [
-        (2.0, 2.8, 2.5, 2.8), (4.3, 3.2, 5.0, 3.6), (4.3, 2.6, 5.0, 1.4),
-        (6.8, 3.6, 7.3, 3.6), (6.8, 1.4, 7.3, 1.4),
-        (9.1, 3.6, 9.6, 2.8), (9.1, 1.4, 9.6, 2.2),
-        (11.4, 2.8, 11.8, 2.8),
-    ]
-    for x0, y0, x1, y1 in arrows:
-        ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
-                    arrowprops=dict(arrowstyle="-|>", color="#58a6ff", lw=1.3))
+    def flecha(p0, p1, color=AZUL, lw=1.5, curva=0.0, ls="-"):
+        ax.annotate("", xy=p1, xytext=p0, zorder=6, arrowprops=dict(
+            arrowstyle="-|>", color=color, lw=lw, linestyle=ls,
+            connectionstyle=f"arc3,rad={curva}", shrinkA=3, shrinkB=3))
 
-    # Nivel 2: GNN+PPO y memoria
-    ax.text(6.5, 0.15, "GNN+PPO aprende de cada interacción · Memoria procedimental guarda patrones exitosos",
-            ha="center", fontsize=7.5, color="#9ca3af",
-            bbox=dict(boxstyle="round", facecolor="#161b22", edgecolor="#21262d", alpha=0.8))
+    def etiqueta(x, y, txt, color=GRIS, fs=7.0, style="normal"):
+        ax.text(x, y, txt, ha="center", va="center", fontsize=fs,
+                color=color, style=style, zorder=7)
 
-    ax.set_title("Pipeline de Procesamiento — De la consulta a la respuesta", color=FG, fontsize=11, pad=8)
+    # ═══ BANDA 1 — Dinamica Global ═══════════════════════════════════════════
+    caja(0.25, 8.05, 2.05, 0.95, "Consulta\ndel usuario", AZUL, "#132033")
+
+    ax.add_patch(FancyBboxPatch(
+        (2.70, 7.35), 4.95, 2.05, boxstyle="round,pad=0.10",
+        facecolor="#12151d", edgecolor=MORADO, linewidth=1.6, zorder=1))
+    etiqueta(5.17, 9.20, "① DINÁMICA GLOBAL — red de co-reguladores", MORADO, 8.6)
+    caja(2.90, 8.28, 2.25, 0.72, "CR_tac  clasifica", MORADO, "#1a1a2e",
+         sub="heurística de keywords", fs=7.6, fs_sub=6.1)
+    caja(5.30, 8.28, 2.15, 0.72, "CR_int  arbitra", MORADO, "#1a1a2e",
+         sub="solo REPAIR_FRACTURE manda", fs=7.6, fs_sub=5.8)
+    caja(2.90, 7.52, 4.55, 0.58,
+         "CR_org · CR_str  →  COMPLEXIFY sobre huecos conceptuales",
+         MORADO, "#1a1a2e", fs=7.4)
+    flecha((2.30, 8.52), (2.90, 8.64), MORADO)
+
+    caja(8.20, 8.05, 1.85, 0.90, "¿es\nmatemática?", AZUL, "#132033", fs=8.0)
+    flecha((7.45, 8.64), (8.20, 8.50), MORADO)
+
+    caja(10.75, 8.15, 3.00, 0.70, "LLM conversacional", NARANJA, "#1f1107", fs=8.0)
+    flecha((10.05, 8.50), (10.75, 8.50), NARANJA)
+    etiqueta(10.40, 8.72, "no", NARANJA, 7.2)
+
+    # ═══ BANDA 2 — Pipeline Lean-primero ═════════════════════════════════════
+    ax.add_patch(FancyBboxPatch(
+        (0.30, 2.85), 13.40, 4.10, boxstyle="round,pad=0.12",
+        facecolor="#0e1a12", edgecolor=VERDE, linewidth=2.0, zorder=1))
+    etiqueta(7.00, 6.66,
+             "② PIPELINE LEAN-PRIMERO   —   la verdad matemática la produce Lean, no el LLM",
+             VERDE, 9.2)
+    flecha((9.12, 8.05), (8.30, 7.00), AZUL, curva=-0.15)
+    etiqueta(9.40, 7.45, "sí", VERDE, 7.6)
+
+    caja(0.75, 4.85, 2.85, 1.15, "LLM FORMALIZA", NARANJA, "#1f1107",
+         sub="rol: formalizador", fs=8.8, fs_sub=6.8)
+    etiqueta(3.05, 4.58, "few-shot miniF2F + refs Mathlib ancladas", GRIS, 6.3)
+
+    caja(5.25, 4.75, 3.30, 1.35, "LEAN  VERIFICA", VERDE, "#0d2416",
+         sub="fuente de verdad", fs=10.5, fs_sub=7.4)
+    etiqueta(6.90, 4.50, "lake env lean --json  ·  Mathlib", GRIS, 6.3)
+
+    caja(10.20, 4.85, 3.05, 1.15, "LLM TRADUCE", NARANJA, "#1f1107",
+         sub="rol: traductor, NO razonador", fs=8.8, fs_sub=6.4)
+
+    flecha((3.60, 5.42), (5.25, 5.42), VERDE, lw=2.2)
+    flecha((8.55, 5.42), (10.20, 5.42), VERDE, lw=2.2)
+    etiqueta(9.37, 5.66, "SUCCESS", VERDE, 7.2)
+
+    # -- bucles de reparacion (faltaban por completo en el diagrama anterior) --
+    caja(1.30, 3.25, 2.60, 0.72, "repair_imports", AZUL, "#132033",
+         sub="reintenta solo si mejora", fs=7.6, fs_sub=6.0)
+    flecha((5.60, 4.75), (3.55, 3.97), AZUL, curva=0.20, ls=(0, (4, 2)))
+    etiqueta(4.80, 4.18, "ERROR", AZUL, 7.0)
+    flecha((1.60, 3.97), (1.32, 4.85), AZUL, curva=0.16, ls=(0, (4, 2)))
+
+    caja(9.55, 3.25, 3.30, 0.72, "SolverCascade → SorryFiller", AZUL, "#132033",
+         sub="dominio → regex del goal → GNN", fs=7.6, fs_sub=6.0)
+    flecha((8.15, 4.75), (10.35, 3.97), AZUL, curva=-0.20, ls=(0, (4, 2)))
+    etiqueta(9.00, 4.18, "SORRY", AZUL, 7.0)
+    flecha((12.05, 3.97), (12.20, 4.85), AZUL, curva=-0.18, ls=(0, (4, 2)))
+
+    # ═══ BANDA 3 — Fases posteriores ═════════════════════════════════════════
+    caja(0.80, 1.20, 2.45, 0.80, "③ Evaluación", AZUL, "#132033", fs=8.2)
+    caja(3.85, 1.20, 3.05, 0.80, "④ Memoria MES + PPO", AZUL, "#132033", fs=8.2)
+    caja(7.50, 1.20, 3.20, 0.80, "⑤ Complexificación", MORADO, "#1a1a2e", fs=8.2)
+    caja(11.30, 1.20, 2.40, 0.80, "Respuesta al usuario", VERDE, "#0d2416", fs=8.2)
+
+    flecha((2.02, 2.85), (2.02, 2.00), AZUL)
+    etiqueta(3.45, 2.48, "tras formar la respuesta", GRIS, 6.5)
+    flecha((3.25, 1.60), (3.85, 1.60), AZUL)
+    flecha((6.90, 1.60), (7.50, 1.60), AZUL)
+    flecha((12.50, 2.85), (12.50, 2.00), NARANJA)
+    etiqueta(8.90, 0.86,
+             "⑤ va DESPUÉS de responder: la consulta actual se resuelve sobre un grafo estable",
+             GRIS, 6.5)
+
+    # ── Nota honesta sobre el GNN ────────────────────────────────────────────
+    ax.text(7.00, 0.26,
+            "El GNN+PPO ordena tácticas dentro de la cascada. Para el ENRUTADO está desactivado: "
+            "se entrenó con etiqueta constante y CR_tac lo detecta degenerado, así que enruta la heurística.",
+            ha="center", fontsize=6.9, color="#f59e0b", zorder=7,
+            bbox=dict(boxstyle="round", facecolor="#1c1710",
+                      edgecolor="#7c5a1e", alpha=0.95))
+
+    ax.set_title("Flujo de trabajo del NLE — Nucleo.process()",
+                 color=FG, fontsize=12.5, pad=12)
     fig.tight_layout()
     return fig
 
