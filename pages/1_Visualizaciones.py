@@ -1050,16 +1050,45 @@ def _get_nucleo_viz():
     return importlib.import_module("app")._get_nucleo()
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+def _get_nucleo_error_viz() -> str:
+    """Motivo por el que el Nucleo no arranco, si lo hay."""
+    import sys as _sys
+    for mod_name in ("__main__", "app"):
+        mod = _sys.modules.get(mod_name)
+        if mod is not None and hasattr(mod, "_get_nucleo_error"):
+            try:
+                return mod._get_nucleo_error() or ""
+            except Exception:
+                return ""
+    return ""
+
+
 def _emergencia_data():
     """
     Extrae del Nucleo los co-conos limite descubiertos y los huecos.
 
-    Devuelve dicts planos (cacheables), no objetos del grafo.
+    NO se cachea con @st.cache_data a proposito: el trabajo es de milisegundos
+    (el Nucleo ya esta construido) y cachearlo guardaba tambien los FALLOS —
+    un None por un arranque a medias se quedaba pegado 5 minutos y la pestana
+    seguia diciendo "no inicializado" mucho despues de que el Nucleo existiera.
+
+    Returns:
+        (datos, estado) donde estado es "ok" | "sin_nucleo" | "obsoleto",
+        y datos es None salvo en "ok".
     """
-    nucleo = _get_nucleo_viz()
-    if nucleo is None or nucleo.graph is None:
-        return None
+    try:
+        nucleo = _get_nucleo_viz()
+    except Exception:
+        return None, "sin_nucleo"
+    if nucleo is None or getattr(nucleo, "graph", None) is None:
+        return None, "sin_nucleo"
+
+    # El Nucleo en memoria puede ser de una version anterior del codigo:
+    # Streamlit recarga los .py al vuelo pero @st.cache_resource NO reconstruye
+    # los objetos que ya cacheo. Se detecta por atributo, no por excepcion.
+    if not hasattr(nucleo, "concept_gaps"):
+        return None, "obsoleto"
+
     g = nucleo.graph
     colimites, vistos = [], set()
     for c in nucleo._colimit_builder.all_colimits:
@@ -1077,7 +1106,7 @@ def _emergencia_data():
             "componentes": list(pat.component_ids),
             "apex": c.skill_id,
             "apex_nombre": apex.name,
-            "cn": apex.cn,
+            "cn": getattr(apex, "cn", 0),
             "level": apex.level,
             # Espurio = una TACTICA/ESTRATEGIA aparece como colimite de
             # DOMINIOS MATEMATICOS. Que una estrategia sea el colimite de
@@ -1095,13 +1124,14 @@ def _emergencia_data():
          "cocones": list(gp.cocones)[:12]}
         for gp in nucleo.concept_gaps
     ]
-    return {
+    datos = {
         "colimites": sorted(colimites, key=lambda d: (-d["cn"], d["apex"])),
         "huecos": sorted(huecos, key=lambda d: -d["n_cocones"]),
         "hierarchy": nucleo.stats.get("hierarchy", {}),
         "nombres": {sid: (g.get_skill(sid).name if g.get_skill(sid) else sid)
                     for sid in g.skill_ids},
     }
+    return datos, "ok"
 
 
 def fig_cocone_diagram(componentes, apex, apex_nombre, cocones_extra, nombres):
@@ -1813,7 +1843,7 @@ with tab6:
     # cada ampliacion del dominio (decian 76 con 172 skills cargados).
     _n_skills6, _sub6 = None, ""
     try:
-        _em6 = _emergencia_data()
+        _em6, _est6 = _emergencia_data()
         if _em6:
             _ld6 = {int(k): v for k, v in _em6["hierarchy"].get("level_distribution", {}).items()}
             _n_skills6 = sum(_ld6.values())
@@ -2115,18 +2145,13 @@ with tab9:
         "del mediador es automática (`thin_unique_hom`, `ComplexityOrder.lean`)."
     )
 
-    _em, _stale = None, False
+    _em, _estado = None, "sin_nucleo"
     try:
-        _em = _emergencia_data()
-    except AttributeError:
-        # El Nucleo cacheado por @st.cache_resource es de una version anterior
-        # del codigo (sin cn / concept_gaps). Streamlit recarga los .py al
-        # vuelo, pero NO reconstruye los objetos de cache_resource.
-        _stale = True
+        _em, _estado = _emergencia_data()
     except Exception as _e:
         st.error(f"No se pudo leer el estado de emergencia: {_e}")
 
-    if _stale:
+    if _estado == "obsoleto":
         st.warning(
             "**Reinicia la aplicación para ver esta vista.** "
             "El Núcleo en memoria se creó con una versión anterior del código y "
@@ -2135,8 +2160,18 @@ with tab9:
             "*Metamatemático*, o pulsa «Clear cache» en el menú ⋮ de Streamlit.",
             icon="🔄",
         )
-    elif _em is None:
-        st.info("El Núcleo no está inicializado todavía. Vuelve al chat y espera al arranque.")
+    elif _estado == "sin_nucleo":
+        _err = _get_nucleo_error_viz()
+        st.warning(
+            "**El Núcleo no está disponible en esta página.** "
+            "Vuelve al chat, espera a que arranque, y regresa aquí.",
+            icon="⚠️",
+        )
+        if _err:
+            with st.expander("Motivo del fallo de arranque"):
+                st.code(_err[-3000:], language="text")
+        if st.button("Reintentar", key="_retry_emerg"):
+            st.rerun()
     else:
         _h = _em["hierarchy"]
         _legit = [c for c in _em["colimites"] if not c["espurio"]]

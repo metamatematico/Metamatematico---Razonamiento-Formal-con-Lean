@@ -282,13 +282,31 @@ def _arranca_warmup_lean() -> bool:
         log.info(f"No se pudo preparar el warmup de Lean (no critico): {e}")
         return False
 
-    # La cache del SO se pierde al reiniciar, asi que un centinela viejo miente.
-    # Se borra al arrancar y solo lo reescribe el warmup al terminar:
-    # existe .lean_warm  <=>  el warmup completo EN ESTE proceso.
+    # La cache del SO se pierde al reiniciar, asi que un centinela de OTRO
+    # proceso miente. Pero borrarlo incondicionalmente tambien mentia: el
+    # watcher de Streamlit puede re-evaluar este recurso dentro del MISMO
+    # proceso (al editar cualquier modulo importado), y entonces se borraba un
+    # centinela valido dejando la barra lateral en "no iniciado aun" con
+    # Mathlib ya caliente y sin forma de relanzar el warmup desde la interfaz.
+    #
+    # El centinela guarda "<segundos>|<pid>": solo se descarta si el pid no es
+    # el nuestro.
+    _sent = os.path.join(lean_cwd, ".lean_warm")
     try:
-        os.remove(os.path.join(lean_cwd, ".lean_warm"))
+        _prev = open(_sent, encoding="utf-8").read().strip()
+        _prev_pid = _prev.split("|")[1] if "|" in _prev else ""
+        if _prev_pid != str(os.getpid()):
+            os.remove(_sent)
+        else:
+            # Ya calentamos en este proceso: no repetir.
+            return True
     except OSError:
         pass
+    except Exception:
+        try:
+            os.remove(_sent)
+        except OSError:
+            pass
 
     def _lean_warmup():
         import subprocess, time, pathlib
@@ -311,7 +329,7 @@ def _arranca_warmup_lean() -> bool:
             # mientras no exista. Si el log falla, Lean ya cargo igualmente y
             # seria absurdo perder ese trabajo.
             pathlib.Path(lean_cwd, ".lean_warm").write_text(
-                f"{elapsed:.0f}", encoding="utf-8"
+                f"{elapsed:.0f}|{os.getpid()}", encoding="utf-8"
             )
             log.info(
                 f"Lean warmup completado en {elapsed:.0f}s — "
@@ -1123,6 +1141,7 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
         if os.path.exists(_warm_sentinel):
             try:
                 _warm_s = open(_warm_sentinel, encoding="utf-8").read().strip()
+                _warm_s = _warm_s.split("|")[0]   # "<segundos>|<pid>"
                 st.success(f"**Lean 4 ✓ listo** — caché caliente ({_warm_s}s carga inicial)", icon="🔥")
             except Exception:
                 st.success("**Lean 4 ✓ listo**", icon="🔥")
@@ -1149,7 +1168,18 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
                              key="_recheck_warm"):
                     st.rerun()
             else:
+                # Ni centinela ni hilo vivo. Puede ser un arranque limpio, o que
+                # un re-run se llevara por delante el centinela con Mathlib ya
+                # caliente. Sin este boton la unica salida era reiniciar la app.
                 st.info("**Lean 4** disponible (no iniciado aún)", icon="🔵")
+                if st.button("Iniciar Lean ahora", width="stretch",
+                             key="_start_warm"):
+                    try:
+                        _arranca_warmup_lean.clear()
+                    except Exception:
+                        pass
+                    _arranca_warmup_lean()
+                    st.rerun()
 
         st.divider()
 
