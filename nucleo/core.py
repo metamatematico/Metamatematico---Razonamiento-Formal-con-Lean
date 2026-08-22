@@ -1694,8 +1694,16 @@ class Nucleo:
                 "verification_status": verification_status,
                 # Booleano explicito para que la interfaz pueda distinguir sin
                 # tener que interpretar la cadena de estado.
+                #
+                # NO se marca aqui "sin_verificacion_lean": esa clave significa
+                # que la respuesta NUNCA paso por el verificador (bypass
+                # educativo/geometrico), y app.py le anade un aviso que dice
+                # "el argumento no se formalizo ni lo comprobo el verificador".
+                # Reutilizarla para "Lean rechazo" producia una respuesta que se
+                # contradecia: la insignia decia que Lean corrio y fallo, y dos
+                # lineas mas abajo que no se habia formalizado. Aqui Lean SI
+                # corrio; el aviso correcto ya va delante de la explicacion.
                 "verificado": _verificado,
-                "sin_verificacion_lean": not _verificado,
                 "area": _area,
                 "rondas_revision": _rondas_revision,
             },

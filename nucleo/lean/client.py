@@ -199,6 +199,22 @@ class LeanClient:
         # Números
         (["Nat.Prime", "prime", "Finset.sum"],
          "import Mathlib.Data.Nat.Prime.Basic"),
+        # Aritmetica modular. La NOTACION `a ≡ b [MOD n]` vive aqui, no solo
+        # los lemas: sin este import Lean ni siquiera PARSEA el enunciado y
+        # devuelve "expected token", un error de sintaxis que no menciona
+        # ningun identificador — asi que repair_imports, que busca
+        # "unknown identifier", tampoco puede rescatarlo.
+        #
+        # Es el caso del teorema chino del residuo: el modelo escribia
+        # `import Mathlib` (correcto), _normalize_code lo quitaba por coste
+        # —742 s frente a ~15 s— y la cabecera estrecha no traia ModEq, asi
+        # que el codigo valido se volvia imparseable.
+        (["[MOD ", "ModEq", "Nat.Coprime", "chineseRemainder", "≡"],
+         "import Mathlib.Data.Nat.ModEq"),
+        (["ZMod", "Nat.totient", "eulerPhi", "orderOf"],
+         "import Mathlib.Data.ZMod.Basic"),
+        (["gcd", "lcm", "Nat.gcd", "Nat.lcm"],
+         "import Mathlib.Data.Nat.GCD.Basic"),
         # Factorizacion en primos: aqui viven primeFactorsList y sus lemas
         (["primeFactorsList", "factors", "factorization"],
          "import Mathlib.Data.Nat.Factors"),
