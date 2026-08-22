@@ -326,13 +326,106 @@ def _skill_list_live(vd):
     return result
 
 @st.cache_data
+@st.cache_data(ttl=120, show_spinner=False)
+def _grafo_vivo_datos():
+    """
+    Lee el grafo REAL del Nucleo y lo devuelve como dicts planos (cacheables).
+
+    SKILLS/EDGES, las listas de arriba, son una copia hardcodeada que quedo
+    obsoleta: 75 skills y 40 aristas frente a los 172 skills y 556 morfismos
+    del grafo real. Solo 29 de esos 75 ids existian todavia (38%); 46 nodos
+    dibujados —alg-geo, comm-algebra, point-set-topo...— ya no existen, y 143
+    skills reales no se dibujaban en absoluto. Toda visualizacion construida
+    sobre ellas mostraba un sistema que no es este.
+
+    Se conservan como ultimo recurso si el Nucleo no esta disponible (por
+    ejemplo al abrir la pagina antes de que arranque).
+    """
+    _PILAR_CAT = {"SET": "foundations", "CAT": "category-theory",
+                  "LOG": "logic", "TYPE": "foundations"}
+    try:
+        nucleo = _get_nucleo_viz()
+    except Exception:
+        return None
+    if nucleo is None or getattr(nucleo, "graph", None) is None:
+        return None
+
+    g = nucleo.graph
+    nodos, aristas = [], []
+    for sid in g.skill_ids:
+        sk = g.get_skill(sid)
+        if sk is None:
+            continue
+        cat = sk.metadata.get("category") or _PILAR_CAT.get(
+            sk.pillar.name if sk.pillar else "SET", "foundations"
+        )
+        nodos.append({
+            "id": sid,
+            "name": sk.name or sid,
+            "level": sk.level,
+            "cn": getattr(sk, "cn", 0),
+            "cat": _live_cat(cat),
+        })
+    for mor in g.morphisms:
+        mt = mor.morphism_type.name
+        if mt == "IDENTITY":
+            continue
+        kind = ("trans" if "TRANS" in mt
+                else "analogy" if "ANALOG" in mt else "dep")
+        aristas.append({"source": mor.source_id, "target": mor.target_id,
+                        "kind": kind})
+    return {"nodos": nodos, "aristas": aristas}
+
+
 def build_graph():
+    """
+    Grafo para las visualizaciones: SIEMPRE el real si el Nucleo esta vivo.
+
+    Antes devolvia la copia estatica de SKILLS/EDGES incondicionalmente, asi
+    que las pestanas de grafo, embeddings, complexificacion y traza dibujaban
+    un sistema distinto del que estaba corriendo.
+    """
+    datos = _grafo_vivo_datos()
     G = nx.DiGraph()
-    for sid, name, level, cat, color in SKILLS:
-        G.add_node(sid, name=name, level=level, cat=cat, color=color)
-    for src, tgt, kind in EDGES:
-        G.add_edge(src, tgt, kind=kind)
+
+    if datos is None:
+        # Ultimo recurso: el Nucleo aun no esta disponible.
+        for sid, name, level, cat, color in SKILLS:
+            G.add_node(sid, name=name, level=level, cat=cat, color=color, cn=0)
+        for src, tgt, kind in EDGES:
+            G.add_edge(src, tgt, kind=kind)
+        G.graph["fuente"] = "estatico"
+        return G
+
+    for n in datos["nodos"]:
+        G.add_node(n["id"], name=n["name"], level=n["level"], cn=n["cn"],
+                   cat=n["cat"], color=PALETTE.get(n["cat"], "#42a5f5"))
+    for e in datos["aristas"]:
+        if G.has_node(e["source"]) and G.has_node(e["target"]):
+            G.add_edge(e["source"], e["target"], kind=e["kind"])
+    G.graph["fuente"] = "vivo"
     return G
+
+
+def _skills_viz():
+    """
+    Skills para las visualizaciones, con la MISMA forma que la lista SKILLS:
+        (id, nombre, nivel, categoria, color)
+
+    Pero tomados del grafo VIVO. Cinco funciones de esta pagina —el layout,
+    los embeddings, el heatmap y las dos distribuciones— iteraban SKILLS
+    directamente, asi que seguian dibujando los 75 nodos obsoletos aunque
+    build_graph() ya devolviera los 172 reales. Peor: al mezclarse ambas
+    fuentes saltaban KeyError ('cat-basics' en el layout, 'T. Conjuntos' en
+    el heatmap) porque las posiciones y los centroides se calculaban sobre un
+    conjunto de nodos distinto del que se dibujaba.
+    """
+    G = build_graph()
+    return [
+        (sid, d.get("name", sid), d.get("level", 0),
+         d.get("cat", "Fundamentos"), d.get("color", "#42a5f5"))
+        for sid, d in G.nodes(data=True)
+    ]
 
 
 def build_graph_live(vd: dict) -> nx.DiGraph:
@@ -357,17 +450,34 @@ def build_graph_live(vd: dict) -> nx.DiGraph:
 
 @st.cache_data
 def make_layout(_G):
-    # Layout jerárquico: x = categoría, y = nivel
+    """
+    Layout jerarquico: cada CATEGORIA es una columna, cada NIVEL una banda.
+
+    La formula anterior (y = level*-3 + contador*0.28) estaba pensada para unas
+    5 skills por categoria: con 33 en Algebra los nodos se apilaban en una linea
+    vertical larguisima que se comia las bandas de nivel, y el grafo dejaba de
+    leerse como jerarquia. Ademas ignoraba el grafo recibido y colocaba los
+    nodos de la lista estatica SKILLS.
+
+    Ahora se agrupa por (categoria, nivel) y dentro de cada celda se reparte en
+    filas: la altura sigue significando nivel y la anchura, categoria.
+    """
     cats = list(PALETTE.keys())
+    celdas: dict = {}
+    for sid, d in _G.nodes(data=True):
+        clave = (d.get("cat", "Fundamentos"), d.get("level", 0))
+        celdas.setdefault(clave, []).append(sid)
+
+    ANCHO_CAT, ALTO_NIVEL, POR_FILA = 3.4, 4.2, 4
     pos = {}
-    cat_counts = {c: 0 for c in cats}
-    for sid, name, level, cat, _ in SKILLS:
-        cx = cats.index(cat) if cat in cats else 0
-        cy = cat_counts.get(cat, 0)
-        cat_counts[cat] = cy + 1
-        np.random.seed(hash(sid) % (2**31))
-        pos[sid] = (cx * 2.5 + np.random.uniform(-0.4, 0.4),
-                    level * -3.0 + cy * 0.28 + np.random.uniform(-0.05, 0.05))
+    for (cat, level), ids in celdas.items():
+        cx = cats.index(cat) if cat in cats else len(cats)
+        for k, sid in enumerate(sorted(ids)):
+            col, fila = k % POR_FILA, k // POR_FILA
+            pos[sid] = (
+                cx * ANCHO_CAT + (col - (POR_FILA - 1) / 2) * 0.62,
+                -level * ALTO_NIVEL - fila * 0.75,
+            )
     return pos
 
 
@@ -455,13 +565,18 @@ def fig_skill_graph(filter_cat=None, query=None):
 
         # Etiqueta: siempre en nodos relevantes, solo fundamentos en vista global
         show_label = (query and sid in (matched_set | dep_set | tactic_set)) or \
-                     (not query and d["level"] == 0) or \
+                     (not query and d["level"] <= 1) or \
                      (not query and filter_cat is not None)
         if show_label:
             fc = "#fbbf24" if sid in matched_set else \
                  "#4ade80" if sid in tactic_set else \
                  "#93c5fd" if sid in dep_set else FG
-            ax.text(x, y - 0.28, d["name"], fontsize=6, ha="center", va="top",
+            # Escalonado: etiquetas contiguas a distinta altura, y nombre
+            # recortado. Sin esto, en una fila de 4 nodos los nombres se
+            # superponen y no se lee ninguno.
+            _dy = 0.28 + 0.30 * (int(round(x / 0.62)) % 2)
+            _txt = d["name"] if len(d["name"]) <= 16 else d["name"][:15] + "…"
+            ax.text(x, y - _dy, _txt, fontsize=5.6, ha="center", va="top",
                     color=fc, zorder=6, fontweight="bold" if sid in matched_set else "normal")
 
     # Leyenda
@@ -478,8 +593,7 @@ def fig_skill_graph(filter_cat=None, query=None):
             mpatches.Patch(color="#58a6ff", label="Traducción"),
             mpatches.Patch(color="#3fb950", label="Analogía"),
         ]
-    ax.legend(handles=legend_h, loc="lower left", ncol=2, fontsize=6.5,
-              framealpha=0.2, edgecolor="#21262d", labelcolor=FG)
+    ax.legend(handles=legend_h, loc="upper left", bbox_to_anchor=(1.005, 1.0), ncol=1, fontsize=7, framealpha=0.95, facecolor="#161b22", edgecolor="#30363d", labelcolor=FG)
 
     ax.axis("off")
     suffix = f' — consulta: "{query[:45]}…"' if query and len(query) > 45 \
@@ -511,7 +625,7 @@ def build_embeddings():
         "Tácticas Lean": "lean-tactics","Estrategias": "proof-strategies",
     }
     embs = []
-    for sid, name, level, cat, _ in SKILLS:
+    for sid, name, level, cat, _ in _skills_viz():
         cat_key = _cat_rev.get(cat, cat.lower())
         # Texto: nombre del skill + tokens del ID (ej. "group-theory" → "group theory")
         text = f"{name} {sid.replace('-', ' ')}"
@@ -1337,16 +1451,17 @@ def fig_pipeline():
 
 def fig_distribution():
     from collections import Counter
-    cat_counts = Counter(s[3] for s in SKILLS)
+    _sk = _skills_viz()
+    cat_counts = Counter(s[3] for s in _sk)
     cats = list(cat_counts.keys())
     counts = [cat_counts[c] for c in cats]
-    colors = [PALETTE[c] for c in cats]
+    colors = [PALETTE.get(c, "#42a5f5") for c in cats]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5), facecolor=BG)
 
     # Barras horizontales
     ax1.set_facecolor(BG)
-    bars = ax1.barh(cats[::-1], counts[::-1], color=[PALETTE[c] for c in cats[::-1]],
+    bars = ax1.barh(cats[::-1], counts[::-1], color=[PALETTE.get(c, "#42a5f5") for c in cats[::-1]],
                     edgecolor="#21262d", linewidth=0.5, height=0.7)
     for bar, count in zip(bars, counts[::-1]):
         ax1.text(bar.get_width() + 0.1, bar.get_y() + bar.get_height()/2,
@@ -1361,11 +1476,19 @@ def fig_distribution():
 
     # Pie chart por nivel
     ax2.set_facecolor(BG)
-    level_counts = Counter(s[2] for s in SKILLS)
-    level_labels = ["Nivel 0\nFundamentos", "Nivel 1\nDominios", "Nivel 2\nEstrategias"]
-    level_colors = ["#ef5350", "#42a5f5", "#fff59d"]
+    level_counts = Counter(s[2] for s in _sk)
+    _NOMBRE_NIVEL = {
+        0: "Nivel 0\nFundamentos", 1: "Nivel 1\nRamas",
+        2: "Nivel 2\nSub-áreas",   3: "Nivel 3\nSub-ramas",
+    }
+    _PALETA_NIVEL = ["#ef5350", "#42a5f5", "#fff59d", "#ce93d8", "#80cbc4"]
+    # Los niveles se leen del grafo: la lista fija 0/1/2 dejaba fuera los 95
+    # skills de L3 y el porcentaje del quesito no sumaba el sistema real.
+    _niveles = sorted(level_counts)
+    level_labels = [_NOMBRE_NIVEL.get(k, f"Nivel {k}") for k in _niveles]
+    level_colors = [_PALETA_NIVEL[k % len(_PALETA_NIVEL)] for k in _niveles]
     wedges, texts, autotexts = ax2.pie(
-        [level_counts[k] for k in [0, 1, 2]],
+        [level_counts[k] for k in _niveles],
         labels=level_labels, colors=level_colors,
         autopct="%1.0f%%", startangle=90,
         textprops={"color": FG, "fontsize": 8},
@@ -1385,13 +1508,18 @@ def fig_distribution():
 
 def fig_heatmap():
     embs = build_embeddings()
-    cats = list(PALETTE.keys())
 
-    # Centroides por categoría
+    # Centroides por categoria, SOLO de las categorias que tienen skills.
+    # Recorrer PALETTE entera daba KeyError en cuanto una categoria quedaba
+    # vacia ('T. Conjuntos'), porque no habia centroide que promediar.
     cat_embs = {}
-    for i, (sid, name, level, cat, _) in enumerate(SKILLS):
-        cat_embs.setdefault(cat, []).append(embs[i])
-    centroids = {c: np.mean(v, axis=0) for c, v in cat_embs.items()}
+    for i, (sid, name, level, cat, _) in enumerate(_skills_viz()):
+        if i < len(embs):
+            cat_embs.setdefault(cat, []).append(embs[i])
+    centroids = {c: np.mean(v, axis=0) for c, v in cat_embs.items() if v}
+    cats = [c for c in PALETTE.keys() if c in centroids]
+    if len(cats) < 2:
+        cats = list(centroids.keys())
 
     # Matriz de similitud coseno
     n = len(cats)
@@ -1944,7 +2072,7 @@ with tab6:
         _n_skills6 = len(_vd6["graph_nodes"]) if _vd6 and _vd6.get("graph_nodes") else 0
     col1.metric("Skills totales", str(_n_skills6), _sub6 or None)
     col2.metric("Parámetros GNN+PPO", "124,420", "3 capas GATConv")
-    col3.metric("Tests", "435", "19 suites")
+    col3.metric("Tests", "443", "20 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
