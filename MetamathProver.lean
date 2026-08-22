@@ -28,6 +28,10 @@ import MetamathProver.CategoryFoundations.CoRegulatorNetwork
 --   IsJoin S j ↔ ∃ hub, Nonempty (CategoryTheory.Limits.IsColimit (joinCocone S j hub))
 -- Proved in any preorder (thin category). 0 sorry.
 import MetamathProver.CategoryFoundations.IsColimitBridge
+-- Funtor cociente pi: Skills -> Agentes. Demuestra que pi es funtor, que
+-- preserva co-conos (18/18 medido) y que NO preserva la minimalidad, con
+-- contraejemplo finito (12/18 medido).
+import MetamathProver.CategoryFoundations.QuotientFunctor
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism

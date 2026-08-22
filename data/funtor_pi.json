@@ -1,0 +1,582 @@
+{
+  "grafo": {
+    "objetos": 172,
+    "morfismos": 556
+  },
+  "codominio": {
+    "objetos": [
+      "algebra",
+      "analysis",
+      "category-theory",
+      "combinatorics",
+      "computation",
+      "fundacional",
+      "geometry",
+      "lean-tactics",
+      "logic",
+      "number-theory",
+      "optimization",
+      "probability",
+      "proof-strategies",
+      "set-theory",
+      "topology"
+    ],
+    "n_objetos": 15,
+    "n_morfismos": 32,
+    "morfismos": [
+      {
+        "de": "fundacional",
+        "a": "lean-tactics",
+        "multiplicidad": 18,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "lean-tactics",
+        "a": "proof-strategies",
+        "multiplicidad": 13,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "category-theory",
+        "multiplicidad": 8,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "algebra",
+        "a": "number-theory",
+        "multiplicidad": 4,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "analysis",
+        "a": "optimization",
+        "multiplicidad": 4,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "algebra",
+        "multiplicidad": 4,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "computation",
+        "multiplicidad": 4,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "algebra",
+        "a": "topology",
+        "multiplicidad": 3,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "analysis",
+        "a": "geometry",
+        "multiplicidad": 3,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "topology",
+        "multiplicidad": 3,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "logic",
+        "multiplicidad": 3,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "algebra",
+        "a": "geometry",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "algebra",
+        "a": "category-theory",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "analysis",
+        "a": "probability",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "combinatorics",
+        "a": "optimization",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "geometry",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "analysis",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "combinatorics",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "set-theory",
+        "multiplicidad": 2,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "algebra",
+        "a": "combinatorics",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "analysis",
+        "a": "number-theory",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "number-theory",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "fundacional",
+        "a": "proof-strategies",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "geometry",
+        "a": "topology",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "geometry",
+        "a": "number-theory",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "geometry",
+        "a": "category-theory",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "probability",
+        "a": "combinatorics",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "topology",
+        "a": "set-theory",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "topology",
+        "a": "geometry",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "topology",
+        "a": "analysis",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "topology",
+        "a": "logic",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "topology",
+        "a": "probability",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      }
+    ],
+    "objeto_base": "fundacional"
+  },
+  "colapsados_a_identidad": 130,
+  "functorialidad": {
+    "objetos_del_dominio": 172,
+    "objetos_sin_imagen": 0,
+    "morfismos_considerados": 226,
+    "morfismos_con_imagen": 226,
+    "F1_identidades_ok": true,
+    "composiciones_comprobadas": 250,
+    "F2_fallos": 0,
+    "F2_composicion_ok": true,
+    "es_funtor": true
+  },
+  "preservacion": {
+    "colimites": 18,
+    "cocono_preservado": 18,
+    "colimite_preservado": 12,
+    "colapsados_a_un_punto": 1
+  },
+  "preservacion_detalle": [
+    {
+      "componentes": [
+        "point-set-topology",
+        "ordinals"
+      ],
+      "join": "descriptive-set-theory",
+      "pi_componentes": [
+        "topology",
+        "fundacional"
+      ],
+      "pi_join": "set-theory",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "functors",
+        "commutative-algebra"
+      ],
+      "join": "algebraic-geometry",
+      "pi_componentes": [
+        "fundacional",
+        "algebra"
+      ],
+      "pi_join": "geometry",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "complex-analysis",
+        "differential-geometry"
+      ],
+      "join": "complex-geometry",
+      "pi_componentes": [
+        "analysis",
+        "geometry"
+      ],
+      "pi_join": "geometry",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "functors",
+        "functional-analysis"
+      ],
+      "join": "operator-theory",
+      "pi_componentes": [
+        "fundacional",
+        "analysis"
+      ],
+      "pi_join": "analysis",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "homotopy-theory",
+        "cic"
+      ],
+      "join": "homotopy-type-theory",
+      "pi_componentes": [
+        "topology",
+        "fundacional"
+      ],
+      "pi_join": "logic",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "elementary-number-theory",
+        "complex-analysis"
+      ],
+      "join": "analytic-number-theory",
+      "pi_componentes": [
+        "number-theory",
+        "analysis"
+      ],
+      "pi_join": "number-theory",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-number-theory",
+        "algebraic-geometry",
+        "field-theory"
+      ],
+      "join": "arithmetic-geometry",
+      "pi_componentes": [
+        "number-theory",
+        "geometry",
+        "algebra"
+      ],
+      "pi_join": "number-theory",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "enumerative-combinatorics",
+        "group-theory"
+      ],
+      "join": "algebraic-combinatorics",
+      "pi_componentes": [
+        "combinatorics",
+        "algebra"
+      ],
+      "pi_join": "combinatorics",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "enumerative-combinatorics",
+        "probability-theory"
+      ],
+      "join": "probabilistic-method",
+      "pi_componentes": [
+        "combinatorics",
+        "probability"
+      ],
+      "pi_join": "combinatorics",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "probability-theory",
+        "point-set-topology"
+      ],
+      "join": "ergodic-theory",
+      "pi_componentes": [
+        "probability",
+        "topology"
+      ],
+      "pi_join": "probability",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "tactic-apply",
+        "tactic-rewrite"
+      ],
+      "join": "strategy-forward",
+      "pi_componentes": [
+        "lean-tactics",
+        "lean-tactics"
+      ],
+      "pi_join": "proof-strategies",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "fol-deduction",
+        "tactic-exact"
+      ],
+      "join": "strategy-contradiction",
+      "pi_componentes": [
+        "fundacional",
+        "lean-tactics"
+      ],
+      "pi_join": "proof-strategies",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "solvable-groups",
+        "field-extensions"
+      ],
+      "join": "galois-theory",
+      "pi_componentes": [
+        "algebra",
+        "algebra"
+      ],
+      "pi_join": "algebra",
+      "cocono": true,
+      "limite": true,
+      "colapsado": true
+    },
+    {
+      "componentes": [
+        "field-extensions",
+        "algebraic-number-theory"
+      ],
+      "join": "number-fields",
+      "pi_componentes": [
+        "algebra",
+        "number-theory"
+      ],
+      "pi_join": "number-theory",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-topology",
+        "exact-sequences",
+        "homological-algebra"
+      ],
+      "join": "homology",
+      "pi_componentes": [
+        "topology",
+        "algebra",
+        "algebra"
+      ],
+      "pi_join": "topology",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-geometry",
+        "ideals-quotient-rings"
+      ],
+      "join": "affine-varieties",
+      "pi_componentes": [
+        "geometry",
+        "algebra"
+      ],
+      "pi_join": "geometry",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "limits",
+        "exact-sequences"
+      ],
+      "join": "abelian-categories",
+      "pi_componentes": [
+        "fundacional",
+        "algebra"
+      ],
+      "pi_join": "category-theory",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "random-variables",
+        "measure-theory"
+      ],
+      "join": "conditional-expectation",
+      "pi_componentes": [
+        "probability",
+        "analysis"
+      ],
+      "pi_join": "probability",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    }
+  ],
+  "max_cn": 2,
+  "n_huecos": 27
+}

@@ -1,0 +1,449 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{hyperref}
+
+% Los identificadores del sistema llevan guiones y son largos. Sin permitir
+% el corte por el guion, en linea desbordan el margen (hasta 216 pt medidos).
+\newcommand{\ident}[1]{\textit{\nohyphens{#1}}}
+\newcommand{\nohyphens}[1]{#1}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+
+\theoremstyle{plain}
+\newtheorem{teorema}{Teorema}[section]
+\newtheorem{corolario}[teorema]{Corolario}
+\newtheorem{lema}[teorema]{Lema}
+\theoremstyle{definition}
+\newtheorem{definicion}[teorema]{Definición}
+\theoremstyle{remark}
+\newtheorem{observacion}[teorema]{Observación}
+
+\newcommand{\Skills}{\mathcal{S}}
+\newcommand{\Agentes}{\mathcal{A}}
+\newcommand{\base}{\ast}
+
+\title{El funtor cociente $\pi:\Skills\to\Agentes$\\[.3em]
+\large Construcción, verificación formal en Lean 4 y medición\\
+sobre el grafo de habilidades de \textsc{Metamatemático}}
+\author{Leonardo Jiménez Martínez\\ \small en colaboración con Claude Opus 5 (Anthropic)}
+\date{22 de agosto de 2026}
+
+\sloppy
+\begin{document}
+\maketitle
+
+\begin{abstract}
+El sistema \textsc{Metamatemático} maneja objetos de tres clases —habilidades
+expertas, agentes especializados y teorías matemáticas— que el diseño describía
+como tres categorías $\mathbf{Graph}$ isomorfas entre sí. Este reporte establece
+que son dos, no tres, y que no son isomorfas ni pueden serlo: las habilidades y
+las teorías son literalmente el mismo grafo, y frente a los $172$ objetos de
+éste la categoría de agentes tiene $15$, lo que es una obstrucción de
+cardinalidad y no un defecto de implementación. Se construye en su lugar el
+funtor cociente $\pi(s)=\text{categoría}(s)$, se demuestran en Lean~4 sus tres
+propiedades relevantes —funtorialidad, preservación de co-conos y no
+preservación de la minimalidad, esta última con contraejemplo finito— y se
+verifican las tres sobre el grafo real. La medición confirma los teoremas:
+$\pi$ es funtor ($172/172$ objetos, $226/226$ morfismos, $250$ composiciones sin
+fallo), preserva los $18$ co-conos límite descubiertos ($18/18$) y conserva la
+minimalidad sólo en $12$ de ellos. De los seis que la pierden, cinco tienen al
+objeto base entre sus componentes, exactamente la configuración que el
+contraejemplo aísla.
+\end{abstract}
+
+\tableofcontents
+
+\section{Planteamiento}
+
+El diseño de \textsc{Metamatemático} describe tres categorías $\mathbf{Graph}$
+que deberían ser isomorfas entre ellas: una cuyos objetos son habilidades
+expertas en cada rama matemática, otra cuyos objetos son agentes —uno por área—
+y una tercera cuyos objetos son las teorías y subteorías. Todas ellas con una
+estructura de Ehresmann sobre la complexificación que arrojan sus objetos y
+flechas.
+
+La primera observación de este trabajo es que las categorías son dos.
+
+\begin{observacion}[Habilidades y teorías son el mismo grafo]
+Los $162$ objetos de niveles \textsc{l1}--\textsc{l3} \emph{son} las ramas y
+subramas. El objeto \guillemotleft{}teoría de anillos\guillemotright{} y la habilidad \guillemotleft{}experto en teoría de
+anillos\guillemotright{} no son dos nodos relacionados por un isomorfismo: son el mismo nodo,
+con el mismo identificador, en el mismo grafo. No hay dos copias que puedan ser
+isomorfas.
+\end{observacion}
+
+La categoría genuinamente distinta es la de agentes. Y con ella el isomorfismo
+tampoco es alcanzable:
+
+\begin{observacion}[Obstrucción de cardinalidad]
+$|\mathrm{Obj}(\Skills)| = 172$ y $|\mathrm{Obj}(\Agentes)| = 15$. Un
+isomorfismo de categorías exige biyección en objetos. No existe.
+\end{observacion}
+
+Lo que sí existe, y es lo que hace falta para que la estructura de Ehresmann
+baje de un nivel al otro, es una proyección
+\[
+  \pi(s) \;=\; \text{categoría}(s),
+\]
+sobreyectiva en objetos y muy lejos de inyectiva. El resto del reporte la
+construye como funtor, demuestra qué preserva y mide qué ocurre en el grafo
+real.
+
+\section{Por qué $\pi$ no era un funtor}
+
+Medido sobre el grafo del sistema ($172$ objetos, $556$ morfismos), la
+proyección tal como estaba fallaba por dos motivos independientes.
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+Morfismos & Cantidad & \% \\
+\midrule
+Dentro de una misma categoría & $286$ & $51{,}4$ \\
+\textbf{Cruzan} de categoría & $202$ & $36{,}3$ \\
+Tocan un fundacional \textsc{l0} & $68$ & $12{,}2$ \\
+\midrule
+Total & $556$ & $100{,}0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Los $202$ cruces no son errores. El morfismo
+$\textit{commutative-algebra} \to \textit{algebraic-geometry}$ es
+matemáticamente correcto, y es justamente el que produce el colímite
+\[
+  \mathrm{join}(\textit{functors},\,\textit{commutative-algebra})
+  \;=\; \textit{algebraic-geometry}
+\]
+que el sistema descubre. El problema estaba en el
+codominio: la categoría de agentes era \emph{discreta} —catorce nombres en una
+lista, sin morfismos entre ellos— y no tenía dónde recibirlos.
+
+Los $68$ restantes tocan una de las diez habilidades fundamentales, que no
+llevan categoría matemática. Sobre ellas $\pi$ ni siquiera estaba definida.
+
+\begin{observacion}[Dos clases de objeto en una sola lista]
+De los $202$ cruces, $150$ son de tipo \textsc{translation} y casi todos apuntan
+al mismo destino: $\textit{algebra}\to\textit{lean-tactics}$ ($33$),
+$\textit{analysis}\to\textit{lean-tactics}$ ($20$),
+$\textit{number-theory}\to\textit{lean-tactics}$ ($14$). Las categorías
+\textit{lean-tactics} y \textit{proof-strategies} no son ramas de las
+matemáticas al nivel de \textit{algebra} o \textit{topology}: son \emph{cómo} se
+demuestra, no \emph{sobre qué}. Por eso todo apunta hacia ellas y nada sale
+hacia las ramas. El sistema ya había tropezado con este hecho desde el otro
+lado, al excluir \textsc{translation} del conjunto \texttt{ORDER\_MORPHISMS}
+porque generaba uniones espurias.
+\end{observacion}
+
+En consecuencia, la construcción se restringe a los morfismos de orden
+—\textsc{dependency} y \textsc{specialization}—, que son $226$.
+
+\section{La construcción}
+
+\begin{definicion}[Codominio inducido]
+$\Agentes$ se define como la \emph{imagen} de $\pi$ con los morfismos
+inducidos:
+\[
+  \mathrm{Obj}(\Agentes) = \pi\bigl(\mathrm{Obj}(\Skills)\bigr),
+  \qquad
+  \mathrm{Hom}(\Agentes) = \bigl\{\, \pi(f) : f\in\mathrm{Hom}(\Skills),\;
+  \pi(f)\neq\mathrm{id} \,\bigr\}.
+\]
+\end{definicion}
+
+Con esta definición $\pi$ es funtor \emph{por construcción} y no por suerte:
+todo morfismo de $\Skills$ tiene imagen porque su imagen es, por definición, un
+morfismo de $\Agentes$.
+
+\begin{definicion}[Objeto base]
+Las habilidades fundamentales se envían a un objeto $\base$ de $\Agentes$. La
+alternativa —excluirlas del dominio— dejaría $\pi$ parcial, y con ella todo
+enunciado sobre preservación. Se prefiere pagar el precio de $\base$ y
+declararlo; la sección~\ref{sec:base} muestra cuál es ese precio.
+\end{definicion}
+
+El codominio resultante tiene $15$ objetos y $32$ morfismos. Los $130$ morfismos
+intra-categoría se colapsan a identidades. Los inducidos de mayor multiplicidad:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Morfismo inducido & Multiplicidad \\
+\midrule
+$\base \to \textit{lean-tactics}$ & $18$ \\
+$\textit{lean-tactics} \to \textit{proof-strategies}$ & $13$ \\
+$\base \to \textit{category-theory}$ & $8$ \\
+$\textit{algebra} \to \textit{number-theory}$ & $4$ \\
+$\textit{analysis} \to \textit{optimization}$ & $4$ \\
+$\base \to \textit{algebra}$ & $4$ \\
+$\textit{analysis} \to \textit{geometry}$ & $3$ \\
+$\textit{algebra} \to \textit{topology}$ & $3$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Resultados formales}
+
+Los tres teoremas siguientes están demostrados en Lean~4 en el archivo
+\texttt{MetamathProver/CategoryFoundations/QuotientFunctor.lean}, sin
+\texttt{sorry} ni axiomas añadidos. El predicado \texttt{IsJoin} procede de
+\texttt{JoinColimit.lean}, donde se establece que en un preorden equivale a la
+propiedad universal del colímite.
+
+\begin{teorema}[Funtorialidad]
+\label{thm:funtor}
+En categorías delgadas, una proyección monótona es un funtor: la ley de
+identidades es la reflexividad y la de composición es la transitividad. No hay
+nada más que comprobar, porque $\mathrm{Hom}(a,b)$ tiene a lo sumo un elemento.
+\end{teorema}
+
+\noindent\emph{En Lean:} \texttt{proyeccion\_es\_funtor}.
+
+\begin{teorema}[Preservación de co-conos]
+\label{thm:cocono}
+Si $j$ es cota superior de $T\subseteq\mathrm{Obj}(\Skills)$, entonces $\pi(j)$
+es cota superior de $\pi(T)$.
+\end{teorema}
+
+\begin{proof}
+Inmediato de la monotonía: si $s\le j$ para todo $s\in T$, entonces
+$\pi(s)\le\pi(j)$. \emph{En Lean:} \texttt{functor\_preserves\_cocone} y su
+versión sobre \texttt{Finset}.
+\end{proof}
+
+La inmediatez de esta demostración es el punto: no hace falta ninguna hipótesis
+sobre $\pi$ más allá de la monotonía. Es lo que permite que la estructura de
+co-conos baje del nivel de habilidades al de agentes.
+
+\begin{corolario}
+Todo colímite se proyecta al menos a un co-cono.
+\emph{En Lean:} \texttt{join\_maps\_to\_cocone}.
+\end{corolario}
+
+\begin{teorema}[La minimalidad no se preserva]
+\label{thm:nomin}
+Existen un preorden finito $\Skills$, un preorden finito $\Agentes$, una
+proyección monótona $\pi$, un conjunto $T$ y un objeto $j$ tales que $j$ es el
+join de $T$ en $\Skills$ pero $\pi(j)$ no es el join de $\pi(T)$ en $\Agentes$.
+\end{teorema}
+
+\noindent\emph{En Lean:} \texttt{functor\_not\_preserves\_join}, con
+contraejemplo explícito y decidible.
+
+\subsection{El contraejemplo necesita cinco objetos}
+
+Un primer intento con tres objetos —$\base \le x \le j$— no funciona, y el
+motivo es instructivo: en esa configuración $x$ es \emph{también} cota superior
+de $\{\base,x\}$, de modo que el join es $x$ y no $j$. Colapsar por sí solo no
+rompe la minimalidad.
+
+Lo que la rompe es un \textbf{segundo representante}: dos objetos distintos del
+dominio con la misma imagen, uno de los cuales abre en el codominio un atajo que
+en el dominio no existe.
+
+\begin{center}
+\begin{tikzpicture}[>=Stealth, node distance=1.3cm and 2.2cm,
+  every node/.style={font=\small}]
+  \node (a)  {$a$};
+  \node (a2) [below=of a] {$a'$};
+  \node (b)  [below=of a2] {$b$};
+  \node (j)  [right=of a]  {$j$};
+  \node (m)  [right=of b]  {$m$};
+  \draw[->] (a) -- (j);
+  \draw[->] (b) -- (j);
+  \draw[->] (a2) -- (m);
+  \draw[->] (b) -- (m);
+  \node[above=.25cm of a, xshift=1cm] {\textsc{dominio}};
+
+  \begin{scope}[xshift=6.5cm]
+    \node (A)  {$A$};
+    \node (B)  [below=2.6cm of A] {$B$};
+    \node (J)  [right=of A] {$J$};
+    \node (M)  [right=of B] {$M$};
+    \draw[->] (A) -- (J);
+    \draw[->] (B) -- (J);
+    \draw[->] (A) -- (M);
+    \draw[->] (B) -- (M);
+    \node[above=.25cm of A, xshift=1cm] {\textsc{codominio}};
+  \end{scope}
+\end{tikzpicture}
+\end{center}
+
+En el dominio, $m$ \emph{no} es cota superior de $\{a,b\}$, porque
+$a\not\le m$; luego $j$ es el join. Pero $A\le M$ sí vale en el codominio,
+porque $a'\le m$ y $\pi(a')=A$. Así $M$ se cuela como cota superior de $\{A,B\}$
+sin ser imagen de ninguna cota superior de $\{a,b\}$, y como $J\not\le M$, la
+imagen del join deja de ser mínima.
+
+\begin{observacion}
+El teorema~\ref{thm:nomin} no señala un defecto de la construcción. Dice que
+$\pi$ es un funtor que preserva co-conos y no colímites, que es el
+comportamiento normal de un cociente. Preservar co-conos y preservar co-conos
+\emph{límite} son propiedades distintas, y confundirlas equivale a afirmar que
+un cociente conserva colímites.
+\end{observacion}
+
+\begin{teorema}[Reflejo de la no-alcanzabilidad]
+Si $\pi(a)\not\le\pi(b)$ en $\Agentes$, entonces $a\not\le b$ en $\Skills$.
+\end{teorema}
+
+\noindent\emph{En Lean:} \texttt{refleja\_no\_alcanzabilidad}. Es el
+contrarrecíproco de la monotonía, y es la propiedad útil en la práctica:
+permite descartar en el nivel barato ($15$ objetos) pares que no hace falta
+examinar en el caro ($172$).
+
+\section{Verificación sobre el grafo real}
+
+El script \texttt{scripts/verificar\_funtor.py} construye $\pi$ sobre el grafo
+que el sistema usa de verdad y comprueba las leyes. Todas las cifras de este
+reporte proceden de \texttt{data/funtor\_pi.json}, generado por esa ejecución;
+ninguna se escribe a mano.
+
+\subsection{Funtorialidad}
+
+\begin{center}
+\begin{tabular}{lrl}
+\toprule
+Comprobación & Valor & Veredicto \\
+\midrule
+Objetos del dominio & $172$ & \\
+Objetos sin imagen & $0$ & \textsc{ok} \\
+Morfismos considerados & $226$ & \\
+Morfismos con imagen & $226$ & \textsc{ok} \\
+Composiciones comprobadas & $250$ & \\
+Fallos de composición & $0$ & \textsc{ok} \\
+\midrule
+\multicolumn{2}{l}{\textbf{$\pi$ es funtor}} & \textbf{sí} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+La ley (F2) se comprueba sobre la clausura transitiva porque el codominio es un
+preorden: la composición de dos flechas es la flecha compuesta, y basta con que
+exista un camino.
+
+\subsection{Preservación de los colímites descubiertos}
+
+El motor de complexificación descubre $18$ co-conos límite y registra $27$
+huecos conceptuales, con orden de complejidad máximo $\mathrm{cn}=2$. Sobre esos
+$18$:
+
+\begin{center}
+\begin{tabular}{lrl}
+\toprule
+Propiedad & Preservados & Corresponde a \\
+\midrule
+Co-cono & $18/18$ & Teorema~\ref{thm:cocono} \\
+Colímite (con minimalidad) & $12/18$ & Teorema~\ref{thm:nomin} \\
+Colapsados a un punto & $1/18$ & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+La medición confirma los dos teoremas por separado y en la dirección esperada:
+el co-cono sobrevive siempre, la minimalidad no.
+
+\subsection{Los seis casos que pierden minimalidad}
+\label{sec:base}
+
+\begin{center}
+\small
+\begin{tabular}{llc}
+\toprule
+Colímite en $\Skills$ & Imagen por $\pi$ & $\base$ \\
+\midrule
+$\mathrm{join}(\textit{point-set-topology},\textit{ordinals})$
+  & $\{\textit{topology},\base\}\to\textit{set-theory}$ & sí \\
+$\mathrm{join}(\textit{functors},\textit{commutative-algebra})$
+  & $\{\base,\textit{algebra}\}\to\textit{geometry}$ & sí \\
+$\mathrm{join}(\textit{homotopy-theory},\textit{cic})$
+  & $\{\textit{topology},\base\}\to\textit{logic}$ & sí \\
+$\mathrm{join}(\textit{fol-deduction},\textit{tactic-exact})$
+  & $\{\base,\textit{lean-tactics}\}\to\textit{proof-strategies}$ & sí \\
+$\mathrm{join}(\textit{limits},\textit{exact-sequences})$
+  & $\{\base,\textit{algebra}\}\to\textit{category-theory}$ & sí \\
+$\mathrm{join}(\textit{tactic-apply},\textit{tactic-rewrite})$
+  & $\{\textit{lean-tactics}\}\to\textit{proof-strategies}$ & no \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{observacion}[El precio del objeto base]
+Cinco de los seis tienen $\base$ entre sus componentes. La razón es
+estructural y coincide con el contraejemplo: $\base$ hace de $a'$. Recibe
+morfismos de habilidades fundamentales distintas y por eso queda por debajo de
+casi todo el codominio —$18$ flechas hacia \textit{lean-tactics}, $8$ hacia
+\textit{category-theory}, $4$ hacia \textit{algebra}, entre otras—, de modo que
+el conjunto de cotas superiores de $\{\base, x\}$ es grande y la imagen del join
+rara vez es la menor.
+
+Es decir: el objeto que se introdujo para que $\pi$ fuera total es exactamente
+lo que cuesta la minimalidad. Es una disyuntiva real, no un descuido, y se
+resuelve a favor de la totalidad porque una $\pi$ parcial invalidaría el
+teorema~\ref{thm:cocono}, que es el resultado que se quería.
+\end{observacion}
+
+El sexto caso tiene otra forma: ambas componentes colapsan a
+\textit{lean-tactics} y el join va a \textit{proof-strategies}. Es el mismo
+fenómeno visto en la frontera entre las dos clases de objeto que conviven en la
+lista de categorías.
+
+\section{Qué queda establecido y qué no}
+
+\paragraph{Establecido.}
+$\Skills$ y $\Agentes$ no son isomorfas y no pueden serlo. Están relacionadas
+por un funtor cociente $\pi$, verificado sobre el grafo real en sus dos leyes.
+Ese funtor transporta co-conos del nivel de habilidades al de agentes sin
+excepción —$18/18$ medido, teorema~\ref{thm:cocono} demostrado— y refleja la
+no-alcanzabilidad, lo que permite descartar en el nivel de $15$ objetos.
+
+\paragraph{No establecido.}
+$\pi$ no transporta colímites: conserva la minimalidad en $12$ de $18$, y el
+teorema~\ref{thm:nomin} muestra que no puede garantizarse en general. Un
+enunciado del tipo \guillemotleft{}la complexificación de Ehresmann es la misma en los dos
+niveles\guillemotright{} sería falso tal cual; la forma correcta es que los co-conos se
+transportan y los co-conos límite no.
+
+\paragraph{Frente abierto.}
+Tres cuestiones quedan planteadas por esta construcción.
+
+\begin{enumerate}
+\item \textbf{Refinar $\base$.} Sustituir el objeto base único por uno por
+pilar (\textsc{set}, \textsc{cat}, \textsc{log}, \textsc{type}) reduciría su
+grado de salida y podría recuperar parte de la minimalidad perdida. Es
+comprobable con la misma medición.
+
+\item \textbf{Separar las dos clases de objeto.} \textit{lean-tactics} y
+\textit{proof-strategies} no son ramas matemáticas. Extraerlas de la lista de
+categorías dejaría $\Agentes$ como taxonomía genuina y eliminaría el sexto caso
+anómalo.
+
+\item \textbf{Caracterizar cuándo sí se preserva el colímite.} Los $12$ casos
+que sí lo conservan deben cumplir alguna condición suficiente; identificarla
+convertiría una observación empírica en un teorema.
+\end{enumerate}
+
+\section*{Reproducibilidad}
+\addcontentsline{toc}{section}{Reproducibilidad}
+
+\begin{itemize}
+\item \texttt{nucleo/graph/functor.py} — la construcción.
+\item \texttt{scripts/verificar\_funtor.py} — genera
+      \texttt{data/funtor\_pi.json}, fuente de toda cifra de este reporte.
+\item \texttt{tests/test\_funtor.py} — $11$ tests, incluida la contraparte en
+      Python del contraejemplo de Lean.
+\item \texttt{MetamathProver/CategoryFoundations/QuotientFunctor.lean} — los
+      cuatro teoremas. Compila con \texttt{lake build}: $6544$ trabajos,
+      $0$ errores, $0$ \texttt{sorry}.
+\end{itemize}
+
+\end{document}

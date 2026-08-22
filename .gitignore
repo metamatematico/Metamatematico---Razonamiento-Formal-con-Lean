@@ -64,3 +64,4 @@ _nle_warmup.lean
 # artefactos de cobertura y reportes locales
 .coverage
 reporte_conectividad.txt
+docs/*.log
