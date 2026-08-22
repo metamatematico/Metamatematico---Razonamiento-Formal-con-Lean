@@ -45,7 +45,13 @@ logger = logging.getLogger(__name__)
 SOLVER_CASCADE = [
     ("rfl", 1),
     ("simp", 2),
+    # norm_num, field_simp y ring_nf faltaban, y LeanWorkbook demuestra que
+    # son de las mas usadas: 1.142, 1.306 y 447 usos respectivamente sobre
+    # 18.985 pruebas. Ignorarlas dejaba fuera ~15% de los cierres posibles.
+    ("norm_num", 2),
     ("ring", 2),
+    ("ring_nf", 3),
+    ("field_simp", 3),
     ("linarith", 3),
     ("nlinarith", 4),
     ("omega", 3),
@@ -185,6 +191,101 @@ class GoalAnalyzer:
                             tactics.append(solver)
 
         return tactics
+
+
+class TacticRanker:
+    """
+    Ordena la cascada con un modelo entrenado sobre datos reales.
+
+    Sustituye al ranking por similitud coseno del GNN, que daba cosenos de
+    0,01-0,09 —embeddings practicamente ortogonales al goal— porque la red se
+    entreno con etiqueta constante y nunca vio una senal discriminativa.
+
+    Este modelo se entreno sobre 9.488 pares (state_before -> tactic) de
+    LeanWorkbook (scripts/train_tactic_ranker.py):
+
+        accuracy               59,7%
+        linea base mayoritaria 31,8%   (responder siempre "nlinarith")
+        top-3 accuracy         88,1%   <- la metrica que importa al rankear
+
+    El 88% de top-3 significa que la tactica correcta suele estar entre las
+    tres primeras que prueba la cascada.
+
+    SOUNDNESS: devuelve una PERMUTACION de la lista recibida. Es la hipotesis
+    del axioma `gnnRankTactics_perm` y del teorema `cascade_gnn_iff_exists`
+    (CoRegulatorNetwork.lean): reordenar no puede hacer demostrable lo que no
+    lo es, asi que el orden es libre para optimizar.
+    """
+
+    def __init__(self, ruta_modelo: "Optional[Path]" = None) -> None:
+        self._modelo = None
+        self._clases: list[str] = []
+        self._ruta = ruta_modelo
+        self._intentado = False
+
+    def _cargar(self) -> bool:
+        if self._modelo is not None:
+            return True
+        if self._intentado:
+            return False
+        self._intentado = True
+        ruta = self._ruta
+        if ruta is None:
+            from pathlib import Path as _P
+            ruta = _P(__file__).resolve().parent.parent.parent / "data" / "tactic_ranker.pkl"
+        try:
+            import pickle
+            with open(ruta, "rb") as f:
+                datos = pickle.load(f)
+            self._modelo = datos["modelo"]
+            self._clases = list(datos["clases"])
+            logger.info(
+                "TacticRanker cargado: %d tacticas (%s)",
+                len(self._clases), ", ".join(self._clases[:5]) + "...",
+            )
+            return True
+        except FileNotFoundError:
+            logger.info("TacticRanker: no hay modelo entrenado en %s", ruta)
+        except Exception as exc:
+            logger.warning("TacticRanker: no se pudo cargar (%s)", exc)
+        return False
+
+    @property
+    def disponible(self) -> bool:
+        return self._cargar()
+
+    def rank(
+        self,
+        goal_text: str,
+        solvers: list[tuple[str, int]],
+    ) -> list[tuple[str, int]]:
+        """Permutacion de `solvers` por probabilidad predicha para el goal."""
+        if not goal_text or not self._cargar():
+            return solvers
+        try:
+            probas = self._modelo.predict_proba([goal_text])[0]
+            score = dict(zip(self._clases, probas))
+        except Exception as exc:
+            logger.warning("TacticRanker.rank: %s", exc)
+            return solvers
+
+        # Los solvers fuera del vocabulario del modelo (exact?, apply?) reciben
+        # la MEDIANA, no cero. Hundirlos al fondo por no estar en el vocabulario
+        # fue justamente el defecto del ranker anterior: mandaba rfl, linarith y
+        # nlinarith al final —los mas baratos— y subia exact?/apply?, los mas
+        # caros, invirtiendo la cascada por coste.
+        import statistics
+        conocidos = [score[n] for n, _ in solvers if n in score]
+        neutro = statistics.median(conocidos) if conocidos else 0.0
+
+        ordenados = sorted(
+            solvers, key=lambda par: score.get(par[0], neutro), reverse=True
+        )
+        logger.debug(
+            "TacticRanker: %s",
+            [f"{n}={score.get(n, neutro):.2f}" for n, _ in ordenados[:4]],
+        )
+        return ordenados
 
 
 class GNNTacticRanker:
@@ -347,6 +448,15 @@ class SolverCascade:
         """Conecta el GNNTacticRanker (llamado desde core.py tras cargar pesos)."""
         self._gnn_ranker = ranker
 
+    def set_tactic_ranker(self, ranker: "TacticRanker") -> None:
+        """
+        Conecta el rankeador entrenado. Tiene PRIORIDAD sobre el del GNN:
+        aquel se entreno con etiqueta constante y sus embeddings no discriminan
+        (cosenos 0,01-0,09), mientras este mide 88,1% de top-3 sobre datos
+        reales de LeanWorkbook.
+        """
+        self._tactic_ranker = ranker
+
     async def try_fill_sorry(
         self,
         code: str,
@@ -456,8 +566,16 @@ class SolverCascade:
             goal_text, self._graph, domain_tactic=domain_tactic
         )
 
-        # Stage 2: GNN reranking on top of heuristic order (permutation — soundness kept)
-        if self._gnn_ranker is not None and goal_text:
+        # Stage 2: reordenamiento aprendido (permutacion — soundness intacta).
+        # Preferencia: modelo entrenado > GNN. Ver set_tactic_ranker.
+        _entrenado = getattr(self, "_tactic_ranker", None)
+        if _entrenado is not None and goal_text and _entrenado.disponible:
+            smart_order = _entrenado.rank(goal_text, smart_order)
+            logger.debug(
+                "Cascada (modelo entrenado): %s...",
+                [s for s, _ in smart_order[:4]],
+            )
+        elif self._gnn_ranker is not None and goal_text:
             smart_order = self._gnn_ranker.rank(goal_text, smart_order)
             logger.debug(
                 "GNN+heuristic cascade order: %s...",

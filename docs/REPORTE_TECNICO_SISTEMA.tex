@@ -1,0 +1,868 @@
+\documentclass[11pt,a4paper]{report}
+
+% ---------- Paquetes ----------
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{underscore}
+\usepackage{xcolor}
+\definecolor{navy}{RGB}{20,30,70}
+\definecolor{codebg}{RGB}{244,244,248}
+\definecolor{accent}{RGB}{90,60,180}
+\definecolor{good}{RGB}{30,120,60}
+\definecolor{warn}{RGB}{170,110,10}
+\definecolor{bad}{RGB}{170,30,30}
+
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{navy}}{\chaptertitlename\ \thechapter}{16pt}{\Huge}
+\titleformat{\section}{\normalfont\Large\bfseries\color{navy}}{\thesection}{10pt}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{accent}}{\thesubsection}{8pt}{}
+\titleformat{\subsubsection}{\normalfont\bfseries}{\thesubsubsection}{6pt}{}
+
+\usepackage{enumitem}
+\setlist{itemsep=2pt, topsep=4pt}
+\usepackage{parskip}
+\setlength{\parskip}{4pt}
+
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{ltxtable}
+\usepackage{tabularx}
+
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=single,
+  rulecolor=\color{gray!40},
+  backgroundcolor=\color{codebg},
+  showstringspaces=false
+}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{NLE v7.0 --- Reporte T\'ecnico del Sistema}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\usepackage[hidelinks,colorlinks=true,linkcolor=navy,citecolor=navy,urlcolor=accent,bookmarksnumbered=true]{hyperref}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\act}[1]{\textcolor{good}{\textbf{#1}}}
+\newcommand{\parc}[1]{\textcolor{warn}{\textbf{#1}}}
+\newcommand{\inerte}[1]{\textcolor{bad}{\textbf{#1}}}
+
+\title{
+  \textcolor{navy}{\Huge\textbf{METAMATEM\'ATICO / NLE v7.0}}\\[6pt]
+  {\Large Reporte T\'ecnico Exhaustivo del Sistema}\\[4pt]
+  {\large Arquitectura, componentes, conexiones, flujos y funcionamiento detallado}
+}
+\author{Generado a partir de an\'alisis directo del c\'odigo fuente \\ Repositorio: \code{E:\textbackslash{}Metamatematico\textbackslash{}}}
+\date{18 de agosto de 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\noindent Este documento describe, con precisi\'on t\'ecnica y a nivel de archivo/l\'inea, la totalidad del sistema \textbf{NLE v7.0} (N\'ucleo L\'ogico Evolutivo): una IA matem\'atica que combina un grafo categ\'orico de habilidades, un sistema de memoria evolutiva (MES, Ehresmann), aprendizaje por refuerzo (GNN+PPO), verificaci\'on formal en Lean~4/Mathlib y modelos de lenguaje (Claude y otros proveedores), expuesta mediante una aplicaci\'on Streamlit. El reporte cubre cada subsistema de \code{nucleo/}, la capa de formalizaci\'on Lean (\code{MetamathProver/}), la interfaz de usuario (\code{app.py}, \code{pages/}), la infraestructura de despliegue y los scripts de entrenamiento/datos, documentando expl\'icitamente qu\'e partes est\'an \act{activas en producci\'on}, cu\'ales son \parc{parciales/heur\'isticas} y cu\'ales est\'an \inerte{latentes o desconectadas} del camino de ejecuci\'on real.
+\end{abstract}
+
+\tableofcontents
+
+% =====================================================================
+\chapter{Visi\'on general de la arquitectura}
+% =====================================================================
+
+\section{Qu\'e es el sistema}
+
+NLE v7.0 es una aplicaci\'on Python (\textasciitilde12\,800 LOC en \code{nucleo/}) m\'as un peque\~no n\'ucleo de formalizaci\'on en Lean~4 (14 archivos \code{.lean}), organizada en torno a una clase orquestadora \'unica, \code{Nucleo} (\code{nucleo/core.py}), que implementa el sistema din\'amico
+\[
+\Sigma_t = (L,\; CR_t,\; G_t,\; F)
+\]
+donde $L$ es el cliente LLM, $CR_t$ es una red de cuatro \emph{co-reguladores} (t\'actico, organizacional, estrat\'egico, de integridad) que sustituye a un agente \'unico de RL, $G_t$ es el grafo categ\'orico de habilidades en el instante $t$, y $F=\{F_{Set},F_{Cat},F_{Log},F_{Type}\}$ son los cuatro ``pilares'' fundacionales (teor\'ia de conjuntos, categor\'ias, l\'ogica, tipos). El dise\~no se basa expl\'icitamente en los \emph{Memory Evolutive Systems} de Ehresmann y Vanbremeersch.
+
+\section{Los tres consumidores de \code{Nucleo}}
+
+\begin{itemize}
+  \item \textbf{Interfaz web} (\code{app.py} + \code{pages/*.py}, Streamlit): el punto de entrada de producci\'on, para usuarios finales.
+  \item \textbf{CLI} (\code{nucleo/cli.py}, comando \code{python -m nucleo chat}): REPL de terminal con Rich, para desarrollo/depuraci\'on.
+  \item \textbf{Scripts de entrenamiento/evaluaci\'on} (\code{scripts/*.py}): instancian \code{Nucleo} program\'aticamente para benchmarking (MATH/GSM8K) o entrenan las redes GNN+PPO fuera de l\'inea.
+\end{itemize}
+
+\section{Mapa de subsistemas de \code{nucleo/}}
+
+\begin{longtable}{@{}p{3.2cm}p{3cm}p{8.6cm}@{}}
+\toprule
+\textbf{Subsistema} & \textbf{Estado} & \textbf{Rol} \\
+\midrule
+\endhead
+\code{core.py} & \act{ACTIVO} & Orquestador central; punto de entrada \'unico (\code{process()}). \\
+\code{graph/} & \act{ACTIVO} & Grafo categ\'orico de habilidades (objetos=\code{Skill}, morfismos=\code{Morphism}); evoluci\'on temporal, jerarqu\'ia emergente, embeddings. \\
+\code{mes/} & \act{ACTIVO} & Memoria Evolutiva: 4 co-reguladores, memoria procedimental/sem\'antica, patrones/colimites. Sustituye al agente \'unico de RL como tomador de decisiones. \\
+\code{rl/} & \parc{PARCIAL} & GNN (GATConv) + PPO Actor-Cr\'itico; alimentado con aprendizaje en vivo, pero el enrutamiento por defecto usa heur\'isticas porque el agente entrenado colaps\'o a una \'unica acci\'on (ver \S\ref{sec:gaps}). \\
+\code{lean/} & \act{ACTIVO} & Cliente Lean~4 (subprocess/HTTP), cascada de solucionadores, an\'alisis/relleno de \code{sorry}, cat\'alogo de t\'acticas, parser de errores. Lean es la \'unica fuente de verdad matem\'atica. \\
+\code{pillars/} & \parc{MIXTO} & 4 clases \code{Pillar} formales (ZFC/Cat/L\'ogica/Tipos) usadas solo por \code{cli.py init} y tests; el cat\'alogo real que alimenta el grafo en producci\'on es \code{math\_domains.py} (162 habilidades). \\
+\code{llm/} & \act{ACTIVO} & Cliente multi-proveedor (Anthropic Claude por defecto; tambi\'en Google, Groq, DeepSeek); prompts de formalizaci\'on/traducci\'on/tutor. \\
+\code{eval/} & \act{ACTIVO} & Evaluador de respuestas estilo InternLM-Math (extracci\'on \code{\textbackslash boxed\{\}}, comparaci\'on num\'erica/simb\'olica). \\
+\code{consultores/} & \act{ACTIVO (opt-in)} & M\'odulo ``Consultores Avanzados'': genera N candidatos verificables en una sola llamada LLM, cada uno verificado en Lean y rankeado. \\
+\code{multi\_agent/} & \inerte{LATENTE} & 14 agentes especializados por categor\'ia + jerarqu\'ia de ``agentes colimit''; c\'odigo completo y probado pero \code{set\_multi\_agent\_orchestrator()} nunca se invoca en la app real. \\
+\bottomrule
+\end{longtable}
+
+\section{Diagrama textual del flujo principal}
+
+\begin{lstlisting}
+Usuario (Streamlit / CLI)
+      |
+      v
+Nucleo.process(texto)                          [nucleo/core.py]
+      |
+      v
+CoRegulatorNetwork.decide(texto, grafo)         [nucleo/mes/co_regulators.py]
+   -- CR_tac clasifica RESPONSE vs ASSIST
+   -- CR_org / CR_str / CR_int proponen Options (bindings, reorganizacion)
+   -- CR_int resuelve conflictos por prioridad (Axioma 9.5)
+      |
+      v
+Nucleo._execute_action(decision)
+      |
+      +-- RESPONSE, no matematico  -> LLMClient.generate()  (chat directo)
+      |
+      +-- RESPONSE / ASSIST, matematico -> Nucleo._math_via_lean()
+      |         |
+      |         +-- classify_query() + domain_default_tactic()   [multi_agent/specialized_agent.py]
+      |         +-- LLMClient.generate()  (formaliza en Lean 4, con few-shot miniF2F)
+      |         +-- LeanClient.check_code()                       [nucleo/lean/client.py]
+      |         |        -- local: subprocess "lake env lean --json"
+      |         |        -- fallback remoto: HTTP a lean_api (Railway)
+      |         +-- si SORRY -> SolverCascade / SorryFiller       [nucleo/lean/*]
+      |         +-- LLMClient.generate()  (traduce Lean verificado a lenguaje natural)
+      |
+      +-- REORGANIZE -> EvolutionarySystem.apply_option()         [nucleo/graph/evolution.py]
+      |
+      v
+Nucleo._record_experience()  -> MESMemory + Transition PPO en vivo
+Nucleo._apply_structural_evolution()  -> aplica Options pendientes al grafo
+      |
+      v
+NucleoResponse(content, lean_result, confidence, metadata)
+      |
+      v
+app.py: render en chat, boton feedback (+1.0/-0.5) -> nucleo.apply_feedback()
+\end{lstlisting}
+
+% =====================================================================
+\chapter{N\'ucleo orquestador: \code{nucleo/core.py}, \code{cli.py}, \code{config.py}, \code{types.py}}
+% =====================================================================
+
+\section{\code{nucleo/types.py} --- capa de datos pura}
+
+Sin dependencias de otros subm\'odulos de \code{nucleo}. Define el vocabulario compartido:
+
+\subsection{Enumeraciones}
+\begin{itemize}
+  \item \code{MorphismType}: \code{IDENTITY, DEPENDENCY, SPECIALIZATION, ANALOGY, TRANSLATION}.
+  \item \code{ActionType}: \code{RESPONSE, REORGANIZE, ASSIST} --- los tres tipos base de acci\'on, $A=A_1\sqcup A_2\sqcup A_3$.
+  \item \code{PillarType}: \code{SET, CAT, LOG, TYPE}.
+  \item \code{CoRegulatorType}: \code{TACTICAL, ORGANIZATIONAL, STRATEGIC, INTEGRITY}.
+  \item \code{MESActionType}: acci\'on extendida $A' = A_1|A_2|A_3|A_4$, a\~nade \code{COMPLEXIFY, FORM_CONCEPT, CREATE_LEVEL, REPAIR_FRACTURE}.
+  \item \code{MemoryType}: \code{PROCEDURAL, SEMANTIC, CONSOLIDATED, EMPIRICAL}.
+  \item \code{FractureType}: \code{TEMPORAL, STRUCTURAL, LOGICAL}.
+  \item \code{LinkComplexity}: \code{IDENTITY, SIMPLE, COMPLEX} --- \code{COMPLEX} define emergencia (Teorema 8.6).
+\end{itemize}
+
+\subsection{Dataclasses principales}
+\begin{itemize}
+  \item \code{Skill}: unidad de conocimiento / objeto categ\'orico. Campos: \code{id, name, description, pillar, level, content, metadata, status, pattern_ids}.
+  \item \code{Morphism}: arista tipada entre \code{Skill}s, con \code{weight}.
+  \item \code{State}: estado del MDP $x=(c_L, g_{Lean}, G, h, m)$ --- contexto LLM, meta Lean activa, snapshot del grafo, historial, m\'etricas.
+  \item \code{Action}: \code{action_type} + \code{params}; constructores de conveniencia \code{Action.response/reorganize/assist}.
+  \item \code{RewardComponents}: descomposici\'on de recompensa (Ec.~5) con m\'etodo \code{total(}$\lambda_1..\lambda_5$\code{)}.
+  \item \code{Pattern}: funtor $P: I \to K$ (Def.~2.1) --- \code{component_ids}, \code{distinguished_links}, datos opcionales de funtor completo.
+  \item \code{Colimit}: objeto colimite de un patr\'on (Def.~2.2) --- morfismos de co-cono, verificaci\'on de propiedad universal.
+  \item \code{ExperienceRecord}: registro de memoria (Def.~5.2), con \code{consolidate()} que promueve a \code{CONSOLIDATED} tras 3 consolidaciones.
+  \item \code{EConcept}: concepto sem\'antico E (Def.~5.3), clase de equivalencia de registros.
+  \item \code{Fracture}: fractura del sistema (Def.~7.4).
+  \item \code{Option}: opci\'on de complejizaci\'on (Def.~2.9) --- \code{absorptions, eliminations, bindings, classifications}; es el tipo que \code{Nucleo._apply_structural_evolution} consume.
+\end{itemize}
+
+\section{\code{nucleo/config.py} --- esquema de configuraci\'on}
+
+Jerarqu\'ia de \code{dataclass}es sin dependencias de otros subm\'odulos:
+
+\begin{itemize}
+  \item \code{RLConfig}: $\gamma=0.99$, $\lambda_1=0.1$ (eficiencia), $\lambda_2=0.05$ (organizaci\'on), $\lambda_3=0.2$ (emergencia), $\lambda_4=0.1$ (jerarqu\'ia, v7.0), $\lambda_5=0.08$ (memoria, v7.0), \code{learning_rate=3e-4}, \code{batch_size=64}, \code{clip_range=0.2}.
+  \item \code{LeanConfig}: \code{lean_path="lake"}, \code{timeout_ms=360000} (6\,min --- comentario expl\'icito: Mathlib en disco USB puede tardar 167--282\,s), \code{use_mathlib=True}.
+  \item \code{GraphConfig}: \code{max_skills=100000}, \code{gnn_hidden_dim=256}, \code{gnn_num_layers=3}.
+  \item \code{MESConfig}: \code{cr_org_frequency=10} ($k$), \code{cr_str_frequency=100} ($K$), \code{cr_int_period=50}, \code{max_records=10000}, \code{consolidation_threshold=3}, \code{colimit_threshold=0.8}.
+  \item \code{LLMConfig}: \code{model="claude-sonnet-4-20250514"} por defecto (el YAML de despliegue usa \code{"claude-sonnet-5"}), \code{max_tokens=4096}, \code{api_key} con fallback a \code{ANTHROPIC_API_KEY}.
+  \item \code{NucleoConfig}: agregador; \code{from_yaml}/\code{to_dict}/\code{save_yaml}. \textbf{Nota de precisi\'on}: existe una asimetr\'ia menor de ida-y-vuelta --- \code{to_dict()} omite \code{fracture_check_interval}, \code{max_repair_attempts} y \code{live_learning_autosave} del diccionario serializado.
+\end{itemize}
+
+\section{\code{nucleo/core.py} --- la clase \code{Nucleo} (2623 l\'ineas)}
+
+\'Este es el m\'odulo m\'as grande e importante del sistema. Contiene:
+
+\subsection{Clases auxiliares}
+\begin{itemize}
+  \item \code{NucleoMode(Enum)}: \code{INTERACTIVE, AUTONOMOUS, VERIFICATION}.
+  \item \code{NucleoState}: estado interno $x=(c_L,g_{Lean},G,h,m)$; m\'etodo \code{to_state(graph)} lo convierte al \code{State} del MDP.
+  \item \code{NucleoResponse}: objeto de respuesta --- \code{content, action_type, lean_result, suggested_skills, confidence, metadata}.
+\end{itemize}
+
+\subsection{Atributos clave de \code{Nucleo}}
+Instancia y comparte entre s\'i: \code{\_graph} (\code{SkillCategory}), \code{\_llm} (\code{LLMClient}), \code{\_lean} (\code{LeanClient}), \code{\_evolution} (\code{EvolutionarySystem}), \code{\_pattern_manager}/\code{\_colimit_builder} (\code{PatternManager}/\code{ColimitBuilder}, MES), \code{\_memory} (\code{MESMemory}), \code{\_cr_network} (\code{CoRegulatorNetwork}), \code{\_solver_cascade}/\code{\_sorry_filler}, \code{\_neural_agent} (\code{NucleoAgent} PPO), \code{\_multi_agent_orchestrator} (opcional, \code{None} por defecto), \code{\_consultores} (opcional, \code{None} por defecto), \code{\_evaluator} (\code{MathEvaluator}).
+
+\subsection{\code{initialize()} --- construcci\'on del grafo de dependencias}
+Orden de instanciaci\'on (cr\'itico para que todos los componentes MES compartan las mismas instancias de \code{PatternManager}/\code{ColimitBuilder}):
+\begin{enumerate}
+  \item Construye \code{SkillCategory} y carga habilidades fundacionales (\S\ref{sec:foundational}).
+  \item \code{LLMClient} (salvo que ya se haya inyectado v\'ia \code{reconfigure_llm}).
+  \item \code{LeanClient} apuntando a la ra\'iz del repo (donde vive \code{lakefile.toml}).
+  \item \code{SolverCascade} + \code{SorryFiller}, banco few-shot \code{data/lean\_examples.json}.
+  \item \code{PatternManager()} $\to$ \code{ColimitBuilder(pattern\_manager)} $\to$ \code{MESMemory(...)} $\to$ \code{EvolutionarySystem(...)} $\to$ \code{CoRegulatorNetwork(...)} --- las cuatro \'ultimas comparten \emph{las mismas} instancias de \code{pattern\_manager}/\code{colimit\_builder}.
+  \item Carga \code{memory.json} persistida (merge mon\'otono, nunca sobrescribe).
+  \item Crea \code{NucleoAgent} (PPO), carga pesos entrenados (\code{neural\_agent.json}/\code{.pt}) y buffer de experiencia (\code{experience\_buffer.pkl}) si existen; los conecta a \code{self} y a \code{self.\_cr\_network}.
+\end{enumerate}
+
+\subsubsection{\code{\_load_foundational_skills()}}
+\label{sec:foundational}
+A\~nade \textbf{10 habilidades de nivel 0} directamente en c\'odigo (no desde \code{math\_domains.py}): \code{zfc-axioms, ordinals, cat-basics, functors, nat-trans, limits, fol-deduction, fol-metatheory, cic, lean-kernel}, m\'as morfismos de dependencia/traducci\'on/analog\'ia entre pilares. Luego llama \code{load_math_domains(self.\_graph)} que a\~nade las 162 habilidades de dominio (niveles 1--3).
+
+\subsection{\code{process(input_text) -> NucleoResponse} --- el punto de entrada \'unico}
+\label{sec:process}
+Flujo paso a paso:
+\begin{enumerate}
+  \item Inicializaci\'on perezosa si hace falta.
+  \item Actualiza contexto/historial en \code{self.\_state}.
+  \item \textbf{Din\'amica global}: \code{decision = self.\_cr\_network.decide(input\_text, self.\_graph)} --- la red de 4 co-reguladores decide \code{ActionType} y \code{source\_cr} (v\'ease Cap\'itulo~\ref{ch:mes}).
+  \item Callback opcional \code{on\_action}.
+  \item \code{\_execute\_action(decision, input\_text)}:
+    \begin{itemize}
+      \item \textbf{RESPONSE}: \code{\_is_mathematical(texto)} clasifica; si es matem\'atico $\to$ \code{\_math_via_lean()}; si no, respuesta LLM directa (o demo si no hay API key).
+      \item \textbf{ASSIST}: \code{\_assist_lean()} --- maneja c\'odigo Lean pegado por el usuario, o delega a \code{\_math_via_lean()}.
+      \item \textbf{REORGANIZE}: \code{\_reorganize_graph()} --- acci\'on interna, no genera contenido visible.
+    \end{itemize}
+  \item Fusiona confianza/metadata de la decisi\'on CR.
+  \item \code{success = \_evaluate_result(decision, response)} --- heur\'istica escalar.
+  \item \code{self.\_cr\_network.record_result(decision, success, grafo)}.
+  \item \code{\_record_experience()}: registro en \code{MESMemory}, formaci\'on de E-conceptos, aprendizaje de procedimiento si \'exito$>0.3$, \code{Transition} PPO en vivo al agente neuronal, autoguardado opcional, persistencia cada 20 interacciones.
+  \item \code{\_apply_structural_evolution()}: aplica \code{Option}s pendientes (bindings/eliminaciones) propuestas por CR\_org/CR\_str/CR\_int \emph{despu\'es} de resolver la consulta actual, para no perturbar el grafo a mitad de una respuesta.
+  \item Devuelve \code{NucleoResponse}.
+\end{enumerate}
+
+\subsection{\code{\_math_via_lean(input_text)} --- el pipeline ``Lean-first''}
+\label{sec:lean-first}
+Principio arquitect\'onico expl\'icito: \textbf{Lean es la \'unica fuente de verdad matem\'atica; el LLM solo formaliza (escribe Lean candidato) y traduce (explica Lean verificado en lenguaje natural) --- nunca ``razona'' libremente sobre correcci\'on.}
+\begin{enumerate}
+  \item \code{classify_query()} (\code{multi_agent/specialized_agent.py}) $\to$ \'area matem\'atica; \code{domain_default_tactic(area)} $\to$ t\'actica Lean por defecto para la cascada.
+  \item Bifurca por intenci\'on: petici\'on visual/geom\'etrica pura $\to$ \code{\_math_educational_explanation} (bypass total de Lean); revisi\'on de documento/paper $\to$ \code{\_review_document_for_errors}; consulta definicional (``qu\'e es X'') $\to$ ajusta el prompt para pedir \code{\#check}/\code{structure} en vez de una prueba.
+  \item \textbf{Paso 1 --- el LLM formaliza}: prompt con few-shot (\code{\_build_few_shot_context}, ejemplos de miniF2F por categor\'ia), referencias Mathlib ancladas (\code{\_mathlib_ref_for}, diccionario \code{\_MATHLIB_REFS} verificado a mano), detecci\'on/reintento de pruebas triviales (\code{\_is_trivial_lean}).
+  \item \textbf{Paso 2 --- Lean verifica}: \code{await self.\_lean.check_code(codigo)}. Si \code{ERROR}, intenta \code{repair_imports()} y reverifica una vez.
+  \item Bifurca por \code{result.status}: \code{SUCCESS} $\to$ verificado; \code{SORRY} $\to$ \textbf{Paso 3}, \code{\_try_solve_sorries} (cascada de solucionadores con t\'actica de dominio primero, luego \code{SorryFiller}); \code{TIMEOUT}/\code{NOT_AVAILABLE}/error $\to$ notas correspondientes.
+  \item \textbf{Paso 4 --- el LLM traduce}: prompt distinto para consultas definicionales vs. de prueba, exige fidelidad al c\'odigo Lean real.
+  \item Ensambla \code{content} con insignia de estado (verificado/parcial/pendiente/timeout) + explicaci\'on + bloque de c\'odigo Lean.
+  \item Registra el resultado (\code{\_record_lean_experience}) y devuelve \code{NucleoResponse(action_type=ASSIST, lean_result=..., metadata=\{verification_status, area\})}.
+\end{enumerate}
+
+\subsection{Otros m\'etodos p\'ublicos relevantes}
+\begin{itemize}
+  \item \code{reconfigure_llm(provider, model, api_key, max_tokens)}: hot-swap del proveedor/modelo (usado por la barra lateral de Streamlit).
+  \item \code{sync_conversation(history)}: sincroniza el buffer conversacional interno del LLM con el historial de la UI.
+  \item \code{apply_feedback(score)}: aplica retroalimentaci\'on expl\'icita del usuario (\'!👍/👎\'!) --- actualiza el \'ultimo \code{ExperienceRecord} y dispara una actualizaci\'on PPO extra con la recompensa real.
+  \item \code{evaluate_answer(prediction, reference)}: delega a \code{MathEvaluator}.
+  \item \code{process_sync(input_text)}: wrapper s\'incrono de \code{process()} --- ejecuta en un hilo dedicado con su propio event loop (compatibilidad con Streamlit), timeout 420\,s.
+  \item \code{get_viz_data(query)}: construye el payload para la p\'agina de Visualizaciones --- nodos/aristas del grafo, habilidades emparejadas/dependencias/t\'acticas, embeddings, info de colimites, \'ultima decisi\'on CR.
+  \item \code{set_multi_agent_orchestrator()} / \code{set_consultores_mode()} / \code{disable_consultores_mode()}: activadores de los subsistemas opcionales (Cap\'itulos~\ref{ch:consultores}--\ref{ch:multiagent}).
+\end{itemize}
+
+\subsection{\code{\_is_mathematical(text)} --- el clasificador de enrutamiento}
+Cascada de reglas: excluye aperturas conversacionales (``hola'', ``gracias'') $\to$ devuelve \code{True} si hay s\'imbolos matem\'aticos Unicode o comandos LaTeX $\to$ devuelve \code{True} si hay coincidencia de tokens/subcadenas contra un gran conjunto biling\"ue \code{\_MATH_KEYWORDS}.
+
+\section{\code{nucleo/cli.py} --- interfaz de terminal}
+
+Basada en \code{argparse} + Rich. Subcomandos: \code{chat} (REPL interactivo que instancia \code{Nucleo} y llama \code{process()} en bucle), \code{init} (crea \code{nucleo_config.yaml} y registra las 4 clases \code{Pillar} formales v\'ia \code{PillarRegistry}), \code{check} (verifica la conexi\'on con Lean con un teorema trivial), \code{graph}/\code{validate} (grafos de demostraci\'on con 3--5 habilidades, verifican axiomas categ\'oricos). El REPL soporta comandos \code{/help, /stats, /skills, /axioms, /clear, /quit}. Resuelve \code{ANTHROPIC_API_KEY} desde variable de entorno o config, cayendo a modo \emph{mock/demo} si no hay clave.
+
+% =====================================================================
+\chapter{Grafo categ\'orico de habilidades: \code{nucleo/graph/}}
+% =====================================================================
+
+\section{\code{category.py} --- la categor\'ia \code{SkillCategory} (1153 l\'ineas)}
+
+Implementa $G_t=(S_t, Mor_t, w_t)$: una peque\~na categor\'ia jer\'arquica enriquecida sobre $\mathbb{R}^+$.
+
+\subsection{Estructura de almacenamiento}
+\code{\_skills} (\code{dict[id,SkillNode]}), \code{\_morphisms}, \'indices de adyacencia \code{\_outgoing}/\code{\_incoming}, \code{\_identities}, \code{\_by_level}, \code{\_by_pillar}, y \textbf{cr\'iticamente} \code{\_morphism_pairs: dict[(src,tgt), morphism_id]} --- solo almacena \emph{un} morfismo por par (origen,destino), lo que hace que la categor\'ia sea, en la pr\'actica, un \textbf{preorden / categor\'ia delgada (thin category)}: distintos \code{MorphismType} entre el mismo par son etiquetas del mismo morfismo, no morfismos distintos. Esta propiedad es la base de toda la maquinaria de colimites/joins.
+
+\subsection{Operaciones categ\'oricas}
+\code{hom(src,tgt)}, \code{identity(skill_id)}, \code{compose(g,f)} (compone respetando leyes de identidad; regla de tipos: mismo tipo$\circ$mismo tipo = mismo tipo, mixto = \code{DEPENDENCY}). \code{reachable_from(source_id)}: cierre transitivo BFS sobre morfismos no-identidad. \code{is_preorder_leq(a,b)}: $a\le b$ syss $b$ es alcanzable desde $a$ --- relaci\'on fundamental usada por toda la verificaci\'on de joins/colimites en \code{mes/patterns.py}.
+
+\subsection{Consultas jer\'arquicas (MES v7.0)}
+\code{get_skills_at_level}, \code{get_skills_by_pillar}, \code{apply_complexity_order(cn_dict)} (sobrescribe \code{skill.level} desde el orden de complejidad computado), \code{get_atoms} (nivel 0), \code{get_clusters} (nivel 1), \code{get_colimits()} (habilidades con \code{pattern_ids} no vac\'io).
+
+\subsection{Clasificaci\'on de enlaces y axiomas formales}
+\code{classify_link(morphism_id)} (Def.~6.3): \code{IDENTITY}/\code{SIMPLE} (factoriza a trav\'es de un colimite/cl\'uster)/\code{COMPLEX} (no factoriza --- representa emergencia, Teorema~8.6). \code{verify_pillar_multiplicity()} (Prop.~3.4): $\ge2$ pilares + morfismos \code{TRANSLATION}/\code{ANALOGY} entre pilares. \code{verify_all_axioms()} agrega los axiomas formales 8.1--8.4 (jerarqu\'ia, multiplicidad, conectividad, cobertura).
+
+\subsection{Puntuaciones de recompensa}
+\code{get_hierarchy_score()}: $0.4\cdot\text{cobertura de niveles} + 0.4\cdot\text{forma piramidal} + 0.2\cdot\text{ratio de colimites}$. \code{get_memory_score(pattern\_coverage)}: $0.4\cdot\text{conectividad}+0.3\cdot\text{cobertura de patrones}+0.3\cdot\text{diversidad de pilares}$. Ambos alimentan directamente los t\'erminos $\lambda_4,\lambda_5$ de la recompensa en \code{rl/rewards.py}.
+
+\section{\code{complexity.py} --- jerarqu\'ia emergente $c_n(X)$}
+
+$c_n(X)=0$ si $X$ no es join de ning\'un patr\'on; $c_n(X)=1+\max(c_n(\text{componente}))$ en otro caso. \textbf{No es un nivel asignado a mano}, sino el resultado de un c\'omputo de punto fijo:
+\begin{itemize}
+  \item \code{compute_complexity_order(grafo, colimit_builder)}: iteraci\'on estilo Bellman-Ford sobre todos los colimites conocidos, acotada por \code{len(skills)+2} iteraciones.
+  \item \code{\_detect_convergence_patterns}: para cada habilidad $X$ con $\ge2$ predecesores directos distintos, crea un \code{Pattern} --- heur\'istica can\'onica de detecci\'on de puntos de join.
+  \item \code{build_join_for_pattern}: reutiliza join existente, o crea uno nuevo (nivel = m\'ax(niveles de componentes)+1), a\~nade morfismos de co-cono y morfismos mediadores hacia todas las cotas superiores comunes (garantizando minimalidad).
+  \item \code{build_hierarchy_to_fixpoint(max_iterations=20)}: itera \{detectar patrones de convergencia $\to$ construir joins\} hasta punto fijo, luego llama \code{grafo.apply_complexity_order(cn)}.
+\end{itemize}
+Este m\'odulo tiene una contraparte formalmente verificada en Lean (\code{ComplexityOrder.lean}, con 2 \code{sorry} pendientes --- \S\ref{sec:lean-formal}).
+
+\section{\code{embeddings.py} --- representaciones vectoriales}
+
+\code{semantic_embed(text, category, level, dim=256)}: bag-of-words sobre un vocabulario matem\'atico fijo de 64 t\'erminos (dims~0--63, normalizado L2) + one-hot de categor\'ia $\times5.0$ (dims~64--77) + one-hot de nivel $\times3.0$ (dims~78--80). \code{SkillEmbeddingModel.embed_skill}: combina embedding textual (256d) + embedding estructural (64d, grados normalizados) + rasgos discretos (pilar, contadores de dependencias). \code{GraphEmbedding.embed(grafo)}: embedding de 128d de todo el grafo, usado como parte del estado del MDP.
+
+\section{\code{evolution.py} --- \code{EvolutionarySystem} (663 l\'ineas)}
+
+Implementa el sistema evolutivo $S$ sobre $T=\mathbb{N}$ (Def.~3.2): una familia $\{Skill_t\}$ con funtores de transici\'on $k_{t,t'}$.
+
+\begin{itemize}
+  \item \code{CategorySnapshot}: instant\'anea inmutable en el tiempo $t$ (habilidades, morfismos, estad\'isticas).
+  \item \code{TransitionFunctor}: $k_{t,t'}:Skill_t\to Skill_{t'}$; \code{compose(other)} implementa composici\'on funtorial $k_{t_1,t_3}=k_{t_2,t_3}\circ k_{t_1,t_2}$.
+  \item \code{apply_option(option)}: el paso evolutivo $Skill_{t+1}=Compl(Skill_t,O_t)$ --- (1) absorciones, (2) eliminaciones (\code{grafo.remove_skill}), (3) uniones (\code{colimit_builder.build_colimit} por cada patr\'on de \code{option.bindings}); detecta morfismos mediadores nuevos como efecto colateral y los registra como absorbidos; construye y guarda el \code{TransitionFunctor}, avanza \code{\_current_time}.
+  \item \textbf{Advertencia de dise\~no expl\'icita en el c\'odigo}: si \code{EvolutionarySystem} y los co-reguladores de \code{mes/} no comparten las mismas instancias de \code{pattern_manager}/\code{colimit_builder}, las uniones propuestas por un CR apuntar\'ian a patrones invisibles para el otro y \code{apply_option} las descartar\'ia silenciosamente. \code{core.py} evita esto expl\'icitamente inyectando las mismas instancias en todos los componentes.
+  \item Emergencia (Def.~6.3, Teo.~8.6): \code{detect_complex_links}, \code{measure_emergence} (ratio de emergencia, crecimiento de complejidad).
+  \item Teoremas formales 8.5--8.7: \code{verify_consistency}, \code{verify_emergence_growth}, \code{verify_coverage_preservation}.
+\end{itemize}
+
+\section{\code{lean_proof_generator.py} --- puente Python$\to$Lean para el propio grafo}
+
+Genera c\'odigo Lean que codifica el grafo de habilidades como \code{Fin n} y \emph{ejecuta} Lean por subproceso para verificar, en el subgrafo finito conocido: (a)~los axiomas categ\'oricos sobre el carcaj (quiver) de habilidades, y (b)~que un objeto candidato es efectivamente colimite de un diagrama finito (propiedad universal via \code{native_decide}). El docstring es expl\'icito sobre lo que \textbf{no} se puede verificar as\'i: propiedades en la categor\'ia libre infinita, colimites en sentido universal absoluto, ni equivalencia formal con el MES de Ehresmann (es una analog\'ia, no un isomorfismo). \code{verify_colimit_in_lean(...)} devuelve \code{verified=None} (no \code{False}) si Lean no est\'a instalado localmente --- honestidad expl\'icita sobre ausencia de evidencia.
+
+\section{\code{operations.py} --- operaciones at\'omicas (Def.~4.3)}
+
+\code{GraphOperations}: \code{add_node} $O(1)$, \code{add_edge} $O(1)$, \code{merge} $O(d_{max})$ (funde dos habilidades, hereda todos los morfismos incidentes, excluye auto-bucles), \code{split} $O(d(s))$ (divide una habilidad en $N$, duplica morfismos incidentes escalados por \code{distribution}, a\~nade \code{ANALOGY} entre las nuevas), \code{reweight} $O(1)$, \code{connect_to_pillar} (impone el Axioma~7.2: toda habilidad debe alcanzar un pilar). El Teorema~7.4 afirma que estas operaciones preservan la validez categ\'orica.
+
+% =====================================================================
+\chapter{Sistema de Memoria Evolutiva (MES): \code{nucleo/mes/}}
+\label{ch:mes}
+% =====================================================================
+
+\section{Visi\'on general}
+
+El subsistema MES implementa la \textbf{Din\'amica Global} (Def.~4.1): cuatro co-reguladores que operan a distintos niveles/escalas temporales, con prioridad estricta $CR_{int} > CR_{str} > CR_{org} > CR_{tac}$ (Axioma~9.5). Desde v7.0, \textbf{esta red reemplaz\'o a un agente \'unico de RL como tomador de decisiones principal} --- el agente PPO (Cap\'itulo~\ref{ch:rl}) sigue existiendo y aprendiendo en vivo, pero act\'ua como una se\~nal m\'as dentro de \code{TacticalCoRegulator}, no como el decisor final.
+
+\section{\code{co_regulators.py} --- la red de co-reguladores (1209 l\'ineas)}
+
+\subsection{Ciclo de 4 fases de todo \code{CoRegulator}}
+\begin{enumerate}
+  \item \code{build_landscape(grafo) -> Landscape}: decodifica una vista parcial del sistema (Def.~2.13).
+  \item \code{select_objectives(landscape) -> Option}: selecciona metas.
+  \item \code{encode_procedure(option) -> MESActionType}: codifica.
+  \item \code{evaluate(anticipado, real) -> float}: eval\'ua tras la ejecuci\'on.
+\end{enumerate}
+
+\subsection{\code{TacticalCoRegulator}} (nivel 0--1, se activa en \emph{cada} interacci\'on)
+Decide RESPONSE vs.\ ASSIST. \code{classify_query} usa una cascada de tres niveles:
+\begin{enumerate}
+  \item \textbf{Agente neuronal} (si hay $\ge50$ transiciones en buffer o pesos pre-entrenados, y no est\'a ``degenerado'').
+  \item \textbf{Heur\'istica de palabras/frases clave} (\code{ASSIST_KEYWORDS}, \code{ASSIST_PHRASES}, con \code{RESPONSE_OVERRIDE} para preguntas definicionales).
+  \item \textbf{Coincidencia de habilidades del grafo} (solo como contexto, no redirige por s\'i sola).
+\end{enumerate}
+\code{\_neural_agent_is_degenerate()} sondea el agente con 4 consultas fijas heterog\'eneas (\code{\_DEGENERACY_PROBE}); si devuelve la misma acci\'on para las 4, se marca degenerado y se ignora. \textbf{Hallazgo documentado en el propio c\'odigo (2026-08-05): los pesos entrenados colapsaron a devolver siempre \code{ASSIST}}, por lo que en la pr\'actica el enrutamiento cae casi siempre a la heur\'istica de palabras clave (\S\ref{sec:gaps}).
+
+\subsection{\code{OrganizationalCoRegulator}} (nivel 1--2, cada 10 pasos)
+\code{record_activation(skill_ids)}: registra qu\'e habilidades co-resolvieron una consulta (m\'aximo 6 por grupo). \code{select_objectives} prioriza: (0)~vincular co-activaciones frecuentes ($\ge3$ veces) cerrando el subgrafo con hasta 2 ``puentes'' de 1-salto; (1)~vincular patrones ya conocidos sin colimite; (2)~eliminar habilidades de nivel~0 d\'ebiles (peso m\'aximo saliente en $(0,0.5)$).
+
+\subsection{\code{StrategicCoRegulator}} (nivel 2--3, cada 100 pasos)
+Toma los primeros 4 ``enlaces complejos'' (\code{COMPLEX}) del grafo como semilla de un patr\'on, propone su uni\'on $\to$ nueva capa jer\'arquica.
+
+\subsection{\code{IntegrityCoRegulator}} (transversal, cada 50 pasos)
+Verifica conectividad (Axioma~8.3), cobertura de pilares (Axioma~8.4), axiomas categ\'oricos, multiplicidad (Axioma~8.2). \code{resolve_conflicts(propuestas)}: implementa la prioridad del Axioma~9.5. \code{detect_fracture}: una fractura (Def.~7.4) se detecta cuando un invariante pasa de verdadero a falso entre dos paisajes consecutivos.
+
+\subsection{\code{CoRegulatorNetwork.decide(query, grafo)} --- el protocolo de transici\'on global}
+\begin{enumerate}
+  \item \code{tactical.classify_query} decide RESPONSE/ASSIST (autoritativo).
+  \item \code{step(grafo)} recoge propuestas de los 4 CRs.
+  \item \code{integrity.resolve_conflicts} elige ganador --- solo \code{INTEGRITY}+\code{REPAIR_FRACTURE} puede sobreescribir la clasificaci\'on t\'actica a \code{REORGANIZE}.
+  \item Confianza asignada por CR de origen: \code{INTEGRITY}~0.95, \code{STRATEGIC}~0.85, \code{ORGANIZATIONAL}~0.75, \code{TACTICAL}~0.8.
+  \item Guarda los resultados completos del ciclo para que \code{core.py} pueda leer las \code{Option}s estructurales y ejecutarlas realmente (documentado como \emph{camino muerto corregido}: antes las opciones se calculaban pero nunca se aplicaban).
+\end{enumerate}
+
+\section{\code{memory.py} --- arquitectura de memoria de 4 capas (707 l\'ineas)}
+
+\begin{itemize}
+  \item \code{ProceduralMemory}: ``qu\'e funcion\'o para este patr\'on de habilidades''. \code{add_procedure} actualiza tasa de \'exito con media m\'ovil; \code{get_best_procedure(pattern_id)} (argmax); \code{get_best_for_query(query, min_success=0.8)} (solapamiento de palabras clave $\times$ tasa de \'exito $\times \log(1+\text{invocaciones})$).
+  \item \code{SemanticMemory}: conceptos-E (clases de equivalencia). \code{\_is_e_equivalent(r1,r2)} (Def.~5.3): mismo \code{pattern_id}, diferencia de \code{success_value}$\le0.1$, mismo signo. \code{try_form_econcept}: requiere $\ge5$ registros mutuamente equivalentes (Teo.~5.4: el funtor de conceptos-E preserva colimites).
+  \item \code{MESMemory}: fachada de nivel superior; \code{add_record} promueve autom\'aticamente a \code{CONSOLIDATED} tras 3 consolidaciones; \code{save}/\code{load} implementan ``Teorema 9.9: enriquecimiento mon\'otono'' --- \code{load} \emph{fusiona} en vez de sobrescribir (nunca se pierde informaci\'on). \textbf{Bug hist\'orico documentado y corregido}: antes de la correcci\'on, los procedimientos perd\'ian \code{query_text}/\code{tactic_used}/\code{lean_goal} al guardar, rompiendo silenciosamente \code{get_best_for_query} tras cada recarga (``0 de 1000'' coincidencias antes del fix).
+\end{itemize}
+
+\section{\code{patterns.py} --- patrones y colimites (1197 l\'ineas)}
+
+\subsection{\code{PatternManager}}
+\code{create_pattern(component_ids, distinguished_links, graph=...)}: si se provee el grafo, construye datos completos de funtor (\code{index_objects}, \code{index_morphisms}, mapas de funtor); sin grafo produce un patr\'on ``desnudo'' (compatible hacia atr\'as). \code{are_homologous(p1,p2)} (Def.~2.5): dos patrones son hom\'ologos si sus \emph{campos operacionales} (morfismos salientes no-de-co-cono de sus colimites) son isomorfos. \code{verify_multiplicity_principle} (Axioma~8.2): se satisface syss existe un par hom\'ologo \emph{no} conectado por un cl\'uster.
+
+\subsection{\code{ColimitBuilder}}
+Docstring expl\'icito sobre la afirmaci\'on honesta: \emph{``I es colimite de P en la subcategor\'ia finita $G_n$''}, nunca en la categor\'ia libre infinita.
+\begin{itemize}
+  \item \code{verify_cocone}: verifica estructuralmente que cada componente tiene morfismo de co-cono hacia el candidato, con conmutatividad si el patr\'on tiene datos de funtor.
+  \item \code{is_join(apex, componentes, grafo)}: chequeo directo en el preorden (m\'as r\'apido que el general) --- explota que la categor\'ia es delgada, as\'i que colimite~=~join. Condiciones: (1)~cota superior (\code{is_preorder_leq}); (2)~minimalidad (ninguna otra cota superior es estrictamente menor). Tiene contraparte formal en \code{JoinColimit.lean}.
+  \item \code{verify_universal_property}: verifica $\forall X\in G_n$, si $X$ es co-cono sobre $P$ entonces $\exists! h:\text{colimite}\to X$ --- existencia \emph{y} unicidad, sobre el grafo finito conocido.
+  \item \code{build_colimit(pattern, grafo, verify=True)}: construye la habilidad colimite (nivel=m\'ax(componentes)+1, nombre legible autogenerado tipo ``A + B + C''), crea morfismos de co-cono (\code{SPECIALIZATION}), verifica co-cono y propiedad universal, \textbf{revierte (\code{grafo.remove\_skill}) y lanza \code{ValueError}} si cualquiera falla.
+  \item \code{complexify(grafo, patrones, verify=True)} (Teo.~2.10): vincula en lote una lista de patrones sin colimite a\'un.
+\end{itemize}
+
+% =====================================================================
+\chapter{Aprendizaje por refuerzo: \code{nucleo/rl/}}
+\label{ch:rl}
+% =====================================================================
+
+\section{Formulaci\'on del MDP (\code{mdp.py})}
+
+\begin{itemize}
+  \item \textbf{Estado} $x=(c_L,g_{Lean},G,h,m)$: contexto LLM (t\'ipicamente \code{None} en la pr\'actica), meta Lean, \code{grafo.to_dict()} completo (no un vector compacto), historial (tope 10), m\'etricas.
+  \item \textbf{Acciones} $A=A_1\sqcup A_2\sqcup A_3$: \code{RESPONSE}, \code{REORGANIZE} (\code{add_node}/\code{add_edge}/\code{merge}/\code{split}/\code{reweight}), \code{ASSIST} (t\'actica Lean, meta).
+  \item \textbf{Transici\'on}: determinista dada la acci\'on; la nueva meta Lean se toma de \code{action.params["new\_goal"]} (provista externamente, no calculada por ning\'un modelo).
+  \item \textbf{Recompensa local (distinta de \code{rewards.py})}: RESPONSE~$=+1.0$; REORGANIZE por tabla (\code{merge}~0.8, \code{split}~0.6, \code{add\_node}~0.5, \code{add\_edge}~0.3, \code{reweight}~0.1); ASSIST~$=+10$ si prueba completa, $+5$ si se redujeron metas, $+1$ si t\'actica v\'alida, $-1$ en otro caso.
+  \item \textbf{Terminal}: solo cuando una acci\'on ASSIST trae \code{proof_complete=True}.
+\end{itemize}
+\code{ExperienceBuffer}: buffer circular con \code{save}/\code{load} tolerante a archivo ausente/corrupto.
+
+\section{\code{gnn.py} --- codificador GNN (\code{SkillGNN})}
+
+\code{graph_to_pyg(grafo)}: convierte \code{SkillCategory} a \code{torch_geometric.data.Data}. Rasgos de nodo (dim~9): one-hot de pilar (4) + nivel normalizado (1) + $\log(1+\text{in\_degree})$ (1) + $\log(1+\text{out\_degree})$ (1) + participa-en-patr\'on (1) + est\'a-activo (1). Rasgos de arista (dim~6): one-hot de tipo de morfismo (5, \textbf{omite \code{IDENTITY}}) + peso (1). \code{SkillGNN}: proyecci\'on de entrada $\to$ 3 capas \code{GATConv} residuales con \code{LayerNorm} (multi-cabeza, 4 cabezas, \code{edge\_dim=6}) $\to$ \code{global_mean_pool}. \code{forward_nodes} devuelve embeddings por nodo (sin pooling), usados por \code{GNNTacticRanker} en la cascada de solucionadores Lean.
+
+\section{\code{networks.py} --- \code{ActorCriticNetwork}}
+
+\code{encode_query}: bag-of-words sobre 34 palabras clave fijas (+1 bucket UNK). \code{encode_goal}: \textbf{pseudo-embedding determinista basado en hash} --- \code{hash(goal)} siembra un generador, produce un vector aleatorio normalizado L2; \emph{no} es sem\'anticamente significativo, solo da una firma estable por cadena. Arquitectura: \code{gnn} (SkillGNN) + \code{query\_encoder} (MLP 35$\to$128$\to$256) + \code{goal\_encoder} (MLP 32$\to$128$\to$256) + \code{fusion} (concatenaci\'on simple 768$\to$256, \textbf{no} atenci\'on multi-cabeza pese a lo que sugiere el diagrama de docstring) + cabezas \code{actor}/\code{critic}. Aproximadamente \textbf{0.55M par\'ametros} con \code{hidden\_dim=256}.
+
+\section{\code{agent.py} --- \code{NucleoAgent} y PPO (565 l\'ineas)}
+
+\subsection{Selecci\'on de acci\'on: tres niveles}
+\code{select_action}: $\varepsilon$-greedy (exploraci\'on aleatoria pura con probabilidad $\varepsilon$) $\to$ si hay red neuronal, \code{\_select_neural} $\to$ si no, \code{HeuristicAgent}. Dentro de \code{\_select_neural}: \textbf{primero} consulta memoria procedimental (\code{get_best_for_query}); si hay coincidencia con tasa de \'exito $\ge0.8$, \textbf{omite la red neuronal por completo}. Solo si no hay memoria \'util, corre el forward pass de la red; el \'indice de acci\'on muestreado se mapea a \code{[RESPONSE, REORGANIZE, ASSIST]}, pero los \emph{par\'ametros} concretos (t\'actica, operaci\'on de reorganizaci\'on) se delegan siempre a \code{HeuristicAgent} --- la red solo elige el \emph{tipo} de acci\'on.
+
+\subsection{Actualizaci\'on PPO con GAE}
+\code{\_ppo_update}: codifica el mismo grafo actual para todo el rollout (la estructura del grafo no var\'ia por transici\'on, solo el texto de consulta/meta). Calcula GAE($\lambda$) con recursi\'on hacia atr\'as ($\delta_t=r_t+\gamma V(s_{t+1})(1-d_t)-V(s_t)$), normaliza ventajas, y ejecuta \code{n\_epochs=4} \'epocas de p\'erdida recortada PPO (\code{clip\_range=0.2}) + p\'erdida de valor (MSE) + b\'onus de entrop\'ia, sin mini-batching (todo el rollout en un solo batch por \'epoca).
+
+\subsection{Persistencia}
+\code{save(path)}: escribe \code{path} (JSON: config, m\'etricas, $\varepsilon$) y, si hay red, \code{path+".pt"} (pesos) --- de ah\'i \code{data/neural\_agent.json} + \code{data/neural\_agent.json.pt}. \code{load}: si \code{path+".pt"} existe, marca \code{weights_pretrained=True}, lo que permite a \code{CR\_tac} confiar en el enrutamiento neuronal sin esperar 50 transiciones en buffer.
+
+\section{\code{rewards.py} --- funci\'on de recompensa estructural (334 l\'ineas)}
+
+\textbf{Hallazgo relevante}: este archivo \emph{no contiene} recompensa basada en verificaci\'on Lean ni distinci\'on aritm\'etica/abstracta --- toda su l\'ogica es estructural/heur\'istica sobre el grafo:
+\[
+r = r_{task} + \lambda_1 r_{eff} + \lambda_2 r_{org} + \lambda_3 r_{emerge} + \lambda_4 r_{hier} + \lambda_5 r_{mem}
+\]
+con $r_{eff}=-(\alpha\cdot\text{habilidades\_usadas}+\beta\cdot\Delta t)$, $r_{org}=\delta\cdot\text{coherencia}+\epsilon\cdot\text{cobertura}$ (usa m\'etricas absolutas del grafo actual, no deltas, pese a la f\'ormula documentada), $r_{hier}$/$r_{mem}$ delegan en \code{grafo.get\_hierarchy\_score()}/\code{get\_memory\_score()}.
+
+\textbf{La recompensa Lean real vive en \code{scripts/train\_gnn\_ppo.py}, no en \code{nucleo/rl/}}: la funci\'on \code{\_lean\_reward} + \code{\_build\_lean\_snippet} clasifican el problema por presencia/ausencia de \code{\textbackslash boxed\{entero\}} en la soluci\'on de referencia --- si no hay entero encerrado, se trata como \emph{abstracto} (ProofNet-like) y recibe $0.5$ \textbf{sin invocar Lean}; si lo hay, se busca un par $(a,b)$ con $a+b=N$/$a-b=N$/$a\times b=N$ y se genera y ejecuta un snippet \code{norm\_num} real, con recompensa $1.0$ (verificado), $0.5$ (\code{sorry}) o $0.3$ (error/timeout). Esta distinci\'on aritm\'etica-vs-abstracta es puramente sint\'actica, no sem\'antica.
+
+\section{Consumidores de \code{nucleo/rl/}}
+
+\code{core.py} (agente principal + PPO en vivo tras cada interacci\'on + retroalimentaci\'on de usuario), \code{lean/solver_cascade.py} (\code{GNNTacticRanker}, reordena --- nunca a\~nade/quita --- la cascada de t\'acticas por similitud coseno con embeddings de nodos-habilidad; invariante de permutaci\'on demostrado en Lean como \code{gnnRankTactics\_perm}), \code{multi_agent/specialized_agent.py} (cada uno de los 14 agentes especializados envuelve su propio \code{NucleoAgent}). \textbf{\code{app.py} no importa \code{nucleo.rl} directamente} --- todo pasa por \code{Nucleo}.
+
+% =====================================================================
+\chapter{Integraci\'on con Lean 4: \code{nucleo/lean/} y \code{MetamathProver/}}
+% =====================================================================
+
+\section{\code{client.py} --- invocaci\'on de Lean y \code{LeanResult}}
+
+\subsection{Mecanismo de invocaci\'on}
+Pese a que el docstring del m\'odulo menciona un ``cliente bidireccional / REPL de Lake'' (documentaci\'on desactualizada), la implementaci\'on real es \textbf{verificaci\'on por lotes de un solo disparo}: \code{subprocess.Popen(["lake","env","lean",archivo,"--json"])} (no un REPL persistente), elegido deliberadamente sobre \code{subprocess.run} para poder matar el proceso en caso de timeout. \code{\_resolve_lake}: busca binario absoluto $\to$ \code{PATH} $\to$ \code{\textasciitilde/.elan/bin/lake[.exe]} $\to$ \code{/usr/local/bin/lake}.
+
+\subsection{Fallback HTTP}
+Si el binario local no est\'a disponible, \code{check_code} recibe \code{NOT_AVAILABLE} y cae a \code{_verify_via_http}: \code{POST \{code,timeout\}} a la URL de la variable de entorno \code{LEAN_VERIFY_URL} más \code{/verify} --- el servicio remoto \code{lean_api} (\S\ref{sec:lean-api}). Es decir: \textbf{subproceso local es la v\'ia primaria; HTTP remoto es el respaldo} para entornos sin toolchain de Lean (p.ej.\ Streamlit Cloud).
+
+\subsection{\code{LeanResult}}
+\code{status: LeanResultStatus} (\code{SUCCESS|ERROR|TIMEOUT|INCOMPLETE|SORRY|NOT_AVAILABLE}), \code{goals}, \code{messages} (JSON crudo de Lean), \code{elapsed_ms}. \code{error_messages} lee la clave \code{"data"} antes que \code{"message"} --- correcci\'on de un bug documentado que antes cegaba todo el diagn\'ostico de errores.
+
+\subsection{Manejo de timeouts y correcciones espec\'ificas de Windows}
+\begin{enumerate}
+  \item \code{\_kill_process_tree}: en Windows, usa \code{taskkill /F /T /PID} para matar \'arbol completo de procesos --- un \code{proc.kill()} normal deja hu\'erfano el \code{lean.exe} hijo.
+  \item Ejecuta el subproceso s\'incrono dentro de \code{loop.run_in_executor} expl\'icitamente para evitar problemas de \code{ProactorEventLoop} de Windows con pipes en contextos async.
+  \item Decodificaci\'on con \code{errors="replace"} para sobrevivir bytes no-UTF8 de consolas Windows.
+\end{enumerate}
+
+\subsection{Normalizaci\'on de c\'odigo antes de cada invocaci\'on (\code{\_normalize_code})}
+Sustituye \code{import Mathlib} desnudo (carga $\sim$1.58\,GB de \code{.olean}, medido en 742\,s --- siempre excede el timeout de 360\,s) por una cabecera segura estrecha (\code{\_SAFE\_HEADER}) m\'as importaciones tem\'aticas activadas por palabras clave. Descarta importaciones Mathlib desconocidas (validadas contra el \'arbol de archivos real). \code{repair\_imports}: ante errores de identificador/constante desconocidos, escanea el c\'odigo fuente de Mathlib para encontrar el m\'odulo declarante e inyecta el \code{import} faltante autom\'aticamente ($\sim$2.2\,s de escaneo vs.\ $\sim$15\,s por corrida de Lean). Reescribe una tabla de lemas obsoletos (p.ej.\ \code{Nat.factors}$\to$\code{Nat.primeFactorsList}).
+
+\section{\code{solver_cascade.py} --- la cascada de solucionadores}
+
+Adaptado de \code{lean4-skills}, inspirado en APOLLO (arXiv:2505.05758); el docstring afirma que resuelve mec\'anicamente 40--60\% de los casos simples.
+
+\begin{longtable}{@{}clr@{}}
+\toprule
+\textbf{Orden} & \textbf{T\'actica} & \textbf{Timeout} \\
+\midrule
+\endhead
+1 & \code{rfl} & 1\,s \\
+2 & \code{simp} & 2\,s \\
+3 & \code{ring} & 2\,s \\
+4 & \code{linarith} & 3\,s \\
+5 & \code{nlinarith} & 4\,s \\
+6 & \code{omega} & 3\,s \\
+7 & \code{exact?} & 5\,s \\
+8 & \code{apply?} & 5\,s \\
+9 & \code{aesop} & 8\,s \\
+\bottomrule
+\end{longtable}
+
+\code{SKIP\_ERROR\_TYPES} (\code{unknown_ident, synth_implicit, recursion_depth, synth_instance}) cortocircuitan toda la cascada. \code{GoalAnalyzer.prioritize} reordena por: (1)~t\'actica de dominio de \code{domain_default_tactic}; (2)~coincidencia de patrones regex sobre el texto de la meta; (3)~vecinos-t\'actica en el grafo de habilidades. \code{GNNTacticRanker} reordena adem\'as por similitud coseno con embeddings GNN (invariante de permutaci\'on demostrado en Lean).
+
+\section{\code{sorry_analyzer.py} y \code{sorry_filler.py}}
+
+\code{find_sorries_in_text}: an\'alisis textual puro (sin invocar Lean); ignora \code{sorry} dentro de comentarios \code{--}; extrae contexto, nombre de declaraci\'on (b\'usqueda regex hacia atr\'as hasta 50 l\'ineas), documentaci\'on cercana (\code{TODO|NOTE|FIXME|STRATEGY|DEPENDENCIES}).
+
+\code{SorryType} con distribuci\'on emp\'irica documentada: \code{MATHLIB_EXISTS} (60\%), \code{NEEDS_TACTIC} (20\%), \code{MISSING_STEP} (15\%), \code{COMPLEX_STRUCTURAL} (4\%), \code{NOVEL_RESULT} (1\%). \code{fill_sorry_with_cascade}: primero intenta \code{SolverCascade.try_fill_sorry}; si falla, genera hasta 3 \code{ProofCandidate} (directo, basado en t\'acticas, automatizaci\'on \code{simp}/\code{aesop}); si todos fallan, marca \code{needs_escalation=True}.
+
+\section{\code{tactics.py} / \code{tactics_db.py} --- dos cat\'alogos de t\'acticas paralelos}
+
+\textbf{Redundancia documentada}: existen dos bases de datos de t\'acticas independientes. \code{tactics.py::TacticMapper} tiene 18 t\'acticas hardcodeadas con heur\'isticas de \code{matches_goal}. \code{tactics_db.py::TacticsDatabase} tiene 26 t\'acticas en 9 categor\'ias, incluyendo autom\'aticas espec\'ificas de dominio ausentes en la primera (\code{continuity, measurability, positivity, fun_prop}). \textbf{Esta segunda es la que realmente usa \code{SorryFiller}} v\'ia el singleton \code{get_tactics_database()}.
+
+\section{\code{parser.py} --- interpretaci\'on de salida/errores de Lean}
+
+Capa b\'asica (\code{LeanParser}): parsea JSON l\'inea-a-l\'inea, reconoce 6 tipos de error por regex, sugiere correcciones canned. Capa extendida (\code{StructuredError}, inspirada en APOLLO): clasifica en 11 tipos m\'as finos, calcula \code{error\_hash} (SHA-256 truncado, para deduplicaci\'on en memoria MES), y define \code{is\_cascade\_compatible} --- excluye exactamente los mismos tipos que \code{SKIP\_ERROR\_TYPES} de la cascada.
+
+\section{Formalizaciones Lean: \code{MetamathProver/}}
+\label{sec:lean-formal}
+
+\subsection{Toolchain}
+\code{lean-toolchain}: \code{leanprover/lean4:v4.29.0-rc4} (release candidate reciente --- varios comentarios en el c\'odigo documentan cambios de API espec\'ificos de esta versi\'on). \code{lakefile.toml}: paquete \code{metamath_prover}, dependencia \code{mathlib} sin revisi\'on fijada (sigue el HEAD m\'as reciente).
+
+\subsection{\code{CategoryFoundations/} --- fundamentos formales de la propia arquitectura del NLE}
+
+\begin{longtable}{@{}p{3.2cm}p{7.6cm}p{1.4cm}@{}}
+\toprule
+\textbf{Archivo} & \textbf{Contenido} & \textbf{\code{sorry}} \\
+\midrule
+\endhead
+\code{SkillCategory.lean} & Grafo de habilidades como \code{Quiver}; construcci\'on \code{Paths} da la categor\'ia libre. & 0 \\
+\code{ColimitVerifier.lean} & Verificaci\'on decidible finita de colimites/joins para \code{FinSkillGraph n}; alcanzabilidad acotada; correcci\'on y completitud probadas. & 0 \\
+\code{JoinColimit.lean} & Preordenes son categor\'ias delgadas; \code{IsJoin} = co-cono + propiedad universal; unicidad de joins. & 0 \\
+\code{ComplexityOrder.lean} & Base formal de \code{graph/complexity.py}: equivalencia join$\leftrightarrow$colimite, Fubini para joins, orden de complejidad tipo Bellman-Ford. & \textbf{2} \\
+\code{CoRegulatorNetwork.lean} & Formaliza el sistema de prioridad de co-reguladores (Axioma~9.5), protocolo de decisi\'on global, E-equivalencia como \code{Setoid}, correcci\'on de la cascada de t\'acticas + reordenamiento GNN. & 0 \\
+\code{IsColimitBridge.lean} & Cierra la brecha entre \code{IsJoin} propio y \code{CategoryTheory.Limits.IsColimit} de Mathlib. & 0 \\
+\bottomrule
+\end{longtable}
+
+Los 2 \code{sorry} de \code{ComplexityOrder.lean} corresponden a \code{cn\_join\_gt\_component} (inducci\'on estructural sobre el DAG de joins, argumento de terminaci\'on no trivial) y \code{hierarchy\_well\_founded} (inducci\'on sobre la profundidad del DAG) --- documentados en el propio archivo como demostrables pero pendientes.
+
+\subsection{\code{Group/} y \code{Ring/} --- \'algebra cl\'asica (0 \code{sorry} confirmado en todo el \'arbol)}
+
+Estructura espejo Grupo/Anillo de los 4 resultados cl\'asicos, construidos como envoltorios sobre lemas ya existentes de Mathlib (valor a\~nadido: demostrar y ensamblar infraestructura Mathlib con instancias concretas, no prueba desde cero):
+
+\begin{itemize}
+  \item \textbf{Primer Teorema de Isomorf\'ismo}: $G/\ker(f)\cong f(G)$ / $R/\ker(f)\cong f(R)$; ejemplos concretos ($\mathbb{Z}/n\mathbb{Z}$, signo de permutaciones, grupos c\'iclicos).
+  \item \textbf{Segundo Teorema (Diamante)}: $S/(S\cap N)\cong(S\vee N)/N$.
+  \item \textbf{Tercer Teorema}: $(G/N)/(K/N)\cong G/K$, m\'as Teorema de Correspondencia (4 partes).
+  \item \textbf{Teorema del Ret\'iculo (Cuarto Teorema)}: isomorfismo de orden entre subgrupos/ideales de $G/N$ y subgrupos/ideales de $G$ que contienen $N$; preserva encuentros, uniones y normalidad.
+\end{itemize}
+
+\section{Servicio remoto: \code{lean_api/main.py}}
+\label{sec:lean-api}
+
+Microservicio FastAPI independiente para verificar Lean cuando no hay toolchain local (t\'ipicamente Streamlit Cloud).
+\begin{itemize}
+  \item \code{GET /health}: sonda de vida.
+  \item \code{POST /verify}: \code{\{code, timeout\}} $\to$ escribe a un archivo temporal \emph{dentro} de \code{lean_project/} (para que las importaciones resuelvan contra el Mathlib empaquetado), ejecuta \code{lake env lean --json} v\'ia \code{asyncio.create_subprocess_exec} con \code{wait_for(timeout)}, devuelve stdout/stderr/returncode crudos (mismo formato JSON-lines que el cliente local parsea).
+\end{itemize}
+Despliegue en Railway (\code{railway.json}: builder Docker, healthcheck en \code{/health}); \code{Dockerfile} propio instala \code{elan}+Lean~4 stable, descarga cach\'e precompilado de Mathlib ($\sim$500\,MB) v\'ia \code{lake exe cache get}; imagen final $\sim$3--4\,GB. La \'unica conexi\'on con el cliente local es la variable de entorno \code{LEAN\_VERIFY\_URL}.
+
+% =====================================================================
+\chapter{Pilares fundacionales: \code{nucleo/pillars/}}
+% =====================================================================
+
+\section{\code{base.py} --- la interfaz \code{Pillar}}
+
+\code{PillarSkill} (dataclass: \code{id, name, description, dependencies, metadata}) --- distinto de \code{nucleo.types.Skill} usado por el grafo en tiempo de ejecuci\'on. \code{Pillar(ABC)}: m\'etodos abstractos \code{get_skills()} y \code{validate()}; \textbf{no hay} m\'etodo abstracto de ``axiomas'' --- cada pilar concreto expresa sus axiomas como m\'etodos ordinarios. \code{PillarRegistry}: registro global + tabla de traducciones entre pilares.
+
+\section{Los cuatro pilares concretos}
+
+\begin{itemize}
+  \item \textbf{\code{category_theory.py} ($F_{Cat}$)}: kernel de categor\'ias real y funcional --- \code{Category.compose}, \code{identity}, \code{hom}; \code{verify_axioms()} existe pero sus chequeos de asociatividad/identidad son \emph{stubs TODO} (siempre devuelve \code{True}). 8 \code{PillarSkill}: \code{cat-basics$\to$functors$\to$nat-trans$\to$adjunctions}, \code{limits}, \code{yoneda}, \code{topos-basics$\to$internal-logic} (conecta con $F_{Log}$ via $\tau_4$).
+  \item \textbf{\code{logic.py} ($F_{Log}$)}: \code{LogicSystem} (\code{FOL, SOL\_STD, SOL\_HEN, HOL, IL}); sintaxis inductiva de f\'ormulas/t\'erminos. \code{check_metalogical_properties}: tabla can\'onica de completitud/compacidad/L\"owenheim-Skolem/semidecidibilidad por sistema. \code{IntuitionisticLogic.is_constructive}: heur\'istico de detecci\'on de patr\'on LEM, expl\'icitamente marcado \code{TODO} como incompleto.
+  \item \textbf{\code{set_theory.py} ($F_{Set}$)}: \code{ZFCAxiom} (9 axiomas), \code{describe_axiom} devuelve la f\'ormula de primer orden literal de cada uno; \code{Ordinal}/\code{Cardinal} con representaciones finitas/infinitas nombradas ($\omega,\aleph_0,\aleph_1,\mathfrak{c}$). Habilidad \code{ch} (hip\'otesis del continuo) marcada \code{independent=True}.
+  \item \textbf{\code{type_theory.py} ($F_{Type}$)}: \code{TypeSystem} sigue el Cubo de Barendregt (\code{STLC...CIC}). \code{CurryHoward}: traductores est\'aticos l\'ogica$\leftrightarrow$tipos (implicaci\'on$\to$funci\'on, conjunci\'on$\to$producto, disyunci\'on$\to$suma, $\forall\to\Pi$, $\exists\to\Sigma$). \code{translate_to_lean}: renderiza tipos como sintaxis Lean~4 literal.
+\end{itemize}
+
+\textbf{Nota arquitect\'onica importante}: estas 4 clases \code{Pillar} y sus listas de \code{PillarSkill} son una representaci\'on \emph{paralela y en gran medida desconectada} del grafo real de habilidades. Solo se ejercitan desde \code{tests/} y desde \code{cli.py::cmd_init} (que registra las 4 en un \code{PillarRegistry} nuevo al hacer \code{nucleo init}). \textbf{\code{core.py} nunca las importa ni instancia} --- en su lugar hardcodea 10 habilidades de nivel~0 directamente (\S\ref{sec:foundational}).
+
+\section{\code{math_domains.py} --- el cat\'alogo real (162 habilidades)}
+
+Esquema \code{DomainSkillDef}: \code{id, name, description, pillar, level (1-3), dependencies, category, keywords} (ES+EN). Conteo verificado: \textbf{33 de nivel~1}, \textbf{34 de nivel~2}, \textbf{95 de nivel~3} (sub-ramas finas) = 162 total, en 13 categor\'ias matem\'aticas + 2 categor\'ias Lean-espec\'ificas (\code{lean-tactics}: 9 habilidades \code{tactic-*}; \code{proof-strategies}: 6 habilidades \code{strategy-*}).
+
+\code{load_math_domains(grafo)}: ordena por nivel, degradaci\'on elegante (salta habilidades cuyas dependencias a\'un no existen), a\~nade morfismos \code{DEPENDENCY}, morfismos de traducci\'on \textbf{inter-pilar} (\code{INTER_PILLAR_TRANSLATIONS}, p.ej.\ \'algebra homol\'ogica$\to$topolog\'ia algebraica), y vincula cada habilidad de dominio a una t\'actica Lean por defecto seg\'un su categor\'ia (\code{CATEGORY_TACTIC_SKILL}).
+
+\code{\_match_skills_to_query} (vive en \code{core.py}, no aqu\'i): solapamiento de tokens id/nombre + coincidencia de frase completa contra \code{metadata["keywords"]} (peso $+2$, mayor que un token suelto), top~10 resultados.
+
+% =====================================================================
+\chapter{Integraci\'on con modelos de lenguaje: \code{nucleo/llm/}}
+% =====================================================================
+
+\section{\code{client.py} --- cliente multi-proveedor (529 l\'ineas)}
+
+Proveedor primario: \textbf{Anthropic Claude} (SDK oficial \code{anthropic}), modelo por defecto \code{claude-sonnet-4-6} en el c\'odigo (el YAML de despliegue configura \code{claude-sonnet-5}). Tambi\'en soporta Google GenAI, Groq y DeepSeek (v\'ia cliente compatible OpenAI). \code{LLMProvider}: \code{ANTHROPIC, GOOGLE, GROQ, DEEPSEEK, DEMO}.
+
+\textbf{Clave API}: resoluci\'on config-sobre-variable-de-entorno; \code{\_ENV_KEYS} mapea cada proveedor a su variable (\code{ANTHROPIC_API_KEY}, \code{GOOGLE_API_KEY}, \code{GROQ_API_KEY}, \code{DEEPSEEK_API_KEY}). \code{reconfigure()} permite intercambio en caliente de proveedor/modelo/clave, limpiando el historial conversacional si cambia el proveedor (evita mezclar formatos de mensaje incompatibles).
+
+\textbf{Streaming}: el par\'ametro \code{stream} existe en la firma pero \textbf{no est\'a implementado} --- siempre se hace la llamada no-streaming, pese a que el m\'etodo es \code{async def generate}.
+
+\textbf{Manejo de ``adaptive thinking''}: como el pensamiento extendido est\'a activo por defecto en Sonnet~5/Opus~5, la respuesta puede comenzar con un bloque \code{ThinkingBlock} sin \code{.text}; el c\'odigo filtra expl\'icitamente \code{b.type=="text"}. Tambi\'en omite el par\'ametro \code{temperature} para estos modelos porque lo rechazan con HTTP~400.
+
+\textbf{Sin reintentos/backoff}: cualquier excepci\'on revierte el \'ultimo mensaje de usuario a\~nadido (evita dos mensajes consecutivos del mismo rol) y se relanza para que \code{process_sync()} la capture y muestre.
+
+\textbf{Modo demo}: \code{DemoLLMClient} se activa sin clave API configurada; responde con patrones canned (saludo, ``t\'actica'' $\to$ \code{"simp"}, mensaje gen\'erico de modo demo).
+
+\section{\code{prompts.py} --- cat\'alogo de plantillas (314 l\'ineas)}
+
+10 plantillas con nombre (\code{PromptManager}), todas en espa\~nol: \code{TACTIC\_SUGGESTION}, \code{TACTIC\_CHAIN}, \code{PROOF\_EXPLANATION}, \code{CONCEPT\_EXPLANATION}, \code{FORMALIZE\_STATEMENT}, \code{FORMALIZE\_PROOF\_SKETCH}, \code{ERROR\_DIAGNOSIS}, \code{SKILL\_RECOMMENDATION}, \code{SKILL\_PATH}, \code{CURRY\_HOWARD\_TRANSLATE}. \textbf{No hay inyecci\'on few-shot de miniF2F en este archivo} --- ese mecanismo (\code{\_build\_few\_shot\_context}) vive directamente en \code{core.py}, no en \code{prompts.py}.
+
+% =====================================================================
+\chapter{Evaluaci\'on de respuestas: \code{nucleo/eval/}}
+% =====================================================================
+
+\section{\code{math_evaluator.py} (492 l\'ineas)}
+
+Modelado expl\'icitamente sobre la l\'ogica de evaluaci\'on de InternLM-Math.
+
+\subsection{Extracci\'on (\code{extract_answer})}
+Orden de prioridad: (1)~\code{\textbackslash boxed\{...\}}/\code{\textbackslash fbox\{...\}} con emparejamiento correcto de llaves anidadas (toma la \emph{\'ultima} ocurrencia); (2)~patr\'on ``la respuesta es:''; (3)~\'ultimo literal num\'erico encontrado.
+
+\subsection{Normalizaci\'on (\code{\_normalize_string})}
+Larga cadena de reglas de limpieza LaTeX: elimina \code{\textbackslash!}, \code{\textbackslash left/\textbackslash right}, unifica \code{tfrac/dfrac}$\to$\code{frac}, elimina unidades \code{\textbackslash text\{...\}} finales, marcadores de grado, s\'imbolos de moneda/porcentaje; corrige decimales sin cero inicial; mapea \code{infinity}$\to$\code{\textbackslash infty}; mapea \code{j}$\to$\code{i} (convenci\'on de ingenier\'ia para n\'umero imaginario, solo si no hay ya una \code{i}); repara fracciones \code{\textbackslash frac} mal formadas y divisiones simples \code{a/b}.
+
+\subsection{Comparaci\'on (\code{\_compare_answers}) --- primera coincidencia gana}
+\begin{enumerate}
+  \item Coincidencia exacta de cadenas normalizadas $\to$ \code{"exact"}.
+  \item Igualdad num\'erica (\code{math.isclose}, \code{rel\_tol=1e-4}; tambi\'en prueba variantes $\times100$/$\div100$ para discrepancias porcentaje-vs-decimal) $\to$ \code{"numeric"}.
+  \item Coincidencia exacta tras eliminar corchetes/par\'entesis $\to$ \code{"exact_cleaned"}.
+  \item Igualdad simb\'olica v\'ia \code{sympy} (solo si est\'a disponible): parsea LaTeX, simplifica la diferencia a cero, o eval\'ua num\'ericamente con tolerancia \code{1e-3} $\to$ \code{"symbolic"}.
+  \item En otro caso, \code{"none"} (incorrecto).
+\end{enumerate}
+
+Expuesto en \code{Nucleo.evaluate_answer(prediction, reference)}, usado por \code{scripts/evaluate_benchmark.py} para medir precisi\'on en MATH/GSM8K.
+
+% =====================================================================
+\chapter{Consultores Avanzados: \code{nucleo/consultores/}}
+\label{ch:consultores}
+% =====================================================================
+
+\section{Prop\'osito}
+
+M\'odulo opcional para matem\'aticos expertos: en vez de una respuesta conversacional, genera \textbf{N art\'ifices verificables} en una \'unica llamada LLM estructurada --- archivo Lean autocontenido, esqueleto de prueba en lenguaje natural, script solucionador Python opcional (para subproblemas num\'ericos/de optimizaci\'on), script ``puente'' que convierte \code{solution.json} a una instancia Lean, plan de verificaci\'on y comandos de shell exactos. Cada candidato se verifica realmente en Lean (no autorreporte del LLM), se punt\'ua/rankea, y la sesi\'on completa se registra en \code{MESMemory}.
+
+Reutiliza expl\'icitamente las \emph{mismas} instancias de \code{LLMClient}, \code{LeanClient}, \code{PatternManager} y \code{MESMemory} que el \code{Nucleo} principal --- es un modo/plugin, no una pila separada.
+
+\section{Protocolo de marcadores (\code{master_prompt.py})}
+
+Una \'unica llamada LLM produce un bloque estructurado con marcadores \code{\%\%MARKER\%\%...\%\%END\_MARKER\%\%}: \code{\%\%CLASIFICACION\%\%} (JSON tipo/subtipo/confianza) $\to$ \code{\%\%SPEC\%\%} (especificaci\'on formal) $\to$ \code{\%\%CANDIDATO\_i\%\%} (para $i=1..N$, con sub-bloques Lean/esqueleto/solver/puente/plan/comandos) $\to$ \code{\%\%METRICAS\%\%} (autorreporte JSON) $\to$ \code{\%\%RESUMEN\%\%} $\to$ \code{\%\%AUDIT\%\%}. \textbf{Una ``consultor'' en este vocabulario no es un agente separado que corre N veces --- es un espacio de candidato dentro de una \'unica respuesta LLM}; el paralelismo real de la orquestaci\'on es solo en la verificaci\'on Lean posterior (secuencial, sin \code{asyncio.gather}).
+
+\section{\code{orchestrator.py} --- \code{ConsultoresModule.process(query)}}
+
+\begin{enumerate}
+  \item Una llamada LLM $\to$ respuesta cruda con todos los marcadores.
+  \item Parseo de clasificaci\'on, especificaci\'on, candidatos, notas.
+  \item \textbf{Bucle de verificaci\'on Lean}: para cada candidato con archivo Lean no vac\'io, \code{await self.\_lean.check_code(...)}; recuenta \code{sorry\_count} directamente del contenido (no confia en el autorreporte del LLM).
+  \item \code{score_and_rank} (\code{reranker.py}).
+  \item Construye \code{AuditTrace} con tiempos y modelo usado.
+  \item \code{\_record_in_memory}: registra un \code{ExperienceRecord} (\'exito$=1.0$ si alg\'un candidato verific\'o) y un procedimiento en memoria procedimental bajo \code{pattern\_id="consultores"}.
+\end{enumerate}
+
+\section{F\'ormula de puntuaci\'on (\code{artifacts.py::CandidateMetrics.compute})}
+\[
+\text{total\_score}=0.25\,s_{syntax}+0.15\,c_{mathlib}+0.10\cdot\tfrac{1}{\text{complejidad}}+0.25\,c_{completeness}+0.25\,s_{lean}
+\]
+donde $s_{lean}\in\{1.0\text{ (verificado sin sorry)},\,0.5\text{ (con sorry)},\,0.0\text{ (rechazado)},\,0.25\text{ (a\'un no ejecutado)}\}$ --- el resultado real de Lean domina el ranking, consistente con la filosof\'ia ``Lean es verdad''.
+
+\section{\code{solver_runner.py} --- ejecuci\'on aislada}
+
+\code{run_solver}: \textbf{compila el script primero} (\code{compile(...,"exec")}) para capturar \code{SyntaxError} antes de lanzar subproceso; ejecuta en subproceso aislado (\code{subprocess.run([sys.executable,...])}, \textbf{nunca \code{eval}/\code{exec} en proceso}); lee \code{solution.json} generado. \code{run_bridge} + \code{run_full_pipeline}: encadena solver$\to$puente$\to$\code{lean_client.check_code} --- funci\'on invocada bajo demanda por bot\'on ``Ejecutar solver'' en la p\'agina de Streamlit correspondiente.
+
+\section{Activaci\'on}
+
+\'Unico disparador: \code{pages/4_Consultores_Avanzados.py} --- un \emph{toggle} + slider de n\'umero de candidatos (1--6) en la UI, que llama \code{nucleo.set_consultores_mode(n\_candidates)}/\code{disable\_consultores_mode()}, y un formulario que dispara \code{nucleo.\_consultores.process(query)}.
+
+% =====================================================================
+\chapter{Sistema multi-agente: \code{nucleo/multi_agent/}}
+\label{ch:multiagent}
+% =====================================================================
+
+\section{Prop\'osito y estado real: \inerte{LATENTE}}
+
+Este subsistema reemplaza (opcionalmente) el agente PPO \'unico por \textbf{14 agentes RL especializados}, uno por categor\'ia matem\'atica, m\'as una jerarqu\'ia categ\'orica adicional de ``agentes colimite/pilar''. \textbf{Hallazgo cr\'itico}: \code{Nucleo.set_multi_agent_orchestrator()} \textbf{no se invoca en ning\'un lugar de la aplicaci\'on desplegada} --- ni en \code{app.py}, ni en ninguna p\'agina de Streamlit, ni en ning\'un script de producci\'on. Es c\'odigo completo, probado (v\'ia \code{tests/test\_domain\_tactic\_pipeline.py}) y funcional, pero \textbf{dormido}.
+
+Lo \'unico de este subsistema que S\'I est\'a siempre activo es un par de funciones ligeras: \code{classify_query(texto)} (clasificador por conteo de coincidencias de palabras clave en 14 categor\'ias, sin aprendizaje) y \code{domain_default_tactic(categoria)}, llamadas incondicionalmente dentro de \code{Nucleo.\_math_via_lean} (\S\ref{sec:lean-first}) para elegir una t\'actica inicial de la cascada.
+
+\section{\code{specialized_agent.py} --- \code{SpecializedAgent}}
+
+14 categor\'ias fijas (\code{CATEGORIES}). \code{SpecializedAgent} envuelve un \code{NucleoAgent} propio, con pesos por categor\'ia en \code{training/agents/best/\{categoria\}.pt} (con fallback a los pesos base compartidos \code{data/neural\_agent.json.pt}). \code{select_action}: si hay \code{mes\_bridge} configurado, primero consulta \code{query_best_tactic} --- si hay t\'actica conocida-buena, \textbf{omite la red neuronal por completo}, igual que en \code{NucleoAgent.\_select_neural}.
+
+\section{\code{orchestrator.py} --- \code{MultiAgentOrchestrator}}
+
+\code{route(query)}: clasifica y obtiene/crea perezosamente el agente de esa categor\'ia. \code{record_solution}: reenv\'ia al agente y, v\'ia \code{mes\_bridge}, registra convergencias entre categor\'ias.
+
+\section{\code{mes_bridge.py} --- \code{MESBridge}, el puente hacia \code{nucleo/mes/}}
+
+Cada \code{SpecializedAgent} se describe como ``un co-regulador L1 con su propia \code{ProceduralMemory}''. \code{record_success}: registra el procedimiento en la memoria de la categor\'ia; si $\ge2$ categor\'ias distintas resuelven \emph{la misma} consulta (por hash normalizado) con \'exito, dispara \code{\_handle_convergence} --- construye un patr\'on sint\'etico y, si hay \code{colimit_builder}/\code{skill_graph} reales, llama \code{build_colimit} para crear una ``habilidad emergente'' de nivel~L2. Cae a una \code{\_FallbackMemory} en memoria si \code{nucleo.mes} no est\'a disponible por alg\'un motivo (degradaci\'on elegante).
+
+\section{\code{pillar_agents.py} y \code{colimit_agents.py} --- jerarqu\'ia categ\'orica L0$\to$L1$\to$L2$\to$L3}
+
+Formalismo distinto de RL: cada \code{PillarAgent}/\code{ColimitAgent} es un \emph{envoltorio computacional} alrededor de un \textbf{join verificado} (\code{is_join()}) de las habilidades de un pilar (L1, 4 agentes) o de una categor\'ia matem\'atica (L2, 14 agentes), m\'as un \'unico ``orquestador'' L3 que agrupa los 14 L2 (\textbf{construido con \code{verify=False}}, a diferencia de L1/L2). \code{ColimitAgent.select_tactic}: cascada de 5 niveles puramente heur\'istica/memor\'istica (sin red neuronal en esta capa): mejor t\'actica recordada $\to$ t\'actica mediadora cruzada $\to$ ``activar co-cono'' (puntuaci\'on por peso$\times$relevancia de habilidades componentes) $\to$ ``se\~nal de pilar'' (morfismos L1$\to$L2 con palabras clave espec\'ificas por pilar) $\to$ t\'actica por defecto est\'atica.
+
+\textbf{Estas dos jerarqu\'ias (\code{SpecializedAgent}/\code{MultiAgentOrchestrator} de un lado, \code{PillarAgent}/\code{ColimitAgent}/\code{ColimitAgentSystem} del otro) son caminos de c\'odigo independientes que nunca se conectan entre s\'i} --- solo comparten el vocabulario de \code{classify_query} y la tabla \code{CATEGORY_DEFAULT_TACTICS} (que adem\'as existe \textbf{duplicada} de forma independiente en \code{pillars/math_domains.py}, seg\'un un comentario expl\'icito en ese archivo).
+
+\textbf{Bug latente documentado}: \code{multi_agent/mes_bridge.py} contiene un \code{import} de \code{nucleo.graph.skills} (m\'odulo \textbf{inexistente} en el \'arbol real de \code{graph/}), envuelto en un \code{try/except} amplio que lo silencia --- el paso de ``a\~nadir habilidad emergente al grafo'' es c\'odigo muerto incluso si se corrigiera el import, porque \code{SkillNode} vive realmente en \code{graph/category.py} con una firma de constructor incompatible.
+
+\section{\code{scripts/train_multiagent.py} --- productor de los pesos}
+
+CLI de 3 fases (rutina de \code{routing} supervisada; cabeza de t\'actica con supervisi\'on d\'ebil por heur\'isticas de texto; PPO opcional con recompensa Lean real, \code{--with-lean}) que produce los \code{.pt} por categor\'ia bajo \code{training/agents/}. Es el \'unico productor de los artefactos que \code{SpecializedAgent} consumir\'ia si el subsistema se activara alguna vez.
+
+% =====================================================================
+\chapter{Interfaz de usuario: \code{app.py} y \code{pages/}}
+% =====================================================================
+
+\section{\code{app.py} --- estructura general (1664 l\'ineas)}
+
+\subsection{Arranque}
+Fuerza UTF-8 globalmente (necesario porque Streamlit Cloud corre en Linux con locale ASCII); reconfigura todos los \code{StreamHandler} de logging a UTF-8; silencia librer\'ias ruidosas a \code{WARNING} mientras deja \code{httpx} en \code{INFO} (\'unica se\~al de que el LLM se llam\'o de verdad). \code{\_explica_error_proveedor()}: traduce errores crudos de API (saldo agotado, clave inv\'alida, 429, 529 sobrecargado) a mensajes en espa\~nol.
+
+\subsection{Instanciaci\'on del \code{Nucleo} (punto clave)}
+\begin{lstlisting}
+@st.cache_resource(show_spinner="Iniciando Nucleo Logico Evolutivo...")
+def _init_nucleo():
+    cfg = NucleoConfig.from_yaml("nucleo_config.yaml") si existe
+    n = Nucleo(cfg)
+    # corre n.initialize() en hilo daemon con loop propio
+    # (evita chocar con el loop de asyncio de Streamlit)
+    t.join(timeout=20)
+    return n, ""
+\end{lstlisting}
+\code{@st.cache_resource} garantiza \textbf{una sola instancia de \code{Nucleo} por proceso}, compartida por todas las p\'aginas (que la reobtienen buscando \code{\_get_nucleo} en \code{sys.modules}). \code{\_arranca_warmup_lean()}: precalienta Mathlib \textbf{al abrir la app} (no al primer mensaje), en hilo daemon, con centinela \code{.lean\_warm}.
+
+\subsection{Flujo de chat: entrada del usuario $\to$ \code{Nucleo} $\to$ render}
+\begin{lstlisting}
+prompt = st.chat_input(...)
+nucleo = _get_nucleo()
+if consulta_matematica y warmup en curso:
+    hilo_warm.join(timeout=1140)
+nucleo.reconfigure_llm(proveedor, modelo, api_key, max_tokens)
+nucleo.sync_conversation(historial)
+nr = nucleo.process_sync(prompt)          # LLAMADA PRINCIPAL
+vd = nucleo.get_viz_data(prompt)          # datos para Visualizaciones
+# render de nr.content, confianza, metadata
+# botones +1.0 / -0.5 -> nucleo.apply_feedback()
+\end{lstlisting}
+
+\subsection{M\'etodos de \code{Nucleo} usados por la UI (superficie p\'ublica real)}
+\code{Nucleo(config)}, \code{initialize()}, \code{\_is_mathematical()}, \code{reconfigure_llm()}, \code{sync_conversation()}, \code{process_sync()}, \code{get_viz_data()}, \code{apply_feedback()}, \code{\_lean} (acceso directo, p\'agina Consultores), \code{consultores_active}/\code{set_consultores_mode()}/\code{disable_consultores_mode()}/\code{\_consultores.process()}, \code{stats}.
+
+\subsection{Navegaci\'on multip\'agina}
+\code{st.navigation} registra \code{page\_home} (chat, por defecto) + 4 p\'aginas: \code{1\_Visualizaciones.py}, \code{2\_Verificador.py}, \code{3\_Instalar\_Lean.py}, \code{4\_Consultores\_Avanzados.py}.
+
+\section{P\'aginas}
+
+\begin{itemize}
+  \item \textbf{\code{1_Visualizaciones.py}} (1957 l\'ineas): grafo categ\'orico (est\'atico de respaldo con 76 habilidades codificadas a mano, o en vivo desde \code{nucleo.get_viz_data()}), proyecci\'on t-SNE/PCA de embeddings, diagrama de arquitectura, panel de complejizaci\'on MES (patr\'on$\to$colimite$\to$grafo complejizado).
+  \item \textbf{\code{2_Verificador.py}} (614 l\'ineas): carga \code{.txt}/\code{.tex}/\code{.pdf} con una demostraci\'on o conjetura; 4 modos (verificar/evaluar/solo-formalizar/detectar-errores); reutiliza la instancia cacheada de \code{Nucleo}.
+  \item \textbf{\code{3_Instalar_Lean.py}} (419 l\'ineas): gu\'ia de instalaci\'on de Lean~4 por SO, sin dependencia de \code{Nucleo}; bot\'on de comprobaci\'on real (\code{lean --version}, \code{lake --version}, prueba \code{norm_num}).
+  \item \textbf{\code{4_Consultores_Avanzados.py}} (569 l\'ineas): ver Cap\'itulo~\ref{ch:consultores}.
+\end{itemize}
+
+% =====================================================================
+\chapter{Infraestructura y despliegue}
+% =====================================================================
+
+\section{\code{Dockerfile}}
+
+Imagen autocontenida (\code{python:3.11-slim} + \code{elan}/Lean~4 stable + Mathlib precompilado v\'ia \code{lake exe cache get} + Streamlit), capas ordenadas para maximizar cach\'e de Docker (cabecera de dependencias Lean copiada antes que el c\'odigo de la app). \code{HEALTHCHECK} sobre \code{/\_stcore/health}, puerto 8501.
+
+\section{\code{deploy/}}
+
+\code{README_DEPLOY.md} compara plataformas: Vultr Guadalajara ($\sim$\$24/mes, recomendado para LATAM), DigitalOcean S\~ao Paulo, Hetzner, HuggingFace Spaces (sin Lean), RunPod (GPU); marca expl\'icitamente \textbf{Streamlit Cloud como no viable} (1\,GB RAM insuficiente). \code{setup_vps.sh}: instalaci\'on Ubuntu completa con servicio \code{systemd} + reverse-proxy Nginx.
+
+\section{Arranque local en Windows (autoarranque)}
+
+Cadena: acceso directo $\to$ \code{Metamatematico.vbs} (lanza sin consola visible) $\to$ \code{Metamatematico.ps1} $\to$ \code{env_local.ps1} (redirige todos los cach\'es/temporales a disco \code{E:}\ por espacio en \code{C:}) $\to$ Streamlit en \code{localhost:8501}. Variante \code{launch_local.ps1} para el Programador de Tareas, mata cualquier instancia previa y relanza sin abrir navegador.
+
+\section{\code{nucleo_config.yaml}}
+
+Configuraci\'on YAML de producci\'on que sobreescribe los valores por defecto de \code{config.py}: \code{lean.timeout_ms=360000}, \code{llm.model="claude-sonnet-5"}, \code{graph.gnn_hidden_dim=256}.
+
+% =====================================================================
+\chapter{Scripts de entrenamiento y pipeline de datos}
+% =====================================================================
+
+\section{Pipeline de datos}
+
+\code{prepare_training_data.py} $\to$ \code{balance_datasets.py} $\to$ \code{split_by_category.py}: cadena de scripts que descargan/clasifican/balancean problemas de MATH, GSM8K, NuminaMath, ProofNet y $\sim$14 datasets adicionales por categor\'ia matem\'atica (con extractores dedicados por dataset y manejo expl\'icito de datasets ausentes v\'ia \code{[SKIP]}), produciendo splits 80/10/10 en \code{training/by_category/}.
+
+\code{seed_from_datasets.py}: conecta datasets descargados a la memoria de producci\'on --- convierte 316 teoremas de ProofNet en \code{ExperienceRecord}s (\'exito=1.0), parsea 157 teoremas de miniF2F como banco few-shot categorizado (\code{data/lean\_examples.json}, el mismo que usa \code{\_build_few_shot_context} en \code{core.py}).
+
+\section{Entrenamiento}
+
+\code{train_gnn_ppo.py}: Fase~1 preentrenamiento supervisado (enrutamiento hacia ASSIST); Fase~2 opcional PPO con recompensa Lean real (\code{\_lean_reward}, \S\ref{ch:rl}). Guarda en \code{data/neural_agent.json.pt} (consumido en producci\'on por \code{NucleoAgent.load}) y checkpoints en \code{E:/chechkpointsmetamatematico/}.
+
+\code{train_multiagent.py}: entrena los 14 agentes especializados (3 fases, \S\ref{ch:multiagent}) --- productor de pesos para un subsistema actualmente inerte en la app desplegada.
+
+\section{Evaluaci\'on y herramientas}
+
+\code{evaluate_benchmark.py}: eval\'ua el NLE completo (no solo el LLM) contra MATH/GSM8K, registrando tanto accuracy como se\~nales internas independientes del LLM (cobertura del grafo, fuente de decisi\'on CR, verificaci\'on Lean, aciertos de memoria MES). \code{genera_mapa_sistema.py} / \code{generate_hierarchy_pdf.py} / \code{generate_pdf.py}: generan PDFs de documentaci\'on honesta del propio sistema (con \code{fpdf}/\code{matplotlib}), incluyendo expl\'icitamente el estado ACTIVO/PARCIAL/INERTE por componente. \code{local_agent.py}: agente que el usuario ejecuta en su propia m\'aquina para ampliar la capacidad de verificaci\'on Lean de una instancia web remota (modo \code{--server} con polling HTTP, infraestructura preparada pero endpoints servidor a\'un no implementados).
+
+% =====================================================================
+\chapter{Flujo end-to-end de una consulta matem\'atica}
+% =====================================================================
+
+A modo de s\'intesis, se traza una consulta t\'ipica (``demuestra que $\sqrt{2}$ es irracional'') a trav\'es de todo el sistema:
+
+\begin{enumerate}
+  \item \textbf{UI} (\code{app.py}): el usuario escribe en el chat; se llama \code{nucleo.process_sync(prompt)}.
+  \item \textbf{Orquestador} (\code{core.py::process}): actualiza estado, invoca \code{CoRegulatorNetwork.decide()}.
+  \item \textbf{MES} (\code{co_regulators.py}): \code{TacticalCoRegulator.classify_query} detecta palabras clave matem\'aticas $\to$ \code{RESPONSE} (que luego se enruta internamente a Lean por ser matem\'atico) o \code{ASSIST} directo; \code{IntegrityCoRegulator.resolve_conflicts} confirma la decisi\'on.
+  \item \textbf{Multi-agente (ligero)} (\code{specialized_agent.py}): \code{classify_query} $\to$ \code{"number-theory"}; \code{domain_default_tactic} $\to$ p.ej.\ \code{norm\_num}.
+  \item \textbf{LLM} (\code{llm/client.py}): formaliza el enunciado en Lean~4, anclado a referencias Mathlib verificadas, con contexto few-shot de miniF2F.
+  \item \textbf{Lean} (\code{lean/client.py}): \code{check_code()} ejecuta \code{lake env lean --json} (o cae a \code{lean\_api} remoto); si hay \code{sorry}, \code{SolverCascade}/\code{SorryFiller} intentan cerrarlo con la cascada de 9 t\'acticas, reordenada por \code{GoalAnalyzer}/\code{GNNTacticRanker}.
+  \item \textbf{LLM} (de nuevo): traduce el Lean verificado a explicaci\'on en lenguaje natural, fiel al c\'odigo real.
+  \item \textbf{MES}: se registra un \code{ExperienceRecord}, se intenta formar un E-concepto, se aprende un procedimiento si \'exito$>0.3$.
+  \item \textbf{RL} (\code{rl/agent.py}): se construye una \code{Transition} y se aplica una actualizaci\'on PPO en vivo (aprendizaje continuo, opcionalmente autoguardado).
+  \item \textbf{Evoluci\'on} (\code{graph/evolution.py}): si alg\'un CR propuso una uni\'on/reorganizaci\'on estructural, se aplica \emph{despu\'es} de resolver la consulta actual.
+  \item \textbf{UI}: se renderiza la respuesta con insignia de verificaci\'on, y se guardan datos de visualizaci\'on (\code{get_viz_data}) para la p\'agina de grafo/embeddings.
+\end{enumerate}
+
+% =====================================================================
+\chapter{Estado real del sistema: honestidad y limitaciones conocidas}
+\label{sec:gaps}
+% =====================================================================
+
+Esta secci\'on re\'une, de forma centralizada, todas las brechas entre la aspiraci\'on documentada en docstrings/papers y el comportamiento verificado del c\'odigo, tal como qued\'o expuesto en cada cap\'itulo:
+
+\begin{itemize}
+  \item \textbf{Colapso del agente neuronal (\code{rl/}, \code{mes/co_regulators.py})}: los pesos entrenados de \code{NucleoAgent} colapsaron a devolver siempre la acci\'on \code{ASSIST}, independientemente de la entrada. \code{TacticalCoRegulator} detecta esto en tiempo de ejecuci\'on (sondeo con 4 consultas heterog\'eneas) y cae autom\'aticamente a la heur\'istica de palabras clave --- el sistema es robusto a este fallo, pero en la pr\'actica el enrutamiento neuronal no gobierna las decisiones.
+  \item \textbf{Multi-agente completamente dormido}: \code{Nucleo.set_multi_agent_orchestrator()} y \code{MultiAgentOrchestrator(...)} nunca se invocan fuera de sus propios m\'odulos/tests. Solo las funciones ligeras \code{classify_query}/\code{domain_default_tactic} est\'an siempre activas.
+  \item \textbf{Pilares formales desconectados}: las 4 clases \code{Pillar} (ZFC/Cat/L\'ogica/Tipos) con sus \code{PillarSkill} son ejercitadas solo por \code{cli.py init} y tests; el grafo real en producci\'on usa \code{math\_domains.py} + 10 habilidades hardcodeadas en \code{core.py}.
+  \item \textbf{Dos cat\'alogos de t\'acticas Lean paralelos} (\code{tactics.py} de 18 t\'acticas, \code{tactics_db.py} de 26) --- solo el segundo alimenta \code{SorryFiller} en la pr\'actica.
+  \item \textbf{Tabla \code{CATEGORY\_DEFAULT\_TACTICS} duplicada} de forma independiente en \code{multi_agent/colimit_agents.py} y \code{pillars/math_domains.py} (documentado como tal en un comentario del segundo).
+  \item \textbf{Import roto en \code{multi_agent/mes_bridge.py}}: referencia a \code{nucleo.graph.skills} (m\'odulo inexistente), silenciada por un \code{try/except} amplio; el paso de ``a\~nadir habilidad emergente al grafo'' es c\'odigo muerto.
+  \item \textbf{2 \code{sorry} pendientes} en \code{ComplexityOrder.lean} (bien-fundaci\'on/terminaci\'on del orden de complejidad) --- el \'unico archivo \code{.lean} no completamente probado en todo el \'arbol \code{MetamathProver/}.
+  \item \textbf{\code{verify_axioms()} de \code{category_theory.py}} (pilar formal, no el grafo real) tiene sus chequeos de asociatividad/identidad como stubs \code{TODO} que siempre devuelven \code{True}.
+  \item \textbf{Streaming LLM no implementado}: el par\'ametro \code{stream} existe en la firma de \code{generate()} pero nunca se usa.
+  \item \textbf{\code{encode_goal} no es sem\'anticamente significativo}: es un pseudo-embedding determinista basado en \code{hash()}, no aprendido ni relacionado con similitud sem\'antica real.
+  \item \textbf{Asimetr\'ia de ida-y-vuelta en \code{NucleoConfig.to_dict()}}: omite \code{fracture_check_interval}, \code{max_repair_attempts} y \code{live_learning_autosave}.
+  \item \textbf{Fusion por concatenaci\'on, no atenci\'on multi-cabeza}: el diagrama de arquitectura documentado en \code{rl/\_\_init\_\_.py} sugiere ``Multi-Head Attention'' pero \code{ActorCriticNetwork.fusion} es una simple concatenaci\'on + MLP.
+  \item \textbf{Streamlit Cloud expl\'icitamente no viable} para despliegue (1\,GB RAM insuficiente para Lean+Mathlib) seg\'un la propia documentaci\'on de despliegue; el camino remoto de verificaci\'on (\code{lean_api} en Railway) existe precisamente para cubrir ese caso.
+\end{itemize}
+
+Estas limitaciones no son errores ocultos: la mayor\'ia est\'an documentadas expl\'icitamente en comentarios o docstrings del propio c\'odigo (``TODO'', notas de dise\~no, mensajes de log de advertencia), lo que refleja una cultura de desarrollo que prioriza honestidad sobre la aspiraci\'on del paper --- consistente con la nota de memoria del proyecto: \emph{``Claim honesto: soy colimite de $P$ en la subcategor\'ia delgada finita $G_n$''}, nunca una afirmaci\'on m\'as fuerte de la que el c\'odigo pueda respaldar.
+
+% =====================================================================
+\chapter{Conclusi\'on}
+% =====================================================================
+
+NLE v7.0 es un sistema de mayor alcance que lo que sugiere su interfaz de chat: bajo una \'unica clase orquestadora (\code{Nucleo}) coexisten un grafo categ\'orico con evoluci\'on temporal formalizada, una red de cuatro co-reguladores que sustituye a un agente de RL monol\'itico, un agente GNN+PPO que sigue aprendiendo en vivo pese a haber colapsado en producci\'on, una integraci\'on con Lean~4/Mathlib tratada como \'unica fuente de verdad matem\'atica (con fallback local/remoto y una cascada de nueve t\'acticas automatizadas), cuatro pilares fundacionales formales, un cat\'alogo de 162 habilidades de dominio, un m\'odulo de generaci\'on de m\'ultiples candidatos verificables para uso experto, y una jerarqu\'ia multi-agente de 14 especialistas que existe, funciona y est\'a probada, pero permanece sin activar en el camino de producci\'on. El propio n\'ucleo formal en Lean (\code{MetamathProver/}) certifica, con solo dos \code{sorry} pendientes en todo el \'arbol, las propiedades categ\'oricas que el c\'odigo Python asume en tiempo de ejecuci\'on --- un raro caso en que la implementaci\'on y su especificaci\'on formal conviven en el mismo repositorio y se verifican mutuamente.
+
+\end{document}

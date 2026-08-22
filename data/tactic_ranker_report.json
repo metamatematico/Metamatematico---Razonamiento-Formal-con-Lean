@@ -1,0 +1,30 @@
+{
+  "n_train": 7590,
+  "n_test": 1898,
+  "accuracy": 0.5975,
+  "baseline_mayoritaria": 0.3181,
+  "mejora": 0.2794,
+  "top3_accuracy": 0.8815,
+  "distribucion": {
+    "nlinarith": 3018,
+    "simp": 2340,
+    "field_simp": 1306,
+    "norm_num": 1142,
+    "linarith": 659,
+    "ring_nf": 447,
+    "ring": 330,
+    "omega": 173,
+    "aesop": 73
+  },
+  "vocabulario": [
+    "aesop",
+    "field_simp",
+    "linarith",
+    "nlinarith",
+    "norm_num",
+    "omega",
+    "ring",
+    "ring_nf",
+    "simp"
+  ]
+}

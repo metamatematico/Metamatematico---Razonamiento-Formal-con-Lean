@@ -1,0 +1,102 @@
+Reporte de desconexión y reconexión del sistema Metamatematico
+================================================================
+
+Fecha: 2026-08-21
+Ruta base del proyecto: E:\Metamatematico
+
+Resumen ejecutivo
+-----------------
+El sistema estaba parcialmente desconectado en el entorno real de trabajo. La causa principal no era un fallo del acceso directo del escritorio, sino una serie de dependencias y componentes del proyecto que no estaban instalados o no estaban activos en la instalación de Python que usa el launcher. Una vez conectados esos elementos, el sistema quedó operativo y validado en local.
+
+1) Qué estaba desconectado antes de la corrección
+---------------------------------------------------
+1.1 Dependencias Python faltantes
+- El proyecto usa varias librerías requeridas por `requirements.txt`, pero el entorno activo no las tenía completamente instaladas.
+- Error concreto detectado durante la validación: `ModuleNotFoundError: No module named 'rich'`.
+- Esto impedía la importación correcta del módulo `nucleo.cli` y bloqueaba la ejecución de pruebas y del sistema desde la línea de comandos.
+
+1.2 Plugin de pytest faltante
+- La configuración del repositorio en `pyproject.toml` incluye opciones de cobertura (`--cov=nucleo --cov-report=term-missing`).
+- El plugin `pytest-cov` no estaba disponible inicialmente en el entorno, por lo que `pytest` no podía arrancar con la configuración del proyecto.
+
+1.3 Dependencias de ML/GNN faltantes
+- La arquitectura del sistema incluye `torch` y `torch-geometric` para la parte de GNN/PPO.
+- Aunque se presumía que el entorno tenía Python con estas librerías, la validación mostró que la parte de RL/graph no estaba completamente conectada.
+- Esto produjo fallos funcionales al ejecutar pruebas de PPO y redes neuronales del sistema.
+
+1.4 Entorno de ejecución del acceso directo
+- El atajo de escritorio sí apuntaba correctamente a la aplicación, pero el launcher dependía de un entorno de Python concreto:
+  C:\Users\Leonardo\anaconda3\envs\ai_cuda\python.exe
+- Ese entorno tuvo que verificarse y completarse para que la app de Streamlit pudiera arrancar sin errores.
+
+2) Qué se hizo para reconectarlo
+---------------------------------
+2.1 Se verificó la ruta real del proyecto
+- Proyecto confirmado en:
+  E:\Metamatematico
+
+2.2 Se revisó el acceso directo del escritorio
+- Archivo detectado:
+  C:\Users\Leonardo\OneDrive\Desktop\Metamatemático.lnk
+- Se confirmó que abre una instancia de `wscript.exe` y ejecuta:
+  E:\Metamatematico\Metamatematico.vbs
+
+2.3 Se inspeccionó el lanzador VBS y PowerShell
+- `Metamatematico.vbs` ejecuta PowerShell oculto.
+- `Metamatematico.ps1` establece:
+  - Python: C:\Users\Leonardo\anaconda3\envs\ai_cuda\python.exe
+  - Directorio base: E:\Metamatematico
+  - Puerto: 8501
+  - URL de arranque: http://localhost:8501
+- Si la app no está levantada, lanza Streamlit con:
+  python -m streamlit run app.py --server.port=8501 --server.address=localhost --server.headless=true
+
+2.4 Se instalaron los elementos faltantes
+- Se instalaron dependencias del proyecto desde `requirements.txt`.
+- Se agregó `pytest-asyncio` para adaptarse al entorno de pruebas.
+- Se agregó `pytest-cov` para cumplir la configuración del proyecto.
+- Se instalaron `torch` y `torch-geometric` para completar la parte de GNN/PPO.
+
+3) Verificación de la reconexión
+---------------------------------
+3.1 Comprobación del Python del launcher
+- Se verificó que el intérprete existe:
+  C:\Users\Leonardo\anaconda3\envs\ai_cuda\python.exe
+- Además, se comprobó que `streamlit` quedó instalado en ese entorno:
+  Streamlit version: 1.54.0
+
+3.2 Arranque real del acceso directo
+- Se ejecutó el launcher del acceso directo (`Metamatematico.vbs`).
+- Se comprobó que el puerto 8501 quedó en escucha.
+- Se validó la conexión local en:
+  ::1:8501
+  127.0.0.1:8501
+
+3.3 Prueba HTTP del servicio
+- Se pidió la página de localhost:8501 con una consulta HTTP.
+- Resultado: HTTP 200 OK.
+- Esto confirma que la aplicación Streamlit está respondiendo correctamente.
+
+4) Validación del proyecto con tests
+-----------------------------------
+- Se ejecutó la suite de pruebas completa con pytest.
+- Resultado verificado: 428 pruebas ejecutadas y todas pasadas.
+
+5) Estado final
+----------------
+El sistema quedó conectado de forma completa y funcional:
+- acceso directo del escritorio operativo
+- entorno Python correcto
+- dependencias de proyecto instaladas
+- app Streamlit levantada en localhost:8501
+- proyecto validado con tests sin fallos
+
+6) Conclusión
+-------------
+La desconexión inicial no estaba en el atajo del escritorio, sino en la infraestructura del entorno y las dependencias del proyecto. Se conectaron esos componentes y la aplicación quedó funcionando en la ruta real del proyecto: E:\Metamatematico.
+
+7) Observaciones importantes
+----------------------------
+- El acceso directo es válido y funciona como lanzador de la aplicación.
+- La conexión real de la app ocurre a través del entorno Python `ai_cuda` y el puerto 8501.
+- El proyecto no solo está arrancable, sino que quedó completamente validado con la suite de pruebas.

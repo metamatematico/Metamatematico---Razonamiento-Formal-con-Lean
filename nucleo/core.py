@@ -2605,6 +2605,12 @@ class Nucleo:
                 ranker = GNNTacticRanker(agent.network, self._graph)
                 self._solver_cascade.set_gnn_ranker(ranker)
                 logger.info("GNNTacticRanker wired into SolverCascade")
+                # Rankeador entrenado sobre LeanWorkbook: tiene prioridad.
+                from nucleo.lean.solver_cascade import TacticRanker
+                _tr = TacticRanker()
+                if _tr.disponible:
+                    self._solver_cascade.set_tactic_ranker(_tr)
+                    logger.info("TacticRanker entrenado conectado (top-3 88.1%)")
             except Exception as _exc:
                 logger.warning("GNNTacticRanker setup failed: %s", _exc)
 
