@@ -376,12 +376,26 @@ class LeanClient:
         re.compile(r"Function expected at\s*\n\s*([A-Za-z_][\w.']*)"),
         re.compile(r"unknown namespace\s+[`']?([A-Za-z_][\w.']*)[`']?", re.I),
     ]
+    #: Mathlib usa el sufijo de SUBINDICE (`div_le_div_iff₀`, `le_div_iff₀`)
+    #: para las variantes sobre grupos con cero. La clase de caracteres no lo
+    #: incluia, asi que la captura se cortaba en el subindice y
+    #: `div_le_div_iff₀` se registraba como `div_le_div_iff`.
+    #:
+    #: Efecto: find_module_for_identifier daba por HALLADO un lema que no
+    #: existe, repair_imports anadia el modulo correcto, y Lean seguia
+    #: diciendo "Unknown identifier". Un falso positivo que hacia imposible
+    #: distinguir "falta el import" de "el lema se renombro".
     _RE_DECL = re.compile(
         r"^\s*(?:@\[[^\]]*\]\s*)?"
         r"(?:private\s+|protected\s+|noncomputable\s+|nonrec\s+)*"
         r"(?:theorem|lemma|def|abbrev|structure|class|instance|opaque)\s+"
-        r"([A-Za-z_][A-Za-z0-9_'!?.]*)"
+        r"([A-Za-z_][A-Za-z0-9_'!?.\u2080-\u2089]*)"
     )
+
+    #: Sufijos con los que Mathlib renombra un lema al generalizarlo. Si el
+    #: identificador no aparece pero si `ident + sufijo`, no falta un import:
+    #: el lema se renombro, y lo que hay que hacer es sustituirlo.
+    _SUFIJOS_RENOMBRE = ("\u2080", "'", "_of_pos", "\u2081")
     _RE_NS = re.compile(r"^namespace\s+([A-Za-z_][A-Za-z0-9_'.]*)")
 
     def _mathlib_lean_files(self) -> list[Path]:
@@ -409,10 +423,17 @@ class LeanClient:
         if not ficheros or not cualificados:
             return {}
 
-        # base -> lista de identificadores cualificados que la piden
+        # base -> lista de identificadores cualificados que la piden.
+        # Se buscan tambien las variantes renombradas (`ident₀`): si el lema
+        # original ya no existe, es lo que hay que proponer en su lugar.
         por_base: dict[str, list[str]] = {}
+        variante_de: dict[str, str] = {}
         for q in cualificados:
-            por_base.setdefault(q.split(".")[-1], []).append(q)
+            base = q.split(".")[-1]
+            por_base.setdefault(base, []).append(q)
+            for suf in self._SUFIJOS_RENOMBRE:
+                por_base.setdefault(base + suf, [])
+                variante_de[base + suf] = base
 
         # base -> [(namespace, modulo)]
         hallados: dict[str, list[tuple[str, str]]] = {b: [] for b in por_base}
@@ -483,6 +504,15 @@ class LeanClient:
                         )
                     )
                 resultado[q] = ",".join(mods[:3])
+
+        # Renombres detectados: el identificador pedido no aparece en ninguna
+        # parte pero si una variante suya. Se anota para que repair_imports
+        # pueda SUSTITUIR en vez de limitarse a importar un modulo que no va a
+        # resolver nada.
+        self._renombres_detectados = {}
+        for var, base in variante_de.items():
+            if hallados.get(var) and not hallados.get(base):
+                self._renombres_detectados[base] = var
         return resultado
 
     def find_module_for_identifier(self, qualified: str) -> Optional[str]:
@@ -541,8 +571,22 @@ class LeanClient:
                     nuevos.append(linea)
                     logger.info(f"Lean: reparando '{ident}' con '{linea}'")
 
+        # Sustituir los lemas renombrados. Importar su modulo no sirve de nada
+        # si el nombre pedido ya no existe: hay que cambiarlo.
+        renombres = getattr(self, "_renombres_detectados", {}) or {}
+        code_out = code
+        aplicados = []
+        for viejo_id, nuevo_id in renombres.items():
+            patron = re.compile(rf"(?<![A-Za-z0-9_.]){re.escape(viejo_id)}(?![A-Za-z0-9_'\u2080-\u2089])")
+            if patron.search(code_out):
+                code_out = patron.sub(nuevo_id, code_out)
+                aplicados.append(f"{viejo_id} -> {nuevo_id}")
+        if aplicados:
+            logger.info("Lean: lemas renombrados: %s", ", ".join(aplicados))
+            code = code_out
+
         if not nuevos:
-            return None
+            return code if aplicados else None
 
         lineas = code.splitlines()
         insert_at = 0

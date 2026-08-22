@@ -188,6 +188,12 @@ async def confirmar_con_lean(cliente, pruebas, sospechosos, n: int) -> dict:
                 if r2.status in (LeanResultStatus.SUCCESS, LeanResultStatus.SORRY):
                     reparada = True
                     r = r2
+                else:
+                    # Aunque no la rescate, la reparacion suele CAMBIAR el
+                    # error. Reportar el original ocultaba el avance: pasar de
+                    # "Unknown identifier" a "tactic failed" significa que el
+                    # lema ya resuelve y lo que falta es adaptar la prueba.
+                    r = r2
 
         etiqueta = r.status.name + ("  (rescatada por repair_imports)" if reparada else "")
         print(f"   [{k:2d}/{len(idx)}] {marca:11s} idx={i:<6d} {etiqueta}")

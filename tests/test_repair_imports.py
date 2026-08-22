@@ -66,3 +66,36 @@ class TestClasificacionDeErrores:
         from nucleo.core import Nucleo
         for err in ("type mismatch", "tactic failed", "unsolved goals"):
             assert not any(m in err.lower() for m in Nucleo._ERRORES_MECANICOS)
+
+
+class TestSubindicesDeMathlib:
+    """
+    Mathlib renombra al generalizar: `div_le_div_iff` -> `div_le_div_iff₀`.
+
+    La clase de caracteres de _RE_DECL no incluia los subindices, asi que la
+    captura se cortaba y `div_le_div_iff₀` se registraba como
+    `div_le_div_iff`. find_module_for_identifier daba por HALLADO un lema
+    inexistente, repair_imports anadia el modulo correcto, y Lean seguia
+    diciendo "Unknown identifier": un falso positivo que impedia distinguir
+    "falta el import" de "el lema se renombro".
+    """
+
+    @pytest.mark.parametrize("linea,esperado", [
+        ("lemma div_le_div_iff₀ (hb : 0 < b) : True", "div_le_div_iff₀"),
+        ("theorem le_div_iff₀ (h : 0 < c) : True", "le_div_iff₀"),
+        ("lemma mul_inv_le_iff₀' (hc : 0 < c) : True", "mul_inv_le_iff₀'"),
+        ("theorem foo_bar : True", "foo_bar"),
+        ("protected theorem Nat.baz₁ : True", "Nat.baz₁"),
+    ])
+    def test_captura_el_nombre_completo(self, linea, esperado):
+        m = LeanClient._RE_DECL.match(linea)
+        assert m is not None, f"no reconoce la declaracion: {linea!r}"
+        assert m.group(1) == esperado, (
+            f"capturo {m.group(1)!r} en vez de {esperado!r}: el nombre se "
+            "trunca y se confunde con el lema antiguo"
+        )
+
+    def test_los_sufijos_de_renombre_estan_declarados(self):
+        assert "₀" in LeanClient._SUFIJOS_RENOMBRE, (
+            "el sufijo de subindice cero es el mas comun en Mathlib"
+        )
