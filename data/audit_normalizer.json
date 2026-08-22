@@ -1,0 +1,25 @@
+{
+  "estatico": {
+    "total": 3000,
+    "hallazgos": {
+      "import_mathlib_retirado": 3000
+    },
+    "imports_caidos": {},
+    "lemas_en_enunciado": {}
+  },
+  "lean": {
+    "probadas": 8,
+    "compilan_directo": 7,
+    "rescatadas_por_repair": 0,
+    "compilan_total": 7,
+    "rotas": 1,
+    "fallos": [
+      {
+        "idx": 1060,
+        "marca": "al azar",
+        "status": "ERROR",
+        "error": "Unknown identifier `div_le_div_iff`"
+      }
+    ]
+  }
+}

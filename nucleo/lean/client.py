@@ -183,7 +183,12 @@ class LeanClient:
         (["inner", "⟪", "InnerProductSpace"],
          "import Mathlib.Analysis.InnerProductSpace.PiL2"),
         # Análisis real / complejo
-        (["Continuous", "continuous", "IsOpen", "isClosed", "Filter"],
+        # 'Topology' entra como palabra clave por los `open ... Topology ...`:
+        # el normalizador CONSERVA las lineas `open` pero retira el
+        # `import Mathlib` que las respaldaba, asi que el namespace se queda
+        # sin modulo y Lean aborta con "unknown namespace". Medido sobre
+        # LeanWorkbookProofs: 6 de 8 roturas en la muestra eran esto.
+        (["Continuous", "continuous", "IsOpen", "isClosed", "Filter", "Topology"],
          "import Mathlib.Topology.Basic"),
         (["deriv", "HasDerivAt", "differentiable"],
          "import Mathlib.Analysis.Calculus.Deriv.Basic"),
@@ -215,6 +220,28 @@ class LeanClient:
          "import Mathlib.Data.ZMod.Basic"),
         (["gcd", "lcm", "Nat.gcd", "Nat.lcm"],
          "import Mathlib.Data.Nat.GCD.Basic"),
+        # ── Huecos encontrados auditando LeanWorkbookProofs ────────────────
+        #
+        # scripts/audit_normalizer.py pasa las 29.750 pruebas Lean 4 del
+        # dataset —que compilan— por _normalize_code y comprueba si la
+        # notacion que usan se queda sin su modulo al retirar `import Mathlib`.
+        # Resultado del barrido: 2.591 pruebas (8,7%) quedaban cojas. Estos
+        # son los siete huecos, por frecuencia. Todos los modulos verificados
+        # contra el arbol de fuentes de este Mathlib.
+        (["Finset", "∑ ", "∏ ", "Finset.sum", "Finset.prod"],
+         "import Mathlib.Algebra.BigOperators.Group.Finset.Defs"),   # 1.005 + 1.000
+        (["[ZMOD ", "Int.ModEq", "Int.emod", "Int.gcd"],
+         "import Mathlib.Data.Int.ModEq"),                            # 698
+        (["Real.sqrt", "Real.log", "Real.exp", "Real.rpow", "Real.pi"],
+         "import Mathlib.Analysis.SpecialFunctions.Log.Basic"),       # 604
+        (["Real.rpow", "^(", "rpow"],
+         "import Mathlib.Analysis.SpecialFunctions.Pow.Real"),
+        (["Nat.choose", "choose ", "binomial"],
+         "import Mathlib.Data.Nat.Choose.Basic"),                     # 236
+        (["Nat.factorial", "factorial", "!"],
+         "import Mathlib.Data.Nat.Factorial.Basic"),                  # 86
+        (["⌊", "⌉", "⌈", "Int.floor", "Int.ceil", "Nat.floor"],
+         "import Mathlib.Algebra.Order.Floor.Defs"),                  # 77
         # Factorizacion en primos: aqui viven primeFactorsList y sus lemas
         (["primeFactorsList", "factors", "factorization"],
          "import Mathlib.Data.Nat.Factors"),
@@ -337,10 +364,17 @@ class LeanClient:
     # en que aparezca. Con solo "unknown identifier" se escapaban los casos en
     # que el nombre se usa como tipo o como funcion.
     _RE_UNKNOWN = [
+        # Lean 4 encomilla los identificadores con ACENTO GRAVE:
+        #     Unknown identifier `le_div_iff`
+        # El patron solo aceptaba comillas simples, asi que no extraia nada de
+        # los mensajes reales y repair_imports no se disparaba NUNCA. Medido
+        # sobre LeanWorkbookProofs: 0 rescates en la muestra pese a que los
+        # lemas existian y su modulo era localizable.
+        re.compile(r"unknown (?:identifier|constant)\s+`([^`]+)`", re.I),
         re.compile(r"unknown (?:identifier|constant)\s+'([^']+)'", re.I),
         re.compile(r"unknown (?:identifier|constant)\s+([A-Za-z_][\w.']*)", re.I),
         re.compile(r"Function expected at\s*\n\s*([A-Za-z_][\w.']*)"),
-        re.compile(r"unknown namespace\s+'?([A-Za-z_][\w.']*)'?", re.I),
+        re.compile(r"unknown namespace\s+[`']?([A-Za-z_][\w.']*)[`']?", re.I),
     ]
     _RE_DECL = re.compile(
         r"^\s*(?:@\[[^\]]*\]\s*)?"
@@ -422,7 +456,33 @@ class LeanClient:
                     elegido = next(
                         (mod for ns, mod in candidatos if ns == ns_buscado), None
                     )
-                resultado[q] = elegido or candidatos[0][1]
+                if elegido:
+                    resultado[q] = elegido
+                    continue
+
+                # Sin namespace que desempate hay HOMONIMOS: `le_div_iff` esta
+                # declarado tanto en Algebra.Algebra.Operations (submodulos)
+                # como en Algebra.Order.GroupWithZero.Unbundled.Basic (cuerpos
+                # ordenados). Quedarse con el primero del recorrido elegia el
+                # equivocado y la reparacion fallaba pese a haber encontrado el
+                # lema: medido sobre LeanWorkbookProofs, 0 rescates.
+                #
+                # Se ordenan por afinidad con el codigo que fallo —un modulo
+                # cuyo camino comparte terminos con el enunciado es mas
+                # probable que el homonimo de otra rama— y se devuelven varios
+                # separados por coma; el llamante los importa todos.
+                mods = []
+                for _ns, mod in candidatos:
+                    if mod not in mods:
+                        mods.append(mod)
+                pistas = getattr(self, "_pistas_reparacion", set())
+                if pistas:
+                    mods.sort(
+                        key=lambda m: -sum(
+                            1 for t in pistas if t in m
+                        )
+                    )
+                resultado[q] = ",".join(mods[:3])
         return resultado
 
     def find_module_for_identifier(self, qualified: str) -> Optional[str]:
@@ -455,16 +515,31 @@ class LeanClient:
         nuevos: list[str] = []
         # cota: no perseguir 40 errores en cascada, y una sola pasada por las
         # fuentes para todos los candidatos
+        # Pistas de afinidad para desempatar homonimos: los terminos que
+        # aparecen en el codigo que fallo (Real, Nat, Order, Field...).
+        import re as _re_p
+        self._pistas_reparacion = {
+            t for t in _re_p.findall(r"[A-Z][a-zA-Z]{2,}", code)
+        } | {"Order", "Basic"}
         modulos = self.find_modules_for_identifiers(desconocidos[:8])
         for ident in desconocidos[:8]:
             modulo = modulos.get(ident)
             if not modulo:
                 logger.debug(f"Lean: sin modulo para '{ident}'")
                 continue
-            linea = f"import {modulo}"
-            if linea not in ya and linea not in nuevos:
-                nuevos.append(linea)
-                logger.info(f"Lean: reparando '{ident}' con '{linea}'")
+            # find_modules_for_identifiers puede devolver VARIOS candidatos
+            # separados por coma cuando el identificador tiene homonimos en
+            # ramas distintas de Mathlib. Se importan todos: acertar importa
+            # mas que ahorrar un modulo, y quedarse con el primero elegia el
+            # equivocado (0 rescates medidos sobre LeanWorkbookProofs).
+            for mod in str(modulo).split(","):
+                mod = mod.strip()
+                if not mod:
+                    continue
+                linea = f"import {mod}"
+                if linea not in ya and linea not in nuevos:
+                    nuevos.append(linea)
+                    logger.info(f"Lean: reparando '{ident}' con '{linea}'")
 
         if not nuevos:
             return None
