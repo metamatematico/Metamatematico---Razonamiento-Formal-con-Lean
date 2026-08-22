@@ -407,6 +407,33 @@ def build_graph():
     return G
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def _params_gnn() -> tuple[int, dict]:
+    """
+    Cuenta los parametros entrenables REALES de la red.
+
+    La cifra estaba fija en "124,420" en tres sitios de esta pagina. La red
+    actual tiene 546,820: la constante era de una version anterior, mas
+    pequena, y llevaba tiempo infravalorando el modelo en un factor de 4,4.
+    Se calcula en vivo para que no vuelva a envejecer.
+
+    Returns:
+        (total, desglose_por_submodulo). (0, {}) si torch no esta disponible.
+    """
+    try:
+        from nucleo.rl.networks import ActorCriticNetwork
+        net = ActorCriticNetwork()
+    except Exception:
+        return 0, {}
+    total = sum(q.numel() for q in net.parameters() if q.requires_grad)
+    desglose = {}
+    for nombre, mod in net.named_children():
+        n = sum(q.numel() for q in mod.parameters() if q.requires_grad)
+        if n:
+            desglose[nombre] = n
+    return total, desglose
+
+
 def _skills_viz():
     """
     Skills para las visualizaciones, con la MISMA forma que la lista SKILLS:
@@ -1593,7 +1620,7 @@ def fig_gnn():
     ax.text(4.5, 0.1, "Skip connection", ha="center", fontsize=6.5, color="#3fb950")
 
     # Stats
-    ax.text(11, 2.5, "124,420\nparámetros", ha="center", va="center",
+    ax.text(11, 2.5, f"{_params_gnn()[0]:,}\nparámetros", ha="center", va="center",
             fontsize=8, color="#fbbf24",
             bbox=dict(boxstyle="round", facecolor="#1f1107", edgecolor="#fbbf24", lw=1.5))
 
@@ -2006,7 +2033,7 @@ La **extensión del grafo** K' añade join[P] al grafo junto con los morfismos d
 
 Este proceso modela cómo el sistema *aprende*: combina skills conocidos para crear competencias emergentes (Axiomas 8.1–8.4 del paper NLE v7.0).
 
-**Verificado formalmente**: 435 tests confirman:
+**Verificado formalmente**: 450 tests confirman:
 - Propiedad universal del join (is_join)
 - Functorialidad de la extensión del grafo
 - Principio de multiplicidad
@@ -2071,28 +2098,25 @@ with tab6:
     if _n_skills6 is None:
         _n_skills6 = len(_vd6["graph_nodes"]) if _vd6 and _vd6.get("graph_nodes") else 0
     col1.metric("Skills totales", str(_n_skills6), _sub6 or None)
-    col2.metric("Parámetros GNN+PPO", "124,420", "3 capas GATConv")
-    col3.metric("Tests", "443", "20 suites")
+    _p_total, _p_desglose = _params_gnn()
+    col2.metric("Parámetros GNN+PPO",
+                f"{_p_total:,}" if _p_total else "—",
+                "3 capas GATConv")
+    col3.metric("Tests", "450", "21 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
-    st.code("""
-SkillGNN:
-  node_proj    →  feat_dim × 64             (variable)
-  GATConv 1   →  64 × 64 × 4 heads         ≈ 16,640
-  GATConv 2   →  64 × 64 × 4 heads         ≈ 16,640
-  GATConv 3   →  64 × 64 × 4 heads         ≈ 16,640
-  skip_proj   →  feat_dim × 64             (variable)
-  out_proj    →  128 × 64                  ≈  8,192
-
-ActorCriticNetwork:
-  encode_query →  embed_dim × 128           ≈  9,216
-  actor        →  128 × num_skills          ≈  9,728
-  critic       →  128 × 1                  ≈    129
-  shared_net   →  (128+128) × 128 × 2      ≈ 33,024
-
-Total trainable: ~124,420 params
-    """, language="")
+    if _p_desglose:
+        _lineas = [f"  {k:<16s} {v:>10,}" for k, v in
+                   sorted(_p_desglose.items(), key=lambda kv: -kv[1])]
+        st.code(
+            "ActorCriticNetwork — parametros entrenables (medidos)\n\n"
+            + "\n".join(_lineas)
+            + f"\n\n  {'TOTAL':<16s} {_p_total:>10,}",
+            language="",
+        )
+    else:
+        st.caption("torch no disponible: no se puede medir la red.")
 
 with tab7:
     st.markdown("**Traza de prueba interactiva** — ingresa un teorema o problema y ve qué skills, dependencias y tácticas activa el sistema.")
