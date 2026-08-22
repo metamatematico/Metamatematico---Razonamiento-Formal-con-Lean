@@ -290,33 +290,84 @@ class TacticalCoRegulator(CoRegulator):
         self._neural_agent = neural_agent
         self._relevant_skills: list[str] = []  # Skills matched by last query
 
-    def build_landscape(self, graph: SkillCategory) -> Landscape:
-        """Construir paisaje tactico: skills de nivel 0-1 y patrones relevantes."""
-        relevant = []
-        relevant_patterns: list[str] = []
+    #: Cota del paisaje. No es un corte de nivel: primero entran los skills que
+    #: la consulta activo, despues sus vecinos, y solo al final se rellena.
+    _MAX_PAISAJE = 60
 
-        for skill_id in graph.skill_ids:
-            skill = graph.get_skill(skill_id)
-            if skill and skill.level <= 1:
-                relevant.append(skill_id)
-                # Collect patterns containing this skill
-                if self._pattern_manager:
-                    for pat in self._pattern_manager.get_patterns_containing(skill_id):
-                        if pat.id not in relevant_patterns:
-                            relevant_patterns.append(pat.id)
+    def build_landscape(self, graph: SkillCategory) -> Landscape:
+        """
+        Paisaje tactico: los skills RELEVANTES a la consulta, de cualquier nivel.
+
+        Antes el criterio era `skill.level <= 1`, un corte de nivel arbitrario:
+        con 172 skills en el grafo eso dejaba fuera 129 —los 34 de L2 y los 95
+        de L3— y ademas truncaba a 50. CR_tac, que es el co-regulador que de
+        hecho decide la accion de cada consulta, era ciego a tres cuartas partes
+        del grafo, y en particular a las sub-ramas L3, que son justamente las que
+        llevan keywords ES+EN para que las consultas en español encuentren skill.
+
+        Un paisaje es "una vista PARCIAL del sistema que el co-regulador usa para
+        decidir" (Def. 2.13). Lo que la hace parcial debe ser la RELEVANCIA a la
+        consulta, no la altura en la taxonomia.
+
+        Orden de llenado:
+          1. skills que la consulta activo (classify_query -> _relevant_skills)
+          2. sus vecinos inmediatos: el contexto que hace falta para decidir
+          3. si aun no hay consulta, los fundacionales como base
+        """
+        relevant: list[str] = []
+        vistos: set[str] = set()
+
+        def _anadir(sid: str) -> None:
+            if sid not in vistos and graph.get_skill(sid) is not None:
+                vistos.add(sid)
+                relevant.append(sid)
+
+        # 1. Lo que activo la consulta — de cualquier nivel.
+        for sid in (self._relevant_skills or []):
+            _anadir(sid)
+
+        # 2. Sus vecinos: sin ellos el paisaje no tiene contexto para decidir.
+        for sid in list(relevant):
+            for nbr in graph.neighbors(sid):
+                if len(relevant) >= self._MAX_PAISAJE:
+                    break
+                _anadir(nbr)
+
+        # 3. Sin consulta todavia: los fundacionales son la base del grafo.
+        if not relevant:
+            for sid in graph.skill_ids:
+                sk = graph.get_skill(sid)
+                if sk and sk.level == 0:
+                    _anadir(sid)
+
+        relevant = relevant[: self._MAX_PAISAJE]
+
+        relevant_patterns: list[str] = []
+        if self._pattern_manager:
+            for sid in relevant:
+                for pat in self._pattern_manager.get_patterns_containing(sid):
+                    if pat.id not in relevant_patterns:
+                        relevant_patterns.append(pat.id)
+
+        # Metricas por nivel, TODOS los niveles. Contar solo 0 y 1 hacia que un
+        # paisaje lleno de sub-ramas L3 se reportara como vacio.
+        por_nivel: dict[int, int] = {}
+        for sid in relevant:
+            sk = graph.get_skill(sid)
+            if sk:
+                por_nivel[sk.level] = por_nivel.get(sk.level, 0) + 1
+
+        metrics = {f"num_skills_{k}": float(v) for k, v in sorted(por_nivel.items())}
+        metrics["num_relevantes"] = float(len(relevant))
+        metrics["cobertura"] = (
+            len(relevant) / max(len(graph.skill_ids), 1)
+        )
 
         return Landscape(
             co_regulator_type=self.cr_type,
-            relevant_skills=relevant[:50],
+            relevant_skills=relevant,
             relevant_patterns=relevant_patterns,
-            metrics={
-                "num_skills_0": sum(
-                    1 for s in relevant if graph.get_skill(s).level == 0
-                ),
-                "num_skills_1": sum(
-                    1 for s in relevant if graph.get_skill(s).level == 1
-                ),
-            }
+            metrics=metrics,
         )
 
     def select_objectives(self, landscape: Landscape) -> Option:
@@ -466,29 +517,63 @@ class TacticalCoRegulator(CoRegulator):
         self, query_lower: str, graph: SkillCategory
     ) -> list[str]:
         """
-        Match skill IDs/names against query tokens.
+        Empareja skills del grafo con la consulta.
 
-        Tokenizes query and skill identifiers, returns skills
-        with at least one overlapping token (length > 3).
+        Dos vias, en este orden:
+          1. KEYWORDS de metadata — es la unica via que funciona en español.
+             Los ids y los nombres del grafo estan en ingles
+             (`tensor-products`, "Module Theory"), asi que una consulta como
+             "producto tensorial de modulos" no casaba con nada. Las 95
+             sub-ramas L3 llevan keywords ES+EN precisamente para esto.
+          2. Solapamiento de tokens con id y nombre, para las consultas en
+             ingles y los skills sin keywords.
+
+        Antes solo existia la via 2, asi que _relevant_skills quedaba vacio en
+        practicamente toda consulta en español y el paisaje tactico caia
+        siempre al conjunto de respaldo. Es la misma logica que usa
+        Nucleo._match_skills_to_query; test_paisaje_tactico verifica que las dos
+        no se separen.
         """
-        query_tokens = set(
-            t for t in query_lower.replace("-", " ").replace("_", " ").split()
-            if len(t) > 3
-        )
-        if not query_tokens:
-            return []
+        import re as _re
 
-        matched = []
+        matched: list[str] = []
+        vistos: set[str] = set()
+
+        # 1. Keywords (ES + EN), por palabra completa.
         for skill_id in graph.skill_ids:
             skill = graph.get_skill(skill_id)
             if not skill:
                 continue
-            skill_tokens = set(
-                skill_id.lower().replace("-", " ").split()
-                + skill.name.lower().replace("-", " ").split()
-            )
-            if query_tokens & skill_tokens:
-                matched.append(skill_id)
+            for kw in (skill.metadata or {}).get("keywords", []) or []:
+                kw = (kw or "").lower().strip()
+                if len(kw) < 4:
+                    continue
+                if _re.search(rf"\b{_re.escape(kw)}\b", query_lower):
+                    if skill_id not in vistos:
+                        vistos.add(skill_id)
+                        matched.append(skill_id)
+                    break
+
+        # 2. Tokens de id y nombre.
+        query_tokens = {
+            t for t in query_lower.replace("-", " ").replace("_", " ").split()
+            if len(t) > 3
+        }
+        if query_tokens:
+            for skill_id in graph.skill_ids:
+                if skill_id in vistos:
+                    continue
+                skill = graph.get_skill(skill_id)
+                if not skill:
+                    continue
+                skill_tokens = set(
+                    skill_id.lower().replace("-", " ").split()
+                    + skill.name.lower().replace("-", " ").split()
+                )
+                if query_tokens & skill_tokens:
+                    vistos.add(skill_id)
+                    matched.append(skill_id)
+
         return matched
 
     def evaluate(self, anticipated: Landscape, actual: Landscape) -> float:

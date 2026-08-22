@@ -619,6 +619,12 @@ class Nucleo:
         # cambios benefician a las siguientes.
         self._apply_structural_evolution()
 
+        # Llenado de un hueco conceptual por interaccion. Cierra el ciclo MES:
+        # CR_org/CR_str detectan donde falta el concepto que unifica un patron,
+        # y aqui se intenta conseguirlo (LLM propone, Lean verifica). Hasta
+        # ahora llenar_hueco_conceptual existia pero no lo llamaba nadie.
+        await self._intentar_llenar_hueco()
+
         return response
 
     async def _execute_action(
@@ -1628,12 +1634,52 @@ class Nucleo:
                 "no_verificado": f"**Lean 4 ↯ — formalización pendiente de ajuste** · área: `{_area}`",
             }[verification_status]
 
-        content = (
-            f"{_translation_text}\n\n"
-            f"---\n\n"
-            f"{status_badge}\n\n"
-            f"```lean\n{lean_code}\n```"
-        )
+        # ── Compuerta: el veredicto de Lean gobierna la FORMA de la respuesta
+        #
+        # Hasta ahora las cinco ramas —verificado, parcial, no_verificado,
+        # timeout, sin_entorno— producian exactamente la misma estructura:
+        # prosa del LLM, badge, codigo. Solo cambiaba una etiqueta. Una prueba
+        # que Lean RECHAZO se entregaba con el mismo aspecto que una verificada,
+        # y el diagnostico de Lean (verification_note, con el error literal y la
+        # pista) no se mostraba en ninguna parte: se usaba para el prompt de
+        # traduccion y se tiraba.
+        #
+        # Para un sistema cuya tesis es "la verdad matematica la produce Lean",
+        # que su veredicto no cambie nada visible es una contradiccion interna.
+        # Ahora, cuando Lean no verifica, el aviso va DELANTE de la prosa y el
+        # motivo se muestra.
+        _verificado = verification_status == "verificado"
+
+        if _verificado:
+            content = (
+                f"{_translation_text}\n\n"
+                f"---\n\n"
+                f"{status_badge}\n\n"
+                f"```lean\n{lean_code}\n```"
+            )
+        else:
+            _titulo = {
+                "parcial": "⚠️ **Verificación parcial** — Lean aceptó la estructura, "
+                           "pero quedan pasos sin demostrar.",
+                "no_verificado": "❌ **Lean 4 NO verificó esta prueba.** "
+                                 "Lo que sigue es la explicación del modelo, "
+                                 "sin respaldo formal.",
+                "timeout": "⏱️ **Sin verificar** — Lean no terminó a tiempo. "
+                           "La explicación no tiene respaldo formal todavía.",
+                "sin_entorno": "☁️ **Sin verificar** — no hay Lean en este "
+                               "servidor. El código está generado pero no ejecutado.",
+            }.get(verification_status,
+                  "⚠️ **Sin verificación formal.**")
+
+            content = (
+                f"{_titulo}\n\n"
+                f"> {verification_note}\n\n"
+                f"---\n\n"
+                f"{_translation_text}\n\n"
+                f"---\n\n"
+                f"{status_badge}\n\n"
+                f"```lean\n{lean_code}\n```"
+            )
 
         self._record_lean_experience("lean-tactics", success_value)
 
@@ -1644,7 +1690,12 @@ class Nucleo:
             confidence=confidence,
             metadata={
                 "verification_status": verification_status,
+                # Booleano explicito para que la interfaz pueda distinguir sin
+                # tener que interpretar la cadena de estado.
+                "verificado": _verificado,
+                "sin_verificacion_lean": not _verificado,
                 "area": _area,
+                "rondas_revision": _rondas_revision,
             },
         )
 
@@ -1822,6 +1873,81 @@ class Nucleo:
             (h for k, h in self._LEAN_HINTS.items() if k in low),
             "revisa la sintaxis Lean 4 y los imports de Mathlib.",
         )
+
+    #: Una consulta de cada N intenta llenar un hueco. Cada intento cuesta una
+    #: llamada al LLM mas una verificacion de Lean (~20 s), asi que no puede ir
+    #: en todas: la respuesta del usuario ya se envio, pero el proceso sigue
+    #: ocupado y la siguiente consulta esperaria.
+    _CADA_CUANTAS_INTERACCIONES_LLENAR = 5
+
+    async def _intentar_llenar_hueco(self) -> None:
+        """
+        Intenta convertir UN hueco conceptual en conocimiento verificado.
+
+        Se ejecuta despues de responder, con el mismo criterio que la
+        complexificacion: la consulta actual se resuelve sobre un grafo estable
+        y los cambios benefician a las siguientes.
+
+        Elige el hueco con mas co-conos: es donde mas cotas superiores hay sin
+        una minima, o sea donde mas evidente resulta que falta el concepto.
+
+        Nunca bloquea ni propaga: si el LLM no lo reconoce, si Lean lo rechaza o
+        si el nodo no resulta ser el colimite, el hueco simplemente sigue
+        abierto. Eso es un resultado honesto, no un error.
+        """
+        if not self._concept_gaps:
+            return
+        self._interacciones_desde_llenado = getattr(
+            self, "_interacciones_desde_llenado", 0
+        ) + 1
+        if self._interacciones_desde_llenado < self._CADA_CUANTAS_INTERACCIONES_LLENAR:
+            return
+        self._interacciones_desde_llenado = 0
+
+        # Sin LLM no hay concepto que proponer; no gastar el turno.
+        if self._llm is None or self._llm.is_demo:
+            return
+
+        intentados = getattr(self, "_huecos_intentados", None)
+        if intentados is None:
+            intentados = self._huecos_intentados = set()
+
+        pendientes = [
+            g for g in self._concept_gaps
+            if frozenset(g.component_ids) not in intentados
+        ]
+        if not pendientes:
+            return
+
+        gap = max(pendientes, key=lambda g: g.n_cocones)
+        intentados.add(frozenset(gap.component_ids))
+
+        try:
+            res = await self.llenar_hueco_conceptual(gap)
+        except Exception as e:
+            logger.debug(f"_intentar_llenar_hueco: {type(e).__name__}: {e}")
+            return
+
+        if res.get("ok"):
+            # El grafo cambio: el hueco dejo de serlo y puede haber colimites
+            # nuevos. Se recalcula el orden de complejidad y se reparte.
+            self._concept_gaps = [
+                g for g in self._concept_gaps
+                if frozenset(g.component_ids) != frozenset(gap.component_ids)
+            ]
+            try:
+                from nucleo.graph.complexity import compute_complexity_order
+                cn = compute_complexity_order(self._graph, self._colimit_builder)
+                self._graph.apply_complexity_order(cn)
+                self._cr_network.set_concept_gaps(self._concept_gaps)
+            except Exception as e:
+                logger.debug(f"recalculo de cn tras llenar hueco: {e}")
+            logger.info(
+                f"Hueco cerrado: {res['skill_id']} ('{res['nombre']}'), "
+                f"quedan {len(self._concept_gaps)}"
+            )
+        else:
+            logger.info(f"Hueco no cerrado: {res.get('motivo', '')}")
 
     def _log_motivo_demo(self, compuerta: str) -> None:
         """
