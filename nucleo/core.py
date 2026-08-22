@@ -1365,7 +1365,7 @@ class Nucleo:
                 f"Enunciado: {input_text}\n\n"
                 + extra_ref
                 + (
-                    f"Ejemplos de referencia (Lean 3 — adapta la sintaxis a Lean 4):\n"
+                    f"Ejemplos de referencia en Lean 4 (LeanWorkbook, pruebas reales):\n"
                     f"{few_shot_block}\n\n"
                     if few_shot_block else ""
                 )
@@ -1708,6 +1708,8 @@ class Nucleo:
         Usa el banco lean_examples.json (cargado en initialize).
         Selecciona por categoria y keyword overlap.
         """
+        import re
+
         if not self._lean_examples:
             return ""
 
@@ -1722,33 +1724,80 @@ class Nucleo:
             "analysis":       {"limite", "continua", "integral", "limit", "continuous"},
             "combinatorics":  {"combinatoria", "permutacion", "combination", "counting"},
         }
+        # Subcadena, no token exacto: con `tokens & keywords` la consulta
+        # "numeros primos" no casaba con la clave "primo" (plural) y caia a la
+        # categoria generica, sirviendo ejemplos de otra rama.
         best_cat = "general"
         best_score = 0
         for cat, keywords in cat_map.items():
-            score = len(tokens & keywords)
+            score = sum(1 for k in keywords if k in query_lower)
             if score > best_score:
                 best_score = score
                 best_cat = cat
 
-        # Tomar ejemplos de la categoria inferida, o de competition_math como fallback
+        # Tomar ejemplos de la categoria inferida, o de competition_math como
+        # fallback.
         candidates = (
             self._lean_examples.get(best_cat, [])
             or self._lean_examples.get("competition_math", [])
             or next(iter(self._lean_examples.values()), [])
         )
+        if not candidates:
+            return ""
 
-        # Seleccionar los 2 primeros (ya estan filtrados por has_proof=True)
-        selected = candidates[:2]
+        # Ordenar por afinidad. Antes se servian SIEMPRE los dos primeros de la
+        # categoria, asi que la misma pareja acompanaba a cualquier consulta.
+        #
+        # La afinidad se mide sobre el ENUNCIADO FORMAL, no sobre el texto en
+        # lenguaje natural: el banco esta en ingles y las consultas suelen venir
+        # en español, asi que el solapamiento de palabras daba casi siempre cero
+        # y el desempate quedaba al azar. Los simbolos matematicos, en cambio,
+        # son los mismos en los dos idiomas.
+        _SIMBOLOS = ("≤", "<", "≥", ">", "=", "^", "√", "∑", "∏", "∫",
+                     "∀", "∃", "≡", "∣", "%")
+        _q = query_lower
+        _q_simbolos = {t for t in _SIMBOLOS if t in _q}
+        _q_palabras = {
+            t for t in re.findall(r"[a-záéíóúñ]{4,}", _q)
+        }
+
+        def _afinidad(ex: dict) -> int:
+            formal = (ex.get("statement") or "")
+            nl = (ex.get("nl") or "").lower()
+            # Simbolos compartidos: senal fuerte y agnostica del idioma.
+            p = 2 * sum(1 for t in _q_simbolos if t in formal)
+            # Palabras largas del enunciado natural: ayuda cuando la consulta
+            # viene en ingles.
+            p += sum(1 for t in _q_palabras if t in nl)
+            return p
+
+        selected = sorted(candidates, key=_afinidad, reverse=True)[:2]
         if not selected:
             return ""
 
+        # Renderizado en LEAN 4.
+        #
+        # Antes se envolvian las tacticas en `begin ... end`, que es Lean 3: el
+        # propio renderizador inyectaba sintaxis obsoleta aunque el banco fuera
+        # correcto. El banco tambien lo era —venia de miniF2F en Lean 3— y el
+        # prompt terminaba pidiendo al modelo que tradujera de dialecto mientras
+        # formalizaba. Ahora ambos son Lean 4 (scripts/seed_lean4_examples.py).
         lines = []
         for ex in selected:
-            tac_str = "\n  ".join(ex.get("tactics", [])[:3])
-            lines.append(
-                f"-- Ejemplo: {ex['name']} ({best_cat})\n"
-                f"{ex['statement']}\nbegin\n  {tac_str}\nend"
-            )
+            enunciado = (ex.get("statement") or "").strip()
+            tacs = [t for t in (ex.get("tactics") or []) if t][:3]
+            # El enunciado del banco termina en `:= by sorry`; se sustituye el
+            # sorry por las tacticas reales.
+            cuerpo = "\n  ".join(tacs) if tacs else "sorry"
+            if enunciado.endswith("sorry"):
+                enunciado = enunciado[: -len("sorry")].rstrip()
+                bloque = f"{enunciado}\n  {cuerpo}"
+            else:
+                bloque = f"{enunciado} := by\n  {cuerpo}"
+            # Cabecera SIN LaTeX: el enunciado natural del banco viene lleno de
+            # `\left\{`, `\begin{aligned}`... que en un comentario `--` es ruido
+            # puro y ademas ensucia el prompt con sintaxis que no es Lean.
+            lines.append(f"-- {ex.get('name', 'ejemplo')}\n{bloque}")
 
         return "\n\n".join(lines)
 

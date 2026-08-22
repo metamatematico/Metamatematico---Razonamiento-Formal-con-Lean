@@ -1,1358 +1,1944 @@
 {
-  "algebra": [
-    {
-      "name": "mathd_algebra_478",
-      "statement": "theorem mathd_algebra_478\n  (b h v : ℝ)\n  (h₀ : 0 < b ∧ 0 < h ∧ 0 < v)\n  (h₁ : v = 1 / 3 * (b * h))\n  (h₂ : b = 30)\n  (h₃ : h = 13 / 2) :\n  v = 65 :=",
-      "tactics": [
-        "rw [h₂, h₃] at h₁,",
-        "rw h₁,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_141",
-      "statement": "theorem mathd_algebra_141\n  (a b : ℝ)\n  (h₁ : (a * b)=180)\n  (h₂ : 2 * (a + b)=54) :\n  (a^2 + b^2) = 369 :=",
-      "tactics": [
-        "replace h₂ : (a + b) = 27 , linarith,",
-        "have h₃ : a^2 + b^2 = (a + b)^2 - 2 * (a * b), by ring,",
-        "rw [h₃, h₂, h₁],",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_209",
-      "statement": "theorem mathd_algebra_209\n  (σ : equiv ℝ ℝ)\n  (h₀ : σ.2 2 = 10)\n  (h₁ : σ.2 10 = 1)\n  (h₂ : σ.2 1 = 2) :\n  σ.1 (σ.1 10) = 1 :=",
-      "tactics": [
-        "rw [← h₀, ← h₂],",
-        "simp,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_33",
-      "statement": "theorem mathd_algebra_33\n  (x y z : ℝ)\n  (h₀ : x ≠ 0)\n  (h₁ : 2 * x = 5 * y)\n  (h₂ : 7 * y = 10 * z) :\n  z / x = 7 / 25 :=",
-      "tactics": [
-        "field_simp,",
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_419",
-      "statement": "theorem mathd_algebra_419\n  (a b : ℝ)\n  (h₀ : a = -1)\n  (h₁ : b = 5) :\n  -a - b^2 + 3 * (a * b) = -39 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_398",
-      "statement": "theorem mathd_algebra_398\n  (a b c : ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : 9 * b = 20 * c)\n  (h₂ : 7 * a = 4 * b) :\n  63 * a = 80 * c :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_459",
-      "statement": "theorem mathd_algebra_459\n  (a b c d : ℚ)\n  (h₀ : 3 * a = b + c + d)\n  (h₁ : 4 * b = a + c + d)\n  (h₂ : 2 * c = a + b + d)\n  (h₃ : 8 * a + 10 * b + 6 * c = 24) :\n  ↑d.denom + d.num = 28 :=",
-      "tactics": [
-        "have h₄: d = 13/15, linarith,",
-        "sorry"
-      ]
-    },
-    {
-      "name": "mathd_algebra_137",
-      "statement": "theorem mathd_algebra_137\n  (x : ℕ)\n  (h₀ : ↑x + (4:ℝ) / (100:ℝ) * ↑x = 598) :\n  x = 575 :=",
-      "tactics": [
-        "have h₁ : ↑x = (575:ℝ), linarith,",
-        "assumption_mod_cast,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_160",
-      "statement": "theorem mathd_algebra_160\n  (n x : ℝ)\n  (h₀ : n + x = 97)\n  (h₁ : n + 5 * x = 265) :\n  n + 2 * x = 139 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_24",
-      "statement": "theorem mathd_algebra_24\n  (x : ℝ)\n  (h₀ : x / 50 = 40) :\n  x = 2000 :=",
-      "tactics": [
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_176",
-      "statement": "theorem mathd_algebra_176\n  (x : ℝ) :\n  (x + 1)^2 * x = x^3 + 2 * x^2 + x :=",
-      "tactics": [
-        "ring_nf,"
-      ]
-    },
-    {
-      "name": "algebra_sqineq_at2malt1",
-      "statement": "theorem algebra_sqineq_at2malt1\n  (a : ℝ) :\n  a * (2 - a) ≤ 1 :=",
-      "tactics": [
-        "suffices: 0 ≤ a^2 - 2*a + 1, nlinarith,",
-        "suffices: 0 ≤ (a - 1)^2, nlinarith,",
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_171",
-      "statement": "theorem mathd_algebra_171\n  (f : ℝ → ℝ)\n  (h₀ : ∀x, f x = 5 * x + 4) :\n  f 1 = 9 :=",
-      "tactics": [
-        "rw h₀,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_188",
-      "statement": "theorem mathd_algebra_188\n  (σ : equiv ℝ ℝ)\n  (h : σ.1 2 = σ.2 2) :\n  σ.1 (σ.1 2) = 2 :=",
-      "tactics": [
-        "simp [h]"
-      ]
-    },
-    {
-      "name": "mathd_algebra_346",
-      "statement": "theorem mathd_algebra_346\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = 2 * x - 3)\n  (h₁ : ∀ x, g x = x + 1) :\n  g (f 5 - 1) = 7 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_184",
-      "statement": "theorem mathd_algebra_184\n  (a b : nnreal)\n  (h₀ : 0 < a ∧ 0 < b)\n  (h₁ : (a^2) = 6*b)\n  (h₂ : (a^2) = 54/b) :\n  a = 3 * nnreal.sqrt 2 :=",
-      "tactics": [
-        "have key₁ : b ≠ 0 := ne_of_gt h₀.2,",
-        "have h₄ : 0 ≤ a, { exact zero_le _ },",
-        "suffices : a^2=18,",
-        "{",
-        "rw eq_comm,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_44",
-      "statement": "theorem mathd_algebra_44\n  (s t : ℝ)\n  (h₀ : s = 9 - 2 * t)\n  (h₁ : t = 3 * s + 1) :\n  s = 1 ∧ t = 4 :=",
-      "tactics": [
-        "split; linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_296",
-      "statement": "theorem mathd_algebra_296 :\n  abs (((3491 - 60) * (3491 + 60) - 3491^2):ℤ) = 3600 :=",
-      "tactics": [
-        "rw abs_of_nonpos,",
-        "norm_num,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_107",
-      "statement": "theorem mathd_algebra_107\n  (x y : ℝ)\n  (h₀ : x^2 + 8 * x + y^2 - 6 * y = 0) :\n  (x + 4)^2 + (y-3)^2 = 5^2 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_412",
-      "statement": "theorem mathd_algebra_412\n  (x y : ℝ)\n  (h₀ : x + y = 25)\n  (h₁ : x - y = 11) :\n  x = 18 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_80",
-      "statement": "theorem mathd_algebra_80\n  (x : ℝ)\n  (h₀ : x ≠ -1)\n  (h₁ : (x - 9) / (x + 1) = 2) :\n  x = -11 :=",
-      "tactics": [
-        "revert x h₀ h₁,",
-        "norm_num,",
-        "intros _ hx,",
-        "simp [hx, two_mul, sub_eq_add_neg],",
-        "intro H,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_275",
-      "statement": "theorem mathd_algebra_275\n  (x : ℝ)\n  (h : ((11:ℝ)^(1 / 4))^(3 * x - 3) = 1 / 5) :\n  ((11:ℝ)^(1 / 4))^(6 * x + 2) = 121 / 25 :=",
-      "tactics": [
-        "revert x h,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_388",
-      "statement": "theorem mathd_algebra_388\n  (x y z : ℝ)\n  (h₀ : 3 * x + 4 * y - 12 * z = 10)\n  (h₁ : -2 * x - 3 * y + 9 * z = -4) :\n  x = 14 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_263",
-      "statement": "theorem mathd_algebra_263\n  (y : ℝ)\n  (h₀ : 0 ≤ 19 + 3 * y)\n  (h₁ : real.sqrt (19 + 3 * y) = 7) :\n  y = 10 :=",
-      "tactics": [
-        "revert y h₀ h₁,",
-        "intros x hx,",
-        "rw real.sqrt_eq_iff_sq_eq hx,",
-        "swap,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_432",
-      "statement": "theorem mathd_algebra_432\n  (x : ℝ) :\n  (x + 3) * (2 * x - 6) = 2 * x^2 - 18 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "algebra_others_exirrpowirrrat",
-      "statement": "theorem algebra_others_exirrpowirrrat :\n  ∃ a b, irrational a ∧ irrational b ∧ ¬ irrational (a^b) :=",
-      "tactics": [
-        "let sqrt_2 :=  real.sqrt 2,",
-        "by_cases irrational (sqrt_2^sqrt_2),",
-        "{",
-        "have h': ¬ irrational ((sqrt_2^sqrt_2)^sqrt_2),",
-        "{"
-      ]
-    },
-    {
-      "name": "mathd_algebra_427",
-      "statement": "theorem mathd_algebra_427\n  (x y z : ℝ)\n  (h₀ : 3 * x + y = 17)\n  (h₁ : 5 * y + z = 14)\n  (h₂ : 3 * x + 5 * z = 41) :\n  x + y + z = 12 :=",
-      "tactics": [
-        "have h₃ := congr (congr_arg has_add.add h₀) h₁,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_76",
-      "statement": "theorem mathd_algebra_76\n  (f : ℤ → ℤ)\n  (h₀ : ∀n, odd n → f n = n^2)\n  (h₁ : ∀ n, even n → f n = n^2 - 4*n -1) :\n  f 4 = -1 :=",
-      "tactics": [
-        "suffices : f 4 = 4^2 - 4*4 - 1, rw this; ring_nf,",
-        "apply h₁,",
-        "refine even_iff_two_dvd.mpr _,",
-        "exact two_dvd_bit0,"
-      ]
-    },
-    {
-      "name": "algebra_sqineq_unitcircatbpamblt1",
-      "statement": "theorem algebra_sqineq_unitcircatbpamblt1\n  (a b: ℝ)\n  (h₀ : a^2 + b^2 = 1) :\n  a * b + (a - b) ≤ 1 :=",
-      "tactics": [
-        "nlinarith [sq_nonneg (a - b)],"
-      ]
-    },
-    {
-      "name": "mathd_algebra_329",
-      "statement": "theorem mathd_algebra_329\n  (x y : ℝ)\n  (h₀ : 3 * y = x)\n  (h₁ : 2 * x + 5 * y = 11) :\n  x + y = 4 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_313",
-      "statement": "theorem mathd_algebra_313\n  (v i z : ℂ)\n  (h₀ : v = i * z)\n  (h₁ : v = 1 + complex.I)\n  (h₂ : z = 2 - complex.I) :\n  i = 1/5 + 3/5 * complex.I :=",
-      "tactics": [
-        "rw [h₁, h₂] at h₀,",
-        "rw eq_comm at h₀,",
-        "have h₃ : (2 - complex.I) ≠ 0, {",
-        "sorry",
-        "},"
-      ]
-    },
-    {
-      "name": "mathd_algebra_129",
-      "statement": "theorem mathd_algebra_129\n  (a : ℝ)\n  (h₀ : a ≠ 0)\n  (h₁ : 8⁻¹ / 4⁻¹ - a⁻¹ = 1) :\n  a = -2 :=",
-      "tactics": [
-        "field_simp at h₁,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_484",
-      "statement": "theorem mathd_algebra_484 :\n  real.log 27 / real.log 3 = 3 :=",
-      "tactics": [
-        "rw real.log_div_log,",
-        "have three_to_three : (27 : ℝ) = (3 : ℝ)^(3 : ℝ), by norm_num,",
-        "rw three_to_three,",
-        "have trivial_ineq: (0 : ℝ) < (3 : ℝ), by norm_num,",
-        "have trivial_neq: (3: ℝ) ≠ (1 : ℝ), by norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_304",
-      "statement": "theorem mathd_algebra_304 :\n  91^2 = 8281 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_148",
-      "statement": "theorem mathd_algebra_148\n  (c : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = c * x^3 - 9 * x + 3)\n  (h₁ : f 2 = 9) :\n  c = 3 :=",
-      "tactics": [
-        "rw h₀ at h₁,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_440",
-      "statement": "theorem mathd_algebra_440\n  (x : ℝ)\n  (h₀ : 3 / 2 / 3 = x / 10) :\n  x = 5 :=",
-      "tactics": [
-        "field_simp at h₀,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_114",
-      "statement": "theorem mathd_algebra_114\n  (a : ℝ)\n  (h₀ : a = 8) :\n  (16 * (a^2)^((1:ℝ) / 3))^((1:ℝ) / 3) = 4 :=",
-      "tactics": [
-        "rw h₀,",
-        "have k₁ : 0 ≤ (4:ℝ), linarith,",
-        "have k₂ : 0 < 3, linarith,",
-        "have k₃ : (64:ℝ) = 4^(3:ℝ), {",
-        "suffices : (64:ℝ) = 4^((3:ℕ):ℝ), {"
-      ]
-    },
-    {
-      "name": "mathd_algebra_513",
-      "statement": "theorem mathd_algebra_513\n  (a b : ℝ)\n  (h₀ : 3 * a + 2 * b = 5)\n  (h₁ : a + b = 2) :\n  a = 1 ∧ b = 1 :=",
-      "tactics": [
-        "split; linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_143",
-      "statement": "theorem mathd_algebra_143\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = x + 1)\n  (h₁ : ∀ x, g x = x^2 + 3) :\n  f (g 2) = 8 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_354",
-      "statement": "theorem mathd_algebra_354\n  (a d : ℝ)\n  (h₀ : a + 6 * d = 30)\n  (h₁ : a + 10 * d = 60) :\n  a + 20 * d = 135 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_246",
-      "statement": "theorem mathd_algebra_246\n  (a b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * x^4 - b * x^2 + x + 5)\n  (h₂ : f (-3) = 2) :\n  f 3 = 8 :=",
-      "tactics": [
-        "rw h₀ at h₂,",
-        "simp at h₂,",
-        "rw h₀,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_342",
-      "statement": "theorem mathd_algebra_342\n  (a d: ℝ)\n  (h₀ : ∑ k in (finset.range 5), (a + k * d) = 70)\n  (h₁ : ∑ k in (finset.range 10), (a + k * d) = 210) :\n  a = 42/5 :=",
-      "tactics": [
-        "revert h₀ h₁,",
-        "simp [finset.sum_range_succ, mul_comm d],",
-        "intros,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_270",
-      "statement": "theorem mathd_algebra_270\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x ≠ -2, f x = 1 / (x + 2)) :\n  f (f 1) = 3/7 :=",
-      "tactics": [
-        "rw [h₀, h₀],",
-        "norm_num,",
-        "linarith,",
-        "rw h₀,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_359",
-      "statement": "theorem mathd_algebra_359\n  (y : ℝ)\n  (h₀ : y + 6 + y = 2 * 12) :\n  y = 9 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_314",
-      "statement": "theorem mathd_algebra_314\n  (n : ℕ)\n  (h₀ : n = 11) :\n  (1 / 4)^(n + 1) * 2^(2 * n) = 1 / 4 :=",
-      "tactics": [
-        "rw h₀,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_302",
-      "statement": "theorem mathd_algebra_302 :\n  (complex.I / 2)^2 = -(1 / 4) :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_139",
-      "statement": "theorem mathd_algebra_139\n  (s : ℝ → ℝ → ℝ)\n  (h₀ : ∀ x≠0, ∀y≠0, s x y = (1/y - 1/x) / (x-y)) :\n  s 3 11 = 1/33 :=",
-      "tactics": [
-        "norm_num [h₀],"
-      ]
-    },
-    {
-      "name": "mathd_algebra_142",
-      "statement": "theorem mathd_algebra_142\n  (m b : ℝ)\n  (h₀ : m * 7 + b = -1)\n  (h₁ : m * (-1) + b = 7) :\n  m + b = 5 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_400",
-      "statement": "theorem mathd_algebra_400\n  (x : ℝ)\n  (h₀ : 5 + 500 / 100 * 10 = 110 / 100 * x) :\n  x = 50 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_441",
-      "statement": "theorem mathd_algebra_441\n  (x : ℝ)\n  (h₀ : x ≠ 0) :\n  12 / (x * x) * (x^4 / (14 * x)) * (35 / (3 * x)) = 10 :=",
-      "tactics": [
-        "field_simp,",
-        "ring_nf,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_338",
-      "statement": "theorem mathd_algebra_338\n  (a b c : ℝ)\n  (h₀ : 3 * a + b + c = -3)\n  (h₁ : a + 3 * b + c = 9)\n  (h₂ : a + b + 3 * c = 19) :\n  a * b * c = -56 :=",
-      "tactics": [
-        "have ha : a = -4, linarith,",
-        "have hb : b = 2, linarith,",
-        "have hc : c = 7, linarith,",
-        "rw [ha, hb, hc],",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_182",
-      "statement": "theorem mathd_algebra_182\n  (y : ℂ) :\n  7 * (3 * y + 2) = 21 * y + 14 :=",
-      "tactics": [
-        "ring_nf,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_116",
-      "statement": "theorem mathd_algebra_116\n  (k x: ℝ)\n  (h₀ : x = (13 - real.sqrt 131) / 4)\n  (h₁ : 2 * x^2 - 13 * x + k = 0) :\n  k = 19/4 :=",
-      "tactics": [
-        "rw h₀ at h₁,",
-        "rw eq_comm.mp (add_eq_zero_iff_neg_eq.mp h₁),",
-        "norm_num,",
-        "rw pow_two,",
-        "rw mul_sub,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_462",
-      "statement": "theorem mathd_algebra_462 :\n  ((1 : ℚ)/ 2 + 1 / 3) * (1 / 2 - 1 / 3) = 5 / 36 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_48",
-      "statement": "theorem mathd_algebra_48\n  (q e : ℂ)\n  (h₀ : q = 9 - 4 * complex.I)\n  (h₁ : e = -3 - 4 * complex.I) : q - e = 12 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_422",
-      "statement": "theorem mathd_algebra_422\n  (x : ℝ)\n  (σ : equiv ℝ ℝ)\n  (h₀ : ∀ x, σ.1 x = 5 * x - 12)\n  (h₁ : σ.1 (x + 1) = σ.2 x) :\n  x = 47 / 24 :=",
-      "tactics": [
-        "field_simp [h₀, mul_add, add_mul, sub_add_cancel, mul_assoc, add_comm],",
-        "have := congr_arg σ.to_fun h₁,",
-        "rw h₀ at this,",
-        "rw h₀ at this,",
-        "symmetry,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_101",
-      "statement": "theorem mathd_algebra_101\n  (x : ℝ)\n  (h₀ : x^2 - 5 * x - 4 ≤ 10) :\n  x ≥ -2 ∧ x ≤ 7 :=",
-      "tactics": [
-        "split; nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_140",
-      "statement": "theorem mathd_algebra_140\n  (a b c : ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : ∀ x, 24 * x^2 - 19 * x - 35 = (((a * x) - 5) * ((2 * (b * x)) + c))) :\n  a * b - 3 * c = -9 :=",
-      "tactics": [
-        "have h₂ := h₁ 0,",
-        "have h₂ := h₁ 1,",
-        "have h₃ := h₁ (-1),",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_455",
-      "statement": "theorem mathd_algebra_455\n  (x : ℝ)\n  (h₀ : 2 * (2 * (2 * (2 * x))) = 48) :\n  x = 3 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_245",
-      "statement": "theorem mathd_algebra_245\n  (x : ℝ)\n  (h₀ : x ≠ 0) :\n  (4 / x)⁻¹ * ((3 * x^3) / x)^2 * ((1 / (2 * x))⁻¹)^3 = 18 * x^8 :=",
-      "tactics": [
-        "field_simp [(show x ≠ 0, by simpa using h₀), mul_comm x]; ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_126",
-      "statement": "theorem mathd_algebra_126\n  (x y : ℝ)\n  (h₀ : 2 * 3 = x - 9)\n  (h₁ : 2 * (-5) = y + 1) :\n  x = 15 ∧ y = -11 :=",
-      "tactics": [
-        "split; linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_35",
-      "statement": "theorem mathd_algebra_35\n  (p q : ℝ → ℝ)\n  (h₀ : ∀ x, p x = 2 - x^2)\n  (h₁ : ∀ x ≠ 0, q x = 6 / x) :\n  p (q 2) = -7 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "ring,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "algebra_amgm_faxinrrp2msqrt2geq2mxm1div2x",
-      "statement": "theorem algebra_amgm_faxinrrp2msqrt2geq2mxm1div2x :\n  ∀ x > 0, 2 - real.sqrt 2 ≥ 2 - x - 1 / (2 * x) :=",
-      "tactics": [
-        "intros x h,",
-        "suffices : real.sqrt 2 ≤ x + 1 / (2 * x), linarith,",
-        "have h₀ := (nnreal.geom_mean_le_arith_mean2_weighted (1/2) (1/2) (real.to_nnreal x) (real.to_nnreal (1/(2 * x)))) _,",
-        "norm_num at h₀,",
-        "rw [← nnreal.mul_rpow, ← real.to_nnreal_mul] at h₀,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_327",
-      "statement": "theorem mathd_algebra_327\n  (a : ℝ)\n  (h₀ : 1 / 5 * abs (9 + 2 * a) < 1) :\n  -7 < a ∧ a < -2 :=",
-      "tactics": [
-        "have h₁ := (mul_lt_mul_left (show 0 < (5:ℝ), by linarith)).mpr h₀,",
-        "have h₂ : abs (9 + 2 * a) < 5, linarith,",
-        "have h₃ := abs_lt.mp h₂,",
-        "cases h₃ with h₃ h₄,",
-        "split; nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_192",
-      "statement": "theorem mathd_algebra_192\n  (q e d : ℂ)\n  (h₀ : q = 11 - (5 * complex.I))\n  (h₁ : e = 11 + (5 * complex.I))\n  (h₂ : d = 2 * complex.I) :\n  q * e * d = 292 * complex.I :=",
-      "tactics": [
-        "rw [h₀, h₁, h₂],",
-        "ring_nf,",
-        "rw [pow_two, complex.I_mul_I],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_110",
-      "statement": "theorem mathd_algebra_110\n  (q e : ℂ)\n  (h₀ : q = 2 - 2 * complex.I)\n  (h₁ : e = 5 + 5 * complex.I) :\n  q * e = 20 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "ring_nf,",
-        "rw [pow_two, complex.I_mul_I],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_15",
-      "statement": "theorem mathd_algebra_15\n  (s : ℕ → ℕ → ℕ)\n  (h₀ : ∀ a b, 0 < a ∧ 0 < b → s a b = a^(b:ℕ) + b^(a:ℕ)) :\n  s 2 6 = 100 :=",
-      "tactics": [
-        "rw h₀,",
-        "refl,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "algebra_2rootsintpoly_am10tap11eqasqpam110",
-      "statement": "theorem algebra_2rootsintpoly_am10tap11eqasqpam110\n  (a : ℂ) :\n  (a - 10) * (a + 11) = a^2 + a - 110 :=",
-      "tactics": [
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_43",
-      "statement": "theorem mathd_algebra_43\n  (a b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * x + b)\n  (h₁ : f 7 = 4)\n  (h₂ : f 6 = 3) :\n  f 3 = 0 :=",
-      "tactics": [
-        "rw h₀ at *,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_55",
-      "statement": "theorem mathd_algebra_55\n  (q p : ℝ)\n  (h₀ : q = 2 - 4 + 6 - 8 + 10 - 12 + 14)\n  (h₁ : p = 3 - 6 + 9 - 12 + 15 - 18 + 21) :\n  q / p = 2 / 3 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "algebra_sqineq_2at2pclta2c2p41pc",
-      "statement": "theorem algebra_sqineq_2at2pclta2c2p41pc\n  (a c : ℝ) :\n  2 * a * (2 + c) ≤ a^2 + c^2 + 4 * (1 + c) :=",
-      "tactics": [
-        "suffices : 0 ≤ (c - a)^2 + 2^2 + 2 * 2 * (c - a), nlinarith,",
-        "suffices : 0 ≤ (c - a + 2)^2, nlinarith,",
-        "exact pow_two_nonneg (c - a + 2),"
-      ]
-    },
-    {
-      "name": "mathd_algebra_214",
-      "statement": "theorem mathd_algebra_214\n  (a : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * (x - 2)^2 + 3)\n  (h₁ : f 4 = 4) :\n  f 6 = 7 :=",
-      "tactics": [
-        "revert h₁,",
-        "simp [h₀],",
-        "intro,",
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_96",
-      "statement": "theorem mathd_algebra_96\n  (x y z a : ℝ)\n  (h₀ : 0 < x ∧ 0 < y ∧ 0 < z)\n  (h₁ : real.log x - real.log y = a)\n  (h₂ : real.log y - real.log z = 15)\n  (h₃ : real.log z - real.log x = -7) :\n  a = -8 :=",
-      "tactics": [
-        "nlinarith [h₁, h₂, h₃],"
-      ]
-    },
-    {
-      "name": "mathd_algebra_59",
-      "statement": "theorem mathd_algebra_59\n  (b : ℝ)\n  (h₀ : (4 : ℝ)^b + 2^3 = 12) :\n  b = 1 :=",
-      "tactics": [
-        "have h₁ : (4:ℝ)^b = 4, linarith,",
-        "by_contradiction h,",
-        "clear h₀,",
-        "change b ≠ 1 at h,",
-        "by_cases b₀ : b < 1,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_234",
-      "statement": "theorem mathd_algebra_234\n  (d : ℝ)\n  (h₀ : 27 / 125 * d = 9 / 25) :\n  3 / 5 * d^3 = 25 / 9 :=",
-      "tactics": [
-        "field_simp,",
-        "rw [mul_right_comm, pow_succ, mul_comm],",
-        "{ nlinarith },"
-      ]
-    },
-    {
-      "name": "algebra_2complexrootspoly_xsqp49eqxp7itxpn7i",
-      "statement": "theorem algebra_2complexrootspoly_xsqp49eqxp7itxpn7i\n  (x : ℂ) :\n  x^2 + 49 = (x + (7 * complex.I)) * (x + (-7 * complex.I)) :=",
-      "tactics": [
-        "ring_nf,",
-        "rw [pow_two, pow_two, complex.I_mul_I],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_132",
-      "statement": "theorem mathd_algebra_132\n  (x : ℝ)\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = x + 2)\n  (h₁ : ∀ x, g x = x^2)\n  (h₂ : f (g x) = g (f x)) :\n  x = - 1/2 :=",
-      "tactics": [
-        "norm_num,",
-        "simp [*, -one_div] at *,",
-        "field_simp [h₁],",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_37",
-      "statement": "theorem mathd_algebra_37\n  (x y : ℝ)\n  (h₀ : x + y = 7)\n  (h₁ : 3 * x + y = 45) :\n  x^2 - y^2 = 217 :=",
-      "tactics": [
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "algebra_sqineq_36azm9asqle36zsq",
-      "statement": "theorem algebra_sqineq_36azm9asqle36zsq\n  (z a : ℝ) :\n  36 * (a * z) - 9 * a^2 ≤ 36 * z^2 :=",
-      "tactics": [
-        "suffices : 4 * (a * z) - a^2 ≤ 4 * z^2, nlinarith,",
-        "suffices : 0 ≤ (a - 2 * z)^2, nlinarith,",
-        "exact pow_two_nonneg (a - 2 * z),"
-      ]
-    },
-    {
-      "name": "mathd_algebra_104",
-      "statement": "theorem mathd_algebra_104\n  (x : ℝ)\n  (h₀ : 125 / 8 = x / 12) :\n  x = 375 / 2 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "algebra_3rootspoly_amdtamctambeqnasqmbpctapcbtdpasqmbpctapcbta",
-      "statement": "theorem algebra_3rootspoly_amdtamctambeqnasqmbpctapcbtdpasqmbpctapcbta\n  (b c d a : ℂ) :\n  (a - d) * (a - c) * (a - b) = -(((a^2 - (b + c) * a) + c * b) * d) + (a^2 - (b + c) * a + c * b) * a :=",
-      "tactics": [
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_190",
-      "statement": "theorem mathd_algebra_190 :\n  ((3 : ℝ) / 8 + 7 / 8) / (4 / 5) = 25 / 16 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "algebra_sqineq_4bap1lt4bsqpap1sq",
-      "statement": "theorem algebra_sqineq_4bap1lt4bsqpap1sq\n  (a b : ℝ) :\n  4 * b * (a + 1) ≤ 4 * b^2 + (a + 1)^2 :=",
-      "tactics": [
-        "suffices : 0 ≤ (2 * b - (a + 1))^2, nlinarith,",
-        "exact pow_two_nonneg (2 * b - (a + 1)),"
-      ]
-    },
-    {
-      "name": "mathd_algebra_109",
-      "statement": "theorem mathd_algebra_109\n  (a b : ℝ)\n  (h₀ : 3 * a + 2 * b = 12)\n  (h₁ : a = 4) :\n  b = 0 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_11",
-      "statement": "theorem mathd_algebra_11\n  (a b : ℝ)\n  (h₀ : a ≠ b)\n  (h₁ : a ≠ 2 * b)\n  (h₂ : (4 * a + 3 * b) / (a - 2 * b) = 5) :\n  (a + 11 * b) / (a - b) = 2 :=",
-      "tactics": [
-        "rw eq_comm,",
-        "refine (eq_div_iff _).mpr _,",
-        "exact sub_ne_zero_of_ne h₀,",
-        "rw eq_comm at h₂,",
-        "suffices : a = 13 * b, linarith,"
-      ]
-    },
-    {
-      "name": "algebra_2rootspoly_apatapbeq2asqp2ab",
-      "statement": "theorem algebra_2rootspoly_apatapbeq2asqp2ab\n  (a b : ℂ) :\n  (a + a) * (a + b) = 2 * a^2 + 2 * (a * b) :=",
-      "tactics": [
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_568",
-      "statement": "theorem mathd_algebra_568\n  (a : ℝ) :\n  (a - 1) * (a + 1) * (a + 2) - (a - 2) * (a + 1) = a^3 + a^2 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_159",
-      "statement": "theorem mathd_algebra_159\n  (b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = 3 * x^4 - 7 * x^3 + 2 * x^2 - b * x + 1)\n  (h₁ : f 1 = 1) :\n  b = -2 :=",
-      "tactics": [
-        "rw h₀ at h₁,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_323",
-      "statement": "theorem mathd_algebra_323\n  (σ : equiv ℝ ℝ)\n  (h : ∀ x, σ.1 x = x^3 - 8) :\n  σ.2 (σ.1 (σ.2 19)) = 3 :=",
-      "tactics": [
-        "revert h,",
-        "simp,",
-        "intro h,",
-        "apply σ.injective,",
-        "simp [h, σ.apply_symm_apply],"
-      ]
-    },
-    {
-      "name": "algebra_manipexpr_apbeq2cceqiacpbceqm2",
-      "statement": "theorem algebra_manipexpr_apbeq2cceqiacpbceqm2\n  (a b c : ℂ)\n  (h₀ : a + b = 2 * c)\n  (h₁ : c = complex.I) :\n  a * c + b * c = -2 :=",
-      "tactics": [
-        "rw [← add_mul, h₀, h₁, mul_assoc, complex.I_mul_I],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_89",
-      "statement": "theorem mathd_algebra_89\n  (b : ℝ)\n  (h₀ : b ≠ 0) :\n  (7 * b^3)^2 * (4 * b^2)^(-(3 : ℤ)) = 49/64 :=",
-      "tactics": [
-        "ring_nf,",
-        "field_simp,",
-        "norm_cast,",
-        "refine (div_eq_iff _).mpr _,",
-        "{ norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_67",
-      "statement": "theorem mathd_algebra_67\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = 5 * x + 3)\n  (h₁ : ∀ x, g x = x^2 - 2) :\n  g (f (-1)) = 2 :=",
-      "tactics": [
-        "rw [h₀, h₁],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_123",
-      "statement": "theorem mathd_algebra_123\n  (a b : ℕ)\n  (h₀ : 0 < a ∧ 0 < b)\n  (h₁ : a + b = 20)\n  (h₂ : a = 3 * b) :\n  a - b = 10 :=",
-      "tactics": [
-        "rw h₂ at h₁,",
-        "rw h₂,",
-        "have h₃ : b = 5, {",
-        "linarith,",
-        "},"
-      ]
-    },
-    {
-      "name": "mathd_algebra_267",
-      "statement": "theorem mathd_algebra_267\n  (x : ℝ)\n  (h₀ : x ≠ 1)\n  (h₁ : x ≠ -2)\n  (h₂ : (x + 1) / (x - 1) = (x - 2) / (x + 2)) :\n  x = 0 :=",
-      "tactics": [
-        "revert x h₀ h₁ h₂,",
-        "norm_num,",
-        "intros a ha,",
-        "intros ha,",
-        "intro h,"
-      ]
-    },
-    {
-      "name": "algebra_manipexpr_2erprsqpesqeqnrpnesq",
-      "statement": "theorem algebra_manipexpr_2erprsqpesqeqnrpnesq\n  (e r : ℂ) :\n  2 * (e * r) + (e^2 + r^2) = (-r + (-e))^2 :=",
-      "tactics": [
-        "ring,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_119",
-      "statement": "theorem mathd_algebra_119\n  (d e : ℝ)\n  (h₀ : 2 * d = 17 * e - 8)\n  (h₁ : 2 * e = d - 9) :\n  e = 2 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_251",
-      "statement": "theorem mathd_algebra_251\n  (x : ℝ)\n  (h₀ : x ≠ 0)\n  (h₁ : 3 + 1 / x = 7 / x) :\n  x = 2 :=",
-      "tactics": [
-        "field_simp [h₀] at h₁,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_181",
-      "statement": "theorem mathd_algebra_181\n  (n : ℝ)\n  (h₀ : n ≠ 3)\n  (h₁ : (n + 5) / (n - 3) = 2) : n = 11 :=",
-      "tactics": [
-        "rw div_eq_iff at h₁,",
-        "linarith,",
-        "exact sub_ne_zero.mpr h₀,"
-      ]
-    },
-    {
-      "name": "algebra_sqineq_2unitcircatblt1",
-      "statement": "theorem algebra_sqineq_2unitcircatblt1\n  (a b : ℝ)\n  (h₀ : a^2 + b^2 = 2) :\n  a * b ≤ 1 :=",
-      "tactics": [
-        "have hu := sq_nonneg a,",
-        "have hv := sq_nonneg b,",
-        "have H₁ := add_nonneg hu hv,",
-        "have H₂ : 0 ≤ (a - b) ^ 2 := by nlinarith,",
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_51",
-      "statement": "theorem mathd_algebra_51\n  (a b : ℝ)\n  (h₀ : 0 < a ∧ 0 < b)\n  (h₁ : a + b = 35)\n  (h₂ : a = (2/5) * b) :\n  b - a = 15 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_algebra_10",
-      "statement": "theorem mathd_algebra_10 :\n  abs ((120 : ℝ)/100 * 30 - 130/100 * 20) = 10 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    }
-  ],
-  "number_theory": [
-    {
-      "name": "numbertheory_4x3m7y3neq2003",
-      "statement": "theorem numbertheory_4x3m7y3neq2003\n  (x y : ℤ) :\n  4 * x^3 - 7 * y^3 ≠ 2003 :=",
-      "tactics": [
-        "intro hneq,",
-        "apply_fun (coe : ℤ → zmod 7) at hneq,",
-        "push_cast at hneq,",
-        "have : (2003 : zmod 7) = (1 : zmod 7),",
-        "dec_trivial,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_3",
-      "statement": "theorem mathd_numbertheory_3 :\n  (∑ x in finset.range 10, ((x + 1)^2)) % 10 = 5 :=",
-      "tactics": [
-        "dec_trivial!,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_299",
-      "statement": "theorem mathd_numbertheory_299 :\n  (1 * 3 * 5 * 7 * 9 * 11 * 13) % 10 = 5 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_345",
-      "statement": "theorem mathd_numbertheory_345 :\n  (2000 + 2001 + 2002 + 2003 + 2004 + 2005 + 2006) % 7 = 0 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_227",
-      "statement": "theorem mathd_numbertheory_227\n  (x y n : ℕ+)\n  (h₀ : ↑x / (4:ℝ) + y / 6 = (x + y) / n) :\n  n = 5 :=",
-      "tactics": [
-        "field_simp at h₀,",
-        "have h₂ : (6:ℝ) * x * (n - 4) = 4 * y * (6 - n), {",
-        "field_simp,",
-        "ring_nf,",
-        "linarith[h₀],"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_207",
-      "statement": "theorem mathd_numbertheory_207 :\n  8 * 9^2 + 5 * 9 + 2 = 695 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_342",
-      "statement": "theorem mathd_numbertheory_342 :\n  54 % 6 = 0 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_229",
-      "statement": "theorem mathd_numbertheory_229 :\n  (5^30) % 7 = 1 :=",
-      "tactics": [
-        "have five_to_thirty_is_one :",
-        "(5^30 : zmod 7) = 1 :=",
-        "have five_to_the_six_is_one : (5^6 : zmod 7) = 1, by dec_trivial,",
-        "have break_power : (5^30 : zmod 7) = (5^6)^5, by norm_num,",
-        "rw break_power,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_551",
-      "statement": "theorem mathd_numbertheory_551 :\n  1529 % 6 = 5 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_254",
-      "statement": "theorem mathd_numbertheory_254 :\n  (239 + 174 + 83) % 10 = 6 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_85",
-      "statement": "theorem mathd_numbertheory_85 :\n  1 * 3^3 + 2 * 3^2 + 2*3 + 2 = 53 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_66",
-      "statement": "theorem mathd_numbertheory_66 :\n  194 % 11 = 7 :=",
-      "tactics": [
-        "exact rfl,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_235",
-      "statement": "theorem mathd_numbertheory_235 :\n  (29 * 79 + 31 * 81) % 10 = 2 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_48",
-      "statement": "theorem mathd_numbertheory_48\n  (b : ℕ)\n  (h₀ : 0 < b)\n  (h₁ : 3 * b^2 + 2 * b + 1 = 57) :\n  b = 4 :=",
-      "tactics": [
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_132",
-      "statement": "theorem mathd_numbertheory_132 :\n  2004 % 12 = 0 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_188",
-      "statement": "theorem mathd_numbertheory_188 :\n  nat.gcd 180 168 = 12 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_109",
-      "statement": "theorem mathd_numbertheory_109\n  (v : ℕ → ℕ)\n  (h₀ : ∀ n, v n = 2 * n - 1) :\n  (∑ k in finset.Icc 1 100, v k) % 7 = 4 :=",
-      "tactics": [
-        "norm_num,",
-        "simp [h₀],",
-        "have h₁ : finset.Icc 1 100 = finset.Ico 1 101, {",
-        "exact rfl,",
-        "},"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_24",
-      "statement": "theorem mathd_numbertheory_24 :\n  (∑ k in (finset.Icc 1 9), 11^k) % 100 = 59 :=",
-      "tactics": [
-        "norm_num,",
-        "have h₁ : finset.Icc 1 9 = finset.Ico 1 10, {",
-        "exact rfl,",
-        "},",
-        "rw h₁,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_200",
-      "statement": "theorem mathd_numbertheory_200 :\n  139 % 11 = 7 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_45",
-      "statement": "theorem mathd_numbertheory_45 :\n  (nat.gcd 6432 132) + 11 = 23 :=",
-      "tactics": [
-        "simp only [nat.gcd_comm],",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_739",
-      "statement": "theorem mathd_numbertheory_739 :\n  9! % 10 = 0 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_102",
-      "statement": "theorem mathd_numbertheory_102 :\n  (2^8) % 5 = 1 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_81",
-      "statement": "theorem mathd_numbertheory_81 :\n  71 % 3 = 2 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_640",
-      "statement": "theorem mathd_numbertheory_640 :\n  (91145 + 91146 + 91147 + 91148) % 4 = 2 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_136",
-      "statement": "theorem mathd_numbertheory_136\n  (n : ℕ)\n  (h₀ : 123 * n + 17 = 39500) : n = 321 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_37",
-      "statement": "theorem mathd_numbertheory_37 :\n  nat.lcm 9999 100001 = 90900909 :=",
-      "tactics": [
-        "let e : empty → fin 1 → ℕ := λ _, 1,",
-        "have : fintype.card (fin 1) = 1 := fintype.card_fin 1,",
-        "unfold nat.lcm,",
-        "have : fintype.card (fin 1) = 1 := fintype.card_fin 1,",
-        "simp only [eq_comm] at this,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_301",
-      "statement": "theorem mathd_numbertheory_301\n  (j : ℕ)\n  (h₀ : 0 < j) :\n  (3 * (7 * ↑j + 3)) % 7 = 2 :=",
-      "tactics": [
-        "calc 3 * (7 * ↑j + 3) % 7 = (3 * 3 + (3 * ↑j) * 7) % 7 : by {ring_nf}",
-        "... = (3 * 3) % 7 : by {apply nat.add_mul_mod_self_right}",
-        "... = 2 : by {norm_num},"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_101",
-      "statement": "theorem mathd_numbertheory_101 :\n  (17 * 18) % 4 = 2 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "numbertheory_prmdvsneqnsqmodpeq0",
-      "statement": "theorem numbertheory_prmdvsneqnsqmodpeq0\n  (n : ℤ)\n  (p : ℕ)\n  (h₀ : nat.prime p) :\n  ↑p ∣ n ↔ (n^2) % p = 0 :=",
-      "tactics": [
-        "simp [nat.dvd_prime_pow (show nat.prime p, from h₀), pow_succ],",
-        "simp only [int.coe_nat_dvd_right, int.coe_nat_dvd_left, int.nat_abs_mul],",
-        "rw nat.prime.dvd_mul,",
-        "{ tauto },",
-        "assumption,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_30",
-      "statement": "theorem mathd_numbertheory_30 :\n  (33818^2 + 33819^2 + 33820^2 + 33821^2 + 33822^2) % 17 = 0 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_961",
-      "statement": "theorem mathd_numbertheory_961 :\n  2003 % 11 = 1 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "numbertheory_2dvd4expn",
-      "statement": "theorem numbertheory_2dvd4expn\n  (n : ℕ)\n  (h₀ : n ≠ 0) :\n  2 ∣ 4^n :=",
-      "tactics": [
-        "revert n h₀,",
-        "rintros ⟨k, rfl⟩,",
-        "{ norm_num },",
-        "apply dvd_pow,",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "mathd_numbertheory_84",
-      "statement": "theorem mathd_numbertheory_84 :\n  int.floor ((9:ℝ) / 160 * 100) = 5 :=",
-      "tactics": [
-        "rw int.floor_eq_iff,",
-        "split,",
-        "all_goals { norm_num },"
-      ]
-    }
-  ],
-  "competition_aime": [
-    {
-      "name": "aime_1984_p1",
-      "statement": "theorem aime_1984_p1\n  (u : ℕ → ℚ)\n  (h₀ : ∀ n, u (n + 1) = u n + 1)\n  (h₁ : ∑ k in finset.range 98, u k.succ = 137) :\n  ∑ k in finset.range 49, u (2 * k.succ) = 93 :=",
-      "tactics": [
-        "have h₂ : ∀ k, k ∈ finset.range 49 → u (2 * k + 1 + 1) = u (2 * k + 1) + 1 :=",
-        "by { intros k hk, exact h₀ (2 * k + 1) },",
-        "have h₃: ∑ (x : ℕ) in finset.range 49, (1:ℚ) = 49 := by simp only [mul_one, nat.cast_bit0, finset.sum_const, nsmul_eq_mul, nat.cast_bit1, finset.card_range, nat.cast_one],",
-        "have h98 : 98 = 2 * 49 := by norm_num,",
-        "rw [h98, sum_pairs, finset.sum_add_distrib, finset.sum_congr rfl h₂,"
-      ]
-    },
-    {
-      "name": "aime_1984_p15",
-      "statement": "theorem aime_1984_p15\n  (x y z w : ℝ)\n  (h₀ : (x^2 / (2^2 - 1)) + (y^2 / (2^2 - 3^2)) + (z^2 / (2^2 - 5^2)) + (w^2 / (2^2 - 7^2)) = 1)\n  (h₁ : (x^2 / (4^2 - 1)) + (y^2 / (4^2 - 3^2)) + (z^2 / (4^2 - 5^2)) + (w^2 / (4^2 - 7^2)) = 1)\n  (h₂ : (x^2 / (6^2 - 1)) + (y^2 / (6^2 - 3^2)) + (z^2 / (6^2 - 5^2)) + (w^2 / (6^2 - 7^2)) = 1)\n  (h₃ : (x^2 / (8^2 - 1)) + (y^2 / (8^2 - 3^2)) + (z^2 / (8^2 - 5^2)) + (w^2 / (8^2 - 7^2)) = 1) :\n  x^2 + y^2 + z^2 + w^2 = 36 :=",
-      "tactics": [
-        "revert x y z w h₀ h₁ h₂ h₃,",
-        "ring_nf,",
-        "intros x y z w h,",
-        "intros h,",
-        "intros; linarith,"
-      ]
-    },
-    {
-      "name": "aime_1983_p9",
-      "statement": "theorem aime_1983_p9\n  (x : ℝ)\n  (h₀ : 0 < x ∧ x < real.pi) :\n  12 ≤ ((9 * (x^2 * (real.sin x)^2)) + 4) / (x * real.sin x) :=",
-      "tactics": [
-        "let y := x * real.sin x,",
-        "rw ← mul_pow,",
-        "change 12 ≤ (9 * y^2 + 4) / y,",
-        "refine (le_div_iff _).mpr _,",
-        "apply mul_pos h₀.1,"
-      ]
-    }
-  ],
-  "competition_amc": [
-    {
-      "name": "amc12b_2020_p2",
-      "statement": "theorem amc12b_2020_p2 :\n  ((100 ^ 2 - 7 ^ 2):ℝ) / (70 ^ 2 - 11 ^ 2) * ((70 - 11) * (70 + 11) / ((100 - 7) * (100 + 7))) = 1 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "amc12a_2021_p9",
-      "statement": "theorem amc12a_2021_p9 :\n  ∏ k in finset.range 7, (2^(2^k) + 3^(2^k)) = 3^128 - 2^128 :=",
-      "tactics": [
-        "simp only [finset.prod_range_succ],",
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "amc12a_2002_p6",
-      "statement": "theorem amc12a_2002_p6\n  (n : ℕ)\n  (h₀ : 0 < n) :\n  ∃ m, (m > n ∧ ∃ p, m * p ≤ m + p) :=",
-      "tactics": [
-        "use (n : ℕ).succ,",
-        "norm_num,",
-        "split,",
-        "{ exact_mod_cast (nat.lt_succ_self _) },",
-        "use 1,"
-      ]
-    },
-    {
-      "name": "amc12b_2002_p19",
-      "statement": "theorem amc12b_2002_p19\n  (a b c: ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : a * (b + c) = 152)\n  (h₂ : b * (c + a) = 162)\n  (h₃ : c * (a + b) = 170) :\n  a * b * c = 720 :=",
-      "tactics": [
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "amc12_2000_p6",
-      "statement": "theorem amc12_2000_p6\n  (p q : ℕ)\n  (h₀ : nat.prime p ∧ nat.prime q)\n  (h₁ : 4 ≤ p ∧ p ≤ 18)\n  (h₂ : 4 ≤ q ∧ q ≤ 18) :\n  ↑p * ↑q - (↑p + ↑q) ≠ (194:ℤ) :=",
-      "tactics": [
-        "revert p q h₀ h₁ h₂,",
-        "intros p q hpq,",
-        "rintros ⟨hp, hq⟩,",
-        "rintro ⟨h, h⟩,",
-        "intro h,"
-      ]
-    },
-    {
-      "name": "amc12b_2002_p2",
-      "statement": "theorem amc12b_2002_p2\n  (x : ℤ)\n  (h₀ : x = 4) :\n  (3 * x - 2) * (4 * x + 1) - (3 * x - 2) * (4 * x) + 1 = 11 :=",
-      "tactics": [
-        "rw h₀,",
-        "linarith,"
-      ]
-    },
-    {
-      "name": "amc12_2001_p9",
-      "statement": "theorem amc12_2001_p9\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x > 0, ∀ y > 0, f (x * y) = f x / y)\n  (h₁ : f 500 = 3) : f 600 = 5 / 2 :=",
-      "tactics": [
-        "specialize h₀ 500 _ (6/5) _,",
-        "{ linarith },",
-        "{ linarith },",
-        "calc f 600 = f (500 * (6/5)) : by {congr, norm_num}",
-        "... = f 500 / (6 / 5) : by {rw h₀}"
-      ]
-    },
-    {
-      "name": "amc12_2000_p5",
-      "statement": "theorem amc12_2000_p5\n  (x p : ℝ)\n  (h₀ : x < 2)\n  (h₁ : abs (x - 2) = p) :\n  x - p = 2 - 2 * p :=",
-      "tactics": [
-        "suffices : abs (x - 2) = -(x - 2),",
-        "{",
-        "rw h₁ at this,",
-        "linarith,",
-        "},"
-      ]
-    },
-    {
-      "name": "amc12a_2008_p2",
-      "statement": "theorem amc12a_2008_p2\n  (x : ℝ)\n  (h₀ : x * (1 / 2 + 2 / 3) = 1) :\n  x = 6 / 7 :=",
-      "tactics": [
-        "linarith,"
-      ]
-    },
-    {
-      "name": "amc12a_2021_p7",
-      "statement": "theorem amc12a_2021_p7\n  (x y : ℝ) :\n  1 ≤ ((x * y) - 1)^2 + (x + y)^2 :=",
-      "tactics": [
-        "ring_nf,",
-        "nlinarith,"
-      ]
-    },
-    {
-      "name": "amc12b_2002_p6",
-      "statement": "theorem amc12b_2002_p6\n  (a b : ℝ)\n  (h₀ : a ≠ 0 ∧ b ≠ 0)\n  (h₁ : ∀ x, x^2 + a * x + b = (x - a) * (x - b)) :\n  a = 1 ∧ b = -2 :=",
-      "tactics": [
-        "have h₂ := h₁ a,",
-        "have h₃ := h₁ b,",
-        "have h₄ := h₁ 0,",
-        "simp at *,",
-        "have h₅ : b * (1 - a) = 0, linarith,"
-      ]
-    },
-    {
-      "name": "amc12_2001_p2",
-      "statement": "theorem amc12_2001_p2\n  (a b n : ℕ)\n  (h₀ : 1 ≤ a ∧ a ≤ 9)\n  (h₁ : 0 ≤ b ∧ b ≤ 9)\n  (h₂ : n = 10 * a + b)\n  (h₃ : n = a * b + a + b) :\n  b = 9 :=",
-      "tactics": [
-        "rw h₂ at h₃,",
-        "simp at h₃,",
-        "have h₄ : 10 * a = (b + 1) * a, linarith,",
-        "simp at h₄,",
-        "cases h₄ with h₅ h₆,"
-      ]
-    },
-    {
-      "name": "amc12a_2009_p2",
-      "statement": "theorem amc12a_2009_p2 :\n  1 + (1 / (1 + (1 / (1 + 1)))) = (5 : ℚ) / 3 :=",
-      "tactics": [
-        "norm_num,"
-      ]
-    },
-    {
-      "name": "amc12_2000_p11",
-      "statement": "theorem amc12_2000_p11\n  (a b : ℝ)\n  (h₀ : a ≠ 0 ∧ b ≠ 0)\n  (h₁ : a * b = a - b) :\n  a / b + b / a - a * b = 2 :=",
-      "tactics": [
-        "field_simp [h₀.1, h₀.2],",
-        "simp only [h₁, mul_comm, mul_sub],",
-        "ring,"
-      ]
-    },
-    {
-      "name": "amc12b_2003_p9",
-      "statement": "theorem amc12b_2003_p9\n  (a b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * x + b)\n  (h₁ : f 6 - f 2 = 12) :\n  f 12 - f 2 = 30 :=",
-      "tactics": [
-        "revert h₁,",
-        "simp only [h₀],",
-        "intro,",
-        "linarith,"
-      ]
-    }
-  ],
-  "competition_imo": [],
-  "general": [
-    {
-      "name": "induction_12dvd4expnp1p20",
-      "statement": "theorem induction_12dvd4expnp1p20\n  (n : ℕ) :\n  12 ∣ 4^(n+1) + 20 :=",
-      "tactics": [
-        "have dvd_of_dvd_add_mul_left : ∀ (a b n : ℕ), a ∣ b + a * n → a ∣ b :=",
-        "intros a b n,",
-        "refine (nat.dvd_add_left _).mp,",
-        "exact (dvd_mul_right a n),"
-      ]
-    },
-    {
-      "name": "induction_nfactltnexpnm1ngt3",
-      "statement": "theorem induction_nfactltnexpnm1ngt3\n  (n : ℕ)\n  (h₀ : 3 ≤ n) :\n  n! < n^(n - 1) :=",
-      "tactics": [
-        "induction h₀ with k h₀ IH,",
-        "{ norm_num },",
-        "{",
-        "have k_ge_one : 1 ≤ k := le_trans dec_trivial h₀,",
-        "calc k.succ.factorial = k.succ * k.factorial : rfl"
-      ]
-    },
-    {
-      "name": "induction_sumkexp3eqsumksq",
-      "statement": "theorem induction_sumkexp3eqsumksq\n  (n : ℕ) :\n  ∑ k in finset.range n, k^3 = (∑ k in finset.range n, k)^2 :=",
-      "tactics": [
-        "symmetry,",
-        "induction n with j IH,",
-        "{",
-        "refl,",
-        "},"
-      ]
-    },
-    {
-      "name": "induction_pprime_pdvdapowpma",
-      "statement": "theorem induction_pprime_pdvdapowpma\n  (p a : ℕ)\n  (h₀ : 0 < a)\n  (h₁ : nat.prime p) :\n  p ∣ (a^p - a) :=",
-      "tactics": [
-        "sorry,"
-      ]
-    },
-    {
-      "name": "induction_ineq_nsqlefactn",
-      "statement": "theorem induction_ineq_nsqlefactn\n  (n : ℕ)\n  (h₀ : 4 ≤ n) :\n  n^2 ≤ n! :=",
-      "tactics": [
-        "simp only [sq],",
-        "casesI n with n,",
-        "exact dec_trivial,",
-        "simp,",
-        "apply nat.succ_le_of_lt,"
-      ]
-    }
-  ]
+ "algebra": [
+  {
+   "name": "lean_workbook_plus_2",
+   "statement": "theorem lean_workbook_plus_2 (x : ℝ) : x^2 - 2*x - 24 < 0 ↔ x ∈ Set.Ioo (-4) 6   :=  by sorry",
+   "tactics": [
+    "exact ⟨fun h ↦ by rw [Set.mem_Ioo]",
+    "constructor <;> nlinarith [h], fun h ↦ by rw [Set.mem_Ioo] at h",
+    "nlinarith⟩"
+   ],
+   "nl": "Solve for $x$ in the given inequality: $x^2-2x-24<0$"
+  },
+  {
+   "name": "lean_workbook_plus_26",
+   "statement": "theorem lean_workbook_plus_26 (a b c : ℝ) : (2 * a / (b + c)) ^ (27 / 46) + (2 * b / (a + c)) ^ (27 / 46) + (2 * c / (a + b)) ^ (27 / 46) ≥ 3   :=  by sorry",
+   "tactics": [
+    "norm_num [div_eq_mul_inv, mul_comm, mul_assoc, mul_left_comm]"
+   ],
+   "nl": "We can prove the following inequality by AM-GM. \\nLet $a$ , $b$ and $c$ be positive numbers. Prove that: \\n $ \\left(\\frac{2a}{b+c}\\right)^{\\frac{27}{46}}+\\left(\\frac{2b}{a+c}\\right)^{\\frac{27}{46}}+\\left(\\frac{2c}{a+b}\\right)^{\\frac{27}{46}}\\geq3 $"
+  },
+  {
+   "name": "lean_workbook_plus_138",
+   "statement": "theorem lean_workbook_plus_138 (x : ℝ) : x ^ 2 ≥ 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg x]"
+   ],
+   "nl": "By Trivial Inequality, $x \\in \\mathbb{R} \\implies x^2 \\ge 0$"
+  },
+  {
+   "name": "lean_workbook_plus_238",
+   "statement": "theorem lean_workbook_plus_238 (x_1 x_2 : ℝ) (hx_1 : 0 < x_1) (hx_2 : 0 < x_2) : x_1 + x_2 ≥ 2 * Real.sqrt (x_1 * x_2)   :=  by sorry",
+   "tactics": [
+    "have : (Real.sqrt (x_1 * x_2))^2 = x_1 * x_2 := Real.sq_sqrt (mul_nonneg hx_1.le hx_2.le)"
+   ],
+   "nl": "Prove that for all positive reals $x_1, x_2$, the following inequality holds:\\n\\n $x_1 + x_2 \\geq 2\\sqrt{x_1x_2}$"
+  },
+  {
+   "name": "lean_workbook_plus_246",
+   "statement": "theorem lean_workbook_plus_246 (Nat.choose (4+218-1) 218) = 1774630   :=  by sorry",
+   "tactics": [
+    "conv => lhs",
+    "rw [← Nat.mod_add_div 4 3, ← Nat.mod_add_div 218 3]"
+   ],
+   "nl": "The equation $x+y+z+w = 222$ can be transform into (1) by setting $x_{1}= x-1$ , $x_{2}= y-1$ , $x_{3}= z-1$ and $x_{4}= w-1$ . Making these substitutions, the result is the Diophantine equation $\\sum_{i=1}^{4}\\: x_{i}\\;=\\; 218$ . Hence the number of solutions is $A(4,218) = C(4+218-1,218) = C(221,2"
+  },
+  {
+   "name": "lean_workbook_plus_289",
+   "statement": "theorem lean_workbook_plus_289 (a b c : ℝ) :\n  a^4 * b^2 + b^4 * c^2 ≥ 2 * b^3 * a^2 * c ∧\n  a^4 * b^2 + c^4 * a^2 ≥ 2 * a^3 * c^2 * b ∧\n  b^4 * c^2 + c^4 * a^2 ≥ 2 * c^3 * b^2 * a   :=  by sorry",
+   "tactics": [
+    "refine ⟨by nlinarith [sq_nonneg (a^2 - b*c), sq_nonneg (b^2 - c*a), sq_nonneg (c^2 - a*b)], by nlinarith [sq_nonneg (a^2 - c*b), sq_nonneg (b^2 - a*c), sq_nonneg (c^2 - b*a)], by nlinarith [sq_nonneg (b^2 - a*c), sq_nonneg (c^2 - b*a), sq_nonneg (a^2 - c*b)]⟩"
+   ],
+   "nl": "Inequality follows from these three am-gm inequalities. \\n $ a^4b^2+b^4c^2 \\geq 2b^3a^2c$ \\n $ a^4b^2+c^4a^2\\geq 2a^3c^2b$ \\n $ b^4c^2+c^4a^2\\geq 2c^3b^2a$ ."
+  },
+  {
+   "name": "lean_workbook_plus_374",
+   "statement": "theorem lean_workbook_plus_374 (x : ℝ) (hx: x ≠ 0) (h2x: x ≠ π/2) : 2 * cos x / abs (sin x) * (2 * sin x / abs (cos x)) = 4 * cos x * sin x / (abs (sin x) * abs (cos x))   :=  by sorry",
+   "tactics": [
+    "ring_nf"
+   ],
+   "nl": "So required expression is $\\frac{2\\cos x}{|\\sin x|}\\frac{2\\sin x}{|\\cos x|}$"
+  },
+  {
+   "name": "lean_workbook_plus_386",
+   "statement": "theorem lean_workbook_plus_386 (x t : ℂ) : (1 + 2 * x - t ^ 2) * t - x ^ 2 + x + x * (2 * x - t ^ 2) = 0 ↔ x = t ^ 2 - t ∨ x = -t - 1   :=  by sorry",
+   "tactics": [
+    "apply Iff.intro <;> intro h <;> (have h1 := eq_or_ne x (t ^ 2 - t) <;> aesop)"
+   ],
+   "nl": "First equation is $(1+2x-t^2)t-x^2+x+x(2x-t^2)$\\nWhich may be written $(x-t^2+t)(x+t+1)=0$\\nAnd so $x=t^2-t$ or $x=-t-1$"
+  },
+  {
+   "name": "lean_workbook_plus_415",
+   "statement": "theorem lean_workbook_plus_415 (x y z : ℝ) (hx : 0 < x) (hy : 0 < y) (hz : 0 < z) (h : x * y * z = 1) : (x ^ 2 + y ^ 2 + z ^ 2) * (x ^ 4 + y ^ 4 + z ^ 4) ≤ 3 * (x ^ 6 + y ^ 6 + z ^ 6)   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (x^2 - y^2), sq_nonneg (y^2 - z^2), sq_nonneg (z^2 - x^2)]"
+   ],
+   "nl": "Prove that for positive real numbers $x, y, z$ satisfying $xyz = 1$, the following inequality holds:\\n$(x^{2}+y^{2}+z^{2})(x^{4}+y^{4}+z^{4})\\leq 3(x^{6}+y^{6}+z^{6})$"
+  },
+  {
+   "name": "lean_workbook_plus_420",
+   "statement": "theorem lean_workbook_plus_420 (x x1 x2 S P : ℂ) (hx : x ≠ x1 ∧ x ≠ x2) (hS : S = x1 + x2) (hP : P = x1 * x2) : (x - x1) * (x - x2) = x^2 - S * x + P   :=  by sorry",
+   "tactics": [
+    "simp [hS, hP, sub_mul, mul_sub, mul_comm, mul_assoc, mul_left_comm]"
+   ],
+   "nl": "Illustrate the solution using the quadratic equation $(x-x_1)(x-x_2)\\equiv x^2-Sx+P=0$ where $S=x_1+x_2$ and $P=x_1x_2$."
+  },
+  {
+   "name": "lean_workbook_plus_435",
+   "statement": "theorem lean_workbook_plus_435 (a b c : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c) : (a^2 + b^2 - c^2) * (a - b)^2 + (b^2 + c^2 - a^2) * (b - c)^2 + (c^2 + a^2 - b^2) * (c - a)^2 ≥ 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a + b - c), sq_nonneg (b + c - a), sq_nonneg (c + a - b)]"
+   ],
+   "nl": "Prove that for non-negative real numbers $a, b, c$, the following inequality holds: $(a^{2}+b^{2}-c^{2})(a-b)^{2}+(b^{2}+c^{2}-a^{2})(b-c)^{2}+(c^{2}+a^{2}-b^{2})(c-a)^{2}\\geq 0$."
+  },
+  {
+   "name": "lean_workbook_plus_720",
+   "statement": "theorem lean_workbook_plus_720 (x : ℝ) : x^3 - 9*x^2 + 27*x - 27 = 0 ↔ x = 3   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun h => _, fun h => by rw [h]",
+    "norm_num⟩"
+   ],
+   "nl": "Solve the equation: $ x^3-9x^2+27x-27=0 $"
+  },
+  {
+   "name": "lean_workbook_plus_739",
+   "statement": "theorem lean_workbook_plus_739 (f : ℝ → ℝ) (hf : f = λ x => x^4 + ax^3 + bx^2 + cx + d) : f (-1) = -1 ∧ f 2 = -4 ∧ f (-3) = -9 ∧ f 4 = -16 → f 1 = -1   :=  by sorry",
+   "tactics": [
+    "simp [hf] at *"
+   ],
+   "nl": "If $f(x)$ is monic quartic polynomial such that $f(-1)=-1$ , $f(2)=-4$ , $f(-3)=-9$ , and $f(4)=-16$ , find $f(1)$ ."
+  },
+  {
+   "name": "lean_workbook_plus_849",
+   "statement": "theorem lean_workbook_plus_849 :\n  (18 * 697 + 17) % 1920 = 1043   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.mod_eq_of_lt (by norm_num : 1043 < 1920)]"
+   ],
+   "nl": "We want $3n+45$ to be equal to $16$ (mod $1060$ ). This leads us to set up an equation: \\n $$3n+45=16+1060x \\implies$$ $$3(n+15)=3(5+353x)+x+1$$ Since $n$ must be an integer the RHS must be divisible by $3$ . From the factorization above we clearly only need $x+1$ to be divisible by $3$ (since the r"
+  },
+  {
+   "name": "lean_workbook_plus_850",
+   "statement": "theorem lean_workbook_plus_850  (a n : ℕ)\n  (h₀ : Odd a)\n  : Even (a^(2^n) - 1)   :=  by sorry",
+   "tactics": [
+    "obtain ⟨b, rfl⟩ := h₀"
+   ],
+   "nl": "Now let $p=2$ . A necessary condition for $a^{2^n}- 1$ to be even is $a$ to be odd. Conversely, if $a$ is odd, then all factors (which are $n+1$ in amount) are even, so the whole product is divisible by $2^{n+1}$ (and in particular, by $2^n$ )."
+  },
+  {
+   "name": "lean_workbook_plus_905",
+   "statement": "theorem lean_workbook_plus_905 : (2 + Real.sqrt 3) + (2 - Real.sqrt 3) = 4   :=  by sorry",
+   "tactics": [
+    "norm_num [add_comm, add_left_comm, add_assoc]"
+   ],
+   "nl": "Simplify $(2+\\sqrt{3}) + (2-\\sqrt{3})$"
+  },
+  {
+   "name": "lean_workbook_plus_1003",
+   "statement": "theorem lean_workbook_plus_1003  (a b c d e f : ℕ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c ∧ 0 < d ∧ 0 < e ∧ 0 < f)\n  (h₁ : a * b * c - d * e * f = 1) :\n  (a * b * c - d * e * f : ℚ) ≥ 1 / 288   :=  by sorry",
+   "tactics": [
+    "norm_num [h₀.1, h₀.2.1, h₀.2.2.1, h₀.2.2.2.1, h₀.2.2.2.2.1, h₀.2.2.2.2.2, h₁]"
+   ],
+   "nl": "SolutionIdeally, $abc-def=1$ . Guessing and checking without using $9$ or $8$ in the numerator gives $\\\\frac{6\\cdot3\\cdot2-7\\cdot5\\cdot1}{9\\cdot8\\cdot4}$ . Since $abc-def=1$ , then one of $\\{a,b,c\\}$ or $\\{d,e,f\\}$ must contain only odd factors, and trying the $1,3,5$ case means one of them must be "
+  },
+  {
+   "name": "lean_workbook_plus_1021",
+   "statement": "theorem lean_workbook_plus_1021 ∑ k in Finset.Icc 0 23, (k+2).choose 2 = (26).choose 3   :=  by sorry",
+   "tactics": [
+    "calc ∑ k in Finset.Icc 0 23, choose (k + 2) 2"
+   ],
+   "nl": "Notice that we can do casework on all equations from $x+y+z=0, x+y+z=1,..., x+y+z=23$ . By stars and bars, the number of solutions to each equation is $\\binom{2}{2}, \\binom{3}{2}, \\binom{4}{2},\\cdots,\\binom{25}{2}$ , respectively. Adding up all these cases and using the hockey stick identity, we get"
+  },
+  {
+   "name": "lean_workbook_plus_1270",
+   "statement": "theorem lean_workbook_plus_1270 : ∃ f : ℝ → ℝ, ∀ x, f x = 1 ∨ f x = x^3   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun x => 1, by simp⟩"
+   ],
+   "nl": "What about $f(x)=1$ $\\forall $ algebraic $x$ and $f(x)=x^3$ for non algebraic numbers."
+  },
+  {
+   "name": "lean_workbook_plus_1305",
+   "statement": "theorem lean_workbook_plus_1305 (x y z : ℝ) (hx : 0 < x) (hy : 0 < y) (hz : 0 < z) : (x / (y + z) + y / (z + x) + z / (x + y)) ≥ 3 / 2   :=  by sorry",
+   "tactics": [
+    "field_simp [hx, hy, hz]"
+   ],
+   "nl": "Prove that for all positive numbers $x, y, z$, the following inequality holds: $ \\sum_{cyc}\\frac {x}{y + z} \\geq \\frac {3}{2}$"
+  },
+  {
+   "name": "lean_workbook_plus_1320",
+   "statement": "theorem lean_workbook_plus_1320 (a b c d : ℝ) : 2 * (a + c) ^ 2 + 2 * (b + d) ^ 2 ≥ 8 * (a * c + b * d)   :=  by sorry",
+   "tactics": [
+    "linarith [sq_nonneg (a - c), sq_nonneg (b - d)]"
+   ],
+   "nl": "Using the Arithmetic Mean-Geometric Mean (AM-GM) inequality, show that $2(a+c)^{2}+2(b+d)^{2} \\geq 8(ac+bd)$."
+  },
+  {
+   "name": "lean_workbook_plus_1384",
+   "statement": "theorem lean_workbook_plus_1384 (a b c : ℝ) : a ^ 2 + b ^ 2 + c ^ 2 ≥ a * b + b * c + a * c   :=  by sorry",
+   "tactics": [
+    "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "Prove the inequality $a^2 + b^2 + c^2 \\geq ab + bc + ac$"
+  },
+  {
+   "name": "lean_workbook_plus_1405",
+   "statement": "theorem lean_workbook_plus_1405 (a b c: ℝ) (ha : a ≥ 0) (hb : b ≥ 0) (hc : c ≥ 0) : 9 * (a ^ 3 + b ^ 3 + c ^ 3) ≥ (a + b + c) ^ 3   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "Prove that for nonnegative variables $a$, $b$, and $c$, the following inequality holds: $9(a^3 + b^3 + c^3) \\geq (a + b + c)^3$."
+  },
+  {
+   "name": "lean_workbook_plus_1479",
+   "statement": "theorem lean_workbook_plus_1479 (a b c : ℤ) (ha : a ≠ 0) (hb : b ≠ 0) (hc : c ≠ 0) (hab : a * b * c ≠ 0) : (a / b : ℚ) ^ 3 - (a / b + b / c + c / a) * (a / b) ^ 2 + (a / c + c / b + b / a) * (a / b) - 1 = 0   :=  by sorry",
+   "tactics": [
+    "field_simp [ha, hb, hc, hab]"
+   ],
+   "nl": "We have $\\frac{a}{b},\\frac{b}{c},\\frac{c}{a}$ are all positive rational numbers and all of them are root of equation $x^3-\\Big( \\frac{a}{b}+\\frac{b}{c}+\\frac{c}{a}\\Big) x^2 +\\Big( \\frac{a}{c}+\\frac{c}{b}+\\frac{b}{a} \\Big) x-1=0$ which all coefficient are integers"
+  },
+  {
+   "name": "lean_workbook_plus_1500",
+   "statement": "theorem lean_workbook_plus_1500 (x y : ℝ) : (1 + 1 / 4) * (x ^ 2 + 4 * y ^ 2) ≥ (x + y) ^ 2   :=  by sorry",
+   "tactics": [
+    "field_simp [sq]"
+   ],
+   "nl": "Prove $(1+1/4)(x^2+4y^2) \\ge (x+y)^2$ using Cauchy Schwarz inequality"
+  },
+  {
+   "name": "lean_workbook_plus_1534",
+   "statement": "theorem lean_workbook_plus_1534  (a b c : ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : a + b + c = 3)\n  (h₂ : a * b + b * c + c * a = 3) :\n  a * b * c ≥ 1   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "By AM-GM, we have $ab+bc+ac\\geq3\\sqrt[3]{a^2b^2c^2}$ and also $\\sqrt{ab}+\\sqrt{bc}+\\sqrt{ac}\\geq3\\sqrt[3]{abc}$. Therefore the desired inequality becomes $27\\sqrt[3]{(abc)^4}\\geq27$. It remains to show that $abc\\geq 1$ ."
+  },
+  {
+   "name": "lean_workbook_plus_1536",
+   "statement": "theorem lean_workbook_plus_1536 (x : ℕ → ℝ) : (∃ x_1 x_2 x_3 x_4 :ℝ, x_1 + x_2 * x_3 * x_4 = 2 ∧ x_2 + x_3 * x_4 * x_1 = 2 ∧ x_3 + x_4 * x_1 * x_2 = 2 ∧ x_4 + x_1 * x_2 * x_3 = 2) ↔ (∃ x_1 x_2 x_3 x_4 :ℝ, x_1 + x_2 * x_3 * x_4 = 2 ∧ x_2 + x_3 * x_4 * x_1 = 2 ∧ x_3 + x_4 * x_1 * x_2 = 2 ∧ x_4 + x_1 * x_2 * x_3 = 2)   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun h ↦ h, fun h ↦ h⟩"
+   ],
+   "nl": "Solve the system of equation for $x_1,x_2,x_3,x_4\\in \\mathbb{R}$\\n$$\\begin{cases}x_1+x_2x_3x_4=2 \\ x_2+x_3x_4x_1=2 \\ x_3+x_4x_1x_2=2 \\ x_4+x_1x_2x_3=2\\end{cases}$$"
+  },
+  {
+   "name": "lean_workbook_plus_1623",
+   "statement": "theorem lean_workbook_plus_1623 (x : ℝ) : x^2 - 9*x + 20 = 0 ↔ x = 4 ∨ x = 5   :=  by sorry",
+   "tactics": [
+    "constructor <;> intro h"
+   ],
+   "nl": "Solve for x: $x^2 - 9x + 20 = 0$"
+  },
+  {
+   "name": "lean_workbook_plus_1625",
+   "statement": "theorem lean_workbook_plus_1625 (a : ℝ) (x : ℝ) (h₁ : 0 < a ∧ a < 1) (h₂ : x = 2 + a) : a = x - 2   :=  by sorry",
+   "tactics": [
+    "linarith [h₁.1, h₁.2, h₂]"
+   ],
+   "nl": "Find the value of $a$ for $x = 2 + a$ where $0 < a < 1$ to solve the equation."
+  },
+  {
+   "name": "lean_workbook_plus_1783",
+   "statement": "theorem lean_workbook_plus_1783  (a : ℕ)\n  (h₀ : 0 < a)\n  (h₁ : a - 1 = 8) :\n  a = 9   :=  by sorry",
+   "tactics": [
+    "omega"
+   ],
+   "nl": "Let the starting amount of apples be $a.$ Setting up an equation, there are $a-1$ apples left after Bob takes $1,$ $\\left(1-\\dfrac14\\right)(a-1)=\\dfrac34(a-1)$ apples left after Mary takes $\\dfrac14$ of the apples, and $\\left(\\dfrac56\\right)\\left(\\dfrac34\\right)(a-1)+1=6$ apples left after Joe takes"
+  },
+  {
+   "name": "lean_workbook_plus_1784",
+   "statement": "theorem lean_workbook_plus_1784  (x : ℝ)\n  (h₀ : ∑' k : ℕ, (7 / (2^k)) = x) :\n  x = 14   :=  by sorry",
+   "tactics": [
+    "ring_nf at h₀ ⊢"
+   ],
+   "nl": "Solution without Geometric Formula\\n$$\\frac{7}{1} + \\frac{7}{2} + \\frac{7}{4} + \\frac{7}{8}\\cdots= x $$ We divide everything by 2: \\n $$\\frac{7}{2} + \\frac{7}{4} + \\frac{7}{8} + \\frac{7}{16}\\cdots= \\frac{x}{2} $$ We substitute the original equation in: \\n $$x-7=\\frac{x}{2}$$ $$\\frac{x}{2}=7$$ Theref"
+  },
+  {
+   "name": "lean_workbook_plus_1810",
+   "statement": "theorem lean_workbook_plus_1810 (a b c : ℝ) (ha : a > 0 ∧ b > 0 ∧ c > 0 ∧ a * b * c = 1) : 1 / (2 * a ^ 3 + 1) * (a ^ 3 + 2) + 1 / (2 * b ^ 3 + 1) * (b ^ 3 + 2) + 1 / (2 * c ^ 3 + 1) * (c ^ 3 + 2) ≥ 1 / 3   :=  by sorry",
+   "tactics": [
+    "simp [div_eq_mul_inv, add_comm, add_left_comm, add_assoc]"
+   ],
+   "nl": "The following inequality is also true. \\nIf $a, b, c>0, abc=1$ prove that \\n $\\sum_{cyc}{\\\\frac{1}{(2a^3+1)(a^3+2)}}\\\\ge\\\\frac{1}{3}$"
+  },
+  {
+   "name": "lean_workbook_plus_1826",
+   "statement": "theorem lean_workbook_plus_1826 (x y : ℝ) : (|x| + |y|) ^ 2 ≥ (|x + y|) ^ 2   :=  by sorry",
+   "tactics": [
+    "simp [sq, abs_add, add_assoc, add_comm, add_left_comm]"
+   ],
+   "nl": "Prove the inequality $(|x|+|y|)^2\\geq(|x+y|)^2$."
+  },
+  {
+   "name": "lean_workbook_plus_1832",
+   "statement": "theorem lean_workbook_plus_1832 (x : ℝ) (hx : x^2 - 18*x + 65 = 0) : (x-13)*(x-5) = 0   :=  by sorry",
+   "tactics": [
+    "linarith [sq_nonneg (x - 13), sq_nonneg (x - 5)]"
+   ],
+   "nl": "Solving the equation for x gives us \\(x^2 - 18x + 65 = 0\\), which factors to \\((x-13)(x-5) = 0.\\)"
+  },
+  {
+   "name": "lean_workbook_plus_1842",
+   "statement": "theorem lean_workbook_plus_1842 (a b x y : ℝ) (h1 : a * x + b * y = 3) (h2 : a * x^2 + b * y^2 = 7) (h3 : a * x^3 + b * y^3 = 16) (h4 : a * x^4 + b * y^4 = 42) : a * x^5 + b * y^5 = 20   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x - 1), sq_nonneg (y - 1)]"
+   ],
+   "nl": "Find $ax^5 + by^5$ if the real numbers $a,b,x$ and $y$ satisfy the equations $ax + by = 3, ~~ ax^2 + by^2 = 7, ~~ ax^3 + by^3 = 16, ~~ ax^4 + by^4 = 42$"
+  },
+  {
+   "name": "lean_workbook_plus_1895",
+   "statement": "theorem lean_workbook_plus_1895  (a b : ℝ)\n  (h₀ : 0 < a ∧ 0 < b)\n  (h₁ : a^2 + 2 * b ≥ a^2 + 2 * a + 1) :\n  2 * b ≥ 2 * a + 1   :=  by sorry",
+   "tactics": [
+    "linarith [sq_nonneg (a - 1), h₀.1, h₀.2, h₁]"
+   ],
+   "nl": "Expanding and simplifying, we have that $a^2+2b \\geq a^2+2a+1 \\implies 2b \\geq 2a+1$."
+  },
+  {
+   "name": "lean_workbook_plus_1961",
+   "statement": "theorem lean_workbook_plus_1961 (a b c : ℝ) (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) : (a^2 / (a + b) + b^2 / (b + c)) ≥ (3 * a + 2 * b - c) / 4   :=  by sorry",
+   "tactics": [
+    "field_simp [ha.ne', hb.ne', hc.ne']"
+   ],
+   "nl": "Prove the inequality for positive variables a, b, and c: \\n$ \\frac{a^2}{a+b}+\\frac{b^2}{b+c} \\ge \\frac{3a+2b-c}{4} $"
+  },
+  {
+   "name": "lean_workbook_plus_2022",
+   "statement": "theorem lean_workbook_plus_2022 (a b c u v w : ℝ) (h : a + b + c ≥ a * b * c) : (u + v + w) ^ 2 ≥ 3 * (u * v + v * w + w * u)   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (u - v), sq_nonneg (v - w), sq_nonneg (w - u)]"
+   ],
+   "nl": "Given the condition $a + b + c \\geq abc$, prove the inequality $(u + v + w)^2 \\geq 3(uv + vw + uw)$, where $u = \\frac{1}{a}, v = \\frac{1}{b}, w = \\frac{1}{c}$."
+  },
+  {
+   "name": "lean_workbook_plus_2043",
+   "statement": "theorem lean_workbook_plus_2043 : 56^6053 ≡ 56^53 [MOD 1000]   :=  by sorry",
+   "tactics": [
+    "norm_num [pow_succ, pow_mul, pow_one, Nat.ModEq]"
+   ],
+   "nl": "Simplify $56^{6053}\\equiv 56^{53}\\pmod {1000}$"
+  },
+  {
+   "name": "lean_workbook_plus_2046",
+   "statement": "theorem lean_workbook_plus_2046 (a b c : ℝ) : 2 * a ^ 4 + b ^ 4 + c ^ 4 - 4 * a ^ 2 * b * c ≥ 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a^2 - b * c), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - a^2)]"
+   ],
+   "nl": "Prove the inequality: $2a^4 + b^4 + c^4 - 4a^2bc \\geq 0$ for all real numbers $a$, $b$, and $c$."
+  }
+ ],
+ "analysis": [
+  {
+   "name": "lean_workbook_plus_189",
+   "statement": "theorem lean_workbook_plus_189 (f : ℝ → ℝ) (hf: ∀ a v w : ℝ, f (a * v) = a * f v ∧ f (v + w) = f v + f w) : ∃ c :ℝ, ∀ x : ℝ, f x = c * x   :=  by sorry",
+   "tactics": [
+    "refine' ⟨f 1, fun x ↦ _⟩"
+   ],
+   "nl": "Prove that if $f(av)=af(v)$ and $f(v+w)=f(v)+f(w)$ for all $a, v, w \\in \\mathbb{R}$, then $f$ is a linear function of the form $f(x) = cx$ for some constant $c$."
+  },
+  {
+   "name": "lean_workbook_plus_430",
+   "statement": "theorem lean_workbook_plus_430 (n : ℕ) : (fib (n + 2))^2 - fib (n + 1) * fib (n + 2) - (fib (n + 1))^2 = (-1 : ℤ)^(n + 1)   :=  by sorry",
+   "tactics": [
+    "simp [fib_add_two, pow_add, mul_add, mul_comm, mul_left_comm]"
+   ],
+   "nl": "Prove that $F_{n+2}^2 - F_{n+1} \\cdot F_{n+2} - F_{n+1}^2 = (-1)^{n+1}$ using the given Fibonacci sequence relation $F_0=0, F_1=1, F_{n+1}=F_n+F_{n-1}$"
+  },
+  {
+   "name": "lean_workbook_plus_470",
+   "statement": "theorem lean_workbook_plus_470 (a d : ℝ) (h : a = 0 ∧ d = 0) : ∑' i : ℕ, (a + i * d) = 0   :=  by sorry",
+   "tactics": [
+    "simp [h.1, h.2, tsum_zero]"
+   ],
+   "nl": "Find the sum of the infinite arithmetic series $0+0+0+0...$ when $a=0$ and $d=0$."
+  },
+  {
+   "name": "lean_workbook_plus_674",
+   "statement": "theorem lean_workbook_plus_674 (u : ℕ → ℝ) (h : ∀ n, if n % 2 = 0 then u n = 1 / n else u n = n) : 0 ∈ closure (Set.range u)   :=  by sorry",
+   "tactics": [
+    "refine' mem_closure_iff_nhds.2 fun t ht => _"
+   ],
+   "nl": "Find the limit point of the sequence $u_n= \\left\\{ \\begin{array}{ll} n & \\text{if n is odd} \\ \\frac{1}{n} &\\text{if n is even} \\end{array} \\right.$"
+  },
+  {
+   "name": "lean_workbook_plus_768",
+   "statement": "theorem lean_workbook_plus_768 (f : ℝ → ℝ):(∀ x y, f (x * y) = x * f y) ↔ ∃ l:ℝ, ∀ x, f x = x * l   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun h ↦ ⟨f 1, fun x ↦ by rw [← mul_one x, h, mul_one]⟩, fun h ↦ _⟩"
+   ],
+   "nl": "Find all function f:R->R ,s.t. $f(xy)=xf(y)$ for any $x,y\\in{R}$"
+  },
+  {
+   "name": "lean_workbook_plus_1011",
+   "statement": "theorem lean_workbook_plus_1011 (a : ℕ → ℝ) (c x : ℝ) (hc : 0 < c) (hx : |x| < c) : ∃ y : ℝ, y = ∑' k : ℕ, a k * x ^ k   :=  by sorry",
+   "tactics": [
+    "refine' ⟨∑' k : ℕ, a k * x ^ k, by simp⟩"
+   ],
+   "nl": "Let $f(x)=\\sum_{k=0}^{\\infty}a_{k}x^{k}$ be a power series ( $a_{k}\\in \\mathbb{R}$ ). Suppose that $f(x)$ converges at $c$ where $c>0$ . Show that $f(x)$ converges at any $x$ with $|x|<c$ ."
+  },
+  {
+   "name": "lean_workbook_plus_1149",
+   "statement": "theorem lean_workbook_plus_1149 (x y : ℝ) (r : ℝ) (hr : r = Real.sqrt (x ^ 2 + y ^ 2)) (hp : -Real.pi < θ ∧ θ ≤ Real.pi) (htr : (x, y) = (r * Real.cos θ, r * Real.sin θ)) : (x, y) = (r * Real.cos θ, r * Real.sin θ) ∧ -Real.pi < θ ∧ θ ≤ Real.pi   :=  by sorry",
+   "tactics": [
+    "exact ⟨htr, hp⟩"
+   ],
+   "nl": "Determine the properties of the function $\\theta:\\mathbb{R}^2\\setminus \\{(0,0)\\}\\to \\mathbb{R}$ defined by $(x,y) \\mapsto \\theta(x,y)$, where $\\theta$ is the unique real number such that $-\\pi<\\theta \\leq \\pi$ and $(x,y)=(r\\cos \\theta,r\\sin \\theta)$ with $r=\\sqrt{x^2+y^2}$."
+  },
+  {
+   "name": "lean_workbook_plus_1200",
+   "statement": "theorem lean_workbook_plus_1200 : ∃ f : ℝ → ℝ, ∀ x, f x = 0   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun x ↦ 0, fun x ↦ rfl⟩"
+   ],
+   "nl": "The function $f(x)=0,\\forall x\\in \\mathbb{R}$ it is clearly accepted."
+  },
+  {
+   "name": "lean_workbook_plus_1321",
+   "statement": "theorem lean_workbook_plus_1321  (f : ℝ → ℝ)\n  (h₀ : StrictAnti f)\n  (h₁ : f 0 = 1)\n  (h₂ : f 1 = 0)\n  : ∀ x ∈ Set.Ioo 0 1, 0 < f x ∧ f x < 1   :=  by sorry",
+   "tactics": [
+    "intro x hx"
+   ],
+   "nl": "The function $f(x)$ is strictly decreasing; $f(0)=1;f(1)=0\\Longrightarrow f(x)\\in(0,1),\\;\\forall x\\in(0,1)\\Longrightarrow x_n\\in(0,1),\\;\\forall n\\in\\mathbb{N}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_1680",
+   "statement": "theorem lean_workbook_plus_1680 (a r : ℝ) (h : |r| < 1) : ∑' i : ℕ, a * r ^ i = a / (1 - r)   :=  by sorry",
+   "tactics": [
+    "field_simp [tsum_mul_left, tsum_geometric_of_abs_lt_1 h]"
+   ],
+   "nl": "Let the series be $a+ar+ar^2+ar^3...=S$. Prove that $S=\\frac{a}{1-r}$ when $|r|<1$."
+  },
+  {
+   "name": "lean_workbook_plus_1789",
+   "statement": "theorem lean_workbook_plus_1789 : Function.Injective exp   :=  by sorry",
+   "tactics": [
+    "exact exp_injective"
+   ],
+   "nl": "Prove that the exponential function $R \\mapsto R : x \\mapsto e^{x}$ is injective."
+  },
+  {
+   "name": "lean_workbook_plus_1947",
+   "statement": "theorem lean_workbook_plus_1947 {f : A → B} : (∀ y : B, ∃ x : A, f x = y) ↔ ∀ Z : Set B, ∃ X : Set A, f '' X = Z   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun h Z ↦ _, fun h y ↦ _⟩"
+   ],
+   "nl": "Prove that a function $f:A \\rightarrow B$ is surjective if and only if for every subset $Z \\subset B$, there exists a subset $X \\subset A$ such that $f(X) = Z$. Use the definition: a function is surjective if for every element $y$ in the codomain, there exists an element in the domain such that $f(x"
+  },
+  {
+   "name": "lean_workbook_plus_2315",
+   "statement": "theorem lean_workbook_plus_2315 (x : ℕ → ℝ) (hx : CauchySeq x) :\n    ∃ n : ℕ → ℕ, ∀ k : ℕ, ‖x (n (k + 1)) - x (n k)‖ ≤ (1 / 2)^k   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, fun k => _⟩"
+   ],
+   "nl": "Take a Cauchy sequence $\\{x_n\\}$ and construct a subsequence $\\{x_{n_k}\\}$ such that $\\lVert x_{n_{k+1}}-x_{n_k}\\rVert\\leq 2^{-k}$ for all $k$."
+  },
+  {
+   "name": "lean_workbook_plus_2475",
+   "statement": "theorem lean_workbook_plus_2475 (A : ℝ → ℝ) (x : ℝ) (hx: x ≠ 2) (hA: A x = (2^x+3^x)/(5^(x/2)+2^(x+1))) (hA2: A 2 = 1): ∃ L, ∀ ε : ℝ, ε > 0 → ∃ δ : ℝ, δ > 0 ∧ ∀ x : ℝ, x ∈ Set.Ioo 2 δ → |e^((Real.log (A x) - Real.log (A 2)) / (2 - x)) - L| < ε   :=  by sorry",
+   "tactics": [
+    "refine' ⟨1, fun ε ε0 => ⟨1, by norm_num⟩⟩"
+   ],
+   "nl": "Find the limit of $e^{\\frac{\\ln(A(x))-\\ln(A(2))}{2-x}}$ as $x$ approaches 2, where $A(x) = (\\dfrac{2^x+3^x}{5^{\\frac{x}{2}}+2^{x+1}})$ and $A(2) = 1$."
+  },
+  {
+   "name": "lean_workbook_plus_2613",
+   "statement": "theorem lean_workbook_plus_2613 (x : ℕ → ℝ) (x0 : ℝ) (h : ∀ n, x n = x0) : ∃ l, ∀ ε > 0, ∃ N, ∀ n ≥ N, |x n - l| < ε   :=  by sorry",
+   "tactics": [
+    "refine' ⟨x0, fun ε ε0 => ⟨0, fun n _ => by simp [h, ε0]⟩⟩"
+   ],
+   "nl": "$\\textbf{Case 1: }$ For $x_1=x_0: x_n=x_0,\\;\\forall n\\in\\mathbb{N}$ . In this case, the sequence $(x_n)_{n\\in\\mathbb{N}}$ is constant, hence convergent."
+  },
+  {
+   "name": "lean_workbook_plus_3200",
+   "statement": "theorem lean_workbook_plus_3200 (X : Type) [MetricSpace X]\n  (f : X → X) (hf : Continuous f) : Continuous (λ x => dist (f x) x)   :=  by sorry",
+   "tactics": [
+    "exact continuous_dist.comp (hf.prod_mk continuous_id)"
+   ],
+   "nl": "Let $(X,d)$ be some metric space, and let $f : X \\to X$ be a continuous function. Will the function $g : X \\to \\Bbb{R}$ defined by $g(x) = d(f(x),x)$ be a continuous function? If so, prove it."
+  },
+  {
+   "name": "lean_workbook_plus_3311",
+   "statement": "theorem lean_workbook_plus_3311 (n : ℕ) : ∑ i in Finset.range n, (1/2)^i = (1 - (1/2)^n)/(1 - 1/2)   :=  by sorry",
+   "tactics": [
+    "simp [Finset.sum_range_succ, Finset.sum_range_zero]"
+   ],
+   "nl": "Find the sum of the geometric series: $\\frac {1}{2} + \\frac{1}{2^2} + \\frac{1}{2^3} + ... + \\frac{1}{2^{10}}$"
+  },
+  {
+   "name": "lean_workbook_plus_3573",
+   "statement": "theorem lean_workbook_plus_3573  (a r : ℝ)\n  (n : ℕ)\n  (h₀ : a = -1)\n  (h₁ : r = 1)\n  (h₂ : n = 0)\n  (h₃ : ∑' n : ℕ, (a * r^n + 1) = 0) :\n  ∑' n : ℕ, (a * r^n + 1) = 0   :=  by sorry",
+   "tactics": [
+    "simp [h₀, h₁, h₂, h₃]"
+   ],
+   "nl": "If $a=-1$ and $r=1, \\displaystyle \\sum^{\\infty}_{n=0} \\left(ar^n + 1\\right)$ converges because $$\\sum^{\\infty}_{n=0} \\left(ar^n + 1\\right)= \\sum^\\infty_{n=0}\\left( -1\\cdot 1^n+1\\right)=\\sum^\\infty_{n=0}(-1+1)=\\sum^\\infty_{n=0}0=0$$"
+  },
+  {
+   "name": "lean_workbook_plus_3721",
+   "statement": "theorem lean_workbook_plus_3721 (X : Type*) [MetricSpace X]\n  (α : ℝ) (hα : 0 < α ∧ α < 1) (f : X → X) (hf : ∀ x y, dist (f x) (f y) ≤ α * dist x y) :\n  Continuous (λ x => dist (f x) x)   :=  by sorry",
+   "tactics": [
+    "apply Continuous.dist"
+   ],
+   "nl": "Let $f : X \\to X$ be such that $d(f(x),f(y)) \\le a d(x,y)$ for every $x,y \\in X$ for some $a \\in (0,1)$ . Show that $g(x) = d(f(x),x)$ is continuous."
+  },
+  {
+   "name": "lean_workbook_plus_3883",
+   "statement": "theorem lean_workbook_plus_3883 (n : ℕ) : ∃ F : ℕ → ℕ, ∀ k : ℕ, k ≤ n - 1 → F (k + 1) - F k ≥ 3   :=  by sorry",
+   "tactics": [
+    "exact ⟨fun k => 3 * k, by simp [Nat.mul_succ]⟩"
+   ],
+   "nl": "Find the number of functions $f: (1,2 \\cdots n) \\to (1,2,3,4,5)$ such that for any $k=1,2 \\cdots n-1$ , we have $|f(k+1)-f(k)| \\ge 3$."
+  },
+  {
+   "name": "lean_workbook_plus_4142",
+   "statement": "theorem lean_workbook_plus_4142 (E : Type*) [MetricSpace E] (f : E → ℝ)\n    (hf : ∀ a : ℝ, IsOpen {x | f x < a} ∧ IsOpen {x | f x > a}) :\n    Continuous f   :=  by sorry",
+   "tactics": [
+    "refine' continuous_iff_continuousAt.2 fun x => _"
+   ],
+   "nl": "Let $(E,d)$ be a metric space. Let $f:E\\to\\mathbb R$ be a function such that for all $a\\in\\mathbb R$ the sets $X=\\{x\\in E:f(x)<a\\}$ and $Y=\\{x\\in E:f(x)>a\\}$ are open in $E.$ Show that $f$ is continuous."
+  },
+  {
+   "name": "lean_workbook_plus_4640",
+   "statement": "theorem lean_workbook_plus_4640 : ∀ N : ℕ, ∃ M : ℝ, ∀ n : ℕ, n ≥ N → M ≤ ∑ i in Finset.range n, (1 : ℝ) / i ^ (3 / 2)   :=  by sorry",
+   "tactics": [
+    "refine' fun N => ⟨∑ i in Finset.range N, (1 : ℝ) / i ^ (3 / 2), fun n hn => _⟩"
+   ],
+   "nl": "Prove that the series $\\sum_{n = 1}^\\infty \\frac{1}{n^{\\frac{3}{2}}}$ is convergent."
+  },
+  {
+   "name": "lean_workbook_plus_4655",
+   "statement": "theorem lean_workbook_plus_4655 (L : ℕ → ℕ) (k : ℕ) (h₁ : k = 5) (h₂ : L 0 = 2) (h₃ : L 1 = 1) (h₄ : ∀ n, L (n + 2) = L (n + 1) + L n) : L k = 11   :=  by sorry",
+   "tactics": [
+    "simp [h₁, h₂, h₃, h₄]"
+   ],
+   "nl": "Find the value of $L_k$ when $k=5$ and ${L_n}$ is the nth number in Lucas sequence."
+  },
+  {
+   "name": "lean_workbook_plus_4672",
+   "statement": "theorem lean_workbook_plus_4672 ∀ n : ℕ, (∑ k in Finset.range (n+1), (Nat.choose n k)) - (n+1) + 1 = 2^n - n   :=  by sorry",
+   "tactics": [
+    "intro n"
+   ],
+   "nl": "Observe that there are $n+1$ sequences in the form of $FF ... FSS ... S$ . There are $2^n$ sequences of $F$ 's and $S$ 's, so the sought number is $2^n - (n+1) + 1 = 2^n - n$ . (The last $+1$ is from counting $FF ... F$ ; we haven't counted that in $2^n - (n+1)$ .)"
+  },
+  {
+   "name": "lean_workbook_plus_5162",
+   "statement": "theorem lean_workbook_plus_5162  (n : ℕ) :\n  ∑ k in (Finset.range (n + 1)), k = n * (n + 1) / 2   :=  by sorry",
+   "tactics": [
+    "simp [Finset.sum_range_id]"
+   ],
+   "nl": "or use induction. First of all, it is obvious to see that this sequence is twice $1 + 2 + \\cdots + n$ . I claim that this sequence's sum is equal to $\\frac{n(n+1)}{2}$ . This is trivially true for $n = 1$ . Now assume it true for $n-1$ --> we then get $S_{n} = S_{n-1} + n = \\frac{n(n-1)}{2} +n = \\fr"
+  },
+  {
+   "name": "lean_workbook_plus_5193",
+   "statement": "theorem lean_workbook_plus_5193 (f : ℝ → ℝ): (∀ x y, f (x + y) + f (x*y) = f (x^2) + f (y^2)) ↔ ∃ l:ℝ, ∀ x, f x = l   :=  by sorry",
+   "tactics": [
+    "refine ⟨fun h ↦ ⟨f 1, fun x ↦?_⟩, fun h ↦?_⟩"
+   ],
+   "nl": "Find all functions $f: R\\rightarrow R$ such that: $f(x+y)+f(xy)=f(x^2)+f(y^2)$ for all $x,y$ are reals"
+  },
+  {
+   "name": "lean_workbook_plus_5454",
+   "statement": "theorem lean_workbook_plus_5454 (f : ℝ → ℝ) (g : ℝ → ℝ) (hf: f = g + id) (hg: Continuous g) (h2g: g 2*x = g x) : ∃ c, f x = x + c   :=  by sorry",
+   "tactics": [
+    "exact ⟨g x, by simp [hf, h2g, add_comm]⟩"
+   ],
+   "nl": "Let $f(x) = g(x) + x.$ Then $g(2x) = g(x)$ , and since $g$ is continuous, $g$ is constant. Hence, all solutions are $f(x) = x +c$ where $c$ is any real constant."
+  },
+  {
+   "name": "lean_workbook_plus_5574",
+   "statement": "theorem lean_workbook_plus_5574 (a b x : ℝ) (hab : a < 0 ∧ b < 1) : a * b ^ x = a * b ^ x   :=  by sorry",
+   "tactics": [
+    "simp [hab.1, hab.2, mul_comm, mul_assoc, mul_left_comm]"
+   ],
+   "nl": "Given the function $y=ab^x$, where $a<0$ and $b<1$, classify the behavior of the function."
+  },
+  {
+   "name": "lean_workbook_plus_5584",
+   "statement": "theorem lean_workbook_plus_5584 : ∃ y, y = ∑' n : ℕ, (-1 : ℝ)^n * (exp 2)^n / (2 * n)!   :=  by sorry",
+   "tactics": [
+    "refine' ⟨∑' n : ℕ, (-1 : ℝ)^n * (Real.exp 2)^n / (2 * n)!, by simp⟩"
+   ],
+   "nl": "Observe that $\\sum_{n=1}^{\\infty}(-1)^{n}\\frac{e^{2n}}{(2n)!}<\\infty$ , in other words the series converges."
+  },
+  {
+   "name": "lean_workbook_plus_5685",
+   "statement": "theorem lean_workbook_plus_5685 (z : ℤ) (h₁ : ℤ → ℤ) (h₂ : ℤ → ℤ) (h₃ : ℤ → ℤ) : (h₃ ∘ h₂ ∘ h₁) z = h₃ (h₂ (h₁ z))   :=  by sorry",
+   "tactics": [
+    "simp only [Function.comp_apply]"
+   ],
+   "nl": "Combine the functions $h_1$, $h_2$, and $h_3$ to form the bijective function $h(z) = h_3(h_2(h_1(z)))$."
+  },
+  {
+   "name": "lean_workbook_plus_5943",
+   "statement": "theorem lean_workbook_plus_5943 (f : ℕ → ℝ) (k : ℕ) (h₁ : f k = 2 ^ k * k / ((k + 1) * (k + 2))) : f k = 2 ^ k * k / ((k + 1) * (k + 2))   :=  by sorry",
+   "tactics": [
+    "exact h₁"
+   ],
+   "nl": "The general term in the sequence is $\\frac{2^k k}{(k+1)(k+2)}$"
+  },
+  {
+   "name": "lean_workbook_plus_6560",
+   "statement": "theorem lean_workbook_plus_6560 :\n  (1 - 1 / 6)^3 * (1 / 6) / (1 - (1 - 1 / 6)^4) = 125 / 671   :=  by sorry",
+   "tactics": [
+    "norm_num [pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ]"
+   ],
+   "nl": "Let $p = \\frac{1}{6}$ , the probability of winning. \\n\\nWins on his first turn: $(1-p)^3 p$ \\nWins on his second turn: $(1-p)^7 p$ \\nSum is geometric series with first term $(1-p)^3 p$ and common ratio $(1-p)^4$ , which is $\\frac{(1-p)^3 p}{1-(1-p)^4} = \\frac{125}{671}$"
+  },
+  {
+   "name": "lean_workbook_plus_6732",
+   "statement": "theorem lean_workbook_plus_6732 (f : ℝ → ℝ) (f_def : ∀ x, x < 5 → f x = 3 * x + 6 ∧ ∀ x, 5 ≤ x → f x = 7 * x - 20) : f (f (f 2)) = 428   :=  by sorry",
+   "tactics": [
+    "norm_num [f_def 2, f_def 6, f_def 14]"
+   ],
+   "nl": "Let the function $f(x)=3x+6,$ if $x<5$ and $f(x)=7x-20,$ if $x\\geq 5.$ Then find the value of $f(f(f(2))).$"
+  },
+  {
+   "name": "lean_workbook_plus_6901",
+   "statement": "theorem lean_workbook_plus_6901 (a : ℕ → ℝ) (N : ℕ) (hN : ∀ m ≥ N, ∀ k ≥ 0, ∑ i in Finset.range k, |a (m + i)| < ε) : ∀ m ≥ N, ∀ k ≥ 0, ∑ i in Finset.range k, |a (m + i)| < ε   :=  by sorry",
+   "tactics": [
+    "exact fun m hm k hk ↦ hN m hm k hk"
+   ],
+   "nl": "Prove that $\\sum_{i=m}^{m+k}|a_i|<\\varepsilon$ for all $m\\ge N$ and all $k\\ge 0$ if $\\sum |a_n|$ converges."
+  },
+  {
+   "name": "lean_workbook_plus_7196",
+   "statement": "theorem lean_workbook_plus_7196 (r n : ℕ) (hn : 0 < n) : (∑ i in Finset.range (n + 1), (-1 : ℤ)^i * n.choose i * (n - i)^r) = (∑ i in Finset.range (n + 1), (-1 : ℤ)^i * n.choose i * (n - i)^r)   :=  by sorry",
+   "tactics": [
+    "simp only [Finset.sum_range_succ, Finset.sum_range_one, Finset.sum_range_zero]"
+   ],
+   "nl": "Prove that $A(r,n)=\\sum\\limits_{i=0}^n (-1)^{i}{n\\choose{i}}{(n-i)^{r}}$, where $A(r,n)$ denotes the number of ways that $r$ distinct balls are put into $n$ boxes such that there isn't any empty box."
+  },
+  {
+   "name": "lean_workbook_plus_7839",
+   "statement": "theorem lean_workbook_plus_7839  (a b c a' b' c' : ℝ)\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * x ^ 2 + b * x + c)\n  (h₁ : ∀ x, g x = a' * x ^ 2 + b' * x + c')\n  (h₂ : ∀ x, f x = g x) :\n  a = a' ∧ b = b' ∧ c = c'   :=  by sorry",
+   "tactics": [
+    "refine ⟨?_,?_,?_⟩"
+   ],
+   "nl": "For two functions $f(x)=ax^2+bx+c$ and $g(x)=a^{'}x^2+b^{'}x+c^{'}$ , $f(x)=g(x)$ holds for all $x \\in R$ if and only if $a=a^{'}$ , $b=b^{'}$ and $c=c^{'}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_8048",
+   "statement": "theorem lean_workbook_plus_8048  (x : ℝ)\n  (h₀ : 0 ≤ 5 - x^2) :\n  Real.sqrt (5 - x^2) ≤ Real.sqrt 5   :=  by sorry",
+   "tactics": [
+    "apply Real.sqrt_le_sqrt <;> nlinarith [h₀]"
+   ],
+   "nl": "Finding the greatest value of $\\sqrt{5 - x^2}$ is just like finding the maximum of $5 - x^2$ , and then square rooting that. Taking the derivative, we have $-2x = 0$ so $x = 0$ and the max is $5$ , thus the max of $\\sqrt{5 - x^2}$ is $\\boxed{\\sqrt{5}}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_8128",
+   "statement": "theorem lean_workbook_plus_8128 (C : ℕ → ℕ) (hC : C 0 = 1 ∧ ∀ n, C (n + 1) = ∑ i in Finset.range (n + 1), C i * C (n - i)) : ∃ A : ℕ → ℕ, ∀ n : ℕ, C n = A n   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun n ↦ C n, fun n ↦ rfl⟩"
+   ],
+   "nl": "Derive a generating function for the sequence $ C_n$ defined by $ C_0 = 1$ and $ C_{n + 1} = \\sum_{i = 0}^n C_i C_{n - i}$"
+  },
+  {
+   "name": "lean_workbook_plus_8520",
+   "statement": "theorem lean_workbook_plus_8520 (f : ℝ → ℝ) (hf : ∀ x ≠ 0, 3 * f x - 5 * x * f (1 / x) = x - 7) : f 2010 = 4021   :=  by sorry",
+   "tactics": [
+    "have h1 := hf 2010 (by norm_num)"
+   ],
+   "nl": "Suppose that $f$ is a function such that $3f(x)- 5xf \\left(\\frac{1}{x}\\right)= x - 7$ for all non-zero real numbers $x.$ Find $f(2010).$"
+  },
+  {
+   "name": "lean_workbook_plus_8556",
+   "statement": "theorem lean_workbook_plus_8556 (a b : ℤ) (x0 : ℤ) (hx0 : x0 ≠ 0) (h : x0^2 + a * x0 + b = 0) : x0 ∣ b   :=  by sorry",
+   "tactics": [
+    "have h1 : x0 * (x0 + a) = -b := by linarith"
+   ],
+   "nl": "If $x^2+ax+b=0$ has an integral root $x_0$ not equal to 0, then show that $x_0|b$."
+  }
+ ],
+ "combinatorics": [
+  {
+   "name": "lean_workbook_plus_39",
+   "statement": "theorem lean_workbook_plus_39 :\n  ∑' n : ℕ, (1 / 2) * ((1 / 4)^n) = 2 / 3   :=  by sorry",
+   "tactics": [
+    "simp [div_eq_mul_inv, mul_comm, mul_assoc, mul_left_comm]"
+   ],
+   "nl": "10) We have \\(l,a,b,r\\) where \\(l\\) is left, \\(a,b\\) are the two mirrors and \\(r\\) is right. If a light particle ends up moving left in \\(l\\), that means that it hits \\(a\\), goes \\(n\\) times up and down between \\(a,b\\) and goes left afterwards. Here \\(n\\ge 0\\). The probability for this is \\(\\frac{1}"
+  },
+  {
+   "name": "lean_workbook_plus_357",
+   "statement": "theorem lean_workbook_plus_357 choose 14 5 - choose 10 5 = 1750   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.choose_eq_factorial_div_factorial, Nat.factorial]"
+   ],
+   "nl": "Therefore, because we used complimentary counting we must subtract this from the total number of subsets to obtain our answer. Therefore the answer is the following: \\n\\n $ \\binom{14}{5}-\\binom{10}{5}=2002-252=1750$ ."
+  },
+  {
+   "name": "lean_workbook_plus_1324",
+   "statement": "theorem lean_workbook_plus_1324 (ε : ℝ) (a : ℕ → ℝ) (N : ℕ) (hN : N > 1 + Real.log (1/ε)) (ha : ∀ n ≥ N, |a n - Real.sqrt 2| ≤ ε) : ∀ n ≥ N, |a n - Real.sqrt 2| ≤ ε   :=  by sorry",
+   "tactics": [
+    "exact fun n hn ↦ ha n hn"
+   ],
+   "nl": "Let \\( \\epsilon >0 \\) be arbitrary. Choose \\( N > 1+\\log(\\frac{1}{\\epsilon}) \\) so that \\( |a_n-\\sqrt{2}| \\leq \\epsilon \\) \\( \\forall n \\geq N \\)"
+  },
+  {
+   "name": "lean_workbook_plus_2041",
+   "statement": "theorem lean_workbook_plus_2041 :\n  ∑ k in (Finset.range 31), (Nat.choose 30 k) = 2^30   :=  by sorry",
+   "tactics": [
+    "conv => lhs",
+    "rw [← Nat.mod_add_div (∑ k in Finset.range 31, choose 30 k) 2]"
+   ],
+   "nl": "There is $1$ way for the customer to select no topping at all. We will write that as $\\binom{30}{0}$ . Now we will consider the number of ways that the customer can choose $1$ topping. He has $30$ toppings to choose from. We will write that as $\\binom{30}{1}$ . Now, consider the number of ways that "
+  },
+  {
+   "name": "lean_workbook_plus_2543",
+   "statement": "theorem lean_workbook_plus_2543 (n : ℕ) : ∑ k in Finset.range (n+1), choose n k = 2^n   :=  by sorry",
+   "tactics": [
+    "rw [← Nat.sum_range_choose n, Finset.sum_range_succ]"
+   ],
+   "nl": "Prove that ${n\\choose0}+{n\\choose1}+{n\\choose2}+{n\\choose3}...{n\\choose n}$ equals $2^{n}$ using Newton's binomial theorem."
+  },
+  {
+   "name": "lean_workbook_plus_3727",
+   "statement": "theorem lean_workbook_plus_3727 :\n  (3 : ℚ)/5 * (3 : ℚ)/20 = (9 : ℚ)/100   :=  by sorry",
+   "tactics": [
+    "norm_num [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]"
+   ],
+   "nl": "Case 1: Jamal has a $\\frac{60}{100} = \\frac{3}{5}$ chance of using the bus, and a $\\frac{15}{100} = \\frac{3}{20}$ chance of arriving home after 7 PM when he does. Multiplying the probabilities (dependent events) gives $\\frac{9}{100}$, which is the probability of Jamal arriving home after 7 PM if he "
+  },
+  {
+   "name": "lean_workbook_plus_3917",
+   "statement": "theorem lean_workbook_plus_3917 (x y z : ℝ) : x ^ 2 + y ^ 2 + z ^ 2 ≥ x * y + y * z + z * x   :=  by sorry",
+   "tactics": [
+    "linarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]"
+   ],
+   "nl": "By the Rearrangement Theorem, prove that $ x^{2}+y^{2}+z^{2} \\geq xy + yz + zx$ ."
+  },
+  {
+   "name": "lean_workbook_plus_4042",
+   "statement": "theorem lean_workbook_plus_4042 :\n  (3 / 4)^3 * (1 / 4)^2 / (2^5 / 4^5 + 3 / 4 * (1 / 4)^2 * (3 / 4)^3) = 27 / 59   :=  by sorry",
+   "tactics": [
+    "norm_num [pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ]"
+   ],
+   "nl": "If you chose the fair coin, the probability of getting HTHTH is $(\\frac{1}{2})^5=\\frac{1}{2^5}=\\frac{2^5}{4^5}$ . If you choose the unfair coin, the probability of getting HTHTH is $(\\frac{3}{4})^3(\\frac{1}{4})^2=\\frac{27}{4^5}$ . The probability that you chose the unfair die is $\\frac{\\frac{27}{4^5"
+  },
+  {
+   "name": "lean_workbook_plus_4641",
+   "statement": "theorem lean_workbook_plus_4641 :\n  ((15! / (2! * 13!)) * (10! / (9! * 1!))) / (20! / (17! * 3!)) = 21 / 46   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ]"
+   ],
+   "nl": "The probability is equivalent to that of the number of ways to choose 2 boys times the number of ways to choose 1 girl divided by the total number of ways to choose 3 people. That is, $\\frac{\\binom{15}{2}\\binom{10}{1}}{\\binom{20}{3}}=\\frac{21}{46}$"
+  },
+  {
+   "name": "lean_workbook_plus_5572",
+   "statement": "theorem lean_workbook_plus_5572 :\n  1 - (1000 : ℝ) / 2001 = 1001 / 2001   :=  by sorry",
+   "tactics": [
+    "norm_num [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]"
+   ],
+   "nl": "The probability of drawing two marbles of the same color is $ \\frac {1000}{2001}$ , so the probability of them NOT being the same color is $ 1 - \\frac {1000}{2001} = \\frac {1001}{2001}$"
+  },
+  {
+   "name": "lean_workbook_plus_6006",
+   "statement": "theorem lean_workbook_plus_6006 (Nat.choose 9 2)/(Nat.choose 12 2) = 6/11   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.choose_eq_factorial_div_factorial, Nat.factorial]"
+   ],
+   "nl": "There are a total of $\\binom{10+3-1}{3-1}=\\binom{12}{2}=66$ ways to split the candy. The number of ways to split the candy so that each person gets one is equal to $\\binom{7+3-1}{3-1}=\\binom{9}{2}=36$ ways. So, the probability that each child receives at least one piece of candy is equal to $\\frac{3"
+  },
+  {
+   "name": "lean_workbook_plus_6077",
+   "statement": "theorem lean_workbook_plus_6077 (A : Matrix (Fin 4) (Fin 4) ℕ) (hA : A =!![0, 1, 2, 3; 1, 2, 3, 0; 2, 3, 0, 1; 3, 0, 1, 2]) : (∀ B : Matrix (Fin 4) (Fin 4) ℕ, B =!![0, 1, 2, 3; 1, 2, 3, 0; 2, 3, 0, 1; 3, 0, 1, 2] → B = A)   :=  by sorry",
+   "tactics": [
+    "simp (config := { contextual := true }) [hA]"
+   ],
+   "nl": "Given a matrix $A = \\begin{pmatrix} 0 & 1 & 2 & 3 \\\\ 1 & 2 & 3 & 0 \\\\ 2 & 3 & 0 & 1 \\\\ 3 & 0 & 1 & 2 \\end{pmatrix}$, find the number of different matrices that can be obtained from $A$ using permutations of rows and columns."
+  },
+  {
+   "name": "lean_workbook_plus_6122",
+   "statement": "theorem lean_workbook_plus_6122 Nat.choose 16 4 - Nat.choose 14 4 = 819   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.choose_eq_factorial_div_factorial, Nat.factorial]"
+   ],
+   "nl": "By complementary counting, we have $\\dbinom{16}4-\\dbinom{14}4=\\boxed{819}.$"
+  },
+  {
+   "name": "lean_workbook_plus_6564",
+   "statement": "theorem lean_workbook_plus_6564 :\n  Nat.choose 6 3 * Nat.choose 5 2 = 200   :=  by sorry",
+   "tactics": [
+    "simp [Nat.choose_eq_factorial_div_factorial, Nat.factorial]"
+   ],
+   "nl": "6 boys total choose 3 boys, 5 girls total choose 2 girls, ans is $\\binom{6}{3}\\binom{5}{2}=(20)(10)=\\boxed{200}$"
+  },
+  {
+   "name": "lean_workbook_plus_7723",
+   "statement": "theorem lean_workbook_plus_7723 (m : ℕ) : (Nat.choose (2*m) m)^2 = (Nat.choose (2*m) m) * (Nat.choose (2*m) m)   :=  by sorry",
+   "tactics": [
+    "simp [sq, mul_assoc, mul_comm, mul_left_comm]"
+   ],
+   "nl": "A more combinatorial way to obtain the binomial coefficient squared is to rotate the plane 45 degrees so that the steps are $(\\pm \\sqrt{2}/2, \\pm \\sqrt{2}/2)$ with the $\\pm$ s chosen independently. In $2m$ moves, we need $m$ plusses and $m$ minuses in the x-component, and likewise $m$ plusses and $m"
+  },
+  {
+   "name": "lean_workbook_plus_8045",
+   "statement": "theorem lean_workbook_plus_8045  (p q r s : ℝ)\n  (h₀ : p = 2 / 5)\n  (h₁ : q = 1 / 2)\n  (h₂ : r = 3 / 5)\n  (h₃ : s = 1 / 3)\n  (h₄ : p * q = r * s) :\n  p * q / (p * q + r * s) = 1 / 2   :=  by sorry",
+   "tactics": [
+    "norm_num [h₀, h₁, h₂, h₃, h₄]"
+   ],
+   "nl": "We can also use conditional probability: We want to find the value of $P(\\text{genetically modified}|\\text{sprouts})$. We know this is equal to $\\frac{P(\\text{genetically modified and sprouts})}{P(\\text{sprouts})}$ which in turn is $\\frac{\\frac{2}{5}\\cdot\\frac{1}{2}}{\\frac{2}{5}\\cdot\\frac{1}{2}+\\fra"
+  },
+  {
+   "name": "lean_workbook_plus_8153",
+   "statement": "theorem lean_workbook_plus_8153 10 * 5 * 5 = 250   :=  by sorry",
+   "tactics": [
+    "norm_num [show (10 : ℝ) * 5 * 5 = 250 by norm_num]"
+   ],
+   "nl": "Suzie’s Ice Cream has $10$ flavors of ice cream, $5$ types of cones, and $5$ toppings to choose from. An ice cream cone consists of one flavor, one cone, and one topping. How many ways are there for Sebastian to order an ice cream cone from Suzie’s?"
+  },
+  {
+   "name": "lean_workbook_plus_9037",
+   "statement": "theorem lean_workbook_plus_9037 :\n  10! / (8! * 2!) * (4! / (2! * 2!)) * (4! / (2! * 2!)) = 1620   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ]"
+   ],
+   "nl": "There are $\\binom{10}{2}$ ways to choose the values of $a$ and $b$ , and $\\binom{4}{2}$ ways to choose the slips of each of those numbers. Thus there are $\\binom{10}{2}\\binom{4}{2}\\binom{4}{2}=1620$ ways that two of the slips bear a number $a$ and the other two bear a number $b\\not = a$"
+  },
+  {
+   "name": "lean_workbook_plus_9464",
+   "statement": "theorem lean_workbook_plus_9464 :\n  1 / 2 + (2 - Real.sqrt 2) / 2 = (3 - Real.sqrt 2) / 2   :=  by sorry",
+   "tactics": [
+    "ring"
+   ],
+   "nl": "Total probability: $\\frac{1}{2} + \\frac{2-\\sqrt2}{2} = \\frac{3-\\sqrt2}{2}$"
+  },
+  {
+   "name": "lean_workbook_plus_10203",
+   "statement": "theorem lean_workbook_plus_10203 (r : ℕ) : choose (r + 1) 2 + choose (r + 1) 3 = choose (r + 2) 3   :=  by sorry",
+   "tactics": [
+    "simp [choose_succ_succ, add_comm, add_left_comm, add_assoc]"
+   ],
+   "nl": "Prove that ${r+1\\choose 2} + {r+1\\choose 3} = {r+2\\choose 3}$ using Pascal's formula."
+  },
+  {
+   "name": "lean_workbook_plus_10404",
+   "statement": "theorem lean_workbook_plus_10404 (n : ℕ) (x y : ℝ) : (x + y) ^ n = ∑ k in Finset.range (n + 1), (n.choose k) * x ^ (n - k) * y ^ k   :=  by sorry",
+   "tactics": [
+    "rw [add_comm, add_pow]"
+   ],
+   "nl": "Prove the Binomial Theorem: $(x+y)^n=\\sum_{k=0}^n{n\\choose k}x^{n-k}y^k$"
+  },
+  {
+   "name": "lean_workbook_plus_10935",
+   "statement": "theorem lean_workbook_plus_10935 (2 * Nat.choose 12 2 + 6 * Nat.choose 6 2) / Nat.choose 60 2 = 37 / 295   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.choose_eq_factorial_div_factorial, Nat.factorial]"
+   ],
+   "nl": "So the number of successful pairs is $2\\\\binom{12}{2}+6\\\\binom{6}{2}=222$ . This is out of $\\\\binom{60}{2}=1770$ . So the probability is $\\\\frac{222}{1770}=\\\\frac{37}{295}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_10988",
+   "statement": "theorem lean_workbook_plus_10988 :\n  ((2:ℝ) / (6^5)) * (5!) = (5:ℝ) / 162   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.factorial]"
+   ],
+   "nl": "The probability is $\\frac{2}{6^5}$ for each favorable outcome. Permute this by multiplying by $5!$ to get $\\frac{240}{6^5}=\\boxed{\\frac{5}{162}}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_11025",
+   "statement": "theorem lean_workbook_plus_11025 2^(2023-3) = 2^2020   :=  by sorry",
+   "tactics": [
+    "norm_num [pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ]"
+   ],
+   "nl": "$\\therefore$ in this case the number of permutations is $2^{2023-3}=2^{2020}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_11129",
+   "statement": "theorem lean_workbook_plus_11129  (x : ℕ)\n  (h₀ : 5 ≤ x)\n  (h₁ : x ≤ 11) :\n  ∑ k in Finset.Icc 5 11, choose (k + 1) (11 - k) = 233   :=  by sorry",
+   "tactics": [
+    "calc ∑ k in Finset.Icc 5 11, choose (k + 1) (11 - k)"
+   ],
+   "nl": "Alternatively, we can use combinatorics. Suppose there are $ x$ number of $ 2$ s. Obviously $ x \\ge 5$ . The $ 11-x$ number of $ 1$ s must be inserted in the $ x+1$ slots amongst the $ 2$ s, such that only one $ 1$ can go to any given slot. By the ball-and-urn argument, there are $ {x+1 \\choose 11-x"
+  },
+  {
+   "name": "lean_workbook_plus_11131",
+   "statement": "theorem lean_workbook_plus_11131 (choose 9 6 / choose 16 6) = 3/286   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.choose_eq_factorial_div_factorial, Nat.factorial]"
+   ],
+   "nl": "Now, if do not place the restriction that all children must have candy, the diagram looks thus: $\\boxed{ \\boxed{|}}\\cdot | \\cdot | \\cdot | \\cdot | \\cdot | \\cdot | \\cdot \\cdot \\cdot \\cdot \\boxed{ \\boxed{ | }}$. The number of permutations in this situation is $\\frac{ 16!}{10! 6!}= \\dbinom{16}{6}$ , an"
+  },
+  {
+   "name": "lean_workbook_plus_12100",
+   "statement": "theorem lean_workbook_plus_12100 : ∀ n : ℕ, 2 ^ n = ∑ i in Finset.range (n+1), choose n i   :=  by sorry",
+   "tactics": [
+    "exact fun n ↦ (Nat.sum_range_choose n).symm"
+   ],
+   "nl": "For $x=1$, prove that $2^n=(1+1)^n = {n \\choose 0} + {n \\choose 1} + {n \\choose 2} + \\cdots + {n \\choose {n-1}} + {n \\choose n}$"
+  },
+  {
+   "name": "lean_workbook_plus_12477",
+   "statement": "theorem lean_workbook_plus_12477 (h : 0 < 100) : (1 / 100 * 99 / 100 : ℚ) = 99 / 10000   :=  by sorry",
+   "tactics": [
+    "norm_num [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm]"
+   ],
+   "nl": "Probability you have it and are tested positive: $\\frac{1}{100}\\cdot\\frac{99}{100}=\\frac{99}{10000}$"
+  },
+  {
+   "name": "lean_workbook_plus_13125",
+   "statement": "theorem lean_workbook_plus_13125 (1680 / (1680 + 448)) = (15 / 19)   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left]"
+   ],
+   "nl": "Thus, the probability of having four genuine coins is $\\frac{1680}{1680+448}=\\frac{15}{19}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_13306",
+   "statement": "theorem lean_workbook_plus_13306  (p : ℝ)\n  (h₀ : 0 ≤ p ∧ p ≤ 1) :\n  (1 - p) * (1 - p) = (1 - p)^2   :=  by sorry",
+   "tactics": [
+    "simp [sq, sub_mul, mul_sub, mul_comm, mul_left_comm, h₀.1, h₀.2]"
+   ],
+   "nl": "The probability of not getting an event of probability p is 1-p. The probability of not getting it twice is $ (1-p)(1-p)=(1-p)^2$"
+  },
+  {
+   "name": "lean_workbook_plus_13469",
+   "statement": "theorem lean_workbook_plus_13469  (f₀ f₁ f₂ f₃ : ℚ)\n  (h₀ : f₀ = (f₁ + f₂) / 2)\n  (h₁ : f₁ = (1 + f₂) / 2)\n  (h₂ : f₂ = (f₁ + f₃) / 2)\n  (h₃ : f₃ = (f₁ + 0) / 2) :\n  f₀ = 7 / 10   :=  by sorry",
+   "tactics": [
+    "linarith [h₀, h₁, h₂, h₃]"
+   ],
+   "nl": "Let $f_0$ be the probability that F wins, starting from the beginning of the game. Let $f_T$ be the probability that F wins, given that tails has just been thrown, and let $f_H$ and $f_{HH}$ be the probability that F wins, given that one or two heads have just been thrown, respectively. Then \\n\\begi"
+  },
+  {
+   "name": "lean_workbook_plus_14815",
+   "statement": "theorem lean_workbook_plus_14815 (6!)/(2!*3!) = 60   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ]"
+   ],
+   "nl": "Since we have the order of the buckets distinguishing them, one can replace this with simply arranging letters in a string of 6 We have: 1R = Red 2Y = Yellow 3B = Blue And 6 in total Thus the total number of arrangements would be $\\frac{6!}{2!*3!}$ $= 60$"
+  },
+  {
+   "name": "lean_workbook_plus_15092",
+   "statement": "theorem lean_workbook_plus_15092 : ∀ n : ℕ, ∑ r in Finset.range (n+1), choose n r = 2^n   :=  by sorry",
+   "tactics": [
+    "exact fun n ↦ Nat.sum_range_choose n"
+   ],
+   "nl": "$ 1.\\sum_{r=0}^{n}{n\\choose r} =\\sum_{r=0}^{n}{n\\choose r}1^r1^{n-r}=(1+1)^n=2^n.$"
+  },
+  {
+   "name": "lean_workbook_plus_15131",
+   "statement": "theorem lean_workbook_plus_15131 (n k : ℕ) : choose n k + choose n (k + 1) = choose (n + 1) (k + 1)   :=  by sorry",
+   "tactics": [
+    "simp [Nat.choose_succ_succ, add_comm, add_left_comm, add_assoc]"
+   ],
+   "nl": "Prove that ${n \\choose k} + {n \\choose k + 1} = {n + 1 \\choose k + 1}$."
+  },
+  {
+   "name": "lean_workbook_plus_16113",
+   "statement": "theorem lean_workbook_plus_16113  (n : ℕ)\n  (h₀ : 0 < n) :\n  (∑ k in Finset.Icc 2 n, (1 : ℝ)/k) = (∑ k in Finset.Icc 2 n, (1 : ℝ)/k)   :=  by sorry",
+   "tactics": [
+    "simp only [Finset.sum_const, nsmul_eq_mul, mul_one]"
+   ],
+   "nl": "The $i^{th}$ number $(i=2,3, . . . ,n)$ will get swapped if and only if it is the smallest of the first $i$ elements. The probability of this happening is $1/i$. Hence the average number of swaps is just $\\frac{1}{2} + \\frac{1}{3} + ... + \\frac{1}{n} = H_n - 1$."
+  },
+  {
+   "name": "lean_workbook_plus_17744",
+   "statement": "theorem lean_workbook_plus_17744 1*1 = 1   :=  by sorry",
+   "tactics": [
+    "norm_num [show (1 : ℝ) = (1 : ℚ) by norm_cast, show (1 : ℚ) = (1 : ℚ) by norm_cast]"
+   ],
+   "nl": "There is $1$ way to choose $4$ black corners and $1$ way to choose $4$ black mids $\\implies 1\\cdot1=\\boxed{1}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_17962",
+   "statement": "theorem lean_workbook_plus_17962 10^4 = 10000   :=  by sorry",
+   "tactics": [
+    "norm_num [show (10 : ℕ) = 2 * 5 by norm_num, show (4 : ℕ) = 2 * 2 by norm_num]"
+   ],
+   "nl": "For each position in the code, there are 10 options. Thus, in total, there are $10^4 = 10,000$ combinations"
+  },
+  {
+   "name": "lean_workbook_plus_19207",
+   "statement": "theorem lean_workbook_plus_19207 :\n  ((Nat.choose 15 2 * Nat.choose 10 1) / Nat.choose 25 3 : ℚ) = 21 / 46   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.choose_eq_factorial_div_factorial, Nat.factorial]"
+   ],
+   "nl": "The probability is equivalent to that of the number of ways to choose 2 boys times the number of ways to choose 1 girl divided by the total number of ways to choose 3 people. That is, $\\frac{\\binom{15}{2}\\binom{10}{1}}{\\binom{25}{3}}=\\frac{21}{46}$"
+  },
+  {
+   "name": "lean_workbook_plus_19271",
+   "statement": "theorem lean_workbook_plus_19271 :\n  (3 : ℝ) / 25  = (3 / 36) / (25 / 36)   :=  by sorry",
+   "tactics": [
+    "norm_num [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]"
+   ],
+   "nl": "This is a basic conditional probability problem, so let $A$ be the event that the sum of the two dice is 8 and $B$ the event that at least one die does not show a 5. You are basically looking for $P(A|B)=\\frac{P(A\\cap B)}{P(B)}$ .\\nHere we have $A=\\{(2,6),(3,5),(4,4),(5,3)(6,2)\\}$ and $B$ has 25 ele"
+  },
+  {
+   "name": "lean_workbook_plus_19573",
+   "statement": "theorem lean_workbook_plus_19573 :\n  ((10^2 * 9^2)/10^5 : ℚ) = 81/1000   :=  by sorry",
+   "tactics": [
+    "norm_num [pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ]"
+   ],
+   "nl": "There are $ 10^{5}$ total ways. \\n\\nThere are $ \\binom{5}{3}= 10 \\textrm{ triplets}$ . \\n\\nPick one of these triplets. There are $ 10$ ways to choose the numbers inside the triplet, and $ 9^{2}= 81$ ways to choose the numbers outside the triplet. \\n\\nThus, the number of desired outcomes is: \\n\\n $ 1"
+  }
+ ],
+ "competition_math": [
+  {
+   "name": "lean_workbook_plus_6",
+   "statement": "theorem lean_workbook_plus_6  (x y z : ℤ) :\n  (x^2 + 1) * (y^2 + 1) * (z^2 + 1) =\n  (x + y + z)^2 - 2 * (x * y + y * z + z * x) + (x * y + y * z + z * x)^2 - 2 * x * y * z * (x + y + z) + x^2 * y^2 * z^2 + 1   :=  by sorry",
+   "tactics": [
+    "ring"
+   ],
+   "nl": "$\\begin{array}{l}\\left( {{x^2} + 1} \\right)\\left( {{y^2} + 1} \\right)\\left( {{z^2} + 1} \\right) = \\sum {{x^2}} + \\sum {{x^2}{y^2}} + {x^2}{y^2}{z^2} + 1\\\\ = {\\left( {x + y + z} \\right)^2} - 2\\left( {xy + yz + zx} \\right) + {\\left( {xy + yz + zx} \\right)^2} - 2xyz\\left( {x + y + z} \\right) + {x^2}{y^"
+  },
+  {
+   "name": "lean_workbook_plus_17",
+   "statement": "theorem lean_workbook_plus_17 (a b c : ℝ) (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (habc : a * b * c = 1) (h : a^4 + b^4 + c^4 = 1) : a^3 / (1 - a^8) + b^3 / (1 - b^8) + c^3 / (1 - c^8) ≥ 9 * (3 : ℝ)^(1 / 4) / 8   :=  by sorry",
+   "tactics": [
+    "norm_num [ha, hb, hc, habc, h]"
+   ],
+   "nl": "Prove that $\\frac{a^3}{1-a^8}+\\frac{b^3}{1-b^8}+\\frac{c^3}{1-c^8} \\geq \\frac{9\\sqrt[4]{3}}{8}$ for positive real numbers $a,b,c$ with $a^4+b^4+c^4=1$"
+  },
+  {
+   "name": "lean_workbook_plus_21",
+   "statement": "theorem lean_workbook_plus_21 (n p q : ℕ) (hp : p ≤ n) (hq : q ≤ p) : (n - q).choose (p - q) * n.choose q = n.choose p * p.choose q   :=  by sorry",
+   "tactics": [
+    "simp [choose_mul, hp, hq, mul_comm, mul_assoc, mul_left_comm]"
+   ],
+   "nl": "Prove that $\\binom{n-q}{p-q}\\binom{n}{q}=\\binom{n}{p}\\binom{p}{q}$"
+  },
+  {
+   "name": "lean_workbook_plus_24",
+   "statement": "theorem lean_workbook_plus_24 (a b c : ℝ) (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) : 1 / a + 1 / b + 1 / c ≥ 2 * (1 / (b + c) + 1 / (c + a) + 1 / (a + b))   :=  by sorry",
+   "tactics": [
+    "field_simp [ha.ne', hb.ne', hc.ne']"
+   ],
+   "nl": "For positive real numbers $a,b,c,$ have \\n $\\frac 1{a} + \\frac 1{b} + \\frac 1{c} \\ge 2\\left(\\frac 1{b+c} + \\frac 1{c+a} + \\frac 1{a+b}\\right).$"
+  },
+  {
+   "name": "lean_workbook_plus_35",
+   "statement": "theorem lean_workbook_plus_35 (a b c : ℝ) (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) (hab : a + b + c = 3) : b^(2/3) * c^(2/3) + c^(2/3) * a^(2/3) + a^(2/3) * b^(2/3) ≤ 3   :=  by sorry",
+   "tactics": [
+    "norm_num [ha, hb, hc, hab]"
+   ],
+   "nl": "Let $a,b,c$ be positive real numbers such that $a+b+c=3$ , prove that $b^{\\frac{2}{3}}c^{\\frac{2}{3}}+c^{\\frac{2}{3}}a^{\\frac{2}{3}}+a^{\\frac{2}{3}}b^{\\frac{2}{3}}\\le3.$"
+  },
+  {
+   "name": "lean_workbook_plus_40",
+   "statement": "theorem lean_workbook_plus_40 :\n  ∀ θ : ℝ, 0 < θ ∧ θ < Real.pi / 4 → Real.cos θ > Real.sin θ   :=  by sorry",
+   "tactics": [
+    "intro θ h₁"
+   ],
+   "nl": "The correct answer is $A$ . \\nIf $0< \\\\theta < \\\\frac{\\\\pi}{4}$ then $\\\\cos \\\\theta >\\\\sin\\\\theta$ and the rest is easy."
+  },
+  {
+   "name": "lean_workbook_plus_45",
+   "statement": "theorem lean_workbook_plus_45 :\n  (5^(2*1) ≡ 25 [MOD 100])   :=  by sorry",
+   "tactics": [
+    "conv => lhs",
+    "rw [← Nat.mod_add_div 5 100, ← Nat.mod_add_div 5 100]"
+   ],
+   "nl": "Base Case: $5^{2\\cdot1}\\equiv 5^{2}\\equiv 25 \\pmod{100}$"
+  },
+  {
+   "name": "lean_workbook_plus_46",
+   "statement": "theorem lean_workbook_plus_46 :\n  ((4 * 6 + 1) : ℚ) / (6^2 - 1) = 5/7   :=  by sorry",
+   "tactics": [
+    "norm_num [Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left]"
+   ],
+   "nl": "Another shortcut would be to notice that $55_6 + 1_6 = 100_6$ . Thus, your fraction in decimal is $\\frac{4 \\cdot 6 + 1}{6^2 - 1}$ , or $\\frac{25}{35} = \\frac{5}{7}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_48",
+   "statement": "theorem lean_workbook_plus_48 :\n  1 - (25 : ℝ) / 64 = 39 / 64   :=  by sorry",
+   "tactics": [
+    "norm_num [show (1 : ℝ) - 25 / 64 = 39 / 64 by norm_num]"
+   ],
+   "nl": "The answer is just one minus this: $1-\\frac{25}{64}=\\boxed{\\frac{39}{64}}$"
+  },
+  {
+   "name": "lean_workbook_plus_50",
+   "statement": "theorem lean_workbook_plus_50  (p : ℝ)\n  (h₀ : p = 0.5 / 5.5) :\n  p = 1 / 11   :=  by sorry",
+   "tactics": [
+    "norm_num [h₀]"
+   ],
+   "nl": "Hence $p={0.5\\over 5.5}={1\\over 11}$"
+  },
+  {
+   "name": "lean_workbook_plus_52",
+   "statement": "theorem lean_workbook_plus_52 : ∀ x : ℝ, Real.cos (2 * x) ^ 2 = (1 + Real.cos (4 * x)) / 2   :=  by sorry",
+   "tactics": [
+    "simp [cos_sq, sin_sq, sub_eq_add_neg, add_assoc]"
+   ],
+   "nl": "Derive $ \\cos^{2}2x = \\frac{1+\\cos 4x}{2}$"
+  },
+  {
+   "name": "lean_workbook_plus_55",
+   "statement": "theorem lean_workbook_plus_55 (p q r : ℕ) (h1 : p * r > q ^ 2) (h2 : q * r > p ^ 2) : (p * r) * (q * r) > p ^ 2 * q ^ 2   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (p * r - q ^ 2), sq_nonneg (q * r - p ^ 2)]"
+   ],
+   "nl": "Given $pr > q^{2}$ and $rq > p^{2}$, prove that $(pr)(rq) > p^{2}q^{2}$."
+  },
+  {
+   "name": "lean_workbook_plus_56",
+   "statement": "theorem lean_workbook_plus_56 : sin (π / 4) = cos (π / 4) ∧ sin (π / 4) = 1 / Real.sqrt 2 ∧ cos (π / 4) = 1 / Real.sqrt 2   :=  by sorry",
+   "tactics": [
+    "refine ⟨?_,?_,?_⟩ <;> field_simp [Real.sin_pi_div_four, Real.cos_pi_div_four]"
+   ],
+   "nl": "Prove that $\\sin \\frac{\\pi}{4}=\\cos \\frac{\\pi}{4}=\\frac{1}{\\sqrt{2}}$ ."
+  },
+  {
+   "name": "lean_workbook_plus_75",
+   "statement": "theorem lean_workbook_plus_75 {a b c : ℝ} (ha : a ≥ 0) (hb : b ≥ 0) (hc : c ≥ 0) : 2 * (a ^ 3 + b ^ 3 + c ^ 3) + 3 * a * b * c ≥ (a * b + b * c + c * a) * (a + b + c)   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "It's equivalent to \\n\\n $ab+bc+ca\\le 3abc+2(a^3+b^3+c^3)$ \\n\\n $\\Leftrightarrow 2(a^3+b^3+c^3)+3abc\\ge (ab+bc+ca)(a+b+c)=\\sum ab(a+b)+3abc$"
+  },
+  {
+   "name": "lean_workbook_plus_86",
+   "statement": "theorem lean_workbook_plus_86 (a b c : ℝ) (h : a > 0 ∧ b > 0 ∧ c > 0) (habc : a * b * c = 1) (h : (1 - a * b) / (1 + b) + (1 - b * c) / (1 + c) + (1 - c * a) / (1 + a) = 0) : a * b * c ≤ 1   :=  by sorry",
+   "tactics": [
+    "linarith [h, habc]"
+   ],
+   "nl": "Let $a,b,c>0$ and $\\frac{1-ab}{1+b}+\\frac{1-bc}{1+c}+\\frac{1-ca}{1+a}=0$ . Prove that $$abc\\leq 1$$"
+  },
+  {
+   "name": "lean_workbook_plus_93",
+   "statement": "theorem lean_workbook_plus_93 (a b : ℝ) (ha : 0 < a) (hb : 0 < b) : (a^2 / b^2 + b / (a + 3 * b)) ≥ 6 - 9 / (4:ℝ)^(1/3)   :=  by sorry",
+   "tactics": [
+    "norm_num [pow_two, pow_three]"
+   ],
+   "nl": "Let $a,b>0$. Prove that $\\frac{a^2}{b^2}+\\frac{b}{a+3b}\\geq 6-\\frac{9}{\\sqrt[3]{4}}$"
+  },
+  {
+   "name": "lean_workbook_plus_99",
+   "statement": "theorem lean_workbook_plus_99 (a b c : ℝ) (hab : a ≥ 0 ∧ b ≥ 0 ∧ c ≥ 0) (h : a * b + b * c + c * a > 0) : (a / (b + c))^(1 / 4) + (b / (a + c))^(1 / 4) + (c / (a + b))^(1 / 4) ≥ 2   :=  by sorry",
+   "tactics": [
+    "norm_num [hab.1, hab.2.1, hab.2.2, h]"
+   ],
+   "nl": "Let $a;b;c \\geq 0$ and $ab+bc+ca >0$ Prove: $\\sqrt[4]{\\frac{a}{b+c}}+\\sqrt[4]{\\frac{b}{a+c}}+\\sqrt[4]{\\frac{c}{a+b}}\\geq2$"
+  },
+  {
+   "name": "lean_workbook_plus_106",
+   "statement": "theorem lean_workbook_plus_106 :  ∀ a b c : ℝ, (a + b + c) ^ 2 = (a + 2 * b) * (a + 2 * c) + (b - c) ^ 2   :=  by sorry",
+   "tactics": [
+    "exact fun a b c ↦ by ring"
+   ],
+   "nl": "Since $ (a+b+c)^{2}=(a+2b)(a+2c)+(b-c)^{2}$ it follows that \\n $ \\frac{a+b+c}{a+2c}=\\frac{a+2b}{a+b+c}+\\frac{(b-c)^{2}}{(a+2c)(a+b+c)}$"
+  },
+  {
+   "name": "lean_workbook_plus_117",
+   "statement": "theorem lean_workbook_plus_117 (a b c : ℝ) (ha : 0 < a) (hb : 0 < b) (hc : 0 < c) : (4 * a * b * (a + b))^(1 / 110) + (4 * b * c * (b + c))^(1 / 110) + (4 * c * a * (c + a))^(1 / 110) ≤ 3 * ((a + b) * (b + c) * (c + a))^(1 / 110)   :=  by sorry",
+   "tactics": [
+    "norm_num [ha, hb, hc]"
+   ],
+   "nl": "prove that: \\n $ \\sqrt [110]{4ab(a + b)} + \\sqrt [110]{4cb(b + c)} + \\sqrt [110]{4ca(c + a)} \\leq 3\\sqrt [110]{(a + b)(b + c)(c + a)}$ \\n where $a, b, c$ are positive real numbers."
+  },
+  {
+   "name": "lean_workbook_plus_125",
+   "statement": "theorem lean_workbook_plus_125 (a b c d : ℤ) (h : ∀ x, 5 ∣ a * x ^ 3 + b * x ^ 2 + c * x + d) : 5 ∣ a ∧ 5 ∣ b ∧ 5 ∣ c ∧ 5 ∣ d   :=  by sorry",
+   "tactics": [
+    "have h5 : ∀ x : ℤ, 5 ∣ (a * x ^ 3 + b * x ^ 2 + c * x + d) := h"
+   ],
+   "nl": "If the polynom $ ax^{3} + bx^{2} + cx + d$ is divisble by 5 for all x prove that $ 5|a,b,c,d$"
+  },
+  {
+   "name": "lean_workbook_plus_128",
+   "statement": "theorem lean_workbook_plus_128 : ∀ n:ℕ, 6 * 4 ^ n ≡ 6 [ZMOD 9]   :=  by sorry",
+   "tactics": [
+    "simp [Int.ModEq]"
+   ],
+   "nl": "Prove that $ 6\\cdot 4^n\\equiv 6\\pmod{9}$."
+  },
+  {
+   "name": "lean_workbook_plus_130",
+   "statement": "theorem lean_workbook_plus_130 (x : ℝ) (f : ℝ → ℝ) (hf: f x = if x ∈ Set.Icc 0 (1/3) then 0 else x - 1/3) : f x = if x ∈ Set.Icc 0 (1/3) then 0 else x - 1/3   :=  by sorry",
+   "tactics": [
+    "simp only [hf, Set.mem_Icc, Set.mem_setOf_eq]"
+   ],
+   "nl": "$f(x) = \\left\\{\\begin{aligned} &0 &&, \\: 0 \\le x \\le \\frac{1}{3}\\\\ &x-\\frac{1}{3} &&, \\frac{1}{3} < x \\le 1 \\end{aligned} \\right.$"
+  },
+  {
+   "name": "lean_workbook_plus_135",
+   "statement": "theorem lean_workbook_plus_135 (a b c : ℝ) : (4/3 * a ^ 2 + 8/3 * b ^ 2 + 8 * a * c + 12 * c ^ 2) ≥ 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a + 3 * c), sq_nonneg (a - 3 * c)]"
+   ],
+   "nl": "$\\frac{4}{3}a^2 + \\frac{8}{3}b^2 + 8ac + 12c^2 \\geq 0$"
+  },
+  {
+   "name": "lean_workbook_plus_137",
+   "statement": "theorem lean_workbook_plus_137 : Real.log (Real.exp π) = π   :=  by sorry",
+   "tactics": [
+    "rw [Real.log_exp]"
+   ],
+   "nl": "Prove that $\\ln(e^{\\pi})$ is equal to $\\pi$."
+  },
+  {
+   "name": "lean_workbook_plus_140",
+   "statement": "theorem lean_workbook_plus_140 (x y: ℝ): x ^ 2 + x + y ^ 2 + y + 1 ≥ x * y   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x + 1), sq_nonneg (y + 1)]"
+   ],
+   "nl": "Prove $x^2 + x + y^2 + y + 1 \\geq x y$ for all real x,y"
+  },
+  {
+   "name": "lean_workbook_plus_143",
+   "statement": "theorem lean_workbook_plus_143 (h : 1 + 1 = 2) : 1 / (1 + 1) = 1 / 2   :=  by sorry",
+   "tactics": [
+    "simp [h, div_eq_mul_inv, mul_comm, mul_assoc, mul_left_comm]"
+   ],
+   "nl": "Solution $\\frac{1}{1+1}=\\frac12$"
+  },
+  {
+   "name": "lean_workbook_plus_147",
+   "statement": "theorem lean_workbook_plus_147 (f : ℝ → ℝ) (hf: ∀ x y : ℝ, f (x + y) = f (x - y)) : ∃ a :ℝ, ∀ x : ℝ, f x = a   :=  by sorry",
+   "tactics": [
+    "refine ⟨f 0, fun x ↦?_⟩"
+   ],
+   "nl": "If the next relation holds for every real numbers x,y : $f(x+y)=f(x-y)$ then we can conclude that f is constant?"
+  },
+  {
+   "name": "lean_workbook_plus_162",
+   "statement": "theorem lean_workbook_plus_162  (a b c : ℝ) :\n  Real.cos (a + b) * Real.sin b - Real.cos (a + c) * Real.sin c\n    = Real.sin (a + b) * Real.cos b - Real.sin (a + c) * Real.cos c   :=  by sorry",
+   "tactics": [
+    "simp [cos_add, sin_add, cos_sub, sin_sub]"
+   ],
+   "nl": "Prove that \\n\\n $\\cos(a+b) \\sin b - \\cos (a+c) \\sin c = \\sin(a+b) \\cos b - \\sin (a+c) \\cos c$ ."
+  },
+  {
+   "name": "lean_workbook_plus_170",
+   "statement": "theorem lean_workbook_plus_170 {a b c s : ℝ} (hs : s = (a + b + c) / 2) : (a * b + b * c + c * a) / 4 ≥ (s - b) * (s - c) + (s - a) * (s - b) + (s - c) * (s - a)   :=  by sorry",
+   "tactics": [
+    "simp [hs, mul_add, add_mul, mul_comm, mul_left_comm]"
+   ],
+   "nl": "$\\frac{ab+bc+ca}{4} \\ge (s-b)(s-c)+(s-a)(s-b)+(s-c)(s-a)$"
+  },
+  {
+   "name": "lean_workbook_plus_176",
+   "statement": "theorem lean_workbook_plus_176 (s : ℝ) (hs : 9 / 4 ≤ s ∧ s ≤ 3) : 4 * s ^ 2 - 21 * s + 27 ≤ 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [hs.1, hs.2]"
+   ],
+   "nl": "Prove that $4s^2-21s+27\\le 0$ for $\\frac{9}{4}\\le s\\le 3$"
+  },
+  {
+   "name": "lean_workbook_plus_187",
+   "statement": "theorem lean_workbook_plus_187 (x : ℝ) (hx : x = (4 - 2 * Real.sqrt 3) / 2) : x = 2 - Real.sqrt 3   :=  by sorry",
+   "tactics": [
+    "linarith [hx]"
+   ],
+   "nl": "$$x = \\frac {4-2\\sqrt{3}}2 = 2 -\\sqrt{3}$$"
+  },
+  {
+   "name": "lean_workbook_plus_193",
+   "statement": "theorem lean_workbook_plus_193 : ∀ a b c : ℤ, (a^3 + b^3 + c^3) - (a + b + c) = a*(a - 1)*(a + 1) + b*(b - 1)*(b + 1) + c*(c - 1)*(c + 1)   :=  by sorry",
+   "tactics": [
+    "exact fun a b c ↦ by ring"
+   ],
+   "nl": "Consider $(a^3+b^3+c^3) - (a+b+c) = a(a-1)(a+1) + b(b-1)(b+1) + c(c-1)(c+1)$"
+  },
+  {
+   "name": "lean_workbook_plus_196",
+   "statement": "theorem lean_workbook_plus_196 : a + b = 0 → a^2 + b^2 = -2 * a * b   :=  by sorry",
+   "tactics": [
+    "intro h"
+   ],
+   "nl": "Show that $a^{2}+b^{2}=-2ab$ if $a+b=0$."
+  },
+  {
+   "name": "lean_workbook_plus_232",
+   "statement": "theorem lean_workbook_plus_232 (a b : ℝ) (ha : 0 < a) (hb : 0 < b) (hab : a * b + 1 / (a * b) = 6) : (a + 1) * (b + 1) ≥ 2   :=  by sorry",
+   "tactics": [
+    "field_simp [mul_add, add_mul, mul_comm, mul_left_comm] at hab ⊢"
+   ],
+   "nl": "Let $a, b>0$ and $ab+\\frac{1}{ab}=6.$ Prove that $(a+1)( b+1) \\geq 2$"
+  },
+  {
+   "name": "lean_workbook_plus_244",
+   "statement": "theorem lean_workbook_plus_244 (a b c : ℝ) (habc : a * b * c = 1) : (1 / (a^2 + 79 * a + 1)^(1 / 4) + 1 / (b^2 + 79 * b + 1)^(1 / 4) + 1 / (c^2 + 79 * c + 1)^(1 / 4)) ≥ 1   :=  by sorry",
+   "tactics": [
+    "norm_num [habc]"
+   ],
+   "nl": "If $a,b,c$ are positive numbers such that $abc=1$ , then \\n\\n $\\frac 1{\\sqrt[4]{a^{2}+79a+1}}+\\frac 1{\\sqrt[4]{b^{2}+79b+1}}+\\frac 1{\\sqrt[4]{c^{2}+79c+1}}\\ge 1$ ."
+  },
+  {
+   "name": "lean_workbook_plus_250",
+   "statement": "theorem lean_workbook_plus_250 (k : ℝ) (f : ℝ → ℝ) (hf: f = fun x ↦ k * x) : f x = k * x   :=  by sorry",
+   "tactics": [
+    "rw [hf]"
+   ],
+   "nl": "For any $k\\in \\mathbb{R}$, show that $f(x)=kx$ is a solution."
+  },
+  {
+   "name": "lean_workbook_plus_263",
+   "statement": "theorem lean_workbook_plus_263 :\n  Int.floor ((13 : ℝ) / 6)^2 = 4   :=  by sorry",
+   "tactics": [
+    "rw [← Int.cast_ofNat]"
+   ],
+   "nl": "For $n=4$ we have: $a_4 = \\frac{13}{6}$ and $\\left \\lfloor a_4^2 \\right \\rfloor = \\left \\lfloor \\frac{13^2}{6^2} \\right \\rfloor = 4$"
+  },
+  {
+   "name": "lean_workbook_plus_271",
+   "statement": "theorem lean_workbook_plus_271 (x y : ℝ) : (1 - 8 * Real.sin x * Real.sin y * Real.cos (x + y)) = (2 * Real.cos (x + y) - Real.cos (x - y)) ^ 2 + Real.sin (x - y) ^ 2   :=  by sorry",
+   "tactics": [
+    "simp [sub_sq, cos_add, cos_sub, sin_add, sin_sub]"
+   ],
+   "nl": "Show that $1-8\\sin{x}\\sin{y}\\cos{(x+y)}=(2\\cos{(x+y)}-\\cos{(x-y)})^2+\\sin^2{(x-y)}$."
+  },
+  {
+   "name": "lean_workbook_plus_279",
+   "statement": "theorem lean_workbook_plus_279 (a b c d : ℝ) (ha : 0 ≤ a) (hb : 0 ≤ b) (hc : 0 ≤ c) (hd : 0 ≤ d) : (a + b + c + d) ^ 3 ≥ 4 * (a * (c + d) ^ 2 + b * (d + a) ^ 2 + c * (a + b) ^ 2 + d * (b + c) ^ 2)   :=  by sorry",
+   "tactics": [
+    "field_simp [add_comm, add_left_comm, add_assoc]"
+   ],
+   "nl": "If $a,b,c,d$ are nonnegative real numbers, then $(a + b + c + d)^{3}\\\\geq 4[a(c + d)^{2} + b(d + a)^{2} + c(a + b)^{2} + d(b + c)^{2}]$"
+  },
+  {
+   "name": "lean_workbook_plus_291",
+   "statement": "theorem lean_workbook_plus_291 (n : ℕ) (hn : 0 < n) (a : Matrix (Fin n) (Fin n) ℝ) (ha : ∀ i j, 0 ≤ a i j) (h : ∀ i, ∑ j, a i j = 1) (a_eig : ∃ v : Fin n → ℝ, ∃ l : ℝ, a.mulVec v = l • v) : ∃ v : Fin n → ℝ, ∃ l : ℝ, a.mulVec v = l • v ∧ l ≤ 1 ∧ -1 ≤ l   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, 0, by simp [ha, h], by norm_num, by norm_num⟩"
+   ],
+   "nl": "Let A be a matrix nXn with $a_{ij}\\ge{0}$ for every i,j=1,2,...,n and $\\sum_{j=1}^{n}a_{ij}=1$ for every i=1,2,..,n. Show that if a is an eigenvalue of A then $|a|\\leq{1}$"
+  }
+ ],
+ "geometry": [
+  {
+   "name": "lean_workbook_plus_33",
+   "statement": "theorem lean_workbook_plus_33 :\n    ∀ a b c : ℝ, a > 0 ∧ b > 0 ∧ c > 0 ∧ a + b > c ∧ a + c > b ∧ b + c > a → a * (2 * a^2 - b^2 - c^2) + b * (2 * b^2 - c^2 - a^2) + c * (2 * c^2 - a^2 - b^2) ≥ 0   :=  by sorry",
+   "tactics": [
+    "rintro a b c ⟨h₁, h₂, h₃, h₄, h₅, h₆⟩"
+   ],
+   "nl": "Prove that the following inequality holds in any triangle $ ABC $ : \\n $ a(2a^{2}-b^{2}-c^{2})+b(2b^{2}-c^{2}-a^{2})+c(2c^{2}-a^{2}-b^{2})\\geq 0 $"
+  },
+  {
+   "name": "lean_workbook_plus_194",
+   "statement": "theorem lean_workbook_plus_194 (x : ℝ) (hx : x > 0) (h : x * (9 - x^2) = 10) : x^3 - 9 * x + 10 = 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [hx, h]"
+   ],
+   "nl": "The area of the rectangle is $2x(9-x^2)$, where x is positive, since the dimensions are $2x$ in width and $9-x^2$ in height. We are given that it is equal to 20. Therefore, $x(9-x^2)=10$, and $x^3-9x+10=0$."
+  },
+  {
+   "name": "lean_workbook_plus_848",
+   "statement": "theorem lean_workbook_plus_848 (n : ℕ) (x : Fin n → ℝ) : \n  |∑ i, x i| ≤ ∑ i, |x i|   :=  by sorry",
+   "tactics": [
+    "exact (Finset.abs_sum_le_sum_abs _ _).trans (le_of_eq (by simp [Finset.sum_const, Finset.card_univ]))"
+   ],
+   "nl": "Prove the generalized triangle inequality: of $x_1, x_2, \\cdot, x_n$ are real numbers, then $$|x_1+x_2+\\cdots +x_n| \\leq |x_1| + |x_2| + \\cdots + |x_n|.$$"
+  },
+  {
+   "name": "lean_workbook_plus_1379",
+   "statement": "theorem lean_workbook_plus_1379 {a b c : ℝ} (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a^2 * (b + c - a) + b^2 * (c + a - b) + c^2 * (a + b - c) ≤ 3 * a * b * c   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "If $a,b$ and $c$ are the sides of a triangle, prove that: $a^2(b + c - a) + b^2(c + a - b) + c^2(a + b - c)\\leq 3abc$"
+  },
+  {
+   "name": "lean_workbook_plus_1672",
+   "statement": "theorem lean_workbook_plus_1672 (θ : ℝ) : Real.cos (Real.pi / 2 + θ) = - Real.sin θ   :=  by sorry",
+   "tactics": [
+    "simp [cos_add, cos_pi_div_two, sin_pi_div_two]"
+   ],
+   "nl": "Prove that $\\cos(\\dfrac{\\pi}{2} + \\theta ) = - \\sin\\theta$ , using the unit circle."
+  },
+  {
+   "name": "lean_workbook_plus_2031",
+   "statement": "theorem lean_workbook_plus_2031 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : (a / (b + c - a))^(1/3) + (b / (c + a - b))^(1/3) + (c / (a + b - c))^(1/3) ≥ ((b + c - a) / a)^(1/3) + ((c + a - b) / b)^(1/3) + ((a + b - c) / c)^(1/3) ∧ ((b + c - a) / a)^(1/3) + ((c + a - b) / b)^(1/3) + ((a + b - c) / c)^(1/3) ≥ 2 * (2)^(1/3)   :=  by sorry",
+   "tactics": [
+    "refine' ⟨by norm_num [hx.1, hx.2.1, hx.2.2, hab, hbc, hca], by norm_num [hx.1, hx.2.1, hx.2.2, hab, hbc, hca]⟩"
+   ],
+   "nl": "In a triangle $ABC$ ，prove that\\n\\n${\\sum_{cyc}{\\sqrt[3]{\\frac{a}{b+c-a}}}}\\ge\\sum_{cyc}{\\sqrt[3]{\\frac{b+c-a}{a}}}\\ge{2\\sqrt[3]{2}}.$"
+  },
+  {
+   "name": "lean_workbook_plus_2509",
+   "statement": "theorem lean_workbook_plus_2509 {a b c : ℝ} (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : 12 * (a ^ 4 + b ^ 4 + c ^ 4) ≥ 12 * (b ^ 2 * c ^ 2 + c ^ 2 * a ^ 2 - a ^ 2 * b ^ 2)   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - a^2)]"
+   ],
+   "nl": "Prove $ 12(a^4+b^4+c^4)\\ge12(b^2c^2+c^2a^2-a^2b^2)$ where a,b,c are sides of a triangle using Muirhead's Theorem of Inequality."
+  },
+  {
+   "name": "lean_workbook_plus_2677",
+   "statement": "theorem lean_workbook_plus_2677 (x : ℝ) (hx: x + 2*x > 6 - 3*x) : x > 1   :=  by sorry",
+   "tactics": [
+    "linarith [show (0 : ℝ) ≤ 2 by norm_num, show (0 : ℝ) ≤ 3 by norm_num]"
+   ],
+   "nl": "Applying the triangle inequality, $x+2x > 6-3x \\rightarrow x > 1$ ."
+  },
+  {
+   "name": "lean_workbook_plus_4562",
+   "statement": "theorem lean_workbook_plus_4562 (A B C : ℝ) (hx: A > 0 ∧ B > 0 ∧ C > 0) (hab : A + B + C = π) : (1 - Real.sin A * Real.sin B)^(1/3) + (1 - Real.sin B * Real.sin C)^(1/3) + (1 - Real.sin C * Real.sin A)^(1/3) ≥ 3/2 * (2)^(1/3)   :=  by sorry",
+   "tactics": [
+    "norm_num [hx.1, hx.2.1, hx.2.2, hab]"
+   ],
+   "nl": "In $\\triangle ABC$ , Prove $\\sqrt[3]{1-\\sin A\\sin B}+\\sqrt[3]{1-\\sin B\\sin C}+\\sqrt[3]{1-\\sin C\\sin A}\\ge\\frac{3}{2}\\sqrt[3]{2}$"
+  },
+  {
+   "name": "lean_workbook_plus_4774",
+   "statement": "theorem lean_workbook_plus_4774 : ∀ b c : ℝ, ∀ α : ℝ, (α ≠ 0 ∧ α ≠ π) → 16 * (1 / 2 * b * c * Real.sin α) ^ 2 = 4 * b ^ 2 * c ^ 2 * (Real.sin α) ^ 2   :=  by sorry",
+   "tactics": [
+    "exact fun b c α hα ↦ by ring_nf"
+   ],
+   "nl": "and from formula: $ \\triangle=\\frac{1}{2}\\cdot bc \\cdot \\sin \\alpha \\implies 4\\triangle =2bc\\sin \\alpha \\implies 16 \\triangle ^2=4b^2c^2 \\cdot \\sin^2 \\alpha $"
+  },
+  {
+   "name": "lean_workbook_plus_5026",
+   "statement": "theorem lean_workbook_plus_5026 (h : 40 - 33.5 = 6.5) : 40 - 33.5 = 6.5   :=  by sorry",
+   "tactics": [
+    "simp only [h, eq_self_iff_true, and_self_iff]"
+   ],
+   "nl": "Subtracting the unshaded area from the total area gives us $40-33\\frac{1}{2}$. What is the final result?"
+  },
+  {
+   "name": "lean_workbook_plus_5631",
+   "statement": "theorem lean_workbook_plus_5631 (a b : ℝ) : cos (a + b) = cos a * cos b - sin a * sin b   :=  by sorry",
+   "tactics": [
+    "simp [cos_add, sin_add, cos_sub, sin_sub]"
+   ],
+   "nl": "Derive the angle sum formula for $\\cos(a+b)$."
+  },
+  {
+   "name": "lean_workbook_plus_5727",
+   "statement": "theorem lean_workbook_plus_5727 (a b c α β γ : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) (hα: α = (b + c) / a) (hβ: β = (c + a) / b) (hγ: γ = (a + b) / c) : (α + β + γ + 2 = α * β * γ ∧ 2 * (α + β + γ) ≤ α * β + β * γ + γ * α)   :=  by sorry",
+   "tactics": [
+    "norm_num [hα, hβ, hγ, hx.1, hx.2.1, hx.2.2, hab, hbc, hca]"
+   ],
+   "nl": "In triangle $ ABC$ denote $ \\{\\begin{array}{c} \\alpha = \\frac {b + c}{a} \\ \\ \\beta = \\frac {c + a}{b} \\ \\ \\gamma = \\frac {a + b}{c}\\end{array}$ . Prove that $ \\{\\begin{array}{c} \\alpha + \\beta + \\gamma + 2 = \\alpha\\beta\\gamma \\ \\ 2(\\alpha + \\beta + \\gamma )\\le \\alpha\\beta + \\beta\\gamma + \\gamma\\alph"
+  },
+  {
+   "name": "lean_workbook_plus_6320",
+   "statement": "theorem lean_workbook_plus_6320 :\n  ∀ a b c : ℝ, a > 0 ∧ b > 0 ∧ c > 0 → a + b > c ∧ a + c > b ∧ b + c > a → a^2 * (a - b) * (a - c) + b^2 * (b - a) * (b - c) + c^2 * (c - a) * (c - b) ≥ 0   :=  by sorry",
+   "tactics": [
+    "intro a b c h₁ h₂"
+   ],
+   "nl": "From triangle's inequality we have $b>a-c$ and analogues. Then, the first inequality becomes $\\sum{a^2(a-b)(a-c)}\\ge 0$, which is Schur for $r=2$"
+  },
+  {
+   "name": "lean_workbook_plus_8416",
+   "statement": "theorem lean_workbook_plus_8416 {a b c : ℝ} (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : 2 * (a * b + b * c + c * a) - a ^ 2 - b ^ 2 - c ^ 2 > 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [hx.1, hx.2.1, hx.2.2, hab, hbc, hca]"
+   ],
+   "nl": "Prove that $2(ab+bc+ca)-a^2-b^2-c^2 > 0$ for a triangle with sides $a$, $b$, and $c$"
+  },
+  {
+   "name": "lean_workbook_plus_8917",
+   "statement": "theorem lean_workbook_plus_8917 (A B : ℝ) : sin (A + B) = sin A * cos B + cos A * sin B   :=  by sorry",
+   "tactics": [
+    "simp [Real.sin_add, Real.cos_add, add_mul, mul_add, mul_comm, mul_left_comm]"
+   ],
+   "nl": "Derive the sine of the sum of two angles formula: $\\sin(A + B) = \\sin(A)\\cos(B) + \\cos(A)\\sin(B)$."
+  },
+  {
+   "name": "lean_workbook_plus_9465",
+   "statement": "theorem lean_workbook_plus_9465 (n : ℕ) : choose (n + 2) 4 = choose n 2 + 2 * choose n 3 + choose n 4   :=  by sorry",
+   "tactics": [
+    "simp [choose_succ_succ, add_comm, add_left_comm, add_assoc]"
+   ],
+   "nl": "Prove that \\(\\binom{n+2}{4}=\\binom{n}{2}+2\\binom{n}{3}+\\binom{n}{4}\\) using Pascal's triangle."
+  },
+  {
+   "name": "lean_workbook_plus_9866",
+   "statement": "theorem lean_workbook_plus_9866  (z : ℂ)\n  (h₀ : 8 * z^3 - 6 * z + 1 = 0) :\n  4 * z^3 - 3 * z = - 1 / 2   :=  by sorry",
+   "tactics": [
+    "linear_combination h₀ / 2"
+   ],
+   "nl": "$8z^3-6z+1\\implies 4z^3-3z=-\\frac{1}{2}$ . Let $z=\\cos\\theta$ and note the triple-angle formula $\\cos 3\\theta=4\\cos^3\\theta-3\\cos\\theta$ , you get $\\cos 3\\theta=-\\frac{1}{2}\\implies 3\\theta=2\\pi k\\pm\\frac{2\\pi}{3}=\\frac{(6k\\pm 2)\\pi}{3}\\implies\\theta=\\frac{(6k\\pm 2)\\pi}{3}$"
+  },
+  {
+   "name": "lean_workbook_plus_12283",
+   "statement": "theorem lean_workbook_plus_12283 b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) :  (a + b) * (a + c) * (b + c) >= 8 * (a + b - c) * (a + c - b) * (b + c - a)   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "If a,b,c are side lengths of triangle , prove that $(a+b)(a+c)(b+c) \\geq 8(a+b-c)(a+c-b)(b+c-a)$"
+  },
+  {
+   "name": "lean_workbook_plus_12543",
+   "statement": "theorem lean_workbook_plus_12543 (z1 z2 : ℂ) : ‖z1‖ + ‖z2‖ ≥ ‖z1 + z2‖   :=  by sorry",
+   "tactics": [
+    "exact norm_add_le z1 z2"
+   ],
+   "nl": "Isn't the triangle inequality just for I z1 I + I z2 I $\\ge$ I z1 + z2 I ?"
+  },
+  {
+   "name": "lean_workbook_plus_12630",
+   "statement": "theorem lean_workbook_plus_12630  (a b c : ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : c^2 = a^2 + b^2) :\n  (b * (b + c)) / (a * (a + c)) = (2 * b * (b + c - a) + 2 * a * b) / (2 * a * (a + c - b) + 2 * a * b)   :=  by sorry",
+   "tactics": [
+    "rw [div_eq_div_iff]"
+   ],
+   "nl": "We have $c^2 = a^2+b^2$ in our problem. Since in every right triangle we have $[ABC]=(u-a)(u-b) = \\dfrac{ab}2$ , where $u$ is semiperimeter, $\\begin{array}{rcl} \\dfrac{b(b+c)}{a(a+c)} &=& \\dfrac{2b(b+c-a)+2ab}{2a(a+c-b)+2ab}\\ \\ &=& \\dfrac{2b(b+c-a)+(b+c-a)(a+c-b)}{2a(a+c-b)+(b+c-a)(a+c-b)} \\ \\ &=& \\"
+  },
+  {
+   "name": "lean_workbook_plus_13122",
+   "statement": "theorem lean_workbook_plus_13122 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : (a + b - c - Real.sqrt ((a + c - b) * (b + c - a))) ^ 2 ≥ 0   :=  by sorry",
+   "tactics": [
+    "nlinarith [hx.1, hx.2.1, hx.2.2, hab, hbc, hca]"
+   ],
+   "nl": "In triangle $ABC$, prove that: $(a+b-c-\\sqrt{(a+c-b)(b+c-a)})^2\\geq0$."
+  },
+  {
+   "name": "lean_workbook_plus_14391",
+   "statement": "theorem lean_workbook_plus_14391  (x y : ℝ) :\n  1 + |x * y - 1| ≤ (1 + |x - 1|) * (1 + |y - 1|)   :=  by sorry",
+   "tactics": [
+    "have h1 : 0 ≤ (x - 1)^2 := sq_nonneg (x - 1)"
+   ],
+   "nl": "By the triangle inequality: $|xy-1|=|(x-1)+(y-1)+(x-1)(y-1)|\\leq |x-1|+|y-1|+|(x-1)(y-1)|$ \\nSo $1+|xy-1|\\leq 1+|x-1|+|y-1|+|x-1||y-1|=(1+|x-1|)(1+|y-1|)$"
+  },
+  {
+   "name": "lean_workbook_plus_15594",
+   "statement": "theorem lean_workbook_plus_15594 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a * b * c ≥ (a + b - c) * (b + c - a) * (c + a - b)   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "If $a,b,c$ are the lengths of triangle sides, prove that $abc\\ge (a+b-c)(b+c-a)(c+a-b)$ ."
+  },
+  {
+   "name": "lean_workbook_plus_15752",
+   "statement": "theorem lean_workbook_plus_15752 (M : ℝ) (G : ℝ) (m : ℝ) (r : ℝ) (T : ℝ) : (r^3 / T^2 = G * M / 4 * π^2) ↔ (r^3 / T^2 = G * M / 4 * π^2)   :=  by sorry",
+   "tactics": [
+    "exact ⟨fun h ↦ h, fun h ↦ h⟩"
+   ],
+   "nl": "On a circular orbit with radius r, the gravitational force $\\vec F_G = -\\frac{GmM}{r^2} \\cdot \\frac{\\vec r}{r}$ is directed to the sun center and has a constant magnitude (M is the mass of the sun and G the gravitational constant). It can be balanced by the centrifugal force on this circular orbit, "
+  },
+  {
+   "name": "lean_workbook_plus_15818",
+   "statement": "theorem lean_workbook_plus_15818 :\n  ∀ x : ℝ,\n    abs (sin x + cos x) + abs (sin x - cos x) ≥ 2 * (sin x)^2   :=  by sorry",
+   "tactics": [
+    "intro x"
+   ],
+   "nl": "By triangle inequality we have \\n $$ | \\sin {x} +\\ cos{x} | +| \\sin{x} -\\cos{x}| \\ge | \\sin {x}+\\cos{x} +\\sin{x}-\\cos{x}|=2|\\sin{x} |\\ge 2\\sin ^2 {x} $$ equality holds if and only if $x=\\dfrac {\\pi} {2}$ or $x=\\dfrac {3\\pi} {2} $"
+  },
+  {
+   "name": "lean_workbook_plus_15877",
+   "statement": "theorem lean_workbook_plus_15877 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a^2 * (b / c - 1) + b^2 * (c / a - 1) + c^2 * (a / b - 1) ≥ 0   :=  by sorry",
+   "tactics": [
+    "field_simp [hx.1.ne', hx.2.1.ne', hx.2.2.ne']"
+   ],
+   "nl": "Let $ a,b,c $ be the sides of a triangle. Show that $ \\sum_{cyc}{a^2(\\frac{b}{c} - 1)} \\ge 0 $"
+  },
+  {
+   "name": "lean_workbook_plus_15944",
+   "statement": "theorem lean_workbook_plus_15944 (ε : ℝ) (hε : 0 < ε) (a b c : ℝ) (hab : a = 1 + ε) (hbc : b = 1 + ε) (hca : c = 2) (h : a + b > c) : 3 * a ≥ b + c   :=  by sorry",
+   "tactics": [
+    "linarith [hab, hbc, hca, h]"
+   ],
+   "nl": "a=1+\\epsilon, b=1+\\epsilon, c=2 are triangle sides and satisfy 3a \\ge b+c but give nearly the same result (for small \\(\\epsilon\\))"
+  },
+  {
+   "name": "lean_workbook_plus_16733",
+   "statement": "theorem lean_workbook_plus_16733 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a^3 + b^3 + c^3 + 3 * a * b * c ≥ a * b * (a + b) + b * c * (b + c) + c * a * (c + a)   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "If $ a,b,c$ are the side of triangle, prove the inequality:\\n $ a^3+b^3+c^3+3abc\\ge\\sum_{cyc}ab(a+b)$"
+  },
+  {
+   "name": "lean_workbook_plus_17090",
+   "statement": "theorem lean_workbook_plus_17090 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a^2 * (b + c - a) + b^2 * (c + a - b) + c^2 * (a + b - c) ≤ 3 * a * b * c   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "Let a, b, c be three sides of a triangle. Prove that : $a^2 (b + c - a) + b^2 (c + a - b) + c^2 (a + b - c) \\leq 3abc.$"
+  },
+  {
+   "name": "lean_workbook_plus_17311",
+   "statement": "theorem lean_workbook_plus_17311 (b c : ℝ) : Real.sqrt ((b^2 + c^2) / 2) ≥ (b + c) / 2   :=  by sorry",
+   "tactics": [
+    "have h1 : 0 ≤ (b - c)^2 := sq_nonneg (b - c)"
+   ],
+   "nl": "Prove that in a right-angled triangle $ABC$, $ \\sqrt{\\frac{b^{2}+c^{2}}{2}}\\geq\\frac{b+c}{2}$."
+  },
+  {
+   "name": "lean_workbook_plus_17427",
+   "statement": "theorem lean_workbook_plus_17427 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a / (b + c) + b / (a + c) + c / (a + b) < 2   :=  by sorry",
+   "tactics": [
+    "have h₁ := add_pos hx.2.1 hx.2.2"
+   ],
+   "nl": "Prove that $\\frac{a}{b+c} + \\frac{b}{a+c} + \\frac{c}{a+b} < 2$ where a,b,c are the sides of a triangle."
+  },
+  {
+   "name": "lean_workbook_plus_17443",
+   "statement": "theorem lean_workbook_plus_17443 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a^3 + b^3 + c^3 < (a + b + c) * (a * b + b * c + c * a)   :=  by sorry",
+   "tactics": [
+    "nlinarith [mul_pos (sub_pos.mpr hab) (sub_pos.mpr hbc), mul_pos (sub_pos.mpr hbc) (sub_pos.mpr hca), mul_pos (sub_pos.mpr hca) (sub_pos.mpr hab)]"
+   ],
+   "nl": "Let's consider the inequality $ a^3+b^3+c^3<k(a+b+c)(ab+bc+ca)$ where $ a,b,c$ are the sides of a triangle and $ k$ a real number.\\n\\na) Prove the inequality for $ k=1$ .\\n\\nb) Find the smallest value of $ k$ such that the inequality holds for all triangles."
+  },
+  {
+   "name": "lean_workbook_plus_18405",
+   "statement": "theorem lean_workbook_plus_18405 (A B C : ℝ) (hx: A + B + C = π) (hb : 0 < A ∧ 0 < B ∧ 0 < C) (hab : A + B > C) (hbc : B + C > A) (hca : A + C > B) : -cos C * sin C + sin C * cos C = 0   :=  by sorry",
+   "tactics": [
+    "simp [add_comm, add_left_comm, add_assoc, mul_comm, mul_left_comm, mul_assoc]"
+   ],
+   "nl": "Given that A, B, C are angles of a triangle, prove that $-cosC*sinC +sinC*cosC = 0$"
+  },
+  {
+   "name": "lean_workbook_plus_21537",
+   "statement": "theorem lean_workbook_plus_21537 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a^3 * b^2 + b^3 * c^2 + c^3 * a^2 >= (a^2 + b^2 + c^2) * a * b * c   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a * b - b * c), sq_nonneg (b * c - c * a), sq_nonneg (c * a - a * b)]"
+   ],
+   "nl": "Prove that $a^3b^2+b^3c^2+c^3a^2\\geq(a^2+b^2+c^2)abc$ for all triangle with sides $a$, $b$, and $c$."
+  },
+  {
+   "name": "lean_workbook_plus_21682",
+   "statement": "theorem lean_workbook_plus_21682 (a b c : ℝ) (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : 3 * (a * b + b * c + c * a) ≤ (a + b + c) ^ 2 ∧ (a + b + c) ^ 2 ≤ 4 * (a * b + b * c + c * a)   :=  by sorry",
+   "tactics": [
+    "refine ⟨by nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)], by nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]⟩"
+   ],
+   "nl": "If $a, b$ and $c$ are the lengths of the sides of a triangle, show that \\n $$3(ab+bc+ca) \\le (a+b+c)^2 \\le 4(ab+bc+ca).$$"
+  },
+  {
+   "name": "lean_workbook_plus_21954",
+   "statement": "theorem lean_workbook_plus_21954 {a b c : ℝ} (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a + b > c ∧ b + c > a ∧ a + c > b   :=  by sorry",
+   "tactics": [
+    "exact ⟨hab, hbc, hca⟩"
+   ],
+   "nl": "Prove that if $a, b$, and $c$ are the side lengths of a triangle, then $a + b > c$, $b + c > a$, and $a + c > b$."
+  },
+  {
+   "name": "lean_workbook_plus_23360",
+   "statement": "theorem lean_workbook_plus_23360 {a b c : ℝ} (hx: a > 0 ∧ b > 0 ∧ c > 0) (hab : a + b > c) (hbc : b + c > a) (hca : a + c > b) : a^2 * (b + c - a) + b^2 * (a + c - b) + c^2 * (a + b - c) ≤ 3 * a * b * c   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "Suppose a,b,c are sides of triangle. Prove that:\\n $$a^2 (b + c - a) + b^2 (a+ c - b) + c^2 (a + b - c) \\le\\ 3 a b c$$"
+  },
+  {
+   "name": "lean_workbook_plus_24283",
+   "statement": "theorem lean_workbook_plus_24283 (A B C : ℝ) (hx: A + B + C = π) : (sin A)^2 + (sin B)^2 + (sin C)^2 = 2*(1 + cos A * cos B * cos C)   :=  by sorry",
+   "tactics": [
+    "have : C = π - (A + B) := by linarith"
+   ],
+   "nl": "Prove that in any triangle with angles A, B, and C, the following equation holds:\\n\\\\(\\\\sin^2A + \\\\sin^2B + \\\\sin^2C = 2(1 + \\\\cosA \\\\cosB \\\\cosC)\\\\)"
+  },
+  {
+   "name": "lean_workbook_plus_25449",
+   "statement": "theorem lean_workbook_plus_25449    (a b c : ℝ)\n    (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n    (h₁ : a + b > c)\n    (h₂ : a + c > b)\n    (h₃ : b + c > a) :\n    a^2 * (b + c - a) + b^2 * (a + c - b) + c^2 * (a + b - c) ≤ 3 * a * b * c   :=  by sorry",
+   "tactics": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "nl": "Suppose a,b,c are sides of triangle. Prove that:\\n $$a^2 (b + c - a) + b^2 (a+ c - b) + c^2 (a + b - c) \\le\\ 3 a b c$$\\n\\nSchur"
+  }
+ ],
+ "number_theory": [
+  {
+   "name": "lean_workbook_plus_139",
+   "statement": "theorem lean_workbook_plus_139 :\n  ∀ m n, m % n = 0 → ∃ x, m = n * x   :=  by sorry",
+   "tactics": [
+    "exact fun m n h ↦ ⟨m / n, (Nat.div_add_mod m n).symm.trans (by simp [h])⟩"
+   ],
+   "nl": "If $m$ is a multiple of $n$ , then $m$ can be expressed as $m = nx$ where $x$ is an integer. Since $0$ is an integer, then yes you would consider $0$ a multiple of all naturals."
+  },
+  {
+   "name": "lean_workbook_plus_346",
+   "statement": "theorem lean_workbook_plus_346 (n k m : ℕ) (h₁ : k ≤ n) (h₂ : m ≤ k) : choose n k * choose k m = choose n m * choose (n - m) (k - m)   :=  by sorry",
+   "tactics": [
+    "simp [choose_mul, h₁, h₂, sub_eq_iff_eq_add]"
+   ],
+   "nl": "Prove that for nonnegative integers n, m, k with m≤ n, the following equality holds: ${\\binom{n}{k}}$ ${\\binom{k}{m}}$ = ${\\binom{n}{m}}$ ${\\binom{n-m}{k-m}}$"
+  },
+  {
+   "name": "lean_workbook_plus_358",
+   "statement": "theorem lean_workbook_plus_358 (x : ℤ) : 13 ≤ |2*x - 7| + |2*x - 9| + |2*x - 11| + |2*x - 13| + |2*x - 15|   :=  by sorry",
+   "tactics": [
+    "rw [abs_eq_max_neg]"
+   ],
+   "nl": "Let $ x$ be an integer. What is the smallest possible value of $ |2x - 7| + |2x - 9| + |2x - 11| + |2x - 13| + |2x - 15|$ ."
+  },
+  {
+   "name": "lean_workbook_plus_364",
+   "statement": "theorem lean_workbook_plus_364 (n : ℕ) (hA: A = ({0,1,2,3,4,5,6,7,8,9} : Finset ℕ)) (hn: n ∈ A) : ∃ m, m % 10 = 9 ∧ m % 9 = 8 ∧ m % 8 = 7 ∧ m % 7 = 6 ∧ m % 6 = 5 ∧ m % 5 = 4 ∧ m % 4 = 3 ∧ m % 3 = 2 ∧ m % 2 = 1   :=  by sorry",
+   "tactics": [
+    "exact ⟨9 * 10 * 9 * 8 * 7 * 6 * 5 * 4 * 3 * 2 - 1, by decide⟩"
+   ],
+   "nl": "What is the smallest positive integer that leaves a remainder of $9$ when divided by $10$ , a remainder of $8$ when divided by $9$ , and so on, down to where it leaves a remainder of $1$ when divided by $2$ ?"
+  },
+  {
+   "name": "lean_workbook_plus_390",
+   "statement": "theorem lean_workbook_plus_390 (n : ℕ) (a : ℕ → ℕ) (a1 : a 0 = 1) (a_rec : ∀ n, a (n + 1) = a n ^ 2 + a n + 1) : (a n ^ 2 + 1) ∣ (a (n + 1) ^ 2 + 1)   :=  by sorry",
+   "tactics": [
+    "simp [a1, a_rec]"
+   ],
+   "nl": "Given is a sequence of positive integers, defined by $a_1=1$ and $a_{n+1}=a_n^2+a_n+1$ , for every positive integer $n$ . Prove that for every positive integer $n$ , $a_n^2+1 | a_{n+1}^2+1$"
+  },
+  {
+   "name": "lean_workbook_plus_471",
+   "statement": "theorem lean_workbook_plus_471 :\n  Finset.card (Finset.filter (λ x => 2 ∣ x ∨ 3 ∣ x ∨ 7 ∣ x) (Finset.range 750)) = 536   :=  by sorry",
+   "tactics": [
+    "conv => lhs",
+    "rw [← Nat.mod_add_div 750 2, ← Nat.mod_add_div 750 3, ← Nat.mod_add_div 750 7]"
+   ],
+   "nl": "Lastly, we oversubtracted the case where the number is divisible by all three, so we need to add this back. The product of the three prime factors is $42$ , so we have $\\lfloor750/42\\rfloor=17$ . Finally, we have $732-213+17=536$ numbers below 750 that are divisible by $2$ , $3$ , or $7$ ."
+  },
+  {
+   "name": "lean_workbook_plus_590",
+   "statement": "theorem lean_workbook_plus_590 (x y z k : ℤ) (h₁ : 0 < x ∧ 0 < y ∧ 0 < z) (h₂ : x < y) (h₃ : x + y = k) (h₄ : x^3 + y^3 = k * z^3) : z^3 = k^2 - 3 * k * x + 3 * x^2   :=  by sorry",
+   "tactics": [
+    "rw [← h₃, pow_three]"
+   ],
+   "nl": "The positive integers $x, y$ and $z$ , where $x < y$ , satisfy $x^{3}+y^{3} = kz^{3}$ , (\\*) where $k$ is a given positive integer. In the case $x+y=k$ , show that $z^{3} = k^{2}-3kx +3x^{2}$ . Deduce that $(4z^{3}-k^{2})/3$ is a perfect square and that $\\frac{1}{4}k^{2} \\leq z^{3} <k^{2}$ . Use the"
+  },
+  {
+   "name": "lean_workbook_plus_702",
+   "statement": "theorem lean_workbook_plus_702 (A B C : ℕ) (hA : A ≠ 0) (hB : B ≠ 0) (hC : C ≠ 0) (hABC : Nat.Coprime A B) (hABC' : Nat.Coprime A C) (hABC'' : Nat.Coprime B C) : ∃ x y z : ℕ, x^A + y^B = z^C   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, 0, 0, by simp [hA, hB, hC, hABC, hABC', hABC'']⟩"
+   ],
+   "nl": "In fact, if $A,B,C$ are pairwise relatively prime, then the equation $x^A+y^B=z^C$ has infinitely many solutions where $x,y,z$ are positive integers."
+  },
+  {
+   "name": "lean_workbook_plus_812",
+   "statement": "theorem lean_workbook_plus_812  (i j k : ℤ)\n  (h₀ : 0 < i ∧ 0 < j ∧ 0 < k)\n  (h₁ : i^2 + j^2 + k^2 = 2011)\n  (h₂ : i + j + k = 0) :\n  - Real.sqrt (3 * 2011) ≤ i + j + k ∧ i + j + k ≤ Real.sqrt (3 * 2011)   :=  by sorry",
+   "tactics": [
+    "constructor <;> linarith [sq_nonneg (i - 1), sq_nonneg (j - 1), sq_nonneg (k - 1)]"
+   ],
+   "nl": "By Cauchy-Schwarz, $(1^2 +1^2+1^2)(i^2+j^2+k^2)\\ge(i+j+k)^2\\Longleftrightarrow -\\sqrt{3\\times 2011} \\le i+j+k\\le \\sqrt{3\\times 2011}$ . Since they are integers, $\\lfloor\\sqrt{3\\times 2011}\\rfloor=77$ ."
+  },
+  {
+   "name": "lean_workbook_plus_890",
+   "statement": "theorem lean_workbook_plus_890 : ∀ n : ℕ, Odd (9^(n-1) + 3^(n-1) + 1)   :=  by sorry",
+   "tactics": [
+    "simp [Nat.odd_iff_not_even, Nat.even_add, Nat.odd_iff_not_even, Nat.even_pow]"
+   ],
+   "nl": "Prove that $9^{n-1} + 3^{n-1} + 1$ is odd for all positive integers $n$"
+  },
+  {
+   "name": "lean_workbook_plus_908",
+   "statement": "theorem lean_workbook_plus_908 (x y : ℤ) (h : x ≥ y + 1) : x ≥ y + 1   :=  by sorry",
+   "tactics": [
+    "exact h"
+   ],
+   "nl": "If x, y are integers then $x\\ge y+1$"
+  },
+  {
+   "name": "lean_workbook_plus_981",
+   "statement": "theorem lean_workbook_plus_981 : 2 ^ 29 - 2 ^ 15 + 1 ≡ 0 [ZMOD 5]   :=  by sorry",
+   "tactics": [
+    "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]"
+   ],
+   "nl": "Prove that $2^{29} - 2^{15} + 1$ is divisible by 5."
+  },
+  {
+   "name": "lean_workbook_plus_1020",
+   "statement": "theorem lean_workbook_plus_1020 (X Y Z : ℕ) (h₁ : X % Y = Z % Y) : X ≡ Z [MOD Y]   :=  by sorry",
+   "tactics": [
+    "simp [Nat.ModEq, h₁]"
+   ],
+   "nl": "X Mod Y is $\\equiv$ to Z Mod Y if The remainder when X is divided by Y is the same as the remainder when Z is divided by Y"
+  },
+  {
+   "name": "lean_workbook_plus_1519",
+   "statement": "theorem lean_workbook_plus_1519 (x : ℝ) (n : ℤ) : ⌊x + n⌋ = ⌊x⌋ + n   :=  by sorry",
+   "tactics": [
+    "simp [Int.floor_eq_iff]"
+   ],
+   "nl": "Prove that $\\lfloor x + n \\rfloor = \\lfloor x \\rfloor + n$ where $n$ is an integer and $x$ is a real number."
+  },
+  {
+   "name": "lean_workbook_plus_1674",
+   "statement": "theorem lean_workbook_plus_1674 (k : ℕ) : ∃ a : ℕ, (2 * k + 2)! / ((2 : ℕ) ^ (k + 1) * (k + 1)!) = a   :=  by sorry",
+   "tactics": [
+    "refine' ⟨(2 * k + 2)! / (2 ^ (k + 1) * (k + 1)!), by simp⟩"
+   ],
+   "nl": "Prove $ \\frac {(2k + 2)!}{2^{k + 1}\\cdot (k + 1)!} = \\frac {(2k)!}{2^{k}\\cdot k!}\\cdot \\frac {(2k + 1)(2k + 2)}{2\\cdot (k + 1)} = \\frac {(2k)!}{2^{k}\\cdot k!}\\cdot \\frac {(2k + 1)(2k + 2)}{2k + 2} = \\frac {(2k)!}{2^{k}\\cdot k!}\\cdot (2k + 1)$ is an integer."
+  },
+  {
+   "name": "lean_workbook_plus_1714",
+   "statement": "theorem lean_workbook_plus_1714 : 2 ^ 2011 + 3 ^ 2011 + 4 ^ 2011 + 5 ^ 2011 + 6 ^ 2011 + 7 ^ 2011 + 8 ^ 2011 + 2011 ≡ 3 [ZMOD 9]   :=  by sorry",
+   "tactics": [
+    "conv => lhs",
+    "rw [← Nat.mod_add_div 2011 9]"
+   ],
+   "nl": "Find the remainder when $ 2^{2011} + 3^{2011}+4^{2011}+5^{2011}+6^{2011}+7^{2011}+8^{2011}+2011$ is divided by 9."
+  },
+  {
+   "name": "lean_workbook_plus_1840",
+   "statement": "theorem lean_workbook_plus_1840 :\n  1547 % 13 = 0   :=  by sorry",
+   "tactics": [
+    "simp only [Nat.mod_eq_zero_of_dvd (by norm_num : 13 ∣ 1547)]"
+   ],
+   "nl": "Number divisible by 13: $\\frac{1547}{13}=119$"
+  },
+  {
+   "name": "lean_workbook_plus_1867",
+   "statement": "theorem lean_workbook_plus_1867 (p : ℕ) (hp : p.Prime) (h : ∃ k : ℕ, (3 ^ (p - 1) - 1) / p = k ^ 2) : ∃ k : ℕ, (3 ^ (p - 1) - 1) / p = k ^ 2   :=  by sorry",
+   "tactics": [
+    "exact h"
+   ],
+   "nl": "Find all prime numbers $p$ such that $\\frac{3^{p-1} - 1}{p}$ is a perfect square."
+  },
+  {
+   "name": "lean_workbook_plus_1896",
+   "statement": "theorem lean_workbook_plus_1896 (f : ℕ → ℕ) (hf: f 1 = 1) (hf1: ∀ m n: ℕ, f (m + n) = f m + f n + m * n): ∀ n:ℕ, f n = n * (n + 1) / 2   :=  by sorry",
+   "tactics": [
+    "intro n"
+   ],
+   "nl": "Find all functions $f: \\mathbb{N} \\rightarrow \\mathbb{N}$ such that $f(m + n) = f(m) + f(n) + mn$ for all positive integers $m$ and $n$, and $f(1) = 1$."
+  },
+  {
+   "name": "lean_workbook_plus_1939",
+   "statement": "theorem lean_workbook_plus_1939 (k : ℕ) : (3^(3^k - k) % 3) = 0   :=  by sorry",
+   "tactics": [
+    "simp [Nat.pow_mod, Nat.mod_mod]"
+   ],
+   "nl": "Prove that for all $k \\in \\mathbb{Z}^+$, $a_{3^k} = 3^{3^k - k}$ is divisible by 3."
+  },
+  {
+   "name": "lean_workbook_plus_2045",
+   "statement": "theorem lean_workbook_plus_2045 (x y : ℤ) (h : x^3 + x^2 + 2*y - 8 = 0) : y = 4 - (x^2 * (x+1)) / 2   :=  by sorry",
+   "tactics": [
+    "ring_nf at h ⊢"
+   ],
+   "nl": "Suppose that $x$ is an integer, then I will show that $y$ is also an integer. $x^3+x^2+2y-8=0\\iff y=4-\\frac{x^2(x+1)}{2}$"
+  },
+  {
+   "name": "lean_workbook_plus_2141",
+   "statement": "theorem lean_workbook_plus_2141 (a : ℕ → ℕ) (h : ∀ m, a m ∣ a (m + 1)) : ∀ m, m < n → Nat.gcd (a m) (a (m + 1)) = a m   :=  by sorry",
+   "tactics": [
+    "intro m hmn"
+   ],
+   "nl": "And $a_m|a_{m+1}$ $\\implies$ $\\gcd(a_m,a_{m+1})=a_m$"
+  },
+  {
+   "name": "lean_workbook_plus_2164",
+   "statement": "theorem lean_workbook_plus_2164 (p : ℕ) (hp : p.Prime) (hp2 : p ≠ 2) : ∃ n : ℕ, p ∣ 2 ^ n - 1   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, by simp⟩"
+   ],
+   "nl": "For all prime $p \\neq 2$ , there exists some $n \\in \\mathbb N$ for which $p | 2^n-1$ . This is true. Since $\\gcd(2, p) = 1$ , we have that $2^{\\varphi(p)} = 1\\pmod p$ . Then let $n = p - 1$ so $2^{p-1} = 1 \\pmod p$ , thus $p | 2^{p-1} - 1$ ."
+  },
+  {
+   "name": "lean_workbook_plus_2278",
+   "statement": "theorem lean_workbook_plus_2278 (p : ℕ) (hp : 5 ≤ p) (hp' : Nat.Prime p) : \n  ∃ q : ℕ, p < q ∧ q < 2 * p - 2   :=  by sorry",
+   "tactics": [
+    "refine ⟨p + 1,?_,?_⟩ <;> omega"
+   ],
+   "nl": "Prove that for any prime $p\\ge5$, there exists a prime $q$ such that $p<q<2p-2$."
+  },
+  {
+   "name": "lean_workbook_plus_2406",
+   "statement": "theorem lean_workbook_plus_2406 (p : ℕ) (hp : p.Prime) (hp1 : p ≡ 1 [ZMOD 7]) : ∃ m : ℕ, ((7 : ℤ)∣(m^3 + m^2 - 2*m - 1) % p)   :=  by sorry",
+   "tactics": [
+    "refine ⟨0,?_⟩"
+   ],
+   "nl": "For prime $p\\equiv 1\\pmod{7} $ , prove that there exists some positive integer $m$ such that $m^3+m^2-2m-1$ is a multiple of $p$ ."
+  },
+  {
+   "name": "lean_workbook_plus_2424",
+   "statement": "theorem lean_workbook_plus_2424 (k : ℕ) : ∃ n : ℕ, ∃ x : ℕ, n * 2 ^ k - 7 = x ^ 2   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, 0, by norm_num⟩"
+   ],
+   "nl": "Prove that for all positive integers $k$, there exists a positive integer $n$ such that $n2^k - 7$ is a perfect square."
+  },
+  {
+   "name": "lean_workbook_plus_2446",
+   "statement": "theorem lean_workbook_plus_2446 (n : ℕ) : ∃ m, (m % 2 ^ n = 0 ∧ (∀ i ∈ Nat.digits 10 m, i = 1 ∨ i = 2))   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, by simp, by simp⟩"
+   ],
+   "nl": "Prove that for every $n\\in N$ there is a number with digits 1 or 2 that is divisible by $2^n$."
+  },
+  {
+   "name": "lean_workbook_plus_2623",
+   "statement": "theorem lean_workbook_plus_2623 (x y z : ℤ) (hxy : x ≠ y) (hyz : y ≠ z) (hxz : x ≠ z) : 5 * (x - y) * (y - z) * (z - x) ∣ (x - y) ^ 5 + (y - z) ^ 5 + (z - x) ^ 5   :=  by sorry",
+   "tactics": [
+    "apply Dvd.intro (x^2 + y^2 + z^2 - x * y - x * z - y * z)"
+   ],
+   "nl": "Prove that for all distinct integers $x, y, z$, $5(x-y)(y-z)(z-x)$ divides $(x-y)^5+(y-z)^5+(z-x)^5$."
+  },
+  {
+   "name": "lean_workbook_plus_2852",
+   "statement": "theorem lean_workbook_plus_2852 {m n : ℕ} (hmn : Nat.Coprime m n) :\n    Nat.totient (m * n) = Nat.totient m * Nat.totient n   :=  by sorry",
+   "tactics": [
+    "rw [totient_mul hmn, Nat.mul_comm]"
+   ],
+   "nl": "Prove that $\\phi(n)$ and $\\sigma(n)$ are multiplicative for coprime integers."
+  },
+  {
+   "name": "lean_workbook_plus_3182",
+   "statement": "theorem lean_workbook_plus_3182 (a b c : ℤ) (h₁ : a ≠ b) (h₂ : a ≠ c) (h₃ : b ≠ c) : ∃ a b, 30 ∣ a^3 * b - a * b^3   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, 0, by norm_num⟩"
+   ],
+   "nl": "If three distinct integers are chosen at random, show that there will exist two among them, say $a$ and $b$ such that $30$ divides $a^3b-ab^3$."
+  },
+  {
+   "name": "lean_workbook_plus_3340",
+   "statement": "theorem lean_workbook_plus_3340 (p : ℕ) (hp : p.Prime) (a b : ℕ) (h : p ∣ a * b) : p ∣ a ∨ p ∣ b   :=  by sorry",
+   "tactics": [
+    "exact hp.dvd_mul.mp h"
+   ],
+   "nl": "Lemma: If $ p$ is prime, then $ p | ab \\implies p | a \\text{ or } p | b$ ."
+  },
+  {
+   "name": "lean_workbook_plus_3370",
+   "statement": "theorem lean_workbook_plus_3370 (p : ℕ) (hp : p.Prime) (h2 : p > 2) : 2 ∣ p - 1   :=  by sorry",
+   "tactics": [
+    "exact (Nat.Prime.eq_two_or_odd hp).elim (fun h ↦ absurd h2 (by linarith)) (fun h ↦ by rw [← Nat.mod_add_div p 2]",
+    "simp [h])"
+   ],
+   "nl": "Prove that if $p > 2$ is a prime number, then $2$ divides $p-1$."
+  },
+  {
+   "name": "lean_workbook_plus_3614",
+   "statement": "theorem lean_workbook_plus_3614  (a b : ℤ) :\n  (6 * a + 2 * b) - 2 * b = 6 * a   :=  by sorry",
+   "tactics": [
+    "simp [mul_add, mul_comm, mul_left_comm, sub_eq_add_neg, add_assoc, add_comm, add_left_comm]"
+   ],
+   "nl": "$(6a+2b)-2b=6a$ will be an integer."
+  },
+  {
+   "name": "lean_workbook_plus_3737",
+   "statement": "theorem lean_workbook_plus_3737 (f : ℕ → ℕ) (k : ℕ) (h₁ : ∀ k, f k = k * f 1) : ∀ k, f k = k * f 1   :=  by sorry",
+   "tactics": [
+    "exact fun k ↦ h₁ k"
+   ],
+   "nl": "Prove that $f(k) = kf(1)$ for all positive integers $ k$."
+  },
+  {
+   "name": "lean_workbook_plus_3950",
+   "statement": "theorem lean_workbook_plus_3950  (n k : ℤ)\n  (h₀ : 0 ≤ k ∧ k ≤ 2) :\n  (3 * n + k)^3 % 9 = k^3 % 9   :=  by sorry",
+   "tactics": [
+    "(ring_nf",
+    "simp [Int.add_emod, Int.mul_emod, h₀.1, h₀.2])"
+   ],
+   "nl": "Another way is to observe that, for integers $n$ and $k$ , $(3n + k)^3 = 27n^3 + 27nk^2 + 9n^2k + k^3 \\equiv k^3 \\mod 9.$ Since any integer can be written as $3n + k$ for $k = 0$ , $1$ , or $2$ , it follows that its cube must be congruent to $0^3$ , $1^3$ , or $2^3$ mod $9$ ."
+  },
+  {
+   "name": "lean_workbook_plus_4574",
+   "statement": "theorem lean_workbook_plus_4574 (x : ℤ) (h : x % 2 = 1) : (x ^ 2 + 1) % 2 = 0 ∧ (x ^ 2 + 1) % 4 ≠ 0   :=  by sorry",
+   "tactics": [
+    "obtain ⟨k, rfl⟩ | ⟨k, rfl⟩ := Int.even_or_odd x"
+   ],
+   "nl": "If $x$ is odd, prove that $x^2+1$ is even but not divisible by 4."
+  },
+  {
+   "name": "lean_workbook_plus_4816",
+   "statement": "theorem lean_workbook_plus_4816 {a b : ℤ} (h : a % 8 = b % 8) : a^2 % 8 = b^2 % 8   :=  by sorry",
+   "tactics": [
+    "simp [sq, Int.mul_emod, h]"
+   ],
+   "nl": "Prove that if $a$ and $b$ are integers that leave the same remainder when divided by 8, then $a^2$ and $b^2$ also leave the same remainder when divided by 8."
+  },
+  {
+   "name": "lean_workbook_plus_4858",
+   "statement": "theorem lean_workbook_plus_4858 : ∀ a b n : ℤ, a ≡ b [ZMOD n] → n ∣ (a - b)   :=  by sorry",
+   "tactics": [
+    "intro a b n h"
+   ],
+   "nl": "If $a \\equiv b \\pmod n$ then $a-b$ is divisible by $n$"
+  },
+  {
+   "name": "lean_workbook_plus_5288",
+   "statement": "theorem lean_workbook_plus_5288 {n : ℕ} (a : ℕ → ℕ) (h : ∀ k, 1 ≤ k ∧ k ≤ n → a k = k) : (∀ k, 1 ≤ k ∧ k ≤ n + 1 → a k = k) ↔ a (n + 1) = n + 1   :=  by sorry",
+   "tactics": [
+    "refine' ⟨fun h1 => _, fun h1 k hk => _⟩ <;> aesop"
+   ],
+   "nl": "Assume $a_k=k$ for all $1\\leq k \\leq n$ . Then since $\\gcd(a_n, n+1) = \\gcd(n,n+1)=1$ it means we must take $a_{n+1} = n+1$ ."
+  },
+  {
+   "name": "lean_workbook_plus_5612",
+   "statement": "theorem lean_workbook_plus_5612 (a b n : ℕ) (hab : a ≠ b) (hab2 : a ≠ 0 ∧ b ≠ 0) (hab3 : a * b * n ≠ 0) (hab4 : Nat.gcd a n = 1) (hab5 : Nat.gcd b n = 1) : ∃ t : ℕ, a ^ t ≡ b ^ t [ZMOD n]   :=  by sorry",
+   "tactics": [
+    "refine' ⟨0, by simp [hab, hab2, hab3, hab4, hab5]⟩"
+   ],
+   "nl": "Given positive integers $a,b,n$ such that $\\gcd(a,n) = \\gcd(b,n) = 1$ . Show these statements: (1): there exist a positive integer $t$ , such that $a^{t}\\equiv\\ b^{t} \\pmod n$ . (2): if $d$ is a smallest positive integer such that $a^{d}\\equiv\\ b^{d} \\pmod n$ , then $d|t$ for any such $t$ . (3): $3^"
+  }
+ ]
 }

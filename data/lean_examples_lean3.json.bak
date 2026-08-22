@@ -1,0 +1,1358 @@
+{
+  "algebra": [
+    {
+      "name": "mathd_algebra_478",
+      "statement": "theorem mathd_algebra_478\n  (b h v : ℝ)\n  (h₀ : 0 < b ∧ 0 < h ∧ 0 < v)\n  (h₁ : v = 1 / 3 * (b * h))\n  (h₂ : b = 30)\n  (h₃ : h = 13 / 2) :\n  v = 65 :=",
+      "tactics": [
+        "rw [h₂, h₃] at h₁,",
+        "rw h₁,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_141",
+      "statement": "theorem mathd_algebra_141\n  (a b : ℝ)\n  (h₁ : (a * b)=180)\n  (h₂ : 2 * (a + b)=54) :\n  (a^2 + b^2) = 369 :=",
+      "tactics": [
+        "replace h₂ : (a + b) = 27 , linarith,",
+        "have h₃ : a^2 + b^2 = (a + b)^2 - 2 * (a * b), by ring,",
+        "rw [h₃, h₂, h₁],",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_209",
+      "statement": "theorem mathd_algebra_209\n  (σ : equiv ℝ ℝ)\n  (h₀ : σ.2 2 = 10)\n  (h₁ : σ.2 10 = 1)\n  (h₂ : σ.2 1 = 2) :\n  σ.1 (σ.1 10) = 1 :=",
+      "tactics": [
+        "rw [← h₀, ← h₂],",
+        "simp,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_33",
+      "statement": "theorem mathd_algebra_33\n  (x y z : ℝ)\n  (h₀ : x ≠ 0)\n  (h₁ : 2 * x = 5 * y)\n  (h₂ : 7 * y = 10 * z) :\n  z / x = 7 / 25 :=",
+      "tactics": [
+        "field_simp,",
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_419",
+      "statement": "theorem mathd_algebra_419\n  (a b : ℝ)\n  (h₀ : a = -1)\n  (h₁ : b = 5) :\n  -a - b^2 + 3 * (a * b) = -39 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_398",
+      "statement": "theorem mathd_algebra_398\n  (a b c : ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : 9 * b = 20 * c)\n  (h₂ : 7 * a = 4 * b) :\n  63 * a = 80 * c :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_459",
+      "statement": "theorem mathd_algebra_459\n  (a b c d : ℚ)\n  (h₀ : 3 * a = b + c + d)\n  (h₁ : 4 * b = a + c + d)\n  (h₂ : 2 * c = a + b + d)\n  (h₃ : 8 * a + 10 * b + 6 * c = 24) :\n  ↑d.denom + d.num = 28 :=",
+      "tactics": [
+        "have h₄: d = 13/15, linarith,",
+        "sorry"
+      ]
+    },
+    {
+      "name": "mathd_algebra_137",
+      "statement": "theorem mathd_algebra_137\n  (x : ℕ)\n  (h₀ : ↑x + (4:ℝ) / (100:ℝ) * ↑x = 598) :\n  x = 575 :=",
+      "tactics": [
+        "have h₁ : ↑x = (575:ℝ), linarith,",
+        "assumption_mod_cast,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_160",
+      "statement": "theorem mathd_algebra_160\n  (n x : ℝ)\n  (h₀ : n + x = 97)\n  (h₁ : n + 5 * x = 265) :\n  n + 2 * x = 139 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_24",
+      "statement": "theorem mathd_algebra_24\n  (x : ℝ)\n  (h₀ : x / 50 = 40) :\n  x = 2000 :=",
+      "tactics": [
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_176",
+      "statement": "theorem mathd_algebra_176\n  (x : ℝ) :\n  (x + 1)^2 * x = x^3 + 2 * x^2 + x :=",
+      "tactics": [
+        "ring_nf,"
+      ]
+    },
+    {
+      "name": "algebra_sqineq_at2malt1",
+      "statement": "theorem algebra_sqineq_at2malt1\n  (a : ℝ) :\n  a * (2 - a) ≤ 1 :=",
+      "tactics": [
+        "suffices: 0 ≤ a^2 - 2*a + 1, nlinarith,",
+        "suffices: 0 ≤ (a - 1)^2, nlinarith,",
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_171",
+      "statement": "theorem mathd_algebra_171\n  (f : ℝ → ℝ)\n  (h₀ : ∀x, f x = 5 * x + 4) :\n  f 1 = 9 :=",
+      "tactics": [
+        "rw h₀,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_188",
+      "statement": "theorem mathd_algebra_188\n  (σ : equiv ℝ ℝ)\n  (h : σ.1 2 = σ.2 2) :\n  σ.1 (σ.1 2) = 2 :=",
+      "tactics": [
+        "simp [h]"
+      ]
+    },
+    {
+      "name": "mathd_algebra_346",
+      "statement": "theorem mathd_algebra_346\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = 2 * x - 3)\n  (h₁ : ∀ x, g x = x + 1) :\n  g (f 5 - 1) = 7 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_184",
+      "statement": "theorem mathd_algebra_184\n  (a b : nnreal)\n  (h₀ : 0 < a ∧ 0 < b)\n  (h₁ : (a^2) = 6*b)\n  (h₂ : (a^2) = 54/b) :\n  a = 3 * nnreal.sqrt 2 :=",
+      "tactics": [
+        "have key₁ : b ≠ 0 := ne_of_gt h₀.2,",
+        "have h₄ : 0 ≤ a, { exact zero_le _ },",
+        "suffices : a^2=18,",
+        "{",
+        "rw eq_comm,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_44",
+      "statement": "theorem mathd_algebra_44\n  (s t : ℝ)\n  (h₀ : s = 9 - 2 * t)\n  (h₁ : t = 3 * s + 1) :\n  s = 1 ∧ t = 4 :=",
+      "tactics": [
+        "split; linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_296",
+      "statement": "theorem mathd_algebra_296 :\n  abs (((3491 - 60) * (3491 + 60) - 3491^2):ℤ) = 3600 :=",
+      "tactics": [
+        "rw abs_of_nonpos,",
+        "norm_num,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_107",
+      "statement": "theorem mathd_algebra_107\n  (x y : ℝ)\n  (h₀ : x^2 + 8 * x + y^2 - 6 * y = 0) :\n  (x + 4)^2 + (y-3)^2 = 5^2 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_412",
+      "statement": "theorem mathd_algebra_412\n  (x y : ℝ)\n  (h₀ : x + y = 25)\n  (h₁ : x - y = 11) :\n  x = 18 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_80",
+      "statement": "theorem mathd_algebra_80\n  (x : ℝ)\n  (h₀ : x ≠ -1)\n  (h₁ : (x - 9) / (x + 1) = 2) :\n  x = -11 :=",
+      "tactics": [
+        "revert x h₀ h₁,",
+        "norm_num,",
+        "intros _ hx,",
+        "simp [hx, two_mul, sub_eq_add_neg],",
+        "intro H,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_275",
+      "statement": "theorem mathd_algebra_275\n  (x : ℝ)\n  (h : ((11:ℝ)^(1 / 4))^(3 * x - 3) = 1 / 5) :\n  ((11:ℝ)^(1 / 4))^(6 * x + 2) = 121 / 25 :=",
+      "tactics": [
+        "revert x h,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_388",
+      "statement": "theorem mathd_algebra_388\n  (x y z : ℝ)\n  (h₀ : 3 * x + 4 * y - 12 * z = 10)\n  (h₁ : -2 * x - 3 * y + 9 * z = -4) :\n  x = 14 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_263",
+      "statement": "theorem mathd_algebra_263\n  (y : ℝ)\n  (h₀ : 0 ≤ 19 + 3 * y)\n  (h₁ : real.sqrt (19 + 3 * y) = 7) :\n  y = 10 :=",
+      "tactics": [
+        "revert y h₀ h₁,",
+        "intros x hx,",
+        "rw real.sqrt_eq_iff_sq_eq hx,",
+        "swap,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_432",
+      "statement": "theorem mathd_algebra_432\n  (x : ℝ) :\n  (x + 3) * (2 * x - 6) = 2 * x^2 - 18 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "algebra_others_exirrpowirrrat",
+      "statement": "theorem algebra_others_exirrpowirrrat :\n  ∃ a b, irrational a ∧ irrational b ∧ ¬ irrational (a^b) :=",
+      "tactics": [
+        "let sqrt_2 :=  real.sqrt 2,",
+        "by_cases irrational (sqrt_2^sqrt_2),",
+        "{",
+        "have h': ¬ irrational ((sqrt_2^sqrt_2)^sqrt_2),",
+        "{"
+      ]
+    },
+    {
+      "name": "mathd_algebra_427",
+      "statement": "theorem mathd_algebra_427\n  (x y z : ℝ)\n  (h₀ : 3 * x + y = 17)\n  (h₁ : 5 * y + z = 14)\n  (h₂ : 3 * x + 5 * z = 41) :\n  x + y + z = 12 :=",
+      "tactics": [
+        "have h₃ := congr (congr_arg has_add.add h₀) h₁,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_76",
+      "statement": "theorem mathd_algebra_76\n  (f : ℤ → ℤ)\n  (h₀ : ∀n, odd n → f n = n^2)\n  (h₁ : ∀ n, even n → f n = n^2 - 4*n -1) :\n  f 4 = -1 :=",
+      "tactics": [
+        "suffices : f 4 = 4^2 - 4*4 - 1, rw this; ring_nf,",
+        "apply h₁,",
+        "refine even_iff_two_dvd.mpr _,",
+        "exact two_dvd_bit0,"
+      ]
+    },
+    {
+      "name": "algebra_sqineq_unitcircatbpamblt1",
+      "statement": "theorem algebra_sqineq_unitcircatbpamblt1\n  (a b: ℝ)\n  (h₀ : a^2 + b^2 = 1) :\n  a * b + (a - b) ≤ 1 :=",
+      "tactics": [
+        "nlinarith [sq_nonneg (a - b)],"
+      ]
+    },
+    {
+      "name": "mathd_algebra_329",
+      "statement": "theorem mathd_algebra_329\n  (x y : ℝ)\n  (h₀ : 3 * y = x)\n  (h₁ : 2 * x + 5 * y = 11) :\n  x + y = 4 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_313",
+      "statement": "theorem mathd_algebra_313\n  (v i z : ℂ)\n  (h₀ : v = i * z)\n  (h₁ : v = 1 + complex.I)\n  (h₂ : z = 2 - complex.I) :\n  i = 1/5 + 3/5 * complex.I :=",
+      "tactics": [
+        "rw [h₁, h₂] at h₀,",
+        "rw eq_comm at h₀,",
+        "have h₃ : (2 - complex.I) ≠ 0, {",
+        "sorry",
+        "},"
+      ]
+    },
+    {
+      "name": "mathd_algebra_129",
+      "statement": "theorem mathd_algebra_129\n  (a : ℝ)\n  (h₀ : a ≠ 0)\n  (h₁ : 8⁻¹ / 4⁻¹ - a⁻¹ = 1) :\n  a = -2 :=",
+      "tactics": [
+        "field_simp at h₁,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_484",
+      "statement": "theorem mathd_algebra_484 :\n  real.log 27 / real.log 3 = 3 :=",
+      "tactics": [
+        "rw real.log_div_log,",
+        "have three_to_three : (27 : ℝ) = (3 : ℝ)^(3 : ℝ), by norm_num,",
+        "rw three_to_three,",
+        "have trivial_ineq: (0 : ℝ) < (3 : ℝ), by norm_num,",
+        "have trivial_neq: (3: ℝ) ≠ (1 : ℝ), by norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_304",
+      "statement": "theorem mathd_algebra_304 :\n  91^2 = 8281 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_148",
+      "statement": "theorem mathd_algebra_148\n  (c : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = c * x^3 - 9 * x + 3)\n  (h₁ : f 2 = 9) :\n  c = 3 :=",
+      "tactics": [
+        "rw h₀ at h₁,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_440",
+      "statement": "theorem mathd_algebra_440\n  (x : ℝ)\n  (h₀ : 3 / 2 / 3 = x / 10) :\n  x = 5 :=",
+      "tactics": [
+        "field_simp at h₀,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_114",
+      "statement": "theorem mathd_algebra_114\n  (a : ℝ)\n  (h₀ : a = 8) :\n  (16 * (a^2)^((1:ℝ) / 3))^((1:ℝ) / 3) = 4 :=",
+      "tactics": [
+        "rw h₀,",
+        "have k₁ : 0 ≤ (4:ℝ), linarith,",
+        "have k₂ : 0 < 3, linarith,",
+        "have k₃ : (64:ℝ) = 4^(3:ℝ), {",
+        "suffices : (64:ℝ) = 4^((3:ℕ):ℝ), {"
+      ]
+    },
+    {
+      "name": "mathd_algebra_513",
+      "statement": "theorem mathd_algebra_513\n  (a b : ℝ)\n  (h₀ : 3 * a + 2 * b = 5)\n  (h₁ : a + b = 2) :\n  a = 1 ∧ b = 1 :=",
+      "tactics": [
+        "split; linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_143",
+      "statement": "theorem mathd_algebra_143\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = x + 1)\n  (h₁ : ∀ x, g x = x^2 + 3) :\n  f (g 2) = 8 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_354",
+      "statement": "theorem mathd_algebra_354\n  (a d : ℝ)\n  (h₀ : a + 6 * d = 30)\n  (h₁ : a + 10 * d = 60) :\n  a + 20 * d = 135 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_246",
+      "statement": "theorem mathd_algebra_246\n  (a b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * x^4 - b * x^2 + x + 5)\n  (h₂ : f (-3) = 2) :\n  f 3 = 8 :=",
+      "tactics": [
+        "rw h₀ at h₂,",
+        "simp at h₂,",
+        "rw h₀,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_342",
+      "statement": "theorem mathd_algebra_342\n  (a d: ℝ)\n  (h₀ : ∑ k in (finset.range 5), (a + k * d) = 70)\n  (h₁ : ∑ k in (finset.range 10), (a + k * d) = 210) :\n  a = 42/5 :=",
+      "tactics": [
+        "revert h₀ h₁,",
+        "simp [finset.sum_range_succ, mul_comm d],",
+        "intros,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_270",
+      "statement": "theorem mathd_algebra_270\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x ≠ -2, f x = 1 / (x + 2)) :\n  f (f 1) = 3/7 :=",
+      "tactics": [
+        "rw [h₀, h₀],",
+        "norm_num,",
+        "linarith,",
+        "rw h₀,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_359",
+      "statement": "theorem mathd_algebra_359\n  (y : ℝ)\n  (h₀ : y + 6 + y = 2 * 12) :\n  y = 9 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_314",
+      "statement": "theorem mathd_algebra_314\n  (n : ℕ)\n  (h₀ : n = 11) :\n  (1 / 4)^(n + 1) * 2^(2 * n) = 1 / 4 :=",
+      "tactics": [
+        "rw h₀,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_302",
+      "statement": "theorem mathd_algebra_302 :\n  (complex.I / 2)^2 = -(1 / 4) :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_139",
+      "statement": "theorem mathd_algebra_139\n  (s : ℝ → ℝ → ℝ)\n  (h₀ : ∀ x≠0, ∀y≠0, s x y = (1/y - 1/x) / (x-y)) :\n  s 3 11 = 1/33 :=",
+      "tactics": [
+        "norm_num [h₀],"
+      ]
+    },
+    {
+      "name": "mathd_algebra_142",
+      "statement": "theorem mathd_algebra_142\n  (m b : ℝ)\n  (h₀ : m * 7 + b = -1)\n  (h₁ : m * (-1) + b = 7) :\n  m + b = 5 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_400",
+      "statement": "theorem mathd_algebra_400\n  (x : ℝ)\n  (h₀ : 5 + 500 / 100 * 10 = 110 / 100 * x) :\n  x = 50 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_441",
+      "statement": "theorem mathd_algebra_441\n  (x : ℝ)\n  (h₀ : x ≠ 0) :\n  12 / (x * x) * (x^4 / (14 * x)) * (35 / (3 * x)) = 10 :=",
+      "tactics": [
+        "field_simp,",
+        "ring_nf,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_338",
+      "statement": "theorem mathd_algebra_338\n  (a b c : ℝ)\n  (h₀ : 3 * a + b + c = -3)\n  (h₁ : a + 3 * b + c = 9)\n  (h₂ : a + b + 3 * c = 19) :\n  a * b * c = -56 :=",
+      "tactics": [
+        "have ha : a = -4, linarith,",
+        "have hb : b = 2, linarith,",
+        "have hc : c = 7, linarith,",
+        "rw [ha, hb, hc],",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_182",
+      "statement": "theorem mathd_algebra_182\n  (y : ℂ) :\n  7 * (3 * y + 2) = 21 * y + 14 :=",
+      "tactics": [
+        "ring_nf,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_116",
+      "statement": "theorem mathd_algebra_116\n  (k x: ℝ)\n  (h₀ : x = (13 - real.sqrt 131) / 4)\n  (h₁ : 2 * x^2 - 13 * x + k = 0) :\n  k = 19/4 :=",
+      "tactics": [
+        "rw h₀ at h₁,",
+        "rw eq_comm.mp (add_eq_zero_iff_neg_eq.mp h₁),",
+        "norm_num,",
+        "rw pow_two,",
+        "rw mul_sub,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_462",
+      "statement": "theorem mathd_algebra_462 :\n  ((1 : ℚ)/ 2 + 1 / 3) * (1 / 2 - 1 / 3) = 5 / 36 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_48",
+      "statement": "theorem mathd_algebra_48\n  (q e : ℂ)\n  (h₀ : q = 9 - 4 * complex.I)\n  (h₁ : e = -3 - 4 * complex.I) : q - e = 12 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_422",
+      "statement": "theorem mathd_algebra_422\n  (x : ℝ)\n  (σ : equiv ℝ ℝ)\n  (h₀ : ∀ x, σ.1 x = 5 * x - 12)\n  (h₁ : σ.1 (x + 1) = σ.2 x) :\n  x = 47 / 24 :=",
+      "tactics": [
+        "field_simp [h₀, mul_add, add_mul, sub_add_cancel, mul_assoc, add_comm],",
+        "have := congr_arg σ.to_fun h₁,",
+        "rw h₀ at this,",
+        "rw h₀ at this,",
+        "symmetry,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_101",
+      "statement": "theorem mathd_algebra_101\n  (x : ℝ)\n  (h₀ : x^2 - 5 * x - 4 ≤ 10) :\n  x ≥ -2 ∧ x ≤ 7 :=",
+      "tactics": [
+        "split; nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_140",
+      "statement": "theorem mathd_algebra_140\n  (a b c : ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : ∀ x, 24 * x^2 - 19 * x - 35 = (((a * x) - 5) * ((2 * (b * x)) + c))) :\n  a * b - 3 * c = -9 :=",
+      "tactics": [
+        "have h₂ := h₁ 0,",
+        "have h₂ := h₁ 1,",
+        "have h₃ := h₁ (-1),",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_455",
+      "statement": "theorem mathd_algebra_455\n  (x : ℝ)\n  (h₀ : 2 * (2 * (2 * (2 * x))) = 48) :\n  x = 3 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_245",
+      "statement": "theorem mathd_algebra_245\n  (x : ℝ)\n  (h₀ : x ≠ 0) :\n  (4 / x)⁻¹ * ((3 * x^3) / x)^2 * ((1 / (2 * x))⁻¹)^3 = 18 * x^8 :=",
+      "tactics": [
+        "field_simp [(show x ≠ 0, by simpa using h₀), mul_comm x]; ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_126",
+      "statement": "theorem mathd_algebra_126\n  (x y : ℝ)\n  (h₀ : 2 * 3 = x - 9)\n  (h₁ : 2 * (-5) = y + 1) :\n  x = 15 ∧ y = -11 :=",
+      "tactics": [
+        "split; linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_35",
+      "statement": "theorem mathd_algebra_35\n  (p q : ℝ → ℝ)\n  (h₀ : ∀ x, p x = 2 - x^2)\n  (h₁ : ∀ x ≠ 0, q x = 6 / x) :\n  p (q 2) = -7 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "ring,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "algebra_amgm_faxinrrp2msqrt2geq2mxm1div2x",
+      "statement": "theorem algebra_amgm_faxinrrp2msqrt2geq2mxm1div2x :\n  ∀ x > 0, 2 - real.sqrt 2 ≥ 2 - x - 1 / (2 * x) :=",
+      "tactics": [
+        "intros x h,",
+        "suffices : real.sqrt 2 ≤ x + 1 / (2 * x), linarith,",
+        "have h₀ := (nnreal.geom_mean_le_arith_mean2_weighted (1/2) (1/2) (real.to_nnreal x) (real.to_nnreal (1/(2 * x)))) _,",
+        "norm_num at h₀,",
+        "rw [← nnreal.mul_rpow, ← real.to_nnreal_mul] at h₀,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_327",
+      "statement": "theorem mathd_algebra_327\n  (a : ℝ)\n  (h₀ : 1 / 5 * abs (9 + 2 * a) < 1) :\n  -7 < a ∧ a < -2 :=",
+      "tactics": [
+        "have h₁ := (mul_lt_mul_left (show 0 < (5:ℝ), by linarith)).mpr h₀,",
+        "have h₂ : abs (9 + 2 * a) < 5, linarith,",
+        "have h₃ := abs_lt.mp h₂,",
+        "cases h₃ with h₃ h₄,",
+        "split; nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_192",
+      "statement": "theorem mathd_algebra_192\n  (q e d : ℂ)\n  (h₀ : q = 11 - (5 * complex.I))\n  (h₁ : e = 11 + (5 * complex.I))\n  (h₂ : d = 2 * complex.I) :\n  q * e * d = 292 * complex.I :=",
+      "tactics": [
+        "rw [h₀, h₁, h₂],",
+        "ring_nf,",
+        "rw [pow_two, complex.I_mul_I],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_110",
+      "statement": "theorem mathd_algebra_110\n  (q e : ℂ)\n  (h₀ : q = 2 - 2 * complex.I)\n  (h₁ : e = 5 + 5 * complex.I) :\n  q * e = 20 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "ring_nf,",
+        "rw [pow_two, complex.I_mul_I],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_15",
+      "statement": "theorem mathd_algebra_15\n  (s : ℕ → ℕ → ℕ)\n  (h₀ : ∀ a b, 0 < a ∧ 0 < b → s a b = a^(b:ℕ) + b^(a:ℕ)) :\n  s 2 6 = 100 :=",
+      "tactics": [
+        "rw h₀,",
+        "refl,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "algebra_2rootsintpoly_am10tap11eqasqpam110",
+      "statement": "theorem algebra_2rootsintpoly_am10tap11eqasqpam110\n  (a : ℂ) :\n  (a - 10) * (a + 11) = a^2 + a - 110 :=",
+      "tactics": [
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_43",
+      "statement": "theorem mathd_algebra_43\n  (a b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * x + b)\n  (h₁ : f 7 = 4)\n  (h₂ : f 6 = 3) :\n  f 3 = 0 :=",
+      "tactics": [
+        "rw h₀ at *,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_55",
+      "statement": "theorem mathd_algebra_55\n  (q p : ℝ)\n  (h₀ : q = 2 - 4 + 6 - 8 + 10 - 12 + 14)\n  (h₁ : p = 3 - 6 + 9 - 12 + 15 - 18 + 21) :\n  q / p = 2 / 3 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "algebra_sqineq_2at2pclta2c2p41pc",
+      "statement": "theorem algebra_sqineq_2at2pclta2c2p41pc\n  (a c : ℝ) :\n  2 * a * (2 + c) ≤ a^2 + c^2 + 4 * (1 + c) :=",
+      "tactics": [
+        "suffices : 0 ≤ (c - a)^2 + 2^2 + 2 * 2 * (c - a), nlinarith,",
+        "suffices : 0 ≤ (c - a + 2)^2, nlinarith,",
+        "exact pow_two_nonneg (c - a + 2),"
+      ]
+    },
+    {
+      "name": "mathd_algebra_214",
+      "statement": "theorem mathd_algebra_214\n  (a : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * (x - 2)^2 + 3)\n  (h₁ : f 4 = 4) :\n  f 6 = 7 :=",
+      "tactics": [
+        "revert h₁,",
+        "simp [h₀],",
+        "intro,",
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_96",
+      "statement": "theorem mathd_algebra_96\n  (x y z a : ℝ)\n  (h₀ : 0 < x ∧ 0 < y ∧ 0 < z)\n  (h₁ : real.log x - real.log y = a)\n  (h₂ : real.log y - real.log z = 15)\n  (h₃ : real.log z - real.log x = -7) :\n  a = -8 :=",
+      "tactics": [
+        "nlinarith [h₁, h₂, h₃],"
+      ]
+    },
+    {
+      "name": "mathd_algebra_59",
+      "statement": "theorem mathd_algebra_59\n  (b : ℝ)\n  (h₀ : (4 : ℝ)^b + 2^3 = 12) :\n  b = 1 :=",
+      "tactics": [
+        "have h₁ : (4:ℝ)^b = 4, linarith,",
+        "by_contradiction h,",
+        "clear h₀,",
+        "change b ≠ 1 at h,",
+        "by_cases b₀ : b < 1,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_234",
+      "statement": "theorem mathd_algebra_234\n  (d : ℝ)\n  (h₀ : 27 / 125 * d = 9 / 25) :\n  3 / 5 * d^3 = 25 / 9 :=",
+      "tactics": [
+        "field_simp,",
+        "rw [mul_right_comm, pow_succ, mul_comm],",
+        "{ nlinarith },"
+      ]
+    },
+    {
+      "name": "algebra_2complexrootspoly_xsqp49eqxp7itxpn7i",
+      "statement": "theorem algebra_2complexrootspoly_xsqp49eqxp7itxpn7i\n  (x : ℂ) :\n  x^2 + 49 = (x + (7 * complex.I)) * (x + (-7 * complex.I)) :=",
+      "tactics": [
+        "ring_nf,",
+        "rw [pow_two, pow_two, complex.I_mul_I],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_132",
+      "statement": "theorem mathd_algebra_132\n  (x : ℝ)\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = x + 2)\n  (h₁ : ∀ x, g x = x^2)\n  (h₂ : f (g x) = g (f x)) :\n  x = - 1/2 :=",
+      "tactics": [
+        "norm_num,",
+        "simp [*, -one_div] at *,",
+        "field_simp [h₁],",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_37",
+      "statement": "theorem mathd_algebra_37\n  (x y : ℝ)\n  (h₀ : x + y = 7)\n  (h₁ : 3 * x + y = 45) :\n  x^2 - y^2 = 217 :=",
+      "tactics": [
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "algebra_sqineq_36azm9asqle36zsq",
+      "statement": "theorem algebra_sqineq_36azm9asqle36zsq\n  (z a : ℝ) :\n  36 * (a * z) - 9 * a^2 ≤ 36 * z^2 :=",
+      "tactics": [
+        "suffices : 4 * (a * z) - a^2 ≤ 4 * z^2, nlinarith,",
+        "suffices : 0 ≤ (a - 2 * z)^2, nlinarith,",
+        "exact pow_two_nonneg (a - 2 * z),"
+      ]
+    },
+    {
+      "name": "mathd_algebra_104",
+      "statement": "theorem mathd_algebra_104\n  (x : ℝ)\n  (h₀ : 125 / 8 = x / 12) :\n  x = 375 / 2 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "algebra_3rootspoly_amdtamctambeqnasqmbpctapcbtdpasqmbpctapcbta",
+      "statement": "theorem algebra_3rootspoly_amdtamctambeqnasqmbpctapcbtdpasqmbpctapcbta\n  (b c d a : ℂ) :\n  (a - d) * (a - c) * (a - b) = -(((a^2 - (b + c) * a) + c * b) * d) + (a^2 - (b + c) * a + c * b) * a :=",
+      "tactics": [
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_190",
+      "statement": "theorem mathd_algebra_190 :\n  ((3 : ℝ) / 8 + 7 / 8) / (4 / 5) = 25 / 16 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "algebra_sqineq_4bap1lt4bsqpap1sq",
+      "statement": "theorem algebra_sqineq_4bap1lt4bsqpap1sq\n  (a b : ℝ) :\n  4 * b * (a + 1) ≤ 4 * b^2 + (a + 1)^2 :=",
+      "tactics": [
+        "suffices : 0 ≤ (2 * b - (a + 1))^2, nlinarith,",
+        "exact pow_two_nonneg (2 * b - (a + 1)),"
+      ]
+    },
+    {
+      "name": "mathd_algebra_109",
+      "statement": "theorem mathd_algebra_109\n  (a b : ℝ)\n  (h₀ : 3 * a + 2 * b = 12)\n  (h₁ : a = 4) :\n  b = 0 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_11",
+      "statement": "theorem mathd_algebra_11\n  (a b : ℝ)\n  (h₀ : a ≠ b)\n  (h₁ : a ≠ 2 * b)\n  (h₂ : (4 * a + 3 * b) / (a - 2 * b) = 5) :\n  (a + 11 * b) / (a - b) = 2 :=",
+      "tactics": [
+        "rw eq_comm,",
+        "refine (eq_div_iff _).mpr _,",
+        "exact sub_ne_zero_of_ne h₀,",
+        "rw eq_comm at h₂,",
+        "suffices : a = 13 * b, linarith,"
+      ]
+    },
+    {
+      "name": "algebra_2rootspoly_apatapbeq2asqp2ab",
+      "statement": "theorem algebra_2rootspoly_apatapbeq2asqp2ab\n  (a b : ℂ) :\n  (a + a) * (a + b) = 2 * a^2 + 2 * (a * b) :=",
+      "tactics": [
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_568",
+      "statement": "theorem mathd_algebra_568\n  (a : ℝ) :\n  (a - 1) * (a + 1) * (a + 2) - (a - 2) * (a + 1) = a^3 + a^2 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_159",
+      "statement": "theorem mathd_algebra_159\n  (b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = 3 * x^4 - 7 * x^3 + 2 * x^2 - b * x + 1)\n  (h₁ : f 1 = 1) :\n  b = -2 :=",
+      "tactics": [
+        "rw h₀ at h₁,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_323",
+      "statement": "theorem mathd_algebra_323\n  (σ : equiv ℝ ℝ)\n  (h : ∀ x, σ.1 x = x^3 - 8) :\n  σ.2 (σ.1 (σ.2 19)) = 3 :=",
+      "tactics": [
+        "revert h,",
+        "simp,",
+        "intro h,",
+        "apply σ.injective,",
+        "simp [h, σ.apply_symm_apply],"
+      ]
+    },
+    {
+      "name": "algebra_manipexpr_apbeq2cceqiacpbceqm2",
+      "statement": "theorem algebra_manipexpr_apbeq2cceqiacpbceqm2\n  (a b c : ℂ)\n  (h₀ : a + b = 2 * c)\n  (h₁ : c = complex.I) :\n  a * c + b * c = -2 :=",
+      "tactics": [
+        "rw [← add_mul, h₀, h₁, mul_assoc, complex.I_mul_I],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_89",
+      "statement": "theorem mathd_algebra_89\n  (b : ℝ)\n  (h₀ : b ≠ 0) :\n  (7 * b^3)^2 * (4 * b^2)^(-(3 : ℤ)) = 49/64 :=",
+      "tactics": [
+        "ring_nf,",
+        "field_simp,",
+        "norm_cast,",
+        "refine (div_eq_iff _).mpr _,",
+        "{ norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_67",
+      "statement": "theorem mathd_algebra_67\n  (f g : ℝ → ℝ)\n  (h₀ : ∀ x, f x = 5 * x + 3)\n  (h₁ : ∀ x, g x = x^2 - 2) :\n  g (f (-1)) = 2 :=",
+      "tactics": [
+        "rw [h₀, h₁],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_123",
+      "statement": "theorem mathd_algebra_123\n  (a b : ℕ)\n  (h₀ : 0 < a ∧ 0 < b)\n  (h₁ : a + b = 20)\n  (h₂ : a = 3 * b) :\n  a - b = 10 :=",
+      "tactics": [
+        "rw h₂ at h₁,",
+        "rw h₂,",
+        "have h₃ : b = 5, {",
+        "linarith,",
+        "},"
+      ]
+    },
+    {
+      "name": "mathd_algebra_267",
+      "statement": "theorem mathd_algebra_267\n  (x : ℝ)\n  (h₀ : x ≠ 1)\n  (h₁ : x ≠ -2)\n  (h₂ : (x + 1) / (x - 1) = (x - 2) / (x + 2)) :\n  x = 0 :=",
+      "tactics": [
+        "revert x h₀ h₁ h₂,",
+        "norm_num,",
+        "intros a ha,",
+        "intros ha,",
+        "intro h,"
+      ]
+    },
+    {
+      "name": "algebra_manipexpr_2erprsqpesqeqnrpnesq",
+      "statement": "theorem algebra_manipexpr_2erprsqpesqeqnrpnesq\n  (e r : ℂ) :\n  2 * (e * r) + (e^2 + r^2) = (-r + (-e))^2 :=",
+      "tactics": [
+        "ring,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_119",
+      "statement": "theorem mathd_algebra_119\n  (d e : ℝ)\n  (h₀ : 2 * d = 17 * e - 8)\n  (h₁ : 2 * e = d - 9) :\n  e = 2 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_251",
+      "statement": "theorem mathd_algebra_251\n  (x : ℝ)\n  (h₀ : x ≠ 0)\n  (h₁ : 3 + 1 / x = 7 / x) :\n  x = 2 :=",
+      "tactics": [
+        "field_simp [h₀] at h₁,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_181",
+      "statement": "theorem mathd_algebra_181\n  (n : ℝ)\n  (h₀ : n ≠ 3)\n  (h₁ : (n + 5) / (n - 3) = 2) : n = 11 :=",
+      "tactics": [
+        "rw div_eq_iff at h₁,",
+        "linarith,",
+        "exact sub_ne_zero.mpr h₀,"
+      ]
+    },
+    {
+      "name": "algebra_sqineq_2unitcircatblt1",
+      "statement": "theorem algebra_sqineq_2unitcircatblt1\n  (a b : ℝ)\n  (h₀ : a^2 + b^2 = 2) :\n  a * b ≤ 1 :=",
+      "tactics": [
+        "have hu := sq_nonneg a,",
+        "have hv := sq_nonneg b,",
+        "have H₁ := add_nonneg hu hv,",
+        "have H₂ : 0 ≤ (a - b) ^ 2 := by nlinarith,",
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_51",
+      "statement": "theorem mathd_algebra_51\n  (a b : ℝ)\n  (h₀ : 0 < a ∧ 0 < b)\n  (h₁ : a + b = 35)\n  (h₂ : a = (2/5) * b) :\n  b - a = 15 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_algebra_10",
+      "statement": "theorem mathd_algebra_10 :\n  abs ((120 : ℝ)/100 * 30 - 130/100 * 20) = 10 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    }
+  ],
+  "number_theory": [
+    {
+      "name": "numbertheory_4x3m7y3neq2003",
+      "statement": "theorem numbertheory_4x3m7y3neq2003\n  (x y : ℤ) :\n  4 * x^3 - 7 * y^3 ≠ 2003 :=",
+      "tactics": [
+        "intro hneq,",
+        "apply_fun (coe : ℤ → zmod 7) at hneq,",
+        "push_cast at hneq,",
+        "have : (2003 : zmod 7) = (1 : zmod 7),",
+        "dec_trivial,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_3",
+      "statement": "theorem mathd_numbertheory_3 :\n  (∑ x in finset.range 10, ((x + 1)^2)) % 10 = 5 :=",
+      "tactics": [
+        "dec_trivial!,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_299",
+      "statement": "theorem mathd_numbertheory_299 :\n  (1 * 3 * 5 * 7 * 9 * 11 * 13) % 10 = 5 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_345",
+      "statement": "theorem mathd_numbertheory_345 :\n  (2000 + 2001 + 2002 + 2003 + 2004 + 2005 + 2006) % 7 = 0 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_227",
+      "statement": "theorem mathd_numbertheory_227\n  (x y n : ℕ+)\n  (h₀ : ↑x / (4:ℝ) + y / 6 = (x + y) / n) :\n  n = 5 :=",
+      "tactics": [
+        "field_simp at h₀,",
+        "have h₂ : (6:ℝ) * x * (n - 4) = 4 * y * (6 - n), {",
+        "field_simp,",
+        "ring_nf,",
+        "linarith[h₀],"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_207",
+      "statement": "theorem mathd_numbertheory_207 :\n  8 * 9^2 + 5 * 9 + 2 = 695 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_342",
+      "statement": "theorem mathd_numbertheory_342 :\n  54 % 6 = 0 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_229",
+      "statement": "theorem mathd_numbertheory_229 :\n  (5^30) % 7 = 1 :=",
+      "tactics": [
+        "have five_to_thirty_is_one :",
+        "(5^30 : zmod 7) = 1 :=",
+        "have five_to_the_six_is_one : (5^6 : zmod 7) = 1, by dec_trivial,",
+        "have break_power : (5^30 : zmod 7) = (5^6)^5, by norm_num,",
+        "rw break_power,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_551",
+      "statement": "theorem mathd_numbertheory_551 :\n  1529 % 6 = 5 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_254",
+      "statement": "theorem mathd_numbertheory_254 :\n  (239 + 174 + 83) % 10 = 6 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_85",
+      "statement": "theorem mathd_numbertheory_85 :\n  1 * 3^3 + 2 * 3^2 + 2*3 + 2 = 53 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_66",
+      "statement": "theorem mathd_numbertheory_66 :\n  194 % 11 = 7 :=",
+      "tactics": [
+        "exact rfl,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_235",
+      "statement": "theorem mathd_numbertheory_235 :\n  (29 * 79 + 31 * 81) % 10 = 2 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_48",
+      "statement": "theorem mathd_numbertheory_48\n  (b : ℕ)\n  (h₀ : 0 < b)\n  (h₁ : 3 * b^2 + 2 * b + 1 = 57) :\n  b = 4 :=",
+      "tactics": [
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_132",
+      "statement": "theorem mathd_numbertheory_132 :\n  2004 % 12 = 0 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_188",
+      "statement": "theorem mathd_numbertheory_188 :\n  nat.gcd 180 168 = 12 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_109",
+      "statement": "theorem mathd_numbertheory_109\n  (v : ℕ → ℕ)\n  (h₀ : ∀ n, v n = 2 * n - 1) :\n  (∑ k in finset.Icc 1 100, v k) % 7 = 4 :=",
+      "tactics": [
+        "norm_num,",
+        "simp [h₀],",
+        "have h₁ : finset.Icc 1 100 = finset.Ico 1 101, {",
+        "exact rfl,",
+        "},"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_24",
+      "statement": "theorem mathd_numbertheory_24 :\n  (∑ k in (finset.Icc 1 9), 11^k) % 100 = 59 :=",
+      "tactics": [
+        "norm_num,",
+        "have h₁ : finset.Icc 1 9 = finset.Ico 1 10, {",
+        "exact rfl,",
+        "},",
+        "rw h₁,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_200",
+      "statement": "theorem mathd_numbertheory_200 :\n  139 % 11 = 7 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_45",
+      "statement": "theorem mathd_numbertheory_45 :\n  (nat.gcd 6432 132) + 11 = 23 :=",
+      "tactics": [
+        "simp only [nat.gcd_comm],",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_739",
+      "statement": "theorem mathd_numbertheory_739 :\n  9! % 10 = 0 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_102",
+      "statement": "theorem mathd_numbertheory_102 :\n  (2^8) % 5 = 1 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_81",
+      "statement": "theorem mathd_numbertheory_81 :\n  71 % 3 = 2 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_640",
+      "statement": "theorem mathd_numbertheory_640 :\n  (91145 + 91146 + 91147 + 91148) % 4 = 2 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_136",
+      "statement": "theorem mathd_numbertheory_136\n  (n : ℕ)\n  (h₀ : 123 * n + 17 = 39500) : n = 321 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_37",
+      "statement": "theorem mathd_numbertheory_37 :\n  nat.lcm 9999 100001 = 90900909 :=",
+      "tactics": [
+        "let e : empty → fin 1 → ℕ := λ _, 1,",
+        "have : fintype.card (fin 1) = 1 := fintype.card_fin 1,",
+        "unfold nat.lcm,",
+        "have : fintype.card (fin 1) = 1 := fintype.card_fin 1,",
+        "simp only [eq_comm] at this,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_301",
+      "statement": "theorem mathd_numbertheory_301\n  (j : ℕ)\n  (h₀ : 0 < j) :\n  (3 * (7 * ↑j + 3)) % 7 = 2 :=",
+      "tactics": [
+        "calc 3 * (7 * ↑j + 3) % 7 = (3 * 3 + (3 * ↑j) * 7) % 7 : by {ring_nf}",
+        "... = (3 * 3) % 7 : by {apply nat.add_mul_mod_self_right}",
+        "... = 2 : by {norm_num},"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_101",
+      "statement": "theorem mathd_numbertheory_101 :\n  (17 * 18) % 4 = 2 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "numbertheory_prmdvsneqnsqmodpeq0",
+      "statement": "theorem numbertheory_prmdvsneqnsqmodpeq0\n  (n : ℤ)\n  (p : ℕ)\n  (h₀ : nat.prime p) :\n  ↑p ∣ n ↔ (n^2) % p = 0 :=",
+      "tactics": [
+        "simp [nat.dvd_prime_pow (show nat.prime p, from h₀), pow_succ],",
+        "simp only [int.coe_nat_dvd_right, int.coe_nat_dvd_left, int.nat_abs_mul],",
+        "rw nat.prime.dvd_mul,",
+        "{ tauto },",
+        "assumption,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_30",
+      "statement": "theorem mathd_numbertheory_30 :\n  (33818^2 + 33819^2 + 33820^2 + 33821^2 + 33822^2) % 17 = 0 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_961",
+      "statement": "theorem mathd_numbertheory_961 :\n  2003 % 11 = 1 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "numbertheory_2dvd4expn",
+      "statement": "theorem numbertheory_2dvd4expn\n  (n : ℕ)\n  (h₀ : n ≠ 0) :\n  2 ∣ 4^n :=",
+      "tactics": [
+        "revert n h₀,",
+        "rintros ⟨k, rfl⟩,",
+        "{ norm_num },",
+        "apply dvd_pow,",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "mathd_numbertheory_84",
+      "statement": "theorem mathd_numbertheory_84 :\n  int.floor ((9:ℝ) / 160 * 100) = 5 :=",
+      "tactics": [
+        "rw int.floor_eq_iff,",
+        "split,",
+        "all_goals { norm_num },"
+      ]
+    }
+  ],
+  "competition_aime": [
+    {
+      "name": "aime_1984_p1",
+      "statement": "theorem aime_1984_p1\n  (u : ℕ → ℚ)\n  (h₀ : ∀ n, u (n + 1) = u n + 1)\n  (h₁ : ∑ k in finset.range 98, u k.succ = 137) :\n  ∑ k in finset.range 49, u (2 * k.succ) = 93 :=",
+      "tactics": [
+        "have h₂ : ∀ k, k ∈ finset.range 49 → u (2 * k + 1 + 1) = u (2 * k + 1) + 1 :=",
+        "by { intros k hk, exact h₀ (2 * k + 1) },",
+        "have h₃: ∑ (x : ℕ) in finset.range 49, (1:ℚ) = 49 := by simp only [mul_one, nat.cast_bit0, finset.sum_const, nsmul_eq_mul, nat.cast_bit1, finset.card_range, nat.cast_one],",
+        "have h98 : 98 = 2 * 49 := by norm_num,",
+        "rw [h98, sum_pairs, finset.sum_add_distrib, finset.sum_congr rfl h₂,"
+      ]
+    },
+    {
+      "name": "aime_1984_p15",
+      "statement": "theorem aime_1984_p15\n  (x y z w : ℝ)\n  (h₀ : (x^2 / (2^2 - 1)) + (y^2 / (2^2 - 3^2)) + (z^2 / (2^2 - 5^2)) + (w^2 / (2^2 - 7^2)) = 1)\n  (h₁ : (x^2 / (4^2 - 1)) + (y^2 / (4^2 - 3^2)) + (z^2 / (4^2 - 5^2)) + (w^2 / (4^2 - 7^2)) = 1)\n  (h₂ : (x^2 / (6^2 - 1)) + (y^2 / (6^2 - 3^2)) + (z^2 / (6^2 - 5^2)) + (w^2 / (6^2 - 7^2)) = 1)\n  (h₃ : (x^2 / (8^2 - 1)) + (y^2 / (8^2 - 3^2)) + (z^2 / (8^2 - 5^2)) + (w^2 / (8^2 - 7^2)) = 1) :\n  x^2 + y^2 + z^2 + w^2 = 36 :=",
+      "tactics": [
+        "revert x y z w h₀ h₁ h₂ h₃,",
+        "ring_nf,",
+        "intros x y z w h,",
+        "intros h,",
+        "intros; linarith,"
+      ]
+    },
+    {
+      "name": "aime_1983_p9",
+      "statement": "theorem aime_1983_p9\n  (x : ℝ)\n  (h₀ : 0 < x ∧ x < real.pi) :\n  12 ≤ ((9 * (x^2 * (real.sin x)^2)) + 4) / (x * real.sin x) :=",
+      "tactics": [
+        "let y := x * real.sin x,",
+        "rw ← mul_pow,",
+        "change 12 ≤ (9 * y^2 + 4) / y,",
+        "refine (le_div_iff _).mpr _,",
+        "apply mul_pos h₀.1,"
+      ]
+    }
+  ],
+  "competition_amc": [
+    {
+      "name": "amc12b_2020_p2",
+      "statement": "theorem amc12b_2020_p2 :\n  ((100 ^ 2 - 7 ^ 2):ℝ) / (70 ^ 2 - 11 ^ 2) * ((70 - 11) * (70 + 11) / ((100 - 7) * (100 + 7))) = 1 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "amc12a_2021_p9",
+      "statement": "theorem amc12a_2021_p9 :\n  ∏ k in finset.range 7, (2^(2^k) + 3^(2^k)) = 3^128 - 2^128 :=",
+      "tactics": [
+        "simp only [finset.prod_range_succ],",
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "amc12a_2002_p6",
+      "statement": "theorem amc12a_2002_p6\n  (n : ℕ)\n  (h₀ : 0 < n) :\n  ∃ m, (m > n ∧ ∃ p, m * p ≤ m + p) :=",
+      "tactics": [
+        "use (n : ℕ).succ,",
+        "norm_num,",
+        "split,",
+        "{ exact_mod_cast (nat.lt_succ_self _) },",
+        "use 1,"
+      ]
+    },
+    {
+      "name": "amc12b_2002_p19",
+      "statement": "theorem amc12b_2002_p19\n  (a b c: ℝ)\n  (h₀ : 0 < a ∧ 0 < b ∧ 0 < c)\n  (h₁ : a * (b + c) = 152)\n  (h₂ : b * (c + a) = 162)\n  (h₃ : c * (a + b) = 170) :\n  a * b * c = 720 :=",
+      "tactics": [
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "amc12_2000_p6",
+      "statement": "theorem amc12_2000_p6\n  (p q : ℕ)\n  (h₀ : nat.prime p ∧ nat.prime q)\n  (h₁ : 4 ≤ p ∧ p ≤ 18)\n  (h₂ : 4 ≤ q ∧ q ≤ 18) :\n  ↑p * ↑q - (↑p + ↑q) ≠ (194:ℤ) :=",
+      "tactics": [
+        "revert p q h₀ h₁ h₂,",
+        "intros p q hpq,",
+        "rintros ⟨hp, hq⟩,",
+        "rintro ⟨h, h⟩,",
+        "intro h,"
+      ]
+    },
+    {
+      "name": "amc12b_2002_p2",
+      "statement": "theorem amc12b_2002_p2\n  (x : ℤ)\n  (h₀ : x = 4) :\n  (3 * x - 2) * (4 * x + 1) - (3 * x - 2) * (4 * x) + 1 = 11 :=",
+      "tactics": [
+        "rw h₀,",
+        "linarith,"
+      ]
+    },
+    {
+      "name": "amc12_2001_p9",
+      "statement": "theorem amc12_2001_p9\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x > 0, ∀ y > 0, f (x * y) = f x / y)\n  (h₁ : f 500 = 3) : f 600 = 5 / 2 :=",
+      "tactics": [
+        "specialize h₀ 500 _ (6/5) _,",
+        "{ linarith },",
+        "{ linarith },",
+        "calc f 600 = f (500 * (6/5)) : by {congr, norm_num}",
+        "... = f 500 / (6 / 5) : by {rw h₀}"
+      ]
+    },
+    {
+      "name": "amc12_2000_p5",
+      "statement": "theorem amc12_2000_p5\n  (x p : ℝ)\n  (h₀ : x < 2)\n  (h₁ : abs (x - 2) = p) :\n  x - p = 2 - 2 * p :=",
+      "tactics": [
+        "suffices : abs (x - 2) = -(x - 2),",
+        "{",
+        "rw h₁ at this,",
+        "linarith,",
+        "},"
+      ]
+    },
+    {
+      "name": "amc12a_2008_p2",
+      "statement": "theorem amc12a_2008_p2\n  (x : ℝ)\n  (h₀ : x * (1 / 2 + 2 / 3) = 1) :\n  x = 6 / 7 :=",
+      "tactics": [
+        "linarith,"
+      ]
+    },
+    {
+      "name": "amc12a_2021_p7",
+      "statement": "theorem amc12a_2021_p7\n  (x y : ℝ) :\n  1 ≤ ((x * y) - 1)^2 + (x + y)^2 :=",
+      "tactics": [
+        "ring_nf,",
+        "nlinarith,"
+      ]
+    },
+    {
+      "name": "amc12b_2002_p6",
+      "statement": "theorem amc12b_2002_p6\n  (a b : ℝ)\n  (h₀ : a ≠ 0 ∧ b ≠ 0)\n  (h₁ : ∀ x, x^2 + a * x + b = (x - a) * (x - b)) :\n  a = 1 ∧ b = -2 :=",
+      "tactics": [
+        "have h₂ := h₁ a,",
+        "have h₃ := h₁ b,",
+        "have h₄ := h₁ 0,",
+        "simp at *,",
+        "have h₅ : b * (1 - a) = 0, linarith,"
+      ]
+    },
+    {
+      "name": "amc12_2001_p2",
+      "statement": "theorem amc12_2001_p2\n  (a b n : ℕ)\n  (h₀ : 1 ≤ a ∧ a ≤ 9)\n  (h₁ : 0 ≤ b ∧ b ≤ 9)\n  (h₂ : n = 10 * a + b)\n  (h₃ : n = a * b + a + b) :\n  b = 9 :=",
+      "tactics": [
+        "rw h₂ at h₃,",
+        "simp at h₃,",
+        "have h₄ : 10 * a = (b + 1) * a, linarith,",
+        "simp at h₄,",
+        "cases h₄ with h₅ h₆,"
+      ]
+    },
+    {
+      "name": "amc12a_2009_p2",
+      "statement": "theorem amc12a_2009_p2 :\n  1 + (1 / (1 + (1 / (1 + 1)))) = (5 : ℚ) / 3 :=",
+      "tactics": [
+        "norm_num,"
+      ]
+    },
+    {
+      "name": "amc12_2000_p11",
+      "statement": "theorem amc12_2000_p11\n  (a b : ℝ)\n  (h₀ : a ≠ 0 ∧ b ≠ 0)\n  (h₁ : a * b = a - b) :\n  a / b + b / a - a * b = 2 :=",
+      "tactics": [
+        "field_simp [h₀.1, h₀.2],",
+        "simp only [h₁, mul_comm, mul_sub],",
+        "ring,"
+      ]
+    },
+    {
+      "name": "amc12b_2003_p9",
+      "statement": "theorem amc12b_2003_p9\n  (a b : ℝ)\n  (f : ℝ → ℝ)\n  (h₀ : ∀ x, f x = a * x + b)\n  (h₁ : f 6 - f 2 = 12) :\n  f 12 - f 2 = 30 :=",
+      "tactics": [
+        "revert h₁,",
+        "simp only [h₀],",
+        "intro,",
+        "linarith,"
+      ]
+    }
+  ],
+  "competition_imo": [],
+  "general": [
+    {
+      "name": "induction_12dvd4expnp1p20",
+      "statement": "theorem induction_12dvd4expnp1p20\n  (n : ℕ) :\n  12 ∣ 4^(n+1) + 20 :=",
+      "tactics": [
+        "have dvd_of_dvd_add_mul_left : ∀ (a b n : ℕ), a ∣ b + a * n → a ∣ b :=",
+        "intros a b n,",
+        "refine (nat.dvd_add_left _).mp,",
+        "exact (dvd_mul_right a n),"
+      ]
+    },
+    {
+      "name": "induction_nfactltnexpnm1ngt3",
+      "statement": "theorem induction_nfactltnexpnm1ngt3\n  (n : ℕ)\n  (h₀ : 3 ≤ n) :\n  n! < n^(n - 1) :=",
+      "tactics": [
+        "induction h₀ with k h₀ IH,",
+        "{ norm_num },",
+        "{",
+        "have k_ge_one : 1 ≤ k := le_trans dec_trivial h₀,",
+        "calc k.succ.factorial = k.succ * k.factorial : rfl"
+      ]
+    },
+    {
+      "name": "induction_sumkexp3eqsumksq",
+      "statement": "theorem induction_sumkexp3eqsumksq\n  (n : ℕ) :\n  ∑ k in finset.range n, k^3 = (∑ k in finset.range n, k)^2 :=",
+      "tactics": [
+        "symmetry,",
+        "induction n with j IH,",
+        "{",
+        "refl,",
+        "},"
+      ]
+    },
+    {
+      "name": "induction_pprime_pdvdapowpma",
+      "statement": "theorem induction_pprime_pdvdapowpma\n  (p a : ℕ)\n  (h₀ : 0 < a)\n  (h₁ : nat.prime p) :\n  p ∣ (a^p - a) :=",
+      "tactics": [
+        "sorry,"
+      ]
+    },
+    {
+      "name": "induction_ineq_nsqlefactn",
+      "statement": "theorem induction_ineq_nsqlefactn\n  (n : ℕ)\n  (h₀ : 4 ≤ n) :\n  n^2 ≤ n! :=",
+      "tactics": [
+        "simp only [sq],",
+        "casesI n with n,",
+        "exact dec_trivial,",
+        "simp,",
+        "apply nat.succ_le_of_lt,"
+      ]
+    }
+  ]
+}
