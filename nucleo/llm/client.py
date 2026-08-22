@@ -358,6 +358,30 @@ Responde en el mismo idioma que el usuario."""
             # en estado valido (evita mensajes consecutivos del mismo rol).
             if self._conversation and self._conversation[-1].role == LLMRole.USER:
                 self._conversation.pop()
+
+            # Una API key con un caracter no-ASCII revienta al construir la
+            # cabecera HTTP, dentro de httpx, con un mensaje que no menciona ni
+            # la clave ni el proveedor:
+            #   UnicodeEncodeError: 'ascii' codec can't encode character 'á'
+            # Al usuario le llega como "El Nucleo encontro un error" y parece un
+            # fallo del sistema. Se traduce a algo accionable.
+            if isinstance(e, UnicodeEncodeError):
+                _clave = self._effective_api_key() or ""
+                _malo = next(
+                    ((i, c) for i, c in enumerate(_clave) if not (32 <= ord(c) < 127)),
+                    None,
+                )
+                if _malo is not None:
+                    i, c = _malo
+                    msg = (
+                        f"La API key de {provider.value} contiene un carácter "
+                        f"inválido: U+{ord(c):04X} en la posición {i}. Las claves "
+                        f"solo llevan letras, números, '-' y '_'. Vuelve a "
+                        f"copiarla desde la consola del proveedor."
+                    )
+                    logger.error(msg)
+                    raise ValueError(msg) from e
+
             logger.error(f"Error generating response ({provider.value}): {e}")
             raise  # Re-raise para que process_sync() lo capture y lo muestre
 

@@ -198,6 +198,48 @@ def _do_update() -> tuple[bool, str]:
     return True, f"{out1}\n\n{pip_out}".strip()
 
 
+def _limpiar_api_key(raw: str) -> tuple[str, str]:
+    """
+    Limpia y valida una API key pegada a mano.
+
+    Las claves de todos los proveedores son ASCII imprimible
+    ([A-Za-z0-9_-] y poco mas). Si se cuela un caracter acentuado o un espacio
+    invisible, httpx falla al construir la cabecera con
+
+        UnicodeEncodeError: 'ascii' codec can't encode character '\xe1'
+
+    que no dice nada al usuario y parece un fallo del sistema. Aqui se detecta
+    antes de llamar a la API y se explica que caracter sobra y donde.
+
+    Causas habituales: copiar la clave desde un PDF o un documento con
+    autocorreccion, o arrastrar el raton y llevarse texto de alrededor.
+
+    Returns:
+        (clave_limpia, problema). Si problema != "", la clave NO debe usarse.
+    """
+    if not raw:
+        return "", ""
+
+    # Espacios normales, saltos de linea y los invisibles que aparecen al
+    # copiar desde navegadores o PDF (zero-width, BOM, espacio duro).
+    limpia = raw.strip()
+    for invisible in ("\u200b", "\u200c", "\u200d", "\ufeff", "\u00a0"):
+        limpia = limpia.replace(invisible, "")
+
+    malos = [(i, c) for i, c in enumerate(limpia) if not (32 <= ord(c) < 127)]
+    if malos:
+        i, c = malos[0]
+        return "", (
+            f"La clave contiene un carácter que no es válido en una cabecera "
+            f"HTTP: `{c}` (U+{ord(c):04X}) en la posición {i}. "
+            f"Las claves solo llevan letras, números, `-` y `_`. "
+            f"Vuelve a copiarla desde la consola de tu proveedor — si la "
+            f"copiaste de un PDF o un documento, es fácil que se cuele un "
+            f"acento o un guion tipográfico."
+        )
+    return limpia, ""
+
+
 @st.cache_resource(show_spinner=False)
 def _nucleo_holder() -> dict:
     """
@@ -1177,6 +1219,15 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
         # de razonamiento + respuesta juntos: con 4096 la respuesta se trunca.
         # 16000 es el maximo prudente sin streaming (evita timeouts HTTP).
         max_tokens = st.slider("Tokens máx.", 256, 16000, 8192, 256)
+
+        # Validar ANTES de usarla: una clave con un caracter no-ASCII hace que
+        # httpx falle al montar la cabecera con un UnicodeEncodeError cripitico
+        # que parece un fallo del nucleo.
+        _key_problema = ""
+        if api_key:
+            api_key, _key_problema = _limpiar_api_key(api_key)
+            if _key_problema:
+                st.error(_key_problema, icon="🔑")
 
         # Copia no-widget: sobrevive a la navegacion entre paginas.
         if api_key:
