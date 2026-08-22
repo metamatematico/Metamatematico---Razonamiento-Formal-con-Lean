@@ -60,3 +60,7 @@ data/neural_agent.json.pt.drifted_backup_*
 Thumbs.db
 .lean_warm
 _nle_warmup.lean
+
+# artefactos de cobertura y reportes locales
+.coverage
+reporte_conectividad.txt
