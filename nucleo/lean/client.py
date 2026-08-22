@@ -274,6 +274,41 @@ class LeanClient:
         rel = Path(*module.split("."))
         return not (root / rel.with_suffix(".lean")).is_file()
 
+    def _expand_split_module(self, line: str) -> list[str]:
+        """
+        Si `import Mathlib.A.B` no existe pero `Mathlib/A/B/` SI es un
+        directorio, devuelve los imports de sus submodulos.
+
+        Mathlib parte modulos grandes en directorios y elimina el fichero
+        agregador. `Mathlib.Topology.Instances.Real` ya no es un .lean: ahora
+        es un directorio con `Real/Lemmas.lean`. El LLM pide el nombre
+        historico —que es el correcto conceptualmente— y antes se DESCARTABA
+        en silencio, garantizando que la prueba fallara por falta del modulo
+        que ella misma habia pedido bien.
+
+        Returns:
+            Lista de lineas `import ...` (vacia si no es un modulo partido).
+        """
+        s = line.strip()
+        if not s.startswith("import Mathlib"):
+            return []
+        root = self._mathlib_src_root()
+        if root is None:
+            return []
+        module = s[len("import "):].strip()
+        if not module:
+            return []
+        d = root / Path(*module.split("."))
+        if not d.is_dir():
+            return []
+        hijos = sorted(f.stem for f in d.glob("*.lean"))
+        if not hijos:
+            return []
+        # Cota: un directorio muy grande convertiria una linea en veinte y
+        # dispararia el tiempo de carga. Con 4 se cubren los casos reales
+        # (Defs/Lemmas/Basic/Instances).
+        return [f"import {module}.{h}" for h in hijos[:4]]
+
     # ── Reparacion de imports a partir del error de Lean ───────────────────
     #
     # Un LLM escribiendo Lean falla una y otra vez por lo mismo: usa un lema
@@ -455,9 +490,25 @@ class LeanClient:
         # los imports tematicos de abajo suelen aportar el modulo correcto.
         dropped = [l for l in lines if self._is_unknown_mathlib_import(l)]
         if dropped:
-            for l in dropped:
-                logger.debug(f"Lean: descartado import inexistente '{l.strip()}'")
-            lines = [l for l in lines if l not in dropped]
+            nuevas: list[str] = []
+            for l in lines:
+                if l not in dropped:
+                    nuevas.append(l)
+                    continue
+                # Antes de tirarlo: puede ser un modulo PARTIDO en directorio,
+                # en cuyo caso el nombre que pidio el LLM es correcto y solo
+                # hay que expandirlo a sus submodulos.
+                expandido = self._expand_split_module(l)
+                if expandido:
+                    logger.info(
+                        f"Lean: '{l.strip()}' es un modulo partido -> "
+                        f"{len(expandido)} submodulo(s): "
+                        f"{', '.join(e.split('.')[-1] for e in expandido)}"
+                    )
+                    nuevas.extend(expandido)
+                else:
+                    logger.debug(f"Lean: descartado import inexistente '{l.strip()}'")
+            lines = nuevas
             code = "\n".join(lines)
 
         code_lower = code.lower()

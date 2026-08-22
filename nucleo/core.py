@@ -1560,7 +1560,8 @@ class Nucleo:
         )
         if _is_definitional:
             translate_prompt = (
-                "Eres un matemático experto. Tu trabajo es explicar la definición "
+                self._REGLAS_TRADUCTOR
+                +                 "Eres un matemático experto. Tu trabajo es explicar la definición "
                 "matemática que Lean 4 acaba de formalizar.\n\n"
                 "IMPORTANTE: El código Lean de abajo es la fuente de verdad. "
                 "Tu explicación debe ser CONSISTENTE con los tipos que aparecen en él. "
@@ -1584,7 +1585,8 @@ class Nucleo:
             )
         else:
             translate_prompt = (
-                "Eres un traductor matemático experto. Tu trabajo es explicar el siguiente "
+                self._REGLAS_TRADUCTOR
+                +                 "Eres un traductor matemático experto. Tu trabajo es explicar el siguiente "
                 "código Lean 4 en lenguaje natural claro, preciso y amable.\n\n"
                 "IMPORTANTE: Si el código Lean toma la afirmación principal como hipótesis "
                 "y la concluye trivialmente, indícalo y explica el teorema REAL.\n\n"
@@ -1975,6 +1977,26 @@ class Nucleo:
             )
         except Exception as e:
             logger.warning("MODO DEMO por '%s' (diagnostico fallo: %s)", compuerta, e)
+
+    #: Reglas de rol del traductor. Sin ellas el modelo respondia como un
+    #: asistente suelto: "No tengo un compilador de Lean conectado en esta
+    #: conversacion", "si quieres puedo mostrarte una prueba manual". Las dos
+    #: frases son falsas y desmontan la arquitectura: Lean ESTA conectado, ya
+    #: se ejecuto, y su veredicto es lo que se le pasa en Estado. El modelo no
+    #: decide si algo esta verificado ni tiene un turno siguiente que ofrecer.
+    _REGLAS_TRADUCTOR = (
+        "REGLAS DE TU ROL (obligatorias):\n"
+        "- Lean 4 con Mathlib YA SE EJECUTO sobre el codigo de abajo. El campo "
+        "Estado es su veredicto real, no una suposicion.\n"
+        "- NUNCA digas que no tienes Lean, que no puedes compilar o verificar "
+        "en esta conversacion, ni que el codigo deberia tipar: ya se sabe si "
+        "tipa, lo dice el Estado.\n"
+        "- Si el Estado dice que Lean NO verifico, dilo con claridad y explica "
+        "el porque a partir del error. No lo presentes como si estuviera bien.\n"
+        "- No ofrezcas alternativas ni preguntes si el usuario quiere algo mas. "
+        "Tu salida es la respuesta final.\n"
+        "- No hables de ti ni de tus capacidades. Habla de las matematicas.\n\n"
+    )
 
     async def _revisar_con_lean(
         self,
