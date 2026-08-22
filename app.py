@@ -1132,9 +1132,19 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
             # (por ejemplo al adjuntar un PDF) lo redibuja con value=_env_key y
             # BORRA la clave que el usuario acababa de pegar -> modo demo.
             # Con key=, Streamlit la conserva en session_state entre reruns.
+            #
+            # Pero `key=` NO basta: Streamlit descarta el estado de los widgets
+            # que no se dibujan en una ejecucion, y la barra lateral de app.py
+            # no existe cuando se esta en pages/. Al ir al Visualizador y
+            # volver, el campo aparecia vacio y el sistema caia a modo demo con
+            # la clave "puesta". Se guarda una copia en una entrada que NO es
+            # de widget —esas si sobreviven— y se restaura desde ella.
+            _persist = f"_apikey_persist_{provider}"
             _key_widget = f"_apikey_{provider}"
             if _key_widget not in st.session_state:
-                st.session_state[_key_widget] = _env_key
+                st.session_state[_key_widget] = (
+                    st.session_state.get(_persist, "") or _env_key
+                )
             api_key = st.text_input(
                 cfg["key_label"],
                 type="password",
@@ -1167,6 +1177,10 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
         # de razonamiento + respuesta juntos: con 4096 la respuesta se trunca.
         # 16000 es el maximo prudente sin streaming (evita timeouts HTTP).
         max_tokens = st.slider("Tokens máx.", 256, 16000, 8192, 256)
+
+        # Copia no-widget: sobrevive a la navegacion entre paginas.
+        if api_key:
+            st.session_state[f"_apikey_persist_{provider}"] = api_key
 
         # Persist API config so other pages (Verificador, etc.) can reuse it
         st.session_state["_api_key"]    = api_key or ""

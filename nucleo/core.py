@@ -1221,6 +1221,7 @@ class Nucleo:
         """
         # Demo mode: skip Lean pipeline, return structured educational content
         if self._llm is not None and self._llm.is_demo:
+            self._log_motivo_demo("is_demo")
             return self._demo_educational_response(input_text)
 
         # Extra guard: provider package not installed → _get_client() falls back
@@ -1228,6 +1229,7 @@ class Nucleo:
         # Running the pipeline with DemoLLMClient produces garbled output.
         from nucleo.llm.client import LLMClient, DemoLLMClient as _DemoClient
         if self._llm is not None and isinstance(self._llm._get_client(), _DemoClient):
+            self._log_motivo_demo("cliente_demo")
             return self._demo_educational_response(input_text)
 
         from nucleo.multi_agent.specialized_agent import classify_query
@@ -1820,6 +1822,33 @@ class Nucleo:
             (h for k, h in self._LEAN_HINTS.items() if k in low),
             "revisa la sintaxis Lean 4 y los imports de Mathlib.",
         )
+
+    def _log_motivo_demo(self, compuerta: str) -> None:
+        """
+        Registra POR QUE se entro en modo demo.
+
+        Sin esto, una respuesta de demo con la clave puesta es indepurable: el
+        usuario ve la plantilla y no hay forma de saber si fallo el proveedor,
+        la clave, la variable de entorno o el paquete. Solo se registran
+        LONGITUDES y nombres de clase — nunca el valor de la clave.
+        """
+        import os as _os
+        try:
+            cfg = self._llm.config
+            env_name = self._llm._ENV_KEYS.get(cfg.provider, "")
+            logger.warning(
+                "MODO DEMO por '%s': provider=%s model=%s "
+                "config.api_key_len=%d env[%s]_len=%d cliente=%s",
+                compuerta,
+                getattr(cfg.provider, "name", cfg.provider),
+                cfg.model,
+                len(cfg.api_key or ""),
+                env_name or "-",
+                len(_os.environ.get(env_name, "")) if env_name else 0,
+                type(self._llm._get_client()).__name__,
+            )
+        except Exception as e:
+            logger.warning("MODO DEMO por '%s' (diagnostico fallo: %s)", compuerta, e)
 
     async def _revisar_con_lean(
         self,
