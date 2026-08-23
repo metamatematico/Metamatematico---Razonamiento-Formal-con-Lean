@@ -325,7 +325,6 @@ def _skill_list_live(vd):
         result.append((sid, nd.get("name", sid), nd.get("level", 1), cat, color))
     return result
 
-@st.cache_data
 @st.cache_data(ttl=120, show_spinner=False)
 def _grafo_vivo_datos():
     """
@@ -1231,21 +1230,43 @@ def _emergencia_data():
         return None, "obsoleto"
 
     g = nucleo.graph
-    colimites, vistos = [], set()
+    # Se agrupa por APICE, no por componentes.
+    #
+    # Desde que el descubrimiento emite tambien las descomposiciones por
+    # subconjunto, un mismo objeto puede ser colimite de VARIOS patrones:
+    # `homological-algebra-cat` tiene 8. Deduplicando por componentes salian
+    # las 8 como colimites distintos y la pestaña mostraba el mismo apice ocho
+    # veces, como si el sistema hubiera descubierto ocho conceptos.
+    #
+    # Son ocho DESCOMPOSICIONES de uno, y que las haya es justo lo que hace
+    # que se cumpla el Principio de Multiplicidad.
+    _por_apice: dict = {}
     for c in nucleo._colimit_builder.all_colimits:
         pat = nucleo._pattern_manager.get_pattern(c.pattern_id)
         if not pat:
             continue
-        clave = frozenset(pat.component_ids)
-        if clave in vistos:
-            continue
-        vistos.add(clave)
         apex = g.get_skill(c.skill_id)
         if apex is None:
             continue
+        comps = tuple(sorted(pat.component_ids))
+        entrada = _por_apice.get(c.skill_id)
+        if entrada is None:
+            _por_apice[c.skill_id] = {"pat": pat, "apex": apex,
+                                      "descs": {comps}}
+        else:
+            entrada["descs"].add(comps)
+            # se conserva la descomposicion MAS GRANDE como la principal
+            if len(comps) > len(entrada["pat"].component_ids):
+                entrada["pat"] = pat
+
+    colimites = []
+    for skill_id, e in _por_apice.items():
+        pat, apex = e["pat"], e["apex"]
         colimites.append({
             "componentes": list(pat.component_ids),
-            "apex": c.skill_id,
+            "descomposiciones": sorted(e["descs"], key=len, reverse=True),
+            "n_descomposiciones": len(e["descs"]),
+            "apex": skill_id,
             "apex_nombre": apex.name,
             "cn": getattr(apex, "cn", 0),
             "level": apex.level,
@@ -1254,7 +1275,7 @@ def _emergencia_data():
             # tacticas (strategy-forward = join(tactic-rewrite, tactic-apply))
             # es legitimo: es la jerarquia interna del pilar de pruebas.
             "espurio": (
-                c.skill_id.startswith(("tactic-", "strategy-"))
+                skill_id.startswith(("tactic-", "strategy-"))
                 and any(not x.startswith(("tactic-", "strategy-"))
                         for x in pat.component_ids)
             ),
@@ -2419,15 +2440,30 @@ with tab9:
         _legit = [c for c in _em["colimites"] if not c["espurio"]]
         _esp   = [c for c in _em["colimites"] if c["espurio"]]
 
+        _n_desc = sum(c["n_descomposiciones"] for c in _em["colimites"])
+        _multi = [c for c in _em["colimites"] if c["n_descomposiciones"] > 1]
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Co-conos límite", len(_em["colimites"]),
-                  help="Colímites descubiertos en el grafo. No se fabrica ninguno.")
+                  delta=f"{_n_desc} descomposiciones" if _n_desc > len(_em["colimites"]) else None,
+                  delta_color="off",
+                  help="Objetos que SON colímite de algún patrón. Se cuentan una "
+                       "vez cada uno: varios pueden tener más de una descomposición.")
         c2.metric("Profundidad cn", _h.get("max_cn", 0),
                   help="Orden de complejidad constructivo máximo. cn(J)=1+max{cn(Pi)}.")
         c3.metric("Huecos conceptuales", len(_em["huecos"]),
                   help="Patrones con co-conos pero sin co-cono límite.")
-        c4.metric("Skills", sum(_h.get("level_distribution", {}).values()) or 0,
-                  help="El grafo no crece al descubrir: se descubre, no se fabrica.")
+        c4.metric("Multiplicidad", len(_multi),
+                  help="Objetos con MÁS DE UNA descomposición. Es la condición "
+                       "necesaria para que existan enlaces complejos "
+                       "(multiplicidad_necesaria_para_complejidad, Lean).")
+        if _multi:
+            st.success(
+                "**El Principio de Multiplicidad se cumple.** "
+                + ", ".join(f"`{c['apex']}` ({c['n_descomposiciones']} descomposiciones)"
+                            for c in sorted(_multi, key=lambda d: -d["n_descomposiciones"])[:3])
+                + ". Sin objetos así, todo compuesto de enlaces simples sería simple "
+                  "y el sistema no podría producir complejidad emergente."
+            )
 
         st.divider()
 
