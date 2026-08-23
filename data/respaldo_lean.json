@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 184,
-  "auditadas": 36,
+  "declaraciones_lean": 197,
+  "auditadas": 39,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -225,6 +225,48 @@
       "teorema": "refleja_no_alcanzabilidad",
       "fichero": "QuotientFunctor.lean",
       "afirma": "pi refleja la no-alcanzabilidad"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "TransitionFunctor",
+      "teorema": "comp",
+      "fichero": "Evolution.lean",
+      "afirma": "funtor parcial entre instantaneas: none = objeto eliminado"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "compose",
+      "teorema": "comp_assoc",
+      "fichero": "Evolution.lean",
+      "afirma": "la composicion de transiciones es asociativa"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "verify_compatibility",
+      "teorema": "compatible_iff",
+      "fichero": "Evolution.lean",
+      "afirma": "compatibilidad (Def 3.2) = ley de funtor sobre el orden del tiempo"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "apply_option",
+      "teorema": "eliminado_es_absorbente",
+      "fichero": "Evolution.lean",
+      "afirma": "lo eliminado no vuelve: ninguna composicion posterior lo recupera"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "measure_emergence",
+      "teorema": "soloCrece_cadena",
+      "fichero": "Evolution.lean",
+      "afirma": "emergence_ratio es comparable entre tiempos si nada se elimina"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "detect_complex_links",
+      "teorema": "complex_needs_unconnected",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "un enlace complejo exige descomposiciones intermedias no conectadas"
     }
   ],
   "sin_respaldo": [
@@ -232,23 +274,9 @@
       "modulo": "patterns.py",
       "operacion": "campos_operativos_isomorfos",
       "afirma": "heuristica estructural, NO la homologia de Ehresmann"
-    },
-    {
-      "modulo": "evolution.py",
-      "operacion": "complexify",
-      "afirma": "complexificacion de Ehresmann como funtor de transicion"
-    },
-    {
-      "modulo": "evolution.py",
-      "operacion": "transition_functor",
-      "afirma": "el functor de transicion entre configuraciones"
-    },
-    {
-      "modulo": "evolution.py",
-      "operacion": "detect_emergence",
-      "afirma": "deteccion de emergencia"
     }
   ],
   "mapeo_roto": [],
+  "operaciones_fantasma": [],
   "sorries": []
 }

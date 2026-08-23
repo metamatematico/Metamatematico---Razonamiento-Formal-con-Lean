@@ -23,7 +23,7 @@ librería detrás de \texttt{nucleo/graph/} ni de \texttt{nucleo/mes/}, solo
 \texttt{dataclasses}, diccionarios y recorridos en anchura. Eso hace que cada
 propiedad categórica sea una afirmación del autor hasta que Lean~4 la respalda.
 Este documento audita, operación por operación, cuáles lo están. El resultado
-es 32 de 36 (89\,\%). Todas las cifras
+es 38 de 39 (97\,\%). Todas las cifras
 proceden de \texttt{data/respaldo\_lean.json}, generado por
 \texttt{scripts/auditar\_respaldo\_lean.py}; ninguna se escribe a mano.
 \end{abstract}
@@ -52,17 +52,17 @@ código: los tres salieron al medir y al formalizar.
 \toprule
  & Operaciones & \% \\
 \midrule
-Respaldadas por un teorema & 32 & 89 \\
-Sin respaldo formal & 4 & 11 \\
+Respaldadas por un teorema & 38 & 97 \\
+Sin respaldo formal & 1 & 3 \\
 Mapeo roto & 0 & 0 \\
 \midrule
-Total auditado & 36 & 100 \\
+Total auditado & 39 & 100 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent Declaraciones formales disponibles en
-\texttt{MetamathProver/CategoryFoundations/}: \textbf{184}.
+\texttt{MetamathProver/CategoryFoundations/}: \textbf{197}.
 
 \section{Operaciones respaldadas}
 
@@ -141,6 +141,19 @@ Total auditado & 36 & 100 \\
   &  & \footnotesize y NO preservan la minimalidad: contraejemplo finito \\
   & \texttt{CategoriaAgentes.alcanzables\_desde} & \texttt{refleja\_no\_alcanzabilidad} \\
   &  & \footnotesize pi refleja la no-alcanzabilidad \\
+\midrule \multicolumn{3}{l}{\textit{evolution.py}} \\
+  & \texttt{TransitionFunctor} & \texttt{comp} \\
+  &  & \footnotesize funtor parcial entre instantaneas: none = objeto eliminado \\
+  & \texttt{compose} & \texttt{comp\_assoc} \\
+  &  & \footnotesize la composicion de transiciones es asociativa \\
+  & \texttt{verify\_compatibility} & \texttt{compatible\_iff} \\
+  &  & \footnotesize compatibilidad (Def 3.2) = ley de funtor sobre el orden del tiempo \\
+  & \texttt{apply\_option} & \texttt{eliminado\_es\_absorbente} \\
+  &  & \footnotesize lo eliminado no vuelve: ninguna composicion posterior lo recupera \\
+  & \texttt{measure\_emergence} & \texttt{soloCrece\_cadena} \\
+  &  & \footnotesize emergence\_ratio es comparable entre tiempos si nada se elimina \\
+  & \texttt{detect\_complex\_links} & \texttt{complex\_needs\_unconnected} \\
+  &  & \footnotesize un enlace complejo exige descomposiciones intermedias no conectadas \\
 \bottomrule
 \end{longtable}
 
@@ -156,9 +169,6 @@ falla si esta lista cambia sin que alguien lo declare.
 Módulo & Operación & Qué afirma \\
 \midrule
 \texttt{patterns.py} & \texttt{campos\_operativos\_isomorfos} & \footnotesize heuristica estructural, NO la homologia de Ehresmann \\
-\texttt{evolution.py} & \texttt{complexify} & \footnotesize complexificacion de Ehresmann como funtor de transicion \\
-\texttt{evolution.py} & \texttt{transition\_functor} & \footnotesize el functor de transicion entre configuraciones \\
-\texttt{evolution.py} & \texttt{detect\_emergence} & \footnotesize deteccion de emergencia \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -209,7 +219,7 @@ un cambio de modelo y no un ajuste. Queda registrado como límite conocido.
 \item \texttt{scripts/generar\_reporte\_respaldo.py} — genera este documento.
 \item \texttt{tests/test\_respaldo\_lean.py} — falla si el mapeo se rompe o si
       el respaldo retrocede.
-\item \texttt{MetamathProver/CategoryFoundations/} — 184 declaraciones.
+\item \texttt{MetamathProver/CategoryFoundations/} — 197 declaraciones.
 \end{itemize}
 
 \end{document}

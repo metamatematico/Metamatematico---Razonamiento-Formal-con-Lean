@@ -31,6 +31,7 @@ USO
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import subprocess
@@ -126,12 +127,21 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
     ("functor.py", "CategoriaAgentes.alcanzables_desde", "refleja_no_alcanzabilidad",
      "pi refleja la no-alcanzabilidad"),
 
-    ("evolution.py", "complexify", None,
-     "complexificacion de Ehresmann como funtor de transicion"),
-    ("evolution.py", "transition_functor", None,
-     "el functor de transicion entre configuraciones"),
-    ("evolution.py", "detect_emergence", None,
-     "deteccion de emergencia"),
+    # Los nombres reales. El mapeo decia `complexify`, `transition_functor` y
+    # `detect_emergence`, que NO EXISTEN; la auditoria no lo detectaba porque
+    # solo validaba el lado de Lean.
+    ("evolution.py", "TransitionFunctor", "comp",
+     "funtor parcial entre instantaneas: none = objeto eliminado"),
+    ("evolution.py", "compose", "comp_assoc",
+     "la composicion de transiciones es asociativa"),
+    ("evolution.py", "verify_compatibility", "compatible_iff",
+     "compatibilidad (Def 3.2) = ley de funtor sobre el orden del tiempo"),
+    ("evolution.py", "apply_option", "eliminado_es_absorbente",
+     "lo eliminado no vuelve: ninguna composicion posterior lo recupera"),
+    ("evolution.py", "measure_emergence", "soloCrece_cadena",
+     "emergence_ratio es comparable entre tiempos si nada se elimina"),
+    ("evolution.py", "detect_complex_links", "complex_needs_unconnected",
+     "un enlace complejo exige descomposiciones intermedias no conectadas"),
 ]
 
 
@@ -144,6 +154,42 @@ def declaraciones_lean() -> dict[str, str]:
     for f in sorted(LEAN.glob("*.lean")):
         for m in rx.finditer(f.read_text(encoding="utf-8")):
             out[m.group(1)] = f.name
+    return out
+
+
+#: Donde vive cada modulo del mapeo.
+UBICACION = {
+    "category.py": "nucleo/graph/category.py",
+    "complexity.py": "nucleo/graph/complexity.py",
+    "functor.py": "nucleo/graph/functor.py",
+    "patterns.py": "nucleo/mes/patterns.py",
+    "evolution.py": "nucleo/graph/evolution.py",
+}
+
+
+def operaciones_python() -> dict:
+    """
+    Las funciones, metodos y clases que existen de verdad en cada modulo.
+
+    La auditoria validaba solo el lado de Lean, de modo que una entrada podia
+    nombrar una funcion de Python INEXISTENTE y pasar como "sin respaldo" sin
+    que nadie lo notara. Ocurrio: `complexify`, `transition_functor` y
+    `detect_emergence` no existen; las reales se llaman `apply_option`,
+    `TransitionFunctor` y `measure_emergence`.
+    """
+    out = {}
+    for modulo, ruta in UBICACION.items():
+        f = RAIZ / ruta
+        if not f.exists():
+            out[modulo] = set()
+            continue
+        arbol = ast.parse(f.read_text(encoding="utf-8"))
+        nombres = set()
+        for nodo in ast.walk(arbol):
+            if isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef)):
+                nombres.add(nodo.name)
+        out[modulo] = nombres
     return out
 
 
@@ -168,6 +214,14 @@ def main() -> int:
     decls = declaraciones_lean()
     print(f"Declaraciones formales en CategoryFoundations: {len(decls)}")
     print(f"Entradas auditadas: {len(MAPEO)}\n")
+
+    ops = operaciones_python()
+    fantasma = []
+    for modulo, op, _, _ in MAPEO:
+        base = op.split(".")[0].split(" ")[0]
+        conocidas = ops.get(modulo)
+        if conocidas is not None and base not in conocidas:
+            fantasma.append((modulo, op))
 
     respaldadas, sin_respaldo, rotas = [], [], []
     for modulo, op, teorema, afirma in MAPEO:
@@ -197,6 +251,7 @@ def main() -> int:
           f"({100*len(respaldadas)/n:.0f} %)")
     print(f"{'':4s}sin respaldo   {len(sin_respaldo):3d}/{n}")
     print(f"{'':4s}mapeo roto     {len(rotas):3d}/{n}")
+    print(f"{'':4s}op. fantasma   {len(fantasma):3d}/{n}")
 
     informe = {
         "declaraciones_lean": len(decls),
@@ -208,6 +263,8 @@ def main() -> int:
                          for m, o, a in sin_respaldo],
         "mapeo_roto": [{"modulo": m, "operacion": o, "teorema": t}
                        for m, o, t in rotas],
+        "operaciones_fantasma": [{"modulo": m, "operacion": o}
+                                 for m, o in fantasma],
     }
 
     if args.sorry:
@@ -223,7 +280,7 @@ def main() -> int:
     SALIDA.write_text(json.dumps(informe, ensure_ascii=False, indent=2),
                       encoding="utf-8")
     print(f"\nInforme -> {SALIDA}")
-    return 1 if rotas else 0
+    return 1 if (rotas or fantasma) else 0
 
 
 if __name__ == "__main__":

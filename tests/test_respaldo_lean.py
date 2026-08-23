@@ -14,7 +14,7 @@ import pytest
 from scripts.auditar_respaldo_lean import MAPEO, declaraciones_lean
 
 #: Cota inferior. Subirla al cerrar huecos; NUNCA bajarla para que pase el test.
-RESPALDO_MINIMO = 32
+RESPALDO_MINIMO = 38
 
 
 @pytest.fixture(scope="module")
@@ -43,8 +43,7 @@ def test_lo_que_falta_esta_declarado():
     mapeo. Un hueco sin anotar es indistinguible de un hueco olvidado.
     """
     sin = {o for _, o, t, _ in MAPEO if t is None}
-    assert sin == {"complexify", "transition_functor", "detect_emergence",
-                   "campos_operativos_isomorfos"}, (
+    assert sin == {"campos_operativos_isomorfos"}, (
         f"cambio el conjunto de operaciones sin respaldo: {sorted(sin)}. "
         "Si cerraste un hueco, sube RESPALDO_MINIMO; si abriste uno, dilo aqui."
     )
@@ -53,3 +52,23 @@ def test_lo_que_falta_esta_declarado():
 def test_toda_operacion_auditada_es_unica():
     claves = [(m, o) for m, o, _, _ in MAPEO]
     assert len(claves) == len(set(claves)), "hay entradas duplicadas en el mapeo"
+
+
+def test_ninguna_operacion_es_fantasma():
+    """
+    El MAPEO debe nombrar funciones que EXISTAN en Python. La auditoria validaba
+    solo el lado de Lean, y por eso paso desapercibido que `complexify`,
+    `transition_functor` y `detect_emergence` no existian: figuraban como "sin
+    respaldo" mientras las reales no se auditaban.
+    """
+    from scripts.auditar_respaldo_lean import MAPEO, operaciones_python
+    ops = operaciones_python()
+    fantasma = [
+        (m, o) for m, o, _, _ in MAPEO
+        if ops.get(m) is not None
+        and o.split(".")[0].split(" ")[0] not in ops[m]
+    ]
+    assert not fantasma, (
+        "el mapeo nombra operaciones inexistentes: "
+        + ", ".join(f"{m}::{o}" for m, o in fantasma)
+    )

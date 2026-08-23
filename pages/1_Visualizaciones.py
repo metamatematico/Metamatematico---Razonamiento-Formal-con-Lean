@@ -2033,7 +2033,7 @@ La **extensión del grafo** K' añade join[P] al grafo junto con los morfismos d
 
 Este proceso modela cómo el sistema *aprende*: combina skills conocidos para crear competencias emergentes (Axiomas 8.1–8.4 del paper NLE v7.0).
 
-**Verificado formalmente**: 505 tests confirman:
+**Verificado formalmente**: 516 tests confirman:
 - Propiedad universal del join (is_join)
 - Functorialidad de la extensión del grafo
 - Principio de multiplicidad
@@ -2102,7 +2102,7 @@ with tab6:
     col2.metric("Parámetros GNN+PPO",
                 f"{_p_total:,}" if _p_total else "—",
                 "3 capas GATConv")
-    col3.metric("Tests", "505", "29 suites")
+    col3.metric("Tests", "516", "30 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
