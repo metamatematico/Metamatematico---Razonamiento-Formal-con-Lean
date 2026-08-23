@@ -69,7 +69,7 @@ class TestHomology:
             ["l1", "l2"], [m_log.id], graph=graph_two_pillars
         )
 
-        assert pm.are_homologous(p_set, p_log, graph_two_pillars) is True
+        assert pm.campos_operativos_isomorfos(p_set, p_log, graph_two_pillars) is True
 
     def test_same_components_not_homologous(self, graph_two_pillars, pm):
         """Patrones con exactamente los mismos componentes NO son homologos."""
@@ -82,7 +82,7 @@ class TestHomology:
             ["s1", "s2"], [m_set.id], graph=graph_two_pillars
         )
 
-        assert pm.are_homologous(p1, p2, graph_two_pillars) is False
+        assert pm.campos_operativos_isomorfos(p1, p2, graph_two_pillars) is False
 
     def test_different_size_not_homologous(self, graph_two_pillars, pm):
         """Patrones de tamanos distintos NO son homologos."""
@@ -95,10 +95,14 @@ class TestHomology:
             ["l1"], [], graph=graph_two_pillars
         )
 
-        assert pm.are_homologous(p1, p2, graph_two_pillars) is False
+        assert pm.campos_operativos_isomorfos(p1, p2, graph_two_pillars) is False
 
     def test_homologous_with_colimits(self, graph_two_pillars, pm, cb):
-        """Homologia via campos operativos cuando hay colimites."""
+        """Campos operativos isomorfos cuando hay colimites.
+
+        NO es la homologia de Ehresmann: estos dos patrones tienen campos con
+        la misma forma pero colimites distintos. Ver son_homologos.
+        """
         m_set = graph_two_pillars.hom("s1", "s2")[0]
         m_log = graph_two_pillars.hom("l1", "l2")[0]
 
@@ -114,7 +118,7 @@ class TestHomology:
         cb.build_colimit(p_log, graph_two_pillars)
 
         # Should still be homologous (same operational field structure)
-        assert pm.are_homologous(
+        assert pm.campos_operativos_isomorfos(
             p_set, p_log, graph_two_pillars, colimit_builder=cb
         ) is True
 
@@ -142,23 +146,63 @@ class TestHomology:
 class TestMultiplicityPrinciple:
     """Tests para el principio de multiplicidad."""
 
-    def test_multiplicity_with_two_disconnected_patterns(
-        self, graph_two_pillars, pm
+    def test_sin_colimite_comun_no_hay_multiplicidad(
+        self, graph_two_pillars, pm, cb
     ):
-        """Grafo con patrones homologos no conectados satisface multiplicidad."""
+        """
+        Dos patrones con campos operativos isomorfos pero SIN colimite comun no
+        son homologos en el sentido de Ehresmann, luego no dan multiplicidad.
+
+        Antes este test afirmaba lo contrario, porque el verificador usaba la
+        heuristica estructural. La homologia de Ehresmann exige mismo colimite.
+        """
         m_set = graph_two_pillars.hom("s1", "s2")[0]
         m_log = graph_two_pillars.hom("l1", "l2")[0]
+        pm.create_pattern(["s1", "s2"], [m_set.id], graph=graph_two_pillars)
+        pm.create_pattern(["l1", "l2"], [m_log.id], graph=graph_two_pillars)
 
-        pm.create_pattern(
-            ["s1", "s2"], [m_set.id], graph=graph_two_pillars
-        )
-        pm.create_pattern(
-            ["l1", "l2"], [m_log.id], graph=graph_two_pillars
-        )
+        result = pm.verify_multiplicity_principle(graph_two_pillars, cb)
+        assert result["satisfies"] is False
+        assert result["homologous_pairs"] == []
 
-        result = pm.verify_multiplicity_principle(graph_two_pillars)
-        assert result["satisfies"] is True
-        assert len(result["homologous_pairs"]) >= 1
+    def test_multiplicidad_real_con_colimite_compartido(self, pm, cb):
+        """
+        MP de verdad: dos descomposiciones DISTINTAS del MISMO objeto.
+
+        Reproduce el testigo de `MP_alcanzable_en_preorden` (EhresmannLinks.lean):
+        a, b, c, d incomparables dos a dos, todos por debajo de j.
+        """
+        from nucleo.graph.category import SkillCategory
+        from nucleo.types import MorphismType, PillarType, Skill
+
+        g = SkillCategory()
+        for sid in ("a", "b", "c", "d", "j"):
+            g.add_skill(Skill(id=sid, name=sid, description=sid,
+                              pillar=PillarType.SET, level=1))
+        for sid in ("a", "b", "c", "d"):
+            g.add_morphism(sid, "j", MorphismType.DEPENDENCY)
+
+        p1 = pm.create_pattern(["a", "b"], [], graph=g)
+        p2 = pm.create_pattern(["c", "d"], [], graph=g)
+        # `build_join_for_pattern` DESCUBRE el colimite entre los objetos que ya
+        # existen; `cb.build_colimit` FABRICA un vertice nuevo y los dos
+        # patrones acabarian con colimites distintos, que es justo lo contrario
+        # de lo que se quiere comprobar.
+        from nucleo.graph.complexity import build_join_for_pattern
+        build_join_for_pattern(p1, g, cb)
+        build_join_for_pattern(p2, g, cb)
+        assert len(g.skills) == 5, "no debe fabricarse ningun vertice"
+
+        c1 = cb.get_colimit_for_pattern(p1.id)
+        c2 = cb.get_colimit_for_pattern(p2.id)
+        assert c1 is not None and c2 is not None, "no se construyeron colimites"
+        assert c1.skill_id == c2.skill_id == "j", (
+            f"los colimites deberian ser j: {c1.skill_id}, {c2.skill_id}"
+        )
+        assert pm.son_homologos(p1, p2, cb) is True
+
+        result = pm.verify_multiplicity_principle(g, cb)
+        assert result["satisfies"] is True, result["violations"]
         assert len(result["disconnected_pairs"]) >= 1
 
     def test_multiplicity_fails_single_pattern(self, graph_two_pillars, pm):

@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 177,
-  "auditadas": 34,
+  "declaraciones_lean": 184,
+  "auditadas": 36,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -144,13 +144,6 @@
     },
     {
       "modulo": "patterns.py",
-      "operacion": "are_homologous",
-      "teorema": "Homologos",
-      "fichero": "SimpleComplexLinks.lean",
-      "afirma": "dos descomposiciones distintas del mismo colimite"
-    },
-    {
-      "modulo": "patterns.py",
       "operacion": "verify_multiplicity_principle",
       "teorema": "multiplicidad_necesaria_para_complejidad",
       "fichero": "EhresmannLinks.lean",
@@ -175,7 +168,21 @@
       "operacion": "_detect_convergence_patterns",
       "teorema": "MP_alcanzable_en_preorden",
       "fichero": "EhresmannLinks.lean",
-      "afirma": "MP es alcanzable en un preorden: que no se cumpla es del algoritmo"
+      "afirma": "emite tambien las descomposiciones por subconjunto: MP es alcanzable"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "compute_complexity_order (multi)",
+      "teorema": "hierarchy_well_founded_multi",
+      "fichero": "ComplexityOrder.lean",
+      "afirma": "con varias descomposiciones, el MAXIMO converge; asignar oscilaba"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "son_homologos",
+      "teorema": "Homologos",
+      "fichero": "SimpleComplexLinks.lean",
+      "afirma": "homologia de Ehresmann: mismo colimite"
     },
     {
       "modulo": "patterns.py",
@@ -221,6 +228,11 @@
     }
   ],
   "sin_respaldo": [
+    {
+      "modulo": "patterns.py",
+      "operacion": "campos_operativos_isomorfos",
+      "afirma": "heuristica estructural, NO la homologia de Ehresmann"
+    },
     {
       "modulo": "evolution.py",
       "operacion": "complexify",

@@ -285,6 +285,124 @@ theorem cn_join_gt_component {n : ℕ}
   have h1 : ∀ m : ℕ, m < 1 + m := fun m => by omega
   exact Nat.lt_of_le_of_lt this (h1 _)
 
+
+/-! ## §6  Varias descomposiciones por objeto -/
+
+/-
+El Principio de Multiplicidad exige que un objeto tenga MAS DE UNA
+descomposicion. Pero `complexityOrderIter` toma `isJoinOf : Fin n → Option
+(List (Fin n))`, una funcion: como mucho una descomposicion por objeto.
+
+Al habilitar MP en el sistema eso deja de valer, y el codigo dejo de converger:
+hacia `cn[j] = 1 + max(componentes)` por ASIGNACION, de modo que con dos
+descomposiciones de alturas distintas oscilaba entre ambas indefinidamente.
+
+La generalizacion correcta es tomar el MAXIMO sobre todas las descomposiciones.
+Asi la sucesion es monotona no decreciente, y de ahi sale la terminacion.
+-/
+
+/-- Iteracion con varias descomposiciones por objeto. -/
+def multiIter {n : ℕ} (decomps : Fin n → List (List (Fin n))) :
+    ℕ → (Fin n → ℕ)
+  | 0     => fun _ => 0
+  | k + 1 =>
+    let prev := multiIter decomps k
+    fun x => (decomps x).foldr
+      (fun comps acc =>
+        max (1 + comps.foldr (fun c a => max (prev c) a) 0) acc) 0
+
+theorem multiIter_succ {n : ℕ} (decomps : Fin n → List (List (Fin n)))
+    (k : ℕ) (x : Fin n) :
+    multiIter decomps (k + 1) x =
+      (decomps x).foldr
+        (fun comps acc =>
+          max (1 + comps.foldr (fun c a => max (multiIter decomps k c) a) 0) acc)
+        0 :=
+  rfl
+
+/-- Aciclicidad para varias descomposiciones. -/
+def AciclicoMulti {n : ℕ} (decomps : Fin n → List (List (Fin n))) : Prop :=
+  ∀ x comps, comps ∈ decomps x → ∀ c ∈ comps, c < x
+
+/-- Congruencia del foldr exterior, para poder sustituir bajo el maximo. -/
+theorem foldrOut_congr {n : ℕ} {p q : Fin n → ℕ} (ds : List (List (Fin n)))
+    (h : ∀ comps ∈ ds, ∀ c ∈ comps, p c = q c) :
+    ds.foldr (fun comps acc =>
+        max (1 + comps.foldr (fun c a => max (p c) a) 0) acc) 0 =
+    ds.foldr (fun comps acc =>
+        max (1 + comps.foldr (fun c a => max (q c) a) 0) acc) 0 := by
+  induction ds with
+  | nil => rfl
+  | cons a t ih =>
+    simp only [List.foldr_cons]
+    rw [foldr_congr a (h a List.mem_cons_self)]
+    exact congrArg _ (ih fun comps hc => h comps (List.mem_cons_of_mem a hc))
+
+/--
+**Teorema (estabilizacion con varias descomposiciones).**
+
+Bajo aciclicidad, el valor de `x` deja de cambiar a partir de la ronda `x + 1`,
+igual que en el caso de una sola descomposicion. La demostracion es la misma
+induccion fuerte; lo unico que cambia es que la congruencia se aplica al foldr
+exterior.
+-/
+theorem estabilizaMulti {n : ℕ} {decomps : Fin n → List (List (Fin n))}
+    (hac : AciclicoMulti decomps) :
+    ∀ (m : ℕ) (x : Fin n), (x : ℕ) = m → ∀ k : ℕ, m < k →
+      multiIter decomps (k + 1) x = multiIter decomps k x := by
+  intro m
+  induction m using Nat.strong_induction_on with
+  | _ m ih =>
+    intro x hxm k hk
+    match k, hk with
+    | (k + 1), hk =>
+      rw [multiIter_succ, multiIter_succ]
+      apply foldrOut_congr
+      intro comps hcomps c hc
+      have hcx : c < x := hac x comps hcomps c hc
+      have h1 : (c : ℕ) < m := by omega
+      exact ih (c : ℕ) h1 c rfl k (by omega)
+
+/-- **Corolario.** Punto fijo en `n` rondas, tambien con varias descomposiciones. -/
+theorem hierarchy_well_founded_multi {n : ℕ}
+    {decomps : Fin n → List (List (Fin n))} (hac : AciclicoMulti decomps) :
+    ∀ x : Fin n, multiIter decomps (n + 1) x = multiIter decomps n x :=
+  fun x => estabilizaMulti hac (x : ℕ) x rfl n x.isLt
+
+/--
+**Teorema.** El cn de un objeto domina al de las componentes de CADA una de sus
+descomposiciones, no solo de una.
+
+Es lo que justifica tomar el maximo: si se tomara una descomposicion cualquiera,
+las componentes de las otras podrian quedar por encima.
+-/
+theorem cn_ge_of_mem_decomp {n : ℕ}
+    (decomps : Fin n → List (List (Fin n))) (k : ℕ)
+    (x : Fin n) (comps : List (Fin n)) (hcomps : comps ∈ decomps x)
+    (c : Fin n) (hc : c ∈ comps) :
+    multiIter decomps k c < multiIter decomps (k + 1) x := by
+  rw [multiIter_succ]
+  have hin : multiIter decomps k c ≤
+      comps.foldr (fun c a => max (multiIter decomps k c) a) 0 :=
+    foldr_ge _ _ hc
+  -- el maximo exterior domina al sumando de esta descomposicion
+  have hout : ∀ (ds : List (List (Fin n))), comps ∈ ds →
+      1 + comps.foldr (fun c a => max (multiIter decomps k c) a) 0 ≤
+      ds.foldr (fun cs acc =>
+        max (1 + cs.foldr (fun c a => max (multiIter decomps k c) a) 0) acc) 0 := by
+    intro ds hds
+    induction ds with
+    | nil => cases hds
+    | cons a t ih =>
+      simp only [List.foldr_cons]
+      rcases List.mem_cons.mp hds with rfl | ht
+      · exact le_max_left _ _
+      · exact le_trans (ih ht) (le_max_right _ _)
+  have h1 : ∀ m : ℕ, m < 1 + m := fun m => by omega
+  exact Nat.lt_of_le_of_lt hin
+    (Nat.lt_of_lt_of_le (h1 _) (hout (decomps x) hcomps))
+
+
 structure ComplexityCertificate (n : ℕ) where
   /-- The computed complexity order for each skill index. -/
   cn          : Fin n → ℕ

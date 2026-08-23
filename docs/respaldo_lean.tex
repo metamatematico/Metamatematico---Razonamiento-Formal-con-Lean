@@ -23,7 +23,7 @@ librería detrás de \texttt{nucleo/graph/} ni de \texttt{nucleo/mes/}, solo
 \texttt{dataclasses}, diccionarios y recorridos en anchura. Eso hace que cada
 propiedad categórica sea una afirmación del autor hasta que Lean~4 la respalda.
 Este documento audita, operación por operación, cuáles lo están. El resultado
-es 31 de 34 (91\,\%). Todas las cifras
+es 32 de 36 (89\,\%). Todas las cifras
 proceden de \texttt{data/respaldo\_lean.json}, generado por
 \texttt{scripts/auditar\_respaldo\_lean.py}; ninguna se escribe a mano.
 \end{abstract}
@@ -52,17 +52,17 @@ código: los tres salieron al medir y al formalizar.
 \toprule
  & Operaciones & \% \\
 \midrule
-Respaldadas por un teorema & 31 & 91 \\
-Sin respaldo formal & 3 & 9 \\
+Respaldadas por un teorema & 32 & 89 \\
+Sin respaldo formal & 4 & 11 \\
 Mapeo roto & 0 & 0 \\
 \midrule
-Total auditado & 34 & 100 \\
+Total auditado & 36 & 100 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent Declaraciones formales disponibles en
-\texttt{MetamathProver/CategoryFoundations/}: \textbf{177}.
+\texttt{MetamathProver/CategoryFoundations/}: \textbf{184}.
 
 \section{Operaciones respaldadas}
 
@@ -114,8 +114,6 @@ Total auditado & 34 & 100 \\
   &  & \footnotesize el mediador existe y es UNICO (∃!h, no ∃h) \\
   & \texttt{build\_colimit} & \texttt{isJoin\_iff\_nonempty\_isColimit} \\
   &  & \footnotesize IsJoin equivale a IsColimit de Mathlib \\
-  & \texttt{are\_homologous} & \texttt{Homologos} \\
-  &  & \footnotesize dos descomposiciones distintas del mismo colimite \\
   & \texttt{verify\_multiplicity\_principle} & \texttt{multiplicidad\_necesaria\_para\_complejidad} \\
   &  & \footnotesize sin Principio de Multiplicidad todo compuesto de simples es simple: MP es condicion NECESARIA de la complejidad, no un adorno sobre robustez \\
   & \texttt{detect\_pattern\_in\_graph} & \texttt{enlaces\_complejos\_existen} \\
@@ -124,8 +122,12 @@ Total auditado & 34 & 100 \\
   &  & \footnotesize un enlace complejo exige descomposiciones intermedias NO conectadas \\
 \midrule \multicolumn{3}{l}{\textit{complexity.py}} \\
   & \texttt{\_detect\_convergence\_patterns} & \texttt{MP\_alcanzable\_en\_preorden} \\
-  &  & \footnotesize MP es alcanzable en un preorden: que no se cumpla es del algoritmo \\
+  &  & \footnotesize emite tambien las descomposiciones por subconjunto: MP es alcanzable \\
+  & \texttt{compute\_complexity\_order (multi)} & \texttt{hierarchy\_well\_founded\_multi} \\
+  &  & \footnotesize con varias descomposiciones, el MAXIMO converge; asignar oscilaba \\
 \midrule \multicolumn{3}{l}{\textit{patterns.py}} \\
+  & \texttt{son\_homologos} & \texttt{Homologos} \\
+  &  & \footnotesize homologia de Ehresmann: mismo colimite \\
   & \texttt{find\_homologous\_patterns} & \texttt{colimite\_unico} \\
   &  & \footnotesize el colimite de un patron es unico, luego la homologia esta bien definida \\
 \midrule \multicolumn{3}{l}{\textit{functor.py}} \\
@@ -153,6 +155,7 @@ falla si esta lista cambia sin que alguien lo declare.
 \toprule
 Módulo & Operación & Qué afirma \\
 \midrule
+\texttt{patterns.py} & \texttt{campos\_operativos\_isomorfos} & \footnotesize heuristica estructural, NO la homologia de Ehresmann \\
 \texttt{evolution.py} & \texttt{complexify} & \footnotesize complexificacion de Ehresmann como funtor de transicion \\
 \texttt{evolution.py} & \texttt{transition\_functor} & \footnotesize el functor de transicion entre configuraciones \\
 \texttt{evolution.py} & \texttt{detect\_emergence} & \footnotesize deteccion de emergencia \\
@@ -206,7 +209,7 @@ un cambio de modelo y no un ajuste. Queda registrado como límite conocido.
 \item \texttt{scripts/generar\_reporte\_respaldo.py} — genera este documento.
 \item \texttt{tests/test\_respaldo\_lean.py} — falla si el mapeo se rompe o si
       el respaldo retrocede.
-\item \texttt{MetamathProver/CategoryFoundations/} — 177 declaraciones.
+\item \texttt{MetamathProver/CategoryFoundations/} — 184 declaraciones.
 \end{itemize}
 
 \end{document}

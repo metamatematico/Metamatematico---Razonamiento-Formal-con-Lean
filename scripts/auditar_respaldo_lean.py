@@ -96,8 +96,8 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "el mediador existe y es UNICO (∃!h, no ∃h)"),
     ("patterns.py", "build_colimit", "isJoin_iff_nonempty_isColimit",
      "IsJoin equivale a IsColimit de Mathlib"),
-    ("patterns.py", "are_homologous", "Homologos",
-     "dos descomposiciones distintas del mismo colimite"),
+    ("patterns.py", "campos_operativos_isomorfos", None,
+     "heuristica estructural, NO la homologia de Ehresmann"),
     ("patterns.py", "verify_multiplicity_principle", "multiplicidad_necesaria_para_complejidad",
      "sin Principio de Multiplicidad todo compuesto de simples es simple: MP es"
      " condicion NECESARIA de la complejidad, no un adorno sobre robustez"),
@@ -106,7 +106,11 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
     ("patterns.py", "_connected_by_cluster", "complex_needs_unconnected",
      "un enlace complejo exige descomposiciones intermedias NO conectadas"),
     ("complexity.py", "_detect_convergence_patterns", "MP_alcanzable_en_preorden",
-     "MP es alcanzable en un preorden: que no se cumpla es del algoritmo"),
+     "emite tambien las descomposiciones por subconjunto: MP es alcanzable"),
+    ("complexity.py", "compute_complexity_order (multi)", "hierarchy_well_founded_multi",
+     "con varias descomposiciones, el MAXIMO converge; asignar oscilaba"),
+    ("patterns.py", "son_homologos", "Homologos",
+     "homologia de Ehresmann: mismo colimite"),
     ("patterns.py", "find_homologous_patterns", "colimite_unico",
      "el colimite de un patron es unico, luego la homologia esta bien definida"),
 

@@ -1,10 +1,10 @@
 """
 El Principio de Multiplicidad, medido segun Ehresmann.
 
-HALLAZGO
+HISTORIA
 --------
-`patterns.py::verify_multiplicity_principle` reporta `satisfies: True` sobre el
-grafo real. Formalmente NO se cumple.
+`verify_multiplicity_principle` reportaba `satisfies: True` sobre un grafo que
+formalmente NO cumplia MP. Dos defectos lo causaban, ambos corregidos:
 
 La causa es la definicion de homologia. Ehresmann: dos patrones son homologos
 si tienen el MISMO COLIMITE —son dos descomposiciones del mismo objeto—. El
@@ -76,33 +76,38 @@ def test_hay_colimites_que_medir(sistema):
     assert len(_descomposiciones(cb, pm)) >= 18
 
 
-def test_ningun_colimite_tiene_dos_descomposiciones(sistema):
+def test_hay_colimites_con_varias_descomposiciones(sistema):
     """
-    El hecho medido. Si algun dia deja de valer —porque el sistema descubra
-    una segunda descomposicion— este test falla y hay que celebrarlo: seria la
-    primera vez que el Principio de Multiplicidad se cumple de verdad.
+    Antes este test comprobaba lo contrario: que NINGUN colimite tenia dos
+    descomposiciones, porque `_detect_convergence_patterns` emitia un solo
+    patron por nodo. Ahora emite tambien las descomposiciones por subconjunto y
+    el Principio de Multiplicidad se cumple.
     """
     g, pm, cb = sistema
     multi = {k: v for k, v in _descomposiciones(cb, pm).items() if len(v) > 1}
-    assert not multi, (
-        f"AHORA SI hay objetos con varias descomposiciones: {list(multi)}. "
-        "El Principio de Multiplicidad podria cumplirse; revisa si ya hay "
-        "enlaces complejos y actualiza este test."
+    assert multi, (
+        "ningun colimite tiene varias descomposiciones: el descubrimiento por "
+        "subconjunto dejo de funcionar y MP vuelve a ser inalcanzable"
     )
+    assert "homology" in multi, f"esperaba homology entre {list(multi)}"
 
 
-def test_el_verificador_de_python_discrepa(sistema):
+def test_el_verificador_coincide_con_la_medicion(sistema):
     """
-    Fija la discrepancia en vez de dejarla latente: el codigo dice que si, la
-    medicion dice que no. Cuando se corrija `are_homologous`, este test falla y
-    obliga a revisar el resto.
+    Antes discrepaban: el codigo reportaba `satisfies: True` sobre un sistema
+    sin multiplicidad, porque usaba una heuristica estructural en vez de la
+    homologia de Ehresmann. Ahora las dos cosas coinciden.
     """
     g, pm, cb = sistema
     r = pm.verify_multiplicity_principle(g, cb)
     hay_mp_real = any(len(v) > 1 for v in _descomposiciones(cb, pm).values())
-    assert r["satisfies"] and not hay_mp_real, (
-        "la discrepancia entre verify_multiplicity_principle y la homologia de "
-        "Ehresmann ha cambiado; revisa cual de los dos se movio"
+    assert r["satisfies"] == hay_mp_real, (
+        f"el verificador dice {r['satisfies']} y la medicion {hay_mp_real}: "
+        "han vuelto a divergir"
+    )
+    assert r["satisfies"], "MP deberia cumplirse ahora"
+    assert len(r["disconnected_pairs"]) >= 1, (
+        "sin parejas no conectadas no hay MP aunque haya varias descomposiciones"
     )
 
 

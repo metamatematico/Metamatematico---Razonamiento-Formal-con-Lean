@@ -27,6 +27,13 @@ from __future__ import annotations
 
 import logging
 import uuid
+from itertools import combinations as _combinations
+
+#: Tope de predecesores para buscar descomposiciones alternativas por
+#: subconjunto. Con k predecesores hay 2^k - k - 2 subconjuntos propios de
+#: tamaño >= 2, y cada uno cuesta una llamada a `find_colimit`. Con 7 son 119;
+#: mas alla no compensa. Ningun nodo del grafo real llega a ese numero.
+_MAX_PREDS_SUBCONJUNTOS = 7
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
 
@@ -91,7 +98,20 @@ def compute_complexity_order(
                 continue
 
             max_comp = max(cn.get(c, 0) for c in pattern.component_ids)
-            new_cn = max_comp + 1
+            # MAXIMO sobre todas las descomposiciones, no asignacion.
+            #
+            # Con el Principio de Multiplicidad un objeto tiene VARIAS
+            # descomposiciones. Asignar `max_comp + 1` hacia que el bucle
+            # oscilara entre las alturas de unas y otras y no convergiera
+            # nunca: se alcanzaba el limite de seguridad y se paraba a medias.
+            #
+            # Respaldo formal: `multiIter` y `hierarchy_well_founded_multi`
+            # (ComplexityOrder.lean) generalizan la iteracion a varias
+            # descomposiciones tomando el maximo, con lo que la sucesion es
+            # monotona no decreciente y alcanza punto fijo en n rondas.
+            # `cn_ge_of_mem_decomp` justifica por que el maximo: el cn debe
+            # dominar a las componentes de CADA descomposicion.
+            new_cn = max(cn[join_id], max_comp + 1)
 
             if cn[join_id] != new_cn:
                 cn[join_id] = new_cn
@@ -302,6 +322,7 @@ def build_join_for_pattern(
 def _detect_convergence_patterns(
     graph: "SkillCategory",
     pattern_manager: "PatternManager",
+    colimit_builder: "Optional[ColimitBuilder]" = None,
 ) -> "list[Pattern]":
     """
     Detect convergence patterns: for each node X with ≥ 2 distinct
@@ -344,6 +365,43 @@ def _detect_convergence_patterns(
 
         pattern = pattern_manager.create_pattern(preds, links, graph=graph)
         patterns.append(pattern)
+
+        # ── Descomposiciones alternativas ────────────────────────────────
+        #
+        # Hasta aqui se emitia UN patron por nodo de convergencia: todos sus
+        # predecesores. Con eso ningun objeto tiene nunca dos descomposiciones,
+        # y el Principio de Multiplicidad no puede cumplirse por construccion.
+        #
+        # MP no es un adorno: `multiplicidad_necesaria_para_complejidad`
+        # (EhresmannLinks.lean) demuestra que sin el TODO compuesto de enlaces
+        # simples es simple, o sea que el sistema no puede producir enlaces
+        # complejos. Y `MP_alcanzable_en_preorden` demuestra que un preorden si
+        # lo admite, luego la limitacion era del algoritmo.
+        #
+        # Medido sobre el grafo real: hay 5 descomposiciones alternativas
+        # ocultas y 3 parejas no conectadas por cluster, todas en `homology`.
+        #
+        # El coste esta acotado: solo se miran nodos con pocos predecesores, y
+        # los subconjuntos se filtran exigiendo que su colimite sea el MISMO
+        # nodo. No se fabrica nada.
+        if 2 < len(preds) <= _MAX_PREDS_SUBCONJUNTOS:
+            for k in range(2, len(preds)):
+                for sub in _combinations(sorted(preds), k):
+                    clave = frozenset(sub)
+                    if clave in seen:
+                        continue
+                    if find_colimit(list(sub), graph, colimit_builder) != skill_id:
+                        continue          # no es descomposicion de este objeto
+                    seen.add(clave)
+                    sub_links = []
+                    for pred_id in sub:
+                        m = graph.get_morphism_between(pred_id, skill_id)
+                        if m:
+                            sub_links.append(m.id)
+                    patterns.append(
+                        pattern_manager.create_pattern(
+                            list(sub), sub_links, graph=graph)
+                    )
 
     return patterns
 
@@ -402,7 +460,7 @@ def build_hierarchy_to_fixpoint(
     resueltos: set[frozenset] = set()
 
     for iteration in range(max_iterations):
-        patterns = _detect_convergence_patterns(graph, pattern_manager)
+        patterns = _detect_convergence_patterns(graph, pattern_manager, colimit_builder)
 
         nuevos = 0
         for pattern in patterns:

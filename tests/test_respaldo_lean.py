@@ -14,7 +14,7 @@ import pytest
 from scripts.auditar_respaldo_lean import MAPEO, declaraciones_lean
 
 #: Cota inferior. Subirla al cerrar huecos; NUNCA bajarla para que pase el test.
-RESPALDO_MINIMO = 31
+RESPALDO_MINIMO = 32
 
 
 @pytest.fixture(scope="module")
@@ -43,7 +43,8 @@ def test_lo_que_falta_esta_declarado():
     mapeo. Un hueco sin anotar es indistinguible de un hueco olvidado.
     """
     sin = {o for _, o, t, _ in MAPEO if t is None}
-    assert sin == {"complexify", "transition_functor", "detect_emergence"}, (
+    assert sin == {"complexify", "transition_functor", "detect_emergence",
+                   "campos_operativos_isomorfos"}, (
         f"cambio el conjunto de operaciones sin respaldo: {sorted(sin)}. "
         "Si cerraste un hueco, sube RESPALDO_MINIMO; si abriste uno, dilo aqui."
     )

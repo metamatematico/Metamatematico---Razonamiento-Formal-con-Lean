@@ -165,7 +165,36 @@ class PatternManager:
 
         return homologous
 
-    def are_homologous(
+    def son_homologos(
+        self,
+        p1: Pattern,
+        p2: Pattern,
+        colimit_builder: "ColimitBuilder",
+    ) -> bool:
+        """
+        Homologia de Ehresmann: dos patrones son homologos si tienen el MISMO
+        COLIMITE, es decir, si son dos descomposiciones del mismo objeto.
+
+        Respaldo formal: `Homologos` y `colimite_unico` en EhresmannLinks.lean.
+        La unicidad del colimite en un orden parcial es lo que hace que esta
+        definicion este bien puesta.
+
+        Es la nocion que el Principio de Multiplicidad necesita, y la que
+        `multiplicidad_necesaria_para_complejidad` usa para demostrar que sin
+        MP todo compuesto de enlaces simples es simple.
+
+        No confundir con `campos_operativos_isomorfos`, que compara la forma
+        del campo operativo y no exige colimite comun.
+        """
+        if set(p1.component_ids) == set(p2.component_ids):
+            return False          # el mismo patron no es homologo de si mismo
+        c1 = colimit_builder.get_colimit_for_pattern(p1.id)
+        c2 = colimit_builder.get_colimit_for_pattern(p2.id)
+        if c1 is None or c2 is None:
+            return False          # sin colimite no hay homologia que comprobar
+        return bool(c1.skill_id) and c1.skill_id == c2.skill_id
+
+    def campos_operativos_isomorfos(
         self,
         p1: Pattern,
         p2: Pattern,
@@ -282,8 +311,8 @@ class PatternManager:
         graph: SkillCategory,
         threshold: float
     ) -> bool:
-        """Backward-compatible wrapper for are_homologous."""
-        return self.are_homologous(p1, p2, graph)
+        """Backward-compatible wrapper for campos_operativos_isomorfos."""
+        return self.campos_operativos_isomorfos(p1, p2, graph)
 
     def _get_pillar_signature(self, pattern: Pattern, graph: SkillCategory) -> set:
         """Obtener firma de pilares de un patron."""
@@ -329,10 +358,25 @@ class PatternManager:
             )
             return result
 
-        # Encontrar todos los pares homologos
+        # Homologia de EHRESMANN: mismo colimite. Antes se usaba
+        # `campos_operativos_isomorfos`, que compara la FORMA del campo y no
+        # exige colimite comun; sobre el grafo real daba 1683 pares "homologos"
+        # de los cuales 0 compartian colimite, de modo que este verificador
+        # reportaba `satisfies: True` sobre un sistema que no cumple MP.
+        #
+        # MP es la condicion NECESARIA de la complejidad
+        # (multiplicidad_necesaria_para_complejidad, EhresmannLinks.lean), asi
+        # que medirlo mal no es un detalle.
+        if colimit_builder is None:
+            result["violations"].append(
+                "Sin colimit_builder no se puede comprobar la homologia de "
+                "Ehresmann: hace falta saber el colimite de cada patron"
+            )
+            return result
+
         for i, p1 in enumerate(patterns):
             for p2 in patterns[i + 1:]:
-                if self.are_homologous(p1, p2, graph, colimit_builder):
+                if self.son_homologos(p1, p2, colimit_builder):
                     result["homologous_pairs"].append((p1.id, p2.id))
                     if not self._connected_by_cluster(p1, p2, graph):
                         result["disconnected_pairs"].append((p1.id, p2.id))
@@ -357,13 +401,34 @@ class PatternManager:
         p2: Pattern,
         graph: SkillCategory
     ) -> bool:
-        """Verificar si dos patrones estan conectados por un cluster."""
-        # Buscar morfismos directos entre componentes de ambos patrones
-        for c1 in p1.component_ids:
-            for c2 in p2.component_ids:
-                if graph.has_morphism(c1, c2) or graph.has_morphism(c2, c1):
-                    return True
-        return False
+        """
+        Verificar si dos patrones estan conectados por un CLUSTER.
+
+        Un cluster de P a Q exige que TODA componente de P tenga enlace a
+        ALGUNA de Q: es un ∀∃, no un ∃∃. La version anterior devolvia True en
+        cuanto UN par cualquiera de componentes estaba unido, con lo que
+        declaraba conectado casi todo y el Principio de Multiplicidad no se
+        cumplia nunca.
+
+        Se usa alcanzabilidad por ORDER_MORPHISMS y no morfismos directos: un
+        enlace en la categoria es un camino, no solo una arista. TRANSLATION
+        queda fuera por la misma razon que en el resto del sistema.
+
+        Contraparte formal: `EnPreorden.Conectados` en EhresmannLinks.lean.
+        Se consideran conectados si hay cluster en CUALQUIERA de los dos
+        sentidos.
+        """
+        from nucleo.graph.category import SkillCategory as _SC
+        ORD = _SC.ORDER_MORPHISMS
+
+        def _leq(a: str, b: str) -> bool:
+            return a == b or b in graph.reachable_from(a, morphism_types=ORD)
+
+        def _cluster(origen, destino) -> bool:
+            return all(any(_leq(s, t) for t in destino) for s in origen)
+
+        return (_cluster(p1.component_ids, p2.component_ids)
+                or _cluster(p2.component_ids, p1.component_ids))
 
     def detect_pattern_in_graph(
         self,
