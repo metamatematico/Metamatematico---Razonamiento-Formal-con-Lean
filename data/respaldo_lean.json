@@ -1,5 +1,5 @@
 {
-  "declaraciones_lean": 131,
+  "declaraciones_lean": 140,
   "auditadas": 31,
   "respaldadas": [
     {
@@ -217,8 +217,5 @@
     }
   ],
   "mapeo_roto": [],
-  "sorries": [
-    "warning: MetamathProver/CategoryFoundations/ComplexityOrder.lean:145:8: declaration uses `sorry`",
-    "warning: MetamathProver/CategoryFoundations/ComplexityOrder.lean:162:8: declaration uses `sorry`"
-  ]
+  "sorries": []
 }

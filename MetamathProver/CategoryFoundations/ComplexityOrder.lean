@@ -140,41 +140,151 @@ def complexityOrder {n : ℕ}
     (isJoinOf : Fin n → Option (List (Fin n))) : Fin n → ℕ :=
   complexityOrderIter isJoinOf n
 
-/-- Monotonicity: if x is the join of components, its cn is strictly
-    greater than the cn of any component. -/
+/-- Ecuacion de un paso, para desplegar sin que `simp` siga hacia dentro. -/
+theorem iter_succ {n : ℕ} (isJoinOf : Fin n → Option (List (Fin n)))
+    (k : ℕ) (x : Fin n) :
+    complexityOrderIter isJoinOf (k + 1) x =
+      (match isJoinOf x with
+       | none => 0
+       | some comps =>
+         1 + comps.foldr (fun c acc => max (complexityOrderIter isJoinOf k c) acc) 0) :=
+  rfl
+
+theorem foldr_ge {n : ℕ} (prev : Fin n → ℕ) (comps : List (Fin n))
+    {c : Fin n} (hc : c ∈ comps) :
+    prev c ≤ comps.foldr (fun c acc => max (prev c) acc) 0 := by
+  induction comps with
+  | nil => cases hc
+  | cons a t ih =>
+    rcases List.mem_cons.mp hc with rfl | ht
+    · exact le_max_left _ _
+    · exact le_trans (ih ht) (le_max_right _ _)
+
+/-- Si dos asignaciones coinciden en las componentes, su maximo coincide. -/
+theorem foldr_congr {n : ℕ} {p q : Fin n → ℕ} (comps : List (Fin n))
+    (h : ∀ c ∈ comps, p c = q c) :
+    comps.foldr (fun c acc => max (p c) acc) 0 =
+    comps.foldr (fun c acc => max (q c) acc) 0 := by
+  induction comps with
+  | nil => rfl
+  | cons a t ih =>
+    simp only [List.foldr_cons]
+    rw [h a List.mem_cons_self]
+    exact congrArg _ (ih fun c hc => h c (List.mem_cons_of_mem a hc))
+
+/--
+`Aciclico` : las componentes de un join son estrictamente anteriores.
+
+Es la hipotesis que los docstrings originales mencionaban ("for any acyclic
+join structure") pero que los enunciados no pedian. Sin ella los dos teoremas
+de esta seccion son FALSOS, y la seccion siguiente lo demuestra.
+
+En el sistema se cumple por construccion: `build_hierarchy_to_fixpoint` solo
+descubre colimites entre objetos que ya existen, nunca crea ciclos.
+-/
+def Aciclico {n : ℕ} (isJoinOf : Fin n → Option (List (Fin n))) : Prop :=
+  ∀ x comps, isJoinOf x = some comps → ∀ c ∈ comps, c < x
+
+/-! ### Los enunciados sin aciclicidad son falsos -/
+
+/-- Un ciclo: `0` es join de `[1]` y `1` es join de `[0]`. -/
+def cicloTestigo : Fin 2 → Option (List (Fin 2))
+  | 0 => some [1]
+  | 1 => some [0]
+
+/--
+**Teorema (refutacion).** Sin la hipotesis de aciclicidad, la iteracion no
+alcanza punto fijo: con `cicloTestigo` los valores crecen indefinidamente.
+
+Es el motivo por el que `hierarchy_well_founded` estaba sin demostrar: el
+enunciado era falso, no dificil.
+-/
+theorem no_fixpoint_sin_aciclicidad :
+    complexityOrderIter cicloTestigo 2 0 ≠ complexityOrderIter cicloTestigo 3 0 := by
+  decide
+
+/--
+**Teorema (refutacion).** Sin aciclicidad, el cn de un join tampoco domina
+estrictamente al de sus componentes: con el ciclo ambos valen lo mismo.
+-/
+theorem no_gt_sin_aciclicidad :
+    ¬ (complexityOrderIter cicloTestigo 2 1 <
+       complexityOrderIter cicloTestigo 2 0) := by
+  decide
+
+theorem cicloTestigo_no_aciclico : ¬ Aciclico cicloTestigo := by
+  intro h
+  have := h 0 [1] rfl 1 (List.mem_singleton_self 1)
+  exact absurd this (by decide)
+
+/-! ### Los enunciados verdaderos, bajo aciclicidad -/
+
+/--
+**Lema de estabilizacion.** Bajo aciclicidad, el valor de `x` deja de cambiar
+a partir de la ronda `x + 1`.
+
+La induccion es fuerte sobre `x`: el valor de `x` en la ronda `k+1` solo mira
+componentes `c < x`, que por hipotesis de induccion ya estan estabilizadas.
+-/
+theorem estabiliza {n : ℕ} {isJoinOf : Fin n → Option (List (Fin n))}
+    (hac : Aciclico isJoinOf) :
+    ∀ (m : ℕ) (x : Fin n), (x : ℕ) = m → ∀ k : ℕ, m < k →
+      complexityOrderIter isJoinOf (k + 1) x =
+      complexityOrderIter isJoinOf k x := by
+  intro m
+  induction m using Nat.strong_induction_on with
+  | _ m ih =>
+    intro x hxm k hk
+    match k, hk with
+    | (k + 1), hk =>
+      rw [iter_succ, iter_succ]
+      cases hj : isJoinOf x with
+      | none => rfl
+      | some comps =>
+        dsimp only
+        congr 1
+        apply foldr_congr
+        intro c hc
+        have hcx : c < x := hac x comps hj c hc
+        have h1 : (c : ℕ) < m := by omega
+        exact ih (c : ℕ) h1 c rfl k (by omega)
+
+/--
+**Teorema (punto fijo).** Bajo aciclicidad, la iteracion alcanza punto fijo en
+`n` rondas, que es lo que `apply_complexity_order` supone al parar ahi.
+-/
+theorem hierarchy_well_founded {n : ℕ}
+    {isJoinOf : Fin n → Option (List (Fin n))} (hac : Aciclico isJoinOf) :
+    ∀ x : Fin n,
+      complexityOrderIter isJoinOf (n + 1) x =
+      complexityOrderIter isJoinOf n x :=
+  fun x => estabiliza hac (x : ℕ) x rfl n x.isLt
+
+/--
+**Teorema.** Bajo aciclicidad, el cn de un join es estrictamente mayor que el
+de cada una de sus componentes.
+
+Es el invariante que hace de `cn` una medida de complejidad: si no creciera al
+unir, `max(cn) = 2` no significaria nada.
+-/
 theorem cn_join_gt_component {n : ℕ}
-    (isJoinOf : Fin n → Option (List (Fin n)))
+    {isJoinOf : Fin n → Option (List (Fin n))} (hac : Aciclico isJoinOf)
     (x : Fin n) (comps : List (Fin n))
     (hx : isJoinOf x = some comps)
     (c : Fin n) (hc : c ∈ comps) :
     complexityOrderIter isJoinOf n c <
-    complexityOrderIter isJoinOf n x := by
-  sorry -- provable by structural induction on the join DAG; non-trivial termination argument
-
-/-! ## §5  Well-foundedness of the hierarchy -/
-
-/-- The cn iteration terminates: `complexityOrderIter` reaches a fixpoint
-    after at most `n` rounds for a graph of `n` skills.
-
-    Proof sketch: each non-fixed-point skill must have cn strictly
-    increase in each round; cn is bounded by n; hence after n rounds
-    no change is possible. -/
-theorem hierarchy_well_founded {n : ℕ}
-    (isJoinOf : Fin n → Option (List (Fin n))) :
-    ∀ x : Fin n,
-    complexityOrderIter isJoinOf n x =
     complexityOrderIter isJoinOf (n + 1) x := by
-  intro x
-  simp [complexityOrderIter]
-  sorry -- provable by induction on the depth of the join DAG
+  have hcx : c < x := hac x comps hx c hc
+  rw [iter_succ, hx]
+  dsimp only
+  have : complexityOrderIter isJoinOf n c ≤
+      comps.foldr (fun c acc => max (complexityOrderIter isJoinOf n c) acc) 0 :=
+    foldr_ge _ _ hc
+  -- `omega` no descompone `1 + foldr ...` porque trata el foldr como atomo;
+  -- aislado como enunciado sobre un natural cualquiera si lo resuelve.
+  have h1 : ∀ m : ℕ, m < 1 + m := fun m => by omega
+  exact Nat.lt_of_le_of_lt this (h1 _)
 
-/-! ## §6  Verification certificate -/
-
-/-- A certificate that a complexity assignment is consistent.
-
-    The Python code in `nucleo/graph/complexity.py` produces cn values
-    for each skill. This structure states what it means for those values
-    to be correct. -/
 structure ComplexityCertificate (n : ℕ) where
   /-- The computed complexity order for each skill index. -/
   cn          : Fin n → ℕ
