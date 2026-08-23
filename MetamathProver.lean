@@ -36,6 +36,10 @@ import MetamathProver.CategoryFoundations.QuotientFunctor
 -- NEGATIVO: en una categoria delgada los simples son cerrados por composicion,
 -- de modo que la emergencia de Ehresmann no puede darse en este modelo.
 import MetamathProver.CategoryFoundations.SimpleComplexLinks
+-- Enlaces simples/complejos en el sentido REAL de Ehresmann: inducidos por un
+-- cluster entre descomposiciones, no por factorizar via un objeto. Demuestra
+-- que el Principio de Multiplicidad es condicion NECESARIA de la complejidad.
+import MetamathProver.CategoryFoundations.EhresmannLinks
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism

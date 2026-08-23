@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 140,
-  "auditadas": 31,
+  "declaraciones_lean": 150,
+  "auditadas": 32,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -40,9 +40,9 @@
     {
       "modulo": "category.py",
       "operacion": "classify_link",
-      "teorema": "composite_of_simple_is_simple",
-      "fichero": "SimpleComplexLinks.lean",
-      "afirma": "simple = factoriza por un cluster; los simples cierran por composicion"
+      "teorema": "simple_of_cluster",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "simple = INDUCIDO por un cluster entre descomposiciones (Ehresmann); la lectura por factorizacion esta en composite_of_simple_is_simple"
     },
     {
       "modulo": "category.py",
@@ -152,9 +152,16 @@
     {
       "modulo": "patterns.py",
       "operacion": "verify_multiplicity_principle",
-      "teorema": "multiplicity_gives_robustness",
-      "fichero": "SimpleComplexLinks.lean",
-      "afirma": "la multiplicidad da robustez: perder una descomposicion no destruye el colimite"
+      "teorema": "multiplicidad_necesaria_para_complejidad",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "sin Principio de Multiplicidad todo compuesto de simples es simple: MP es condicion NECESARIA de la complejidad, no un adorno sobre robustez"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "_connected_by_cluster",
+      "teorema": "complex_needs_unconnected",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "un enlace complejo exige descomposiciones intermedias NO conectadas"
     },
     {
       "modulo": "patterns.py",

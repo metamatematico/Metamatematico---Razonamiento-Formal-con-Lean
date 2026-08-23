@@ -23,7 +23,7 @@ librería detrás de \texttt{nucleo/graph/} ni de \texttt{nucleo/mes/}, solo
 \texttt{dataclasses}, diccionarios y recorridos en anchura. Eso hace que cada
 propiedad categórica sea una afirmación del autor hasta que Lean~4 la respalda.
 Este documento audita, operación por operación, cuáles lo están. El resultado
-es 28 de 31 (90\,\%). Todas las cifras
+es 29 de 32 (91\,\%). Todas las cifras
 proceden de \texttt{data/respaldo\_lean.json}, generado por
 \texttt{scripts/auditar\_respaldo\_lean.py}; ninguna se escribe a mano.
 \end{abstract}
@@ -52,17 +52,17 @@ código: los tres salieron al medir y al formalizar.
 \toprule
  & Operaciones & \% \\
 \midrule
-Respaldadas por un teorema & 28 & 90 \\
-Sin respaldo formal & 3 & 10 \\
+Respaldadas por un teorema & 29 & 91 \\
+Sin respaldo formal & 3 & 9 \\
 Mapeo roto & 0 & 0 \\
 \midrule
-Total auditado & 31 & 100 \\
+Total auditado & 32 & 100 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 \noindent Declaraciones formales disponibles en
-\texttt{MetamathProver/CategoryFoundations/}: \textbf{140}.
+\texttt{MetamathProver/CategoryFoundations/}: \textbf{150}.
 
 \section{Operaciones respaldadas}
 
@@ -82,8 +82,8 @@ Total auditado & 31 & 100 \\
   &  & \footnotesize el cierre transitivo-reflexivo es el preorden \\
   & \texttt{is\_preorder\_leq} & \texttt{preorder\_le\_of\_hom} \\
   &  & \footnotesize a<=b syss hay morfismo a->b \\
-  & \texttt{classify\_link} & \texttt{composite\_of\_simple\_is\_simple} \\
-  &  & \footnotesize simple = factoriza por un cluster; los simples cierran por composicion \\
+  & \texttt{classify\_link} & \texttt{simple\_of\_cluster} \\
+  &  & \footnotesize simple = INDUCIDO por un cluster entre descomposiciones (Ehresmann); la lectura por factorizacion esta en composite\_of\_simple\_is\_simple \\
   & \texttt{verify\_axioms} & \texttt{path\_category\_axioms} \\
   &  & \footnotesize los axiomas de categoria valen en la categoria libre del quiver \\
   & \texttt{apply\_complexity\_order} & \texttt{hierarchy\_well\_founded} \\
@@ -116,8 +116,10 @@ Total auditado & 31 & 100 \\
   &  & \footnotesize IsJoin equivale a IsColimit de Mathlib \\
   & \texttt{are\_homologous} & \texttt{Homologos} \\
   &  & \footnotesize dos descomposiciones distintas del mismo colimite \\
-  & \texttt{verify\_multiplicity\_principle} & \texttt{multiplicity\_gives\_robustness} \\
-  &  & \footnotesize la multiplicidad da robustez: perder una descomposicion no destruye el colimite \\
+  & \texttt{verify\_multiplicity\_principle} & \texttt{multiplicidad\_necesaria\_para\_complejidad} \\
+  &  & \footnotesize sin Principio de Multiplicidad todo compuesto de simples es simple: MP es condicion NECESARIA de la complejidad, no un adorno sobre robustez \\
+  & \texttt{\_connected\_by\_cluster} & \texttt{complex\_needs\_unconnected} \\
+  &  & \footnotesize un enlace complejo exige descomposiciones intermedias NO conectadas \\
   & \texttt{find\_homologous\_patterns} & \texttt{colimite\_unico} \\
   &  & \footnotesize el colimite de un patron es unico, luego la homologia esta bien definida \\
 \midrule \multicolumn{3}{l}{\textit{functor.py}} \\
@@ -198,7 +200,7 @@ un cambio de modelo y no un ajuste. Queda registrado como límite conocido.
 \item \texttt{scripts/generar\_reporte\_respaldo.py} — genera este documento.
 \item \texttt{tests/test\_respaldo\_lean.py} — falla si el mapeo se rompe o si
       el respaldo retrocede.
-\item \texttt{MetamathProver/CategoryFoundations/} — 140 declaraciones.
+\item \texttt{MetamathProver/CategoryFoundations/} — 150 declaraciones.
 \end{itemize}
 
 \end{document}

@@ -8,18 +8,30 @@ Ehresmann distingue dos clases de enlace en un sistema evolutivo con memoria:
   · un enlace es SIMPLE si factoriza a través de un solo clúster (colímite);
   · es COMPLEJO si no factoriza a través de ninguno.
 
-En Ehresmann la distinción tiene contenido dinámico: la composición de dos
-enlaces simples PUEDE no ser simple, y a eso se le llama emergencia.
+ATENCIÓN — ALCANCE DE ESTE ARCHIVO
+----------------------------------
+La noción de «simple» que se formaliza aquí NO es la de Ehresmann. Aquí simple
+significa *factoriza por un objeto que es clúster*:
 
-Este archivo demuestra que en el modelo del sistema eso NO ocurre.
+    simple(a, b)  :=  ∃ c ∈ Clusters, a ≤ c ∧ c ≤ b
+
+Ehresmann define simple como *inducido por un clúster entre descomposiciones*,
+que es otra cosa: una condición sobre la existencia de un clúster, no sobre
+objetos intermedios. Ver `EhresmannLinks.lean`.
+
+En consecuencia, el teorema `composite_of_simple_is_simple` de este archivo es
+correcto pero NO implica que la emergencia de Ehresmann sea imposible en el
+sistema. Esa conclusión, que figuraba aquí, era errónea: se seguía de la
+definición equivocada.
+
+Lo que este archivo sí establece, con su propia noción de simple:
 
 1. `simple_of_factors` — la caracterización: simple = factoriza por un clúster.
 2. `identity_simple_iff_mem` — una identidad es simple syss su objeto es un
    clúster: es condición sobre el OBJETO, no sobre el enlace.
-3. `composite_of_simple_is_simple` — **el resultado principal, y es negativo**:
-   en una categoría delgada los simples son cerrados por composición. Se
-   intento demostrar lo contrario y `decide` lo refuto; la razon es la
-   transitividad y no un descuido del diseño.
+3. `composite_of_simple_is_simple` — con ESTA noción, en una categoría delgada
+   los simples son cerrados por composición. Se intentó demostrar lo contrario
+   y `decide` lo refutó: la razón es la transitividad.
 4. `complex_of_empty_clusters` — los complejos existen, pero solo donde FALTAN
    clústeres: es una forma pobre de complejidad.
 5. `multiplicity_gives_robustness` — el principio de multiplicidad implica que
@@ -162,19 +174,17 @@ theorem complex_of_empty_clusters {a b : P} (hab : a ≤ b) :
   simp at hc
 
 /-
-CONSECUENCIA PARA EL SISTEMA
-----------------------------
-El grafo de habilidades se modela como un preorden —es la hipótesis que hace
-que join = colímite, y de la que dependen JoinColimit.lean e
-IsColimitBridge.lean—. Este teorema dice que en esa hipótesis la distinción
-simple/complejo de Ehresmann PIERDE su contenido dinámico: los complejos no
-emergen al componer, solo aparecen donde faltan clústeres.
+ALCANCE DEL RESULTADO
+---------------------
+Este teorema habla de la noción de simple definida ARRIBA —factorizar por un
+objeto-clúster— y de categorías delgadas. Dice que con esa lectura no hay
+complejidad emergente, y nada más.
 
-Recuperar la emergencia exigiría abandonar la delgadez, es decir, admitir más
-de un morfismo entre dos habilidades y distinguir CÓMO se llega, no solo si se
-llega. Eso es un cambio de modelo, no un ajuste.
-
-Queda registrado como límite conocido, no como algo pendiente de implementar.
+NO dice que la emergencia de Ehresmann sea imposible en el sistema. Esa
+conclusión se sacó en su momento y era errónea, porque la definición formalizada
+no era la suya. El tratamiento correcto está en `EhresmannLinks.lean`, donde la
+condición que gobierna la aparición de enlaces complejos resulta ser el
+Principio de Multiplicidad y no la delgadez.
 -/
 
 /-! ## 3. El principio de multiplicidad -/

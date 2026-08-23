@@ -63,8 +63,9 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "el cierre transitivo-reflexivo es el preorden"),
     ("category.py", "is_preorder_leq", "preorder_le_of_hom",
      "a<=b syss hay morfismo a->b"),
-    ("category.py", "classify_link", "composite_of_simple_is_simple",
-     "simple = factoriza por un cluster; los simples cierran por composicion"),
+    ("category.py", "classify_link", "simple_of_cluster",
+     "simple = INDUCIDO por un cluster entre descomposiciones (Ehresmann);"
+     " la lectura por factorizacion esta en composite_of_simple_is_simple"),
     ("category.py", "verify_axioms", "path_category_axioms",
      "los axiomas de categoria valen en la categoria libre del quiver"),
     ("category.py", "apply_complexity_order", "hierarchy_well_founded",
@@ -97,8 +98,11 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "IsJoin equivale a IsColimit de Mathlib"),
     ("patterns.py", "are_homologous", "Homologos",
      "dos descomposiciones distintas del mismo colimite"),
-    ("patterns.py", "verify_multiplicity_principle", "multiplicity_gives_robustness",
-     "la multiplicidad da robustez: perder una descomposicion no destruye el colimite"),
+    ("patterns.py", "verify_multiplicity_principle", "multiplicidad_necesaria_para_complejidad",
+     "sin Principio de Multiplicidad todo compuesto de simples es simple: MP es"
+     " condicion NECESARIA de la complejidad, no un adorno sobre robustez"),
+    ("patterns.py", "_connected_by_cluster", "complex_needs_unconnected",
+     "un enlace complejo exige descomposiciones intermedias NO conectadas"),
     ("patterns.py", "find_homologous_patterns", "colimite_unico",
      "el colimite de un patron es unico, luego la homologia esta bien definida"),
 
