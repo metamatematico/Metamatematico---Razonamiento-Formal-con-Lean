@@ -1151,6 +1151,22 @@ ALL_DOMAIN_SKILLS: list[DomainSkillDef] = (
     + PROOF_STRATEGY_SKILLS
 )
 
+#: LA taxonomia de categorias matematicas del sistema, DERIVADA de las
+#: habilidades y no declarada aparte.
+#:
+#: Es la imagen del funtor pi: Skills -> Agentes restringida a las habilidades
+#: de dominio (ver nucleo/graph/functor.py). Antes esta misma lista estaba
+#: escrita a mano en cinco sitios de tres subsistemas, atadas solo por un
+#: comentario que decia "deben coincidir con balance_datasets.py". Coincidian,
+#: pero nada lo garantizaba.
+#:
+#: Se ordena para que sea determinista: `classify_query` puntua recorriendola,
+#: y un orden inestable resolveria los empates de forma distinta entre
+#: ejecuciones.
+CATEGORIAS_DE_DOMINIO: list[str] = sorted(
+    {d.category for d in ALL_DOMAIN_SKILLS if getattr(d, "category", None)}
+)
+
 # Terminos ES+EN para las skills originales (L1-L2), que se definieron sin
 # `keywords`. Sin esto solo las 96 sub-ramas eran localizables y consultas
 # corrientes como "raiz de 2 irracional" o "numero complejo" dejaban el

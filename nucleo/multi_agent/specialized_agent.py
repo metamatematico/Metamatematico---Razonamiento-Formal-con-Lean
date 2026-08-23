@@ -16,23 +16,12 @@ from typing import Optional, Dict, Any, List
 
 logger = logging.getLogger(__name__)
 
-# 14 categorías NLE — deben coincidir con balance_datasets.py
-CATEGORIES: List[str] = [
-    "algebra",
-    "analysis",
-    "category-theory",
-    "combinatorics",
-    "computation",
-    "geometry",
-    "lean-tactics",
-    "logic",
-    "number-theory",
-    "optimization",
-    "probability",
-    "proof-strategies",
-    "set-theory",
-    "topology",
-]
+# LA taxonomia vive en pillars/math_domains.py, derivada de las propias
+# habilidades: es la imagen del funtor pi. Esta lista estaba escrita a mano
+# en cinco sitios de tres subsistemas, atadas solo por un comentario.
+from nucleo.pillars.math_domains import CATEGORIAS_DE_DOMINIO
+
+CATEGORIES: List[str] = CATEGORIAS_DE_DOMINIO
 
 # Palabras clave para clasificación rápida (subconjunto compacto)
 _CATEGORY_KEYWORDS: Dict[str, List[str]] = {

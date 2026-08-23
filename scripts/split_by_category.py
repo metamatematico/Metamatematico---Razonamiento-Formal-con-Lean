@@ -28,11 +28,12 @@ SOURCES = [
     Path("E:/datadeentrenamientovalidacion_test/proofnet/train.jsonl"),
 ]
 
-CATEGORIES = [
-    "algebra", "analysis", "category-theory", "combinatorics", "computation",
-    "geometry", "lean-tactics", "logic", "number-theory", "optimization",
-    "probability", "proof-strategies", "set-theory", "topology",
-]
+# LA taxonomia vive en pillars/math_domains.py, derivada de las propias
+# habilidades: es la imagen del funtor pi. Esta lista estaba escrita a mano
+# en cinco sitios de tres subsistemas, atadas solo por un comentario.
+from nucleo.pillars.math_domains import CATEGORIAS_DE_DOMINIO
+
+CATEGORIES = CATEGORIAS_DE_DOMINIO
 
 # Keywords por categoria (orden importa: mas especifico primero)
 KEYWORDS: dict[str, list[str]] = {

@@ -55,11 +55,12 @@ BASE_WEIGHTS  = Path("E:/Metamatematico/data/neural_agent.json.pt")
 # Directorios anteriores como fallback si el usuario ya tiene splits ahí
 ALT_DATA_DIR  = Path("E:/datadeentrenamientovalidacion_test/by_category")
 
-CATEGORIES = [
-    "algebra", "analysis", "category-theory", "combinatorics", "computation",
-    "geometry", "lean-tactics", "logic", "number-theory", "optimization",
-    "probability", "proof-strategies", "set-theory", "topology",
-]
+# LA taxonomia vive en pillars/math_domains.py, derivada de las propias
+# habilidades: es la imagen del funtor pi. Esta lista estaba escrita a mano
+# en cinco sitios de tres subsistemas, atadas solo por un comentario.
+from nucleo.pillars.math_domains import CATEGORIAS_DE_DOMINIO
+
+CATEGORIES = CATEGORIAS_DE_DOMINIO
 
 # Tácticas Lean disponibles para clasificación
 TACTICS = [
