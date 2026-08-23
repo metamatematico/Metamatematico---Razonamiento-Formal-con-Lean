@@ -99,3 +99,54 @@ class TestSubindicesDeMathlib:
         assert "₀" in LeanClient._SUFIJOS_RENOMBRE, (
             "el sufijo de subindice cero es el mas comun en Mathlib"
         )
+
+
+class TestNamespacesDeMathlib:
+    """
+    Un identificador puede EXISTIR, estar su modulo importado, y aun asi no
+    resolverse: porque vive dentro de un `namespace`.
+
+    Caso real: `Basis` se movio a `Module.Basis` y no quedo alias en la raiz.
+    Lean respondia "Function expected at Basis but this term has type ?m.1"
+    —autoImplicit lo tomaba por variable libre— y repair_imports, que solo sabia
+    de modulos, añadia QuaternionBasis y una libreria de asintotica sin resolver
+    nada.
+    """
+
+    def test_detecta_el_namespace_de_un_identificador(self):
+        from nucleo.lean.client import LeanClient
+        c = LeanClient(project_path=".")
+        c.find_modules_for_identifiers(["Basis"])
+        ns = getattr(c, "_namespaces_detectados", {})
+        assert ns.get("Basis") == "Module", (
+            f"esperaba Basis -> Module, obtuve {ns}"
+        )
+
+    def test_repair_abre_el_namespace(self):
+        from nucleo.lean.client import LeanClient
+        codigo = (
+            "import Mathlib.LinearAlgebra.Basis.Defs\n"
+            "\n"
+            "theorem t : True := trivial\n"
+        )
+        c = LeanClient(project_path=".")
+        rep = c.repair_imports(codigo, ["Unknown identifier `Basis`"])
+        assert rep is not None, "repair_imports no intento nada"
+        assert "open Module" in rep, f"no abrio el namespace:\n{rep[:200]}"
+
+    def test_no_añade_imports_si_el_fallo_es_de_namespace(self):
+        """
+        El modulo ya estaba importado. Añadir mas es ruido, y ademas alarga el
+        tiempo de compilacion sin arreglar el error.
+        """
+        from nucleo.lean.client import LeanClient
+        codigo = (
+            "import Mathlib.LinearAlgebra.Basis.Defs\n"
+            "\n"
+            "theorem t : True := trivial\n"
+        )
+        c = LeanClient(project_path=".")
+        rep = c.repair_imports(codigo, ["Unknown identifier `Basis`"])
+        assert "QuaternionBasis" not in rep, (
+            "sigue añadiendo modulos irrelevantes para un error de namespace"
+        )

@@ -513,6 +513,25 @@ class LeanClient:
         for var, base in variante_de.items():
             if hallados.get(var) and not hallados.get(base):
                 self._renombres_detectados[base] = var
+
+        # NAMESPACES. Un identificador puede existir y aun asi no resolverse,
+        # porque vive dentro de un `namespace`. Mathlib mueve declaraciones de
+        # namespace con frecuencia: `Basis` paso a `Module.Basis` y dejo de
+        # resolverse a secas, aunque el import fuera el correcto y el modulo se
+        # encontrara sin problema.
+        #
+        # Ese caso no lo arregla añadir imports —el import ya estaba— sino
+        # abrir el namespace o cualificar el nombre. Sin esto, repair_imports
+        # añadia modulos una y otra vez sobre un error que no era de modulos.
+        self._namespaces_detectados = {}
+        for q in cualificados:
+            if "." in q:
+                continue                      # ya viene cualificado
+            candidatos = hallados.get(q) or []
+            espacios = [ns for ns, _ in candidatos if ns]
+            if espacios and not any(ns == "" for ns, _ in candidatos):
+                # se prefiere el namespace mas corto: el mas general
+                self._namespaces_detectados[q] = min(espacios, key=len)
         return resultado
 
     def find_module_for_identifier(self, qualified: str) -> Optional[str]:
@@ -552,7 +571,15 @@ class LeanClient:
             t for t in _re_p.findall(r"[A-Z][a-zA-Z]{2,}", code)
         } | {"Order", "Basic"}
         modulos = self.find_modules_for_identifiers(desconocidos[:8])
+        _ns = getattr(self, "_namespaces_detectados", {}) or {}
         for ident in desconocidos[:8]:
+            if ident in _ns:
+                # El identificador EXISTE y el modulo esta importado: lo unico
+                # que falta es abrir su namespace. Añadir modulos aqui mete
+                # ruido —para `Basis` metia QuaternionBasis y una libreria de
+                # asintotica— sin resolver nada.
+                logger.debug(f"Lean: '{ident}' es cuestion de namespace, no de import")
+                continue
             modulo = modulos.get(ident)
             if not modulo:
                 logger.debug(f"Lean: sin modulo para '{ident}'")
@@ -584,6 +611,32 @@ class LeanClient:
         if aplicados:
             logger.info("Lean: lemas renombrados: %s", ", ".join(aplicados))
             code = code_out
+
+        # Abrir los namespaces que faltan.
+        #
+        # Es distinto de añadir un import: el modulo puede estar importado y el
+        # identificador seguir sin resolverse porque vive dentro de un
+        # `namespace`. Le paso a Mathlib con `Basis`, que se movio a
+        # `Module.Basis`: el import era correcto y aun asi Lean respondia
+        # "unknown identifier Basis", con lo que repair_imports añadia modulos
+        # irrelevantes —QuaternionBasis, Perm.Centralizer— sobre un error que
+        # no era de modulos.
+        espacios = getattr(self, "_namespaces_detectados", {}) or {}
+        abiertos = {ns for ns in espacios.values()
+                    if ns and ("open " + ns) not in code_out}
+        if abiertos:
+            logger.info("Lean: abriendo namespaces %s", ", ".join(sorted(abiertos)))
+            partes = code_out.splitlines()
+            corte = 0
+            for k, linea in enumerate(partes):
+                if linea.strip().startswith("import"):
+                    corte = k + 1
+            nl = chr(10)
+            code_out = nl.join(partes[:corte]
+                               + ["open " + ns for ns in sorted(abiertos)]
+                               + partes[corte:])
+            code = code_out
+            aplicados.append("open " + ", ".join(sorted(abiertos)))
 
         if not nuevos:
             return code if aplicados else None
