@@ -508,6 +508,98 @@ def make_layout(_G):
     return pos
 
 
+
+def _capas_jerarquia(G) -> dict:
+    """
+    Capa de cada nodo = camino MAS LARGO desde una fuente, siguiendo solo las
+    aristas de jerarquia (`dep`).
+
+    El camino mas largo y no el mas corto: si A depende de B y tambien de una
+    cadena B->C->D, A tiene que quedar por debajo de D, no de B. Con el mas
+    corto las aristas irian hacia arriba y el dibujo dejaria de leerse.
+    """
+    from collections import defaultdict, deque
+    hijos = defaultdict(list)
+    grado = defaultdict(int)
+    nodos = list(G.nodes)
+    for u, v, d in G.edges(data=True):
+        if d.get("kind") != "dep" or u == v:
+            continue
+        hijos[u].append(v)
+        grado[v] += 1
+
+    capa = {n: 0 for n in nodos}
+    pendiente = dict(grado)
+    cola = deque([n for n in nodos if grado[n] == 0])
+    while cola:
+        u = cola.popleft()
+        for v in hijos[u]:
+            capa[v] = max(capa[v], capa[u] + 1)
+            pendiente[v] -= 1
+            if pendiente[v] == 0:
+                cola.append(v)
+    return capa
+
+
+def make_layout_jerarquico(G) -> dict:
+    """
+    Layout en capas (Sugiyama simplificado): la altura es la PROFUNDIDAD en el
+    orden, y dentro de cada capa los nodos se ordenan por baricentro de sus
+    vecinos para reducir cruces.
+
+    Sustituye a la rejilla (categoria x nivel), que colocaba los nodos en filas
+    regulares sin que la posicion dijera nada sobre las dependencias: se leia
+    como una hoja de calculo, no como un grafo. El orden del sistema es un DAG
+    de 9 capas sin ciclos —comprobado— y eso es lo que se dibuja.
+    """
+    from collections import defaultdict
+
+    capa = _capas_jerarquia(G)
+    por_capa = defaultdict(list)
+    for n, c in capa.items():
+        por_capa[c].append(n)
+
+    # orden inicial: por categoria, para que los colores no queden barajados
+    cats = list(PALETTE.keys())
+
+    def clave_cat(n):
+        c = G.nodes[n].get("cat", "Fundamentos")
+        return cats.index(c) if c in cats else len(cats)
+
+    for c in por_capa:
+        por_capa[c].sort(key=lambda n: (clave_cat(n), G.nodes[n].get("name", n)))
+
+    idx = {n: i for c in por_capa for i, n in enumerate(por_capa[c])}
+
+    # baricentro: cada nodo se acerca a la media de sus vecinos de la capa
+    # anterior. Cuatro pasadas bastan; mas no mejora de forma apreciable.
+    entrantes = defaultdict(list)
+    for u, v, d in G.edges(data=True):
+        if d.get("kind") == "dep" and u != v:
+            entrantes[v].append(u)
+
+    for _ in range(4):
+        for c in sorted(por_capa):
+            if c == 0:
+                continue
+            def bar(n):
+                vs = [idx[u] for u in entrantes.get(n, []) if u in idx]
+                return sum(vs) / len(vs) if vs else idx[n]
+            por_capa[c].sort(key=bar)
+            for i, n in enumerate(por_capa[c]):
+                idx[n] = i
+
+    ancho = max((len(v) for v in por_capa.values()), default=1)
+    pos = {}
+    for c, ns in por_capa.items():
+        k = len(ns)
+        for i, n in enumerate(ns):
+            # cada capa se centra y se estira al ancho de la mayor
+            x = (i - (k - 1) / 2) * (ancho / max(k, 1)) * 0.55
+            pos[n] = (x, -c * 3.0)
+    return pos
+
+
 def make_layout_live(G: nx.DiGraph) -> dict:
     """Layout jerárquico para grafo en vivo (datos del sistema real)."""
     cats = list(PALETTE.keys())
@@ -530,12 +622,15 @@ def fig_skill_graph(filter_cat=None, query=None):
     vd = _vd()
     if vd and vd.get("graph_nodes") and len(vd["graph_nodes"]) > 5:
         G = build_graph_live(vd)
-        pos = make_layout_live(G)
         data_source = "vivo"
     else:
         G = build_graph()
-        pos = make_layout(G)
         data_source = "estático"
+    # Layout POR CAPAS, no la rejilla (categoria x nivel): la altura es la
+    # profundidad en el orden y dentro de cada capa se reduce el numero de
+    # cruces. La rejilla colocaba los nodos en filas regulares sin que la
+    # posicion dijera nada de las dependencias.
+    pos = make_layout_jerarquico(G)
     _ = data_source  # usado para depuración
 
     # Calcular nodos relevantes para la consulta
@@ -561,13 +656,18 @@ def fig_skill_graph(filter_cat=None, query=None):
         kind = d.get("kind", "dep")
         active = query and (u in matched_set | dep_set | tactic_set or
                             v in matched_set | dep_set | tactic_set)
-        col   = {"dep": "#58a6ff" if active else "#1c2333",
-                 "trans": "#818cf8" if active else "#1c2333",
-                 "analogy": "#4ade80" if active else "#1c2333"}.get(kind, "#1c2333")
-        lw    = 1.4 if active else 0.4
-        # 0.3 sobre #0d1117 es casi invisible: el grafo se veia como una
-        # cuadricula de puntos sueltos, sin estructura.
-        alpha = 0.9 if active else 0.45
+        # Sin consulta, las TRES clases se pintaban con #1c2333 —casi negro
+        # sobre el fondo #0d1117—, asi que ni se veian ni se distinguian entre
+        # si. El problema era el color, no la opacidad.
+        #
+        # Ahora la jerarquia (`dep`, 226 aristas) se ve, y la traduccion se
+        # deja muy tenue a proposito: 147 de sus 151 aristas apuntan al mismo
+        # sitio, `lean-tactics`, y dibujadas al mismo peso tapaban el orden.
+        col   = {"dep":     "#58a6ff" if active else "#3f6389",
+                 "trans":   "#818cf8" if active else "#26243f",
+                 "analogy": "#4ade80" if active else "#2b4a38"}.get(kind, "#3f6389")
+        lw    = 1.4 if active else (0.55 if kind == "dep" else 0.3)
+        alpha = 0.9 if active else (0.55 if kind == "dep" else 0.25)
         ax.annotate("", xy=pos[v], xytext=pos[u],
                     arrowprops=dict(arrowstyle="-|>", color=col, lw=lw, alpha=alpha,
                                     connectionstyle="arc3,rad=0.05"))
@@ -633,9 +733,16 @@ def fig_skill_graph(filter_cat=None, query=None):
     ax.axis("off")
     suffix = f' — consulta: "{query[:45]}…"' if query and len(query) > 45 \
              else (f' — consulta: "{query}"' if query else "")
+    # La ALTURA ya significa algo —profundidad en el orden— y hay que decirlo:
+    # sin eso el lector no sabe si la posicion informa o es decorativa.
+    _capas = _capas_jerarquia(G)
+    _nc = (max(_capas.values()) + 1) if _capas else 0
     ax.set_title(
-        f"Grafo Categórico de Skills — Núcleo Lógico Evolutivo  ({len(subG.nodes)} nodos){suffix}",
-        color=FG, fontsize=10, pad=10)
+        f"Grafo Categórico de Skills — Núcleo Lógico Evolutivo  "
+        f"({len(subG.nodes)} nodos){suffix}" + chr(10) +
+        f"altura = profundidad en el orden ({_nc} capas) · color = categoría · "
+        f"las flechas tenues son traducciones a tácticas Lean",
+        color=FG, fontsize=9.5, pad=12)
     fig.tight_layout()
     return fig
 
