@@ -1,0 +1,224 @@
+{
+  "declaraciones_lean": 131,
+  "auditadas": 31,
+  "respaldadas": [
+    {
+      "modulo": "category.py",
+      "operacion": "identity",
+      "teorema": "preorder_is_thin",
+      "fichero": "JoinColimit.lean",
+      "afirma": "id_a existe y es unico en Hom(a,a)"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "compose",
+      "teorema": "preorder_comp_trans",
+      "fichero": "JoinColimit.lean",
+      "afirma": "la composicion existe y es asociativa por transitividad"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "hom",
+      "teorema": "thin_unique_hom",
+      "fichero": "ComplexityOrder.lean",
+      "afirma": "Hom(a,b) tiene a lo sumo un elemento"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "reachable_from",
+      "teorema": "reachable_refl",
+      "fichero": "ColimitVerifier.lean",
+      "afirma": "el cierre transitivo-reflexivo es el preorden"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "is_preorder_leq",
+      "teorema": "preorder_le_of_hom",
+      "fichero": "JoinColimit.lean",
+      "afirma": "a<=b syss hay morfismo a->b"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "classify_link",
+      "teorema": "composite_of_simple_is_simple",
+      "fichero": "SimpleComplexLinks.lean",
+      "afirma": "simple = factoriza por un cluster; los simples cierran por composicion"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "verify_axioms",
+      "teorema": "path_category_axioms",
+      "fichero": "SkillCategory.lean",
+      "afirma": "los axiomas de categoria valen en la categoria libre del quiver"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "apply_complexity_order",
+      "teorema": "hierarchy_well_founded",
+      "fichero": "ComplexityOrder.lean",
+      "afirma": "la iteracion de cn alcanza punto fijo"
+    },
+    {
+      "modulo": "category.py",
+      "operacion": "verify_pillar_multiplicity",
+      "teorema": "MultiplicityPrinciple",
+      "fichero": "SimpleComplexLinks.lean",
+      "afirma": "existen patrones homologos con el mismo colimite"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "find_cocones",
+      "teorema": "isCocone",
+      "fichero": "ColimitVerifier.lean",
+      "afirma": "co-cono = cota superior de las componentes"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "find_colimit",
+      "teorema": "isColimitInFiniteCategory",
+      "fichero": "ColimitVerifier.lean",
+      "afirma": "colimite = co-cono minimal, decidible en categoria finita"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "find_existing_join",
+      "teorema": "join_implies_colimit",
+      "fichero": "ColimitVerifier.lean",
+      "afirma": "el join es el colimite"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "build_join_for_pattern",
+      "teorema": "colimit_is_least_upper_bound",
+      "fichero": "ColimitVerifier.lean",
+      "afirma": "la universalidad es un TEST, no una construccion"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "build_hierarchy_to_fixpoint",
+      "teorema": "hierarchy_well_founded",
+      "fichero": "ComplexityOrder.lean",
+      "afirma": "la iteracion termina"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "compute_complexity_order",
+      "teorema": "cn_join_gt_component",
+      "fichero": "ComplexityOrder.lean",
+      "afirma": "cn(join) > cn de cada componente"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "_find_upper_bounds",
+      "teorema": "colimit_is_upper_bound",
+      "fichero": "ColimitVerifier.lean",
+      "afirma": "las cotas superiores del patron"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "verify_cocone",
+      "teorema": "isCocone",
+      "fichero": "ColimitVerifier.lean",
+      "afirma": "el co-cono conmuta"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "is_join",
+      "teorema": "join_is_minimal_upper_bound",
+      "fichero": "ComplexityOrder.lean",
+      "afirma": "minimalidad entre las cotas superiores"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "verify_universal_property",
+      "teorema": "join_mediating_morphism_unique",
+      "fichero": "JoinColimit.lean",
+      "afirma": "el mediador existe y es UNICO (∃!h, no ∃h)"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "build_colimit",
+      "teorema": "isJoin_iff_nonempty_isColimit",
+      "fichero": "IsColimitBridge.lean",
+      "afirma": "IsJoin equivale a IsColimit de Mathlib"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "are_homologous",
+      "teorema": "Homologos",
+      "fichero": "SimpleComplexLinks.lean",
+      "afirma": "dos descomposiciones distintas del mismo colimite"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "verify_multiplicity_principle",
+      "teorema": "multiplicity_gives_robustness",
+      "fichero": "SimpleComplexLinks.lean",
+      "afirma": "la multiplicidad da robustez: perder una descomposicion no destruye el colimite"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "find_homologous_patterns",
+      "teorema": "colimite_unico",
+      "fichero": "SimpleComplexLinks.lean",
+      "afirma": "el colimite de un patron es unico, luego la homologia esta bien definida"
+    },
+    {
+      "modulo": "functor.py",
+      "operacion": "construir_funtor",
+      "teorema": "proyeccion_es_funtor",
+      "fichero": "QuotientFunctor.lean",
+      "afirma": "una proyeccion monotona es funtor en categorias thin"
+    },
+    {
+      "modulo": "functor.py",
+      "operacion": "verificar_functorialidad",
+      "teorema": "proyeccion_es_funtor",
+      "fichero": "QuotientFunctor.lean",
+      "afirma": "las dos leyes de funtor"
+    },
+    {
+      "modulo": "functor.py",
+      "operacion": "verificar_preservacion_colimites",
+      "teorema": "functor_preserves_cocone",
+      "fichero": "QuotientFunctor.lean",
+      "afirma": "los funtores preservan co-conos"
+    },
+    {
+      "modulo": "functor.py",
+      "operacion": "verificar_preservacion_colimites (minimalidad)",
+      "teorema": "functor_not_preserves_join",
+      "fichero": "QuotientFunctor.lean",
+      "afirma": "y NO preservan la minimalidad: contraejemplo finito"
+    },
+    {
+      "modulo": "functor.py",
+      "operacion": "CategoriaAgentes.alcanzables_desde",
+      "teorema": "refleja_no_alcanzabilidad",
+      "fichero": "QuotientFunctor.lean",
+      "afirma": "pi refleja la no-alcanzabilidad"
+    }
+  ],
+  "sin_respaldo": [
+    {
+      "modulo": "evolution.py",
+      "operacion": "complexify",
+      "afirma": "complexificacion de Ehresmann como funtor de transicion"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "transition_functor",
+      "afirma": "el functor de transicion entre configuraciones"
+    },
+    {
+      "modulo": "evolution.py",
+      "operacion": "detect_emergence",
+      "afirma": "deteccion de emergencia"
+    }
+  ],
+  "mapeo_roto": [],
+  "sorries": [
+    "warning: MetamathProver/CategoryFoundations/ComplexityOrder.lean:145:8: declaration uses `sorry`",
+    "warning: MetamathProver/CategoryFoundations/ComplexityOrder.lean:162:8: declaration uses `sorry`"
+  ]
+}

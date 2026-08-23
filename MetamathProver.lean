@@ -32,6 +32,10 @@ import MetamathProver.CategoryFoundations.IsColimitBridge
 -- preserva co-conos (18/18 medido) y que NO preserva la minimalidad, con
 -- contraejemplo finito (12/18 medido).
 import MetamathProver.CategoryFoundations.QuotientFunctor
+-- Enlaces simples/complejos y principio de multiplicidad. Resultado principal
+-- NEGATIVO: en una categoria delgada los simples son cerrados por composicion,
+-- de modo que la emergencia de Ehresmann no puede darse en este modelo.
+import MetamathProver.CategoryFoundations.SimpleComplexLinks
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism

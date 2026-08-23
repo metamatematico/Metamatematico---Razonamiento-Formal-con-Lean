@@ -1,0 +1,205 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{microtype}
+\sloppy
+
+\title{Respaldo formal de la teoría de categorías\\[.3em]
+\large Auditoría completa: qué afirma Python y qué demuestra Lean}
+\author{Leonardo Jiménez Martínez\\ \small en colaboración con Claude Opus 5 (Anthropic)}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\textsc{Metamatemático} implementa teoría de categorías a mano: no hay ninguna
+librería detrás de \texttt{nucleo/graph/} ni de \texttt{nucleo/mes/}, solo
+\texttt{dataclasses}, diccionarios y recorridos en anchura. Eso hace que cada
+propiedad categórica sea una afirmación del autor hasta que Lean~4 la respalda.
+Este documento audita, operación por operación, cuáles lo están. El resultado
+es 28 de 31 (90\,\%). Todas las cifras
+proceden de \texttt{data/respaldo\_lean.json}, generado por
+\texttt{scripts/auditar\_respaldo\_lean.py}; ninguna se escribe a mano.
+\end{abstract}
+
+\section{Por qué esta auditoría existe}
+
+Tres defectos reales, encontrados en código que funcionaba y no fallaba
+ruidosamente:
+
+\begin{itemize}
+\item \texttt{reachable\_from} seguía morfismos de tipo \textsc{translation}, lo
+      que producía colímites espurios como \texttt{=~tactic-simp}.
+\item \texttt{build\_join\_for\_pattern} \emph{fabricaba} vértices cuando no
+      encontraba el colímite, y por eso la iteración no convergía.
+\item \texttt{patterns.py} exigía $\exists h$ donde la propiedad universal pide
+      $\exists! h$.
+\end{itemize}
+
+Ninguno lo habría cometido una librería madura, y ninguno se detectó leyendo el
+código: los tres salieron al medir y al formalizar.
+
+\section{Resumen}
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+ & Operaciones & \% \\
+\midrule
+Respaldadas por un teorema & 28 & 90 \\
+Sin respaldo formal & 3 & 10 \\
+Mapeo roto & 0 & 0 \\
+\midrule
+Total auditado & 31 & 100 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Declaraciones formales disponibles en
+\texttt{MetamathProver/CategoryFoundations/}: \textbf{131}.
+
+\section{Operaciones respaldadas}
+
+\begin{longtable}{@{}p{1.2cm}p{5.9cm}p{7.2cm}@{}}
+\toprule
+\small Módulo & \small Operación en Python & \small Teorema en Lean \\
+\midrule
+\endhead
+\midrule \multicolumn{3}{l}{\textit{category.py}} \\
+  & \texttt{identity} & \texttt{preorder\_is\_thin} \\
+  &  & \footnotesize id\_a existe y es unico en Hom(a,a) \\
+  & \texttt{compose} & \texttt{preorder\_comp\_trans} \\
+  &  & \footnotesize la composicion existe y es asociativa por transitividad \\
+  & \texttt{hom} & \texttt{thin\_unique\_hom} \\
+  &  & \footnotesize Hom(a,b) tiene a lo sumo un elemento \\
+  & \texttt{reachable\_from} & \texttt{reachable\_refl} \\
+  &  & \footnotesize el cierre transitivo-reflexivo es el preorden \\
+  & \texttt{is\_preorder\_leq} & \texttt{preorder\_le\_of\_hom} \\
+  &  & \footnotesize a<=b syss hay morfismo a->b \\
+  & \texttt{classify\_link} & \texttt{composite\_of\_simple\_is\_simple} \\
+  &  & \footnotesize simple = factoriza por un cluster; los simples cierran por composicion \\
+  & \texttt{verify\_axioms} & \texttt{path\_category\_axioms} \\
+  &  & \footnotesize los axiomas de categoria valen en la categoria libre del quiver \\
+  & \texttt{apply\_complexity\_order} & \texttt{hierarchy\_well\_founded} \\
+  &  & \footnotesize la iteracion de cn alcanza punto fijo \\
+  & \texttt{verify\_pillar\_multiplicity} & \texttt{MultiplicityPrinciple} \\
+  &  & \footnotesize existen patrones homologos con el mismo colimite \\
+\midrule \multicolumn{3}{l}{\textit{complexity.py}} \\
+  & \texttt{find\_cocones} & \texttt{isCocone} \\
+  &  & \footnotesize co-cono = cota superior de las componentes \\
+  & \texttt{find\_colimit} & \texttt{isColimitInFiniteCategory} \\
+  &  & \footnotesize colimite = co-cono minimal, decidible en categoria finita \\
+  & \texttt{find\_existing\_join} & \texttt{join\_implies\_colimit} \\
+  &  & \footnotesize el join es el colimite \\
+  & \texttt{build\_join\_for\_pattern} & \texttt{colimit\_is\_least\_upper\_bound} \\
+  &  & \footnotesize la universalidad es un TEST, no una construccion \\
+  & \texttt{build\_hierarchy\_to\_fixpoint} & \texttt{hierarchy\_well\_founded} \\
+  &  & \footnotesize la iteracion termina \\
+  & \texttt{compute\_complexity\_order} & \texttt{cn\_join\_gt\_component} \\
+  &  & \footnotesize cn(join) > cn de cada componente \\
+  & \texttt{\_find\_upper\_bounds} & \texttt{colimit\_is\_upper\_bound} \\
+  &  & \footnotesize las cotas superiores del patron \\
+\midrule \multicolumn{3}{l}{\textit{patterns.py}} \\
+  & \texttt{verify\_cocone} & \texttt{isCocone} \\
+  &  & \footnotesize el co-cono conmuta \\
+  & \texttt{is\_join} & \texttt{join\_is\_minimal\_upper\_bound} \\
+  &  & \footnotesize minimalidad entre las cotas superiores \\
+  & \texttt{verify\_universal\_property} & \texttt{join\_mediating\_morphism\_unique} \\
+  &  & \footnotesize el mediador existe y es UNICO (∃!h, no ∃h) \\
+  & \texttt{build\_colimit} & \texttt{isJoin\_iff\_nonempty\_isColimit} \\
+  &  & \footnotesize IsJoin equivale a IsColimit de Mathlib \\
+  & \texttt{are\_homologous} & \texttt{Homologos} \\
+  &  & \footnotesize dos descomposiciones distintas del mismo colimite \\
+  & \texttt{verify\_multiplicity\_principle} & \texttt{multiplicity\_gives\_robustness} \\
+  &  & \footnotesize la multiplicidad da robustez: perder una descomposicion no destruye el colimite \\
+  & \texttt{find\_homologous\_patterns} & \texttt{colimite\_unico} \\
+  &  & \footnotesize el colimite de un patron es unico, luego la homologia esta bien definida \\
+\midrule \multicolumn{3}{l}{\textit{functor.py}} \\
+  & \texttt{construir\_funtor} & \texttt{proyeccion\_es\_funtor} \\
+  &  & \footnotesize una proyeccion monotona es funtor en categorias thin \\
+  & \texttt{verificar\_functorialidad} & \texttt{proyeccion\_es\_funtor} \\
+  &  & \footnotesize las dos leyes de funtor \\
+  & \texttt{verificar\_preservacion\_colimites} & \texttt{functor\_preserves\_cocone} \\
+  &  & \footnotesize los funtores preservan co-conos \\
+  & \texttt{verificar\_preservacion\_colimites (minimalidad)} & \texttt{functor\_not\_preserves\_join} \\
+  &  & \footnotesize y NO preservan la minimalidad: contraejemplo finito \\
+  & \texttt{CategoriaAgentes.alcanzables\_desde} & \texttt{refleja\_no\_alcanzabilidad} \\
+  &  & \footnotesize pi refleja la no-alcanzabilidad \\
+\bottomrule
+\end{longtable}
+
+\section{Sin respaldo formal}
+
+Lo que sigue no está demostrado. Está aquí porque un hueco anotado es
+distinguible de un hueco olvidado, y \texttt{tests/test\_respaldo\_lean.py}
+falla si esta lista cambia sin que alguien lo declare.
+
+\begin{center}
+\begin{tabular}{@{}p{2.4cm}p{4.2cm}p{7.5cm}@{}}
+\toprule
+Módulo & Operación & Qué afirma \\
+\midrule
+\texttt{evolution.py} & \texttt{complexify} & \footnotesize complexificacion de Ehresmann como funtor de transicion \\
+\texttt{evolution.py} & \texttt{transition\_functor} & \footnotesize el functor de transicion entre configuraciones \\
+\texttt{evolution.py} & \texttt{detect\_emergence} & \footnotesize deteccion de emergencia \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent Las tres pertenecen a \texttt{evolution.py}, es decir, al núcleo
+evolutivo de Ehresmann: complexificación, funtor de transición y detección de
+emergencia. Es el frente abierto.
+
+\section{Un resultado negativo que conviene leer}
+
+Al formalizar la distinción simple/complejo de Ehresmann se intentó demostrar
+el teorema central de la emergencia: que la composición de dos enlaces simples
+puede no ser simple. \textbf{Lean lo refutó.}
+
+La razón es estructural, no un descuido del diseño. Si $a \le k \le b$ y
+$b \le n \le d$, la transitividad da $k \le d$, de modo que el propio $k$
+factoriza $a \to d$. El teorema verdadero es el contrario:
+
+\[
+  \text{\texttt{composite\_of\_simple\_is\_simple}}:\quad
+  \text{simple}(a,b) \wedge \text{simple}(b,d) \;\Rightarrow\; \text{simple}(a,d).
+\]
+
+En una categoría delgada los enlaces simples son cerrados por composición, y la
+distinción de Ehresmann pierde su contenido dinámico: los complejos no
+\emph{emergen} al componer, solo aparecen donde \emph{faltan} clústeres.
+
+La delgadez es la hipótesis que hace que join $=$ colímite, y de ella dependen
+\texttt{JoinColimit.lean} e \texttt{IsColimitBridge.lean}. Recuperar la
+emergencia exigiría abandonarla —admitir más de un morfismo entre dos
+habilidades y distinguir \emph{cómo} se llega, no solo si se llega—, lo que es
+un cambio de modelo y no un ajuste. Queda registrado como límite conocido.
+
+\section{Declaraciones con \texttt{sorry}}
+
+\begin{itemize}
+\item \texttt{MetamathProver/CategoryFoundations/ComplexityOrder.lean:145:8: declaration uses `sorry`}
+\item \texttt{MetamathProver/CategoryFoundations/ComplexityOrder.lean:162:8: declaration uses `sorry`}
+\end{itemize}
+
+\noindent Se cuentan preguntándole al compilador, no con \texttt{grep}: un
+\texttt{sorry} dentro de un comentario no es un \texttt{sorry}.
+
+\section*{Reproducibilidad}
+\addcontentsline{toc}{section}{Reproducibilidad}
+
+\begin{itemize}
+\item \texttt{scripts/auditar\_respaldo\_lean.py} — la auditoría; genera el JSON.
+\item \texttt{scripts/generar\_reporte\_respaldo.py} — genera este documento.
+\item \texttt{tests/test\_respaldo\_lean.py} — falla si el mapeo se rompe o si
+      el respaldo retrocede.
+\item \texttt{MetamathProver/CategoryFoundations/} — 131 declaraciones.
+\end{itemize}
+
+\end{document}
