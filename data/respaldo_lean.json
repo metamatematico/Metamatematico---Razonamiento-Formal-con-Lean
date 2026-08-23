@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 150,
-  "auditadas": 32,
+  "declaraciones_lean": 166,
+  "auditadas": 34,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -155,6 +155,20 @@
       "teorema": "multiplicidad_necesaria_para_complejidad",
       "fichero": "EhresmannLinks.lean",
       "afirma": "sin Principio de Multiplicidad todo compuesto de simples es simple: MP es condicion NECESARIA de la complejidad, no un adorno sobre robustez"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "detect_pattern_in_graph",
+      "teorema": "enlaces_complejos_existen",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "modelo concreto: dos simples cuya composicion no es simple"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "detect_pattern_in_graph",
+      "teorema": "enlaces_complejos_existen",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "modelo concreto: dos enlaces simples cuya composicion no es simple"
     },
     {
       "modulo": "patterns.py",

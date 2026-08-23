@@ -59,6 +59,8 @@ al original en cada detalle.
 
 import Mathlib.Order.Basic
 import Mathlib.Data.Finset.Basic
+import Mathlib.Data.Fintype.Basic
+import Mathlib.Tactic.DeriveFintype
 
 namespace MetamathProver.EhresmannLinks
 
@@ -204,5 +206,151 @@ theorem multiplicidad_necesaria_para_complejidad {a b c : O}
   by_contra hno
   exact hsinMP ⟨Q, Q', hQ, hQ', hdistintas,
                 complex_needs_unconnected M hP hR h1 h2 hno⟩
+
+
+/-! ## 4. Un modelo concreto: los enlaces complejos existen -/
+
+/-
+Lo anterior dice bajo qué condición PUEDE haber complejidad. No dice que la
+haya. Esta sección exhibe el modelo más pequeño en que la hay, y lo comprueba
+por decisión exhaustiva.
+
+    objetos    A ──simple──▶ B ──simple──▶ C
+                             │
+    patrones   P ─▶ Q        Q'─▶ R        Q ≠ Q',  ambos con binding B
+                    ╰── sin clúster ──╯
+
+`A → B` es simple porque el clúster `P → Q` lo induce. `B → C` es simple porque
+lo induce `Q' → R`. Pero para que `A → C` fuera simple haría falta un clúster
+entre una descomposición de A y una de C, es decir `P → R`, y no lo hay: el
+camino pasaría por `Q → Q'`, que es justamente lo que falta.
+-/
+
+inductive Obj : Type
+  | A | B | C
+  deriving DecidableEq, Fintype
+
+inductive Pat3 : Type
+  | P | Q | Q' | R
+  deriving DecidableEq, Fintype
+
+namespace Modelo
+
+/-- Q y Q' son dos descomposiciones DISTINTAS del mismo objeto B. -/
+def bind : Pat3 → Obj
+  | .P => .A
+  | .Q => .B
+  | .Q' => .B
+  | .R => .C
+
+/-- Los clústeres, como función booleana para poder decidir. -/
+def clus : Pat3 → Pat3 → Bool
+  | .P,  .P  => true | .P,  .Q => true
+  | .Q,  .Q  => true
+  | .Q', .Q' => true | .Q', .R => true
+  | .R,  .R  => true
+  | _,   _   => false
+
+theorem clus_trans : ∀ p q r : Pat3, clus p q = true → clus q r = true →
+    clus p r = true := by decide
+
+theorem clus_refl : ∀ p : Pat3, clus p p = true := by decide
+
+def Mod : MESData Obj Pat3 where
+  binding := bind
+  Cluster p q := clus p q = true
+  cluster_comp {p q r} h1 h2 := clus_trans p q r h1 h2
+  cluster_id := clus_refl
+
+/-
+Nota tecnica: `Mod.Cluster p q` es acceso a un campo de la estructura, y la
+busqueda de instancias no lo reduce sola a `clus p q = true`. Por eso las
+pruebas despliegan `Mod` explicitamente en vez de invocar `decide` a secas.
+-/
+
+/-- `A → B` es simple: lo induce el clúster `P → Q`. -/
+theorem AB_simple : EsSimple Mod Obj.A Obj.B :=
+  ⟨Pat3.P, Pat3.Q, rfl, rfl, rfl⟩
+
+/-- `B → C` es simple: lo induce el clúster `Q' → R`. -/
+theorem BC_simple : EsSimple Mod Obj.B Obj.C :=
+  ⟨Pat3.Q', Pat3.R, rfl, rfl, rfl⟩
+
+/--
+**Teorema.** `A → C` NO es simple.
+
+La única descomposición de `A` es `P` y la única de `C` es `R`, y no hay clúster
+`P → R`. Se comprueban los 16 pares de patrones.
+-/
+theorem AC_no_simple : ¬ EsSimple Mod Obj.A Obj.C := by
+  rintro ⟨p, r, hp, hr, hc⟩
+  cases p <;> cases r <;> simp_all [Mod, bind, clus]
+
+/--
+**Teorema (existencia de enlaces complejos).**
+
+Hay dos enlaces simples cuya composición no es simple. Es exactamente la
+emergencia de Ehresmann, y existe.
+-/
+theorem enlaces_complejos_existen :
+    EsSimple Mod Obj.A Obj.B ∧ EsSimple Mod Obj.B Obj.C ∧
+    ¬ EsSimple Mod Obj.A Obj.C :=
+  ⟨AB_simple, BC_simple, AC_no_simple⟩
+
+/--
+**Teorema.** Y el objeto intermedio cumple el Principio de Multiplicidad, tal
+como `complex_needs_unconnected` exige.
+-/
+theorem B_cumple_MP : PrincipioDeMultiplicidad Mod Obj.B := by
+  refine ⟨Pat3.Q, Pat3.Q', rfl, rfl, by decide, ?_⟩
+  intro h
+  simp [Mod, clus] at h
+
+/-! ### El recíproco: añadir el clúster que falta elimina la complejidad -/
+
+/--
+El mismo modelo, pero con las dos descomposiciones de `B` conectadas y el
+cierre transitivo.
+
+Hacen falta AMBOS sentidos, `Q → Q'` y `Q' → Q`: con uno solo el par (Q', Q)
+sigue sin conectar y el Principio de Multiplicidad se cumple igual. Lo detectó
+Lean al dejar sin cerrar el caso `Q'.Q`.
+-/
+def clusConectado : Pat3 → Pat3 → Bool
+  | .P,  .P  => true | .P,  .Q  => true | .P, .Q' => true | .P, .R => true
+  | .Q,  .Q  => true | .Q,  .Q' => true | .Q, .R  => true
+  | .Q', .Q  => true | .Q', .Q' => true | .Q', .R => true
+  | .R,  .R  => true
+  | _,   _   => false
+
+theorem clusConectado_trans : ∀ p q r : Pat3,
+    clusConectado p q = true → clusConectado q r = true →
+    clusConectado p r = true := by decide
+
+theorem clusConectado_refl : ∀ p : Pat3, clusConectado p p = true := by decide
+
+def ModConectado : MESData Obj Pat3 where
+  binding := bind
+  Cluster p q := clusConectado p q = true
+  cluster_comp {p q r} h1 h2 := clusConectado_trans p q r h1 h2
+  cluster_id := clusConectado_refl
+
+/--
+**Teorema.** Con el clúster `Q → Q'` presente, `A → C` vuelve a ser simple.
+
+Comprueba que la hipótesis de `complex_needs_unconnected` es la que hace el
+trabajo, y no una condición accesoria: es lo único que cambia entre los dos
+modelos.
+-/
+theorem sin_MP_no_hay_complejidad : EsSimple ModConectado Obj.A Obj.C :=
+  ⟨Pat3.P, Pat3.R, rfl, rfl, rfl⟩
+
+/-- Y en efecto ese modelo ya no cumple el Principio de Multiplicidad en `B`. -/
+theorem ModConectado_no_cumple_MP_en_B :
+    ¬ PrincipioDeMultiplicidad ModConectado Obj.B := by
+  rintro ⟨q, q', hq, hq', hne, hnc⟩
+  cases q <;> cases q' <;> simp_all [ModConectado, bind, clusConectado]
+
+end Modelo
 
 end MetamathProver.EhresmannLinks

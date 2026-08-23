@@ -101,6 +101,10 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
     ("patterns.py", "verify_multiplicity_principle", "multiplicidad_necesaria_para_complejidad",
      "sin Principio de Multiplicidad todo compuesto de simples es simple: MP es"
      " condicion NECESARIA de la complejidad, no un adorno sobre robustez"),
+    ("patterns.py", "detect_pattern_in_graph", "enlaces_complejos_existen",
+     "modelo concreto: dos simples cuya composicion no es simple"),
+    ("patterns.py", "detect_pattern_in_graph", "enlaces_complejos_existen",
+     "modelo concreto: dos enlaces simples cuya composicion no es simple"),
     ("patterns.py", "_connected_by_cluster", "complex_needs_unconnected",
      "un enlace complejo exige descomposiciones intermedias NO conectadas"),
     ("patterns.py", "find_homologous_patterns", "colimite_unico",
