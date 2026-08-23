@@ -23,7 +23,7 @@ librería detrás de \texttt{nucleo/graph/} ni de \texttt{nucleo/mes/}, solo
 \texttt{dataclasses}, diccionarios y recorridos en anchura. Eso hace que cada
 propiedad categórica sea una afirmación del autor hasta que Lean~4 la respalda.
 Este documento audita, operación por operación, cuáles lo están. El resultado
-es 31 de 34 (91\,\%). Todas las cifras
+es 30 de 33 (91\,\%). Todas las cifras
 proceden de \texttt{data/respaldo\_lean.json}, generado por
 \texttt{scripts/auditar\_respaldo\_lean.py}; ninguna se escribe a mano.
 \end{abstract}
@@ -52,11 +52,11 @@ código: los tres salieron al medir y al formalizar.
 \toprule
  & Operaciones & \% \\
 \midrule
-Respaldadas por un teorema & 31 & 91 \\
+Respaldadas por un teorema & 30 & 91 \\
 Sin respaldo formal & 3 & 9 \\
 Mapeo roto & 0 & 0 \\
 \midrule
-Total auditado & 34 & 100 \\
+Total auditado & 33 & 100 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -118,8 +118,6 @@ Total auditado & 34 & 100 \\
   &  & \footnotesize dos descomposiciones distintas del mismo colimite \\
   & \texttt{verify\_multiplicity\_principle} & \texttt{multiplicidad\_necesaria\_para\_complejidad} \\
   &  & \footnotesize sin Principio de Multiplicidad todo compuesto de simples es simple: MP es condicion NECESARIA de la complejidad, no un adorno sobre robustez \\
-  & \texttt{detect\_pattern\_in\_graph} & \texttt{enlaces\_complejos\_existen} \\
-  &  & \footnotesize modelo concreto: dos simples cuya composicion no es simple \\
   & \texttt{detect\_pattern\_in\_graph} & \texttt{enlaces\_complejos\_existen} \\
   &  & \footnotesize modelo concreto: dos enlaces simples cuya composicion no es simple \\
   & \texttt{\_connected\_by\_cluster} & \texttt{complex\_needs\_unconnected} \\
