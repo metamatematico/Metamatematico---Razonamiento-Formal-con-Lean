@@ -14,7 +14,7 @@ import pytest
 from scripts.auditar_respaldo_lean import MAPEO, declaraciones_lean
 
 #: Cota inferior. Subirla al cerrar huecos; NUNCA bajarla para que pase el test.
-RESPALDO_MINIMO = 30
+RESPALDO_MINIMO = 31
 
 
 @pytest.fixture(scope="module")

@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 166,
-  "auditadas": 33,
+  "declaraciones_lean": 177,
+  "auditadas": 34,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -169,6 +169,13 @@
       "teorema": "complex_needs_unconnected",
       "fichero": "EhresmannLinks.lean",
       "afirma": "un enlace complejo exige descomposiciones intermedias NO conectadas"
+    },
+    {
+      "modulo": "complexity.py",
+      "operacion": "_detect_convergence_patterns",
+      "teorema": "MP_alcanzable_en_preorden",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "MP es alcanzable en un preorden: que no se cumpla es del algoritmo"
     },
     {
       "modulo": "patterns.py",

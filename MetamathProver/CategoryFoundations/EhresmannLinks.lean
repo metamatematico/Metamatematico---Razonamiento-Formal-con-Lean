@@ -353,4 +353,128 @@ theorem ModConectado_no_cumple_MP_en_B :
 
 end Modelo
 
+
+/-! ## 5. ¿Es alcanzable el Principio de Multiplicidad en un preorden? -/
+
+/-
+La pregunta importa porque el grafo de habilidades ES un preorden. Si en un
+preorden MP fuera imposible, la discusión estaría cerrada: el sistema nunca
+podría tener enlaces complejos, y no habría nada que decidir.
+
+No es el caso. Esta sección lo demuestra construyendo el testigo.
+
+En un preorden, un patrón es un conjunto finito de objetos y su colímite es el
+join. Un clúster `S → T` es la condición de que toda componente de `S` tenga
+alguna componente de `T` por encima:
+
+    Conectados S T  :=  ∀ s ∈ S, ∃ t ∈ T, s ≤ t
+
+Dos descomposiciones del mismo objeto pueden fallar esa condición, y entonces
+MP se cumple.
+-/
+
+namespace EnPreorden
+
+variable {P : Type u} [Preorder P] [DecidableEq P]
+
+/-- Clúster entre patrones en un preorden: cada componente de `S` queda por
+    debajo de alguna de `T`. -/
+def Conectados (S T : Finset P) : Prop := ∀ s ∈ S, ∃ t ∈ T, s ≤ t
+
+theorem conectados_refl (S : Finset P) : Conectados S S :=
+  fun s hs => ⟨s, hs, le_refl s⟩
+
+/--
+**Teorema.** Añadir a un patrón cualquier objeto por debajo de su join da otro
+patrón con el MISMO join.
+
+Es la fuente natural de descomposiciones homólogas: todo patrón con colímite
+genera muchas. Que el sistema no las encuentre es cosa del algoritmo de
+descubrimiento, no de la estructura.
+-/
+theorem join_estable_al_añadir {S : Finset P} {j x : P}
+    (hub : ∀ s ∈ S, s ≤ j) (hleast : ∀ k, (∀ s ∈ S, s ≤ k) → j ≤ k)
+    (hx : x ≤ j) :
+    (∀ s ∈ insert x S, s ≤ j) ∧
+    (∀ k, (∀ s ∈ insert x S, s ≤ k) → j ≤ k) := by
+  constructor
+  · intro s hs
+    rcases Finset.mem_insert.mp hs with rfl | h
+    · exact hx
+    · exact hub s h
+  · intro k hk
+    exact hleast k fun s hs => hk s (Finset.mem_insert_of_mem hs)
+
+end EnPreorden
+
+/-! ### Testigo: un preorden finito donde MP se cumple -/
+
+inductive Pre : Type
+  | a | b | c | d | j
+  deriving DecidableEq, Fintype
+
+namespace Testigo
+
+/-- `a, b, c, d` son incomparables dos a dos; todos por debajo de `j`. -/
+def le5 : Pre → Pre → Bool
+  | .a, .a => true | .a, .j => true
+  | .b, .b => true | .b, .j => true
+  | .c, .c => true | .c, .j => true
+  | .d, .d => true | .d, .j => true
+  | .j, .j => true
+  | _,  _  => false
+
+instance : Preorder Pre where
+  le x y := le5 x y = true
+  le_refl x := by cases x <;> rfl
+  le_trans x y z := by revert x y z; decide
+
+instance : DecidableRel ((· ≤ ·) : Pre → Pre → Prop) :=
+  fun x y => decidable_of_iff (le5 x y = true) Iff.rfl
+
+/-- Dos descomposiciones distintas de `j`. -/
+def S : Finset Pre := {Pre.a, Pre.b}
+def T : Finset Pre := {Pre.c, Pre.d}
+
+theorem S_ne_T : S ≠ T := by decide
+
+/-- Ambas tienen a `j` por join: es cota superior y es la menor. -/
+theorem S_join_j : (∀ s ∈ S, s ≤ Pre.j) ∧
+    (∀ k, (∀ s ∈ S, s ≤ k) → Pre.j ≤ k) := by decide
+
+theorem T_join_j : (∀ s ∈ T, s ≤ Pre.j) ∧
+    (∀ k, (∀ s ∈ T, s ≤ k) → Pre.j ≤ k) := by decide
+
+/--
+**Teorema.** Y NO están conectadas por un clúster: `a` no queda por debajo de
+`c` ni de `d`.
+-/
+theorem no_conectados : ¬ EnPreorden.Conectados S T := by
+  -- `Conectados` cuantifica sobre un Finset y Lean no sintetiza su
+  -- decidibilidad sola; basta con exhibir el testigo `a`.
+  intro h
+  obtain ⟨t, ht, hat⟩ := h Pre.a (by decide)
+  have : t = Pre.c ∨ t = Pre.d := by simpa [T] using ht
+  rcases this with rfl | rfl <;> exact absurd hat (by decide)
+
+/--
+**Teorema (MP es alcanzable en un preorden).**
+
+`j` tiene dos descomposiciones distintas, ambas con `j` por join, no conectadas
+por ningún clúster. Es exactamente el Principio de Multiplicidad, en un
+preorden finito de cinco objetos.
+
+Consecuencia para el sistema: que MP no se cumpla hoy NO es una limitación de
+modelar el grafo como preorden. Es una propiedad del algoritmo que descubre los
+patrones.
+-/
+theorem MP_alcanzable_en_preorden :
+    S ≠ T ∧
+    ((∀ s ∈ S, s ≤ Pre.j) ∧ (∀ k, (∀ s ∈ S, s ≤ k) → Pre.j ≤ k)) ∧
+    ((∀ s ∈ T, s ≤ Pre.j) ∧ (∀ k, (∀ s ∈ T, s ≤ k) → Pre.j ≤ k)) ∧
+    ¬ EnPreorden.Conectados S T :=
+  ⟨S_ne_T, S_join_j, T_join_j, no_conectados⟩
+
+end Testigo
+
 end MetamathProver.EhresmannLinks

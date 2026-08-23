@@ -105,6 +105,8 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "modelo concreto: dos enlaces simples cuya composicion no es simple"),
     ("patterns.py", "_connected_by_cluster", "complex_needs_unconnected",
      "un enlace complejo exige descomposiciones intermedias NO conectadas"),
+    ("complexity.py", "_detect_convergence_patterns", "MP_alcanzable_en_preorden",
+     "MP es alcanzable en un preorden: que no se cumpla es del algoritmo"),
     ("patterns.py", "find_homologous_patterns", "colimite_unico",
      "el colimite de un patron es unico, luego la homologia esta bien definida"),
 
