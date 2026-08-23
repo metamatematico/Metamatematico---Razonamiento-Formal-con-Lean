@@ -63,7 +63,8 @@ else:
     st.caption("Grafo de skills · Espacio de embeddings · Arquitectura MES · Pipeline de razonamiento")
 
 # ─── DATOS DEL SISTEMA ────────────────────────────────────────────────────────
-# 76 skills organizados por categoría matemática
+# Copia ESTATICA de reserva: 75 skills. Solo se usa si el Nucleo aun no
+# esta disponible; el grafo real tiene 172 y lo lee _grafo_vivo_datos().
 
 SKILLS = [
     # Level 0 — Fundamentos (10)
@@ -494,7 +495,7 @@ def make_layout(_G):
         clave = (d.get("cat", "Fundamentos"), d.get("level", 0))
         celdas.setdefault(clave, []).append(sid)
 
-    ANCHO_CAT, ALTO_NIVEL, POR_FILA = 3.4, 4.2, 4
+    ANCHO_CAT, ALTO_NIVEL, POR_FILA = 2.7, 3.6, 5
     pos = {}
     for (cat, level), ids in celdas.items():
         cx = cats.index(cat) if cat in cats else len(cats)
@@ -564,7 +565,9 @@ def fig_skill_graph(filter_cat=None, query=None):
                  "trans": "#818cf8" if active else "#1c2333",
                  "analogy": "#4ade80" if active else "#1c2333"}.get(kind, "#1c2333")
         lw    = 1.4 if active else 0.4
-        alpha = 0.9 if active else 0.3
+        # 0.3 sobre #0d1117 es casi invisible: el grafo se veia como una
+        # cuadricula de puntos sueltos, sin estructura.
+        alpha = 0.9 if active else 0.45
         ax.annotate("", xy=pos[v], xytext=pos[u],
                     arrowprops=dict(arrowstyle="-|>", color=col, lw=lw, alpha=alpha,
                                     connectionstyle="arc3,rad=0.05"))
@@ -590,8 +593,11 @@ def fig_skill_graph(filter_cat=None, query=None):
                    edgecolors=ec, linewidths=lw)
 
         # Etiqueta: siempre en nodos relevantes, solo fundamentos en vista global
+        # Sin consulta se etiquetaban todos los level<=1 —43 nombres en dos
+        # bandas— y se solapaban. Solo los 10 fundacionales, que orientan
+        # la lectura del resto.
         show_label = (query and sid in (matched_set | dep_set | tactic_set)) or \
-                     (not query and d["level"] <= 1) or \
+                     (not query and d["level"] == 0) or \
                      (not query and filter_cat is not None)
         if show_label:
             fc = "#fbbf24" if sid in matched_set else \
@@ -600,8 +606,11 @@ def fig_skill_graph(filter_cat=None, query=None):
             # Escalonado: etiquetas contiguas a distinta altura, y nombre
             # recortado. Sin esto, en una fila de 4 nodos los nombres se
             # superponen y no se lee ninguno.
-            _dy = 0.28 + 0.30 * (int(round(x / 0.62)) % 2)
-            _txt = d["name"] if len(d["name"]) <= 16 else d["name"][:15] + "…"
+            # Cuatro alturas, no dos: con nombres largos —«Category Basics
+            # & Colimits», «Natural Transformations»— dos escalones no bastan
+            # y las etiquetas contiguas se tocan.
+            _dy = 0.26 + 0.34 * (int(round(x / 0.62)) % 4)
+            _txt = d["name"] if len(d["name"]) <= 13 else d["name"][:12] + "…"
             ax.text(x, y - _dy, _txt, fontsize=5.6, ha="center", va="top",
                     color=fc, zorder=6, fontweight="bold" if sid in matched_set else "normal")
 
@@ -852,20 +861,22 @@ def fig_architecture():
     # Usuario
     box(0.2, 3.5, 1.8, 1.0, "Usuario", "Consulta NL", "#0d2137", "#60a5fa")
     # CR_tac
-    box(2.4, 3.5, 2.2, 1.0, "CR_tac", "Clasificador\nquery→modo", "#1a2a1a", "#4ade80")
+    box(2.4, 3.5, 2.2, 1.0, "CoRegulatorNetwork", "4 CRs, prioridad fija\n-> ASISTIR / RESPONDER", "#1a2a1a", "#4ade80")
     # Grafo de Skills
-    box(5.0, 5.5, 3.5, 1.8, "Grafo Categórico", "76 skills · 4 pilares\ndep + analogía + traducción", "#1a1a2e", "#818cf8")
+    box(5.0, 5.5, 3.5, 1.8, "Grafo Categorico", "172 skills, 4 pilares\ndep + analogia + traduccion", "#1a1a2e", "#818cf8")
     # GoalAnalyzer
     box(5.0, 3.2, 2.2, 1.0, "GoalAnalyzer", "regex + grafo\n→ orden tácticas", "#1a1a2e", "#818cf8")
     # LLM
     box(5.0, 1.5, 2.2, 1.0, "LLM (Claude/Gemini)", "contexto enriquecido\ndel grafo", "#1f1107", "#fb923c")
     # Lean 4
-    box(8.0, 3.2, 2.2, 1.0, "Lean 4", "SolverCascade\nrfl→simp→ring→omega", "#0d1f0d", "#4ade80")
+    box(8.0, 3.2, 2.2, 1.0, "Lean 4", "SolverCascade, 12 solvers\nrfl -> simp -> norm_num -> ...", "#0d1f0d", "#4ade80")
     # MES Memory
     box(8.0, 5.5, 2.5, 1.8, "MES Memory", "Patrones\nColimites\nEmergencia", "#1a0d2e", "#c084fc")
     # GNN+PPO
-    box(11.0, 3.5, 2.5, 1.8, "GNN + PPO", "SkillGNN 124K params\nActorCritic\nAprendizaje vivo", "#0d1f1f", "#2dd4bf")
+    box(11.0, 3.5, 2.5, 1.8, "GNN + PPO", "ActorCritic 547K params\nordena DENTRO de la cascada\nno enruta: CR_tac lo detecta degenerado", "#0d1f1f", "#2dd4bf")
     # Respuesta
+    # 14 agentes especializados: aportan la primera tactica de la cascada
+    box(7.9, 1.5, 2.4, 1.0, "14 agentes", "uno por categoria\n-> 1a tactica de la cascada", "#0d1f1f", "#2dd4bf")
     box(11.0, 1.0, 2.5, 1.0, "Respuesta", "explicación +\nprueba Lean", "#1a1007", "#fbbf24")
 
     # Flechas
@@ -874,13 +885,16 @@ def fig_architecture():
     arrow(4.6, 3.8, 5.0, 2.0, "RESPONDER")
     arrow(6.0, 3.2, 6.0, 2.5)
     arrow(7.2, 3.7, 8.0, 3.7)
+    arrow(9.1, 2.5, 9.1, 3.2, "sugiere táctica", "#2dd4bf")
     arrow(6.0, 5.5, 6.0, 4.2, "skills\nrelevantes")
     arrow(5.0, 6.4, 2.6, 4.5, "contexto", "#9ca3af")
     arrow(8.0, 6.4, 11.0, 4.5, "memoria", "#c084fc")
     arrow(10.2, 3.7, 11.0, 4.0)
     arrow(13.0, 4.0, 13.5, 1.5, "reward", "#2dd4bf")
-    arrow(11.0, 1.5, 8.5, 1.5)
-    ax.text(8.5, 1.5, "→", color="#fbbf24", fontsize=14)
+    # La flecha 11.0 -> 8.5 nacia en el vacio: no habia ninguna caja en x=8.5,
+    # asi que se veia una punta suelta al lado de "Respuesta". La respuesta sale
+    # de Lean via el traductor, no de un punto sin origen.
+    arrow(9.0, 3.2, 11.6, 2.0, "traducido")
 
     ax.set_title("Arquitectura del Núcleo Lógico Evolutivo  —  Σ_t = (L, CR_t, G_t, F)",
                  color=FG, fontsize=12, pad=8, fontweight="bold")
@@ -1461,7 +1475,7 @@ def fig_pipeline():
     flecha((1.60, 3.97), (1.32, 4.85), AZUL, curva=0.16, ls=(0, (4, 2)))
 
     caja(9.55, 3.25, 3.30, 0.72, "SolverCascade → SorryFiller", AZUL, "#132033",
-         sub="dominio → regex del goal → GNN", fs=7.6, fs_sub=6.0)
+         sub="agente de categoría → TacticRanker → regex", fs=7.6, fs_sub=6.0)
     flecha((8.15, 4.75), (10.35, 3.97), AZUL, curva=-0.20, ls=(0, (4, 2)))
     etiqueta(9.00, 4.18, "SORRY", AZUL, 7.0)
     flecha((12.05, 3.97), (12.20, 4.85), AZUL, curva=-0.18, ls=(0, (4, 2)))
@@ -1477,13 +1491,26 @@ def fig_pipeline():
     flecha((3.25, 1.60), (3.85, 1.60), AZUL)
     flecha((6.90, 1.60), (7.50, 1.60), AZUL)
     flecha((12.50, 2.85), (12.50, 2.00), NARANJA)
+    # Lazo de realimentacion. Sin el, la Complexificacion parece un callejon
+    # sin salida: en el codigo, apply_option cambia el numero de skills y
+    # llenar_hueco_conceptual añade nodos verificados por Lean, y ese grafo es
+    # el que usaran las consultas SIGUIENTES.
+    # La caja de Consulta esta en y=8.05, no en 6.30: el lazo terminaba dentro
+    # de la banda 2, con la punta en el vacio.
+    flecha((9.10, 1.20), (9.10, 0.42), MORADO, ls=(0, (4, 2)))
+    flecha((9.10, 0.42), (0.12, 0.42), MORADO, ls=(0, (4, 2)))
+    flecha((0.12, 0.42), (0.12, 8.52), MORADO, ls=(0, (4, 2)))
+    flecha((0.12, 8.52), (0.23, 8.52), MORADO, ls=(0, (4, 2)))
+    etiqueta(4.60, 0.60, "el grafo cambia — no para esta consulta, para las siguientes",
+             MORADO, 6.5)
     etiqueta(8.90, 0.86,
              "⑤ va DESPUÉS de responder: la consulta actual se resuelve sobre un grafo estable",
              GRIS, 6.5)
 
     # ── Nota honesta sobre el GNN ────────────────────────────────────────────
     ax.text(7.00, 0.26,
-            "El GNN+PPO ordena tácticas dentro de la cascada. Para el ENRUTADO está desactivado: "
+            "El orden de la cascada lo fija el TacticRanker (top-3 88,1 % sobre 9.488 pares reales); "
+            "el agente de la categoría aporta la primera. El GNN+PPO está desactivado para el ENRUTADO: "
             "se entrenó con etiqueta constante y CR_tac lo detecta degenerado, así que enruta la heurística.",
             ha="center", fontsize=6.9, color="#f59e0b", zorder=7,
             bbox=dict(boxstyle="round", facecolor="#1c1710",
