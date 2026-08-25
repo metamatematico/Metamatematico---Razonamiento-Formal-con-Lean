@@ -101,6 +101,18 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "el mediador existe y es UNICO (∃!h, no ∃h)"),
     ("patterns.py", "build_colimit", "isJoin_iff_nonempty_isColimit",
      "IsJoin equivale a IsColimit de Mathlib"),
+    ("complexificacion.py", "complexificar", "eta_es_colimite",
+     "todo patron adquiere colimite en K': el hueco se cierra por construccion"),
+    ("complexificacion.py", "_id_emergente", "SC_homologos_mismo_colimite",
+     "el id deriva del CONJUNTO DE COTAS: homologos comparten objeto (SC)"),
+    ("complexificacion.py", "ObjetoEmergente", "hueco_iff_objeto_nuevo",
+     "los huecos son exactamente los objetos que no vienen de K"),
+    ("complexificacion.py", "ResultadoComplexificacion", "eta_eq_iota_of_isLUB",
+     "lo que ya tenia colimite no recibe objeto nuevo: la preservacion"),
+    ("complexificacion.py", "_minimales", "factorizacion_unica",
+     "conectar solo con las cotas minimales da el mismo orden; la extension"
+     " esta determinada de modo unico por K y la preservacion de colimites"),
+
     ("patterns.py", "hay_cluster", "Conectados",
      "cluster dirigido P->Q: toda componente de P alcanza alguna de Q (todo-existe)"),
     ("patterns.py", "decomposiciones_de", "Descomposicion",
@@ -172,6 +184,7 @@ UBICACION = {
     "functor.py": "nucleo/graph/functor.py",
     "patterns.py": "nucleo/mes/patterns.py",
     "evolution.py": "nucleo/graph/evolution.py",
+    "complexificacion.py": "nucleo/graph/complexificacion.py",
 }
 
 

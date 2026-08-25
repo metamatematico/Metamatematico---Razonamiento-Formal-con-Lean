@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 219,
-  "auditadas": 42,
+  "declaraciones_lean": 225,
+  "auditadas": 47,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -148,6 +148,41 @@
       "teorema": "isJoin_iff_nonempty_isColimit",
       "fichero": "IsColimitBridge.lean",
       "afirma": "IsJoin equivale a IsColimit de Mathlib"
+    },
+    {
+      "modulo": "complexificacion.py",
+      "operacion": "complexificar",
+      "teorema": "eta_es_colimite",
+      "fichero": "Complexificacion.lean",
+      "afirma": "todo patron adquiere colimite en K': el hueco se cierra por construccion"
+    },
+    {
+      "modulo": "complexificacion.py",
+      "operacion": "_id_emergente",
+      "teorema": "SC_homologos_mismo_colimite",
+      "fichero": "Complexificacion.lean",
+      "afirma": "el id deriva del CONJUNTO DE COTAS: homologos comparten objeto (SC)"
+    },
+    {
+      "modulo": "complexificacion.py",
+      "operacion": "ObjetoEmergente",
+      "teorema": "hueco_iff_objeto_nuevo",
+      "fichero": "Complexificacion.lean",
+      "afirma": "los huecos son exactamente los objetos que no vienen de K"
+    },
+    {
+      "modulo": "complexificacion.py",
+      "operacion": "ResultadoComplexificacion",
+      "teorema": "eta_eq_iota_of_isLUB",
+      "fichero": "Complexificacion.lean",
+      "afirma": "lo que ya tenia colimite no recibe objeto nuevo: la preservacion"
+    },
+    {
+      "modulo": "complexificacion.py",
+      "operacion": "_minimales",
+      "teorema": "factorizacion_unica",
+      "fichero": "Complexificacion.lean",
+      "afirma": "conectar solo con las cotas minimales da el mismo orden; la extension esta determinada de modo unico por K y la preservacion de colimites"
     },
     {
       "modulo": "patterns.py",

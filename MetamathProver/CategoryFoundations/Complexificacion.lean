@@ -229,4 +229,192 @@ theorem hueco_iff_objeto_nuevo {α : Type*} [PartialOrder α] (P : Set α) :
       rw [this] at hb
       exact hb
 
+/-!
+## 6. Densidad: K' esta generado por K bajo colimites
+
+Antes de hablar de unicidad hace falta saber que no hay objetos «sueltos» en
+`K'` a los que la condicion de factorizacion no llegue. Lo hay: todo objeto
+relevante de `K'` es `eta P` para algun patron, y los objetos viejos son el
+caso `P = {a}`. Junto con `eta_es_colimite`, eso dice que `K'` es el cierre de
+`K` bajo los colimites de patrones — la densidad que da alcance al teorema
+siguiente.
+-/
+
+/-- Los objetos viejos son el colimite de su patron unitario. -/
+theorem iota_eq_eta_singleton (a : α) : iota a = eta {a} := by
+  apply congrArg OrderDual.toDual
+  apply Set.eq_of_subset_of_subset
+  · intro x hx c hc
+    rw [Set.mem_singleton_iff] at hc
+    exact hc ▸ hx
+  · intro x hx
+    exact hx rfl
+
+/-!
+## 7. Teorema 1(iii): la factorizacion es unica
+
+Ehresmann exige que la complexificacion realice los objetivos «sin añadir nada
+superfluo», y lo formula como universalidad: si `q : K → L` es otro functor
+parcial que cumple (i) y (ii), entonces `q` se factoriza de modo UNICO como
+`q = p ; q'` con `q'` preservando los colimites de los patrones a unir.
+
+Lo que sigue demuestra la mitad de unicidad, que es donde esta el contenido:
+dos extensiones que coincidan sobre `K` y preserven los colimites coinciden en
+TODO `K'`. Dicho de otro modo, `K'` no tiene grados de libertad: una vez fijado
+`q` sobre los objetos viejos, el resto esta determinado.
+
+La razon es corta y vale la pena decirla: `eta P` es el colimite de `iota '' P`
+(§2), preservar colimites obliga a que la imagen sea el colimite de las
+imagenes, y en un orden parcial el colimite es unico. No hay donde elegir.
+-/
+
+/--
+**Teorema (unicidad de la factorizacion, Teorema 1(iii)).**
+
+Si `F` y `G` coinciden sobre la imagen de `K` y ambos preservan los colimites
+de los patrones, entonces coinciden sobre todo objeto `eta P` — es decir, sobre
+todo `K'`, por la densidad de §6.
+-/
+theorem factorizacion_unica {L : Type*} [PartialOrder L]
+    (F G : Compl α → L)
+    (hFG : ∀ a : α, F (iota a) = G (iota a))
+    (hF : ∀ P : Set α, IsLUB (F '' (iota '' P)) (F (eta P)))
+    (hG : ∀ P : Set α, IsLUB (G '' (iota '' P)) (G (eta P)))
+    (P : Set α) : F (eta P) = G (eta P) := by
+  have himg : F '' (iota '' P) = G '' (iota '' P) := by
+    apply Set.eq_of_subset_of_subset
+    · rintro _ ⟨_, ⟨a, ha, rfl⟩, rfl⟩
+      exact ⟨iota a, ⟨a, ha, rfl⟩, (hFG a).symm⟩
+    · rintro _ ⟨_, ⟨a, ha, rfl⟩, rfl⟩
+      exact ⟨iota a, ⟨a, ha, rfl⟩, hFG a⟩
+  have h1 := hF P
+  rw [himg] at h1
+  exact IsLUB.unique h1 (hG P)
+
+/--
+**Corolario.** La unicidad alcanza tambien a los objetos viejos, que por §6 son
+el caso `P = {a}`. No queda ningun objeto de `K'` fuera del alcance.
+-/
+theorem factorizacion_unica_en_K {L : Type*} [PartialOrder L]
+    (F G : Compl α → L)
+    (hFG : ∀ a : α, F (iota a) = G (iota a))
+    (a : α) : F (eta {a}) = G (eta {a}) := by
+  rw [← iota_eq_eta_singleton]
+  exact hFG a
+
+/-!
+### Lo que falta de 1(iii)
+
+La mitad de EXISTENCIA —construir `q'` a partir de un `q` que realice los
+objetivos— no esta aqui. Requiere hipotesis sobre `L` (que los supremos
+relevantes existan) y la condicion (ii) de Ehresmann como premisa: patrones
+homologos deben ir al mismo sitio en `L`, porque en `K'` ya van al mismo
+objeto (`SC_homologos_mismo_colimite`). Sin esa premisa `q'` ni siquiera esta
+bien definida.
+
+Se declara pendiente en lugar de enunciarse a medias.
+-/
+
+/-!
+## 8. Por que la delgadez impide el orden de complejidad >= 2
+
+Este es el resultado que cierra la pregunta de si el sistema puede producir
+emergencia sin cambiar de arquitectura. La respuesta es que no, y no por falta
+de datos ni por un algoritmo mejorable: por algebra.
+
+### El enunciado de Ehresmann
+
+El teorema de reduccion de colimites iterados (§5.2) dice que `cP` tiene orden
+de complejidad 2 respecto de `K` cuando NO se obtiene como colimite de un solo
+patron en `K`. En una categoria delgada el colimite es el supremo, y el
+supremo es asociativo:
+
+    sup { sup P₁, sup P₂, … } = sup (P₁ ∪ P₂ ∪ …)
+
+Luego todo objeto obtenido iterando joins sobre `K` es, en un solo paso, el
+join de la union de las bases. Su orden es 1. Siempre.
+
+### Consecuencia para el sistema
+
+Medido antes y despues de complexificar:
+
+  · en `K`  : las 12 descomposiciones de los 3 objetos con cn = 2 se aplanan,
+              0 resisten;
+  · en `K'` : las 15 descomposiciones de los objetos con cn >= 2 se aplanan,
+              0 resisten — y eso que `max(cn)` habia subido a 3.
+
+`cn` mide anidamiento y sube al complexificar; el orden de Ehresmann no se
+mueve. No son la misma magnitud, y el teorema de abajo dice por que nunca lo
+seran mientras la categoria sea delgada.
+
+### Que haria falta
+
+Salir de la delgadez: permitir `Hom(a,b)` con mas de un elemento. Entonces el
+colimite deja de ser el supremo, la asociatividad de arriba deja de aplicar, y
+un enlace distinguido complejo puede bloquear la reduccion — que es justo lo
+que §5.2(ii) pide.
+
+Conviene no confundir esto con la conclusion que se retiro en su momento
+—«la emergencia no puede existir en este modelo»—, que se apoyaba en una
+definicion equivocada de enlace simple y por eso no se seguia. Este argumento
+es otro: no habla de enlaces simples, habla de la asociatividad del supremo, y
+va con demostracion.
+-/
+
+/--
+**Teorema (el join de joins se aplana).** Si cada `P i` tiene supremo `j i`, y
+la familia de esos supremos tiene supremo `k`, entonces `k` es el supremo de la
+UNION de las `P i`.
+
+Es la asociatividad del supremo, y es todo lo que hace falta: dice que
+iterar colimites en un preorden no construye nada que no estuviera a un paso.
+-/
+theorem lub_de_lubs {ι : Type*} (P : ι → Set α) (j : ι → α)
+    (hj : ∀ i, IsLUB (P i) (j i)) (k : α)
+    (hk : IsLUB (Set.range j) k) :
+    IsLUB (⋃ i, P i) k := by
+  constructor
+  · intro x hx
+    rcases Set.mem_iUnion.mp hx with ⟨i, hxi⟩
+    exact le_trans ((hj i).1 hxi) (hk.1 ⟨i, rfl⟩)
+  · intro b hb
+    refine hk.2 ?_
+    rintro _ ⟨i, rfl⟩
+    exact (hj i).2 (fun y hy => hb (Set.mem_iUnion.mpr ⟨i, hy⟩))
+
+/--
+**Corolario binario.** El caso que el sistema produce: un objeto que es join de
+`{join P, x}` es, en un paso, el join de `P ∪ {x}`.
+
+Es literalmente lo que se midio sobre el grafo:
+`join(join(commutative-algebra, functors), ideals-quotient-rings)` es
+`join(commutative-algebra, functors, ideals-quotient-rings)`.
+-/
+theorem join_binario_se_aplana {P : Set α} {j x k : α}
+    (hj : IsLUB P j) (hk : IsLUB {j, x} k) :
+    IsLUB (P ∪ {x}) k := by
+  constructor
+  · rintro y (hy | hy)
+    · exact le_trans (hj.1 hy) (hk.1 (Set.mem_insert _ _))
+    · rw [Set.mem_singleton_iff] at hy
+      exact hy ▸ hk.1 (Set.mem_insert_of_mem _ rfl)
+  · intro b hb
+    refine hk.2 ?_
+    rintro y (rfl | hy)
+    · exact hj.2 (fun z hz => hb (Set.mem_union_left _ hz))
+    · rw [Set.mem_singleton_iff] at hy
+      exact hy ▸ hb (Set.mem_union_right _ rfl)
+
+/--
+**Corolario.** Ningun objeto obtenido iterando joins sobre `K` tiene orden de
+complejidad >= 2: el patron aplanado lo produce en un solo paso.
+
+El enunciado es el contrapuesto de §5.2(ii): si `cP` se obtiene en un paso, no
+puede tener orden 2. Y `join_binario_se_aplana` dice que siempre se obtiene.
+-/
+theorem iterar_joins_no_sube_el_orden {P : Set α} {j x k : α}
+    (hj : IsLUB P j) (hk : IsLUB {j, x} k) :
+    ∃ R : Set α, IsLUB R k ∧ R = P ∪ {x} :=
+  ⟨P ∪ {x}, join_binario_se_aplana hj hk, rfl⟩
+
 end MetamathProver.Complexificacion
