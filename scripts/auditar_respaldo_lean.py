@@ -113,6 +113,17 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "conectar solo con las cotas minimales da el mismo orden; la extension"
      " esta determinada de modo unico por K y la preservacion de colimites"),
 
+    ("no_delgado.py", "multiplicidad", "hom_no_es_delgado",
+     "donde |Hom(a,b)| > 1; con 0 pares lub_de_lubs se aplica a todo el grafo"),
+    ("no_delgado.py", "caminos", "path_category_axioms",
+     "Hom en la categoria LIBRE: los caminos, donde la composicion no es ambigua"),
+    ("no_delgado.py", "es_cocono_libre", "cota_superior_no_implica_cocono",
+     "co-cono = familia compatible bajo precomposicion, NO cota superior"),
+    ("no_delgado.py", "comparar_cocono", "delgado_cocono_automatico",
+     "con |Hom| <= 1 la conmutacion se cumple sola y las dos lecturas coinciden"),
+    ("no_delgado.py", "registrar_morfismos_certificados", "no_hay_iso",
+     "los tres morfismos group-theory -> ring-theory no son isomorfos entre si"),
+
     ("patterns.py", "hay_cluster", "Conectados",
      "cluster dirigido P->Q: toda componente de P alcanza alguna de Q (todo-existe)"),
     ("patterns.py", "decomposiciones_de", "Descomposicion",
@@ -185,6 +196,7 @@ UBICACION = {
     "patterns.py": "nucleo/mes/patterns.py",
     "evolution.py": "nucleo/graph/evolution.py",
     "complexificacion.py": "nucleo/graph/complexificacion.py",
+    "no_delgado.py": "nucleo/graph/no_delgado.py",
 }
 
 

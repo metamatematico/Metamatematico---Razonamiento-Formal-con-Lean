@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 230,
-  "auditadas": 47,
+  "declaraciones_lean": 251,
+  "auditadas": 52,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -183,6 +183,41 @@
       "teorema": "factorizacion_unica",
       "fichero": "Complexificacion.lean",
       "afirma": "conectar solo con las cotas minimales da el mismo orden; la extension esta determinada de modo unico por K y la preservacion de colimites"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "multiplicidad",
+      "teorema": "hom_no_es_delgado",
+      "fichero": "MorfismosGrupoAnillo.lean",
+      "afirma": "donde |Hom(a,b)| > 1; con 0 pares lub_de_lubs se aplica a todo el grafo"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "caminos",
+      "teorema": "path_category_axioms",
+      "fichero": "SkillCategory.lean",
+      "afirma": "Hom en la categoria LIBRE: los caminos, donde la composicion no es ambigua"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "es_cocono_libre",
+      "teorema": "cota_superior_no_implica_cocono",
+      "fichero": "Complexificacion.lean",
+      "afirma": "co-cono = familia compatible bajo precomposicion, NO cota superior"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "comparar_cocono",
+      "teorema": "delgado_cocono_automatico",
+      "fichero": "Complexificacion.lean",
+      "afirma": "con |Hom| <= 1 la conmutacion se cumple sola y las dos lecturas coinciden"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "registrar_morfismos_certificados",
+      "teorema": "no_hay_iso",
+      "fichero": "MorfismosGrupoAnillo.lean",
+      "afirma": "los tres morfismos group-theory -> ring-theory no son isomorfos entre si"
     },
     {
       "modulo": "patterns.py",

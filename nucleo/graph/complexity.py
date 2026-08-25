@@ -434,11 +434,28 @@ def _detect_convergence_patterns(
             continue
         seen.add(key)
 
+        # ENLACES DISTINGUIDOS: los morfismos ENTRE COMPONENTES.
+        #
+        # Aqui se pasaban los morfismos `pred -> skill_id`, que son el CO-CONO
+        # del patron, no sus enlaces distinguidos. Un patron es un funtor
+        # `P : I -> K` y sus enlaces son `P(x) : P_i -> P_j`, entre componentes
+        # (Def 2.1). `create_pattern` los descarta en silencio cuando el destino
+        # no es componente, asi que `index_morphisms` salia VACIO en los 116
+        # patrones: la categoria de indices no tenia morfismos y todo patron era
+        # un diagrama DISCRETO.
+        #
+        # Consecuencia: la condicion de co-cono `P(x) ; f_j = f_i` no tenia
+        # ningun `P(x)` sobre el que aplicarse, luego era vacua, luego co-cono y
+        # cota superior coincidian por construccion — antes incluso de que la
+        # delgadez lo forzara.
         links = []
-        for pred_id in preds:
-            morph = graph.get_morphism_between(pred_id, skill_id)
-            if morph:
-                links.append(morph.id)
+        for a in preds:
+            for b in preds:
+                if a == b:
+                    continue
+                for morph in graph.hom(a, b):
+                    if morph.morphism_type != _MT.IDENTITY:
+                        links.append(morph.id)
 
         pattern = pattern_manager.create_pattern(preds, links, graph=graph)
         patterns.append(pattern)

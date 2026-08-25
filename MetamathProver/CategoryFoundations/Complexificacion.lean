@@ -529,4 +529,92 @@ Lo que este archivo establece es que el precio COMPRA algo: la barrera de §8 es
 real pero no es infranqueable, y el testigo de arriba dice por donde se pasa.
 -/
 
+/-!
+## 10. El co-cono no delgado, en la forma que el codigo puede comprobar
+
+§9 dice que basta con que `Hom(a,b)` tenga dos elementos. Falta la version
+operativa: ¿que tiene que comprobar `category.py` para decidir si un apice es
+co-cono, cuando ya no vale «es cota superior»?
+
+### La formulacion
+
+Un enlace distinguido `x : P_i → P_j` induce, por precomposicion, una funcion
+
+    x* : Hom(P_j, A) → Hom(P_i, A)
+
+y un co-cono es una familia `(f_i)` con `f_i = x*(f_j)` para cada enlace. O sea:
+una **familia compatible** bajo las precomposiciones. Es exactamente el limite
+del presheaf `Hom(-, A)` sobre el patron, y es finito y decidible en cuanto
+los Hom lo son.
+
+### Donde aparece la diferencia
+
+Con UN solo enlace distinguido la familia siempre existe: `f_i` queda determinado
+por `f_j`. La diferencia con el caso delgado surge con **enlaces paralelos**
+`x, y : P_i ⇉ P_j`: entonces hacen falta `x*(f_j) = f_i` Y `y*(f_j) = f_i`,
+luego `x*(f_j) = y*(f_j)`. Eso puede fallar.
+-/
+
+/-- Precomposicion con un enlace distinguido: `Hom(P_j,A) → Hom(P_i,A)`. -/
+abbrev Precomp (m n : ℕ) := Fin n → Fin m
+
+/-- `f` es co-cono del patron con dos enlaces distinguidos paralelos. -/
+def esCoconoParalelo {m n : ℕ} (px py : Precomp m n) (f : Fin n) : Prop :=
+  px f = py f
+
+instance {m n : ℕ} (px py : Precomp m n) (f : Fin n) :
+    Decidable (esCoconoParalelo px py f) :=
+  inferInstanceAs (Decidable (px f = py f))
+
+/-! ### El caso delgado: la condicion se cumple sola -/
+
+/--
+**Teorema (colapso delgado).** Si `Hom(P_i, A)` tiene a lo sumo un elemento, la
+condicion de co-cono es vacua: cualquier eleccion vale.
+
+Es la razon de que en el sistema actual «co-cono» y «cota superior» sean lo
+mismo, y de que `find_colimit` pueda ser una busqueda de minimal.
+-/
+theorem delgado_cocono_automatico (px py : Precomp 1 1) (f : Fin 1) :
+    esCoconoParalelo px py f :=
+  Subsingleton.elim _ _
+
+/-! ### Sin delgadez: puede no haber NINGUN co-cono -/
+
+/-- Precomposicion por el primer enlace: la identidad. -/
+def preX : Precomp 2 2 := id
+
+/-- Precomposicion por el segundo: el intercambio. -/
+def preY : Precomp 2 2 := fun i => if i = 0 then 1 else 0
+
+/--
+**Teorema.** Con dos elementos en cada `Hom` y dos enlaces distinguidos
+paralelos, **ninguna** eleccion es co-cono.
+
+Y sin embargo `Hom(P_i, A)` y `Hom(P_j, A)` son no vacios: el apice es cota
+superior de las dos componentes. En una categoria delgada eso bastaria; aqui
+no.
+
+Es el contraejemplo que separa «co-cono» de «cota superior», y por tanto el que
+hace que el colimite deje de ser el supremo.
+-/
+theorem sin_cocono_pese_a_hom_no_vacio :
+    ∀ f : Fin 2, ¬ esCoconoParalelo preX preY f := by decide
+
+/-- Y los dos `Hom` son no vacios, luego el apice SI es cota superior. -/
+theorem hom_no_vacio_en_el_contraejemplo :
+    Nonempty (Fin 2) ∧ Nonempty (Fin 2) := ⟨⟨0⟩, ⟨0⟩⟩
+
+/--
+**Corolario.** «Cota superior» no implica «co-cono» fuera del caso delgado.
+
+Es la propiedad que `category.py` daba por hecha —`is_preorder_leq` decide si
+hay morfismo, no si hay co-cono— y la que hay que dejar de dar por hecha para
+que la emergencia sea posible.
+-/
+theorem cota_superior_no_implica_cocono :
+    (Nonempty (Fin 2) ∧ Nonempty (Fin 2)) ∧
+    (∀ f : Fin 2, ¬ esCoconoParalelo preX preY f) :=
+  ⟨hom_no_vacio_en_el_contraejemplo, sin_cocono_pese_a_hom_no_vacio⟩
+
 end MetamathProver.Complexificacion

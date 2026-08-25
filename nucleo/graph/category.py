@@ -255,10 +255,27 @@ class SkillCategory:
         target_id: str,
         morphism_type: MorphismType = MorphismType.DEPENDENCY,
         weight: float = 1.0,
-        metadata: Optional[dict] = None
+        metadata: Optional[dict] = None,
+        construccion: Optional[str] = None,
     ) -> Optional[Morphism]:
         """
         Añadir morfismo entre skills.
+
+        SOBRE `construccion` — como deja de ser delgado el grafo
+        --------------------------------------------------------
+        Dos morfismos `a -> b` son el MISMO si comparten tipo y construccion.
+        `construccion` es el nombre de la construccion matematica concreta que
+        realiza el morfismo, y es lo que permite que `Hom(a,b)` tenga mas de un
+        elemento sin que sean duplicados.
+
+        Ejemplo certificado en `MorfismosGrupoAnillo.lean`: de `group-theory` a
+        `ring-theory` hay al menos tres morfismos —el grupo aditivo `(R,+)`, el
+        grupo de unidades `R^x` y el trivial— y sobre `ZMod 5` tienen 5, 4 y 1
+        elementos, luego no hay isomorfismo entre ellos (`no_hay_iso`).
+
+        Sin este campo los tres colapsarian a uno y el par seguiria siendo
+        delgado, que es la hipotesis bajo la que `lub_de_lubs` prohibe la
+        emergencia.
 
         Complejidad: O(1)
 
@@ -285,11 +302,15 @@ class SkillCategory:
         # strategy-backward con tres DEPENDENCY). Inflaban num_morphisms,
         # total_weight y cualquier metrica que cuente morfismos — entre ellas
         # get_complex_links, que reportaba 2 enlaces complejos donde hay 1.
+        meta = dict(metadata or {})
+        if construccion is not None:
+            meta["construccion"] = construccion
         for mid in self._outgoing.get(source_id, ()):  # type: ignore[arg-type]
             otro = self._morphisms.get(mid)
             if (otro is not None
                     and otro.target_id == target_id
-                    and otro.morphism_type == morphism_type):
+                    and otro.morphism_type == morphism_type
+                    and otro.metadata.get("construccion") == construccion):
                 return otro
 
         morphism = Morphism(
@@ -298,7 +319,7 @@ class SkillCategory:
             target_id=target_id,
             morphism_type=morphism_type,
             weight=weight,
-            metadata=metadata or {}
+            metadata=meta,
         )
 
         self._add_morphism_internal(morphism)
@@ -310,14 +331,21 @@ class SkillCategory:
         self._outgoing[morphism.source_id].add(morphism.id)
         self._incoming[morphism.target_id].add(morphism.id)
 
-        # Índice de pares para búsqueda rápida.
-        # NOTA SOBRE SEMÁNTICA THIN: este dict almacena solo UN morfismo por par
-        # (source, target). Si se añaden dos morfismos distintos entre el mismo par,
-        # el segundo sobreescribe al primero en este índice.
-        # Esto hace que `get_morphism_between` y `has_morphism` tengan semántica
-        # de PREORDEN (thin category): Hom(a,b) tiene ≤ 1 elemento accesible via índice.
-        # Los distintos MorphismKind son etiquetas, no morfismos categóricamente distintos.
-        # Esta propiedad es usada explícitamente por is_preorder_leq() y is_join().
+        # ÍNDICE DEL COCIENTE DELGADO — no es la categoría.
+        #
+        # Este dict guarda UN morfismo por par (source, target): es el cociente
+        # que identifica todos los morfismos paralelos. `has_morphism`,
+        # `get_morphism_between`, `is_preorder_leq` y `reachable_from` leen de
+        # aquí, y por eso deciden ALCANZABILIDAD, no morfismos.
+        #
+        # Conviene no confundirlo con `hom(a, b)`, que sí devuelve el Hom-set
+        # completo. La categoría está en `hom`; aquí está su sombra delgada.
+        #
+        # Esa sombra es útil —el pipeline de colímites corre sobre ella— pero
+        # tiene un precio demostrado: bajo delgadez el colímite es el supremo,
+        # el supremo es asociativo, y por `lub_de_lubs` iterar colímites nunca
+        # produce orden de complejidad >= 2. Ver `no_delgado.py` para la lectura
+        # que no cocienta.
         pair = (morphism.source_id, morphism.target_id)
         self._morphism_pairs[pair] = morphism.id
 

@@ -90,7 +90,22 @@ class PatternManager:
                 if morph and morph.source_id in comp_id_to_idx and morph.target_id in comp_id_to_idx:
                     src_idx = comp_id_to_idx[morph.source_id]
                     tgt_idx = comp_id_to_idx[morph.target_id]
+                    # El nombre lleva un contador porque DOS ENLACES
+                    # PARALELOS son dos morfismos distintos del indice. Con la
+                    # clave f"d_{src}_{tgt}" el segundo sobreescribia al
+                    # primero y la categoria de indices quedaba delgada aunque
+                    # el grafo no lo fuera — la ultima capa donde se perdia la
+                    # multiplicidad.
+                    #
+                    # Importa porque la discrepancia entre "co-cono" y "cota
+                    # superior" solo aparece con enlaces paralelos: con uno
+                    # solo la familia queda determinada por propagacion y
+                    # siempre existe (cf. delgado_cocono_automatico).
+                    k = 0
                     idx_morph_name = f"d_{src_idx}_{tgt_idx}"
+                    while idx_morph_name in index_morphisms:
+                        k += 1
+                        idx_morph_name = f"d_{src_idx}_{tgt_idx}_{k}"
                     index_morphisms[idx_morph_name] = (src_idx, tgt_idx)
                     functor_map_morphisms[idx_morph_name] = link_id
 
