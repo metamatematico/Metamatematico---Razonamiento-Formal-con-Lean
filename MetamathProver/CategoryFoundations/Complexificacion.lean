@@ -617,4 +617,76 @@ theorem cota_superior_no_implica_cocono :
     (∀ f : Fin 2, ¬ esCoconoParalelo preX preY f) :=
   ⟨hom_no_vacio_en_el_contraejemplo, sin_cocono_pese_a_hom_no_vacio⟩
 
+/-!
+## 11. El espectro: libre ≤ real ≤ delgado
+
+§10 deja una decision abierta que no la resuelve ningun teorema, porque no es
+matematica sino de modelado: **que caminos hay que identificar**.
+
+Los dos extremos son claros y ninguno sirve:
+
+  · **Categoria libre** — no se identifica nada. Dos caminos distintos son
+    morfismos distintos, la conmutacion casi nunca se cumple, y casi no hay
+    co-conos. El sistema no encontraria ningun colimite.
+  · **Categoria delgada** — se identifica todo lo paralelo. La conmutacion se
+    cumple sola, y por §8 no hay emergencia posible. Es donde esta hoy.
+
+Lo correcto esta en medio: caminos modulo las relaciones que la matematica
+declare, que es la construccion por generadores y relaciones de Ehresmann §3.5.
+Y las relaciones son contenido —hay que escribirlas— no algo que se derive.
+
+Lo que si se puede demostrar, y es lo que hace util el espectro, es que esta
+**ordenado**: cuantas mas identificaciones, mas co-conos. Los dos extremos
+acotan cualquier eleccion intermedia, asi que declarar relaciones solo puede
+mover el sistema en una direccion conocida.
+-/
+
+/-- Co-cono modulo una congruencia `r` sobre `Hom(P_i, A)`. -/
+def esCoconoMod {m n : ℕ} (px py : Precomp m n)
+    (r : Fin m → Fin m → Prop) (f : Fin n) : Prop :=
+  r (px f) (py f)
+
+/--
+**Teorema (monotonia).** Mas identificaciones, mas co-conos.
+
+Es lo que ordena el espectro: si la congruencia `r` esta contenida en `s`, todo
+co-cono modulo `r` lo es modulo `s`. Declarar una relacion nunca quita
+co-conos; solo puede añadirlos.
+-/
+theorem cocono_monotono_en_la_congruencia {m n : ℕ}
+    (px py : Precomp m n) (r s : Fin m → Fin m → Prop)
+    (h : ∀ a b, r a b → s a b) (f : Fin n) :
+    esCoconoMod px py r f → esCoconoMod px py s f :=
+  h _ _
+
+/--
+**Extremo superior: la categoria delgada.** Con la congruencia total —todo
+morfismo paralelo identificado— la condicion es vacua y SIEMPRE hay co-cono.
+
+Es exactamente el sistema de hoy, y por §8 el que no puede tener emergencia.
+-/
+theorem cocono_delgado_siempre {m n : ℕ} (px py : Precomp m n) (f : Fin n) :
+    esCoconoMod px py (fun _ _ => True) f :=
+  trivial
+
+/--
+**Extremo inferior: la categoria libre.** Con la congruencia minima —la
+igualdad— puede no haber NINGUN co-cono.
+
+Con `preX` y `preY` no lo hay para ninguna eleccion, que es
+`sin_cocono_pese_a_hom_no_vacio` dicho en esta notacion.
+-/
+theorem cocono_libre_puede_fallar :
+    ∀ f : Fin 2, ¬ esCoconoMod preX preY Eq f :=
+  sin_cocono_pese_a_hom_no_vacio
+
+/--
+**Corolario.** Los dos extremos son distintos, luego el espectro no es trivial:
+hay algo que elegir en medio, y la eleccion cambia el resultado.
+-/
+theorem el_espectro_no_es_trivial :
+    (∀ f : Fin 2, esCoconoMod preX preY (fun _ _ => True) f) ∧
+    (∀ f : Fin 2, ¬ esCoconoMod preX preY Eq f) :=
+  ⟨fun f => cocono_delgado_siempre preX preY f, cocono_libre_puede_fallar⟩
+
 end MetamathProver.Complexificacion

@@ -21,6 +21,8 @@ from nucleo.graph.no_delgado import (
     multiplicidad, caminos, es_cocono_libre, hay_cocono_libre,
     comparar_cocono, registrar_morfismos_certificados,
     MORFISMOS_CERTIFICADOS,
+    Congruencia, LIBRE, DELGADA, hay_cocono_cong, es_cocono_cong,
+    espectro, congruencia_respeta_certificados,
 )
 
 
@@ -218,3 +220,109 @@ class TestMorfismosCertificados:
             assert origen and destino and constr
             assert teorema.startswith("MorfismosGrupoAnillo.")
             assert afirma
+
+
+# ---------------------------------------------------------------------------
+# El espectro: libre <= declarada <= delgada
+# ---------------------------------------------------------------------------
+
+class TestCongruencia:
+
+    def _testigo(self):
+        """Dos enlaces paralelos `A ⇉ B` y apice `C`. Igual que arriba."""
+        g = _g("A", "B", "C")
+        x = g.add_morphism("A", "B", MorphismType.DEPENDENCY, construccion="x")
+        y = g.add_morphism("A", "B", MorphismType.DEPENDENCY, construccion="y")
+        g.add_morphism("A", "C", MorphismType.DEPENDENCY)
+        g.add_morphism("B", "C", MorphismType.DEPENDENCY)
+        pm = PatternManager()
+        return g, pm.create_pattern(["A", "B"], [x.id, y.id], graph=g), x, y
+
+    def test_los_dos_extremos_difieren(self):
+        """Si coincidieran, no habria nada que elegir. `el_espectro_no_es_trivial`."""
+        g, p, _, _ = self._testigo()
+        assert hay_cocono_cong(p, "C", g, LIBRE) is False
+        assert hay_cocono_cong(p, "C", g, DELGADA) is True
+
+    def test_declarar_una_relacion_mueve_el_resultado(self):
+        """Y lo mueve en la direccion que dice el teorema de monotonia."""
+        g, p, x, y = self._testigo()
+        c = Congruencia()
+        assert hay_cocono_cong(p, "C", g, c) is False
+        c.declarar((x.id,), (y.id,))
+        assert hay_cocono_cong(p, "C", g, c) is True
+
+    def test_monotonia(self):
+        """Mas identificaciones nunca quitan co-conos.
+
+        `cocono_monotono_en_la_congruencia`.
+        """
+        g, p, x, y = self._testigo()
+        e = espectro(p, "C", g, Congruencia().declarar((x.id,), (y.id,)))
+        # libre <= declarada <= delgada, como implicaciones
+        assert not (e["libre"] and not e["declarada"])
+        assert not (e["declarada"] and not e["delgada"])
+
+    def test_declarar_es_idempotente(self):
+        g, p, x, y = self._testigo()
+        c = Congruencia().declarar((x.id,), (y.id,)).declarar((x.id,), (y.id,))
+        assert len(c.relaciones) == 1
+
+    def test_la_relacion_es_simetrica(self):
+        g, p, x, y = self._testigo()
+        c = Congruencia().declarar((x.id,), (y.id,))
+        assert c.iguales((x.id,), (y.id,))
+        assert c.iguales((y.id,), (x.id,))
+
+    def test_cierre_por_contexto(self):
+        """Si `x = y`, entonces `x·f = y·f`: la congruencia respeta composicion."""
+        g, p, x, y = self._testigo()
+        f = g.hom("B", "C")[0]
+        c = Congruencia().declarar((x.id,), (y.id,))
+        assert c.iguales((x.id, f.id), (y.id, f.id))
+
+
+# ---------------------------------------------------------------------------
+# Lean tambien dice que relaciones NO se pueden declarar
+# ---------------------------------------------------------------------------
+
+class TestCertificadosVsCongruencia:
+
+    def _g_certificado(self):
+        g = _g("group-theory", "ring-theory")
+        registrar_morfismos_certificados(g)
+        return g
+
+    def test_la_libre_no_viola_nada(self):
+        assert congruencia_respeta_certificados(LIBRE, self._g_certificado()) == []
+
+    def test_la_delgada_viola_los_certificados(self):
+        """El diagnostico del sistema actual, hecho test.
+
+        La congruencia total identifica los tres morfismos group-theory ->
+        ring-theory, y `no_hay_iso` demuestra que son distintos. No es una
+        simplificacion conveniente: es una identificacion FALSA.
+        """
+        v = congruencia_respeta_certificados(DELGADA, self._g_certificado())
+        assert len(v) == 3
+        assert all(o == "group-theory" and d == "ring-theory" for o, d, _ in v)
+        assert all("MorfismosGrupoAnillo." in m for _, _, m in v)
+
+    def test_declarar_una_relacion_falsa_se_detecta(self):
+        g = self._g_certificado()
+        hs = {h.metadata.get("construccion"): h
+              for h in g.hom("group-theory", "ring-theory")
+              if h.metadata.get("certificado")}
+        c = Congruencia().declarar(
+            (hs["grupo-aditivo"].id,), (hs["grupo-unidades"].id,)
+        )
+        v = congruencia_respeta_certificados(c, g)
+        assert len(v) == 1
+        assert "grupo-aditivo" in v[0][2] and "grupo-unidades" in v[0][2]
+
+    def test_una_congruencia_inocua_no_se_marca(self):
+        g = self._g_certificado()
+        g.add_skill(Skill(id="otro", name="otro", level=0))
+        m = g.add_morphism("ring-theory", "otro", MorphismType.DEPENDENCY)
+        c = Congruencia().declarar((m.id,), (m.id,))
+        assert congruencia_respeta_certificados(c, g) == []

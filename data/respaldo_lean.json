@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 251,
-  "auditadas": 52,
+  "declaraciones_lean": 256,
+  "auditadas": 56,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -218,6 +218,34 @@
       "teorema": "no_hay_iso",
       "fichero": "MorfismosGrupoAnillo.lean",
       "afirma": "los tres morfismos group-theory -> ring-theory no son isomorfos entre si"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "Congruencia",
+      "teorema": "cocono_monotono_en_la_congruencia",
+      "fichero": "Complexificacion.lean",
+      "afirma": "mas identificaciones, mas co-conos: el espectro esta ordenado"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "hay_cocono_cong",
+      "teorema": "esCoconoMod",
+      "fichero": "Complexificacion.lean",
+      "afirma": "co-cono modulo una congruencia declarada"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "espectro",
+      "teorema": "el_espectro_no_es_trivial",
+      "fichero": "Complexificacion.lean",
+      "afirma": "los dos extremos difieren, luego hay algo que elegir en medio"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "congruencia_respeta_certificados",
+      "teorema": "no_hay_iso",
+      "fichero": "MorfismosGrupoAnillo.lean",
+      "afirma": "la congruencia DELGADA identifica morfismos que Lean demostro distintos: no es una simplificacion, es una identificacion falsa"
     },
     {
       "modulo": "patterns.py",

@@ -311,3 +311,198 @@ def registrar_morfismos_certificados(graph: "SkillCategory") -> list[str]:
             f"Hom(group-theory, ring-theory) deja de ser delgado"
         )
     return ids
+
+
+# ---------------------------------------------------------------------------
+# Congruencia: caminos modulo relaciones declaradas
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Congruencia:
+    """
+    Las relaciones que identifican caminos: la eleccion que faltaba.
+
+    `no_delgado` decia que la decision entre categoria LIBRE y DELGADA no la
+    toma el codigo. Esta clase la hace explicita y parametrizable en vez de
+    dejarla implicita en el cociente.
+
+    El espectro esta ORDENADO, y eso si es un teorema:
+    `cocono_monotono_en_la_congruencia` — cuantas mas identificaciones, mas
+    co-conos. Los dos extremos lo acotan:
+
+      · `Congruencia()` vacia         -> categoria LIBRE. Casi nada conmuta,
+                                         casi no hay co-conos
+                                         (`cocono_libre_puede_fallar`).
+      · `Congruencia(total=True)`     -> categoria DELGADA. Todo paralelo se
+                                         identifica, la conmutacion se cumple
+                                         sola (`cocono_delgado_siempre`), y por
+                                         `lub_de_lubs` no hay emergencia.
+
+    Declarar una relacion nunca quita co-conos: solo puede añadirlos. Asi que
+    crecer el conjunto mueve el sistema en una direccion conocida.
+
+    Attributes:
+        relaciones: pares de caminos paralelos declarados iguales.
+        total: si True, TODO par de caminos paralelos se identifica (delgado).
+    """
+    relaciones: list[tuple[tuple[str, ...], tuple[str, ...]]] = field(default_factory=list)
+    total: bool = False
+
+    def declarar(self, p: tuple[str, ...], q: tuple[str, ...]) -> "Congruencia":
+        """Declara `p = q`. Deben ser paralelos; el llamador lo garantiza."""
+        if (p, q) not in self.relaciones and (q, p) not in self.relaciones:
+            self.relaciones.append((p, q))
+        return self
+
+    def iguales(self, p: tuple[str, ...], q: tuple[str, ...]) -> bool:
+        """
+        ¿Son `p` y `q` el mismo morfismo bajo esta congruencia?
+
+        Cierre por contexto: si `p = q` esta declarado, entonces
+        `r·p·s = r·q·s` para cualesquiera `r`, `s`. Se aplica hasta punto fijo
+        sobre los dos caminos dados, que es finito porque las reescrituras no
+        alargan.
+
+        NOTA sobre el alcance: el problema de la palabra para una presentacion
+        arbitraria es indecidible. Aqui se decide sobre caminos ACOTADOS, con
+        reescritura hasta punto fijo. Basta para lo que el sistema usa, y no se
+        promete mas.
+        """
+        if p == q:
+            return True
+        if self.total:
+            return True
+        vistos = {p}
+        frontera = [p]
+        while frontera:
+            actual = frontera.pop()
+            for a, b in self.relaciones:
+                for desde, hacia in ((a, b), (b, a)):
+                    n = len(desde)
+                    if n == 0:
+                        continue
+                    for i in range(len(actual) - n + 1):
+                        if actual[i:i + n] == desde:
+                            nuevo = actual[:i] + hacia + actual[i + n:]
+                            if nuevo == q:
+                                return True
+                            if nuevo not in vistos:
+                                vistos.add(nuevo)
+                                frontera.append(nuevo)
+        return False
+
+
+#: La congruencia que reproduce el sistema actual. Se nombra para que deje de
+#: ser una suposicion tacita: hoy el pipeline corre AQUI, en el extremo donde
+#: `lub_de_lubs` prohibe la emergencia.
+DELGADA = Congruencia(total=True)
+
+#: El otro extremo. Util para medir, no para producir.
+LIBRE = Congruencia()
+
+
+def es_cocono_cong(
+    pattern: "Pattern",
+    eleccion: dict[str, tuple[str, ...]],
+    cong: Congruencia,
+) -> bool:
+    """Co-cono modulo una congruencia. Es `esCoconoMod` de Complexificacion.lean."""
+    for nombre, (i_idx, j_idx) in pattern.index_morphisms.items():
+        link_id = pattern.functor_map_morphisms.get(nombre)
+        ci = pattern.functor_map_objects.get(i_idx)
+        cj = pattern.functor_map_objects.get(j_idx)
+        if link_id is None or ci is None or cj is None:
+            continue
+        if ci not in eleccion or cj not in eleccion:
+            return False
+        if not cong.iguales((link_id,) + eleccion[cj], eleccion[ci]):
+            return False
+    return True
+
+
+def hay_cocono_cong(
+    pattern: "Pattern",
+    apex: str,
+    graph: "SkillCategory",
+    cong: Congruencia,
+    max_longitud: int = MAX_LONGITUD,
+    max_combinaciones: int = 20000,
+) -> Optional[bool]:
+    """¿Hay co-cono sobre `pattern` con vertice `apex`, modulo `cong`?"""
+    homs: dict[str, list[tuple[str, ...]]] = {}
+    for c in pattern.component_ids:
+        cs = caminos(graph, c, apex, max_longitud)
+        if not cs:
+            return False
+        homs[c] = cs
+    total = 1
+    for cs in homs.values():
+        total *= len(cs)
+        if total > max_combinaciones:
+            return None
+    comps = list(homs.keys())
+    for combo in product(*(homs[c] for c in comps)):
+        if es_cocono_cong(pattern, dict(zip(comps, combo)), cong):
+            return True
+    return False
+
+
+def espectro(
+    pattern: "Pattern",
+    apex: str,
+    graph: "SkillCategory",
+    cong: Congruencia,
+    max_longitud: int = MAX_LONGITUD,
+) -> dict:
+    """
+    Situa una congruencia concreta entre los dos extremos.
+
+    Por `cocono_monotono_en_la_congruencia` se cumple
+    `libre <= cong <= delgada` como implicaciones, asi que las tres columnas
+    solo pueden ir de False a True en ese orden. Si aparece otra cosa, hay un
+    error en la congruencia.
+    """
+    return {
+        "libre": hay_cocono_cong(pattern, apex, graph, LIBRE, max_longitud),
+        "declarada": hay_cocono_cong(pattern, apex, graph, cong, max_longitud),
+        "delgada": hay_cocono_cong(pattern, apex, graph, DELGADA, max_longitud),
+        "n_relaciones": len(cong.relaciones),
+    }
+
+
+def congruencia_respeta_certificados(
+    cong: Congruencia,
+    graph: "SkillCategory",
+) -> list[tuple[str, str, str]]:
+    """
+    Comprueba que la congruencia no identifica morfismos que Lean separo.
+
+    Es el sentido menos obvio del certificado, y el mas util en la practica:
+    `no_hay_iso` no solo dice que `grupo-aditivo` y `grupo-unidades` existen
+    como morfismos distintos — dice que **declararlos iguales seria falso**.
+
+    La congruencia total (`DELGADA`) los identifica a todos, luego viola todos
+    los certificados. Que es precisamente el diagnostico del sistema actual:
+    esta en un extremo del espectro que la matematica ya refuto para los pares
+    donde hay multiplicidad demostrada.
+
+    Returns:
+        Las violaciones, como (origen, destino, motivo). Vacia = compatible.
+    """
+    violaciones: list[tuple[str, str, str]] = []
+    por_par: dict[tuple[str, str], list] = {}
+    for m in graph.morphisms:
+        if m.metadata.get("certificado"):
+            por_par.setdefault((m.source_id, m.target_id), []).append(m)
+
+    for (origen, destino), ms in por_par.items():
+        for i, a in enumerate(ms):
+            for b in ms[i + 1:]:
+                if cong.iguales((a.id,), (b.id,)):
+                    violaciones.append((
+                        origen, destino,
+                        f"identifica '{a.metadata.get('construccion')}' con "
+                        f"'{b.metadata.get('construccion')}', que "
+                        f"{a.metadata.get('teorema_lean')} separa",
+                    ))
+    return violaciones

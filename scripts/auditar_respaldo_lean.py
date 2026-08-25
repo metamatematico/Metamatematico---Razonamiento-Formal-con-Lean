@@ -124,6 +124,16 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
     ("no_delgado.py", "registrar_morfismos_certificados", "no_hay_iso",
      "los tres morfismos group-theory -> ring-theory no son isomorfos entre si"),
 
+    ("no_delgado.py", "Congruencia", "cocono_monotono_en_la_congruencia",
+     "mas identificaciones, mas co-conos: el espectro esta ordenado"),
+    ("no_delgado.py", "hay_cocono_cong", "esCoconoMod",
+     "co-cono modulo una congruencia declarada"),
+    ("no_delgado.py", "espectro", "el_espectro_no_es_trivial",
+     "los dos extremos difieren, luego hay algo que elegir en medio"),
+    ("no_delgado.py", "congruencia_respeta_certificados", "no_hay_iso",
+     "la congruencia DELGADA identifica morfismos que Lean demostro distintos:"
+     " no es una simplificacion, es una identificacion falsa"),
+
     ("patterns.py", "hay_cluster", "Conectados",
      "cluster dirigido P->Q: toda componente de P alcanza alguna de Q (todo-existe)"),
     ("patterns.py", "decomposiciones_de", "Descomposicion",
