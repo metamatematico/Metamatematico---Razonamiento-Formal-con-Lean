@@ -49,6 +49,9 @@ import MetamathProver.CategoryFoundations.Complexificacion
 -- Cuantos morfismos hay de group-theory a ring-theory: al menos tres, y dos de
 -- ellos son los que nombraria cualquier algebrista. El dominio NO es delgado.
 import MetamathProver.CategoryFoundations.MorfismosGrupoAnillo
+-- Los demas pares del grafo donde la multiplicidad se puede certificar. El
+-- separador no siempre es el cardinal: group-actions se separa por puntos fijos.
+import MetamathProver.CategoryFoundations.MultiplicidadDelGrafo
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism

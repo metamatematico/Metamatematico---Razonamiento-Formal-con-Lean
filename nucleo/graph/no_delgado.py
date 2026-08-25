@@ -278,6 +278,54 @@ MORFISMOS_CERTIFICADOS: list[tuple[str, str, str, str, str]] = [
     ("group-theory", "ring-theory", "grupo-trivial",
      "MorfismosGrupoAnillo.card_trivial",
      "el funtor constante al grupo trivial; cardinal 1"),
+
+    # ── ring-theory -> field-theory ────────────────────────────────────────
+    ("ring-theory", "field-theory", "anillo-subyacente",
+     "MultiplicidadDelGrafo.card_anillo_subyacente",
+     "el anillo subyacente del cuerpo; |ZMod 5| = 5"),
+    ("ring-theory", "field-theory", "anillo-matrices",
+     "MultiplicidadDelGrafo.card_anillo_matrices",
+     "el anillo de matrices 2x2 sobre el cuerpo; cardinal 625"),
+    ("ring-theory", "field-theory", "anillo-trivial",
+     "MultiplicidadDelGrafo.card_anillo_trivial",
+     "el anillo trivial; cardinal 1"),
+
+    # ── ring-theory -> module-theory ───────────────────────────────────────
+    ("ring-theory", "module-theory", "modulo-regular",
+     "MultiplicidadDelGrafo.card_modulo_regular",
+     "el anillo como modulo sobre si mismo; cardinal 5"),
+    ("ring-theory", "module-theory", "modulo-libre-2",
+     "MultiplicidadDelGrafo.card_modulo_libre2",
+     "el modulo libre de rango 2; cardinal 25"),
+    ("ring-theory", "module-theory", "modulo-cero",
+     "MultiplicidadDelGrafo.card_modulo_cero",
+     "el modulo cero; cardinal 1"),
+
+    # ── field-extensions -> finite-fields ──────────────────────────────────
+    ("field-extensions", "finite-fields", "cuerpo-primo-2",
+     "MultiplicidadDelGrafo.card_cuerpo_2",
+     "el cuerpo primo de caracteristica 2; cardinal 2"),
+    ("field-extensions", "finite-fields", "cuerpo-primo-3",
+     "MultiplicidadDelGrafo.card_cuerpo_3",
+     "el cuerpo primo de caracteristica 3; cardinal 3"),
+    ("field-extensions", "finite-fields", "cuerpo-primo-5",
+     "MultiplicidadDelGrafo.card_cuerpo_5",
+     "el cuerpo primo de caracteristica 5; cardinal 5"),
+
+    # ── group-theory -> group-actions ──────────────────────────────────────
+    #
+    # El par instructivo: las tres acciones comparten CONJUNTO SUBYACENTE, asi
+    # que el cardinal no las separa. Lo hace el numero de puntos fijos. La
+    # multiplicidad no siempre se ve por el tamaño del resultado.
+    ("group-theory", "group-actions", "accion-traslacion",
+     "MultiplicidadDelGrafo.fijos_traslacion",
+     "traslacion g.x = g+x; 0 puntos fijos"),
+    ("group-theory", "group-actions", "accion-trivial",
+     "MultiplicidadDelGrafo.fijos_trivial",
+     "accion trivial g.x = x; 4 puntos fijos"),
+    ("group-theory", "group-actions", "accion-paridad",
+     "MultiplicidadDelGrafo.fijos_paridad",
+     "los g impares intercambian 0<->1; 2 puntos fijos"),
 ]
 
 

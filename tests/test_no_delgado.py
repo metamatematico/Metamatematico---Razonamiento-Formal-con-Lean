@@ -196,7 +196,7 @@ class TestMorfismosCertificados:
         registrar_morfismos_certificados(g)
         for h in g.hom("group-theory", "ring-theory"):
             if h.metadata.get("certificado"):
-                assert h.metadata["teorema_lean"].startswith("MorfismosGrupoAnillo.")
+                assert "." in h.metadata["teorema_lean"]
 
     def test_el_par_deja_de_ser_delgado(self):
         g = _g("group-theory", "ring-theory")
@@ -218,7 +218,10 @@ class TestMorfismosCertificados:
     def test_el_mapeo_declara_teorema_para_cada_uno(self):
         for origen, destino, constr, teorema, afirma in MORFISMOS_CERTIFICADOS:
             assert origen and destino and constr
-            assert teorema.startswith("MorfismosGrupoAnillo.")
+            # El namespace ya no es unico: hay dos archivos de certificados.
+            # Que el teorema EXISTA lo comprueba
+            # test_todos_citan_un_teorema_existente, que es la guardia buena.
+            assert "." in teorema
             assert afirma
 
 
@@ -326,3 +329,100 @@ class TestCertificadosVsCongruencia:
         m = g.add_morphism("ring-theory", "otro", MorphismType.DEPENDENCY)
         c = Congruencia().declarar((m.id,), (m.id,))
         assert congruencia_respeta_certificados(c, g) == []
+
+
+# ---------------------------------------------------------------------------
+# Los cinco pares certificados
+# ---------------------------------------------------------------------------
+
+class TestParesCertificados:
+    """
+    `agotar los pares certificados` significa: todos aquellos donde (1) la
+    arista ya existe, (2) hay dos construcciones clasicas y (3) un invariante
+    finito las separa. Los que fallan (3) quedan fuera y se dice por que.
+    """
+
+    PARES = {
+        ("group-theory", "ring-theory"),
+        ("ring-theory", "field-theory"),
+        ("ring-theory", "module-theory"),
+        ("field-extensions", "finite-fields"),
+        ("group-theory", "group-actions"),
+    }
+
+    def test_son_cinco_pares(self):
+        assert {(o, d) for o, d, _, _, _ in MORFISMOS_CERTIFICADOS} == self.PARES
+
+    def test_cada_par_tiene_al_menos_tres_construcciones(self):
+        por_par = {}
+        for o, d, c, _, _ in MORFISMOS_CERTIFICADOS:
+            por_par.setdefault((o, d), set()).add(c)
+        for par, cs in por_par.items():
+            assert len(cs) >= 3, f"{par} solo tiene {len(cs)}"
+
+    def test_las_construcciones_no_se_repiten_entre_pares(self):
+        cs = [c for _, _, c, _, _ in MORFISMOS_CERTIFICADOS]
+        assert len(cs) == len(set(cs))
+
+    def test_todos_citan_un_teorema_existente(self):
+        """Guardia contra teoremas fantasma en el mapeo."""
+        import pathlib, re
+        raiz = pathlib.Path(__file__).resolve().parent.parent
+        lean = " ".join(
+            f.read_text(encoding="utf-8")
+            for f in (raiz / "MetamathProver" / "CategoryFoundations").glob("*.lean")
+        )
+        for _, _, _, teorema, _ in MORFISMOS_CERTIFICADOS:
+            nombre = teorema.split(".")[-1]
+            assert re.search(rf"(theorem|lemma|def)\s+{re.escape(nombre)}\b", lean), (
+                f"'{teorema}' no existe en el corpus Lean"
+            )
+
+    def test_registrar_no_mueve_el_preorden(self):
+        """Añadir morfismos PARALELOS a aristas existentes no cambia el orden.
+
+        Es la condicion que hace seguro certificar: la multiplicidad se añade
+        sin tocar la alcanzabilidad, luego colimites, huecos y cn no se mueven.
+        """
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+
+        def _medir(g):
+            pm = PatternManager()
+            cb = ColimitBuilder(pm)
+            cn, gaps = build_hierarchy_to_fixpoint(g, pm, cb)
+            return g.stats["num_joins"], len(gaps), sorted(cn.items())
+
+        ids = [o for o, _, _, _, _ in MORFISMOS_CERTIFICADOS]
+        ids += [d for _, d, _, _, _ in MORFISMOS_CERTIFICADOS]
+        g = _g(*sorted(set(ids)))
+        for o, d in sorted(self.PARES):
+            g.add_morphism(o, d, MorphismType.DEPENDENCY)
+
+        antes = _medir(g)
+        registrar_morfismos_certificados(g)
+        assert _medir(g) == antes
+
+    def test_los_paralelos_llegan_al_indice_del_patron(self):
+        """Y con ellos el patron deja de tener un indice delgado."""
+        g = _g("group-theory", "ring-theory", "X")
+        g.add_morphism("group-theory", "ring-theory", MorphismType.DEPENDENCY)
+        g.add_morphism("group-theory", "X", MorphismType.DEPENDENCY)
+        g.add_morphism("ring-theory", "X", MorphismType.DEPENDENCY)
+        registrar_morfismos_certificados(g)
+
+        enlaces = [m.id for m in g.hom("group-theory", "ring-theory")
+                   if m.morphism_type != MorphismType.IDENTITY]
+        pm = PatternManager()
+        p = pm.create_pattern(["group-theory", "ring-theory"], enlaces, graph=g)
+        assert len(p.index_morphisms) == len(enlaces) >= 4
+
+    def test_la_delgada_viola_todos_los_certificados(self):
+        """Cuantos mas pares se certifican, mas falsa es la congruencia actual."""
+        ids = [o for o, _, _, _, _ in MORFISMOS_CERTIFICADOS]
+        ids += [d for _, d, _, _, _ in MORFISMOS_CERTIFICADOS]
+        g = _g(*sorted(set(ids)))
+        registrar_morfismos_certificados(g)
+        v = congruencia_respeta_certificados(DELGADA, g)
+        # 5 pares con 3 construcciones cada uno -> 3 pares no ordenados por par
+        assert len(v) == 15
+        assert congruencia_respeta_certificados(LIBRE, g) == []
