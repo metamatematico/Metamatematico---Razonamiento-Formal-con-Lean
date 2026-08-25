@@ -65,7 +65,20 @@ def test_ningun_join_se_alcanza_a_si_mismo(joins):
 
 
 def test_cn_acotado_y_positivo(joins):
-    """max(cn) = 2 significa que el sistema construyo conceptos de 2o orden."""
+    """max(cn) >= 2 significa que hay joins anidados. NO es orden 2 de Ehresmann.
+
+    `cn` es la recursion propia del sistema: cn(J) = 1 + max cn(componentes).
+    El orden de complejidad de Ehresmann (§5.2) es otra cosa: exige que el
+    colimite NO se obtenga en un solo paso desde la base, y eso solo lo impide
+    un enlace distinguido COMPLEJO en el patron superior.
+
+    Medido: los 3 objetos con cn=2 se aplanan a un unico paso —
+    join(join(a,b), c) = join(a,b,c)— porque el supremo es asociativo en un
+    orden parcial. Su orden de Ehresmann es 1, no 2.
+
+    Este test sigue siendo util como guardia de que la recursion de cn produce
+    algo; no como evidencia de emergencia.
+    """
     sys.argv = ["x"]
     from scripts.train_gnn_ppo import build_skill_graph
     from nucleo.mes.patterns import PatternManager, ColimitBuilder

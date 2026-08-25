@@ -40,6 +40,12 @@ import MetamathProver.CategoryFoundations.SimpleComplexLinks
 -- cluster entre descomposiciones, no por factorizar via un objeto. Demuestra
 -- que el Principio de Multiplicidad es condicion NECESARIA de la complejidad.
 import MetamathProver.CategoryFoundations.EhresmannLinks
+-- Funtores de transicion entre instantaneas: composicion parcial, asociatividad
+-- y compatibilidad (Def 3.2) = ley de funtor sobre el orden del tiempo.
+import MetamathProver.CategoryFoundations.Evolution
+-- La complexificacion de Ehresmann en el caso delgado: todo patron adquiere
+-- colimite, los que ya lo tenian lo conservan, y los homologos lo comparten.
+import MetamathProver.CategoryFoundations.Complexificacion
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism

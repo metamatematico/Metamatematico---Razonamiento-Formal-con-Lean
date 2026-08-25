@@ -834,80 +834,100 @@ class SkillCategory:
     # CLASIFICACION DE ENLACES (Def 6.3 v7.0)
     # =========================================================================
 
-    def classify_link(self, morphism_id: str) -> LinkComplexity:
+    def classify_link(
+        self,
+        morphism_id: str,
+        pattern_manager: Optional[Any] = None,
+        colimit_builder: Optional[Any] = None,
+    ) -> LinkComplexity:
         """
-        Clasificar la complejidad de un enlace (Def 6.3 v7.0).
+        Clasificar un enlace segun Ehresmann.
 
-        - IDENTITY: Morfismo identidad
-        - SIMPLE: Factoriza a traves de un unico colimite (cluster)
-        - COMPLEX: No factoriza a traves de ningun cluster individual
+        DEFINICION (EhresmannLinks.lean, `EsSimple`)
+        --------------------------------------------
+            EsSimple a b := ∃ P Q, binding P = a ∧ binding Q = b ∧ Cluster P Q
 
-        Un enlace f: A -> B es simple si existe un colimite C tal que
-        A -> C -> B (factorizacion por cluster). Es complejo si es una
-        composicion de simples que no factoriza globalmente.
+        `f : a → b` es SIMPLE si esta INDUCIDO por un clúster entre
+        descomposiciones de sus extremos. COMPLEX si ambos extremos son
+        colimites y ningun par de descomposiciones esta conectado por un
+        clúster — que es la hipotesis de `complex_needs_unconnected`, el
+        resultado que hace del Principio de Multiplicidad la condicion
+        necesaria de la emergencia.
+
+        QUE HACIA ANTES
+        ---------------
+        Implementaba la lectura por FACTORIZACION —«existe un colimite C con
+        A → C → B»— que es justamente la que se refuto al formalizar: un
+        compuesto puede pasar por objetos-clúster sin estar inducido por
+        ningun clúster. El archivo Lean se corrigio; esta funcion no.
+
+        Y remataba con una heuristica taxonomica: `|level(A) - level(B)| > 1
+        → COMPLEX`. Medido sobre el grafo real, los 246 enlaces "complejos"
+        que reportaba salian TODOS de esa regla, ninguno de un criterio
+        categorico. `level` es profundidad curada a mano; no tiene relacion
+        con estar inducido por un clúster.
 
         Args:
-            morphism_id: ID del morfismo a clasificar
+            morphism_id: ID del morfismo a clasificar.
+            pattern_manager: necesario para el test de clúster.
+            colimit_builder: necesario para conocer las descomposiciones.
 
         Returns:
-            LinkComplexity del enlace
+            LinkComplexity. NO_APLICA si faltan los gestores o si algun
+            extremo no es colimite de ningun patron: sin descomposiciones no
+            hay clúster que buscar, y responder SIMPLE seria inventar.
         """
         morph = self._morphisms.get(morphism_id)
         if not morph:
-            return LinkComplexity.SIMPLE  # Default safe
+            return LinkComplexity.NO_APLICA
 
-        # Identidad
         if morph.morphism_type == MorphismType.IDENTITY:
             return LinkComplexity.IDENTITY
 
-        source = morph.source_id
-        target = morph.target_id
+        if pattern_manager is None or colimit_builder is None:
+            logger.debug(
+                "classify_link sin pattern_manager/colimit_builder: la "
+                "clasificacion de Ehresmann necesita las descomposiciones"
+            )
+            return LinkComplexity.NO_APLICA
 
-        # Caso 1: Source o target ES un colimite → enlace simple
-        # (directamente conectado a un cluster)
-        source_skill = self.get_skill(source)
-        target_skill = self.get_skill(target)
+        descomp_src = colimit_builder.decomposiciones_de(morph.source_id)
+        descomp_tgt = colimit_builder.decomposiciones_de(morph.target_id)
+        if not descomp_src or not descomp_tgt:
+            # Algun extremo no es colimite: Ehresmann no clasifica este enlace.
+            return LinkComplexity.NO_APLICA
 
-        if source_skill and source_skill.pattern_ids:
-            return LinkComplexity.SIMPLE
-        if target_skill and target_skill.pattern_ids:
-            return LinkComplexity.SIMPLE
+        for P in descomp_src:
+            for Q in descomp_tgt:
+                if pattern_manager.hay_cluster(P, Q, self):
+                    return LinkComplexity.SIMPLE
 
-        # Caso 2: Existe colimite intermedio C tal que A→C y C→B existen
-        for sid, node in self._skills.items():
-            if sid == source or sid == target:
-                continue
-            if not node.skill.pattern_ids:
-                continue  # No es colimite
-            if self.has_morphism(source, sid) and self.has_morphism(sid, target):
-                return LinkComplexity.SIMPLE
+        return LinkComplexity.COMPLEX
 
-        # Caso 3: El morfismo fue compuesto (metadata lo indica)
-        if morph.metadata.get("composed_from"):
-            return LinkComplexity.COMPLEX
-
-        # Caso 4: Enlace entre niveles no adyacentes → potencialmente complejo
-        if source_skill and target_skill:
-            level_diff = abs(source_skill.level - target_skill.level)
-            if level_diff > 1:
-                return LinkComplexity.COMPLEX
-
-        # Default: enlace directo entre skills del mismo nivel → simple
-        return LinkComplexity.SIMPLE
-
-    def get_complex_links(self) -> list[Morphism]:
+    def get_complex_links(
+        self,
+        pattern_manager: Optional[Any] = None,
+        colimit_builder: Optional[Any] = None,
+    ) -> list[Morphism]:
         """
-        Obtener todos los enlaces complejos en el grafo.
+        Enlaces COMPLEX del grafo: los que unen dos colimites sin clúster entre
+        sus descomposiciones. Son el vehiculo formal de la emergencia.
 
-        Los enlaces complejos representan propiedades emergentes
-        que no se reducen a un solo cluster (Thm 8.6).
-
-        Returns:
-            Lista de morfismos clasificados como COMPLEX
+        Sin los gestores no se puede decidir, y devolver [] en silencio es como
+        empezo el problema anterior: se avisa.
         """
+        if pattern_manager is None or colimit_builder is None:
+            logger.warning(
+                "get_complex_links() sin pattern_manager/colimit_builder: la "
+                "clasificacion de Ehresmann necesita las descomposiciones. "
+                "Se devuelve [] — no es que no haya enlaces complejos, es que "
+                "no se puede saber."
+            )
+            return []
         return [
             m for m in self._morphisms.values()
-            if self.classify_link(m.id) == LinkComplexity.COMPLEX
+            if self.classify_link(m.id, pattern_manager, colimit_builder)
+            == LinkComplexity.COMPLEX
         ]
 
     # =========================================================================

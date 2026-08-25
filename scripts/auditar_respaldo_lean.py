@@ -65,8 +65,9 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
     ("category.py", "is_preorder_leq", "preorder_le_of_hom",
      "a<=b syss hay morfismo a->b"),
     ("category.py", "classify_link", "simple_of_cluster",
-     "simple = INDUCIDO por un cluster entre descomposiciones (Ehresmann);"
-     " la lectura por factorizacion esta en composite_of_simple_is_simple"),
+     "simple = INDUCIDO por un cluster entre descomposiciones (Ehresmann)."
+     " La lectura por factorizacion, que es la que estuvo implementada, esta"
+     " en composite_of_simple_is_simple y NO es la definicion"),
     ("category.py", "verify_axioms", "path_category_axioms",
      "los axiomas de categoria valen en la categoria libre del quiver"),
     ("category.py", "apply_complexity_order", "hierarchy_well_founded",
@@ -88,6 +89,9 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "cn(join) > cn de cada componente"),
     ("complexity.py", "_find_upper_bounds", "colimit_is_upper_bound",
      "las cotas superiores del patron"),
+    ("complexity.py", "TrivialColimit", "join_propio_rompe_aciclicidad",
+     "si el colimite es una componente el patron TIENE colimite pero romperia"
+     " AciclicoMulti: no es hueco y no entra en la recursion de cn"),
 
     ("patterns.py", "verify_cocone", "isCocone",
      "el co-cono conmuta"),
@@ -97,6 +101,10 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "el mediador existe y es UNICO (∃!h, no ∃h)"),
     ("patterns.py", "build_colimit", "isJoin_iff_nonempty_isColimit",
      "IsJoin equivale a IsColimit de Mathlib"),
+    ("patterns.py", "hay_cluster", "Conectados",
+     "cluster dirigido P->Q: toda componente de P alcanza alguna de Q (todo-existe)"),
+    ("patterns.py", "decomposiciones_de", "Descomposicion",
+     "los patrones cuyo colimite es el objeto; que haya varios es el MP"),
     ("patterns.py", "campos_operativos_isomorfos", None,
      "heuristica estructural, NO la homologia de Ehresmann"),
     ("patterns.py", "verify_multiplicity_principle", "multiplicidad_necesaria_para_complejidad",

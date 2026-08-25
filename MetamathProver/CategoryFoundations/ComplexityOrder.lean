@@ -421,3 +421,45 @@ structure ComplexityCertificate (n : ℕ) where
   /-- All diagrams commute (free from thin-category property). -/
   diagrams_commute : ∀ (a b : Fin n) (h₁ h₂ : a ≤ b), h₁ = h₂ :=
     fun _ _ h₁ h₂ => thin_unique_hom h₁ h₂
+
+
+/-!
+## Descomposiciones triviales: el colimite es una de sus propias componentes
+
+`componente_puede_ser_colimite` (ColimitVerifier.lean) muestra que un patron
+puede tener por colimite a una de sus componentes. Ese patron TIENE colimite:
+no es un hueco conceptual.
+
+Pero registrarlo como descomposicion en la jerarquia rompe la terminacion.
+`AciclicoMulti` exige que toda componente sea ESTRICTAMENTE menor que el objeto,
+y aqui una de ellas ES el objeto. Sin esa hipotesis, `hierarchy_well_founded_multi`
+no aplica y la iteracion de `cn` pierde su garantia de punto fijo.
+
+De ahi el tratamiento correcto, que esta seccion justifica:
+  · tienen colimite  → NO son ConceptGap;
+  · violan aciclicidad → NO entran en la recursion de cn.
+-/
+
+/-- **Teorema.** Si una descomposicion de `x` contiene a `x`, falla la aciclicidad. -/
+theorem join_propio_rompe_aciclicidad {n : ℕ}
+    {decomps : Fin n → List (List (Fin n))} {x : Fin n} {comps : List (Fin n)}
+    (hmem : comps ∈ decomps x) (hx : x ∈ comps) :
+    ¬ AciclicoMulti decomps := by
+  intro hac
+  exact absurd (hac x comps hmem x hx) (lt_irrefl x)
+
+/-- Testigo minimo: un objeto declarado join de si mismo. -/
+def autoJoinTestigo : Fin 1 → List (List (Fin 1)) := fun _ => [[0]]
+
+theorem autoJoinTestigo_no_aciclico : ¬ AciclicoMulti autoJoinTestigo :=
+  join_propio_rompe_aciclicidad (x := 0) (comps := [0]) (by decide) (by decide)
+
+/-- **Teorema (refutacion).** Con una descomposicion trivial la iteracion no
+alcanza punto fijo: el valor crece en cada ronda. Es el mismo fenomeno que
+`no_fixpoint_sin_aciclicidad`, aqui con el ciclo de longitud 1. -/
+theorem autoJoin_sin_punto_fijo :
+    multiIter autoJoinTestigo 1 0 ≠ multiIter autoJoinTestigo 2 0 := by
+  have h1 : multiIter autoJoinTestigo 1 0 = 1 := rfl
+  have h2 : multiIter autoJoinTestigo 2 0 = 2 := rfl
+  rw [h1, h2]
+  omega

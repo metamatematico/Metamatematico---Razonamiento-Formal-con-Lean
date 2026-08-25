@@ -162,6 +162,37 @@ class ConceptGap:
         return f"ConceptGap([{comps}], {len(self.cocones)} co-conos, sin limite)"
 
 
+@dataclass
+class TrivialColimit:
+    """
+    Un patron cuyo CO-CONO LIMITE es una de sus propias componentes.
+
+    No es un hueco: el colimite EXISTE. `componente_puede_ser_colimite`
+    (ColimitVerifier.lean) lo demuestra con el testigo `0 → 1`: el colimite de
+    `[0, 1]` es `1`, que esta en el diagrama. Por `reachable_refl` toda
+    componente es cota superior de si misma, asi que la componente que domina a
+    las demas es el co-cono limite.
+
+    Tampoco es una descomposicion utilizable: registrarla romperia
+    `AciclicoMulti`, que exige toda componente ESTRICTAMENTE menor que el
+    objeto. Ver `join_propio_rompe_aciclicidad` y `autoJoin_sin_punto_fijo`
+    (ComplexityOrder.lean): con una descomposicion asi la iteracion de cn crece
+    en cada ronda y no alcanza punto fijo.
+
+    De ahi el tratamiento: se reconoce, se cuenta, y NO entra en cn ni en gaps.
+    """
+    component_ids: list[str]
+    colimit_id: str             # la componente que resulta ser el colimite
+    pattern_id: "Optional[str]" = None
+
+    def __repr__(self) -> str:
+        comps = ", ".join(self.component_ids[:3])
+        resto = len(self.component_ids) - 3
+        if resto > 0:
+            comps += f" (+{resto})"
+        return f"TrivialColimit([{comps}] -> {self.colimit_id}, es componente)"
+
+
 def find_cocones(
     component_ids: list[str],
     graph: "SkillCategory",
@@ -175,16 +206,45 @@ def find_cocones(
 
     NO filtra por minimalidad — eso es find_colimit. Puede devolver 0, 1 o muchos.
     No crea nada.
+
+    LA RELACION ES REFLEXIVA, Y LAS COMPONENTES NO SE EXCLUYEN
+    ---------------------------------------------------------
+    `isCocone` (ColimitVerifier.lean) es `diagram.all (fun d => reachable d apex)`
+    con `reachable` reflexiva (`reachable_refl`). No excluye nada.
+
+    Esta funcion se desviaba de esa definicion por DOS caminos a la vez:
+
+      1. usaba `graph.reachable_from`, que NO es reflexiva —devuelve las rutas
+         de longitud >= 1—, mientras que `graph.is_preorder_leq` si lo es. El
+         resto del sistema (`is_join`, `_connected_by_cluster`) usa la version
+         reflexiva, asi que dos funciones del mismo repo discrepaban en la
+         diagonal;
+      2. ademas hacia `common.discard(c)` por cada componente, sin comentario.
+
+    Consecuencia medida sobre el grafo real: 14 de los 27 "huecos conceptuales"
+    tenian colimite —una de sus componentes— y `llenar_hueco_conceptual` pedia
+    al LLM el concepto unificador de patrones que ya lo contenian. Contraste
+    directo, mismo patron, mismo repo:
+
+        is_join('functional-analysis', ['functional-analysis','real-analysis'])
+            -> is_join=True, upper_bound=True, minimal=True
+        find_colimit(['functional-analysis','real-analysis'])
+            -> None   (y se archivaba como ConceptGap)
+
+    Ahora se usa el up-set reflexivo. Los patrones cuyo colimite es una
+    componente salen como TrivialColimit: tienen colimite, no son huecos, y no
+    entran en la recursion de cn.
     """
     if not component_ids:
         return []
     _ORD = type(graph).ORDER_MORPHISMS
-    reachable_sets = [graph.reachable_from(c, _ORD) for c in component_ids]
+    # up(c) = {x : c <= x}, reflexivo — la definicion de isCocone.
+    reachable_sets = [
+        graph.reachable_from(c, _ORD) | {c} for c in component_ids
+    ]
     common = reachable_sets[0].copy()
     for r in reachable_sets[1:]:
         common &= r
-    for c in component_ids:
-        common.discard(c)
     return sorted(common)
 
 
@@ -282,9 +342,10 @@ def build_join_for_pattern(
     estructura FIJA.
 
     Returns:
-        Colimit    si el patron tiene co-cono limite en G_n.
-        ConceptGap si tiene co-conos pero ninguno es minimal.
-        None       si el patron tiene menos de 2 componentes.
+        Colimit        si el patron tiene co-cono limite propio en G_n.
+        TrivialColimit si el co-cono limite es una de sus propias componentes.
+        ConceptGap     si tiene co-conos pero ninguno es minimal.
+        None           si el patron tiene menos de 2 componentes.
     """
     if len(pattern.component_ids) < 2:
         return None
@@ -295,6 +356,22 @@ def build_join_for_pattern(
         return existing
 
     join_id = find_colimit(pattern.component_ids, graph, colimit_builder)
+
+    # Caso trivial: el colimite es una componente del propio patron.
+    # Tiene colimite (no es hueco) pero no se registra: `AciclicoMulti` exige
+    # toda componente estrictamente menor que el objeto, y aqui una de ellas ES
+    # el objeto. Ver `join_propio_rompe_aciclicidad` (ComplexityOrder.lean).
+    if join_id is not None and join_id in pattern.component_ids:
+        logger.debug(
+            f"TrivialColimit: el colimite de {list(pattern.component_ids)} es "
+            f"'{join_id}', que es una de sus componentes — no se registra"
+        )
+        return TrivialColimit(
+            component_ids=list(pattern.component_ids),
+            colimit_id=join_id,
+            pattern_id=pattern.id,
+        )
+
     if join_id is not None:
         # Registro puro: construye el cocone_map desde morfismos existentes.
         # No añade skills ni aristas.
@@ -442,6 +519,17 @@ def build_hierarchy_to_fixpoint(
     skill.cn via apply_complexity_order. skill.level (taxonomia curada) no se
     toca — son magnitudes ortogonales.
 
+    TRES DESENLACES POR PATRON, NO DOS
+    ----------------------------------
+      · Colimit        — co-cono limite propio: se registra y cuenta para cn.
+      · TrivialColimit — el colimite es una de sus componentes. Tiene colimite,
+                         luego NO es hueco; pero romperia `AciclicoMulti`,
+                         luego NO entra en cn. Se cuenta y se registra en el log.
+      · ConceptGap     — co-conos pero ninguno minimal: hueco de verdad.
+
+    El tercer caso estaba absorbiendo al segundo porque `find_cocones` no era
+    fiel a `isCocone`. Ver su docstring.
+
     Returns:
         (cn, gaps) donde
           cn   : dict skill_id -> orden de complejidad constructivo
@@ -451,6 +539,7 @@ def build_hierarchy_to_fixpoint(
     """
     logger.info("build_hierarchy_to_fixpoint: comenzando")
     gaps: dict[frozenset, ConceptGap] = {}
+    triviales: dict[frozenset, TrivialColimit] = {}
     # Deduplicacion por CONJUNTO DE COMPONENTES, no por pattern.id.
     # _detect_convergence_patterns crea un Pattern nuevo (id nuevo) en cada
     # iteracion para el mismo conjunto, asi que get_colimit_for_pattern(id)
@@ -465,7 +554,7 @@ def build_hierarchy_to_fixpoint(
         nuevos = 0
         for pattern in patterns:
             clave = frozenset(pattern.component_ids)
-            if clave in resueltos or clave in gaps:
+            if clave in resueltos or clave in gaps or clave in triviales:
                 continue
             if colimit_builder.get_colimit_for_pattern(pattern.id) is not None:
                 resueltos.add(clave)
@@ -473,6 +562,9 @@ def build_hierarchy_to_fixpoint(
             result = build_join_for_pattern(pattern, graph, colimit_builder)
             if isinstance(result, ConceptGap):
                 gaps[clave] = result
+            elif isinstance(result, TrivialColimit):
+                triviales[clave] = result
+                resueltos.add(clave)
             elif result is not None:
                 resueltos.add(clave)
                 nuevos += 1
@@ -499,8 +591,11 @@ def build_hierarchy_to_fixpoint(
     n_joins = sum(1 for v in cn.values() if v > 0)
     logger.info(
         f"Jerarquia: {len(cn)} skills, max_cn={max_cn}, "
-        f"colimites={n_joins}, huecos conceptuales={len(gaps)}"
+        f"colimites={n_joins}, huecos conceptuales={len(gaps)}, "
+        f"colimites triviales={len(triviales)}"
     )
+    for t in triviales.values():
+        logger.debug(f"  {t}")
     return cn, list(gaps.values())
 
 

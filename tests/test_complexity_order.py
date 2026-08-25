@@ -22,6 +22,7 @@ from nucleo.graph.complexity import (
     find_cocones,
     find_colimit,
     ConceptGap,
+    TrivialColimit,
 )
 
 
@@ -132,14 +133,45 @@ class TestFindExistingJoin:
         # D is also above A and B (via C), but C ≤ D so D is not minimal
         assert join_id == "C"
 
-    def test_ignores_components_themselves(self):
-        # Should not return any component as its own join
+    def test_componente_dominante_es_el_colimite(self):
+        """Si una componente domina a las demas, ELLA es el colimite.
+
+        Este test afirmaba lo contrario —`assert join_id is None`— con el
+        comentario "B is a component, excluded". Codificaba una desviacion de
+        la definicion: `isCocone` (ColimitVerifier.lean) no excluye nada y
+        `reachable_refl` hace que toda componente sea cota superior de si
+        misma. El testigo formal es literalmente este grafo:
+
+            componente_puede_ser_colimite :
+              isColimitInFiniteCategory testigoDominante [0, 1] 1 = true
+
+        con `testigoDominante` = la unica arista `0 → 1`. Aqui: A → B, y el
+        colimite de {A, B} es B.
+        """
         g = _graph("A", "B", "C")
         g.add_morphism("A", "B", MorphismType.DEPENDENCY)
         pm, cb = _pm_cb(g)
         join_id = find_existing_join(["A", "B"], g, cb)
-        # B is above A, but B is a component — excluded
-        assert join_id is None
+        assert join_id == "B"
+
+    def test_find_cocones_incluye_las_componentes(self):
+        """`isCocone` es reflexiva y no excluye el diagrama."""
+        g = _graph("A", "B")
+        g.add_morphism("A", "B", MorphismType.DEPENDENCY)
+        pm, cb = _pm_cb(g)
+        # B es cota superior de A (arista) y de si mismo (reflexividad).
+        assert find_cocones(["A", "B"], g) == ["B"]
+
+    def test_is_join_y_find_colimit_coinciden(self):
+        """Las dos rutas del repo no pueden discrepar sobre el mismo patron.
+
+        Antes: is_join(B, [A,B]) = True mientras find_colimit([A,B]) = None.
+        """
+        g = _graph("A", "B")
+        g.add_morphism("A", "B", MorphismType.DEPENDENCY)
+        pm, cb = _pm_cb(g)
+        assert cb.is_join("B", ["A", "B"], g)["is_join"] is True
+        assert find_colimit(["A", "B"], g, cb) == "B"
 
 
 # ---------------------------------------------------------------------------
@@ -224,6 +256,55 @@ class TestBuildJoinForPattern:
         pattern = pm.create_pattern(["A"], [])
         result = build_join_for_pattern(pattern, g, cb)
         assert result is None
+
+    def test_colimite_que_es_componente_no_es_hueco(self):
+        """El colimite existe: no puede archivarse como hueco conceptual.
+
+        Era el caso de 14 de los 27 huecos medidos sobre el grafo real, y
+        `llenar_hueco_conceptual` pedia al LLM el concepto unificador de
+        patrones que ya lo contenian entre sus componentes.
+        """
+        g = _graph("A", "B")
+        g.add_morphism("A", "B", MorphismType.DEPENDENCY)
+        pm, cb = _pm_cb(g)
+        pattern = pm.create_pattern(["A", "B"], [], graph=g)
+
+        result = build_join_for_pattern(pattern, g, cb)
+
+        assert isinstance(result, TrivialColimit)
+        assert not isinstance(result, ConceptGap)
+        assert result.colimit_id == "B"
+        assert result.colimit_id in result.component_ids
+        assert len(g.skills) == 2          # no se fabrico nada
+
+    def test_trivial_no_se_registra_como_descomposicion(self):
+        """Registrarlo romperia `AciclicoMulti` y con ella la terminacion de cn.
+
+        `join_propio_rompe_aciclicidad` (ComplexityOrder.lean): si una
+        descomposicion de x contiene a x, la aciclicidad falla. Y
+        `autoJoin_sin_punto_fijo` exhibe la divergencia concreta.
+        """
+        g = _graph("A", "B")
+        g.add_morphism("A", "B", MorphismType.DEPENDENCY)
+        pm, cb = _pm_cb(g)
+        pattern = pm.create_pattern(["A", "B"], [], graph=g)
+
+        build_join_for_pattern(pattern, g, cb)
+
+        assert cb.get_colimit_for_pattern(pattern.id) is None
+        cn = compute_complexity_order(g, cb)
+        assert cn["B"] == 0, "un colimite trivial no aporta nivel"
+        assert cn["A"] == 0
+
+    def test_trivial_es_idempotente(self):
+        g = _graph("A", "B")
+        g.add_morphism("A", "B", MorphismType.DEPENDENCY)
+        pm, cb = _pm_cb(g)
+        pattern = pm.create_pattern(["A", "B"], [], graph=g)
+        for _ in range(5):
+            r = build_join_for_pattern(pattern, g, cb)
+            assert isinstance(r, TrivialColimit)
+        assert len(g.skills) == 2
 
 
 # ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 197,
-  "auditadas": 39,
+  "declaraciones_lean": 219,
+  "auditadas": 42,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -42,7 +42,7 @@
       "operacion": "classify_link",
       "teorema": "simple_of_cluster",
       "fichero": "EhresmannLinks.lean",
-      "afirma": "simple = INDUCIDO por un cluster entre descomposiciones (Ehresmann); la lectura por factorizacion esta en composite_of_simple_is_simple"
+      "afirma": "simple = INDUCIDO por un cluster entre descomposiciones (Ehresmann). La lectura por factorizacion, que es la que estuvo implementada, esta en composite_of_simple_is_simple y NO es la definicion"
     },
     {
       "modulo": "category.py",
@@ -115,6 +115,13 @@
       "afirma": "las cotas superiores del patron"
     },
     {
+      "modulo": "complexity.py",
+      "operacion": "TrivialColimit",
+      "teorema": "join_propio_rompe_aciclicidad",
+      "fichero": "ComplexityOrder.lean",
+      "afirma": "si el colimite es una componente el patron TIENE colimite pero romperia AciclicoMulti: no es hueco y no entra en la recursion de cn"
+    },
+    {
       "modulo": "patterns.py",
       "operacion": "verify_cocone",
       "teorema": "isCocone",
@@ -141,6 +148,20 @@
       "teorema": "isJoin_iff_nonempty_isColimit",
       "fichero": "IsColimitBridge.lean",
       "afirma": "IsJoin equivale a IsColimit de Mathlib"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "hay_cluster",
+      "teorema": "Conectados",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "cluster dirigido P->Q: toda componente de P alcanza alguna de Q (todo-existe)"
+    },
+    {
+      "modulo": "patterns.py",
+      "operacion": "decomposiciones_de",
+      "teorema": "Descomposicion",
+      "fichero": "EhresmannLinks.lean",
+      "afirma": "los patrones cuyo colimite es el objeto; que haya varios es el MP"
     },
     {
       "modulo": "patterns.py",

@@ -495,7 +495,11 @@ class EvolutionarySystem:
             ]
 
         # Tiempo actual: usar el grafo vivo
-        return [m.id for m in self._graph.get_complex_links()]
+        return [
+            m.id for m in self._graph.get_complex_links(
+                self._pattern_manager, self._colimit_builder
+            )
+        ]
 
     def measure_emergence(self, t: Optional[int] = None) -> dict[str, Any]:
         """

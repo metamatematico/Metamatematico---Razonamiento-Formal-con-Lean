@@ -232,4 +232,44 @@ The honest mathematical claim for the Python system is:
 This is verified decidably by `isColimitInFiniteCategory` above.
 -/
 
+/-!
+## Una componente del diagrama puede ser el colimite
+
+`isCocone` no excluye las componentes del diagrama, y por `reachable_refl` toda
+componente es cota superior de si misma. Luego si una componente domina a las
+demas, ELLA es el colimite del patron.
+
+El testigo: con la unica arista `0 → 1`, el colimite de `[0, 1]` es `1`, que
+pertenece al diagrama. No es una patologia — es la definicion aplicada.
+
+Relevancia para el sistema: `find_cocones` (nucleo/graph/complexity.py) hacia
+`common.discard(c)` por cada componente, con lo que este caso salia como "sin
+colimite" y el patron se archivaba como hueco conceptual. Medido sobre el grafo
+real: 14 de los 27 huecos eran de esta forma.
+-/
+
+/-- Grafo testigo: `0 → 1`, nada mas. -/
+def testigoDominante : FinSkillGraph 2 where
+  morphism_matrix := fun i j => i == 0 && j == 1
+  no_self_loops := by decide
+
+/-- **Teorema.** El apice `1` es colimite de `[0, 1]` aunque este EN el diagrama. -/
+theorem componente_puede_ser_colimite :
+    isColimitInFiniteCategory testigoDominante [0, 1] 1 = true := by
+  decide
+
+/-- Y en efecto el apice pertenece al diagrama. -/
+theorem componente_colimite_esta_en_el_diagrama :
+    (1 : Fin 2) ∈ ([0, 1] : List (Fin 2)) := by
+  decide
+
+/-- **Corolario (refutacion).** Excluir las componentes del conjunto de cotas
+superiores NO es equivalente a la definicion: hay patrones cuyo colimite se
+pierde al hacerlo. -/
+theorem excluir_componentes_pierde_colimites :
+    ∃ (G : FinSkillGraph 2) (diagrama : List (Fin 2)) (apice : Fin 2),
+      apice ∈ diagrama ∧ isColimitInFiniteCategory G diagrama apice = true :=
+  ⟨testigoDominante, [0, 1], 1,
+   componente_colimite_esta_en_el_diagrama, componente_puede_ser_colimite⟩
+
 end MetamathProver.ColimitVerifier

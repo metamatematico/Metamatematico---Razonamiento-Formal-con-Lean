@@ -129,16 +129,29 @@ class FractureType(Enum):
 
 class LinkComplexity(Enum):
     """
-    Complejidad de un enlace (Def 6.3 v7.0).
+    Complejidad de un enlace, en el sentido de Ehresmann.
 
-    - IDENTITY: Enlace identidad id_s
-    - SIMPLE: Factoriza a traves de un unico cluster (colimite)
-    - COMPLEX: Composicion de simples que NO factoriza por cluster adyacente
-      (define emergencia - Thm 8.6)
+    La definicion formal es `EsSimple` (EhresmannLinks.lean):
+
+        EsSimple a b := ∃ P Q, binding P = a ∧ binding Q = b ∧ Cluster P Q
+
+    o sea: `f : a → b` es simple si esta INDUCIDO por un clúster entre
+    descomposiciones de sus extremos. No es "factoriza por un objeto-clúster":
+    esa lectura se refuto en su momento y aun asi seguia implementada aqui.
+
+    - IDENTITY  : enlace identidad id_s.
+    - SIMPLE    : inducido por un clúster entre descomposiciones.
+    - COMPLEX   : ambos extremos son colimites, pero NINGUN par de sus
+                  descomposiciones esta conectado por un clúster. Es el
+                  vehiculo de la emergencia (`complex_needs_unconnected`).
+    - NO_APLICA : algun extremo no es colimite de ningun patron, luego no hay
+                  descomposiciones entre las que buscar un clúster. Ehresmann
+                  no clasifica ese enlace; decir "SIMPLE" seria inventar.
     """
     IDENTITY = auto()
     SIMPLE = auto()
     COMPLEX = auto()
+    NO_APLICA = auto()
 
 
 # =============================================================================

@@ -205,20 +205,26 @@ class TestStrategicCR:
         option = cr.select_objectives(landscape)
         assert not option.bindings
 
-    def test_complexifies_complex_links(self, graph, pm):
-        """Con enlaces complejos, crea patron y propone ligadura."""
-        # Create composed morphism (complex link)
-        f = graph.hom("s1", "s2")[0]
-        g = graph.hom("s2", "s3")[0]
-        graph.compose(g.id, f.id)
+    def test_complexifies_complex_links(self):
+        """Con enlaces complejos de Ehresmann, propone ligadura.
 
-        cr = StrategicCoRegulator(frequency=1, pattern_manager=pm)
-        cr._current_graph = graph
-        landscape = cr.build_landscape(graph)
+        El testigo ya no es "componer dos flechas": eso no produce enlaces
+        complejos bajo la definicion correcta. Se reutiliza el grafo de
+        test_emergence: dos colimites cuyas descomposiciones no estan
+        conectadas por ningun clúster.
+        """
+        from tests.test_emergence import _emergencia
+        g, pm, cb = _emergencia()
+
+        cr = StrategicCoRegulator(
+            frequency=1, pattern_manager=pm, colimit_builder=cb
+        )
+        cr._current_graph = g
+        landscape = cr.build_landscape(g)
         option = cr.select_objectives(landscape)
 
-        assert len(option.bindings) == 1
         assert landscape.metrics["num_complex_links"] >= 1
+        assert len(option.bindings) == 1
 
     def test_landscape_includes_complex_count(self, graph, pm):
         """Paisaje estrategico cuenta enlaces complejos."""

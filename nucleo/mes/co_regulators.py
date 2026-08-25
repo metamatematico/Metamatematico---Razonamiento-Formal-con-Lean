@@ -867,7 +867,9 @@ class StrategicCoRegulator(CoRegulator):
                 level = skill.level
                 level_counts[level] = level_counts.get(level, 0) + 1
 
-        num_complex = len(graph.get_complex_links())
+        num_complex = len(graph.get_complex_links(
+            self._pattern_manager, self._colimit_builder
+        ))
         _stats = graph.stats
         _gaps = getattr(self, "_concept_gaps", None) or []
 
@@ -901,7 +903,9 @@ class StrategicCoRegulator(CoRegulator):
         if not graph or not self._pattern_manager:
             return Option()
 
-        complex_links = graph.get_complex_links()
+        complex_links = graph.get_complex_links(
+            self._pattern_manager, self._colimit_builder
+        )
         if not complex_links:
             return Option()
 

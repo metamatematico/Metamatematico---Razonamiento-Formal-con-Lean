@@ -430,6 +430,34 @@ class PatternManager:
         return (_cluster(p1.component_ids, p2.component_ids)
                 or _cluster(p2.component_ids, p1.component_ids))
 
+    def hay_cluster(
+        self,
+        origen: Pattern,
+        destino: Pattern,
+        graph: SkillCategory,
+    ) -> bool:
+        """
+        Clúster DIRIGIDO de `origen` a `destino`: toda componente del origen
+        tiene enlace a alguna del destino (∀∃).
+
+        `_connected_by_cluster` responde la version simetrica —hay clúster en
+        alguno de los dos sentidos—, que es lo que necesita el Principio de
+        Multiplicidad. Para `EsSimple` (EhresmannLinks.lean) hace falta el
+        sentido concreto: `f : cP → cQ` es simple si hay clúster `P → Q`.
+
+        Contraparte formal: `EnPreorden.Conectados`.
+        """
+        from nucleo.graph.category import SkillCategory as _SC
+        ORD = _SC.ORDER_MORPHISMS
+
+        def _leq(a: str, b: str) -> bool:
+            return a == b or b in graph.reachable_from(a, morphism_types=ORD)
+
+        return all(
+            any(_leq(s, t) for t in destino.component_ids)
+            for s in origen.component_ids
+        )
+
     def detect_pattern_in_graph(
         self,
         graph: SkillCategory,
@@ -650,6 +678,24 @@ class ColimitBuilder:
     # =========================================================================
     # IS_JOIN — verificación directa en el preorden inducido (Lean-aligned)
     # =========================================================================
+
+    def decomposiciones_de(self, skill_id: str) -> list[Pattern]:
+        """
+        Patrones cuyo colimite registrado es `skill_id`.
+
+        Que haya mas de uno es exactamente el Principio de Multiplicidad
+        (`Descomposicion` en EhresmannLinks.lean). Lista vacia significa que el
+        objeto no es colimite de nada: no tiene descomposiciones entre las que
+        buscar un clúster, y `classify_link` devuelve NO_APLICA.
+        """
+        out: list[Pattern] = []
+        for col in self.all_colimits:
+            if col.skill_id != skill_id or not col.pattern_id:
+                continue
+            pat = self._pattern_manager.get_pattern(col.pattern_id)
+            if pat is not None:
+                out.append(pat)
+        return out
 
     def is_join(
         self,
