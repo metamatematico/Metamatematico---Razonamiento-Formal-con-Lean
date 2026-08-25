@@ -46,6 +46,9 @@ import MetamathProver.CategoryFoundations.Evolution
 -- La complexificacion de Ehresmann en el caso delgado: todo patron adquiere
 -- colimite, los que ya lo tenian lo conservan, y los homologos lo comparten.
 import MetamathProver.CategoryFoundations.Complexificacion
+-- Cuantos morfismos hay de group-theory a ring-theory: al menos tres, y dos de
+-- ellos son los que nombraria cualquier algebrista. El dominio NO es delgado.
+import MetamathProver.CategoryFoundations.MorfismosGrupoAnillo
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism
