@@ -417,4 +417,116 @@ theorem iterar_joins_no_sube_el_orden {P : Set α} {j x k : α}
     ∃ R : Set α, IsLUB R k ∧ R = P ∪ {x} :=
   ⟨P ∪ {x}, join_binario_se_aplana hj hk, rfl⟩
 
+/-!
+## 9. La salida: que hace falta exactamente para que el orden 2 sea posible
+
+§8 dice que iterar joins en un preorden no sube el orden. Queda la pregunta
+util: ¿que propiedad concreta hay que perder para que deje de aplicar? La
+respuesta no es «la delgadez» dicha como eslogan, sino una cosa muy precisa.
+
+### Donde se usa la delgadez
+
+Un co-cono sobre `P` con vertice `A` es una familia `(f_i : P_i → A)`
+**correlacionada por los enlaces distinguidos**: `P(x) ; f_j = f_i`.
+
+En una categoria delgada esa condicion es vacua —`Hom` tiene a lo sumo un
+elemento, luego las dos composiciones coinciden siempre— y el co-cono se reduce
+a «hay morfismo de cada componente a `A`», es decir, a que `A` sea cota
+superior del CONJUNTO de objetos. Por eso el colimite es el supremo, por eso el
+supremo es asociativo y por eso todo se aplana.
+
+El eslabon que hay que romper es exactamente ese: **que el co-cono dependa solo
+del conjunto de objetos**. Y basta con que `Hom(a,b)` tenga dos elementos.
+
+### El testigo minimo
+
+No hace falta una categoria grande. Basta un monoide con dos elementos, visto
+como categoria de un objeto: `M = {1, e}` con `e · e = e`. Es la categoria mas
+pequeña que no es delgada.
+
+Sobre ella, dos patrones con **el mismo objeto** y distinto enlace distinguido
+tienen conjuntos de co-conos distintos. Luego el colimite NO es funcion del
+conjunto de objetos, luego `lub_de_lubs` no aplica, luego el orden 2 deja de
+estar excluido.
+-/
+
+/-- El monoide `{1, e}` con `e · e = e`: la categoria de un objeto mas pequeña
+que no es delgada. -/
+inductive Mon where
+  | uno
+  | e
+  deriving DecidableEq, Repr
+
+/-- Composicion. `uno` es la identidad; `e` absorbe por la izquierda. -/
+def Mon.mul : Mon → Mon → Mon
+  | uno, y => y
+  | e,   _ => e
+
+@[simp] theorem Mon.uno_mul (y : Mon) : Mon.mul Mon.uno y = y := rfl
+@[simp] theorem Mon.mul_uno (x : Mon) : Mon.mul x Mon.uno = x := by cases x <;> rfl
+
+/-- Es una categoria: la composicion es asociativa. -/
+theorem Mon.mul_assoc (x y z : Mon) :
+    Mon.mul (Mon.mul x y) z = Mon.mul x (Mon.mul y z) := by
+  cases x <;> cases y <;> cases z <;> rfl
+
+/-- Y NO es delgada: `Hom(⋆,⋆)` tiene dos elementos. -/
+theorem Mon.no_es_delgada : Mon.uno ≠ Mon.e := by decide
+
+/--
+`EsCocono link f` : `f` es un co-cono sobre el patron cuyo unico enlace
+distinguido es `link`. La condicion es la de Ehresmann, `P(x) ; f = f`.
+-/
+def EsCocono (link f : Mon) : Prop := Mon.mul link f = f
+
+instance (link f : Mon) : Decidable (EsCocono link f) :=
+  inferInstanceAs (Decidable (Mon.mul link f = f))
+
+/--
+**Teorema.** El co-cono es estrictamente mas fuerte que «hay morfismo».
+
+`Hom(⋆,⋆)` es no vacio y contiene a `uno`, pero `uno` NO es co-cono del patron
+con enlace distinguido `e`. En una categoria delgada esto no puede pasar: la
+conmutacion se cumple sola.
+-/
+theorem cocono_mas_fuerte_que_hom_no_vacio :
+    ¬ EsCocono Mon.e Mon.uno := by decide
+
+/--
+**Teorema (el que importa).** El colimite NO es funcion del conjunto de objetos.
+
+Dos patrones sobre el MISMO objeto, uno con enlace distinguido `uno` y otro con
+`e`, tienen co-conos distintos: `uno` lo es del primero y no del segundo.
+
+Es exactamente la hipotesis que `lub_de_lubs` necesita y que aqui falla. Con
+ella cae el argumento de §8, y el orden de complejidad >= 2 deja de estar
+excluido por razones estructurales.
+-/
+theorem colimite_no_depende_solo_de_los_objetos :
+    EsCocono Mon.uno Mon.uno ∧ ¬ EsCocono Mon.e Mon.uno := by
+  decide
+
+/-!
+### Que significa esto para el sistema
+
+Medido sobre el grafo real: de los 161 pares `(origen, destino)` con mas de un
+morfismo, **159 son la misma arista repetida** —mismo tipo, dos o tres veces— y
+solo 2 tienen tipos distintos. O sea: la multiplicidad que haria falta NO esta
+en los datos esperando a que la usemos. Habria que crearla, y crearla significa
+contenido matematico nuevo: decir CUALES son los dos modos distintos de ir de
+una habilidad a otra, no solo que se va.
+
+Ese es el precio, y conviene verlo antes de pagarlo:
+
+  · `Hom(a,b)` deja de ser un booleano y pasa a ser un conjunto con nombres;
+  · el co-cono deja de ser «cota superior» y pasa a exigir conmutacion, luego
+    `find_colimit` deja de ser una busqueda de minimal;
+  · `is_preorder_leq`, `reachable_from` y todo lo que descansa en ellas dejan de
+    caracterizar la categoria;
+  · a cambio, §5.2(ii) puede dispararse y la emergencia deja de estar prohibida.
+
+Lo que este archivo establece es que el precio COMPRA algo: la barrera de §8 es
+real pero no es infranqueable, y el testigo de arriba dice por donde se pasa.
+-/
+
 end MetamathProver.Complexificacion

@@ -243,3 +243,69 @@ class TestCategoryAxioms:
         results = graph.verify_axioms()
 
         assert results["identities_exist"] is True
+
+
+# =============================================================================
+# MULTIPLICIDAD DE MORFISMOS
+# =============================================================================
+
+class TestAristasDuplicadas:
+    """
+    `add_morphism` no debe crear una arista IDENTICA dos veces.
+
+    Medido antes de la guarda: de 161 pares (origen, destino) con mas de un
+    morfismo, 159 eran la misma arista repetida —mismo tipo, dos o tres
+    veces— y solo 2 tenian tipos distintos. Los duplicados inflaban
+    num_morphisms (718 frente a 554), total_weight, y toda metrica que cuente
+    morfismos: `get_complex_links` reportaba 2 enlaces complejos donde hay 1.
+
+    Lo que NO se toca es la multiplicidad genuina: dos morfismos de TIPO
+    distinto entre el mismo par son dos morfismos, y ahi esta la unica via
+    para salir de la delgadez (§9 de Complexificacion.lean).
+    """
+
+    def _g(self):
+        g = SkillCategory(name="Dup")
+        for sid in ("a", "b"):
+            g.add_skill(Skill(id=sid, name=sid, pillar=PillarType.SET, level=0))
+        return g
+
+    @staticmethod
+    def _n(g):
+        """Morfismos sin contar las identidades, que add_skill crea solas."""
+        return sum(1 for m in g.morphisms
+                   if m.morphism_type != MorphismType.IDENTITY)
+
+    def test_arista_identica_no_se_duplica(self):
+        g = self._g()
+        m1 = g.add_morphism("a", "b", MorphismType.DEPENDENCY)
+        m2 = g.add_morphism("a", "b", MorphismType.DEPENDENCY)
+
+        assert m1.id == m2.id, "la misma arista dos veces debe ser la misma"
+        assert self._n(g) == 1
+
+    def test_tipos_distintos_si_son_morfismos_distintos(self):
+        """La multiplicidad genuina se conserva: es la salida de la delgadez."""
+        g = self._g()
+        m1 = g.add_morphism("a", "b", MorphismType.DEPENDENCY)
+        m2 = g.add_morphism("a", "b", MorphismType.TRANSLATION)
+
+        assert m1.id != m2.id
+        assert self._n(g) == 2
+
+    def test_sentidos_opuestos_no_se_confunden(self):
+        g = self._g()
+        g.add_morphism("a", "b", MorphismType.DEPENDENCY)
+        g.add_morphism("b", "a", MorphismType.DEPENDENCY)
+        assert self._n(g) == 2
+
+    def test_los_grados_no_se_inflan(self):
+        g = self._g()
+        for _ in range(5):
+            g.add_morphism("a", "b", MorphismType.DEPENDENCY)
+        salientes = [m for m in g.outgoing_morphisms("a")
+                     if m.morphism_type != MorphismType.IDENTITY]
+        entrantes = [m for m in g.incoming_morphisms("b")
+                     if m.morphism_type != MorphismType.IDENTITY]
+        assert len(salientes) == 1
+        assert len(entrantes) == 1

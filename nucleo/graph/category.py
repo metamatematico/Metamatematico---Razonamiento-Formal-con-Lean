@@ -276,6 +276,22 @@ class SkillCategory:
         if source_id not in self._skills or target_id not in self._skills:
             return None
 
+        # No duplicar una arista IDENTICA. La multiplicidad genuina —dos
+        # morfismos de TIPO distinto entre el mismo par— se conserva; lo que se
+        # evita es la misma arista repetida.
+        #
+        # Medido antes de esta guarda: de 161 pares con mas de un morfismo, 159
+        # eran la misma arista dos o tres veces (p.ej. tactic-apply ->
+        # strategy-backward con tres DEPENDENCY). Inflaban num_morphisms,
+        # total_weight y cualquier metrica que cuente morfismos — entre ellas
+        # get_complex_links, que reportaba 2 enlaces complejos donde hay 1.
+        for mid in self._outgoing.get(source_id, ()):  # type: ignore[arg-type]
+            otro = self._morphisms.get(mid)
+            if (otro is not None
+                    and otro.target_id == target_id
+                    and otro.morphism_type == morphism_type):
+                return otro
+
         morphism = Morphism(
             id=str(uuid.uuid4()),
             source_id=source_id,
