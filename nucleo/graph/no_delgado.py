@@ -326,6 +326,19 @@ MORFISMOS_CERTIFICADOS: list[tuple[str, str, str, str, str]] = [
     ("group-theory", "group-actions", "accion-paridad",
      "MultiplicidadDelGrafo.fijos_paridad",
      "los g impares intercambian 0<->1; 2 puntos fijos"),
+
+    # ── commutative-algebra -> algebraic-geometry ──────────────────────────
+    #
+    # El PRIMERO que participa en los colimites del grafo: algebraic-geometry
+    # es colimite de {commutative-algebra, functors}. Los anteriores eran
+    # dependencias que ningun patron de convergencia usaba, asi que su
+    # multiplicidad no podia cambiar ningun resultado.
+    ("commutative-algebra", "algebraic-geometry", "espectro-primo",
+     "MultiplicidadDelGrafo.card_spec",
+     "Spec R con la topologia de Zariski; un cuerpo tiene un unico primo"),
+    ("commutative-algebra", "algebraic-geometry", "espacio-discreto",
+     "MultiplicidadDelGrafo.card_discreto",
+     "el conjunto subyacente con la topologia discreta; 5 puntos"),
 ]
 
 

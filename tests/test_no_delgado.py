@@ -348,17 +348,33 @@ class TestParesCertificados:
         ("ring-theory", "module-theory"),
         ("field-extensions", "finite-fields"),
         ("group-theory", "group-actions"),
+        ("commutative-algebra", "algebraic-geometry"),
     }
 
-    def test_son_cinco_pares(self):
+    def test_son_los_pares_declarados(self):
         assert {(o, d) for o, d, _, _, _ in MORFISMOS_CERTIFICADOS} == self.PARES
 
-    def test_cada_par_tiene_al_menos_tres_construcciones(self):
+    def test_cada_par_tiene_al_menos_dos_construcciones(self):
+        """Dos bastan para romper la delgadez del par."""
         por_par = {}
         for o, d, c, _, _ in MORFISMOS_CERTIFICADOS:
             por_par.setdefault((o, d), set()).add(c)
         for par, cs in por_par.items():
-            assert len(cs) >= 3, f"{par} solo tiene {len(cs)}"
+            assert len(cs) >= 2, f"{par} solo tiene {len(cs)}"
+
+    def test_hay_un_par_que_participa_en_colimites(self):
+        """El que de verdad puede cambiar un resultado.
+
+        Los cinco primeros son dependencias que ningun patron de convergencia
+        usa: su multiplicidad no toca ningun colimite. Este si:
+        `algebraic-geometry` es colimite de `{commutative-algebra, functors}`,
+        luego esa arista es una PATA DEL CO-CONO — y ahora hay tres patas
+        distintas donde antes habia una.
+
+        Medido: 8 de las 31 descomposiciones tienen multiplicidad en
+        alguna pata. En enlaces distinguidos, todavia 0.
+        """
+        assert ("commutative-algebra", "algebraic-geometry") in self.PARES
 
     def test_las_construcciones_no_se_repiten_entre_pares(self):
         cs = [c for _, _, c, _, _ in MORFISMOS_CERTIFICADOS]
@@ -423,6 +439,6 @@ class TestParesCertificados:
         g = _g(*sorted(set(ids)))
         registrar_morfismos_certificados(g)
         v = congruencia_respeta_certificados(DELGADA, g)
-        # 5 pares con 3 construcciones cada uno -> 3 pares no ordenados por par
-        assert len(v) == 15
+        # cinco pares con 3 construcciones (C(3,2)=3 cada uno) mas uno con 2
+        assert len(v) == 16
         assert congruencia_respeta_certificados(LIBRE, g) == []

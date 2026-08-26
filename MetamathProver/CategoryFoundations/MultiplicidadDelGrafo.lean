@@ -3,6 +3,7 @@ import Mathlib.Tactic
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Data.ZMod.Units
 import Mathlib.Data.Matrix.Basic
+import Mathlib.RingTheory.Spectrum.Prime.Basic
 
 /-!
 # Multiplicidad certificada, par a par
@@ -192,5 +193,50 @@ theorem group_actions_no_delgado :
 /-- Y en efecto el conjunto subyacente es el mismo en las tres. -/
 theorem mismo_conjunto_subyacente :
     Fintype.card (ZMod 4) = 4 := by decide
+
+/-! ## `commutative-algebra → algebraic-geometry`
+
+«algebraic-geometry requiere commutative-algebra»: ¿que espacio produce un
+anillo conmutativo? Es el unico par de esta lista que **participa en los
+colimites del grafo**, y por tanto el primero cuya multiplicidad puede cambiar
+un resultado.
+
+Dos construcciones, ambas funtores `CommRing → Top`:
+
+  · el **espectro primo** `Spec R` con la topologia de Zariski — el puente de
+    la geometria algebraica;
+  · el **conjunto subyacente con la topologia discreta**.
+
+Sobre `ZMod 5` se separan de la forma mas limpia posible: un cuerpo tiene un
+unico ideal primo —el cero—, luego `Spec` es un punto; el discreto tiene cinco.
+
+Uno colapsa toda la informacion a un punto y el otro no colapsa nada. Que sean
+funtores distintos no es un tecnicismo: es la diferencia entre mirar un anillo
+por sus ideales o por sus elementos.
+-/
+
+/-- El espectro primo con la topologia de Zariski. -/
+abbrev espacioSpec (R : Type*) [CommRing R] := PrimeSpectrum R
+
+/-- El conjunto subyacente, con la topologia discreta. -/
+abbrev espacioDiscreto (R : Type*) [CommRing R] := R
+
+/-- Un cuerpo tiene un unico ideal primo: `Spec` de un cuerpo es un punto. -/
+theorem card_spec : Fintype.card (espacioSpec (ZMod 5)) = 1 :=
+  Fintype.card_unique
+
+theorem card_discreto : Fintype.card (espacioDiscreto (ZMod 5)) = 5 := by decide
+
+/--
+**`commutative-algebra → algebraic-geometry` no es delgado.**
+
+Y a diferencia de los cinco pares anteriores, este SI participa en las
+descomposiciones del grafo: `algebraic-geometry` es colimite de
+`{commutative-algebra, functors}`.
+-/
+theorem comm_alg_geom_no_delgado :
+    Fintype.card (espacioSpec (ZMod 5)) ≠ Fintype.card (espacioDiscreto (ZMod 5)) := by
+  rw [card_spec, card_discreto]
+  decide
 
 end MetamathProver.MultiplicidadDelGrafo
