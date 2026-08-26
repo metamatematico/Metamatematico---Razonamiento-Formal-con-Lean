@@ -23,6 +23,8 @@ from nucleo.graph.no_delgado import (
     MORFISMOS_CERTIFICADOS,
     Congruencia, LIBRE, DELGADA, hay_cocono_cong, es_cocono_cong,
     espectro, congruencia_respeta_certificados,
+    congruencia_automatica, pendientes_de_decidir, informe_pendientes,
+    TIPO_REFUTADO, TIPO_GENERICO, TIPO_COMPUESTO,
 )
 
 
@@ -442,3 +444,88 @@ class TestParesCertificados:
         # cinco pares con 3 construcciones (C(3,2)=3 cada uno) mas uno con 2
         assert len(v) == 16
         assert congruencia_respeta_certificados(LIBRE, g) == []
+
+
+# ---------------------------------------------------------------------------
+# La congruencia automatica y lo que deja pendiente
+# ---------------------------------------------------------------------------
+
+class TestCongruenciaAutomatica:
+    """
+    Separa lo que se DERIVA de lo que hay que DECIDIR.
+
+    Derivable: dos aristas paralelas que solo difieren en el TIPO y no tienen
+    construccion. No es una decision matematica — es la semantica que el propio
+    sistema declara en `is_preorder_leq`: «los distintos tipos de morfismo son
+    etiquetas en el unico morfismo, no morfismos categoricamente distintos».
+
+    No derivable, y por eso se reporta:
+      · si dos RUTAS compuestas dan el mismo morfismo (teorema del dominio);
+      · que representaba la arista generica antes de las construcciones.
+    """
+
+    def _g(self):
+        g = _g_base = SkillCategory(name="Auto")
+        for sid in ("A", "B", "C"):
+            g.add_skill(Skill(id=sid, name=sid, pillar=PillarType.SET, level=0))
+        return g
+
+    def test_identifica_aristas_que_solo_difieren_en_el_tipo(self):
+        g = self._g()
+        g.add_morphism("A", "B", MorphismType.DEPENDENCY)
+        g.add_morphism("A", "B", MorphismType.TRANSLATION)
+        cong = congruencia_automatica(g)
+
+        assert len(cong.relaciones) == 1
+        ms = [m.id for m in g.hom("A", "B")
+              if m.morphism_type != MorphismType.IDENTITY]
+        assert cong.iguales((ms[0],), (ms[1],))
+
+    def test_NO_identifica_construcciones_certificadas(self):
+        """Lean demostro que son distintas: declararlas iguales seria falso."""
+        g = _g("group-theory", "ring-theory")
+        registrar_morfismos_certificados(g)
+        cong = congruencia_automatica(g)
+
+        assert congruencia_respeta_certificados(cong, g) == []
+        cs = [m.id for m in g.hom("group-theory", "ring-theory")
+              if m.metadata.get("construccion")]
+        assert not cong.iguales((cs[0],), (cs[1],))
+
+    def test_NO_identifica_rutas_compuestas(self):
+        """Que dos rutas conmuten es un teorema, no una convencion."""
+        g = self._g()
+        directa = g.add_morphism("A", "C", MorphismType.DEPENDENCY)
+        g.add_morphism("A", "B", MorphismType.DEPENDENCY)
+        via = g.add_morphism("B", "C", MorphismType.DEPENDENCY)
+        cong = congruencia_automatica(g)
+
+        ab = [m.id for m in g.hom("A", "B")
+              if m.morphism_type != MorphismType.IDENTITY][0]
+        assert not cong.iguales((directa.id,), (ab, via.id))
+
+    def test_la_pregunta_refutada_por_lean_no_es_una_pregunta(self):
+        """Dos construcciones certificadas sobre la misma arista ya estan
+        decididas: son distintas. No cuentan como decision abierta."""
+        g = _g("commutative-algebra", "algebraic-geometry")
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        p = pm.create_pattern(["commutative-algebra"], [], graph=g)
+        cb._register_existing_join(p, "algebraic-geometry", g)
+
+        pend = pendientes_de_decidir(g, pm, cb)
+        refutadas = [x for x in pend if x.tipo == TIPO_REFUTADO]
+        assert refutadas, "las certificadas deben salir como refutadas"
+        assert all(not x.es_pregunta for x in refutadas)
+
+    def test_el_informe_distingue_lo_refutado_de_lo_abierto(self):
+        g = _g("commutative-algebra", "algebraic-geometry")
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        p = pm.create_pattern(["commutative-algebra"], [], graph=g)
+        cb._register_existing_join(p, "algebraic-geometry", g)
+
+        txt = informe_pendientes(g, pendientes_de_decidir(g, pm, cb))
+        assert "refutadas por Lean" in txt

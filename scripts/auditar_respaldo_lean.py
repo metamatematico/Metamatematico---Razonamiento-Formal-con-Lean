@@ -121,6 +121,11 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
      "co-cono = familia compatible bajo precomposicion, NO cota superior"),
     ("no_delgado.py", "comparar_cocono", "delgado_cocono_automatico",
      "con |Hom| <= 1 la conmutacion se cumple sola y las dos lecturas coinciden"),
+    ("no_delgado.py", "congruencia_automatica", "delgado_cocono_automatico",
+     "solo identifica aristas que difieren en el TIPO: la semantica que el"
+     " propio sistema declara, no una decision nueva"),
+    ("no_delgado.py", "pendientes_de_decidir", "cota_superior_no_implica_cocono",
+     "las igualdades de caminos que la conmutacion exige y nadie ha declarado"),
     ("no_delgado.py", "registrar_morfismos_certificados", "no_hay_iso",
      "los tres morfismos group-theory -> ring-theory no son isomorfos entre si"),
 

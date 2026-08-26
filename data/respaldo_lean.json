@@ -1,6 +1,6 @@
 {
   "declaraciones_lean": 284,
-  "auditadas": 56,
+  "auditadas": 58,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -211,6 +211,20 @@
       "teorema": "delgado_cocono_automatico",
       "fichero": "Complexificacion.lean",
       "afirma": "con |Hom| <= 1 la conmutacion se cumple sola y las dos lecturas coinciden"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "congruencia_automatica",
+      "teorema": "delgado_cocono_automatico",
+      "fichero": "Complexificacion.lean",
+      "afirma": "solo identifica aristas que difieren en el TIPO: la semantica que el propio sistema declara, no una decision nueva"
+    },
+    {
+      "modulo": "no_delgado.py",
+      "operacion": "pendientes_de_decidir",
+      "teorema": "cota_superior_no_implica_cocono",
+      "fichero": "Complexificacion.lean",
+      "afirma": "las igualdades de caminos que la conmutacion exige y nadie ha declarado"
     },
     {
       "modulo": "no_delgado.py",

@@ -567,3 +567,203 @@ def congruencia_respeta_certificados(
                         f"{a.metadata.get('teorema_lean')} separa",
                     ))
     return violaciones
+
+
+# ---------------------------------------------------------------------------
+# La congruencia que NO requiere decision humana
+# ---------------------------------------------------------------------------
+
+#: Tipos de pregunta, por quien puede contestarla.
+TIPO_REFUTADO = "refutado-por-lean"   # ya decidido: son distintos
+TIPO_GENERICO = "generico-vs-construccion"
+TIPO_COMPUESTO = "compuesto-vs-directo"
+
+
+@dataclass
+class Pendiente:
+    """
+    Un par de caminos paralelos cuya igualdad hay que decidir.
+
+    `tipo` dice quien puede contestarla:
+
+      · TIPO_REFUTADO  — nadie tiene que contestar: Lean ya demostro que son
+        distintos (`no_hay_iso`). No es una pregunta abierta, es un resultado.
+      · TIPO_GENERICO  — la arista sin nombre frente a una construccion
+        certificada. Es una decision de MODELADO: ¿que representaba la arista
+        generica antes de que existieran las construcciones?
+      · TIPO_COMPUESTO — dos rutas distintas de la misma fuente al mismo
+        destino. Es un TEOREMA sobre el dominio: ¿conmuta ese cuadrado?
+    """
+    origen: str
+    destino: str
+    camino_a: tuple[str, ...]
+    camino_b: tuple[str, ...]
+    tipo: str = TIPO_COMPUESTO
+    afecta_colimite: bool = False      # ¿toca alguna de las 31 descomposiciones?
+
+    @property
+    def es_pregunta(self) -> bool:
+        """False si Lean ya la contesto."""
+        return self.tipo != TIPO_REFUTADO
+
+    def __repr__(self) -> str:
+        marca = "  [TOCA COLIMITE]" if self.afecta_colimite else ""
+        return (f"Pendiente({self.tipo}: {self.origen} -> {self.destino}, "
+                f"{len(self.camino_a)} vs {len(self.camino_b)} pasos){marca}")
+
+
+def _describir(graph: "SkillCategory", camino: tuple[str, ...]) -> str:
+    """Un camino, legible: los nodos por los que pasa y las construcciones."""
+    if not camino:
+        return "id"
+    trozos = []
+    for mid in camino:
+        m = graph.get_morphism(mid)
+        if m is None:
+            trozos.append("?")
+            continue
+        c = m.metadata.get("construccion")
+        trozos.append(f"{m.source_id}--[{c or m.morphism_type.name.lower()}]-->{m.target_id}")
+    return "  ".join(trozos)
+
+
+def congruencia_automatica(graph: "SkillCategory") -> Congruencia:
+    """
+    La parte de la congruencia que se DERIVA, sin decidir nada nuevo.
+
+    Solo identifica aristas paralelas que difieren unicamente en el TIPO y no
+    tienen construccion declarada. No es una decision matematica: es la
+    semantica que el propio sistema declara en `is_preorder_leq`,
+
+        «Los distintos tipos de morfismo (dep/an/tr) son etiquetas en el unico
+         morfismo entre dos nodos, no morfismos categoricamente distintos.»
+
+    Lo que NO hace, y no debe hacer:
+
+      · identificar dos morfismos con CONSTRUCCION distinta — Lean demostro que
+        son distintos (`no_hay_iso`), asi que declararlos iguales seria falso;
+      · identificar dos CAMINOS distintos de longitud >= 2 — que dos rutas
+        compuestas den el mismo morfismo es un teorema sobre el dominio, no una
+        convencion. Eso sale en `pendientes_de_decidir`.
+    """
+    cong = Congruencia()
+    vistos: set[tuple[str, str]] = set()
+    for m in graph.morphisms:
+        if m.morphism_type == MorphismType.IDENTITY:
+            continue
+        par = (m.source_id, m.target_id)
+        if par in vistos:
+            continue
+        vistos.add(par)
+        genericos = [
+            h.id for h in graph.hom(*par)
+            if h.morphism_type != MorphismType.IDENTITY
+            and not h.metadata.get("construccion")
+        ]
+        for i in range(len(genericos) - 1):
+            cong.declarar((genericos[i],), (genericos[i + 1],))
+    return cong
+
+
+def pendientes_de_decidir(
+    graph: "SkillCategory",
+    pattern_manager,
+    colimit_builder,
+    cong: Optional[Congruencia] = None,
+    max_longitud: int = MAX_LONGITUD,
+) -> list[Pendiente]:
+    """
+    Los pares de caminos paralelos que la congruencia automatica no resuelve.
+
+    Es la lista de preguntas que hay que contestar, y esta acotada a lo que el
+    sistema realmente usa: los caminos que aparecen al comprobar los co-conos
+    de las descomposiciones registradas. No los 9.151 pares del grafo entero.
+
+    `afecta_colimite=True` marca las que tocan una descomposicion con colimite
+    registrado — las unicas que pueden cambiar un resultado hoy.
+    """
+    cong = cong if cong is not None else congruencia_automatica(graph)
+    out: dict[tuple, Pendiente] = {}
+
+    for p in pattern_manager.all_patterns:
+        col = colimit_builder.get_colimit_for_pattern(p.id)
+        if col is None:
+            continue
+        apex = col.skill_id
+        for c in p.component_ids:
+            cs = caminos(graph, c, apex, max_longitud)
+            for i in range(len(cs)):
+                for j in range(i + 1, len(cs)):
+                    a, b = cs[i], cs[j]
+                    if cong.iguales(a, b):
+                        continue
+                    clave = (c, apex, a, b)
+                    if clave in out:
+                        continue
+                    out[clave] = Pendiente(
+                        origen=c, destino=apex,
+                        camino_a=a, camino_b=b,
+                        tipo=_clasificar(graph, a, b),
+                        afecta_colimite=True,
+                    )
+    return list(out.values())
+
+
+def _construcciones(graph: "SkillCategory", camino: tuple[str, ...]) -> list:
+    out = []
+    for mid in camino:
+        m = graph.get_morphism(mid)
+        out.append(m.metadata.get("construccion") if m else None)
+    return out
+
+
+def _clasificar(graph: "SkillCategory", a: tuple[str, ...], b: tuple[str, ...]) -> str:
+    """De que tipo es la pregunta — y si es una pregunta."""
+    if len(a) != 1 or len(b) != 1:
+        return TIPO_COMPUESTO
+    ca, cb = _construcciones(graph, a)[0], _construcciones(graph, b)[0]
+    if ca is not None and cb is not None:
+        # Dos construcciones certificadas sobre la misma arista: Lean ya
+        # demostro que NO son isomorfas. No hay nada que decidir.
+        return TIPO_REFUTADO
+    if ca is None or cb is None:
+        return TIPO_GENERICO
+    return TIPO_COMPUESTO
+
+
+def informe_pendientes(
+    graph: "SkillCategory",
+    pendientes: list[Pendiente],
+    limite: int = 12,
+) -> str:
+    """Las preguntas, en forma legible para quien tiene que contestarlas."""
+    preguntas = [p for p in pendientes if p.es_pregunta]
+    refutadas = len(pendientes) - len(preguntas)
+    if not preguntas:
+        return f"No queda ninguna pregunta ({refutadas} ya refutadas por Lean)."
+
+    lineas = [
+        f"{len(preguntas)} preguntas abiertas "
+        f"(+{refutadas} ya refutadas por Lean: son distintos).",
+        "",
+    ]
+    for tipo, cabecera in (
+        (TIPO_COMPUESTO,
+         "TEOREMAS SOBRE EL DOMINIO — ¿conmuta el cuadrado?"),
+        (TIPO_GENERICO,
+         "DECISIONES DE MODELADO — ¿que era la arista sin nombre?"),
+    ):
+        grupo = [p for p in preguntas if p.tipo == tipo]
+        if not grupo:
+            continue
+        lineas.append(f"── {cabecera}  ({len(grupo)})")
+        lineas.append("")
+        for k, p in enumerate(grupo[:limite], 1):
+            lineas.append(f"  {k}. ¿Son el mismo morfismo {p.origen} -> {p.destino}?")
+            lineas.append(f"       (a) {_describir(graph, p.camino_a)}")
+            lineas.append(f"       (b) {_describir(graph, p.camino_b)}")
+            lineas.append("")
+        if len(grupo) > limite:
+            lineas.append(f"  … y {len(grupo) - limite} mas de este tipo.")
+            lineas.append("")
+    return "\n".join(lineas)
