@@ -254,92 +254,153 @@ def comparar_cocono(
 # Morfismos certificados en Lean
 # ---------------------------------------------------------------------------
 
-#: Morfismos cuya multiplicidad esta DEMOSTRADA, no supuesta.
+# ---------------------------------------------------------------------------
+# LA CONVENCION DE INTERPRETACION  (fijada: contravariante)
+# ---------------------------------------------------------------------------
+#
+# Un nodo del grafo es una ETIQUETA DE TEMA, no un objeto matematico. Una
+# arista entre etiquetas no denota nada hasta fijar una interpretacion
+#
+#     I : nodos   -> categorias
+#     I : aristas -> funtores
+#
+# Sin ella, preguntar «¿conmuta este cuadrado?» es preguntar si dos cosas sin
+# definir son iguales. Aqui se fija, y se hace comprobable.
+#
+# CONVENCION (A), CONTRAVARIANTE:
+#
+#     I(a -> b)  :  I(b) --> I(a)
+#
+# La arista se lee «b requiere a», y el funtor va en sentido contrario: de un
+# objeto de `b` se EXTRAE uno de `a`. Es la lectura de FUNTOR OLVIDO, que es la
+# familia mas universal del paisaje —toda categoria estructurada tiene uno— y
+# la mejor cubierta por Mathlib.
+#
+# Ejemplo: `group-theory -> ring-theory` («ring-theory requiere group-theory»)
+# se interpreta como un funtor `Ring -> Grp`: de un anillo se extrae un grupo.
+#
+# ADVERTENCIA REGISTRADA. La convencion NO cubre bien el puente
+# geometria/algebra. `Spec` y las secciones globales son CONTRAVARIANTES en el
+# espacio —forman una anti-equivalencia `CommRing^op ≃ AffSch`— asi que ningun
+# reparto uniforme de varianza acomoda a la vez las familias algebraicas y
+# esa. Bajo (A), `commutative-algebra -> algebraic-geometry` pide un funtor
+# `I(algebraic-geometry) -> I(commutative-algebra)`, y los candidatos naturales
+# van en el otro sentido. Se retira en vez de forzarlo.
+VARIANZA = "contravariante"
+
+
+@dataclass(frozen=True)
+class MorfismoCertificado:
+    """
+    Un morfismo del grafo cuya existencia y distincion estan DEMOSTRADAS.
+
+    `dominio` y `codominio` son las categorias que el funtor conecta, y la
+    convencion exige
+
+        dominio   == I(destino de la arista)
+        codominio == I(origen  de la arista)
+
+    Se guardan explicitamente para que `respeta_convencion` pueda comprobarlo
+    en vez de confiar en que quien lo escribio lo penso bien. Los primeros seis
+    pares se escribieron sin esta comprobacion y cuatro iban al reves.
+    """
+    origen: str            # nodo del grafo, cola de la arista
+    destino: str           # nodo del grafo, punta de la arista
+    construccion: str      # nombre de la construccion concreta
+    dominio: str           # categoria de partida del funtor
+    codominio: str         # categoria de llegada del funtor
+    teorema: str           # el teorema de Lean que lo respalda
+    afirma: str
+
+
+#: Interpretacion de los nodos que aparecen en los certificados.
+INTERPRETACION: dict[str, str] = {
+    "group-theory": "Grp",
+    "ring-theory": "Ring",
+    "field-theory": "Field",
+}
+
+
+#: Morfismos certificados que SI cumplen la convencion (A).
 #:
-#: Cada entrada es (origen, destino, construccion, teorema, que afirma). El
-#: teorema vive en MorfismosGrupoAnillo.lean y separa las construcciones por
-#: cardinal sobre ZMod 5: 5, 4 y 1. Distintos dos a dos, luego no hay
-#: isomorfismo posible (`no_hay_iso`), luego el par NO es delgado
-#: (`hom_no_es_delgado`).
-#:
-#: `la_lista_completa` añade el matiz que hace esto interesante: dentro de la
-#: clase de operaciones definibles por un termino afin del anillo, el grupo
-#: aditivo es el UNICO —los cinco candidatos que pasan son `x + y + c`—. El
-#: grupo de unidades escapa a esa clase porque no se define por un termino sino
-#: por una condicion. No son dos variantes de lo mismo: son de especies
-#: distintas.
-MORFISMOS_CERTIFICADOS: list[tuple[str, str, str, str, str]] = [
-    ("group-theory", "ring-theory", "grupo-aditivo",
-     "MorfismosGrupoAnillo.card_aditivo",
-     "todo anillo es grupo abeliano bajo la suma; |(ZMod 5, +)| = 5"),
-    ("group-theory", "ring-theory", "grupo-unidades",
-     "MorfismosGrupoAnillo.card_unidades",
-     "las unidades forman grupo bajo el producto; |(ZMod 5)^x| = 4"),
-    ("group-theory", "ring-theory", "grupo-trivial",
-     "MorfismosGrupoAnillo.card_trivial",
-     "el funtor constante al grupo trivial; cardinal 1"),
+#: Ambos son familias de funtores olvido, que es exactamente lo que (A)
+#: privilegia. Los cuatro retirados estan mas abajo, con el motivo.
+MORFISMOS_CERTIFICADOS: list[MorfismoCertificado] = [
+    MorfismoCertificado(
+        "group-theory", "ring-theory", "grupo-aditivo",
+        dominio="Ring", codominio="Grp",
+        teorema="MorfismosGrupoAnillo.card_aditivo",
+        afirma="todo anillo es grupo abeliano bajo la suma; |(ZMod 5, +)| = 5"),
+    MorfismoCertificado(
+        "group-theory", "ring-theory", "grupo-unidades",
+        dominio="Ring", codominio="Grp",
+        teorema="MorfismosGrupoAnillo.card_unidades",
+        afirma="las unidades forman grupo bajo el producto; |(ZMod 5)^x| = 4"),
+    MorfismoCertificado(
+        "group-theory", "ring-theory", "grupo-trivial",
+        dominio="Ring", codominio="Grp",
+        teorema="MorfismosGrupoAnillo.card_trivial",
+        afirma="el funtor constante al grupo trivial; cardinal 1"),
 
-    # ── ring-theory -> field-theory ────────────────────────────────────────
-    ("ring-theory", "field-theory", "anillo-subyacente",
-     "MultiplicidadDelGrafo.card_anillo_subyacente",
-     "el anillo subyacente del cuerpo; |ZMod 5| = 5"),
-    ("ring-theory", "field-theory", "anillo-matrices",
-     "MultiplicidadDelGrafo.card_anillo_matrices",
-     "el anillo de matrices 2x2 sobre el cuerpo; cardinal 625"),
-    ("ring-theory", "field-theory", "anillo-trivial",
-     "MultiplicidadDelGrafo.card_anillo_trivial",
-     "el anillo trivial; cardinal 1"),
-
-    # ── ring-theory -> module-theory ───────────────────────────────────────
-    ("ring-theory", "module-theory", "modulo-regular",
-     "MultiplicidadDelGrafo.card_modulo_regular",
-     "el anillo como modulo sobre si mismo; cardinal 5"),
-    ("ring-theory", "module-theory", "modulo-libre-2",
-     "MultiplicidadDelGrafo.card_modulo_libre2",
-     "el modulo libre de rango 2; cardinal 25"),
-    ("ring-theory", "module-theory", "modulo-cero",
-     "MultiplicidadDelGrafo.card_modulo_cero",
-     "el modulo cero; cardinal 1"),
-
-    # ── field-extensions -> finite-fields ──────────────────────────────────
-    ("field-extensions", "finite-fields", "cuerpo-primo-2",
-     "MultiplicidadDelGrafo.card_cuerpo_2",
-     "el cuerpo primo de caracteristica 2; cardinal 2"),
-    ("field-extensions", "finite-fields", "cuerpo-primo-3",
-     "MultiplicidadDelGrafo.card_cuerpo_3",
-     "el cuerpo primo de caracteristica 3; cardinal 3"),
-    ("field-extensions", "finite-fields", "cuerpo-primo-5",
-     "MultiplicidadDelGrafo.card_cuerpo_5",
-     "el cuerpo primo de caracteristica 5; cardinal 5"),
-
-    # ── group-theory -> group-actions ──────────────────────────────────────
-    #
-    # El par instructivo: las tres acciones comparten CONJUNTO SUBYACENTE, asi
-    # que el cardinal no las separa. Lo hace el numero de puntos fijos. La
-    # multiplicidad no siempre se ve por el tamaño del resultado.
-    ("group-theory", "group-actions", "accion-traslacion",
-     "MultiplicidadDelGrafo.fijos_traslacion",
-     "traslacion g.x = g+x; 0 puntos fijos"),
-    ("group-theory", "group-actions", "accion-trivial",
-     "MultiplicidadDelGrafo.fijos_trivial",
-     "accion trivial g.x = x; 4 puntos fijos"),
-    ("group-theory", "group-actions", "accion-paridad",
-     "MultiplicidadDelGrafo.fijos_paridad",
-     "los g impares intercambian 0<->1; 2 puntos fijos"),
-
-    # ── commutative-algebra -> algebraic-geometry ──────────────────────────
-    #
-    # El PRIMERO que participa en los colimites del grafo: algebraic-geometry
-    # es colimite de {commutative-algebra, functors}. Los anteriores eran
-    # dependencias que ningun patron de convergencia usaba, asi que su
-    # multiplicidad no podia cambiar ningun resultado.
-    ("commutative-algebra", "algebraic-geometry", "espectro-primo",
-     "MultiplicidadDelGrafo.card_spec",
-     "Spec R con la topologia de Zariski; un cuerpo tiene un unico primo"),
-    ("commutative-algebra", "algebraic-geometry", "espacio-discreto",
-     "MultiplicidadDelGrafo.card_discreto",
-     "el conjunto subyacente con la topologia discreta; 5 puntos"),
+    MorfismoCertificado(
+        "ring-theory", "field-theory", "anillo-subyacente",
+        dominio="Field", codominio="Ring",
+        teorema="MultiplicidadDelGrafo.card_anillo_subyacente",
+        afirma="el anillo subyacente del cuerpo; |ZMod 5| = 5"),
+    MorfismoCertificado(
+        "ring-theory", "field-theory", "anillo-matrices",
+        dominio="Field", codominio="Ring",
+        teorema="MultiplicidadDelGrafo.card_anillo_matrices",
+        afirma="el anillo de matrices 2x2 sobre el cuerpo; cardinal 625"),
+    MorfismoCertificado(
+        "ring-theory", "field-theory", "anillo-trivial",
+        dominio="Field", codominio="Ring",
+        teorema="MultiplicidadDelGrafo.card_anillo_trivial",
+        afirma="el anillo trivial; cardinal 1"),
 ]
+
+
+#: Lo que se retiro al fijar (A), con el motivo. No se borra: un certificado
+#: retirado sigue siendo un teorema verdadero — lo que ya no es, es evidencia
+#: de multiplicidad de Hom para esa arista.
+RETIRADOS: list[tuple[str, str, str]] = [
+    ("ring-theory", "module-theory",
+     "El funtor certificado va `Ring -> Mod`, o sea I(a) -> I(b): direccion "
+     "contraria a (A). En el sentido correcto, `Mod -> Ring` es la proyeccion "
+     "al anillo base y no tiene multiplicidad clasica."),
+    ("commutative-algebra", "algebraic-geometry",
+     "Igual problema de direccion, y ademas irreparable bajo (A): Spec y las "
+     "secciones globales son CONTRAVARIANTES en el espacio. Es la "
+     "anti-equivalencia `CommRing^op ≃ AffSch`, no un funtor covariante."),
+    ("field-extensions", "finite-fields",
+     "Lo certificado eran tres OBJETOS distintos (ZMod 2, 3, 5), no tres "
+     "morfismos. Es una afirmacion verdadera sobre otra cosa."),
+    ("group-theory", "group-actions",
+     "Las tres acciones estaban definidas sobre `ZMod 4` fijo, no como "
+     "construcciones sobre un grupo arbitrario; la de paridad ni siquiera "
+     "generaliza (necesita un epimorfismo G -> Z/2). Y la direccion tambien "
+     "estaba invertida."),
+]
+
+
+def respeta_convencion(m: MorfismoCertificado) -> bool:
+    """
+    ¿El funtor va en el sentido que (A) exige?
+
+    Comprueba `dominio == I(destino)` y `codominio == I(origen)`. Devuelve True
+    si alguno de los nodos no esta en `INTERPRETACION` — no se puede comprobar
+    lo que no esta interpretado, y decir lo contrario seria un falso negativo.
+    """
+    d = INTERPRETACION.get(m.destino)
+    o = INTERPRETACION.get(m.origen)
+    if d is None or o is None:
+        return True
+    return m.dominio == d and m.codominio == o
+
+
+def violaciones_de_convencion() -> list[MorfismoCertificado]:
+    """Los certificados que NO cumplen (A). Debe estar vacia."""
+    return [m for m in MORFISMOS_CERTIFICADOS if not respeta_convencion(m)]
 
 
 def registrar_morfismos_certificados(graph: "SkillCategory") -> list[str]:
@@ -354,15 +415,17 @@ def registrar_morfismos_certificados(graph: "SkillCategory") -> list[str]:
         Los ids de los morfismos registrados (los que ya existian incluidos).
     """
     ids: list[str] = []
-    for origen, destino, constr, teorema, afirma in MORFISMOS_CERTIFICADOS:
-        if graph.get_skill(origen) is None or graph.get_skill(destino) is None:
-            logger.debug(f"no estan {origen} o {destino} en el grafo; se omite")
+    for mc in MORFISMOS_CERTIFICADOS:
+        if (graph.get_skill(mc.origen) is None
+                or graph.get_skill(mc.destino) is None):
+            logger.debug(f"no estan {mc.origen} o {mc.destino}; se omite")
             continue
         m = graph.add_morphism(
-            origen, destino, MorphismType.DEPENDENCY,
-            construccion=constr,
-            metadata={"teorema_lean": teorema, "afirma": afirma,
-                      "certificado": True},
+            mc.origen, mc.destino, MorphismType.DEPENDENCY,
+            construccion=mc.construccion,
+            metadata={"teorema_lean": mc.teorema, "afirma": mc.afirma,
+                      "certificado": True,
+                      "dominio": mc.dominio, "codominio": mc.codominio},
         )
         if m is not None:
             ids.append(m.id)

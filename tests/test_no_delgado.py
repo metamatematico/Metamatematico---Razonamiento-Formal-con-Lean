@@ -25,6 +25,8 @@ from nucleo.graph.no_delgado import (
     espectro, congruencia_respeta_certificados,
     congruencia_automatica, pendientes_de_decidir, informe_pendientes,
     TIPO_REFUTADO, TIPO_GENERICO, TIPO_COMPUESTO,
+    MorfismoCertificado, RETIRADOS, VARIANZA, INTERPRETACION,
+    respeta_convencion, violaciones_de_convencion,
 )
 
 
@@ -218,13 +220,13 @@ class TestMorfismosCertificados:
         assert registrar_morfismos_certificados(g) == []
 
     def test_el_mapeo_declara_teorema_para_cada_uno(self):
-        for origen, destino, constr, teorema, afirma in MORFISMOS_CERTIFICADOS:
-            assert origen and destino and constr
+        for mc in MORFISMOS_CERTIFICADOS:
+            assert mc.origen and mc.destino and mc.construccion
             # El namespace ya no es unico: hay dos archivos de certificados.
             # Que el teorema EXISTA lo comprueba
             # test_todos_citan_un_teorema_existente, que es la guardia buena.
-            assert "." in teorema
-            assert afirma
+            assert "." in mc.teorema
+            assert mc.afirma
 
 
 # ---------------------------------------------------------------------------
@@ -347,22 +349,48 @@ class TestParesCertificados:
     PARES = {
         ("group-theory", "ring-theory"),
         ("ring-theory", "field-theory"),
-        ("ring-theory", "module-theory"),
-        ("field-extensions", "finite-fields"),
-        ("group-theory", "group-actions"),
-        ("commutative-algebra", "algebraic-geometry"),
     }
 
     def test_son_los_pares_declarados(self):
-        assert {(o, d) for o, d, _, _, _ in MORFISMOS_CERTIFICADOS} == self.PARES
+        assert {(m.origen, m.destino) for m in MORFISMOS_CERTIFICADOS} == self.PARES
 
     def test_cada_par_tiene_al_menos_dos_construcciones(self):
         """Dos bastan para romper la delgadez del par."""
         por_par = {}
-        for o, d, c, _, _ in MORFISMOS_CERTIFICADOS:
-            por_par.setdefault((o, d), set()).add(c)
+        for m in MORFISMOS_CERTIFICADOS:
+            por_par.setdefault((m.origen, m.destino), set()).add(m.construccion)
         for par, cs in por_par.items():
             assert len(cs) >= 2, f"{par} solo tiene {len(cs)}"
+
+    def test_la_convencion_se_cumple(self):
+        """Todo certificado va en el sentido que (A) exige: I(b) -> I(a).
+
+        Los primeros seis pares se escribieron sin esta comprobacion y cuatro
+        iban al reves — de ahi que `dominio` y `codominio` sean ahora campos
+        explicitos y no algo que se supone.
+        """
+        assert VARIANZA == "contravariante"
+        assert violaciones_de_convencion() == []
+
+    def test_cada_certificado_declara_su_funtor(self):
+        for m in MORFISMOS_CERTIFICADOS:
+            assert m.dominio and m.codominio
+            if m.destino in INTERPRETACION:
+                assert m.dominio == INTERPRETACION[m.destino]
+            if m.origen in INTERPRETACION:
+                assert m.codominio == INTERPRETACION[m.origen]
+
+    def test_los_retirados_dicen_por_que(self):
+        """Un certificado retirado no se borra: se explica.
+
+        Los cuatro siguen siendo teoremas verdaderos. Lo que ya no son es
+        evidencia de multiplicidad de Hom para esa arista.
+        """
+        assert len(RETIRADOS) == 4
+        vigentes = {(m.origen, m.destino) for m in MORFISMOS_CERTIFICADOS}
+        for origen, destino, motivo in RETIRADOS:
+            assert (origen, destino) not in vigentes
+            assert len(motivo) > 40, "el motivo tiene que explicar algo"
 
     def test_hay_un_par_que_participa_en_colimites(self):
         """El que de verdad puede cambiar un resultado.
@@ -373,13 +401,17 @@ class TestParesCertificados:
         luego esa arista es una PATA DEL CO-CONO — y ahora hay tres patas
         distintas donde antes habia una.
 
-        Medido: 8 de las 31 descomposiciones tienen multiplicidad en
-        alguna pata. En enlaces distinguidos, todavia 0.
+        Al fijar la convencion (A) este par se RETIRO: Spec es contravariante
+        en el espacio, luego no es un funtor `I(algebraic-geometry) ->
+        I(commutative-algebra)`. Con el se fue la unica multiplicidad que
+        tocaba un colimite.
         """
-        assert ("commutative-algebra", "algebraic-geometry") in self.PARES
+        assert ("commutative-algebra", "algebraic-geometry") not in self.PARES
+        assert any(o == "commutative-algebra" and d == "algebraic-geometry"
+                   for o, d, _ in RETIRADOS)
 
     def test_las_construcciones_no_se_repiten_entre_pares(self):
-        cs = [c for _, _, c, _, _ in MORFISMOS_CERTIFICADOS]
+        cs = [m.construccion for m in MORFISMOS_CERTIFICADOS]
         assert len(cs) == len(set(cs))
 
     def test_todos_citan_un_teorema_existente(self):
@@ -390,10 +422,10 @@ class TestParesCertificados:
             f.read_text(encoding="utf-8")
             for f in (raiz / "MetamathProver" / "CategoryFoundations").glob("*.lean")
         )
-        for _, _, _, teorema, _ in MORFISMOS_CERTIFICADOS:
-            nombre = teorema.split(".")[-1]
+        for mc in MORFISMOS_CERTIFICADOS:
+            nombre = mc.teorema.split(".")[-1]
             assert re.search(rf"(theorem|lemma|def)\s+{re.escape(nombre)}\b", lean), (
-                f"'{teorema}' no existe en el corpus Lean"
+                f"'{mc.teorema}' no existe en el corpus Lean"
             )
 
     def test_registrar_no_mueve_el_preorden(self):
@@ -410,8 +442,8 @@ class TestParesCertificados:
             cn, gaps = build_hierarchy_to_fixpoint(g, pm, cb)
             return g.stats["num_joins"], len(gaps), sorted(cn.items())
 
-        ids = [o for o, _, _, _, _ in MORFISMOS_CERTIFICADOS]
-        ids += [d for _, d, _, _, _ in MORFISMOS_CERTIFICADOS]
+        ids = [m.origen for m in MORFISMOS_CERTIFICADOS]
+        ids += [m.destino for m in MORFISMOS_CERTIFICADOS]
         g = _g(*sorted(set(ids)))
         for o, d in sorted(self.PARES):
             g.add_morphism(o, d, MorphismType.DEPENDENCY)
@@ -436,13 +468,13 @@ class TestParesCertificados:
 
     def test_la_delgada_viola_todos_los_certificados(self):
         """Cuantos mas pares se certifican, mas falsa es la congruencia actual."""
-        ids = [o for o, _, _, _, _ in MORFISMOS_CERTIFICADOS]
-        ids += [d for _, d, _, _, _ in MORFISMOS_CERTIFICADOS]
+        ids = [m.origen for m in MORFISMOS_CERTIFICADOS]
+        ids += [m.destino for m in MORFISMOS_CERTIFICADOS]
         g = _g(*sorted(set(ids)))
         registrar_morfismos_certificados(g)
         v = congruencia_respeta_certificados(DELGADA, g)
-        # cinco pares con 3 construcciones (C(3,2)=3 cada uno) mas uno con 2
-        assert len(v) == 16
+        # dos pares con 3 construcciones cada uno -> C(3,2) = 3 por par
+        assert len(v) == 6
         assert congruencia_respeta_certificados(LIBRE, g) == []
 
 
@@ -507,12 +539,12 @@ class TestCongruenciaAutomatica:
     def test_la_pregunta_refutada_por_lean_no_es_una_pregunta(self):
         """Dos construcciones certificadas sobre la misma arista ya estan
         decididas: son distintas. No cuentan como decision abierta."""
-        g = _g("commutative-algebra", "algebraic-geometry")
+        g = _g("group-theory", "ring-theory")
         registrar_morfismos_certificados(g)
         pm = PatternManager()
         cb = ColimitBuilder(pm)
-        p = pm.create_pattern(["commutative-algebra"], [], graph=g)
-        cb._register_existing_join(p, "algebraic-geometry", g)
+        p = pm.create_pattern(["group-theory"], [], graph=g)
+        cb._register_existing_join(p, "ring-theory", g)
 
         pend = pendientes_de_decidir(g, pm, cb)
         refutadas = [x for x in pend if x.tipo == TIPO_REFUTADO]
@@ -520,12 +552,12 @@ class TestCongruenciaAutomatica:
         assert all(not x.es_pregunta for x in refutadas)
 
     def test_el_informe_distingue_lo_refutado_de_lo_abierto(self):
-        g = _g("commutative-algebra", "algebraic-geometry")
+        g = _g("group-theory", "ring-theory")
         registrar_morfismos_certificados(g)
         pm = PatternManager()
         cb = ColimitBuilder(pm)
-        p = pm.create_pattern(["commutative-algebra"], [], graph=g)
-        cb._register_existing_join(p, "algebraic-geometry", g)
+        p = pm.create_pattern(["group-theory"], [], graph=g)
+        cb._register_existing_join(p, "ring-theory", g)
 
         txt = informe_pendientes(g, pendientes_de_decidir(g, pm, cb))
         assert "refutadas por Lean" in txt
