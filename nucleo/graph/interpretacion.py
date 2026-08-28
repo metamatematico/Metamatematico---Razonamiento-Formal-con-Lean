@@ -194,10 +194,27 @@ VEREDICTO: dict[str, Etiqueta] = {
         "IsGalois, IntermediateField"),
     "group-theory": _e(C, "un grupo", "homomorfismos", "GrpCat"),
     "homotopy-theory": _e(
-        C, "un espacio, con las equivalencias debiles invertidas",
-        "clases de homotopia",
-        "FundamentalGroupoid, SSet, Quasicategory",
-        "decidir si es Top localizada o su categoria de homotopia: cambia el colimite"),
+        C, "el par (Top, W): la categoria RELATIVA, no el cociente ya tomado",
+        "las de Top, localizadas en las equivalencias debiles",
+        None,
+        "DECIDIDO: Top[W^-1], no hTop. La razon esta en el propio grafo: todas "
+        "las aristas que salen de este vertice —homology, cohomology, "
+        "fundamental-group— invierten W, luego por la propiedad universal de la "
+        "localizacion factorizan por Top[W^-1], que es el vertice INICIAL con "
+        "esa propiedad. No es una eleccion libre: la imponen las aristas que ya "
+        "hay. Con hTop los invariantes dejan de ser conservativos (hay "
+        "equivalencias debiles que no son de homotopia) y el vertice deja de "
+        "estar determinado.\n"
+        "Cierra ademas la arista con algebraic-topology: elegidos los "
+        "CW-complejos, Whitehead mas aproximacion celular dan que "
+        "hCW -> Top[W^-1] es una EQUIVALENCIA, luego la arista es comprobable, "
+        "no declarativa.\n"
+        "PRECIO EN LEAN: Mathlib tiene MorphismProperty, calculo de fracciones "
+        "y el marco ModelCategory, pero la unica instancia concreta es la "
+        "estructura inyectiva sobre complejos de cocadenas. NO hay estructura "
+        "de Quillen sobre Top ni sobre SSet, asi que un colimite homotopico "
+        "sobre este vertice no se enuncia hoy. El analogo que si se enuncia "
+        "vive en DerivedCategory, que es el vertice homological-algebra."),
     "homotopy-type-theory": _e(
         C, "un tipo con su infinito-grupoide de caminos", "funciones y caminos",
         None,
@@ -208,8 +225,19 @@ VEREDICTO: dict[str, Etiqueta] = {
         S, "un ideal de R (reticulo completo)",
         "inclusiones; R ↦ R/I es el funtor", "Ideal, Ideal.Quotient"),
     "measure-theory": _e(
-        C, "un espacio de medida", "funciones medibles",
-        "MeasureSpace, Measurable"),
+        C, "un espacio MEDIBLE (no un espacio de medida)",
+        "nucleos (Kleisli de la monada de Giry)",
+        "MeasCat + Giry + CategoryTheory.Kleisli",
+        "DECIDIDO. Entre los dos mundos solo hay un funtor y va en una "
+        "direccion: Dirac, delta : Meas -> Stoch, identidad en objetos y fiel. "
+        "No hay funtor al reves porque un nucleo no es una funcion; con "
+        "funciones medibles aqui, ningun diagrama podria tener una pata funcion "
+        "y otra nucleo. Fijados los nucleos en probability-theory, la "
+        "compatibilidad obliga arriba.\n"
+        "El objeto cambia: con funciones la medida era decoracion inerte "
+        "—nada la preservaba—; con nucleos, una medida sobre X ES un morfismo "
+        "1 -> X desde el espacio de un punto. Un espacio de probabilidad pasa a "
+        "ser «objeto mas estado»."),
     "number-fields": _e(
         C, "un cuerpo de numeros", "Q-homomorfismos", "NumberField"),
     "ordinals": _e(C, "un ordinal", "<= (categoria delgada)", "Ordinal"),
@@ -217,14 +245,17 @@ VEREDICTO: dict[str, Etiqueta] = {
         C, "un espacio topologico", "continuas", "TopCat"),
     "probabilistic-method": _e(T),
     "probability-theory": _e(
-        C, "un espacio de probabilidad", "NUCLEOS DE MARKOV, no funciones",
-        "ProbabilityTheory.Kernel, IsMarkovKernel",
-        "con funciones medibles la categoria no tiene el producto que hace "
-        "falta para independencia; con nucleos (Kleisli de Giry) es una "
-        "categoria de Markov y el condicionamiento es estructura"),
+        C, "un espacio medible con estado (= objeto mas un morfismo 1 -> X)",
+        "nucleos de Markov", "ProbabilityTheory.Kernel, IsMarkovKernel",
+        "SUBCATEGORIA ANCHA de measure-theory: mismos objetos, nucleos de "
+        "Markov contenidos en los nucleos. Con funciones medibles la categoria "
+        "no tiene el producto que hace falta para independencia; con nucleos es "
+        "una categoria de Markov y el condicionamiento es estructura."),
     "random-variables": _e(
-        F, "", "una funcion medible: es flecha", "Measurable, AEEqFun",
-        "ARISTA de probability-theory a measure-theory"),
+        F, "", "un nucleo: es flecha", "Measurable, AEEqFun, Kernel",
+        "ARISTA. Con la decision de nucleos vive DENTRO de measure-theory, no "
+        "entre dos categorias distintas: probability-theory es subcategoria "
+        "ancha, no otro mundo."),
     "solvable-groups": _e(S, "un grupo resoluble", "homomorfismos", "IsSolvable"),
     "strategy-forward": _e(T, nota="genera encadenar hipotesis; composicion"),
     "tactic-apply": _e(T, nota="genera composicion hacia atras"),
@@ -462,12 +493,103 @@ DUPLICADOS: list[tuple[str, list[str]]] = [
     ("[C,D] en dos capas", ["functors", "nat-trans"]),
 ]
 
-#: Etiquetas cuyos MORFISMOS hay que fijar antes de calcular colimites: la
-#: eleccion cambia que colimites existen.
+#: Etiquetas cuyos MORFISMOS siguen sin fijar. La eleccion cambia QUE
+#: colimites existen, no como se calculan, asi que no la puede tomar el codigo.
+#:
+#: `measure-theory`, `probability-theory` y `homotopy-theory` salieron de esta
+#: lista al decidirse (ver sus notas). Las dos que quedan no participan hoy en
+#: ninguna descomposicion, asi que no bloquean nada — pero lo haran en cuanto
+#: entren.
 MORFISMO_SIN_FIJAR: list[str] = [
-    "metric-spaces", "banach-spaces", "measure-theory", "probability-theory",
-    "homotopy-theory",
+    "metric-spaces",    # Lipschitz / isometrias / continuas
+    "banach-spaces",    # contracciones (cocompleta) / acotadas (no)
 ]
+
+
+# ---------------------------------------------------------------------------
+# La regla que decide si un colimite existe
+# ---------------------------------------------------------------------------
+#
+# Mira la FORMA del diagrama, no su contenido. En los patrones del sistema la
+# forma se lee directamente de `index_morphisms`:
+#
+#   FORMA COPRODUCTO — diagrama discreto, sin enlaces distinguidos.
+#       Existe en los dos vertices decididos, sin condiciones. En nucleos
+#       sobrevive siempre porque Hom(coproducto de A_i, X) = producto de
+#       Hom(A_i, TX). No hay nada que decidir.
+#
+#   FORMA PUSHOUT O COIGUALADOR — hay enlaces distinguidos.
+#       · en `measure-theory`: existe si y solo si las flechas del diagrama son
+#         DETERMINISTAS, y entonces se calcula en Meas exactamente como antes.
+#         Razon: delta es el funtor libre de la adjuncion de Kleisli, luego es
+#         adjunto por la izquierda, luego preserva TODOS los colimites; y Meas
+#         es cocompleta por ser topologica sobre Set. Con patas genuinamente
+#         estocasticas no hay garantia: la categoria de nucleos no es cocompleta.
+#       · en `homotopy-theory`: NO EXISTE NUNCA. Ni hTop ni Top[W^-1] tienen
+#         pushouts — esa carencia es la razon historica de las categorias de
+#         modelos. Lo que si existe es el colimite HOMOTOPICO, que es otra
+#         operacion, no un caso particular de esta.
+#
+# Consecuencia para el codigo: sobre el vertice homotopico y forma pushout, el
+# resultado correcto no es «este colimite vale X» sino «este vertice no admite
+# la operacion», y la maquinaria debe decirlo con esas palabras.
+
+FORMA_COPRODUCTO = "coproducto"
+FORMA_PUSHOUT = "pushout-o-coigualador"
+
+#: Vertices donde la forma pushout NO admite colimite en absoluto.
+SIN_PUSHOUT: frozenset[str] = frozenset({"homotopy-theory"})
+
+#: Vertices donde la forma pushout existe solo si las flechas son deterministas.
+PUSHOUT_SI_DETERMINISTA: frozenset[str] = frozenset({
+    "measure-theory", "probability-theory",
+})
+
+
+def forma_de(pattern) -> str:
+    """La forma del diagrama: coproducto si es discreto, pushout si no."""
+    return FORMA_COPRODUCTO if not pattern.index_morphisms else FORMA_PUSHOUT
+
+
+def admite_colimite(pattern, apex: str) -> tuple[bool, str]:
+    """
+    ¿Admite este vertice la operacion que el patron le pide?
+
+    Returns:
+        (admite, motivo). `admite=False` no significa «el colimite no existe»
+        sino «este vertice no admite la operacion», que es distinto y hay que
+        decirlo con esas palabras.
+    """
+    forma = forma_de(pattern)
+    if forma == FORMA_COPRODUCTO:
+        return True, "forma coproducto: existe sin condiciones"
+    if apex in SIN_PUSHOUT:
+        return False, (
+            f"«{apex}» no admite la operacion: ni hTop ni Top[W^-1] tienen "
+            "pushouts. Lo que existe es el colimite HOMOTOPICO, que es otra "
+            "operacion, no un caso particular de esta"
+        )
+    if apex in PUSHOUT_SI_DETERMINISTA:
+        return True, (
+            f"«{apex}»: forma pushout, existe solo si las flechas del diagrama "
+            "son deterministas; entonces se calcula en Meas como antes"
+        )
+    return True, "forma pushout: sin restriccion declarada para este vertice"
+
+
+#: Restricciones que hay que imponer si la descomposicion usa ciertas
+#: operaciones. No son opcionales: son condiciones de existencia.
+RESTRICCIONES: dict[str, str] = {
+    "producto": "si la descomposicion usa el producto (independencia, tensor "
+                "de nucleos), restringir a nucleos S-FINITOS. La composicion y "
+                "su asociatividad valen sin hipotesis (Kernel.comp_assoc no las "
+                "pide), pero compProd_apply y prod_apply' exigen IsSFiniteKernel",
+    "condicionamiento": "si usa condicionamiento o inversion bayesiana, "
+                        "restringir los objetos a BORELIANOS ESTANDAR, que es "
+                        "donde existe la desintegracion. Eso explica la arista "
+                        "con descriptive-set-theory: no es decorativa, es la "
+                        "condicion de existencia",
+}
 
 
 def marca(etiqueta: str) -> Optional[str]:

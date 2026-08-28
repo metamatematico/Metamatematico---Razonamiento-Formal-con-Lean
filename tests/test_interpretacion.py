@@ -12,6 +12,8 @@ import pytest
 from nucleo.graph.interpretacion import (
     VEREDICTO, DUPLICADOS, MORFISMO_SIN_FIJAR, VERTICES,
     C, S, F, O, T, marca, vertices, aristas, recuento,
+    forma_de, admite_colimite, FORMA_COPRODUCTO, FORMA_PUSHOUT,
+    SIN_PUSHOUT, PUSHOUT_SI_DETERMINISTA, RESTRICCIONES,
 )
 
 
@@ -132,3 +134,118 @@ class TestHallazgos:
         """Eran los dos vertices del bloque 1 que resultaron ser funtores."""
         assert marca("homology") == F
         assert marca("limits") == F
+
+
+class TestLasDosDecisiones:
+    """
+    Las dos elecciones de morfismos que el autor tomo, y su precio.
+
+    Ninguna la podia tomar el codigo: cambian QUE colimites existen, no como
+    se calculan.
+    """
+
+    def test_measure_theory_usa_nucleos(self):
+        e = VEREDICTO["measure-theory"]
+        assert "nucleo" in e.morfismos.lower()
+        assert "MEDIBLE" in e.objeto, "el objeto ya no es un espacio de medida"
+
+    def test_probability_es_subcategoria_ancha_de_measure(self):
+        """Mismos objetos, nucleos de Markov contenidos en los nucleos."""
+        assert "ancha" in VEREDICTO["probability-theory"].nota.lower()
+        assert marca("probability-theory") == C
+        assert marca("measure-theory") == C
+
+    def test_homotopy_theory_es_la_localizacion(self):
+        """Top[W^-1], no hTop. Lo imponen las aristas que ya salen del vertice.
+
+        Todas —homology, cohomology, fundamental-group— invierten W, luego
+        factorizan por la localizacion, que es el vertice inicial con esa
+        propiedad.
+        """
+        e = VEREDICTO["homotopy-theory"]
+        assert "RELATIVA" in e.objeto
+        assert e.lean is None, "sin estructura de Quillen sobre Top en Mathlib"
+        for arista in ("homology", "cohomology", "fundamental-group"):
+            assert marca(arista) == F
+
+    def test_solo_quedan_dos_sin_fijar(self):
+        assert set(MORFISMO_SIN_FIJAR) == {"metric-spaces", "banach-spaces"}
+
+
+class TestLaReglaDeLaForma:
+    """La regla mira la FORMA del diagrama, no su contenido."""
+
+    class _P:
+        def __init__(self, links):
+            self.index_morphisms = links
+
+    def test_diagrama_discreto_es_coproducto(self):
+        assert forma_de(self._P({})) == FORMA_COPRODUCTO
+
+    def test_con_enlaces_distinguidos_es_pushout(self):
+        assert forma_de(self._P({"d_0_1": ("0", "1")})) == FORMA_PUSHOUT
+
+    def test_el_coproducto_existe_siempre(self):
+        """Hom(coproducto, X) = producto de Hom(A_i, TX): sobrevive en nucleos."""
+        for apex in ("homotopy-theory", "measure-theory", "cualquiera"):
+            ok, _ = admite_colimite(self._P({}), apex)
+            assert ok
+
+    def test_el_pushout_no_existe_en_el_vertice_homotopico(self):
+        """Ni hTop ni Top[W^-1] tienen pushouts.
+
+        Y el resultado correcto no es «el colimite vale X» sino «este vertice
+        no admite la operacion»: el colimite homotopico es otra operacion.
+        """
+        ok, motivo = admite_colimite(self._P({"d": ("0", "1")}), "homotopy-theory")
+        assert ok is False
+        assert "no admite la operacion" in motivo
+        assert "homotopico" in motivo.lower()
+
+    def test_el_pushout_en_medida_pide_flechas_deterministas(self):
+        ok, motivo = admite_colimite(self._P({"d": ("0", "1")}), "measure-theory")
+        assert ok is True
+        assert "determinista" in motivo
+
+
+class TestFormaDelGrafoReal:
+    """Lo medido: las dos decisiones no invalidan nada de lo que ya habia."""
+
+    @pytest.fixture(scope="class")
+    def descomposiciones(self):
+        sys.argv = ["x"]
+        from nucleo.graph.category import SkillCategory
+        from nucleo.pillars.math_domains import load_math_domains
+        from nucleo.mes.patterns import PatternManager, ColimitBuilder
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.no_delgado import registrar_morfismos_certificados
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+        g = SkillCategory(name="Forma")
+        n._graph = g
+        Nucleo._load_foundational_skills(n)
+        load_math_domains(g)
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        build_hierarchy_to_fixpoint(g, pm, cb)
+        out = []
+        for p in pm.all_patterns:
+            col = cb.get_colimit_for_pattern(p.id)
+            if col:
+                out.append((p, col.skill_id))
+        return out
+
+    def test_casi_todas_son_coproducto(self, descomposiciones):
+        formas = [forma_de(p) for p, _ in descomposiciones]
+        assert formas.count(FORMA_COPRODUCTO) == 29
+        assert formas.count(FORMA_PUSHOUT) == 2
+
+    def test_ninguna_pierde_su_colimite_por_las_decisiones(self, descomposiciones):
+        """Las cuatro que tocan un vertice decidido son de forma coproducto,
+        luego las dos elecciones no cuestan ningun colimite de los que habia."""
+        decididos = SIN_PUSHOUT | PUSHOUT_SI_DETERMINISTA
+        for p, apex in descomposiciones:
+            if (set(p.component_ids) | {apex}) & decididos:
+                ok, _ = admite_colimite(p, apex)
+                assert ok, f"{sorted(p.component_ids)} -> {apex} deja de admitir"
