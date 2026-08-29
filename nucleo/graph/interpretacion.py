@@ -577,6 +577,157 @@ def admite_colimite(pattern, apex: str) -> tuple[bool, str]:
     return True, "forma pushout: sin restriccion declarada para este vertice"
 
 
+# ---------------------------------------------------------------------------
+# Degradaciones: dejan de ser vertices y pasan a la capa de flechas
+# ---------------------------------------------------------------------------
+#
+# No se borran: se DEGRADAN. Nada se pierde si se reparten sus aristas
+# incidentes segun la direccion.
+#
+#   aristas que ENTRAN  (X -> etiqueta)  -> atributo de X, un predicado
+#   aristas que SALEN   (etiqueta -> Y)  -> un funtor
+#
+# `limits` fallaba no por estar mal poblado sino porque nombraba la operacion
+# con la que se calcula el propio grafo. `nat-trans` es el mismo caso y no una
+# fusion: `functors` y `nat-trans` no son dos vertices repetidos, son el nivel
+# de objetos y el de flechas de [C,D].
+
+DEGRADADAS: dict[str, dict[str, str]] = {
+    "limits": {
+        "entrantes": "atributo del vertice: «X tiene limites de forma J». "
+                     "En Lean, HasLimitsOfShape J X — un predicado, no un vertice",
+        "salientes": "el funtor lim : [J,Y] => Y, adjunto por la derecha de la "
+                     "diagonal. En Lean, CategoryTheory.Limits.lim con la "
+                     "adjuncion constLimAdj; su dual es colimConstAdj",
+    },
+    "nat-trans": {
+        "entrantes": "atributo: la capa de 2-celdas de [C,D]",
+        "salientes": "la capa de morfismos de `functors`, no un vertice propio",
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Fusiones: etiquetas que nombran la misma categoria
+# ---------------------------------------------------------------------------
+#
+# CRITERIO DE SUPERVIVENCIA: sobrevive la que nombra los OBJETOS, no la rama.
+# Donde ninguna candidata nombra objetos, sobrevive la mas fundacional y queda
+# anotado que el nombre es de rama — suciedad, no problema.
+#
+# Las retiradas NO se borran: quedan como ALIAS del superviviente. Si se
+# borraran, las 172 dejarian de mapear sobre el grafo y se perderia la
+# trazabilidad de por que desaparecieron.
+
+FUSIONES: dict[str, str] = {
+    # retirada                      -> superviviente
+    "homological-algebra-cat": "abelian-categories",
+    "differential-geometry": "smooth-manifolds",
+    "differential-topology": "smooth-manifolds",
+    "sequent-calculus": "fol-deduction",
+    "proof-theory": "fol-deduction",
+    "recursion-theory": "computability-theory",
+    "schemes": "algebraic-geometry",
+    "algebraic-topology": "point-set-topology",
+}
+
+#: Motivo por el que sobrevive cada uno, y la suciedad que queda.
+NOTA_FUSION: dict[str, str] = {
+    "abelian-categories": "nombra los objetos; homological-algebra-cat nombra la rama",
+    "smooth-manifolds": "nombra los objetos; las otras dos nombran ramas",
+    "fol-deduction": "ninguna candidata nombra los objetos de la categoria "
+                     "deductiva; sobrevive la mas fundacional. El nombre sigue "
+                     "siendo de rama: suciedad anotada",
+    "computability-theory": "ambas son T; la fusion es de etiquetas, no de vertices",
+    "algebraic-geometry": "el criterio pedia `schemes`, que nombra los objetos, "
+                          "pero `algebraic-geometry` es el que aparece en las "
+                          "descomposiciones; se conserva ese y `schemes` queda "
+                          "como alias. Suciedad anotada",
+    "point-set-topology": "ninguna nombra los objetos; sobrevive la mas "
+                          "fundacional. Ver AVISO_TOP",
+}
+
+#: El documento separa `algebraic-topology` = CW-complejos (subcategoria plena)
+#: de `point-set-topology` = Top. La regla operativa permite fusionar porque
+#: NINGUNA descomposicion usa la distincion — pero la distincion es real. Si
+#: alguna descomposicion futura la usa, hay que deshacer esta fusion y pasarla
+#: a SUBCATEGORIA_PLENA.
+AVISO_TOP = ("fusion permitida por la regla —ninguna descomposicion usa la "
+             "distincion CW ⊊ Top— pero la distincion es matematicamente real")
+
+
+# ---------------------------------------------------------------------------
+# Las que NO se fusionan: ambiente mas subcategoria plena
+# ---------------------------------------------------------------------------
+#
+# LA REGLA: fusiona SALVO que alguna descomposicion use precisamente esa
+# distincion. Si la usa, no fusiones — convierte el par en ambiente mas
+# subcategoria plena con una arista de inclusion, que es lo que realmente son.
+# Retirar la etiqueta y meter la inclusion arreglan igual el colimite; lo que
+# no se puede es hacer las dos cosas.
+#
+# MEDIDO: las cuatro descomposiciones que la fusion iba a «arreglar» son
+# exactamente las cuatro que USAN la distincion, y en las cuatro uno de los
+# miembros es el APICE y el otro una COMPONENTE. Fusionar colapsaria el apice
+# dentro de su propio patron y el colimite pasaria a ser trivial.
+
+SUBCATEGORIA_PLENA: dict[str, tuple[str, str]] = {
+    # subcategoria            -> (ambiente, que la recorta)
+    "arithmetic-geometry": (
+        "algebraic-geometry",
+        "esquemas separados y de tipo finito sobre Spec O_K, dentro de Sch"),
+    "number-fields": (
+        "algebraic-number-theory",
+        "cuerpos de numeros, dentro de los cuerpos globales"),
+}
+
+
+# ---------------------------------------------------------------------------
+# El aviso: una fusion es un COCIENTE del diagrama indice
+# ---------------------------------------------------------------------------
+#
+# Identificar dos vertices no es solo rellenar un hueco: es tomar un cociente
+# del diagrama, y el colimite del cociente NO es el colimite del original.
+# Donde las dos etiquetas fusionadas coexistian en el mismo diagrama, lo que
+# antes era un COPRODUCTO pasa a ser un COIGUALADOR, y el valor se mueve aunque
+# el colimite ya existiera y estuviera bien.
+#
+# Por eso la comprobacion no va sobre las que se arreglan, sino sobre las que
+# contienen A LA VEZ los dos miembros de un par fusionado: esas cambian de
+# valor y hay que RECALCULARLAS, no celebrarlas.
+
+def cambia_de_valor(pattern, apex: str) -> list[tuple[str, str]]:
+    """
+    Los pares fusionados que coexisten en esta descomposicion.
+
+    No vacia = el colimite cambia de valor al fusionar, aunque ya existiera y
+    fuera correcto. Hay que recalcular.
+    """
+    nodos = set(pattern.component_ids) | {apex}
+    fuera: list[tuple[str, str]] = []
+    for retirada, superviviente in FUSIONES.items():
+        if retirada in nodos and superviviente in nodos:
+            fuera.append((retirada, superviviente))
+    return fuera
+
+
+def resolver(etiqueta: str) -> str:
+    """La etiqueta que sobrevive: sigue los alias hasta el final."""
+    visto = set()
+    while etiqueta in FUSIONES and etiqueta not in visto:
+        visto.add(etiqueta)
+        etiqueta = FUSIONES[etiqueta]
+    return etiqueta
+
+
+def vertices_tras_fusionar() -> list[str]:
+    """Los vertices que quedan: los que sobreviven y no fueron degradados."""
+    return sorted({
+        resolver(k) for k, v in VEREDICTO.items()
+        if v.es_vertice and k not in DEGRADADAS
+    })
+
+
 #: Restricciones que hay que imponer si la descomposicion usa ciertas
 #: operaciones. No son opcionales: son condiciones de existencia.
 RESTRICCIONES: dict[str, str] = {
