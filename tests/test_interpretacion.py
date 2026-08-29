@@ -257,9 +257,28 @@ class TestFormaDelGrafoReal:
         return out
 
     def test_casi_todas_son_coproducto(self, descomposiciones):
+        """24 de 27 siguen siendo coproductos, y eso NO es neutral.
+
+        Las cifras anteriores —29 de 31— median dos defectos a la vez:
+
+          · la rama de descomposiciones alternativas recogia las PATAS del
+            co-cono en vez de los enlaces entre componentes, asi que sus
+            subpatrones salian discretos por un bug, no por su forma;
+          · `find_colimit` solo pedia cota superior, asi que cuatro patrones
+            de `homological-algebra-cat` registraban colimite sin que ninguna
+            eleccion de flechas conmutara.
+
+        Corregidos los dos, quedan 27 colimites de los que 3 tienen estructura.
+        Que 24 sigan siendo discretos importa: el colimite de un diagrama
+        discreto es un COPRODUCTO, y un coproducto de coproductos vuelve a ser
+        un coproducto — se aplana sea la categoria delgada o no. O sea que
+        salir de la delgadez es NECESARIO para el orden >= 2 pero no
+        suficiente: hacen falta diagramas con enlaces.
+        """
         formas = [forma_de(p) for p, _ in descomposiciones]
-        assert formas.count(FORMA_COPRODUCTO) == 29
-        assert formas.count(FORMA_PUSHOUT) == 2
+        assert len(descomposiciones) == 27
+        assert formas.count(FORMA_COPRODUCTO) == 24
+        assert formas.count(FORMA_PUSHOUT) == 3
 
     def test_ninguna_pierde_su_colimite_por_las_decisiones(self, descomposiciones):
         """Las cuatro que tocan un vertice decidido son de forma coproducto,

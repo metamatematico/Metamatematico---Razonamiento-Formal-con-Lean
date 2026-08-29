@@ -147,8 +147,18 @@ class ConceptGap:
     la propiedad universal es asumir la conclusion.
     """
     component_ids: list[str]
-    cocones: list[str]          # cotas superiores encontradas (co-conos)
+    cocones: list[str]          # cotas superiores encontradas
     pattern_id: Optional[str] = None
+    #: Por que no hay colimite. Distingue tres cosas que no son la misma:
+    #:   "sin cotas superiores"  — no hay ni siquiera donde mirar
+    #:   "minimal sin co-cono"   — hay minimal, pero ninguna eleccion de
+    #:                             flechas conmuta con los enlaces del patron.
+    #:                             Este caso solo existe fuera de la delgadez:
+    #:                             es el hueco que la delgadez ocultaba.
+    #:   "indecidible"           — la busqueda excedio su cota. NO es «no
+    #:                             existe»: es «no se sabe», y confundirlos
+    #:                             seria afirmar de mas.
+    motivo: Optional[str] = None
 
     @property
     def n_cocones(self) -> int:
@@ -289,6 +299,82 @@ def find_colimit(
     return None
 
 
+def find_colimit_cong(
+    pattern: "Pattern",
+    graph: "SkillCategory",
+    colimit_builder: "ColimitBuilder",
+    cong=None,
+) -> "tuple[Optional[str], Optional[str]]":
+    """
+    El colimite del patron exigiendo CO-CONO, no solo cota superior.
+
+    QUE CAMBIA RESPECTO A `find_colimit`
+    ------------------------------------
+    `find_colimit` pregunta «¿es `apex` alcanzable desde toda componente?».
+    Eso es una pregunta sobre VERTICES, y solo basta si la categoria es
+    delgada: con `Hom(a,b)` booleano, elegida una flecha por componente la
+    conmutacion `P(x) ; f_j = f_i` se cumple sola, porque solo hay un morfismo
+    paralelo posible. Es `cocono_delgado_siempre` (Complexificacion.lean).
+
+    Fuera de la delgadez eso deja de valer: hay que exhibir UNA ELECCION de
+    flecha por componente que conmute con los enlaces del patron. Cota superior
+    ya no implica co-cono — `cota_superior_no_implica_cocono`, con el testigo
+    `Mon = {1,e}`.
+
+    LA CONGRUENCIA
+    --------------
+    «Conmutar» solo tiene sentido relativo a que caminos se declaran iguales.
+    Por defecto se usa `congruencia_automatica(graph)`: identifica aristas
+    paralelas que difieren solo en el TIPO (dep/an/tr) y no declaran
+    construccion, que es la semantica que el propio grafo ya afirmaba en
+    `is_preorder_leq`. No identifica nada mas: dos morfismos con construccion
+    distinta fueron demostrados distintos en Lean (`no_hay_iso`), y que dos
+    caminos compuestos coincidan es un teorema sobre el dominio, no una
+    convencion — eso sale por `pendientes_de_decidir`.
+
+    Por `cocono_monotono_en_la_congruencia`, mas identificaciones solo pueden
+    AÑADIR co-conos. Asi que este resultado es una cota inferior honesta: lo
+    que sobrevive aqui sobrevive en cualquier congruencia mas fina.
+
+    Returns:
+        `(apex, motivo)`. `apex` es None si no hay colimite; `motivo` explica
+        por que, y vale None cuando si lo hay. El motivo `"indecidible"` marca
+        los casos en que la busqueda excedio su cota — no es «no existe», es
+        «no se sabe», y el llamador no debe confundirlos.
+    """
+    from nucleo.graph.no_delgado import congruencia_automatica, hay_cocono_cong
+
+    cong = cong if cong is not None else congruencia_automatica(graph)
+
+    cocones = find_cocones(pattern.component_ids, graph)
+    if not cocones:
+        return None, "sin cotas superiores"
+
+    _ORD = type(graph).ORDER_MORPHISMS
+    indecidibles: list[str] = []
+
+    for apex in cocones:
+        if not all(
+            graph.is_preorder_leq(apex, x, _ORD)
+            for x in cocones if x != apex
+        ):
+            continue
+        if not colimit_builder.is_join(apex, pattern.component_ids, graph)["is_join"]:
+            continue
+
+        # AQUI muerde la migracion: minimal entre las cotas superiores, si;
+        # pero ademas tiene que existir una eleccion de flechas que conmute.
+        veredicto = hay_cocono_cong(pattern, apex, graph, cong)
+        if veredicto is True:
+            return apex, None
+        if veredicto is None:
+            indecidibles.append(apex)
+
+    if indecidibles:
+        return None, "indecidible"
+    return None, "minimal sin co-cono"
+
+
 def find_existing_join(
     component_ids: list[str],
     graph: "SkillCategory",
@@ -302,6 +388,7 @@ def build_join_for_pattern(
     pattern: "Pattern",
     graph: "SkillCategory",
     colimit_builder: "ColimitBuilder",
+    cong=None,
 ) -> "Optional[Colimit] | ConceptGap":
     """
     Descubre y registra el CO-CONO LIMITE de un patron. Nunca lo fabrica.
@@ -355,7 +442,7 @@ def build_join_for_pattern(
     if existing is not None:
         return existing
 
-    join_id = find_colimit(pattern.component_ids, graph, colimit_builder)
+    join_id, motivo = find_colimit_cong(pattern, graph, colimit_builder, cong)
 
     # Caso trivial: el colimite es una componente del propio patron.
     # Tiene colimite (no es hueco) pero no se registra: `AciclicoMulti` exige
@@ -382,13 +469,15 @@ def build_join_for_pattern(
     # la complexificacion; el concepto que la llena lo aporta la matematica).
     cocones = find_cocones(pattern.component_ids, graph)
     logger.debug(
-        f"ConceptGap: patron {pattern.id} tiene {len(cocones)} co-conos "
-        f"pero ninguno minimal — no se fabrica vertice"
+        f"ConceptGap: patron {pattern.id} tiene {len(cocones)} cotas "
+        f"superiores pero ninguna es co-cono limite ({motivo}) — no se "
+        f"fabrica vertice"
     )
     return ConceptGap(
         component_ids=list(pattern.component_ids),
         cocones=cocones,
         pattern_id=pattern.id,
+        motivo=motivo,
     )
 
 
@@ -487,11 +576,23 @@ def _detect_convergence_patterns(
                     if find_colimit(list(sub), graph, colimit_builder) != skill_id:
                         continue          # no es descomposicion de este objeto
                     seen.add(clave)
+                    # MISMO CRITERIO QUE ARRIBA: enlaces ENTRE COMPONENTES.
+                    #
+                    # Aqui sobrevivia el bug que ya se habia corregido en la
+                    # rama principal: se recogian los morfismos `pred ->
+                    # skill_id`, que son las PATAS del co-cono, no los enlaces
+                    # del patron. `create_pattern` los descarta en silencio
+                    # porque su destino no es componente, asi que estos
+                    # subpatrones salian DISCRETOS y su colimite era un
+                    # coproducto — que se aplana siempre, delgado o no.
                     sub_links = []
-                    for pred_id in sub:
-                        m = graph.get_morphism_between(pred_id, skill_id)
-                        if m:
-                            sub_links.append(m.id)
+                    for a in sub:
+                        for b in sub:
+                            if a == b:
+                                continue
+                            for morph in graph.hom(a, b):
+                                if morph.morphism_type != _MT.IDENTITY:
+                                    sub_links.append(morph.id)
                     patterns.append(
                         pattern_manager.create_pattern(
                             list(sub), sub_links, graph=graph)
@@ -505,6 +606,7 @@ def build_hierarchy_to_fixpoint(
     pattern_manager: "PatternManager",
     colimit_builder: "ColimitBuilder",
     max_iterations: int = 20,
+    cong=None,
 ) -> "tuple[dict[str, int], list[ConceptGap]]":
     """
     Descubre la jerarquia emergente hasta el punto fijo.
@@ -576,7 +678,7 @@ def build_hierarchy_to_fixpoint(
             if colimit_builder.get_colimit_for_pattern(pattern.id) is not None:
                 resueltos.add(clave)
                 continue
-            result = build_join_for_pattern(pattern, graph, colimit_builder)
+            result = build_join_for_pattern(pattern, graph, colimit_builder, cong)
             if isinstance(result, ConceptGap):
                 gaps[clave] = result
             elif isinstance(result, TrivialColimit):

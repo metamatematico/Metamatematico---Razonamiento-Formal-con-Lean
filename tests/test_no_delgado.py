@@ -561,3 +561,147 @@ class TestCongruenciaAutomatica:
 
         txt = informe_pendientes(g, pendientes_de_decidir(g, pm, cb))
         assert "refutadas por Lean" in txt
+
+
+# ---------------------------------------------------------------------------
+# La migracion: de cota superior a co-cono
+# ---------------------------------------------------------------------------
+
+class TestMigracionACocono:
+    """`find_colimit` preguntaba por vertices; `find_colimit_cong` por flechas.
+
+    La diferencia solo existe fuera de la delgadez. Con `Hom(a,b)` booleano,
+    elegida una flecha por componente la conmutacion se cumple sola
+    (`cocono_delgado_siempre`), asi que cota superior y co-cono coinciden. En
+    cuanto hay dos flechas paralelas distintas dejan de coincidir, y el testigo
+    es `Mon = {1,e}` (`cota_superior_no_implica_cocono`).
+    """
+
+    @pytest.fixture(scope="class")
+    def sistema(self):
+        import sys as _s
+        _s.argv = ["x"]
+        from nucleo.graph.category import SkillCategory
+        from nucleo.pillars.math_domains import load_math_domains
+        from nucleo.mes.patterns import PatternManager, ColimitBuilder
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+        g = SkillCategory(name="Mig")
+        n._graph = g
+        Nucleo._load_foundational_skills(n)
+        load_math_domains(g)
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        build_hierarchy_to_fixpoint(g, pm, cb)
+        return g, pm, cb
+
+    def _descs(self, sistema):
+        _, pm, cb = sistema
+        out = []
+        for p in pm.all_patterns:
+            c = cb.get_colimit_for_pattern(p.id)
+            if c:
+                out.append((p, c.skill_id))
+        return out
+
+    def test_todo_colimite_registrado_es_un_cocono_de_verdad(self, sistema):
+        """Lo que la migracion garantiza y antes no: cada colimite registrado
+        admite una eleccion de flechas que conmuta con los enlaces del patron.
+        """
+        g, _, _ = sistema
+        cong = congruencia_automatica(g)
+        for p, apex in self._descs(sistema):
+            assert hay_cocono_cong(p, apex, g, cong) is True, (
+                f"{sorted(p.component_ids)} -> {apex} esta registrado como "
+                "colimite pero no admite co-cono: es solo cota superior"
+            )
+
+    def test_la_migracion_costo_exactamente_cuatro(self, sistema):
+        """31 -> 27, y los cuatro caidos se identifican con precision.
+
+        Todos apuntaban a `homological-algebra-cat` y todos contenian
+        `functors`, que es justo la componente de la que salian los enlaces
+        (`functors -> algebraic-geometry`, `-> homological-algebra`,
+        `-> limits`). Eran minimales entre las cotas superiores, pero ninguna
+        eleccion de flechas conmutaba con esos enlaces: existian solo porque la
+        delgadez regalaba la conmutacion.
+
+        Los hermanos SIN `functors` sobreviven, y deben: son discretos, luego
+        su condicion de co-cono es vacua y no hay nada que puedan incumplir.
+        """
+        descs = self._descs(sistema)
+        assert len(descs) == 27
+
+        hac = {frozenset(p.component_ids) for p, a in descs
+               if a == "homological-algebra-cat"}
+        assert all("functors" not in c for c in hac), (
+            "sobrevive una descomposicion con `functors`: la conmutacion no "
+            "se esta comprobando"
+        )
+        assert hac == {
+            frozenset({"algebraic-geometry", "homological-algebra"}),
+            frozenset({"algebraic-geometry", "limits"}),
+            frozenset({"homological-algebra", "limits"}),
+            frozenset({"algebraic-geometry", "homological-algebra", "limits"}),
+        }
+
+    def test_sobreviven_incluso_en_la_categoria_libre(self, sistema):
+        """La cota inferior honesta. Por `cocono_monotono_en_la_congruencia`
+        mas identificaciones solo AÑADEN co-conos, asi que lo que aguanta con
+        LIBRE aguanta con cualquier congruencia.
+        """
+        g, _, _ = sistema
+        for p, apex in self._descs(sistema):
+            assert hay_cocono_cong(p, apex, g, LIBRE) is True
+
+    def test_el_hueco_dice_por_que(self, sistema):
+        """«no existe» y «no se sabe» no son lo mismo, y el codigo no puede
+        confundirlos: un hueco por cota agotada no es un hueco conceptual.
+        """
+        from nucleo.graph.complexity import find_colimit_cong
+        g, pm, cb = sistema
+        vistos = set()
+        for p in pm.all_patterns:
+            if cb.get_colimit_for_pattern(p.id) is None:
+                apex, motivo = find_colimit_cong(p, g, cb)
+                if apex is None and motivo:
+                    vistos.add(motivo)
+        assert vistos <= {"sin cotas superiores", "minimal sin co-cono",
+                          "indecidible"}
+
+    def test_la_congruencia_automatica_no_inventa_nada(self, sistema):
+        """Solo identifica aristas paralelas que difieren en el TIPO y no
+        declaran construccion. Nunca identifica construcciones distintas: Lean
+        demostro que son morfismos distintos.
+        """
+        g, _, _ = sistema
+        cong = congruencia_automatica(g)
+        for a, b in cong.relaciones:
+            assert len(a) == 1 and len(b) == 1, "no debe tocar caminos compuestos"
+            ma, mb = g.get_morphism(a[0]), g.get_morphism(b[0])
+            assert (ma.source_id, ma.target_id) == (mb.source_id, mb.target_id)
+            assert not ma.metadata.get("construccion")
+            assert not mb.metadata.get("construccion")
+
+    def test_los_subpatrones_ya_no_salen_discretos_por_un_bug(self, sistema):
+        """La rama de descomposiciones alternativas recogia `pred -> apex` —las
+        PATAS del co-cono— en vez de los enlaces entre componentes, y
+        `create_pattern` los descartaba en silencio. Resultado: subpatrones
+        discretos por defecto de recoleccion, no por su forma.
+        """
+        from nucleo.types import MorphismType
+        g, pm, _ = sistema
+        for p in pm.all_patterns:
+            comps = list(p.component_ids)
+            hay = any(
+                m.morphism_type != MorphismType.IDENTITY
+                for a in comps for b in comps if a != b
+                for m in g.hom(a, b)
+            )
+            if hay:
+                assert p.index_morphisms, (
+                    f"{sorted(comps)} tiene aristas entre componentes pero "
+                    "sale como diagrama discreto"
+                )
