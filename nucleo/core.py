@@ -18,6 +18,7 @@ red de 4 co-reguladores autonomos (Seccion 8, paper v7.0).
 from __future__ import annotations
 
 import asyncio
+import re
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -631,6 +632,21 @@ class Nucleo:
             result["added"], result["skipped"], result["translations"],
         )
 
+        # LA MULTIPLICIDAD QUE LEAN CERTIFICO.
+        #
+        # Sin esta llamada los seis morfismos demostrados distintos en Lean
+        # —tres Ring -> Grp, tres Field -> Ring, cada uno con su teorema— vivian
+        # solo en los tests, y el grafo del runtime era mas delgado que el que
+        # se estaba midiendo. Medido antes de añadirla: 3 de 387 pares con
+        # |Hom| > 1 en el runtime frente a 5 en la medicion. Es justo la
+        # multiplicidad que costo demostrar, y no estaba llegando.
+        from nucleo.graph.no_delgado import registrar_morfismos_certificados
+        certificados = registrar_morfismos_certificados(self._graph)
+        logger.info(
+            "Morfismos certificados por Lean registrados: %d",
+            len(certificados),
+        )
+
     async def process(self, input_text: str) -> NucleoResponse:
         """
         Procesar entrada del usuario via Dinamica Global.
@@ -939,6 +955,30 @@ class Nucleo:
             if unicodedata.category(c) != "Mn"
         )
 
+    #: Formas ARITMÉTICAS Y ALGEBRAICAS que hacen matemática a una consulta.
+    #:
+    #: Cada patrón exige un operador ENTRE operandos. Un dígito suelto no basta
+    #: —«tengo 2 gatos», «quedamos a las 3»— y por eso ninguna se dispara con
+    #: un número aislado. Se evalúan sobre el texto normalizado (sin acentos).
+    _MATH_FORMAS = (
+        # 2 + 2 · 15*4 · 3.5 / 7 · 2^10
+        r"\d\s*[+\-*/^]\s*\d",
+        # x^2 · n^k — potencia; el acento circunflejo casi no aparece en prosa
+        r"[a-z0-9]\s*\^\s*[a-z0-9]",
+        # x = 5 · 2x + 1 = 0 · f(x)=... — ecuación con incógnita o número
+        r"[a-z0-9)]\s*=\s*[-+]?\s*[a-z0-9(]",
+        # desigualdades entre operandos
+        r"[a-z0-9)]\s*(<=|>=|<|>)\s*[-+]?\s*[a-z0-9(]",
+        # operadores escritos: 15 por 4 · 7 mas 3 · 20 entre 5 · 9 menos 2
+        r"\d\s+(por|mas|menos|entre|dividido|multiplicado|elevado)\s+\d",
+        # raiz/factorial/porcentaje aplicados a algo
+        r"raiz\s+(cuadrada|cubica|de)",
+        r"\d\s*!\B",
+        r"\d\s*%",
+        # notación de conjuntos o funciones con argumento
+        r"[a-z]\s*\(\s*[a-z0-9]",
+    )
+
     def _is_mathematical(self, text: str) -> bool:
         """
         Clasificar si una consulta es matematica.
@@ -984,6 +1024,21 @@ class Nucleo:
             "riemann", "cantor", "noether", "galois", "curry-howard",
             "irracional", "irracionalidad",
         )):
+            return True
+
+        # ARITMÉTICA Y ECUACIONES, que no tenían ninguna regla.
+        #
+        # El clasificador solo miraba VOCABULARIO —keywords, símbolos Unicode,
+        # LaTeX— así que «¿cuánto es 2 + 2?» salía NO matemático y se iba a la
+        # rama conversacional, saltándose Lean por completo. Es justo el caso
+        # para el que existe el pipeline: `_lean_reward` del entrenamiento
+        # trata explícitamente la forma `a OP b = N`.
+        #
+        # Se exige un OPERADOR ENTRE OPERANDOS, no solo la presencia de un
+        # dígito: «tengo 2 gatos» no es una consulta matemática y no debe
+        # entrar. Por eso ninguna de estas reglas se dispara con un número
+        # suelto.
+        if any(re.search(p, normalized) for p in self._MATH_FORMAS):
             return True
 
         return False

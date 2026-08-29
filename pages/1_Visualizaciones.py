@@ -2257,7 +2257,7 @@ with tab6:
     col2.metric("Parámetros GNN+PPO",
                 f"{_p_total:,}" if _p_total else "—",
                 "3 capas GATConv")
-    col3.metric("Tests", "664", "33 suites")
+    col3.metric("Tests", "671", "34 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")

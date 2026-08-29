@@ -266,20 +266,54 @@ class TestColimitEmergence:
         for mid in colimit.cocone_morphisms:
             assert graph.classify_link(mid, pm, cb) == LinkComplexity.NO_APLICA
 
-    def test_binding_option_adds_emergence_structure(self, graph):
-        """Option de ligadura agrega estructura que permite emergencia."""
+    def test_ligar_descubre_el_colimite_y_no_lo_fabrica(self, graph):
+        """Una ligadura DESCUBRE el co-cono límite; nunca inventa un vértice.
+
+        Este test afirmaba lo contrario: comprobaba que tras `apply_option`
+        apareciera un skill nuevo a nivel 1. Estaba protegiendo la fabricación
+        de vértices que `build_join_for_pattern` ya había retirado por
+        principio —inventar un nodo y cablearlo hasta que cumpla la propiedad
+        universal es asumir la conclusión— y que sobrevivía en el lado de los
+        co-reguladores.
+
+        Medido con la versión que fabricaba: tres consultas cualesquiera
+        llevaban el grafo real de 173 a 175 nodos, con nombres como
+        `skill_c113edb3` y componentes que nadie había unificado.
+
+        Aquí el patrón es `{s1, s2}` con `s1 → s2`: su supremo es `s2`, que es
+        una de sus componentes. Tiene colímite —luego no es hueco— pero es
+        TRIVIAL y no se registra, porque rompería `AciclicoMulti`.
+        """
         evo = EvolutionarySystem(graph)
         pm = evo.pattern_manager
 
         m12 = graph.hom("s1", "s2")[0]
         pattern = pm.create_pattern(["s1", "s2"], [m12.id], graph=graph)
 
+        antes = set(graph.skill_ids)
         evo.apply_option(Option(bindings=[pattern.id]))
 
-        # Colimit should exist now
-        assert evo.colimit_builder.has_colimit(pattern.id)
+        assert set(graph.skill_ids) == antes, (
+            f"se fabricaron {sorted(set(graph.skill_ids) - antes)}"
+        )
+        assert not evo.colimit_builder.has_colimit(pattern.id)
 
-        # The new colimit skill should be at level 1
-        colimit_obj = evo.colimit_builder.get_colimit_for_pattern(pattern.id)
-        colimit_skill = graph.get_skill(colimit_obj.skill_id)
-        assert colimit_skill.level == 1
+    def test_ligar_registra_el_colimite_cuando_si_existe(self, graph):
+        """Y no es que nunca ligue: cuando hay un co-cono límite propio entre
+        los objetos que ya existen, la ligadura lo registra."""
+        graph.add_skill(Skill(id="s4", name="Atom4",
+                              pillar=PillarType.SET, level=0))
+        graph.add_morphism("s4", "s3", MorphismType.DEPENDENCY)
+
+        evo = EvolutionarySystem(graph)
+        pm = evo.pattern_manager
+        pattern = pm.create_pattern(["s1", "s4"], [], graph=graph)
+
+        antes = set(graph.skill_ids)
+        evo.apply_option(Option(bindings=[pattern.id]))
+
+        assert set(graph.skill_ids) == antes, "no debe crecer ni aquí"
+        col = evo.colimit_builder.get_colimit_for_pattern(pattern.id)
+        assert col is not None and col.skill_id == "s3", (
+            "el colímite de {s1, s4} es s3, que ya existía"
+        )

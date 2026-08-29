@@ -165,21 +165,32 @@ class TestEvolutionViaOptions:
         snap = evo_system.get_snapshot(1)
         assert not snap.has_skill("s3")
 
-    def test_binding(self, evo_system, base_graph):
-        """Option de ligadura: patron adquiere colimite."""
+    def test_binding_no_fabrica_vertices(self, evo_system, base_graph):
+        """Una ligadura DESCUBRE el colímite; no lo inventa.
+
+        Este test comprobaba que `absorbed_skills` creciera y que el patrón
+        adquiriera colímite. Con `s1 → s2` eso solo podía cumplirse
+        fabricando un vértice, que es lo que `apply_option` hacía y lo que
+        `build_join_for_pattern` ya había retirado por principio.
+
+        `{s1, s2}` tiene colímite —es `s2`— pero es TRIVIAL: el ápice es una
+        de sus componentes, y registrarlo rompería `AciclicoMulti`.
+        """
         pm = evo_system.pattern_manager
         m12 = base_graph.hom("s1", "s2")[0]
         pattern = pm.create_pattern(
             ["s1", "s2"], [m12.id], graph=base_graph
         )
 
+        antes = set(base_graph.skill_ids)
         option = Option(bindings=[pattern.id])
-        functor = evo_system.apply_option(option)
+        evo_system.apply_option(option)
 
         assert evo_system.current_time == 1
-        assert len(functor.absorbed_skills) > 0
-        # Colimite exists
-        assert evo_system.colimit_builder.has_colimit(pattern.id)
+        assert set(base_graph.skill_ids) == antes, (
+            f"fabricó {sorted(set(base_graph.skill_ids) - antes)}"
+        )
+        assert not evo_system.colimit_builder.has_colimit(pattern.id)
 
     def test_elimination_removes_morphisms(self, evo_system):
         """Eliminacion marca morfismos conectados como None."""

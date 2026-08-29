@@ -405,18 +405,59 @@ class EvolutionarySystem:
                         morphism_map[mid] = None
                 self._graph.remove_skill(skill_id)
 
-        # 3. Ligadura: crear colimites de patrones
+        # 3. Ligadura: DESCUBRIR el colimite del patron. Nunca fabricarlo.
+        #
+        # Aqui sobrevivia la fabricacion de vertices que `build_join_for_pattern`
+        # habia retirado por principio, entrando por el lado de los
+        # co-reguladores: `build_colimit` crea un `skill_<uuid>` y lo cablea
+        # hasta que cumple la propiedad universal, que es asumir la conclusion.
+        #
+        # MEDIDO antes de este arreglo: tres consultas cualesquiera hacian
+        # crecer el grafo de 173 a 175 nodos, con nombres como
+        # `skill_c113edb3` y componentes que nadie habia unificado. El
+        # documento del sistema afirmaba «Vertices fabricados: 0» mientras esto
+        # corria en cada `process()`.
+        #
+        # Lo correcto es lo mismo que hace el descubrimiento: si el patron
+        # tiene co-cono limite entre los objetos que YA existen, se registra;
+        # si no, es un hueco conceptual y se dice. El concepto que lo llena lo
+        # aporta la matematica, no la cirugia sobre el grafo.
+        from nucleo.graph.complexity import find_colimit_cong
+
         for pattern_id in option.bindings:
             pattern = self._pattern_manager.get_pattern(pattern_id)
-            if pattern and not self._colimit_builder.has_colimit(pattern_id):
-                skill, colimit = self._colimit_builder.build_colimit(
-                    pattern, self._graph
+            if pattern is None or self._colimit_builder.has_colimit(pattern_id):
+                continue
+            apex, motivo = find_colimit_cong(
+                pattern, self._graph, self._colimit_builder)
+            if apex is None:
+                logger.info(
+                    "ligadura omitida: el patron %s no tiene co-cono limite "
+                    "(%s). Es un hueco conceptual, no un fallo — no se "
+                    "fabrica vertice", pattern_id, motivo,
                 )
-                absorbed_skills.append(skill.id)
-                for morph_id in colimit.cocone_morphisms:
-                    absorbed_morphisms.append(morph_id)
-                for morph_id in colimit.universal_morphisms.values():
-                    absorbed_morphisms.append(morph_id)
+                continue
+            if apex in pattern.component_ids:
+                # COLIMITE TRIVIAL: el colimite es una de las componentes del
+                # propio patron. Tiene colimite —luego no es hueco— pero no se
+                # registra: `AciclicoMulti` exige toda componente ESTRICTAMENTE
+                # menor que el objeto, y aqui una de ellas ES el objeto. Es la
+                # misma guarda que `build_join_for_pattern`; sin ella
+                # `autoJoin_sin_punto_fijo` exhibe la divergencia de cn.
+                logger.debug(
+                    "ligadura omitida: el colimite de %s es '%s', una de sus "
+                    "componentes", pattern_id, apex,
+                )
+                continue
+            colimit = self._colimit_builder._register_existing_join(
+                pattern, apex, self._graph)
+            if colimit is None:
+                continue
+            absorbed_skills.append(apex)
+            for morph_id in colimit.cocone_morphisms:
+                absorbed_morphisms.append(morph_id)
+            for morph_id in colimit.universal_morphisms.values():
+                absorbed_morphisms.append(morph_id)
 
         # Registrar nuevos morfismos creados (que no estaban en el snapshot)
         for morph in self._graph.morphisms:
