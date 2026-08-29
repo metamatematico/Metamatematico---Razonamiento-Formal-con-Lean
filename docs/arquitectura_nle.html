@@ -1,0 +1,1732 @@
+<title>Arquitectura NLE v7.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#f5f3ec;
+  --surface:#ffffff;
+  --surface-2:#eee9dc;
+  --border:#ddd6c2;
+  --text:#1b1e17;
+  --text-dim:#4f5347;
+  --muted:#7a7c6d;
+
+  --estructura:#564c9e;
+  --estructura-soft:#e7e4f5;
+  --verifica:#167a68;
+  --verifica-soft:#dbf0ea;
+  --lenguaje:#b4761f;
+  --lenguaje-soft:#f5e7cf;
+  --gap:#ae3b35;
+  --gap-soft:#f6dfdc;
+
+  --code-bg:#eee9dc;
+  --shadow: 0 1px 2px rgba(30,25,10,.06), 0 8px 24px rgba(30,25,10,.07);
+
+  --font-display:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-body:'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  --font-mono:'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141a;
+    --surface:#171b23;
+    --surface-2:#1c2129;
+    --border:#2b3140;
+    --text:#e8e6de;
+    --text-dim:#b8bcc9;
+    --muted:#868da0;
+    --estructura:#948bdd;
+    --estructura-soft:#242038;
+    --verifica:#4dc0aa;
+    --verifica-soft:#152722;
+    --lenguaje:#e2a94f;
+    --lenguaje-soft:#332714;
+    --gap:#e2827a;
+    --gap-soft:#331d1b;
+    --code-bg:#1c2129;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141a;
+  --surface:#171b23;
+  --surface-2:#1c2129;
+  --border:#2b3140;
+  --text:#e8e6de;
+  --text-dim:#b8bcc9;
+  --muted:#868da0;
+  --estructura:#948bdd;
+  --estructura-soft:#242038;
+  --verifica:#4dc0aa;
+  --verifica-soft:#152722;
+  --lenguaje:#e2a94f;
+  --lenguaje-soft:#332714;
+  --gap:#e2827a;
+  --gap-soft:#331d1b;
+  --code-bg:#1c2129;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--estructura-soft); color:var(--text);}
+a{color:var(--estructura);}
+a:focus-visible, button:focus-visible, summary:focus-visible{outline:2px solid var(--estructura); outline-offset:2px;}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; text-wrap:balance; color:var(--text); margin:0;}
+code,.mono{font-family:var(--font-mono);}
+
+.shell{display:grid; grid-template-columns:270px minmax(0,1fr); max-width:1260px; margin:0 auto;}
+@media (max-width:960px){ .shell{grid-template-columns:1fr;} .toc{position:static !important; height:auto !important;} }
+
+.toc{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto; padding:38px 20px 40px 32px; border-right:1px solid var(--border);}
+.toc-kicker{font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:0 0 6px;}
+.toc-title{font-family:var(--font-display); font-size:19px; font-weight:600; margin:0 0 28px;}
+.toc-title span{color:var(--verifica);}
+.toc nav ol{list-style:none; margin:0; padding:0; counter-reset:toc;}
+.toc nav li{counter-increment:toc;}
+.toc nav a{display:flex; gap:10px; padding:7px 8px; margin:0 -8px; border-radius:6px; color:var(--text-dim); text-decoration:none; font-family:var(--font-display); font-size:13.5px; line-height:1.3;}
+.toc nav a:hover{background:var(--surface-2); color:var(--text);}
+.toc nav a::before{content:counter(toc, decimal-leading-zero); font-family:var(--font-mono); font-size:11px; color:var(--muted); padding-top:1px;}
+.toc-foot{margin-top:32px; padding-top:20px; border-top:1px solid var(--border); font-family:var(--font-mono); font-size:11px; color:var(--muted); line-height:1.8;}
+
+main{padding:56px clamp(20px,4vw,64px) 110px; min-width:0;}
+
+.hero{margin-bottom:56px;}
+.hero-kicker{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:18px;}
+.hero-kicker .dot{width:7px;height:7px;border-radius:50%; background:var(--verifica); box-shadow:0 0 0 3px var(--verifica-soft);}
+.hero h1{font-size:clamp(32px,4.6vw,50px); line-height:1.05; letter-spacing:-.01em;}
+.hero h1 em{font-style:normal; color:var(--verifica);}
+.hero p.lede{font-family:var(--font-body); font-size:19px; color:var(--text-dim); max-width:64ch; margin:20px 0 0;}
+
+.stat-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:36px;}
+.stat{background:var(--surface); padding:16px 18px;}
+.stat .n{font-family:var(--font-mono); font-size:20px; font-weight:600; font-variant-numeric:tabular-nums;}
+.stat .l{font-size:12px; color:var(--muted); margin-top:4px; font-family:var(--font-display);}
+
+section{padding-top:64px; margin-top:-24px; max-width:960px;}
+section + section{border-top:1px solid var(--border);}
+.section-head{display:flex; align-items:baseline; gap:14px; margin-bottom:20px;}
+.section-num{font-family:var(--font-mono); font-size:14px; color:var(--muted);}
+h2{font-size:26px;}
+h2 .ac-e{color:var(--estructura);} h2 .ac-v{color:var(--verifica);} h2 .ac-l{color:var(--lenguaje);} h2 .ac-g{color:var(--gap);}
+
+.prose p{max-width:68ch; margin:0 0 16px; color:var(--text-dim);}
+.prose p strong{color:var(--text); font-weight:600;}
+.prose{margin-bottom:8px;}
+.prose p.aviso-rev{border-left:3px solid var(--gap); padding:2px 0 2px 16px; font-size:15px;}
+.prose h3.sub{font-size:18.5px; margin:38px 0 12px; letter-spacing:-.01em;}
+
+.callout{border:1px solid var(--border); border-left:3px solid var(--lenguaje); background:var(--lenguaje-soft); border-radius:0 10px 10px 0; padding:16px 20px; margin:24px 0; font-family:var(--font-display); font-size:14.5px; color:var(--text); max-width:68ch;}
+.callout.e{border-left-color:var(--estructura); background:var(--estructura-soft);}
+.callout.v{border-left-color:var(--verifica); background:var(--verifica-soft);}
+.callout.g{border-left-color:var(--gap); background:var(--gap-soft);}
+.callout strong{display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin-bottom:6px; font-weight:600;}
+
+figure{margin:28px 0 36px; max-width:none;}
+.diagram-frame{border:1px solid var(--border); border-radius:14px; background:var(--surface); padding:22px clamp(10px,3vw,28px); overflow-x:auto; box-shadow:var(--shadow);}
+.diagram-frame svg{display:block; max-width:100%; height:auto; min-width:580px;}
+figcaption{font-family:var(--font-display); font-size:13px; color:var(--muted); margin-top:10px; max-width:68ch;}
+figcaption b{color:var(--text-dim); font-weight:600;}
+
+svg text{font-family:var(--font-mono); fill:currentColor;}
+svg .lbl{font-family:var(--font-display); font-weight:500;}
+svg .dim{opacity:.62;}
+svg .e-line{stroke:var(--estructura);} svg .v-line{stroke:var(--verifica);} svg .l-line{stroke:var(--lenguaje);} svg .g-line{stroke:var(--gap);}
+svg .e-fill{fill:var(--estructura);} svg .v-fill{fill:var(--verifica);} svg .l-fill{fill:var(--lenguaje);} svg .g-fill{fill:var(--gap);}
+
+.table-wrap{overflow-x:auto; margin:24px 0 36px; border:1px solid var(--border); border-radius:12px;}
+table{border-collapse:collapse; width:100%; min-width:640px; font-size:14px;}
+thead th{text-align:left; font-family:var(--font-display); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; padding:12px 16px; background:var(--surface-2); border-bottom:1px solid var(--border); white-space:nowrap;}
+tbody td{padding:13px 16px; border-bottom:1px solid var(--border); vertical-align:top; color:var(--text-dim);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+td.mono, th.mono{font-family:var(--font-mono); font-size:13px; color:var(--text);}
+td strong{color:var(--text); font-weight:600; font-family:var(--font-display); font-size:14px;}
+
+.pill{display:inline-block; font-family:var(--font-mono); font-size:11px; padding:2px 9px; border-radius:99px; border:1px solid var(--border); white-space:nowrap;}
+.pill.e{color:var(--estructura); border-color:var(--estructura); background:var(--estructura-soft);}
+.pill.v{color:var(--verifica); border-color:var(--verifica); background:var(--verifica-soft);}
+.pill.l{color:var(--lenguaje); border-color:var(--lenguaje); background:var(--lenguaje-soft);}
+.pill.g{color:var(--gap); border-color:var(--gap); background:var(--gap-soft);}
+
+.tree{font-family:var(--font-mono); font-size:12.6px; line-height:1.9; background:var(--code-bg); border:1px solid var(--border); border-radius:12px; padding:20px 24px; overflow-x:auto; white-space:pre; max-width:72ch;}
+.tree .dir{color:var(--estructura); font-weight:600;}
+.tree .file{color:var(--text-dim);}
+.tree .note{color:var(--muted); font-style:italic; font-family:var(--font-body);}
+.tree .h-v{color:var(--verifica);} .tree .h-l{color:var(--lenguaje);} .tree .h-g{color:var(--gap);}
+
+.log{border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:24px 0 36px;}
+.log-row{display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:0; border-top:1px solid var(--border);}
+.log-row:first-child{border-top:none;}
+.log-row > div{padding:15px 18px; font-size:13.3px; color:var(--text-dim);}
+.log-row > div + div{border-left:1px solid var(--border);}
+.log-row .k{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:5px;}
+.log-row .problem{color:var(--text); font-family:var(--font-display); font-weight:500; font-size:14px;}
+@media (max-width:720px){ .log-row{grid-template-columns:1fr;} .log-row > div + div{border-left:none; border-top:1px dashed var(--border);} }
+
+.status-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; margin:20px 0 8px;}
+.status-card{border:1px solid var(--border); border-radius:10px; padding:13px 15px; background:var(--surface); display:flex; gap:10px; align-items:flex-start;}
+.status-card .dot2{width:9px;height:9px;border-radius:50%; margin-top:5px; flex:none;}
+.status-card.ok .dot2{background:var(--verifica);} .status-card.warn .dot2{background:var(--lenguaje);} .status-card.off .dot2{background:var(--gap);}
+.status-card .t{font-family:var(--font-display); font-weight:600; font-size:13.5px; color:var(--text);}
+.status-card .d{font-size:12.3px; color:var(--muted); margin-top:2px; font-family:var(--font-mono);}
+
+/* Marcador de cifras (§13) — mismo patron de rejilla que .stat-row */
+.marcador{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:24px 0 32px;}
+.marcador > div{background:var(--surface); padding:18px 20px; display:flex; flex-direction:column; gap:6px;}
+.marcador .cifra{font-family:var(--font-mono); font-size:30px; font-weight:600; line-height:1; font-variant-numeric:tabular-nums; color:var(--text);}
+.marcador .rot{font-family:var(--font-display); font-size:12px; line-height:1.4; color:var(--muted);}
+
+/* Hallazgos (§14) — una ficha por defecto encontrado */
+.hallazgos{display:flex; flex-direction:column; gap:16px; margin:24px 0 32px;}
+.hallazgo{border:1px solid var(--border); border-radius:12px; background:var(--surface); overflow:hidden;}
+.hallazgo > header{display:flex; align-items:baseline; justify-content:space-between; gap:16px; padding:15px 20px; border-bottom:1px solid var(--border); background:var(--surface-2);}
+.hallazgo h4{font-size:15px; line-height:1.35; margin:0; font-weight:600;}
+.hallazgo .veredicto{flex:none; font-family:var(--font-mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; padding:3px 10px; border-radius:99px; border:1px solid var(--border); white-space:nowrap;}
+.hallazgo .veredicto.falso{color:var(--gap); border-color:var(--gap); background:var(--gap-soft);}
+.hallazgo .veredicto.mio{color:var(--lenguaje); border-color:var(--lenguaje); background:var(--lenguaje-soft);}
+.hallazgo .veredicto.ok{color:var(--verifica); border-color:var(--verifica); background:var(--verifica-soft);}
+.hallazgo .cuerpo{display:flex; flex-direction:column;}
+.hallazgo .paso{display:grid; grid-template-columns:118px minmax(0,1fr); gap:18px; padding:14px 20px; border-top:1px solid var(--border);}
+.hallazgo .paso:first-child{border-top:none;}
+.hallazgo .paso .et{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding-top:3px;}
+.hallazgo .paso p{margin:0; font-size:14px; line-height:1.6; color:var(--text-dim); max-width:62ch;}
+.hallazgo .paso.refuta{border-left:3px solid var(--gap);}
+.hallazgo .paso.prueba{border-left:3px solid var(--verifica);}
+@media (max-width:620px){
+  .hallazgo .paso{grid-template-columns:1fr; gap:5px;}
+  .marcador .cifra{font-size:25px;}
+}
+
+footer.page-foot{margin-top:70px; padding-top:24px; border-top:1px solid var(--border); font-family:var(--font-mono); font-size:12px; color:var(--muted); max-width:68ch;}
+
+@media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+</style>
+
+<div class="shell">
+  <aside class="toc">
+    <p class="toc-kicker">Documentación técnica</p>
+    <p class="toc-title">NLE v7.0 <span>/ arquitectura</span></p>
+    <nav aria-label="Tabla de contenidos">
+      <ol>
+        <li><a href="#resumen">Resumen ejecutivo</a></li>
+        <li><a href="#panorama">Panorama del sistema</a></li>
+        <li><a href="#piezas">Piezas y roles</a></li>
+        <li><a href="#ciclo">El ciclo de una consulta</a></li>
+        <li><a href="#dinamica">La Dinámica Global</a></li>
+        <li><a href="#multiagente">Agentes especializados</a></li>
+        <li><a href="#compartido">Estado compartido entre módulos</a></li>
+        <li><a href="#lean">Lean 4 como fuente de verdad</a></li>
+        <li><a href="#emergencia">Emergencia: colímites y huecos</a></li>
+        <li><a href="#interpretacion">Qué es cada nodo</a></li>
+        <li><a href="#aprendizaje">Qué aprendió, medido</a></li>
+        <li><a href="#archivos">Estructura de archivos</a></li>
+        <li><a href="#estado">Estado de conexión</a></li>
+        <li><a href="#respaldo">Respaldo formal</a></li>
+            <li><a href="#hallazgos">Lo que encontró formalizar</a></li>
+            <li><a href="#limites">Límites conocidos</a></li>
+      </ol>
+    </nav>
+    <div class="toc-foot">
+      Nucleo.process() — único punto de entrada<br>
+      Lean 4 — única fuente de verdad<br>
+      E:\Metamatematico\ — repo canónico<br>
+      rev. 29 ago 2026 · 678 tests
+    </div>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <p class="hero-kicker"><span class="dot"></span> Grafo categórico · memoria evolutiva · Lean 4 · LLM</p>
+      <h1>Cómo funciona <em>NLE v7.0</em> por dentro</h1>
+      <p class="lede">Una IA matemática que no confía en el LLM para decidir si algo es cierto: formaliza en Lean&nbsp;4, deja que el kernel lo verifique, y solo entonces traduce el resultado a lenguaje natural. Alrededor de ese principio se organiza un grafo categórico de habilidades, cuatro co-reguladores que deciden qué hacer con cada consulta, y catorce agentes especializados que aprenden por categoría matemática.</p>
+
+      <div class="stat-row">
+        <div class="stat"><div class="n">4</div><div class="l">co-reguladores MES</div></div>
+        <div class="stat"><div class="n">173</div><div class="l">habilidades en el grafo</div></div>
+        <div class="stat"><div class="n">21</div><div class="l">colímites descubiertos</div></div>
+        <div class="stat"><div class="n">18</div><div class="l">huecos conceptuales</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">orden de emergencia alcanzado</div></div>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <section id="resumen">
+      <div class="section-head"><span class="section-num">01</span><h2>Resumen ejecutivo</h2></div>
+      <div class="prose">
+        <p><strong>NLE</strong> (Núcleo Lógico Evolutivo) es el sistema detrás de METAMATEMÁTICO: una aplicación que recibe una pregunta matemática y, en vez de dejar que un modelo de lenguaje improvise una respuesta, la hace pasar por un verificador formal. El principio de diseño que atraviesa todo el sistema — repetido en comentarios del propio código — es que <strong>Lean&nbsp;4 es la única fuente de verdad matemática</strong>: el LLM formaliza el enunciado como código Lean candidato, el kernel de Lean lo acepta o lo rechaza, y solo con ese veredicto en la mano el LLM traduce el resultado a una explicación legible.</p>
+        <p>Sobre ese eje se apoyan tres capas más: un <strong>grafo categórico</strong> de 173 habilidades matemáticas que le da contexto a cada consulta; un <strong>sistema de memoria evolutiva</strong> (MES, inspirado en Ehresmann) con cuatro co-reguladores que deciden qué acción tomar y aprenden de cada interacción; y una capa de <strong>agentes especializados</strong> — uno por categoría matemática — que sugieren la táctica que mejor le ha funcionado antes a cada rama de las matemáticas.</p>
+        <p>El grafo <strong>descubre</strong> sus conceptos unificadores: 21 colímites hallados en 31 descomposiciones —geometría algebraica como colímite de funtores y álgebra conmutativa, teoría homotópica de tipos como colímite de homotopía y CIC— y 18 huecos donde ese concepto falta. Cinco de esos objetos tienen <strong>más de una descomposición</strong>, que es lo que hace que el sistema cumpla el Principio de Multiplicidad. Y el orden en que se prueban las tácticas lo fija un modelo entrenado sobre 9.488 pares reales, que acierta la táctica correcta dentro del top-3 el <strong>88,1&nbsp;%</strong> de las veces. Ver secciones <a href="#emergencia">9</a> y <a href="#aprendizaje">11</a>.</p>
+        <p>Este documento no es aspiracional: cada afirmación está anclada a un archivo y una función concretos, y las partes que no funcionan como se documentaron originalmente están marcadas explícitamente en la <a href="#estado">sección 13</a>.</p>
+        <p class="aviso-rev"><strong>Revisión del 29 de agosto — el grafo dejó de ser delgado.</strong> La revisión anterior terminaba con un teorema en contra: mientras el grafo fuera una categoría delgada, iterar colímites <strong>no podía</strong> producir emergencia. Esa barrera ya está cruzada. <code>Hom(a,b)</code> tiene ahora más de un elemento en 5 de los 387 pares, el runtime dejó de preguntar «¿es alcanzable?» para exigir un co-cono de verdad, y el sistema alcanza por primera vez <strong>orden irreducible 3</strong>. El precio de cruzarla fue auditar qué es cada uno de los 172 nodos —cuáles son categorías y cuáles eran funtores disfrazados de vértice—, y esa auditoría encontró tres vértices que al grafo le faltaban. Está en las secciones <a href="#emergencia">9</a>, <a href="#interpretacion">10</a> y <a href="#hallazgos">15</a>; lo que sigue sin estar, en la <a href="#limites">16</a>.</p>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section id="panorama">
+      <div class="section-head"><span class="section-num">02</span><h2>Panorama del sistema</h2></div>
+      <div class="prose"><p>Todo pasa por un único punto de entrada: <code>Nucleo.process(texto)</code>. Ese método no decide nada por sí mismo — le pregunta a la red de co-reguladores qué hacer, y según la respuesta reparte el trabajo entre el LLM, Lean, el grafo y los agentes especializados.</p></div>
+
+      <div class="prose"><p>Una aclaración antes de la figura, porque es fácil confundirlo: la red de co-reguladores decide <strong>si</strong> Lean participa — no <strong>qué</strong> tarea recibe. Qué táctica se prueba primero lo decide el rankeador entrenado, ya dentro de la cascada. Son dos decisiones distintas, en dos bandas distintas.</p></div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 1240 960" role="img" aria-label="Flujo de METAMATEMATICO en tres bandas. Banda uno: la consulta entra en la red de cuatro co-reguladores, que decide si participa Lean; si no es matematica va al LLM conversacional. Banda dos, el pipeline Lean-primero: el LLM formaliza, Lean verifica y el LLM traduce el veredicto. El verificador tiene cuatro salidas: verificado sigue a la traduccion; error de modulo va a repair_imports y reverifica; error semantico devuelve el error al LLM para reformular; sorry va a la cascada de doce tacticas. Banda tres: evaluacion, memoria con PPO y complexificacion del grafo, despues de responder.">
+  <defs>
+    <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <!-- ══ BANDA 1 ═══════════════════════════════════════════════════════ -->
+  <text x="40" y="32" font-size="10.5" class="dim">BANDA 1 · decide SI participa Lean</text>
+
+  <rect x="40" y="50" width="196" height="66" rx="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <text x="138" y="76" text-anchor="middle" class="lbl" font-size="13">Consulta</text>
+  <text x="138" y="96" text-anchor="middle" font-size="10" class="dim">UI · CLI · scripts</text>
+
+  <rect x="300" y="50" width="300" height="66" rx="9" fill="none" class="e-line" stroke-width="1.8"/>
+  <text x="450" y="76" text-anchor="middle" class="lbl e-fill" font-size="13">Red de co-reguladores</text>
+  <text x="450" y="96" text-anchor="middle" font-size="10" class="dim">CR_tac · CR_org · CR_str · CR_int</text>
+
+  <rect x="664" y="50" width="196" height="66" rx="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <text x="762" y="76" text-anchor="middle" class="lbl" font-size="13">¿es matemática?</text>
+  <text x="762" y="96" text-anchor="middle" font-size="10" class="dim">_is_mathematical()</text>
+
+  <rect x="960" y="50" width="240" height="66" rx="9" fill="none" class="l-line" stroke-width="1.6"/>
+  <text x="1080" y="76" text-anchor="middle" class="lbl l-fill" font-size="13">LLM conversacional</text>
+  <text x="1080" y="96" text-anchor="middle" font-size="10" class="dim">sin verificación formal</text>
+
+  <line x1="236" y1="83" x2="300" y2="83" stroke="currentColor" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="600" y1="83" x2="664" y2="83" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="860" y1="83" x2="960" y2="83" class="l-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <text x="910" y="74" text-anchor="middle" font-size="11" class="l-fill">no</text>
+
+  <path d="M 762 116 L 762 150 L 620 150 L 620 186" fill="none" class="v-line" stroke-width="2" marker-end="url(#f1a)"/>
+  <text x="790" y="140" font-size="11" class="v-fill">sí</text>
+
+  <!-- ══ BANDA 2 ═══════════════════════════════════════════════════════ -->
+  <rect x="40" y="186" width="1160" height="430" rx="12" fill="none" class="v-line" stroke-width="2.2"/>
+  <text x="620" y="214" text-anchor="middle" class="lbl v-fill" font-size="13.5">BANDA 2 · PIPELINE LEAN-PRIMERO — la verdad la produce Lean, no el LLM</text>
+
+  <!-- fila principal -->
+  <rect x="86" y="250" width="236" height="84" rx="9" fill="none" class="l-line" stroke-width="1.8"/>
+  <text x="204" y="278" text-anchor="middle" class="lbl l-fill" font-size="13">1 · LLM formaliza</text>
+  <text x="204" y="300" text-anchor="middle" font-size="10" class="dim">rol: formalizador</text>
+  <text x="204" y="318" text-anchor="middle" font-size="10" class="dim">few-shot Lean 4</text>
+
+  <rect x="492" y="244" width="256" height="96" rx="9" fill="none" class="v-line" stroke-width="2.6"/>
+  <text x="620" y="276" text-anchor="middle" class="lbl v-fill" font-size="15">2 · LEAN verifica</text>
+  <text x="620" y="300" text-anchor="middle" font-size="10.5" class="v-fill">fuente de verdad</text>
+  <text x="620" y="320" text-anchor="middle" font-size="10" class="dim">lake env lean · Mathlib</text>
+
+  <rect x="900" y="250" width="236" height="84" rx="9" fill="none" class="l-line" stroke-width="1.8"/>
+  <text x="1018" y="278" text-anchor="middle" class="lbl l-fill" font-size="13">3 · LLM traduce</text>
+  <text x="1018" y="300" text-anchor="middle" font-size="10" class="dim">rol: traductor,</text>
+  <text x="1018" y="318" text-anchor="middle" font-size="10" class="dim">NO razonador</text>
+
+  <line x1="322" y1="292" x2="492" y2="292" class="v-line" stroke-width="2.2" marker-end="url(#f1a)"/>
+  <line x1="748" y1="292" x2="900" y2="292" class="v-line" stroke-width="2.2" marker-end="url(#f1a)"/>
+  <text x="824" y="282" text-anchor="middle" font-size="10.5" class="v-fill">verificado</text>
+
+  <!-- router: las cuatro salidas del verificador -->
+  <line x1="620" y1="340" x2="620" y2="382" class="v-line" stroke-width="1.6"/>
+  <text x="642" y="366" font-size="10.5" class="dim">¿qué dijo Lean?</text>
+  <line x1="160" y1="382" x2="1040" y2="382" class="v-line" stroke-width="1.4"/>
+  <line x1="160" y1="382" x2="160" y2="420" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="464" y1="382" x2="464" y2="420" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="968" y1="382" x2="968" y2="420" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="232" y1="420" x2="232" y2="382" class="e-line" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#f1a)"/>
+  <line x1="536" y1="420" x2="536" y2="382" class="e-line" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#f1a)"/>
+  <line x1="1040" y1="420" x2="1040" y2="382" class="e-line" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#f1a)"/>
+
+  <rect x="80" y="420" width="232" height="76" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="196" y="440" text-anchor="middle" font-size="10" class="e-fill">ERROR de módulo</text>
+  <text x="196" y="462" text-anchor="middle" class="lbl" font-size="12">repair_imports</text>
+  <text x="196" y="482" text-anchor="middle" font-size="9.5" class="dim">import · open ns · renombre</text>
+
+  <rect x="384" y="420" width="232" height="76" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="500" y="440" text-anchor="middle" font-size="10" class="e-fill">ERROR semántico</text>
+  <text x="500" y="462" text-anchor="middle" class="lbl" font-size="12">revisión con el error</text>
+  <text x="500" y="482" text-anchor="middle" font-size="9.5" class="dim">máx. 2 rondas</text>
+
+  <rect x="878" y="420" width="252" height="76" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="1004" y="440" text-anchor="middle" font-size="10" class="e-fill">SORRY</text>
+  <text x="1004" y="462" text-anchor="middle" class="lbl" font-size="12">cascada de 12 tácticas</text>
+  <text x="1004" y="482" text-anchor="middle" font-size="9.5" class="dim">orden aprendido · top-3 88 %</text>
+
+  <!-- retornos: corredor propio por DEBAJO, sin tocar titulo ni cajas -->
+  <text x="196" y="522" text-anchor="middle" font-size="9.5" class="e-fill">↑ reverifica en Lean</text>
+  <text x="500" y="522" text-anchor="middle" font-size="9.5" class="e-fill">↑ vuelve al paso 1</text>
+  <text x="1004" y="522" text-anchor="middle" font-size="9.5" class="e-fill">↑ reverifica en Lean</text>
+
+  <text x="620" y="588" text-anchor="middle" font-size="10.5" class="g-fill">Si Lean no verifica, el aviso va DELANTE de la explicación, con el motivo.</text>
+  <text x="620" y="606" text-anchor="middle" font-size="10" class="dim">Ninguna respuesta sale con el aspecto de verificada sin serlo.</text>
+
+  <!-- salida al usuario: corredor libre a la derecha -->
+  <path d="M 1136 292 L 1170 292 L 1170 700 L 1096 700" fill="none" class="l-line" stroke-width="1.8" marker-end="url(#f1a)"/>
+  <text x="1186" y="668" text-anchor="middle" font-size="9.5" class="l-fill">al usuario</text>
+
+  <!-- ══ BANDA 3 ═══════════════════════════════════════════════════════ -->
+  <text x="368" y="650" font-size="10.5" class="dim">BANDA 3 · aprende de esta consulta; los cambios sirven a las siguientes</text>
+  <line x1="146" y1="616" x2="146" y2="668" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <text x="158" y="632" font-size="9.5" class="e-fill">entra la consulta,</text>
+  <text x="158" y="644" font-size="9.5" class="e-fill">la decisión y el veredicto</text>
+
+  <rect x="40" y="668" width="212" height="64" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="146" y="696" text-anchor="middle" class="lbl e-fill" font-size="12">4 · Evaluación</text>
+  <text x="146" y="716" text-anchor="middle" font-size="9.5" class="dim">éxito de la interacción</text>
+
+  <rect x="296" y="668" width="240" height="64" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="416" y="696" text-anchor="middle" class="lbl e-fill" font-size="12">5 · Memoria MES + PPO</text>
+  <text x="416" y="716" text-anchor="middle" font-size="9.5" class="dim">qué táctica funcionó</text>
+
+  <rect x="580" y="668" width="248" height="64" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="704" y="696" text-anchor="middle" class="lbl e-fill" font-size="12">6 · Complexificación</text>
+  <text x="704" y="716" text-anchor="middle" font-size="9.5" class="dim">colímites y huecos</text>
+
+  <rect x="900" y="668" width="196" height="64" rx="9" fill="none" class="v-line" stroke-width="1.8"/>
+  <text x="998" y="706" text-anchor="middle" class="lbl v-fill" font-size="13">Respuesta</text>
+
+  <line x1="252" y1="700" x2="296" y2="700" class="e-line" stroke-width="1.5" marker-end="url(#f1a)"/>
+  <line x1="536" y1="700" x2="580" y2="700" class="e-line" stroke-width="1.5" marker-end="url(#f1a)"/>
+
+  <!-- Lazo de realimentación: lo aprendido modifica el grafo que usarán las
+       consultas siguientes. Sin esta flecha la banda 3 parece un callejón sin
+       salida; en el codigo, apply_option cambia el numero de skills y
+       llenar_hueco_conceptual añade nodos verificados por Lean. -->
+  <path d="M 704 734 L 704 784 L 20 784 L 20 85 L 40 85"
+        fill="none" class="e-line" stroke-width="1.6" stroke-dasharray="6 4"
+        marker-end="url(#f1a)"/>
+  <text x="726" y="762" font-size="9.5" class="e-fill">el grafo cambia — no para esta consulta, para las siguientes</text>
+
+  <text x="40" y="828" font-size="9.5" class="dim">La respuesta ya salió cuando esta banda arranca: la consulta actual se resuelve sobre un grafo estable.</text>
+  <text x="40" y="844" font-size="9.5" class="dim">Lo que aquí se aprende —memoria, pesos, nodos nuevos verificados por Lean— entra en el grafo y beneficia a la consulta siguiente.</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 1 —</b> El recorrido completo de una consulta, en tres bandas. La primera decide <em>si</em> Lean participa; la segunda es el pipeline donde Lean dictamina y sus cuatro veredictos disparan reparaciones distintas. La tercera recibe la consulta, la decisión y el veredicto, pero arranca <em>después</em> de que la respuesta salió: por eso la consulta actual se resuelve siempre sobre un grafo estable. Lo que aprende —memoria, pesos, y nodos nuevos verificados por Lean— vuelve al grafo por el lazo punteado y beneficia a la consulta siguiente, nunca a la que lo produjo.</figcaption>
+      </figure>
+
+      <div class="callout e">
+        <strong>Quién decide la acción</strong>
+        La decisión no la toma un agente único: la toma <code>CoRegulatorNetwork</code>, cuatro co-reguladores —táctico, organizacional, estratégico y de integridad— que operan a distintas frecuencias y resuelven conflictos por prioridad fija, ver <a href="#dinamica">sección&nbsp;5</a>. El agente de aprendizaje por refuerzo es una señal más dentro del co-regulador táctico, no el árbitro.
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section id="piezas">
+      <div class="section-head"><span class="section-num">03</span><h2>Piezas y roles</h2></div>
+      <div class="prose"><p>Cada subsistema vive en su propio paquete bajo <code>nucleo/</code> y hace una sola cosa. Ningún subsistema le habla a la interfaz directamente — todo pasa por <code>Nucleo</code>.</p></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Pieza</th><th>Rol</th><th class="mono">Ubicación</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Nucleo</strong><br><span class="pill e">orquestador</span></td>
+              <td>Único punto de entrada. Mantiene el estado de la conversación y reparte el trabajo entre los demás.</td>
+              <td class="mono">core.py</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>CoRegulatorNetwork</strong><br><span class="pill e">decisor</span></td>
+              <td>Cuatro co-reguladores que deciden RESPONSE / ASSIST / REORGANIZE y resuelven conflictos por prioridad.</td>
+              <td class="mono">mes/co_regulators.py</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>Grafo categórico</strong><br><span class="pill e">estructura</span></td>
+              <td>163 habilidades de dominio + 10 fundacionales, con morfismos de dependencia, traducción y analogía. Ya <strong>no es delgado</strong>: 5 pares tienen dos morfismos distintos.</td>
+              <td class="mono">graph/category.py</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>Memoria MES</strong><br><span class="pill e">aprendizaje</span></td>
+              <td>Memoria procedimental y semántica: qué táctica funcionó, para qué patrón, con qué tasa de éxito.</td>
+              <td class="mono">mes/memory.py</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>Cliente LLM</strong><br><span class="pill l">lenguaje</span></td>
+              <td>Formaliza el enunciado en Lean y traduce el resultado verificado. Nunca decide si algo es correcto.</td>
+              <td class="mono">llm/client.py</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>Cliente Lean</strong><br><span class="pill v">verdad</span></td>
+              <td>Ejecuta <code>lake env lean --json</code> (local) o llama a un servicio remoto de respaldo. Fuente de verdad.</td>
+              <td class="mono">lean/client.py</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>Cascada de solucionadores</strong><br><span class="pill v">verdad</span></td>
+              <td>12 tácticas automáticas que intentan cerrar los <code>sorry</code> que deja Lean. <code>norm_num</code>, <code>field_simp</code> y <code>ring_nf</code> se añadieron al medir que son de las más usadas.</td>
+              <td class="mono">lean/solver_cascade.py</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>TacticRanker</strong><br><span class="pill l">aprendizaje</span></td>
+              <td>Ordena la cascada con un modelo entrenado sobre 9.488 pares <code>estado → táctica</code> de LeanWorkbook.</td>
+              <td class="mono">lean/solver_cascade.py</td>
+              <td><span class="pill v">entrenado</span></td>
+            </tr>
+            <tr>
+              <td><strong>Agentes especializados</strong><br><span class="pill l">aprendizaje</span></td>
+              <td>14 agentes, uno por categoría matemática, con memoria procedimental propia y pesos entrenados.</td>
+              <td class="mono">multi_agent/</td>
+              <td><span class="pill v">activo</span></td>
+            </tr>
+            <tr>
+              <td><strong>Funtor cociente π</strong><br><span class="pill e">estructura</span></td>
+              <td>Proyecta las habilidades sobre los 14 agentes y comprueba que la proyección es un funtor. Ver <a href="#emergencia">sección&nbsp;9</a>.</td>
+              <td class="mono">graph/functor.py</td>
+              <td><span class="pill v">verificado</span></td>
+            </tr>
+            <tr>
+              <td><strong>ConsultoresModule</strong><br><span class="pill l">lenguaje</span></td>
+              <td>Modo opcional: el LLM genera N candidatos, Lean verifica cada uno, un rerankeador los ordena y el mejor se registra en la memoria.</td>
+              <td class="mono">consultores/</td>
+              <td><span class="pill">opt-in</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section id="ciclo">
+      <div class="section-head"><span class="section-num">04</span><h2>El ciclo de una consulta matemática</h2></div>
+      <div class="prose"><p>De principio a fin, una consulta como <em>"demuestra que √2 es irracional"</em> hace exactamente este recorrido. No hay atajos: incluso si el LLM está seguro de la respuesta, tiene que pasar por Lean antes de poder afirmarla.</p></div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 1020 800" role="img" aria-label="Diagrama de secuencia con seis participantes: Usuario, Nucleo, CoRegulatorNetwork, Grafo mas Memoria MES, LLM y Lean. Nucleo pide la decision a CoRegulatorNetwork, luego lee el grafo y la memoria para construir el contexto antes de pedirle al LLM que formalice, verifica con Lean, si hay sorry usa la cascada de solucionadores, pide al LLM traducir el resultado verificado, guarda la experiencia y evoluciona el grafo, y devuelve la respuesta al usuario.">
+  <defs>
+    <marker id="pS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <g class="dim" font-size="11.3">
+    <text x="70" y="24" text-anchor="middle" class="lbl">Usuario</text>
+    <text x="220" y="24" text-anchor="middle" class="lbl e-fill">Nucleo</text>
+    <text x="380" y="24" text-anchor="middle" class="lbl e-fill">CoRegulatorNetwork</text>
+    <text x="550" y="24" text-anchor="middle" class="lbl e-fill">Grafo + MES</text>
+    <text x="740" y="24" text-anchor="middle" class="lbl l-fill">LLM</text>
+    <text x="950" y="24" text-anchor="middle" class="lbl v-fill">Lean</text>
+  </g>
+  <line x1="70" y1="34" x2="70" y2="750" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="220" y1="34" x2="220" y2="750" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="380" y1="34" x2="380" y2="750" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="550" y1="34" x2="550" y2="750" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="740" y1="34" x2="740" y2="750" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="950" y1="34" x2="950" y2="750" stroke="currentColor" stroke-width="1" class="dim"/>
+
+  <line x1="70" y1="64" x2="220" y2="64" stroke="currentColor" stroke-width="1.5" marker-end="url(#pS)"/>
+  <text x="80" y="56" font-size="10.3">1 · process("¿por qué √2 es irracional?")</text>
+
+  <line x1="220" y1="110" x2="380" y2="110" class="e-line" stroke-width="1.5" marker-end="url(#pS)"/>
+  <text x="228" y="102" font-size="10.3">2 · decide(texto, grafo)</text>
+
+  <line x1="380" y1="156" x2="220" y2="156" class="e-line" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pS)"/>
+  <text x="228" y="148" font-size="10.3">3 · ActionType = ASSIST</text>
+
+  <line x1="220" y1="202" x2="550" y2="202" class="e-line" stroke-width="1.6" marker-end="url(#pS)"/>
+  <text x="228" y="194" font-size="10.3">4 · _find_relevant_context(query)</text>
+
+  <line x1="550" y1="248" x2="220" y2="248" class="e-line" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#pS)"/>
+  <text x="228" y="240" font-size="10.3">5 · contexto: habilidades, prerrequisitos, fórmulas ZFC…</text>
+
+  <line x1="220" y1="294" x2="740" y2="294" class="l-line" stroke-width="1.5" marker-end="url(#pS)"/>
+  <text x="228" y="286" font-size="10.3">6 · generate(formalizar, contexto del grafo)</text>
+  <text x="228" y="316" font-size="9.3" class="dim">few-shot LeanWorkbook + anclas Mathlib verificadas</text>
+
+  <line x1="740" y1="352" x2="220" y2="352" class="l-line" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pS)"/>
+  <text x="228" y="344" font-size="10.3">7 · código Lean candidato</text>
+
+  <line x1="220" y1="398" x2="950" y2="398" class="v-line" stroke-width="1.8" marker-end="url(#pS)"/>
+  <text x="228" y="390" font-size="10.3">8 · check_code(código)</text>
+
+  <line x1="950" y1="444" x2="220" y2="444" class="v-line" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#pS)"/>
+  <text x="228" y="436" font-size="10.3">9 · SUCCESS · SORRY · ERROR</text>
+  <text x="228" y="458" font-size="9.3" class="dim">si ERROR semántico: el error de Lean vuelve al LLM (máx. 2 rondas)</text>
+
+  <rect x="200" y="466" width="770" height="64" rx="8" fill="none" class="v-line" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="212" y="482" font-size="9.3" class="dim">alt · si el resultado es SORRY</text>
+  <line x1="240" y1="506" x2="950" y2="506" class="v-line" stroke-width="1.3" marker-end="url(#pS)"/>
+  <text x="248" y="500" font-size="9.8">9a · SolverCascade prueba 12 tácticas, ordenadas por el modelo entrenado</text>
+
+  <line x1="220" y1="582" x2="740" y2="582" class="l-line" stroke-width="1.5" marker-end="url(#pS)"/>
+  <text x="228" y="574" font-size="10.3">10 · generate(traducir resultado verificado)</text>
+
+  <line x1="740" y1="628" x2="220" y2="628" class="l-line" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pS)"/>
+  <text x="228" y="620" font-size="10.3">11 · explicación fiel al código Lean real</text>
+
+  <line x1="220" y1="674" x2="550" y2="674" class="e-line" stroke-width="1.6" marker-end="url(#pS)"/>
+  <text x="228" y="666" font-size="10.3">12 · guarda ExperienceRecord + evoluciona el grafo (aprendizaje)</text>
+
+  <line x1="220" y1="720" x2="70" y2="720" stroke="currentColor" stroke-width="1.6" marker-end="url(#pS)"/>
+  <text x="80" y="712" font-size="10.3">13 · NucleoResponse + insignia de verificación</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 2 —</b> Trece pasos, al menos dos llamadas al LLM (formalizar y traducir), una verificación real de Lean en medio, y el grafo/MES tocado dos veces: se lee para dar contexto <em>antes</em> de formalizar (paso 4-5) y se escribe para aprender <em>después</em> de responder (paso 12). No es un espectador — alimenta el prompt y se actualiza con el resultado.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 5 -->
+    <section id="dinamica">
+      <div class="section-head"><span class="section-num">05</span><h2>La Dinámica Global: cuatro co-reguladores</h2></div>
+      <div class="prose"><p>Cada co-regulador corre a su propia frecuencia y propone una acción distinta. Cuando dos proponen algo a la vez, gana el de mayor prioridad — <strong>siempre</strong>, sin negociación.</p></div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 900 340" role="img" aria-label="Los cuatro co-reguladores en orden de prioridad de abajo hacia arriba: tactico en cada interaccion, organizacional cada 10 pasos, estrategico cada 100 pasos, integridad cada 50 pasos. Integridad es el unico que puede sobreescribir la clasificacion tactica, y solo con REPAIR_FRACTURE.">
+  <defs>
+    <marker id="pP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <!-- priority ladder, row height 66, from y=40 (highest) to y=238 (lowest) -->
+  <text x="20" y="24" font-size="11" class="dim">prioridad ↑</text>
+
+  <!-- Integrity row (top) -->
+  <rect x="80" y="34" width="360" height="56" rx="8" fill="none" class="v-line" stroke-width="1.8"/>
+  <text x="96" y="56" class="lbl v-fill" font-size="13">CR_int · Integridad</text>
+  <text x="96" y="74" font-size="10" class="dim">cada 50 pasos · verifica axiomas, conectividad, multiplicidad</text>
+  <text x="460" y="66" font-size="10.5" class="v-fill">único que puede forzar REORGANIZE</text>
+
+  <!-- Strategic -->
+  <rect x="80" y="102" width="360" height="56" rx="8" fill="none" class="e-line" stroke-width="1.6"/>
+  <text x="96" y="124" class="lbl e-fill" font-size="13">CR_str · Estratégico</text>
+  <text x="96" y="142" font-size="10" class="dim">cada 100 pasos · une enlaces complejos → nueva capa jerárquica</text>
+
+  <!-- Organizational -->
+  <rect x="80" y="170" width="360" height="56" rx="8" fill="none" class="e-line" stroke-width="1.3" opacity="0.85"/>
+  <text x="96" y="192" class="lbl e-fill" font-size="13">CR_org · Organizacional</text>
+  <text x="96" y="210" font-size="10" class="dim">cada 10 pasos · vincula co-activaciones frecuentes, poda débiles</text>
+
+  <!-- Tactical (bottom, lowest priority, but runs every time) -->
+  <rect x="80" y="238" width="360" height="56" rx="8" fill="none" class="l-line" stroke-width="1.8"/>
+  <text x="96" y="260" class="lbl l-fill" font-size="13">CR_tac · Táctico</text>
+  <text x="96" y="278" font-size="10" class="dim">cada interacción · RESPONSE vs. ASSIST (memoria → heurística → GNN)</text>
+
+  <!-- arrow: integrity can override tactical -->
+  <path d="M 460 62 C 620 62, 620 260, 445 265" fill="none" class="v-line" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#pP)"/>
+  <text x="630" y="160" font-size="10" class="v-fill" text-anchor="middle">solo con</text>
+  <text x="630" y="174" font-size="10" class="v-fill" text-anchor="middle">REPAIR_FRACTURE</text>
+
+  <!-- arbiter -->
+  <rect x="560" y="238" width="260" height="56" rx="8" fill="none" stroke="currentColor" stroke-width="1.4" class="dim"/>
+  <text x="690" y="260" text-anchor="middle" class="lbl" font-size="12.5">resolve_conflicts()</text>
+  <text x="690" y="278" text-anchor="middle" font-size="9.5" class="dim">árbitro: gana la prioridad más alta activa</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 3 —</b> El orden es fijo (Axioma 9.5): integridad&nbsp;&gt;&nbsp;estratégico&nbsp;&gt;&nbsp;organizacional&nbsp;&gt;&nbsp;táctico. Casi siempre gana el táctico porque es el único que corre en cada interacción — los demás solo entran cuando les toca su turno.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 6 -->
+    <section id="multiagente">
+      <div class="section-head"><span class="section-num">06</span><h2>Agentes especializados por <span class="ac-l">categoría</span></h2></div>
+      <div class="prose">
+        <p>Catorce agentes, uno por categoría matemática, cada uno con sus propios pesos y su propia memoria procedimental. No deciden la respuesta: aportan una sugerencia concreta —qué táctica intentar primero— basada en lo que le ha funcionado antes a <em>esa</em> rama de las matemáticas.</p>
+        <p>La sugerencia nunca se inventa. <code>query_best_tactic()</code> devuelve una táctica solo si hay experiencia previa suficiente en esa categoría; si no, devuelve <code>None</code> y la cascada arranca con su orden habitual.</p>
+      </div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 1060 470" role="img" aria-label="Ciclo del sistema multi-agente. La consulta se clasifica en una de catorce categorias matematicas. Con esa categoria se consulta la memoria procedimental del agente especializado, que devuelve la tactica que mejor le ha funcionado antes o nada si no tiene experiencia suficiente. Esa tactica encabeza la cascada de solvers que ejecuta Lean. El resultado de Lean vuelve a la memoria del agente de esa categoria, de modo que la siguiente consulta de la misma rama parte de mejor informacion.">
+  <defs>
+    <marker id="m6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <rect x="30" y="40" width="200" height="64" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="130" y="66" text-anchor="middle" class="lbl" font-size="12">classify_query()</text>
+  <text x="130" y="86" text-anchor="middle" font-size="9.5" class="dim">una de 14 categorías</text>
+
+  <rect x="300" y="40" width="240" height="64" rx="9" fill="none" class="l-line" stroke-width="1.7"/>
+  <text x="420" y="66" text-anchor="middle" class="lbl l-fill" font-size="12">SpecializedAgent</text>
+  <text x="420" y="86" text-anchor="middle" font-size="9.5" class="dim">pesos propios de la categoría</text>
+
+  <rect x="610" y="40" width="260" height="64" rx="9" fill="none" class="e-line" stroke-width="1.7"/>
+  <text x="740" y="66" text-anchor="middle" class="lbl e-fill" font-size="12">query_best_tactic()</text>
+  <text x="740" y="86" text-anchor="middle" font-size="9.5" class="dim">memoria procedimental</text>
+
+  <line x1="230" y1="72" x2="300" y2="72" stroke="currentColor" stroke-width="1.5" marker-end="url(#m6)"/>
+  <line x1="540" y1="72" x2="610" y2="72" class="l-line" stroke-width="1.5" marker-end="url(#m6)"/>
+
+  <path d="M 740 104 L 740 148 L 500 148 L 500 186" fill="none" class="e-line" stroke-width="1.5" marker-end="url(#m6)"/>
+  <text x="756" y="132" font-size="9.5" class="e-fill">táctica con más éxito</text>
+  <text x="756" y="146" font-size="9.5" class="dim">— o nada, si no hay experiencia</text>
+
+  <rect x="290" y="186" width="420" height="70" rx="9" fill="none" class="v-line" stroke-width="1.8"/>
+  <text x="500" y="212" text-anchor="middle" class="lbl v-fill" font-size="12.5">encabeza la cascada de solvers</text>
+  <text x="500" y="232" text-anchor="middle" font-size="9.5" class="dim">por delante del orden aprendido y del regex del goal</text>
+  <text x="500" y="248" text-anchor="middle" font-size="9.5" class="dim">si no hay táctica de categoría, la cascada arranca igual</text>
+
+  <line x1="500" y1="256" x2="500" y2="298" class="v-line" stroke-width="1.8" marker-end="url(#m6)"/>
+
+  <rect x="360" y="298" width="280" height="60" rx="9" fill="none" class="v-line" stroke-width="2.2"/>
+  <text x="500" y="324" text-anchor="middle" class="lbl v-fill" font-size="13">Lean verifica</text>
+  <text x="500" y="344" text-anchor="middle" font-size="9.5" class="dim">success · partial · failed</text>
+
+  <path d="M 640 328 L 962 328 L 962 72 L 870 72" fill="none" class="e-line" stroke-width="1.6" marker-end="url(#m6)"/>
+  <text x="952" y="196" text-anchor="end" font-size="9.5" class="e-fill">report_lean_result()</text>
+  <text x="952" y="210" text-anchor="end" font-size="9.5" class="dim">el veredicto real</text>
+  <text x="952" y="224" text-anchor="end" font-size="9.5" class="dim">alimenta la memoria</text>
+
+  <text x="30" y="392" font-size="9.5" class="dim">El ciclo se cierra con el veredicto de Lean, no con la opinión del modelo: la memoria solo</text>
+  <text x="30" y="408" font-size="9.5" class="dim">guarda tácticas que de verdad cerraron un objetivo.</text>
+
+  <text x="30" y="444" font-size="9.5" class="dim">14 agentes · uno por categoría · pesos en training/agents/best/*.pt · memoria compartida con el resto del sistema (Fig. 5)</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 4 —</b> El ciclo se cierra con el veredicto de Lean: <code>report_lean_result()</code> guarda el resultado real —verificado, parcial o fallido— en la memoria del agente de esa categoría. La siguiente consulta de la misma rama parte de mejor información que la anterior.</figcaption>
+      </figure>
+
+      <div class="callout l">
+        <strong>Dos sugerencias, una decisión</strong>
+        La táctica del agente de categoría y el orden que propone el rankeador entrenado son dos señales distintas sobre lo mismo. La primera encabeza la cascada; el segundo ordena el resto. Ninguna de las dos puede hacer verificable un objetivo que no lo sea —solo cambian en qué orden se prueba—, y esa es exactamente la propiedad que garantiza <code>cascade_gnn_iff_exists</code>.
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section id="compartido">
+      <div class="section-head"><span class="section-num">07</span><h2>Cómo se comparte el estado entre módulos</h2></div>
+      <div class="prose">
+        <p>Las flechas de las figuras anteriores muestran <em>quién llama a quién</em>. Esto es distinto y más importante: <strong>cinco objetos se construyen una sola vez</strong> dentro de <code>Nucleo.initialize()</code> —los cuatro de siempre más la congruencia, que decide qué caminos cuentan como el mismo morfismo—, y su referencia — no una copia — se reparte entre los módulos de abajo. Cuando dos módulos "comparten memoria" en este sistema, literalmente apuntan al mismo objeto de Python en la misma dirección de memoria.</p>
+      </div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 980 430" role="img" aria-label="PatternManager, ColimitBuilder y MESMemory se construyen una sola vez al iniciar Nucleo, encadenados porque ColimitBuilder necesita el PatternManager ya construido. Esas mismas tres referencias, mas el grafo SkillCategory que ya existia, se inyectan por constructor en CoRegulatorNetwork, EvolutionarySystem, MultiAgentOrchestrator, ConsultoresModule y el agente de RL — cada uno con un subconjunto distinto segun lo que necesita.">
+  <defs>
+    <marker id="pC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="20" font-size="11" class="dim">construcción, en <code class="mono">Nucleo.initialize()</code> — una sola vez, en este orden:</text>
+
+  <!-- construction chain -->
+  <rect x="20" y="34" width="200" height="54" rx="8" fill="none" class="e-line" stroke-width="1.6"/>
+  <text x="120" y="56" text-anchor="middle" font-size="11.5" class="e-fill">PatternManager()</text>
+  <text x="120" y="72" text-anchor="middle" font-size="9" class="dim">mes/patterns.py</text>
+
+  <line x1="220" y1="61" x2="256" y2="61" stroke="currentColor" stroke-width="1.3" marker-end="url(#pC)"/>
+
+  <rect x="256" y="34" width="220" height="54" rx="8" fill="none" class="v-line" stroke-width="1.6"/>
+  <text x="366" y="56" text-anchor="middle" font-size="11.5" class="v-fill">ColimitBuilder(pattern_manager)</text>
+  <text x="366" y="72" text-anchor="middle" font-size="9" class="dim">necesita el anterior ya construido</text>
+
+  <line x1="476" y1="61" x2="512" y2="61" stroke="currentColor" stroke-width="1.3" marker-end="url(#pC)"/>
+
+  <rect x="512" y="34" width="200" height="54" rx="8" fill="none" class="l-line" stroke-width="1.6"/>
+  <text x="612" y="56" text-anchor="middle" font-size="11.5" class="l-fill">MESMemory(...)</text>
+  <text x="612" y="72" text-anchor="middle" font-size="9" class="dim">mes/memory.py</text>
+
+  <rect x="742" y="34" width="216" height="54" rx="8" fill="none" stroke="currentColor" stroke-width="1.3" class="dim" stroke-dasharray="4 3"/>
+  <text x="850" y="56" text-anchor="middle" font-size="11">SkillCategory (grafo)</text>
+  <text x="850" y="72" text-anchor="middle" font-size="9" class="dim">ya existía — 173 habilidades</text>
+
+  <!-- funnel down -->
+  <line x1="490" y1="88" x2="490" y2="130" stroke="currentColor" stroke-width="1.4" marker-end="url(#pC)"/>
+  <text x="500" y="112" font-size="10.5">se inyectan las mismas 4 referencias — nunca una copia — en:</text>
+
+  <!-- 5 consumer boxes -->
+  <!-- box width 178, gap 14, 5 boxes: total 178*5+14*4=946, start x=17 -->
+  <rect x="17" y="150" width="178" height="156" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="106" y="172" text-anchor="middle" font-size="11" class="lbl e-fill">CoRegulatorNetwork</text>
+  <text x="30" y="194" font-size="9.5">recibe:</text>
+  <text x="30" y="209" font-size="9.5">· patrones</text>
+  <text x="30" y="223" font-size="9.5">· colímites</text>
+  <text x="30" y="237" font-size="9.5">· memoria</text>
+  <text x="30" y="253" font-size="8.7" class="dim">+ el grafo, pasado</text>
+  <text x="30" y="265" font-size="8.7" class="dim">en cada decide()</text>
+  <text x="30" y="279" font-size="8.7" class="e-fill">+ los huecos, vía</text>
+  <text x="30" y="291" font-size="8.7" class="e-fill">set_concept_gaps()</text>
+
+  <rect x="209" y="150" width="178" height="140" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="298" y="172" text-anchor="middle" font-size="11" class="lbl e-fill">EvolutionarySystem</text>
+  <text x="222" y="194" font-size="9.5">recibe:</text>
+  <text x="222" y="209" font-size="9.5">· grafo</text>
+  <text x="222" y="223" font-size="9.5">· patrones</text>
+  <text x="222" y="237" font-size="9.5">· colímites</text>
+  <text x="222" y="258" font-size="8.7" class="g-fill">deben ser los mismos</text>
+  <text x="222" y="270" font-size="8.7" class="g-fill">objetos: si no, las</text>
+  <text x="222" y="282" font-size="8.7" class="g-fill">uniones no se ven</text>
+
+  <rect x="401" y="150" width="178" height="140" rx="9" fill="none" class="l-line" stroke-width="1.5"/>
+  <text x="490" y="172" text-anchor="middle" font-size="11" class="lbl l-fill">MultiAgentOrchestrator</text>
+  <text x="414" y="192" font-size="9">→ MESBridge</text>
+  <text x="414" y="210" font-size="9.5">recibe:</text>
+  <text x="414" y="225" font-size="9.5">· grafo</text>
+  <text x="414" y="239" font-size="9.5">· patrones</text>
+  <text x="414" y="253" font-size="9.5">· colímites</text>
+  <text x="414" y="272" font-size="8.7" class="dim">(alimenta la memoria</text>
+  <text x="414" y="284" font-size="8.7" class="dim">por categoría, §6)</text>
+
+  <rect x="593" y="150" width="178" height="140" rx="9" fill="none" stroke="currentColor" stroke-width="1.3"/>
+  <text x="682" y="172" text-anchor="middle" font-size="11" class="lbl">ConsultoresModule</text>
+  <text x="606" y="194" font-size="9.5">recibe:</text>
+  <text x="606" y="209" font-size="9.5">· patrones</text>
+  <text x="606" y="223" font-size="9.5">· memoria</text>
+  <text x="606" y="241" font-size="8.7" class="dim">+ el LLM y Lean,</text>
+  <text x="606" y="253" font-size="8.7" class="dim">mismas instancias</text>
+  <text x="606" y="270" font-size="8.7" class="dim">(no colímites: no</text>
+  <text x="606" y="282" font-size="8.7" class="dim">los necesita)</text>
+
+  <rect x="785" y="150" width="178" height="140" rx="9" fill="none" stroke="currentColor" stroke-width="1.3"/>
+  <text x="874" y="172" text-anchor="middle" font-size="11" class="lbl">Agente RL + Cascada</text>
+  <text x="798" y="194" font-size="9.5">recibe:</text>
+  <text x="798" y="209" font-size="9.5">· grafo (solo)</text>
+  <text x="798" y="230" font-size="8.7" class="dim">construye la vista GNN</text>
+  <text x="798" y="242" font-size="8.7" class="dim">del grafo; no toca</text>
+  <text x="798" y="254" font-size="8.7" class="dim">patrones ni memoria</text>
+
+  <!-- connecting stems from funnel line to each box -->
+  <line x1="106" y1="130" x2="106" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="298" y1="130" x2="298" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="490" y1="130" x2="490" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="682" y1="130" x2="682" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="874" y1="130" x2="874" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="106" y1="130" x2="874" y2="130" stroke="currentColor" stroke-width="1" class="dim"/>
+</svg>
+        </div>
+        <figcaption><b>Fig. 5 —</b> Las cuatro piezas de la izquierda se construyen <em>una sola vez</em>; todo lo demás recibe un puntero a ellas, nunca una copia. <code>CoRegulatorNetwork</code> es el único módulo con acceso a las cuatro —memoria, patrones y colímites inyectados, más el grafo en cada <code>decide()</code>—: es, literalmente, el que más sabe del sistema completo en cada instante. Recibe además los huecos conceptuales, que reparte a CR_org y CR_str.</figcaption>
+      </figure>
+
+      <div class="callout g">
+        <strong>Qué pasa si no se comparten</strong>
+        El propio código lo advierte en un comentario de <code>graph/evolution.py</code>: si <code>EvolutionarySystem</code> recibiera su propio <code>PatternManager</code> en vez del compartido, las uniones que proponen los co-reguladores apuntarían a patrones invisibles para él, y <code>apply_option()</code> las descartaría sin avisar. No es hipotético — es exactamente el tipo de bug que <code>core.py</code> evita a propósito construyendo los cuatro objetos una sola vez.
+      </div>
+
+      <div class="prose"><p>Con esa base, así es exactamente lo que viaja por cada conexión de las figuras 1 y 2 — el tipo de dato concreto, no solo su nombre:</p></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Conexión</th><th>Qué viaja</th><th class="mono">Dónde</th></tr></thead>
+          <tbody>
+            <tr><td>Usuario → Nucleo</td><td>texto de la consulta <span class="pill">str</span></td><td class="mono">core.py::process()</td></tr>
+            <tr><td>Nucleo → CoRegulatorNetwork</td><td>texto + referencia al grafo</td><td class="mono">co_regulators.py::decide()</td></tr>
+            <tr><td>CoRegulatorNetwork → Nucleo</td><td><span class="pill e">GlobalDecision</span> (ActionType, source_cr, confidence, Option)</td><td class="mono">co_regulators.py</td></tr>
+            <tr><td>Nucleo → LLM (formalizar)</td><td>prompt + contexto <span class="pill">dict</span> (habilidades, prerrequisitos, tácticas, fórmulas ZFC)</td><td class="mono">core.py::_math_via_lean</td></tr>
+            <tr><td>LLM → Nucleo</td><td><span class="pill l">LLMResponse.content</span> — código Lean candidato</td><td class="mono">llm/client.py</td></tr>
+            <tr><td>Nucleo → Lean</td><td>código Lean <span class="pill">str</span></td><td class="mono">lean/client.py::check_code()</td></tr>
+            <tr><td>Lean → Nucleo</td><td><span class="pill v">LeanResult</span> (status, messages, goals, elapsed_ms)</td><td class="mono">lean/client.py</td></tr>
+            <tr><td>Nucleo → SolverCascade</td><td>LeanResult + táctica de dominio <span class="pill">str</span></td><td class="mono">lean/solver_cascade.py</td></tr>
+            <tr><td>Nucleo → Usuario</td><td><span class="pill e">NucleoResponse</span> (content, lean_result, confidence, metadata)</td><td class="mono">core.py</td></tr>
+            <tr><td>Nucleo → MESMemory</td><td><span class="pill">ExperienceRecord</span> (pattern_id, success_value, query)</td><td class="mono">mes/memory.py</td></tr>
+            <tr><td>Nucleo → Agente RL</td><td><span class="pill l">Transition</span> (state, action, reward) — PPO en vivo</td><td class="mono">rl/agent.py::update()</td></tr>
+            <tr><td>Nucleo → EvolutionarySystem</td><td><span class="pill">Option</span> (bindings, eliminations) propuesta por un CR</td><td class="mono">graph/evolution.py::apply_option()</td></tr>
+            <tr><td>Nucleo → mes_bridge</td><td>categoría <span class="pill">str</span> + texto — pide táctica aprendida</td><td class="mono">multi_agent/mes_bridge.py::query_best_tactic()</td></tr>
+            <tr><td>mes_bridge → Nucleo</td><td>táctica <span class="pill">str</span> o <span class="mono">None</span></td><td class="mono">multi_agent/mes_bridge.py</td></tr>
+            <tr><td>Nucleo → multi-agente</td><td>query, tactic, resultado ("success"/"partial"/"failed"), reward</td><td class="mono">core.py::report_lean_result()</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section id="lean">
+      <div class="section-head"><span class="section-num">08</span><h2>Lean 4 como fuente de verdad</h2></div>
+      <div class="prose"><p>La verificación corre local por defecto (subproceso <code>lake env lean --json</code>), con un respaldo remoto para cuando no hay toolchain instalado — típicamente un despliegue en la nube sin los ~6&nbsp;GB de Mathlib compilado.</p></div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 820 190" role="img" aria-label="LeanClient intenta primero un subproceso local de lake env lean. Si el binario no esta disponible, cae a una peticion HTTP al servicio remoto lean_api desplegado en Railway, que corre el mismo comando dentro de su propio contenedor con Mathlib precompilado.">
+  <defs>
+    <marker id="pL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <rect x="30" y="70" width="180" height="60" rx="9" fill="none" class="v-line" stroke-width="1.6"/>
+  <text x="120" y="94" text-anchor="middle" font-size="11.5" class="v-fill">LeanClient.check_code()</text>
+  <text x="120" y="112" text-anchor="middle" font-size="9.5" class="dim">nucleo/lean/client.py</text>
+
+  <line x1="210" y1="90" x2="290" y2="90" stroke="currentColor" stroke-width="1.4" marker-end="url(#pL)"/>
+  <text x="215" y="82" font-size="9.5">1 · intenta local</text>
+
+  <rect x="290" y="60" width="200" height="60" rx="9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+  <text x="390" y="84" text-anchor="middle" font-size="11">subprocess lake env lean</text>
+  <text x="390" y="100" text-anchor="middle" font-size="9.5" class="dim">--json · timeout 360s</text>
+
+  <line x1="390" y1="120" x2="390" y2="150" stroke="currentColor" stroke-width="1.2" class="g-line" stroke-dasharray="4 3" marker-end="url(#pL)"/>
+  <text x="400" y="140" font-size="9.5" class="g-fill">si NOT_AVAILABLE (sin lake)</text>
+
+  <line x1="490" y1="90" x2="560" y2="90" stroke="currentColor" stroke-width="1.2" class="dim" stroke-dasharray="3 3"/>
+
+  <rect x="560" y="60" width="230" height="70" rx="9" fill="none" class="l-line" stroke-width="1.5"/>
+  <text x="675" y="84" text-anchor="middle" font-size="11" class="l-fill">lean_api (Railway)</text>
+  <text x="675" y="100" text-anchor="middle" font-size="9.5" class="dim">POST /verify · mismo formato JSON</text>
+  <text x="675" y="115" text-anchor="middle" font-size="9.5" class="dim">Mathlib precompilado en el contenedor</text>
+
+  <line x1="390" y1="150" x2="675" y2="150" stroke="currentColor" stroke-width="1.2" class="g-line" marker-end="url(#pL)"/>
+  <line x1="675" y1="150" x2="675" y2="130" stroke="currentColor" stroke-width="1.2" class="g-line"/>
+</svg>
+        </div>
+        <figcaption><b>Fig. 6 —</b> Ambos caminos devuelven el mismo <code>LeanResult</code> parseado igual — el resto del sistema no distingue cuál se usó.</figcaption>
+      </figure>
+
+      <div class="callout v">
+        <strong>El veredicto es una compuerta, no una etiqueta</strong>
+        La forma de la respuesta depende de lo que dictamine Lean. Si verifica, la explicación llega sola, con su insignia y el código. Si no verifica, el aviso va <strong>delante</strong> de la explicación y se muestra el motivo: el error literal de Lean y su diagnóstico. Ninguna respuesta sale con el aspecto de verificada sin serlo.
+      </div>
+
+      <div class="callout e">
+        <strong>El error de Lean vuelve al generador</strong>
+        El triaje se hace sobre el veredicto. Un <code>unknown identifier</code> es mecánico y lo resuelve <code>repair_imports</code>, que busca el lema en las fuentes de Mathlib y hace tres cosas distintas según lo que encuentre: añade el módulo si falta, sustituye el nombre si el lema fue renombrado, o abre el <em>namespace</em> si el identificador existe y el módulo ya estaba —el caso de <code>Basis</code>, que se movió a <code>Module.Basis</code> y solo necesitaba un <code>open Module</code>; añadirle imports metía ruido sin resolver nada. Un <code>type mismatch</code> o un <code>tactic failed</code> son semánticos y exigen reformular: el código rechazado, los errores literales y el diagnóstico vuelven al LLM, con un tope de 2&nbsp;rondas y aceptando la revisión solo si mejora.
+      </div>
+
+      <div class="callout g">
+        <strong>Por qué nunca se importa Mathlib entero</strong>
+        Un <code>import Mathlib</code> desnudo carga ~1,58&nbsp;GB de <code>.olean</code> y mide 742&nbsp;s en este hardware: siempre supera el timeout. En su lugar, <code>_normalize_code</code> inyecta una cabecera estrecha más importaciones temáticas activadas por lo que aparece en el enunciado, y expande los módulos que Mathlib ha partido en directorio.
+        <br><br>Ese filtro es delicado: quitar un import puede llevarse por delante no solo un lema, sino la <em>notación</em> que el enunciado necesita —<code>a ≡ b [MOD n]</code> vive en un módulo concreto—, y entonces Lean ni siquiera parsea. <code>scripts/audit_normalizer.py</code> mide ese riesgo pasando por el normalizador las 29.750 pruebas de LeanWorkbookProofs, que compilan: cualquiera que deje de compilar señala un hueco.
+      </div>
+    </section>
+
+
+    <!-- 9 -->
+    <section id="emergencia">
+      <div class="section-head"><span class="section-num">09</span><h2>Emergencia: <span class="ac-e">co-conos límite</span> y huecos</h2></div>
+      <div class="prose">
+        <p>El grafo es una <strong>categoría delgada</strong>: los objetos son habilidades y el orden lo genera la jerarquía <em>teoría&nbsp;⊃ subteoría</em>. En una categoría así, el colímite de un patrón es su <strong>mínima cota superior</strong>, y la unicidad del mediador es automática. Esa es la afirmación que certifican <code>JoinColimit.lean</code> e <code>IsColimitBridge.lean</code>.</p>
+        <p>Cuando un patrón no tiene co-cono límite, el sistema <strong>no fabrica</strong> un vértice: lo registra como hueco. Inventar un nodo y cablearlo hasta que cumpla la propiedad universal sería asumir la conclusión, y además haría crecer el grafo sin cota, porque cada nodo nuevo queda por encima de sus componentes y crea otro punto de convergencia.</p>
+      </div>
+
+      <div class="callout e">
+        <strong>La universalidad es un test, no una construcción</strong>
+        <code>build_join_for_pattern</code> solo <em>descubre</em>: busca el co-cono minimal entre los objetos que ya existen y lo registra, o informa de que no hay ninguno. Como no añade nodos, no aparecen puntos de convergencia nuevos y el punto fijo llega en la iteración&nbsp;2. La terminación es estructural, no un argumento sobre el orden. Coste del descubrimiento completo: 0,1&nbsp;s.
+      </div>
+
+      <div class="prose"><p>Con el preorden restringido a los morfismos de <em>orden</em> —<code>DEPENDENCY</code> y <code>SPECIALIZATION</code>, nunca <code>TRANSLATION</code>, que es la fibra hacia las tácticas— estos son algunos de los conceptos que el grafo encuentra sin que nadie los declare:</p></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">cn</th><th>patrón</th><th>co-cono límite</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">2</td><td class="mono">alg. number theory + field theory + alg. geometry</td><td><strong>Arithmetic Geometry</strong></td></tr>
+            <tr><td class="mono">2</td><td class="mono">algebraic geometry + ideals &amp; quotient rings</td><td><strong>Affine Varieties</strong></td></tr>
+            <tr><td class="mono">1</td><td class="mono">functors + commutative algebra</td><td><strong>Algebraic Geometry</strong></td></tr>
+            <tr><td class="mono">1</td><td class="mono">homotopy theory + CIC</td><td><strong>Homotopy Type Theory</strong></td></tr>
+            <tr><td class="mono">1</td><td class="mono">field extensions + solvable groups</td><td><strong>Galois Theory</strong></td></tr>
+            <tr><td class="mono">1</td><td class="mono">complex analysis + elementary number theory</td><td><strong>Analytic Number Theory</strong></td></tr>
+            <tr><td class="mono">1</td><td class="mono">exact sequences + limits &amp; colimits</td><td><strong>Abelian Categories</strong></td></tr>
+            <tr><td class="mono">3</td><td class="mono">arithmetic geometry + homological algebra + point-set topology</td><td><strong>Sheafed Spaces of Complexes</strong></td></tr>
+            <tr><td class="mono">2</td><td class="mono">algebraic topology + exact sequences + homological algebra</td><td><strong>Derived Category</strong></td></tr>
+            <tr><td class="mono">1</td><td class="mono">group actions + group theory + module theory</td><td><strong>Representation Theory</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose"><p>Las tres últimas filas no estaban en el grafo hasta esta revisión: son <strong>vértices que el sistema detectó que le faltaban</strong>, y se explican en la <a href="#interpretacion">sección&nbsp;10</a>. <strong>Geometría aritmética es un colímite de algo que a su vez es un colímite</strong> — jerarquía emergente de dos niveles, que es exactamente lo que <code>cn_join_gt_component</code> predice. Restringir el orden importa: siguiendo también <code>TRANSLATION</code>, las habilidades-táctica —que son sumideros— salían certificadas como colímites de dominios matemáticos arbitrarios (<code class="mono">join(large-cardinals, cohomology, algebraic-topology) = tactic-simp</code>) y se perdían tres de los legítimos.</p></div>
+
+      <div class="callout g">
+        <strong>Los huecos, y por qué la cifra sube al mejorar</strong>
+        Un patrón con co-conos pero sin límite significa que al grafo le falta el concepto que unifica sus componentes. Pero 14 de los 27 que este documento declaraba <em>sí</em> tenían colímite: era una de sus propias componentes, y <code>find_cocones</code> la descartaba. <code>isCocone</code> no excluye nada —por <code>reachable_refl</code> toda componente es cota superior de sí misma—, así que el patrón <code>{análisis funcional, análisis real}</code> tiene por colímite <code>análisis funcional</code>. El sistema lo archivaba como hueco y <code>llenar_hueco_conceptual</code> le pedía al LLM el concepto unificador de patrones que ya lo contenían. Hoy son <strong>18</strong>, y la subida desde 13 no es un retroceso: al exigir co-cono en vez de alcanzabilidad, cuatro «colímites» resultaron falsos y volvieron a la lista. Ver <a href="#hallazgos">sección&nbsp;15</a>.
+      </div>
+
+      <div class="prose"><p>La jerarquía se mide con <strong>tres</strong> campos separados, porque son magnitudes distintas. Las dos últimas se confundieron durante mucho tiempo, y la distinción resultó tener consecuencias: un objeto puede tener altura&nbsp;2 y ser reducible a un colímite simple.</p></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">campo</th><th>qué mide</th><th>quién lo fija</th><th>hoy</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">level</td><td>profundidad <strong>taxonómica</strong> — dónde sitúan las matemáticas al concepto</td><td>curado a mano</td><td class="mono">L0:10 · L1:33 · L2:34 · L3:96</td></tr>
+            <tr><td class="mono">cn</td><td>altura <strong>constructiva</strong> — máximo sobre todas las descomposiciones</td><td>el sistema</td><td class="mono">0:152 · 1:16 · 2:4 · 3:1</td></tr>
+            <tr><td class="mono">orden irreducible</td><td>emergencia <strong>de Ehresmann</strong> — mínimo sobre todas las descomposiciones</td><td>el sistema</td><td class="mono">0:152 · 1:17 · 2:3 · 3:1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose">
+        <p>Esos colímites no se quedan en el grafo de habilidades. <code>graph/functor.py</code> construye la proyección <code>π(s) = categoría(s)</code> desde las 173 habilidades hasta los 14 agentes —más un objeto base <code>fundacional</code> para los diez skills L0, que no pertenecen a ninguna categoría— y la comprueba como <strong>funtor</strong>, no la asume: 173 objetos con imagen, 230 morfismos con imagen, 260 composiciones verificadas, 0 fallos. Isomorfismo no puede haber —173 frente a 15 es una obstrucción de cardinalidad, no un defecto—, así que la pregunta útil es qué sobrevive a la proyección.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>π: Skills → Agentes</th><th class="mono">medida</th><th>lectura</th></tr></thead>
+          <tbody>
+            <tr><td>es funtor (F1 identidades, F2 composición)</td><td class="mono">sí</td><td>0 fallos en 263 composiciones</td></tr>
+            <tr><td>co-conos preservados</td><td class="mono">31/31</td><td>la cota superior siempre baja</td></tr>
+            <tr><td>colímites preservados</td><td class="mono">24/31</td><td>la <em>minimalidad</em> no siempre baja</td></tr>
+            <tr><td>descomposiciones colapsadas a un punto</td><td class="mono">4</td><td>p.&nbsp;ej. <code>representation-theory</code>: sus tres componentes caen todas en <code>algebra</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout e">
+        <strong>Preservar co-conos no es preservar colímites</strong>
+        Que π conserve las 31 cotas superiores pero solo 24 de los 31 colímites no es un fallo de implementación: proyectar 173 objetos sobre 15 pierde exactamente la información que hace <em>minimal</em> a una cota. Y no es una observación empírica suelta — <code>functor_not_preserves_join</code> lo demuestra con un contraejemplo finito en <code>QuotientFunctor.lean</code>, junto a <code>proyeccion_es_funtor</code> y <code>functor_preserves_cocone</code>. El sistema mide 24/31 porque el teorema dice que no puede esperarse 31/31.
+      </div>
+
+      <div class="callout g">
+        <strong>Altura no es emergencia</strong>
+        <code>cn</code> toma el <strong>máximo</strong> sobre las descomposiciones, y hace bien: es la altura que domina a las componentes de cada una, está respaldada por <code>cn_ge_of_mem_decomp</code>, y es la que da la buena fundación que hace terminar la iteración. Pero altura no es irreducibilidad. Si un objeto admite <em>alguna</em> descomposición cuyas componentes sean todas de orden&nbsp;0, es un colímite simple de objetos de base y su orden de Ehresmann es 1, por muchas otras descomposiciones altas que tenga.
+        <br><br>Ahí es donde el Principio de Multiplicidad deja de ser decorativo: solo mirando <em>todas</em> las descomposiciones se sabe. Medido: <code>homological-algebra-cat</code> tenía <code>cn = 2</code> y orden real 1, porque su descomposición <code>{álgebra homológica, límites}</code> tiene las dos componentes en orden 0. <code>orden_irreducible()</code> se añadió al lado de <code>cn</code>, sin sustituirlo — responden preguntas distintas.
+      </div>
+
+      <div class="prose">
+        <h3 class="sub">Complexificar: cambiar de categoría</h3>
+        <p>Durante mucho tiempo <strong>el sistema nunca cambió de categoría</strong>: <code>build_join_for_pattern</code> solo descubre colímites que ya existen en G<sub>n</sub>, así que K′&nbsp;=&nbsp;K y la pregunta por el orden de complejidad no llegaba a plantearse. El «Vértices fabricados: 0» que esta página presentaba como virtud y la ausencia de emergencia eran la misma decisión vista desde dos lados.</p>
+        <p>Ehresmann separa los dos oficios con precisión: en matemáticas se busca el colímite dentro de una categoría fija y la respuesta puede ser «no existe»; en un sistema evolutivo la inexistencia <em>obliga</em> a complexificar, y el objeto que aparece es el fenómeno emergente. Y en el caso delgado esa construcción no es una promesa vaga: es la <strong>compleción de MacNeille</strong>, con demostración clásica.</p>
+      </div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 1060 380" role="img" aria-label="Comparacion entre lo que el sistema hacia antes y la complexificacion. A la izquierda, en la categoria K, el patron formado por c1 y c2 tiene dos cotas superiores X e Y que son incomparables entre si, de modo que no hay minima y el patron se archiva como hueco conceptual: es un callejon sin salida. A la derecha, en la complexificacion K prima, se inserta un objeto nuevo eta de P entre las componentes y las dos cotas: c1 y c2 apuntan a eta de P, y eta de P apunta a X y a Y. Ese objeto es por construccion la minima cota superior, luego el colimite del patron. Abajo se indica que si el patron ya tenia colimite j en K, entonces eta de P coincide con la imagen de j y no aparece ningun objeto nuevo.">
+  <defs>
+    <marker id="cx" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="30" font-size="11.5" class="lbl g-fill">ANTES · dentro de K</text>
+  <text x="40" y="48" font-size="10" class="dim">solo se descubria lo que ya existia</text>
+
+  <rect x="40" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="88" y="275" text-anchor="middle" font-size="12">c₁</text>
+  <rect x="164" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="212" y="275" text-anchor="middle" font-size="12">c₂</text>
+
+  <rect x="40" y="110" width="96" height="40" rx="8" fill="none" class="g-line" stroke-width="1.5"/>
+  <text x="88" y="135" text-anchor="middle" font-size="12" class="g-fill">X</text>
+  <rect x="164" y="110" width="96" height="40" rx="8" fill="none" class="g-line" stroke-width="1.5"/>
+  <text x="212" y="135" text-anchor="middle" font-size="12" class="g-fill">Y</text>
+
+  <line x1="88" y1="250" x2="88" y2="150" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+  <line x1="212" y1="250" x2="212" y2="150" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+  <path d="M 108 250 L 196 150" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+  <path d="M 192 250 L 104 150" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+
+  <text x="150" y="94" text-anchor="middle" font-size="10" class="g-fill">X e Y incomparables</text>
+  <text x="150" y="78" text-anchor="middle" font-size="11" class="lbl g-fill">no hay mínima</text>
+  <text x="150" y="326" text-anchor="middle" font-size="11" class="lbl g-fill">→ ConceptGap</text>
+  <text x="150" y="344" text-anchor="middle" font-size="9.5" class="dim">callejón sin salida</text>
+
+  <line x1="330" y1="60" x2="330" y2="350" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" class="dim"/>
+
+  <text x="380" y="30" font-size="11.5" class="lbl v-fill">COMPLEXIFICACIÓN · K′</text>
+  <text x="380" y="48" font-size="10" class="dim">Complexificacion.lean — compleción de MacNeille</text>
+
+  <rect x="380" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="428" y="275" text-anchor="middle" font-size="12">c₁</text>
+  <rect x="504" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="552" y="275" text-anchor="middle" font-size="12">c₂</text>
+
+  <rect x="416" y="170" width="168" height="46" rx="9" fill="none" class="v-line" stroke-width="2.4"/>
+  <text x="500" y="190" text-anchor="middle" font-size="12.5" class="lbl v-fill">η(P)</text>
+  <text x="500" y="207" text-anchor="middle" font-size="9.5" class="dim">= cotas superiores de P</text>
+
+  <rect x="380" y="90" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="428" y="115" text-anchor="middle" font-size="12">X</text>
+  <rect x="504" y="90" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="552" y="115" text-anchor="middle" font-size="12">Y</text>
+
+  <line x1="428" y1="250" x2="450" y2="216" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+  <line x1="552" y1="250" x2="530" y2="216" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+  <line x1="466" y1="170" x2="440" y2="130" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+  <line x1="534" y1="170" x2="560" y2="130" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+
+  <text x="614" y="196" font-size="10" class="v-fill">objeto NUEVO</text>
+  <text x="614" y="211" font-size="9.5" class="dim">no estaba en K</text>
+  <text x="500" y="326" text-anchor="middle" font-size="11" class="lbl v-fill">η(P) es el colímite de P</text>
+  <text x="500" y="344" text-anchor="middle" font-size="9.5" class="dim">eta_es_colimite — por construcción, no por cableado</text>
+
+  <line x1="700" y1="60" x2="700" y2="350" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" class="dim"/>
+  <text x="740" y="30" font-size="11.5" class="lbl e-fill">Y LO QUE YA HABÍA</text>
+
+  <rect x="740" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="788" y="275" text-anchor="middle" font-size="12">c₁</text>
+  <rect x="864" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="912" y="275" text-anchor="middle" font-size="12">c₂</text>
+
+  <rect x="800" y="150" width="100" height="44" rx="9" fill="none" class="e-line" stroke-width="2"/>
+  <text x="850" y="169" text-anchor="middle" font-size="12" class="lbl e-fill">j</text>
+  <text x="850" y="186" text-anchor="middle" font-size="9" class="dim">ya era el join</text>
+
+  <line x1="788" y1="250" x2="818" y2="194" class="e-line" stroke-width="1.6" marker-end="url(#cx)"/>
+  <line x1="912" y1="250" x2="882" y2="194" class="e-line" stroke-width="1.6" marker-end="url(#cx)"/>
+
+  <text x="850" y="122" text-anchor="middle" font-size="11" class="lbl e-fill">η(P) = ι(j)</text>
+  <text x="850" y="104" text-anchor="middle" font-size="9.5" class="dim">no aparece nada nuevo</text>
+  <text x="850" y="326" text-anchor="middle" font-size="9.5" class="e-fill">eta_eq_iota_of_isLUB</text>
+  <text x="850" y="344" text-anchor="middle" font-size="9.5" class="dim">la preservación del Teorema 1</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 7 —</b> El mismo patrón, en las dos categorías. En K sus dos cotas superiores son incomparables, no hay mínima, y el patrón se archivaba como hueco: ahí terminaba. En K′ se le asigna <code>η(P)</code> = el conjunto de sus cotas superiores, ordenado por inclusión inversa; ese objeto es cota superior de las componentes y menor que cualquier otra, luego es el colímite — <em>por construcción</em>, no por cablearlo hasta que cumpla la propiedad universal. A la derecha, la condición que impide que complexificar destruya lo que había: si el patrón ya tenía colímite, el objeto asignado coincide con él y no aparece ninguno nuevo.</figcaption>
+      </figure>
+
+      <div class="callout v">
+        <strong>El paso corre, y el rollback dejó de ser todo-o-nada</strong>
+        <code>nucleo/graph/complexificacion.py</code> ejecuta el paso. Sobre el grafo real, con la preservación exigida:
+        <br><br>
+        <span class="mono" style="font-size:13px">paso 1 · 173 → 181 objetos · 18 → 16 huecos · <b>+8 objetos, 7 cerrados, 31 colímites preservados, 0 rotos</b><br>paso 2 · sin objetos nuevos · punto fijo</span>
+        <br><br>Antes revertía el paso entero si un solo objeto rompía algo, y eso lo volvía inerte: medido, 8 objetos cerraban 8 huecos y los 8 se tiraban por culpa de&nbsp;1. Ahora <code>is_join</code> dice <em>quién</em> roba la minimalidad y se retira solo a ese. El objetivo (iii) de la opción —preservar los colímites que ya existían— se sigue cumpliendo entero.
+      </div>
+
+      <div class="prose">
+        <h3 class="sub">La barrera de la delgadez, y por dónde se cruzó</h3>
+        <p>Aquí estaba el teorema que cerraba la puerta. Un co-cono sobre P con vértice A es una familia <code>(f<sub>i</sub> : P<sub>i</sub> → A)</code> <strong>correlacionada por los enlaces distinguidos</strong>: <code>P(x) ; f<sub>j</sub> = f<sub>i</sub></code>. En una categoría delgada esa condición es <em>vacua</em> —<code>Hom</code> tiene a lo sumo un elemento, luego las dos composiciones coinciden siempre— y el co-cono se reduce a «A es cota superior del <em>conjunto</em> de objetos». De ahí que el colímite sea el supremo, que el supremo sea asociativo (<code>lub_de_lubs</code>), y que todo join iterado se aplane a orden&nbsp;1.</p>
+        <p>El eslabón a romper era ese, y basta con que <code>Hom(a,b)</code> tenga dos elementos. Se rompió en tres capas, y ninguna es un refactor: cada una exigió decir <em>qué</em> son los dos morfismos distintos.</p>
+      </div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 1040 300" role="img" aria-label="Las tres capas de delgadez que hubo que abrir, de izquierda a derecha. Primera capa: Hom entre dos objetos era un booleano, o hay flecha o no la hay; ahora guarda varios morfismos distinguidos por su construccion, y cinco pares del grafo tienen mas de uno. Segunda capa: el runtime preguntaba si el apice era alcanzable desde cada componente, una pregunta sobre vertices; ahora exige exhibir una eleccion de flechas que conmute con los enlaces del patron, que es una pregunta sobre flechas. Tercera capa: conmutar solo tiene sentido respecto a que caminos se declaran iguales, asi que aparece una congruencia explicita, con una parte derivada del propio grafo y otra declarada a mano con su motivo matematico.">
+  <defs>
+    <marker id="d3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="26" font-size="10.5" class="dim">TRES CAPAS DE DELGADEZ — hubo que abrir las tres</text>
+
+  <rect x="30" y="48" width="300" height="180" rx="11" fill="none" class="e-line" stroke-width="1.7"/>
+  <text x="50" y="76" class="lbl e-fill" font-size="12.5">1 · el objeto Hom</text>
+  <text x="50" y="102" font-size="10" class="dim">antes: booleano</text>
+  <text x="50" y="120" font-size="11">¿hay flecha de a a b?</text>
+  <text x="50" y="148" font-size="10" class="e-fill">ahora: un conjunto</text>
+  <text x="50" y="166" font-size="11">¿cuáles flechas, y en qué</text>
+  <text x="50" y="182" font-size="11">se distinguen?</text>
+  <text x="50" y="208" font-size="10" class="lbl e-fill">5 de 387 pares · NO delgado</text>
+
+  <line x1="330" y1="138" x2="368" y2="138" stroke="currentColor" stroke-width="1.5" marker-end="url(#d3)"/>
+
+  <rect x="368" y="48" width="300" height="180" rx="11" fill="none" class="v-line" stroke-width="1.7"/>
+  <text x="388" y="76" class="lbl v-fill" font-size="12.5">2 · el test del colímite</text>
+  <text x="388" y="102" font-size="10" class="dim">antes: sobre VÉRTICES</text>
+  <text x="388" y="120" font-size="11">¿es el ápice alcanzable</text>
+  <text x="388" y="136" font-size="11">desde cada componente?</text>
+  <text x="388" y="164" font-size="10" class="v-fill">ahora: sobre FLECHAS</text>
+  <text x="388" y="182" font-size="11">exhibe una elección que</text>
+  <text x="388" y="198" font-size="11">conmute con los enlaces</text>
+  <text x="388" y="218" font-size="10" class="lbl v-fill">find_colimit_cong</text>
+
+  <line x1="668" y1="138" x2="706" y2="138" stroke="currentColor" stroke-width="1.5" marker-end="url(#d3)"/>
+
+  <rect x="706" y="48" width="304" height="180" rx="11" fill="none" class="l-line" stroke-width="1.7"/>
+  <text x="726" y="76" class="lbl l-fill" font-size="12.5">3 · qué es «conmutar»</text>
+  <text x="726" y="102" font-size="10" class="dim">no tiene sentido absoluto:</text>
+  <text x="726" y="120" font-size="11">hace falta decir qué caminos</text>
+  <text x="726" y="136" font-size="11">son el mismo morfismo</text>
+  <text x="726" y="164" font-size="10" class="l-fill">congruencia_declarada</text>
+  <text x="726" y="182" font-size="10.5">2 derivadas del grafo</text>
+  <text x="726" y="198" font-size="10.5">1 declarada con su motivo</text>
+  <text x="726" y="218" font-size="10" class="dim">el cuadrado del pushout conmuta</text>
+
+  <text x="30" y="262" font-size="10" class="dim">Cerrar solo la primera no basta: con Hom no delgado pero el test sobre vértices, la conmutación sigue sin comprobarse y los colímites falsos sobreviven.</text>
+  <text x="30" y="280" font-size="10" class="dim">Medido: al cerrar la segunda cayeron 4 de los 31 colímites registrados — eran cotas superiores minimales sobre las que ninguna elección de flechas conmutaba.</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 8 —</b> Las tres capas, en el orden en que hay que abrirlas. La primera es de datos; la segunda cambia la pregunta que hace el runtime; la tercera es la que no puede tomar el código, porque decir qué dos caminos son el mismo morfismo es una afirmación sobre la matemática, no sobre el grafo. Por <code>cocono_monotono_en_la_congruencia</code> más identificaciones solo <em>añaden</em> co-conos, así que la congruencia mínima da una cota inferior honesta: lo que sobrevive con ella sobrevive con cualquier otra.</figcaption>
+      </figure>
+
+      <div class="callout v">
+        <strong>El testigo mínimo: un monoide de dos elementos</strong>
+        No hace falta una categoría grande para probar que la salida existe. Basta <code>M = {1, e}</code> con <code>e·e = e</code>, vista como categoría de un objeto: la más pequeña que no es delgada. Sobre ella, dos patrones con <strong>el mismo objeto</strong> y distinto enlace distinguido tienen co-conos distintos — <code>1</code> lo es del patrón con enlace <code>1</code> y no lo es del patrón con enlace <code>e</code>.
+        <br><br>Eso es la negación exacta de la hipótesis que <code>lub_de_lubs</code> necesita: <strong>el colímite deja de ser función del conjunto de objetos</strong>. Los cuatro teoremas de <code>Complexificacion.lean §9</code> no dependen de ningún axioma: son computación pura.
+      </div>
+
+      <div class="callout e">
+        <strong>Lo que se ganó al cruzarla, medido</strong>
+        El resultado no es retórico. Con el test de co-cono en el runtime, <strong>cuatro de los 31 colímites resultaron falsos</strong>: los cuatro apuntaban a <code>homological-algebra-cat</code> y los cuatro contenían <code>functors</code>, la componente de la que salían los enlaces. Eran minimales entre las cotas superiores y ninguna elección de flechas conmutaba — existían solo porque la delgadez regalaba la conmutación. Los que sobreviven lo hacen incluso con la congruencia libre, que es el extremo más exigente.
+        <br><br>Y el orden subió: de los objetos con altura ≥&nbsp;2, hay <strong>cuatro irreducibles</strong> —geometría aritmética, variedades afines, objetos graduados y espacios con haz de complejos— y el último alcanza <strong>orden&nbsp;3</strong>, lo más alto que el sistema ha producido. Lo hereda de geometría aritmética, que es de orden&nbsp;2 y aparece en todas sus descomposiciones.
+      </div>
+
+      <div class="callout g">
+        <strong>Lo que la complexificación sigue sin hacer</strong>
+        No produce emergencia, y conviene decirlo con la misma claridad. <code>η(P)</code> se inserta justo encima de las componentes de P, luego su orden irreducible es <code>1 + max(orden de las componentes)</code>; con componentes de orden 0 sale orden 1, siempre. Los ocho objetos que inserta son todos de orden&nbsp;1. Los cuatro emergentes de verdad ya estaban en el grafo o los aportó la matemática, no la construcción.
+        <br><br>La palanca está localizada: de los huecos que quedan, la mayoría daría orden ≥&nbsp;2 porque alguna componente ya es colímite — pero <strong>no tienen ninguna cota superior</strong>, así que no se cierran insertando un mínimo entre ellas. Esos necesitan un concepto <em>nombrado</em>, que lo aporta la matemática. Es exactamente lo que pasó con <code>homology</code>: el grafo sabía que faltaba un vértice y el nombre —la categoría derivada— vino de fuera. Ver <a href="#interpretacion">sección&nbsp;10</a>.
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section id="interpretacion">
+      <div class="section-head"><span class="section-num">10</span><h2>Qué es cada <span class="ac-e">nodo</span></h2></div>
+      <div class="prose">
+        <p>Mientras el grafo fue delgado, las etiquetas eran solo nombres: la maquinaria nunca miraba dentro de un nodo, porque para decidir «¿hay co-cono?» le bastaba con seguir aristas. En cuanto <code>Hom(a,b)</code> deja de ser un booleano eso se acaba. Ahora hay que saber <em>qué flecha</em> y <em>si conmuta</em>, y para eso hace falta saber qué es cada nodo: si <code>measure-theory</code> tiene por morfismos funciones medibles o núcleos <strong>cambia qué colímites existen</strong>.</p>
+        <p>Por eso se auditaron las 172 etiquetas una por una, y cada una tuvo que declarar a cuál de cinco cosas corresponde. No es catalogar por catalogar: es el precio de haber salido de la delgadez, y sin él <code>find_colimit_cong</code> no tiene sobre qué calcular.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">marca</th><th>qué es</th><th>¿vértice?</th><th class="mono">cuántas</th><th>ejemplo</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill e">C</span></td><td>una categoría</td><td>sí</td><td class="mono">73</td><td class="mono">group-theory, point-set-topology</td></tr>
+            <tr><td><span class="pill e">S</span></td><td>subcategoría plena de otra</td><td>sí</td><td class="mono">14</td><td class="mono">finite-fields ⊂ field-theory</td></tr>
+            <tr><td><span class="pill l">F</span></td><td>un <strong>funtor</strong> — es arista, no vértice</td><td>no</td><td class="mono">28</td><td class="mono">homology, cohomology, limits</td></tr>
+            <tr><td><span class="pill">O</span></td><td>un objeto dentro de una categoría</td><td>no</td><td class="mono">4</td><td class="mono">ideals-quotient-rings</td></tr>
+            <tr><td><span class="pill g">T</span></td><td>el nombre de un tema, sin objetos</td><td>no</td><td class="mono">53</td><td class="mono">algebraic-combinatorics</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout g">
+        <strong>28 aristas estaban disfrazadas de vértice</strong>
+        Producían colímites falsos: el sistema «descubría» convergencias que eran errores de tipo. El caso extremo era <code>limits</code> — un vértice del grafo con el nombre de la operación con la que el grafo se calcula a sí mismo. No se borran: se <strong>degradan</strong>, y sus aristas se reparten según la dirección, que es lo que hace que no se pierda nada. Las que entraban pasan a ser un atributo del vértice de origen (<code>HasLimitsOfShape J X</code>); las que salían, el funtor que la etiqueta siempre fue.
+      </div>
+
+      <div class="prose">
+        <h3 class="sub">Y tres vértices que faltaban</h3>
+        <p>El caso interesante fue el contrario. Cuatro descomposiciones apuntaban a <code>homology</code>, que es un funtor. Pero el diagnóstico no era el de <code>limits</code>: allí el patrón estaba mal poblado y las descomposiciones eran falsas como enunciados; aquí las componentes eran legítimas, la forma correcta y el co-cono bien formado. <strong>El grafo tenía razón en que allí había algo, y no tenía nombre para ello</strong> — lo había etiquetado con el invariante que ese sitio calcula, porque era la etiqueta más cercana disponible.</p>
+      </div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 1020 400" role="img" aria-label="El vertice que faltaba bajo la etiqueta homology. A la izquierda, el cuadrado del pushout que define la categoria derivada: secuencias exactas se incluye en algebra homologica por la inclusion de los aciclicos, y se colapsa a cero; el pushout de ambas es la categoria derivada, que es el vertice que faltaba. La topologia algebraica entra por las cadenas singulares, que mandan equivalencias debiles a cuasi-isomorfismos y por tanto descienden al cociente. A la derecha, la homologia y la cohomologia salen de la categoria derivada hacia los objetos graduados como dos funtores distintos, que difieren en el signo de la graduacion: ese par de flechas paralelas es multiplicidad genuina, dos elementos en un mismo Hom.">
+  <defs>
+    <marker id="dv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="26" font-size="10.5" class="dim">EL CUADRADO QUE DEFINE EL VÉRTICE — y que hubo que declarar que conmuta</text>
+
+  <rect x="40" y="52" width="192" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="136" y="76" text-anchor="middle" font-size="11.5">exact-sequences</text>
+  <text x="136" y="92" text-anchor="middle" font-size="9" class="dim">los complejos acíclicos</text>
+
+  <rect x="352" y="52" width="204" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="454" y="76" text-anchor="middle" font-size="11.5">homological-algebra</text>
+  <text x="454" y="92" text-anchor="middle" font-size="9" class="dim">los complejos</text>
+
+  <rect x="40" y="224" width="192" height="46" rx="9" fill="none" class="dim" stroke="currentColor" stroke-width="1.4"/>
+  <text x="136" y="252" text-anchor="middle" font-size="12">0</text>
+
+  <rect x="336" y="216" width="236" height="62" rx="10" fill="none" class="e-line" stroke-width="2.6"/>
+  <text x="454" y="242" text-anchor="middle" class="lbl e-fill" font-size="13">derived-category</text>
+  <text x="454" y="262" text-anchor="middle" font-size="9.5" class="dim">complejos módulo cuasi-isomorfismo</text>
+
+  <line x1="232" y1="78" x2="352" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#dv)"/>
+  <text x="292" y="70" text-anchor="middle" font-size="9.5" class="e-fill">inclusión</text>
+
+  <line x1="136" y1="104" x2="136" y2="224" stroke="currentColor" stroke-width="1.5" marker-end="url(#dv)"/>
+  <text x="126" y="168" text-anchor="end" font-size="9.5" class="e-fill">colapso</text>
+
+  <line x1="454" y1="104" x2="454" y2="216" class="e-line" stroke-width="1.8" marker-end="url(#dv)"/>
+  <text x="466" y="164" font-size="9.5" class="e-fill">localización</text>
+
+  <line x1="232" y1="247" x2="336" y2="247" class="e-line" stroke-width="1.5" marker-end="url(#dv)"/>
+
+  <rect x="40" y="316" width="240" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="160" y="340" text-anchor="middle" font-size="11.5">algebraic-topology</text>
+  <text x="160" y="356" text-anchor="middle" font-size="9" class="dim">la tercera pata</text>
+
+  <path d="M 280 342 L 400 342 L 400 278" fill="none" class="e-line" stroke-width="1.6" marker-end="url(#dv)"/>
+  <text x="292" y="334" font-size="9.5" class="e-fill">cadenas singulares C₊</text>
+  <text x="292" y="368" font-size="9" class="dim">mandan equivalencias débiles a cuasi-isomorfismos, luego descienden</text>
+
+  <line x1="640" y1="40" x2="640" y2="380" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" class="dim"/>
+
+  <text x="676" y="26" font-size="10.5" class="dim">Y LAS DOS FLECHAS QUE SALEN DE ÉL</text>
+
+  <rect x="676" y="216" width="204" height="62" rx="10" fill="none" class="e-line" stroke-width="2"/>
+  <text x="778" y="242" text-anchor="middle" class="lbl e-fill" font-size="12.5">derived-category</text>
+  <text x="778" y="261" text-anchor="middle" font-size="9" class="dim">el mismo de la izquierda</text>
+
+  <rect x="676" y="52" width="204" height="62" rx="10" fill="none" class="v-line" stroke-width="2"/>
+  <text x="778" y="78" text-anchor="middle" class="lbl v-fill" font-size="12.5">graded-objects</text>
+  <text x="778" y="97" text-anchor="middle" font-size="9" class="dim">grupos abelianos graduados</text>
+
+  <path d="M 740 216 C 726 178, 726 152, 740 114" fill="none" class="v-line" stroke-width="1.9" marker-end="url(#dv)"/>
+  <path d="M 816 216 C 830 178, 830 152, 816 114" fill="none" class="v-line" stroke-width="1.9" marker-end="url(#dv)"/>
+  <text x="706" y="170" text-anchor="end" font-size="11.5" class="v-fill">H₊</text>
+  <text x="850" y="170" font-size="11.5" class="v-fill">H*</text>
+
+  <text x="778" y="316" text-anchor="middle" font-size="10.5" class="lbl v-fill">dos flechas paralelas distintas</text>
+  <text x="778" y="334" text-anchor="middle" font-size="9.5" class="dim">difieren en el signo de la graduación,</text>
+  <text x="778" y="350" text-anchor="middle" font-size="9.5" class="dim">no en dominio ni codominio</text>
+  <text x="778" y="372" text-anchor="middle" font-size="10" class="e-fill">|Hom| = 2 — multiplicidad genuina</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 9 —</b> El ápice correcto es el cociente <code>homological-algebra</code> módulo <code>exact-sequences</code>: matar los complejos acíclicos es literalmente lo que hace la localización por cuasi-isomorfismos. Con él, las tres patas pasan a ser tres cosas <em>distintas</em> —la inclusión, el colapso, y las cadenas singulares— y ninguna es la homología: la descomposición deja de ser circular y pasa a ser un teorema. A la derecha, el par de flechas que la etiqueta escondía. El cuadrado no conmuta solo: hay que <strong>declararlo</strong>, porque es la definición de la categoría derivada, no algo que el grafo pueda derivar de sí mismo.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>vértice añadido</th><th>objeto</th><th>morfismo</th><th class="mono">Mathlib</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Derived Category</strong><br><span class="pill e">orden 1</span></td><td>un complejo módulo cuasi-isomorfismo</td><td>los de la localización</td><td class="mono">DerivedCategory C</td></tr>
+            <tr><td><strong>Graded Objects</strong><br><span class="pill e">orden 2</span></td><td>un objeto graduado</td><td>morfismos graduados</td><td class="mono">CategoryTheory.GradedObject</td></tr>
+            <tr><td><strong>Sheafed Spaces of Complexes</strong><br><span class="pill v">orden 3</span></td><td>un par (X, K): espacio con haz de complejos</td><td>un par (f, φ): f continua más φ : K<sub>Y</sub> → f<sub>*</sub>K<sub>X</sub></td><td class="mono">SheafedSpace (CochainComplex AddCommGrp ℤ)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout v">
+        <strong>El tercero es el que alcanza orden 3</strong>
+        <code>sheafed-space-complexes</code> es el ápice de <code>{geometría aritmética, álgebra homológica, topología conjuntista}</code>, y es donde vive la cohomología de haces <em>antes</em> de tomar cohomología. Sus tres patas son el haz constante, el olvido a espacio anillado y la fibra sobre el punto — esta última plenamente fiel, y la que explica por qué el patrón no es trivial: identifica el álgebra homológica pura con la cohomología de haces sobre el espacio terminal.
+        <br><br>Su orden lo hereda de <code>arithmetic-geometry</code>, que es de orden&nbsp;2 y aparece en <em>todas</em> sus descomposiciones. Ahí está la torre real: base → geometría aritmética → espacios con haz.
+      </div>
+
+      <div class="callout g">
+        <strong>Y dos patrones que no se pegan</strong>
+        No todo hueco sin cotas es un concepto que falta. <code>{combinatoria algebraica, teoría de grupos, teoría de módulos}</code> es <strong>espurio</strong>: la primera etiqueta no es una categoría —no nombra objetos, nadie dice «sea X una combinatoria algebraica»— y un co-cono exige un funtor desde <em>cada</em> componente. Lo que el sistema detectó ahí es co-ocurrencia bibliográfica: tema compartido, no vértice compartido. Sustituyendo la etiqueta por <code>group-actions</code>, que sí nombra objetos, el ápice aparece y ya tenía nombre —<code>representation-theory</code>, leída como categoría total sobre grupos variables— y solo faltaba una arista: la linealización <code>(G, X) ↦ (G, k[X])</code>.
+        <br><br>El otro caso, <code>{geometría algebraica, funtores, álgebra homológica, teoría de operadores}</code>, tampoco: se le pueden forzar patas —el álgebra dg de endomorfismos, el colage— pero ninguna es canónica, y <strong>una pata forzada no es una pata</strong>.
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section id="aprendizaje">
+      <div class="section-head"><span class="section-num">11</span><h2>Qué aprendió el sistema, <span class="ac-l">medido</span></h2></div>
+      <div class="prose">
+        <p>El orden en que la cascada prueba sus tácticas lo fija un modelo entrenado sobre datos reales: <code>state_before → tactic</code>, es decir, qué táctica cierra <em>este</em> estado de prueba. De LeanWorkbook salen 9.488 pares utilizables.</p>
+        <p>El método es deliberadamente simple: TF-IDF sobre n-gramas de caracteres del estado, más regresión logística multinomial. Caracteres y no palabras porque los estados de prueba son mitad símbolos —<code>⊢ ℝ ≤ ∑</code>— y partir por palabras pierde justamente lo más discriminativo. Y probabilidades calibradas, que es lo que hace falta para <em>ordenar</em>.</p>
+        </div>
+
+      <div class="callout l">
+        <strong>El agente GNN global está desactivado para enrutar</strong>
+        <code>CR_tac</code> pasa una sonda fija por la red neuronal y comprueba si devuelve la misma acción para todas las entradas. Si colapsa, la ignora y enruta con su heurística. Es una compuerta permanente, no un apaño: una red que no discrimina no aporta nada al enrutado, y saltarse la heurística —que sí distingue— sería peor que no usarla.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>métrica</th><th class="mono">valor</th><th>lectura</th></tr></thead>
+          <tbody>
+            <tr><td><strong>accuracy</strong></td><td class="mono">59,7&nbsp;%</td><td>—</td></tr>
+            <tr><td>línea base mayoritaria</td><td class="mono">31,8&nbsp;%</td><td>responder siempre <code>nlinarith</code></td></tr>
+            <tr><td><strong>mejora sobre la base</strong></td><td class="mono">+27,9&nbsp;pts</td><td>lo que el modelo aporta de verdad</td></tr>
+            <tr><td><strong>top-3 accuracy</strong></td><td class="mono">88,1&nbsp;%</td><td>la métrica que importa al <em>ordenar</em> una cascada</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose"><p>La línea base se reporta <strong>siempre</strong> junto a la accuracy, y el script se niega a guardar un modelo que no la supere: una cifra sin esa referencia no dice nada. Comportamiento resultante, sobre estados reales:</p></div>
+
+      <div class="log">
+        <div class="log-row">
+          <div><span class="k">estado de prueba</span><span class="problem">n % 2 = 0 ∨ n % 2 = 1</span></div>
+          <div><span class="k">1.ª táctica</span><code>omega</code></div>
+          <div><span class="k">por qué</span>aritmética entera lineal</div>
+        </div>
+        <div class="log-row">
+          <div><span class="k">estado de prueba</span><span class="problem">1/x · x = 1, x ≠ 0</span></div>
+          <div><span class="k">1.ª táctica</span><code>field_simp</code></div>
+          <div><span class="k">por qué</span>exactamente su caso de uso</div>
+        </div>
+        <div class="log-row">
+          <div><span class="k">estado de prueba</span><span class="problem">(a+b)² = a²+2ab+b²</span></div>
+          <div><span class="k">en el top-3</span><code>ring</code></div>
+          <div><span class="k">por qué</span>identidad de anillo conmutativo</div>
+        </div>
+      </div>
+
+      <div class="callout v">
+        <strong>Por qué reordenar es seguro</strong>
+        El rankeador devuelve siempre una <strong>permutación</strong> de la cascada. Es la hipótesis del axioma <code>gnnRankTactics_perm</code> y del teorema <code>cascade_gnn_iff_exists</code> en <code>CoRegulatorNetwork.lean</code>: reordenar no puede hacer demostrable lo que no lo es, así que el orden queda libre para optimizar sin tocar la soundness. La formalización cubre justo esta propiedad.
+      </div>
+
+      <div class="prose"><p>El banco de ejemplos <em>few-shot</em> que alimenta el prompt de formalización son 240 pruebas reales de LeanWorkbook en Lean&nbsp;4, repartidas por categoría y seleccionadas por afinidad de símbolos con la consulta.</p></div>
+    </section>
+
+    <!-- 11 -->
+    <section id="archivos">
+      <div class="section-head"><span class="section-num">12</span><h2>Estructura de archivos</h2></div>
+      <div class="prose"><p>Mapa de <code>nucleo/</code>. Las marcas <span class="h-v">✎</span> señalan lo que trajo la salida de la delgadez; <span class="h-g">así</span>, lo que sigue pendiente.</p></div>
+      <div class="tree">
+<span class="dir">nucleo/</span>
+├── <span class="file">core.py</span>              <span class="note"># Nucleo — orquestador único</span>
+├── <span class="dir">consultores/</span>
+│   └── <span class="file">orchestrator.py</span>    <span class="note"># modo opcional: N candidatos → Lean → reranker</span>
+├── <span class="dir">graph/</span>
+│   ├── <span class="file">category.py</span>       <span class="note"># SkillCategory — el grafo</span>
+│   ├── <span class="file">evolution.py</span>       <span class="note"># EvolutionarySystem</span>
+│   ├── <span class="file">complexity.py</span>      <span class="note"># c_n(X), orden irreducible, find_colimit_cong</span>
+│   ├── <span class="file">complexificacion.py</span> <span class="h-v">✎ el paso K → K′, con retirada selectiva</span>
+│   ├── <span class="file">no_delgado.py</span>      <span class="h-v">✎ Hom no booleano · congruencia · co-conos</span>
+│   ├── <span class="file">interpretacion.py</span>  <span class="h-v">✎ qué es cada nodo: las 172 etiquetas</span>
+│   └── <span class="file">functor.py</span>         <span class="note"># funtor cociente π: Skills → Agentes</span>
+├── <span class="dir">mes/</span>
+│   ├── <span class="file">co_regulators.py</span>   <span class="note"># los 4 co-reguladores</span>
+│   ├── <span class="file">memory.py</span>          <span class="note"># memoria procedimental/semántica</span>
+│   └── <span class="file">patterns.py</span>        <span class="note"># patrones y colimites</span>
+├── <span class="dir">lean/</span>
+│   ├── <span class="file">client.py</span>          <span class="note"># invoca lake / lean_api</span>
+│   ├── <span class="file">solver_cascade.py</span>  <span class="note"># 12 tácticas + TacticRanker</span>
+│   └── <span class="file">sorry_filler.py</span>    <span class="note"># rellena sorry restantes</span>
+├── <span class="dir">llm/</span>
+│   └── <span class="file">client.py</span>          <span class="h-v">✎ generate_stream() — sin consumidor</span>
+├── <span class="dir">multi_agent/</span>
+│   ├── <span class="file">orchestrator.py</span>    <span class="note"># enruta a 1 de 14 agentes</span>
+│   ├── <span class="file">specialized_agent.py</span> <span class="h-v">✎ carga de checkpoint corregida</span>
+│   └── <span class="file">mes_bridge.py</span>      <span class="h-v">✎ import roto corregido</span>
+├── <span class="dir">pillars/</span>
+│   ├── <span class="file">math_domains.py</span>    <span class="note"># 163 habilidades reales</span>
+│   └── <span class="file">set_theory.py</span>      <span class="h-v">describe_axiom() — ahora en uso</span>
+└── <span class="dir">rl/</span>
+    └── <span class="file">agent.py</span>           <span class="h-g">GNN colapsado — ver §10</span>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section id="estado">
+      <div class="section-head"><span class="section-num">13</span><h2>Estado de conexión, en una vista</h2></div>
+      <div class="prose"><p>Cada tarjeta refleja una comprobación ejecutada sobre el sistema, no una intención de diseño.</p></div>
+
+      <div class="status-grid">
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">CoRegulatorNetwork</div><div class="d">decide el 100 % de las consultas</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Cliente Lean + cascada</div><div class="d">12 solvers · verdad matemática de todo el sistema</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Agentes especializados</div><div class="d">14 categorías · memoria procedimental propia</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Colímites del grafo</div><div class="d">21 descubiertos · 31 descomposiciones · exigen co-cono, no alcanzabilidad</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">TacticRanker</div><div class="d">top-3 88,1 % sobre 9.488 pares reales</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Bucle de revisión</div><div class="d">el error de Lean vuelve al generador, máx. 2 rondas</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Paisaje táctico</div><div class="d">por relevancia a la consulta, en los cuatro niveles</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Fórmulas ZFC en el prompt</div><div class="d">el pilar formal ancla la formalización</div></div></div>
+        <div class="status-card warn"><span class="dot2"></span><div><div class="t">Agente GNN/PPO global</div><div class="d">no discrimina; CR_tac lo detecta y enruta con heurística</div></div></div>
+        <div class="status-card warn"><span class="dot2"></span><div><div class="t">18 huecos conceptuales</div><div class="d">subió de 13 al caer 4 colímites falsos: eran cotas, no co-conos</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Enlaces complejos</div><div class="d">1, por criterio de Ehresmann — antes 246, todos de una heurística de nivel</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Complexificación</div><div class="d">K→K′ en un paso · +8 objetos · 31 colímites preservados, 0 rotos · retirada selectiva</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Grafo no delgado</div><div class="d">5 de 387 pares con |Hom| &gt; 1 · la barrera de <code>lub_de_lubs</code> ya no aplica</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Orden de Ehresmann</div><div class="d">4 objetos irreducibles · máximo alcanzado: <strong>3</strong></div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Congruencia explícita</div><div class="d">2 relaciones derivadas del grafo + 1 declarada con su motivo</div></div></div>
+        <div class="status-card warn"><span class="dot2"></span><div><div class="t">Complexificación automática</div><div class="d">apagada por defecto: inserta vértices sin nombre, y eso lo decide el autor</div></div></div>
+        <div class="status-card warn"><span class="dot2"></span><div><div class="t">generate_stream()</div><div class="d">funciona y está probado; nada en el chat lo consume</div></div></div>
+        <div class="status-card ok"><span class="dot2"></span><div><div class="t">Táctica de área del ColimitAgent</div><div class="d"><code>domain_default_tactic()</code> encabeza la cascada; la aprendida la reemplaza</div></div></div>
+        <div class="status-card off"><span class="dot2"></span><div><div class="t">ColimitAgentSystem / PillarAgentSystem</div><div class="d">la jerarquía L0→L3 existe y se prueba, pero nadie la construye en runtime</div></div></div>
+        <div class="status-card off"><span class="dot2"></span><div><div class="t">Axiomas del pilar categórico</div><div class="d"><code>category_theory.py::verify_axioms()</code> es un stub que da True; Lógica y Tipos ni lo exponen</div></div></div>
+        <div class="status-card off"><span class="dot2"></span><div><div class="t">LeanWorkbookProofs</div><div class="d">29.750 pruebas Lean 4 disponibles y sin explotar</div></div></div>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section id="respaldo">
+      <div class="section-head"><span class="section-num">14</span><h2>Respaldo formal: qué <span class="ac-v">demuestra</span> Lean</h2></div>
+      <div class="prose">
+        <p><code>nucleo/graph/</code> y <code>nucleo/mes/</code> implementan teoría de categorías <strong>a mano</strong>. No hay ninguna librería detrás: solo <code>dataclasses</code>, diccionarios y recorridos en anchura. <code>networkx</code> está instalado, pero solo para dibujar; los módulos categóricos no lo importan una sola vez.</p>
+        <p>Eso tiene una consecuencia que conviene decir sin rodeos: <strong>cada propiedad categórica es una afirmación del autor hasta que Lean la respalda</strong>. Un colímite mal calculado no lanza una excepción — devuelve un nodo, y el sistema sigue.</p>
+      </div>
+
+      <div class="marcador">
+        <div><span class="cifra" style="color:var(--verifica)">57<span style="font-size:1rem;color:var(--muted)">/58</span></span><span class="rot">operaciones con teorema que las respalda</span></div>
+        <div><span class="cifra">0</span><span class="rot"><code>sorry</code> en todo el corpus</span></div>
+        <div><span class="cifra">385</span><span class="rot">teoremas en 21 archivos Lean</span></div>
+        <div><span class="cifra">1</span><span class="rot"><code>axiom</code> explícito · 3 <code>opaque</code></span></div>
+      </div>
+
+      <div class="prose">
+        <p>La auditoría es un programa, no una revisión a ojo: <code>scripts/auditar_respaldo_lean.py</code> mapea cada operación categórica de Python al teorema que la respalda y <strong>valida los dos lados</strong> — que el teorema exista en los <code>.lean</code>, y que la función exista en Python. Los <code>sorry</code> se cuentan preguntándole al compilador, nunca con <code>grep</code>: uno dentro de un comentario no es un <code>sorry</code>.</p>
+      </div>
+
+      <div class="callout v">
+        <strong>Lo que dice el kernel, no el mapeo</strong>
+        Contar <code>sorry</code> es la comprobación débil: un teorema puede estar «probado» y apoyarse en una suposición declarada más arriba. La fuerte es preguntarle al kernel de qué depende cada conclusión. Con <code>lake build</code> en verde —6.550 jobs, 0 errores— se pasó <code>collectAxioms</code> por las <strong>57 constantes</strong> que el mapeo declara como respaldo: ninguna depende de <code>sorryAx</code>, y todas se apoyan únicamente en los tres axiomas estándar de Mathlib (<code>propext</code>, <code>Quot.sound</code>, <code>Classical.choice</code>). La única excepción es <code>cascade_gnn_iff_exists</code>, que suma <code>gnnRankTactics_perm</code> — el axioma declarado. Es decir: el corpus tiene exactamente la superficie de suposición que dice tener, y está medida por el compilador.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Módulo</th><th>Operaciones</th><th>Respaldadas por</th></tr></thead>
+          <tbody>
+            <tr><td><code>category.py</code></td><td>9</td><td><code>preorder_is_thin</code>, <code>thin_unique_hom</code>, <code>path_category_axioms</code>…</td></tr>
+            <tr><td><code>complexity.py</code></td><td>10</td><td><code>isColimitInFiniteCategory</code>, <code>join_propio_rompe_aciclicidad</code>…</td></tr>
+            <tr><td><code>patterns.py</code></td><td>11</td><td><code>join_mediating_morphism_unique</code>, <code>Conectados</code>, <code>Descomposicion</code>…</td></tr>
+            <tr><td><code>evolution.py</code></td><td>6</td><td><code>comp_assoc</code>, <code>compatible_iff</code>, <code>soloCrece_cadena</code>…</td></tr>
+            <tr><td><code>functor.py</code></td><td>5</td><td><code>proyeccion_es_funtor</code>, <code>functor_preserves_cocone</code>…</td></tr>
+            <tr><td><code>complexificacion.py</code></td><td>5</td><td><code>eta_es_colimite</code>, <code>SC_homologos_mismo_colimite</code>, <code>factorizacion_unica</code>…</td></tr>
+            <tr><td><code>no_delgado.py</code></td><td>6</td><td><code>cocono_monotono_en_la_congruencia</code>, <code>cota_superior_no_implica_cocono</code>, <code>no_hay_iso</code>…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout v">
+        <strong>Lean antes de codificar</strong>
+        El orden de trabajo es: formalizar la definición, demostrar las propiedades, comprobar que el sistema real cumple las hipótesis del teorema —un teorema con hipótesis que el grafo no satisface no respalda nada— y solo entonces implementar. La verificación es siempre con <code>lake build</code>: <code>lake env lean</code> ha aceptado versiones que el build después rechazó.
+      </div>
+
+      <div class="prose">
+        <p>La única operación sin respaldo es <code>campos_operativos_isomorfos</code>, y es deliberado: compara la <em>forma</em> del campo operativo, no es una noción categórica, y ahora lo dice su nombre. <code>tests/test_respaldo_lean.py</code> falla si esa lista cambia sin que alguien lo declare, si el respaldo retrocede, o si el mapeo nombra algo inexistente.</p>
+      </div>
+    </section>
+
+    <section id="hallazgos">
+      <div class="section-head"><span class="section-num">15</span><h2>Lo que encontró <span class="ac-g">formalizar</span></h2></div>
+      <div class="prose">
+        <p>Dieciocho defectos, ninguno detectable leyendo el código: todos estaban en código que funcionaba y pasaba sus tests. Varios estaban en lo que había construido el propio proceso de formalización, y se listan igual — el valor del método no es que evite equivocarse, sino que cada error aparezca con nombre y medida.</p>
+        <p>Los cuatro de la segunda pasada tienen un patrón común: <strong>el archivo Lean se corrigió y el Python no</strong>. Los cinco últimos, de la tercera, tienen otro: <strong>aparecieron al medir, no al leer</strong>. Ninguno se buscaba; todos salieron de comparar dos veces la misma cifra y ver que no cuadraba.</p>
+      </div>
+
+      <div class="hallazgos">
+
+        <article class="hallazgo">
+          <header><h4>Los dos <code>sorry</code> eran enunciados falsos</h4><span class="veredicto falso">refutado</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Se creía</span><p><code>hierarchy_well_founded</code> y <code>cn_join_gt_component</code> estaban sin demostrar con la nota <em>«provable by structural induction; non-trivial termination argument»</em>. Difíciles, se suponía.</p></div>
+            <div class="paso refuta"><span class="et">Lean</span><p>Con un ciclo <code>0 = join[1]</code>, <code>1 = join[0]</code> —que la firma admitía— la iteración crece sin parar: <code>(0,0) (1,1) (2,2) (3,3)…</code>. El primero afirmaba <code>2 = 3</code>; el segundo, <code>2 &lt; 2</code>.</p></div>
+            <div class="paso prueba"><span class="et">Resultado</span><p>Les faltaba la hipótesis de aciclicidad que <em>sus propios docstrings mencionaban</em>. Añadida como <code>Aciclico</code>, ambos quedan demostrados — y se comprobó que el grafo real la cumple.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>La definición de enlace simple no era la de Ehresmann</h4><span class="veredicto mio">error propio</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Se formalizó</span><p><code>simple(a,b) := ∃c ∈ Clusters, a ≤ c ≤ b</code> — <em>factoriza por</em> un objeto-clúster.</p></div>
+            <div class="paso refuta"><span class="et">Ehresmann</span><p><code>f : cP → cQ</code> es simple si está <strong>inducido por un clúster</strong> entre descomposiciones: <code>f = colim G</code>. Es una condición sobre la existencia de un clúster, no sobre objetos intermedios.</p></div>
+            <div class="paso prueba"><span class="et">Consecuencia</span><p>El teorema derivado era correcto, pero la conclusión que se sacó —«la emergencia no puede existir en este modelo; habría que abandonar la delgadez»— <strong>no se seguía</strong>. Se corrigió en el archivo, en el reporte y en la recomendación.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>El Principio de Multiplicidad sí es alcanzable en un preorden</h4><span class="veredicto ok">demostrado</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Se temía</span><p>Que modelar el grafo como preorden impidiera la multiplicidad, lo que habría obligado a cambiar el modelo entero y a invalidar <code>JoinColimit.lean</code>.</p></div>
+            <div class="paso prueba"><span class="et">Lean</span><p><code>MP_alcanzable_en_preorden</code>: cinco objetos, <code>a,b,c,d</code> incomparables dos a dos bajo <code>j</code>. Los patrones <code>{a,b}</code> y <code>{c,d}</code> tienen ambos join <code>j</code>, son distintos, y no están conectados por ningún clúster.</p></div>
+            <div class="paso"><span class="et">Entonces</span><p>La causa era el <strong>algoritmo</strong>: <code>_detect_convergence_patterns</code> emitía un patrón por nodo —su docstring lo decía, <em>«one potential join»</em>— de modo que ningún objeto tenía nunca dos descomposiciones.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>La comprobación de clúster era <code>∃∃</code> en vez de <code>∀∃</code></h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p><code>_connected_by_cluster</code> devolvía <code>True</code> si <em>algún</em> par de componentes tenía un morfismo, en cualquier dirección.</p></div>
+            <div class="paso prueba"><span class="et">Debe</span><p>Un clúster de <code>P</code> a <code>Q</code> exige que <strong>toda</strong> componente de <code>P</code> tenga enlace a <strong>alguna</strong> de <code>Q</code>. Contraparte formal: <code>EnPreorden.Conectados</code>.</p></div>
+            <div class="paso"><span class="et">Efecto</span><p>Con la versión débil se declaraba conectado casi todo: los 15 pares no conectados salían como 0, y el Principio de Multiplicidad no podía cumplirse ni con descomposiciones múltiples.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>El cómputo de <code>cn</code> dejó de converger al habilitar la multiplicidad</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Síntoma</span><p>Un aviso en el log: <em>safety limit reached, stopping</em>. El bucle hacía <code>cn[join] = max_comp + 1</code> — asignación — y con dos descomposiciones de alturas distintas oscilaba entre ambas indefinidamente.</p></div>
+            <div class="paso refuta"><span class="et">Causa</span><p>El teorema de Lean estaba enunciado para <code>isJoinOf : Fin n → Option (List (Fin n))</code>, una <strong>función</strong>: una descomposición por objeto. Habilitar la multiplicidad violaba su hipótesis.</p></div>
+            <div class="paso prueba"><span class="et">Orden</span><p>Lean primero: <code>multiIter</code>, <code>estabilizaMulti</code>, <code>hierarchy_well_founded_multi</code> y <code>cn_ge_of_mem_decomp</code> generalizan la iteración tomando el <strong>máximo</strong> sobre todas las descomposiciones. Solo entonces el arreglo en Python.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>La auditoría validaba un solo lado</h4><span class="veredicto mio">error propio</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p>Comprobaba que el teorema de Lean existiera. Nunca que la función de Python existiera.</p></div>
+            <div class="paso refuta"><span class="et">Resultado</span><p>Tres entradas nombraban <code>complexify</code>, <code>transition_functor</code> y <code>detect_emergence</code>. <strong>Ninguna existe.</strong> Figuraban como «sin respaldo» mientras las funciones reales —<code>apply_option</code>, <code>TransitionFunctor</code>, <code>measure_emergence</code>— no se auditaban en absoluto.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p>La auditoría extrae por AST lo que hay de verdad en cada módulo y reporta <code>op. fantasma</code>. Antes: 3. Ahora: 0.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>Una entrada duplicada infló una cifra</h4><span class="veredicto mio">error propio</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Ocurrió</span><p>Una edición se aplicó dos veces y una operación quedó duplicada en el mapeo. El respaldo se reportó como 31 cuando era 30.</p></div>
+            <div class="paso"><span class="et">Además</span><p>Ese commit se hizo <strong>con el test en rojo</strong>: la cadena era <code>pytest … | tail -2 &amp;&amp; git commit</code>, y <code>tail</code> devuelve 0 aunque pytest falle.</p></div>
+            <div class="paso prueba"><span class="et">Corregido</span><p>Cifra rectificada en el mapeo, el guardián, el JSON y el reporte. Y desde entonces se comprueba el código de salida de pytest, no la última línea de su salida.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>Dos nociones de <code>≤</code> discrepando en la diagonal</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p><code>find_cocones</code> intersecaba <code>reachable_from</code>, que <strong>no es reflexiva</strong> —devuelve rutas de longitud ≥&nbsp;1—, y encima descartaba las componentes con un <code>discard</code> sin comentario. <code>is_join</code> y <code>_connected_by_cluster</code>, en el mismo repo, usan <code>is_preorder_leq</code>, que sí lo es.</p></div>
+            <div class="paso refuta"><span class="et">La prueba</span><p>Mismo patrón, dos respuestas opuestas: <code>is_join('análisis funcional', {análisis funcional, análisis real})</code> daba <code>is_join=True, minimal=True</code> mientras <code>find_colimit</code> del mismo patrón daba <code>None</code>, y se archivaba como hueco.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p><code>componente_puede_ser_colimite</code> exhibe el testigo mínimo —arista <code>0&nbsp;→&nbsp;1</code>, colímite de <code>[0,&nbsp;1]</code> es <code>1</code>— y <code>find_cocones</code> usa el up-set reflexivo. Huecos: 27&nbsp;→&nbsp;13.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>El test afirmaba el error</h4><span class="veredicto mio">error propio</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Decía</span><p><code>test_ignores_components_themselves</code>: <code>assert join_id is None</code>, con el comentario «B is above A, but B is a component — excluded».</p></div>
+            <div class="paso refuta"><span class="et">Pero</span><p>Es literalmente el grafo del testigo formal. El test no comprobaba la definición: comprobaba la desviación, y la protegía de cualquiera que intentara arreglarla.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p>Invertido y anclado al teorema que lo refuta. Un colímite trivial —el que es una de sus componentes— no es hueco, pero tampoco entra en la recursión de <code>cn</code>: rompería <code>AciclicoMulti</code>, y <code>autoJoin_sin_punto_fijo</code> exhibe la divergencia.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>La emergencia la decidía la taxonomía, no la categoría</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p><code>classify_link</code> conservaba la lectura por <em>factorización</em> —«existe un colímite C con A&nbsp;→&nbsp;C&nbsp;→&nbsp;B»— que ya se había refutado al formalizar, y remataba con <code>|level(A) − level(B)| > 1 → COMPLEX</code>.</p></div>
+            <div class="paso refuta"><span class="et">Medido</span><p>De los <strong>246</strong> enlaces «complejos» del grafo real, los 246 salían de esa regla de niveles. Ninguno de un criterio de Ehresmann. Y <code>level</code> es profundidad curada a mano.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p>Implementa <code>EsSimple</code>: simple sii hay clúster entre descomposiciones de los extremos. Quedan <strong>2</strong> enlaces complejos, ambos <code>operator-theory → homological-algebra-cat</code>, ambos legítimos. Y un cuarto valor, <code>NO_APLICA</code>: sin descomposiciones no hay clúster que buscar, y responder «simple» era inventar.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>Un teorema citado tres veces que no existe</h4><span class="veredicto mio">error propio</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Ocurrió</span><p><code>cn_strict_increase</code> aparecía como respaldo en la cabecera de <code>ComplexityOrder.lean</code>, en un comentario de <code>patterns.py</code> y en un docstring de <code>types.py</code>.</p></div>
+            <div class="paso refuta"><span class="et">No existe</span><p>Nunca se declaró. El teorema real es <code>cn_join_gt_component</code>. Es la misma clase de defecto que la auditoría cerró en el lado de Python —«op. fantasma: antes 3, ahora 0»—, pero este vivía en prosa, fuera del mapeo.</p></div>
+            <div class="paso prueba"><span class="et">Lección</span><p>La auditoría valida los dos lados de lo que tiene en el MAPEO. Un nombre citado en un comentario no lo tiene nadie vigilando.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>El constructor nuevo trajo de vuelta la no-terminación</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Síntoma</span><p>El primer test que se escribió para el paso de complexificación —«complexificar es un paso, no un bucle»— falló: dos llamadas seguidas con el mismo hueco creaban <em>dos</em> objetos.</p></div>
+            <div class="paso refuta"><span class="et">Causa</span><p>El id del objeto se deriva de sus cotas superiores, para que los homólogos compartan objeto. Pero tras insertar <code>η(P)</code>, <code>η(P)</code> pasa a ser cota superior de P: el conjunto cambia, el id cambia, y la segunda llamada fabrica otro. Es el mecanismo de no-terminación que el docstring de <code>build_join_for_pattern</code> advertía, entrando por otra puerta.</p></div>
+            <div class="paso prueba"><span class="et">Arreglo</span><p>El criterio correcto: un hueco que ya tiene colímite no es un hueco. Punto fijo en dos pasos, medido sobre el grafo real. El test lo encontró antes que nadie porque estaba escrito para eso.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>164 aristas duplicadas inflaban todas las cuentas</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p><code>add_morphism</code> creaba un <code>uuid</code> nuevo en cada llamada, sin comprobar si esa arista ya estaba. <code>load_math_domains</code> añade la misma dependencia desde varias fuentes, así que <code>tactic-apply → strategy-backward</code> figuraba tres veces, con tres morfismos distintos y el mismo tipo.</p></div>
+            <div class="paso refuta"><span class="et">Efecto</span><p>De 161 pares con «multiplicidad», <strong>159 eran ruido</strong>. Inflaban <code>num_morphisms</code> (718 frente a 554), <code>total_weight</code>, los grados de cada nodo, y toda métrica que cuente morfismos — incluida <code>get_complex_links</code>, que reportaba 2 enlaces complejos donde hay 1.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p>La guarda deduplica por <code>(origen, destino, tipo)</code> y deja intacta la multiplicidad genuina: dos morfismos de tipo distinto siguen siendo dos. Es precisamente lo que no hay que tirar — es la única vía para salir de la delgadez. Colímites, huecos y <code>cn</code> no se mueven: el preorden nunca dependió de las copias.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>La mitad de los patrones salían discretos por un fallo de recolección</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p>La rama de descomposiciones alternativas recogía los morfismos <code>componente → ápice</code> como enlaces del patrón. Son las <strong>patas del co-cono</strong>, no los enlaces: un patrón es un funtor <code>P : I → K</code> y sus enlaces van <em>entre componentes</em>. <code>create_pattern</code> los descartaba en silencio porque su destino no es componente.</p></div>
+            <div class="paso refuta"><span class="et">Efecto</span><p>Esos subpatrones salían <strong>discretos por defecto de recolección, no por su forma</strong>. Y un diagrama discreto tiene por colímite un coproducto, que se aplana siempre — delgado o no. La condición de conmutación no tenía sobre qué morder.</p></div>
+            <div class="paso prueba"><span class="et">Medido</span><p>Es el mismo defecto que ya se había corregido en la rama principal y que sobrevivió en esta. Patrones con estructura: 2&nbsp;→&nbsp;7. Patrones con aristas entre componentes pero sin enlaces registrados: 10&nbsp;→&nbsp;0.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>Cuatro colímites eran cotas superiores, no co-conos</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p><code>find_colimit</code> preguntaba «¿es el ápice alcanzable desde toda componente?». Es una pregunta sobre <strong>vértices</strong>, y solo basta si la categoría es delgada: con <code>Hom</code> booleano la conmutación se cumple sola.</p></div>
+            <div class="paso refuta"><span class="et">Al exigir co-cono</span><p>Cuatro de los 31 registrados no sobrevivieron. Los cuatro apuntaban a <code>homological-algebra-cat</code> y los cuatro contenían <code>functors</code>, la componente de la que salían los enlaces: eran minimales entre las cotas y ninguna elección de flechas conmutaba.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p><code>find_colimit_cong</code>. Los 27 que sobreviven lo hacen incluso con la congruencia <em>libre</em>, que por <code>cocono_monotono_en_la_congruencia</code> es la cota inferior honesta.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>La altura se estaba leyendo como emergencia</h4><span class="veredicto mio">error propio</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Se creía</span><p>Que <code>cn ≥ 2</code> identificaba los objetos emergentes. <code>cn</code> toma el <strong>máximo</strong> sobre las descomposiciones, y hace bien: es la altura bien fundada, respaldada por <code>cn_ge_of_mem_decomp</code>.</p></div>
+            <div class="paso refuta"><span class="et">Pero</span><p>Altura no es irreducibilidad. Si un objeto admite <em>alguna</em> descomposición con todas las componentes en orden 0, es un colímite simple y su orden de Ehresmann es 1. <code>homological-algebra-cat</code> tenía <code>cn = 2</code> y orden real&nbsp;1.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p><code>orden_irreducible()</code> al lado de <code>cn</code>, sin sustituirlo: responden preguntas distintas y las dos son correctas. Emergentes de verdad: 4, no 6.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>El rollback todo-o-nada volvía inerte la complexificación</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p>Si algún objeto insertado rompía la minimalidad de un colímite previo, se revertía el paso <strong>entero</strong>. El objetivo (iii) de la opción se cumplía, pero al precio de no hacer nada nunca.</p></div>
+            <div class="paso refuta"><span class="et">Medido</span><p>Ocho objetos cerraban ocho huecos y los ocho se tiraban <strong>por culpa de uno</strong>. La complexificación llevaba desde su construcción sin producir un solo objeto.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p><code>is_join</code> ya decía <em>quién</em> robaba la minimalidad — <code>failed_minimality</code>—, así que se retira al culpable y no al paso. 8 objetos, 7 huecos cerrados, 31 colímites preservados, 0 rotos.</p></div>
+          </div>
+        </article>
+
+        <article class="hallazgo">
+          <header><h4>El dedup comparaba el parámetro, no el metadato</h4><span class="veredicto falso">defecto</span></header>
+          <div class="cuerpo">
+            <div class="paso"><span class="et">Hacía</span><p>La guarda anti-duplicados de <code>add_morphism</code> comparaba contra el <em>parámetro</em> <code>construccion</code>. Pero la construcción puede llegar dentro de <code>metadata</code>, que es como la pasan todas las aristas de <code>INTER_PILLAR_TRANSLATIONS</code>.</p></div>
+            <div class="paso refuta"><span class="et">Efecto</span><p>En esas, lo guardado tenía construcción y el parámetro era <code>None</code>: nunca coincidían, así que <strong>ninguna deduplicaba</strong>. Cada arista con construcción salía doble, y dos aristas paralelas son dos morfismos distintos para la congruencia — multiplicidad inventada.</p></div>
+            <div class="paso prueba"><span class="et">Ahora</span><p>Compara contra el metadato fusionado. Es la misma clase de defecto que las 164 aristas duplicadas de la segunda pasada, entrando por otra puerta.</p></div>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="callout v">
+        <strong>El resultado: el Principio de Multiplicidad se cumple</strong>
+        Tras corregir la homología a la definición de Ehresmann —mismo colímite— y hacer que el descubrimiento emita también las descomposiciones por subconjunto, el sistema pasó de <code>MP: False</code> a <code>MP: True</code>. Hoy son <strong>cinco</strong> los objetos con varias descomposiciones: <code>sheafed-space-complexes</code> (4), <code>arithmetic-geometry</code>, <code>homological-algebra-cat</code> y <code>derived-category</code> (3 cada uno) y <code>representation-theory</code> (2), 31 en total. Por <code>multiplicidad_necesaria_para_complejidad</code>, la condición necesaria para que el sistema produzca enlaces complejos se cumple.
+        <br><br>La multiplicidad disponible bajó de 3 parejas libres a 2, y la bajada tiene causa: al poner la inclusión de los acíclicos, <code>exact-sequences ≤ homological-algebra</code> pasa a ser cierto y eso <em>conecta</em> las que antes eran libres. No es multiplicidad perdida por error — es una arista verdadera haciendo su trabajo. Y no desaparece, <strong>se muda</strong>: las dos que quedan están en <code>sheafed-space-complexes</code>, el vértice de orden 3.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Medida</th><th>Antes</th><th>Ahora</th></tr></thead>
+          <tbody>
+            <tr><td>Patrones descubiertos</td><td>90</td><td>116</td></tr>
+            <tr><td>Colímites distintos</td><td>18</td><td>19</td></tr>
+            <tr><td>Descomposiciones registradas</td><td>18</td><td>31</td></tr>
+            <tr><td>Objetos con varias descomposiciones</td><td>0</td><td>3</td></tr>
+            <tr><td>Pares homólogos (Ehresmann)</td><td>0</td><td>37</td></tr>
+            <tr><td>Parejas no conectadas por clúster</td><td>0</td><td>15</td></tr>
+            <tr><td>Principio de Multiplicidad</td><td><span class="pill">no</span></td><td><span class="pill v">sí</span></td></tr>
+            <tr><td>Vértices fabricados</td><td>0</td><td>0</td></tr>
+            <tr><td>Respaldo formal</td><td>23/31</td><td>38/39</td></tr>
+            <tr><td><code>sorry</code> en el corpus</td><td>2</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose"><p>Y lo que movió la segunda pasada, la de contrastar el sistema contra la teoría en vez de contra sí mismo:</p></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Medida</th><th>Antes</th><th>Ahora</th></tr></thead>
+          <tbody>
+            <tr><td>Huecos conceptuales</td><td>27</td><td>13</td></tr>
+            <tr><td>Enlaces complejos</td><td>246</td><td>1</td></tr>
+            <tr><td>… de ellos, por criterio categórico</td><td>0</td><td>1</td></tr>
+            <tr><td>Objetos con orden 2 de Ehresmann</td><td><span class="pill">3 (creído)</span></td><td><span class="pill">0 (medido)</span></td></tr>
+            <tr><td>Respaldo formal</td><td>38/39</td><td>46/47</td></tr>
+            <tr><td>Teoremas en el corpus</td><td>314</td><td>337</td></tr>
+            <tr><td>Constantes sin <code>sorryAx</code>, según el kernel</td><td>40/40</td><td>57/57</td></tr>
+            <tr><td>Complexificación demostrada</td><td><span class="pill">no</span></td><td><span class="pill v">sí</span></td></tr>
+            <tr><td>Complexificación ejecutable</td><td><span class="pill">no</span></td><td><span class="pill v">sí</span></td></tr>
+            <tr><td>Objetos emergentes construidos</td><td>0</td><td>5</td></tr>
+            <tr><td>Morfismos (tras quitar duplicados)</td><td>718</td><td>554</td></tr>
+            <tr><td>Pares con multiplicidad genuina</td><td>2</td><td>2</td></tr>
+            <tr><td>Tests</td><td>536</td><td>559</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose"><p>Y lo que movió la tercera, la de cruzar la barrera que la segunda había demostrado:</p></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Medida</th><th>Antes</th><th>Ahora</th></tr></thead>
+          <tbody>
+            <tr><td>Categoría delgada</td><td><span class="pill">sí</span></td><td><span class="pill v">no — 5/387 pares</span></td></tr>
+            <tr><td>Test del colímite</td><td>alcanzabilidad</td><td>co-cono con conmutación</td></tr>
+            <tr><td>Patrones con estructura (no discretos)</td><td>2</td><td>7</td></tr>
+            <tr><td>Colímites registrados</td><td>31</td><td>31</td></tr>
+            <tr><td>… de ellos, falsos al exigir co-cono</td><td>4</td><td>0</td></tr>
+            <tr><td>Huecos conceptuales</td><td>13</td><td>18</td></tr>
+            <tr><td>Objetos con orden irreducible ≥ 2</td><td><span class="pill">0</span></td><td><span class="pill v">4</span></td></tr>
+            <tr><td>Orden máximo alcanzado</td><td>1</td><td><strong>3</strong></td></tr>
+            <tr><td>Vértices que el grafo pedía y no tenía</td><td>—</td><td>3, nombrados</td></tr>
+            <tr><td>Etiquetas auditadas (C/S/F/O/T)</td><td>0</td><td>172</td></tr>
+            <tr><td>… de ellas, aristas disfrazadas de vértice</td><td>—</td><td>28</td></tr>
+            <tr><td>Complexificación: objetos insertados</td><td>0 (revertía)</td><td>8</td></tr>
+            <tr><td>Relaciones de congruencia declaradas</td><td>0</td><td>2 derivadas + 1 a mano</td></tr>
+            <tr><td>Respaldo formal</td><td>46/47</td><td>57/58</td></tr>
+            <tr><td>Teoremas en el corpus</td><td>337</td><td>385</td></tr>
+            <tr><td>Tests</td><td>559</td><td>678</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="prose">
+        <p>El recorrido corrigió tres veces su propio diagnóstico. Primero pareció que había que abandonar la delgadez del modelo; era falso <em>entonces</em>, porque el argumento que lo pedía se apoyaba en una definición equivocada de enlace simple. Luego, que el sistema no podía tener emergencia; también falso. La tercera vez la conclusión sí se sostuvo —<code>lub_de_lubs</code> va con demostración— y hubo que pagarla: salir de la delgadez costó auditar las 172 etiquetas una por una.</p>
+        <p>Conviene no perder la lección de método, porque se repitió cinco veces en esta pasada: <strong>ninguno de los cinco defectos se encontró leyendo código</strong>. Los cinco salieron de medir dos veces la misma cifra por caminos distintos y ver que no cuadraba — cuántos patrones tienen enlaces, cuántos colímites sobreviven al test estricto, cuántos objetos son irreducibles, cuántos objetos inserta un paso que dice haber insertado ocho, cuántas aristas hay entre dos nodos.</p>
+      </div>
+    </section>
+
+    <section id="limites">
+      <div class="section-head"><span class="section-num">16</span><h2>Límites conocidos</h2></div>
+      <div class="prose">
+        <p>El grafo <strong>ya no es delgado</strong>, pero sigue siendo pequeño: "colímite" en este sistema significa <em>colímite en la subcategoría finita conocida</em> — nunca en la categoría libre infinita. Esa es la afirmación exacta que certifican los archivos Lean en <code>MetamathProver/CategoryFoundations/</code>, hoy con <strong>0 <code>sorry</code> en todo el corpus</strong> —21 archivos, 385 teoremas, un único <code>axiom</code> explícito y 3 <code>opaque</code>—.</p>
+        <p>Y la multiplicidad que hace no-delgado al grafo es <strong>estrecha</strong>: 5 pares de 387. Cada uno costó decir <em>cuáles</em> son los dos modos distintos de ir de una habilidad a otra, y esa afirmación es contenido matemático, no un refactor. Donde no se ha dicho, el par sigue siendo delgado y sobre él <code>lub_de_lubs</code> sigue valiendo.</p>
+        <p>Ese axiom único es <code>gnnRankTactics_perm</code>: afirma que el reordenamiento de tácticas es una permutación. <code>collectAxioms</code> confirma que <strong>un solo teorema</strong> del corpus descansa sobre él —<code>cascade_gnn_iff_exists</code>— y que ninguno depende de <code>sorryAx</code>. Ese teorema es correcto, pero lo interesante —que el código Python <em>realmente</em> permuta— es una suposición, no una prueba. Se comprueba por test en cada ejecución de la suite, incluidos los casos degenerados.</p>
+        <p>Y una advertencia sobre el alcance de <code>hierarchy_well_founded</code>: prueba que la iteración de <code>cn</code> termina sobre una estructura <em>dada</em>. No dice nada sobre el bucle que <em>construye</em> esa estructura. Son dos afirmaciones distintas y solo la primera está probada; la terminación del constructor es ahora estructural —no se añaden nodos— pero eso es un argumento de ingeniería, no un teorema.</p>
+        <p>El límite que dominaba las dos revisiones anteriores ya no está: el sistema complexifica, salió de la delgadez y alcanza orden irreducible&nbsp;3. Pero conviene decir con precisión qué se ganó y qué no. <strong>La complexificación no produce emergencia</strong>: <code>η(P)</code> se inserta justo encima de las componentes de P, luego su orden es <code>1 + max(orden de las componentes)</code>, y con componentes de orden 0 sale orden&nbsp;1 siempre. Los cuatro objetos irreducibles del sistema no los construyó el paso: dos ya estaban en el grafo curado y dos los aportó la matemática cuando se le preguntó por el nombre del vértice que faltaba. La construcción cierra huecos; los conceptos siguen viniendo de fuera.</p>
+        <p>Y quedan huecos que <em>sí</em> darían orden ≥&nbsp;2 —sus componentes ya son colímites— pero que no tienen <strong>ninguna cota superior</strong>, así que no se pueden cerrar insertando un mínimo entre ellas: <code>η(P)</code> sería el objeto máximo y colgaría de todo el grafo. Esos necesitan un concepto nombrado. Aparte de ellos hay cuatro huecos de 17, 27, 35 y 76 componentes que no son conceptos que falten sino ruido del detector, que emite un patrón por cada nodo con muchos predecesores y nada domina a setenta y seis.</p>
+        <p>De la propiedad universal del Teorema&nbsp;1(iii) está la mitad de unicidad (<code>factorizacion_unica</code>): dos extensiones que coincidan sobre K y preserven los colímites coinciden en todo K′. La mitad de existencia sigue pendiente y se declara como tal en el archivo. Y los <strong>límites</strong> (<code>lP</code>, la mitad dual de la teoría) siguen sin existir: <code>Option.classifications</code> se declara en <code>types.py</code> y no lo lee ningún módulo.</p>
+        <p>Y el límite de fondo, el que ninguna cifra de esta página elimina: <strong>Lean verifica los teoremas, no el Python</strong>. El mapeo <code>operación → teorema</code> es una afirmación bibliográfica —«esta función implementa esta idea»— comprobada en sus dos extremos (que el teorema exista, que la función exista), pero nadie ha demostrado que <code>find_colimit</code> compute lo que <code>isColimitInFiniteCategory</code> caracteriza. Lo que sí se comprueba por test es que el grafo real cumpla las <em>hipótesis</em> de los teoremas —la aciclicidad de <code>Aciclico</code>, por ejemplo—, que es el eslabón sin el cual el respaldo no significaría nada.</p>
+        <p>La verificación de axiomas categóricos del pilar formal de teoría de categorías (<code>category_theory.py::verify_axioms</code>) es un <em>stub</em>: siempre devuelve <code>True</code> sin comprobar asociatividad ni identidad. Y la "atención multi-cabeza" que describe el docstring de <code>rl/__init__.py</code> es, en el código real, una concatenación simple seguida de un MLP.</p>
+      </div>
+    </section>
+
+    <footer class="page-foot">
+      Documento generado a partir de lectura directa del código fuente en E:\Metamatematico\.
+      Cada cifra procede de una medición ejecutada sobre el sistema, no de una estimación:
+      el recuento de habilidades y colímites, del grafo en memoria tras arrancar; las métricas
+      del rankeador, de su conjunto de prueba; el estado de los módulos, de comprobar quién
+      llama a quién. 678 tests en verde.
+    </footer>
+  </main>
+</div>

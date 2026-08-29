@@ -1,7 +1,7 @@
 {
   "grafo": {
-    "objetos": 172,
-    "morfismos": 556
+    "objetos": 173,
+    "morfismos": 563
   },
   "codominio": {
     "objetos": [
@@ -22,7 +22,7 @@
       "topology"
     ],
     "n_objetos": 15,
-    "n_morfismos": 32,
+    "n_morfismos": 34,
     "morfismos": [
       {
         "de": "fundacional",
@@ -35,7 +35,7 @@
       {
         "de": "lean-tactics",
         "a": "proof-strategies",
-        "multiplicidad": 13,
+        "multiplicidad": 11,
         "tipos": [
           "DEPENDENCY"
         ]
@@ -76,14 +76,6 @@
         "de": "fundacional",
         "a": "computation",
         "multiplicidad": 4,
-        "tipos": [
-          "DEPENDENCY"
-        ]
-      },
-      {
-        "de": "algebra",
-        "a": "topology",
-        "multiplicidad": 3,
         "tipos": [
           "DEPENDENCY"
         ]
@@ -185,6 +177,14 @@
         ]
       },
       {
+        "de": "algebra",
+        "a": "topology",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
         "de": "analysis",
         "a": "number-theory",
         "multiplicidad": 1,
@@ -227,6 +227,14 @@
       {
         "de": "geometry",
         "a": "category-theory",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
+      },
+      {
+        "de": "number-theory",
+        "a": "topology",
         "multiplicidad": 1,
         "tipos": [
           "DEPENDENCY"
@@ -279,43 +287,83 @@
         "tipos": [
           "DEPENDENCY"
         ]
+      },
+      {
+        "de": "topology",
+        "a": "algebra",
+        "multiplicidad": 1,
+        "tipos": [
+          "DEPENDENCY"
+        ]
       }
     ],
     "objeto_base": "fundacional"
   },
-  "colapsados_a_identidad": 130,
+  "colapsados_a_identidad": 136,
   "functorialidad": {
-    "objetos_del_dominio": 172,
+    "objetos_del_dominio": 173,
     "objetos_sin_imagen": 0,
-    "morfismos_considerados": 226,
-    "morfismos_con_imagen": 226,
+    "morfismos_considerados": 230,
+    "morfismos_con_imagen": 230,
     "F1_identidades_ok": true,
-    "composiciones_comprobadas": 250,
+    "composiciones_comprobadas": 260,
     "F2_fallos": 0,
     "F2_composicion_ok": true,
     "es_funtor": true
   },
   "preservacion": {
-    "colimites": 18,
-    "cocono_preservado": 18,
-    "colimite_preservado": 12,
-    "colapsados_a_un_punto": 1
+    "colimites": 31,
+    "cocono_preservado": 31,
+    "colimite_preservado": 24,
+    "colapsados_a_un_punto": 4
   },
   "preservacion_detalle": [
     {
       "componentes": [
-        "point-set-topology",
-        "ordinals"
+        "ordinals",
+        "point-set-topology"
       ],
       "join": "descriptive-set-theory",
       "pi_componentes": [
-        "topology",
-        "fundacional"
+        "fundacional",
+        "topology"
       ],
       "pi_join": "set-theory",
       "cocono": true,
       "limite": false,
       "colapsado": false
+    },
+    {
+      "componentes": [
+        "group-actions",
+        "module-theory"
+      ],
+      "join": "representation-theory",
+      "pi_componentes": [
+        "algebra",
+        "algebra"
+      ],
+      "pi_join": "algebra",
+      "cocono": true,
+      "limite": true,
+      "colapsado": true
+    },
+    {
+      "componentes": [
+        "group-actions",
+        "group-theory",
+        "module-theory"
+      ],
+      "join": "representation-theory",
+      "pi_componentes": [
+        "algebra",
+        "algebra",
+        "algebra"
+      ],
+      "pi_join": "algebra",
+      "cocono": true,
+      "limite": true,
+      "colapsado": true
     },
     {
       "componentes": [
@@ -329,18 +377,18 @@
       ],
       "pi_join": "geometry",
       "cocono": true,
-      "limite": false,
+      "limite": true,
       "colapsado": false
     },
     {
       "componentes": [
-        "complex-analysis",
-        "differential-geometry"
+        "differential-geometry",
+        "complex-analysis"
       ],
       "join": "complex-geometry",
       "pi_componentes": [
-        "analysis",
-        "geometry"
+        "geometry",
+        "analysis"
       ],
       "pi_join": "geometry",
       "cocono": true,
@@ -364,6 +412,25 @@
     },
     {
       "componentes": [
+        "point-set-topology",
+        "homological-algebra",
+        "functors",
+        "arithmetic-geometry"
+      ],
+      "join": "sheafed-space-complexes",
+      "pi_componentes": [
+        "topology",
+        "algebra",
+        "fundacional",
+        "number-theory"
+      ],
+      "pi_join": "topology",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
         "homotopy-theory",
         "cic"
       ],
@@ -379,13 +446,13 @@
     },
     {
       "componentes": [
-        "elementary-number-theory",
-        "complex-analysis"
+        "complex-analysis",
+        "elementary-number-theory"
       ],
       "join": "analytic-number-theory",
       "pi_componentes": [
-        "number-theory",
-        "analysis"
+        "analysis",
+        "number-theory"
       ],
       "pi_join": "number-theory",
       "cocono": true,
@@ -401,6 +468,36 @@
       "join": "arithmetic-geometry",
       "pi_componentes": [
         "number-theory",
+        "geometry",
+        "algebra"
+      ],
+      "pi_join": "number-theory",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-geometry",
+        "algebraic-number-theory"
+      ],
+      "join": "arithmetic-geometry",
+      "pi_componentes": [
+        "geometry",
+        "number-theory"
+      ],
+      "pi_join": "number-theory",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-geometry",
+        "field-theory"
+      ],
+      "join": "arithmetic-geometry",
+      "pi_componentes": [
         "geometry",
         "algebra"
       ],
@@ -441,13 +538,13 @@
     },
     {
       "componentes": [
-        "probability-theory",
-        "point-set-topology"
+        "point-set-topology",
+        "probability-theory"
       ],
       "join": "ergodic-theory",
       "pi_componentes": [
-        "probability",
-        "topology"
+        "topology",
+        "probability"
       ],
       "pi_join": "probability",
       "cocono": true,
@@ -456,8 +553,55 @@
     },
     {
       "componentes": [
-        "tactic-apply",
-        "tactic-rewrite"
+        "algebraic-geometry",
+        "limits"
+      ],
+      "join": "homological-algebra-cat",
+      "pi_componentes": [
+        "geometry",
+        "fundacional"
+      ],
+      "pi_join": "category-theory",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "homological-algebra",
+        "limits"
+      ],
+      "join": "homological-algebra-cat",
+      "pi_componentes": [
+        "algebra",
+        "fundacional"
+      ],
+      "pi_join": "category-theory",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-geometry",
+        "homological-algebra",
+        "limits"
+      ],
+      "join": "homological-algebra-cat",
+      "pi_componentes": [
+        "geometry",
+        "algebra",
+        "fundacional"
+      ],
+      "pi_join": "category-theory",
+      "cocono": true,
+      "limite": false,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "tactic-rewrite",
+        "tactic-apply"
       ],
       "join": "strategy-forward",
       "pi_componentes": [
@@ -486,8 +630,8 @@
     },
     {
       "componentes": [
-        "solvable-groups",
-        "field-extensions"
+        "field-extensions",
+        "solvable-groups"
       ],
       "join": "galois-theory",
       "pi_componentes": [
@@ -501,13 +645,13 @@
     },
     {
       "componentes": [
-        "field-extensions",
-        "algebraic-number-theory"
+        "algebraic-number-theory",
+        "field-extensions"
       ],
       "join": "number-fields",
       "pi_componentes": [
-        "algebra",
-        "number-theory"
+        "number-theory",
+        "algebra"
       ],
       "pi_join": "number-theory",
       "cocono": true,
@@ -517,13 +661,90 @@
     {
       "componentes": [
         "algebraic-topology",
-        "exact-sequences",
-        "homological-algebra"
+        "homological-algebra",
+        "exact-sequences"
       ],
-      "join": "homology",
+      "join": "derived-category",
       "pi_componentes": [
         "topology",
         "algebra",
+        "algebra"
+      ],
+      "pi_join": "algebra",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-topology",
+        "exact-sequences"
+      ],
+      "join": "derived-category",
+      "pi_componentes": [
+        "topology",
+        "algebra"
+      ],
+      "pi_join": "algebra",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "algebraic-topology",
+        "homological-algebra"
+      ],
+      "join": "derived-category",
+      "pi_componentes": [
+        "topology",
+        "algebra"
+      ],
+      "pi_join": "algebra",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "derived-category",
+        "abelian-groups"
+      ],
+      "join": "graded-objects",
+      "pi_componentes": [
+        "algebra",
+        "algebra"
+      ],
+      "pi_join": "algebra",
+      "cocono": true,
+      "limite": true,
+      "colapsado": true
+    },
+    {
+      "componentes": [
+        "point-set-topology",
+        "homological-algebra",
+        "arithmetic-geometry"
+      ],
+      "join": "sheafed-space-complexes",
+      "pi_componentes": [
+        "topology",
+        "algebra",
+        "number-theory"
+      ],
+      "pi_join": "topology",
+      "cocono": true,
+      "limite": true,
+      "colapsado": false
+    },
+    {
+      "componentes": [
+        "arithmetic-geometry",
+        "homological-algebra"
+      ],
+      "join": "sheafed-space-complexes",
+      "pi_componentes": [
+        "number-theory",
         "algebra"
       ],
       "pi_join": "topology",
@@ -533,32 +754,32 @@
     },
     {
       "componentes": [
-        "algebraic-geometry",
-        "ideals-quotient-rings"
+        "arithmetic-geometry",
+        "point-set-topology"
       ],
-      "join": "affine-varieties",
+      "join": "sheafed-space-complexes",
       "pi_componentes": [
-        "geometry",
-        "algebra"
+        "number-theory",
+        "topology"
       ],
-      "pi_join": "geometry",
+      "pi_join": "topology",
       "cocono": true,
       "limite": true,
       "colapsado": false
     },
     {
       "componentes": [
-        "limits",
-        "exact-sequences"
+        "ideals-quotient-rings",
+        "algebraic-geometry"
       ],
-      "join": "abelian-categories",
+      "join": "affine-varieties",
       "pi_componentes": [
-        "fundacional",
-        "algebra"
+        "algebra",
+        "geometry"
       ],
-      "pi_join": "category-theory",
+      "pi_join": "geometry",
       "cocono": true,
-      "limite": false,
+      "limite": true,
       "colapsado": false
     },
     {
@@ -577,6 +798,6 @@
       "colapsado": false
     }
   ],
-  "max_cn": 2,
-  "n_huecos": 27
+  "max_cn": 3,
+  "n_huecos": 17
 }
