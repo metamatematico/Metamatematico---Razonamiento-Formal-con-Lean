@@ -161,7 +161,7 @@ async def _chat_loop(args: argparse.Namespace) -> int:
     """Async chat REPL."""
     from nucleo.core import Nucleo
 
-    model = getattr(args, "model", None) or "claude-sonnet-4-20250514"
+    model = getattr(args, "model", None) or "claude-opus-5"
     verbose = getattr(args, "verbose", False)
 
     # Load config (puede tener api_key en nucleo_config.yaml)
@@ -423,7 +423,7 @@ def main() -> int:
     parser_chat.add_argument(
         "--model", "-m",
         default=None,
-        help="Modelo Claude (default: claude-sonnet-4-20250514)"
+        help="Modelo Claude (default: claude-opus-5)"
     )
     parser_chat.add_argument(
         "--verbose", "-v",

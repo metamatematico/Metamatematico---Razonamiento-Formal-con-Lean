@@ -66,7 +66,7 @@ class LLMResponse:
 @dataclass
 class LLMConfig:
     """Configuracion del cliente LLM."""
-    model: str = "claude-sonnet-4-6"
+    model: str = "claude-opus-5"
     max_tokens: int = 4096
     temperature: float = 0.7
     api_key: Optional[str] = None

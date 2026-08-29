@@ -1535,34 +1535,67 @@ class Nucleo:
 
         # ── Detección de formalización trivial → regenerar ─────────────────
         def _is_trivial_lean(code: str) -> bool:
-            """Detecta el patrón tautológico: hipótesis = conclusión."""
+            """
+            Detecta la tautologia real: la conclusion se prueba DEVOLVIENDO una
+            hipotesis.
+
+            LA VERSION ANTERIOR SE DISPARABA CASI SIEMPRE. Uno de sus patrones
+            casaba con la forma `:= by` al final de linea —
+            el idioma normal de Lean para una prueba tactica multilinea. Medido:
+            `theorem add_127_458 : 127 + 458 = 585 := by norm_num` salia
+            marcado como trivial, y no tiene ni una sola hipotesis.
+
+            Ahora se exige lo que la palabra significa: que exista una hipotesis
+            con nombre y que el CUERPO de la prueba sea exactamente ese nombre
+            (o `h.symm`, o `by exact h`). Una prueba por tacticas nunca lo es.
+            """
             import re
-            # Patrón: (h : X) : Y := h o h.symm donde X ≅ Y
-            trivial_patterns = [
-                r":\s*\w[\w\s\^+*=]+:=\s*\w+\.symm",   # h.symm
-                r":=\s*by\s+exact\s+\w+$",               # exact h (un solo paso)
-                r":=\s*\w+\s*$",                          # := h (único término)
-            ]
-            # Si hay solo una hipótesis que es la ecuación principal
-            has_trivial_hyp = bool(re.search(
-                r"\(\w+\s*:\s*\w+\^2\s*\+\s*\w+\^2\s*=\s*\w+\^2\)", code
-            ))
-            is_short = len([l for l in code.strip().splitlines() if l.strip()]) <= 5
-            if has_trivial_hyp and is_short:
-                return True
-            for pat in trivial_patterns:
-                # Solo trivial si el cuerpo es SOLO la hipótesis
-                if re.search(pat, code, re.MULTILINE) and is_short:
-                    return True
-            return False
+
+            cuerpo = code
+            # nombres de hipotesis: los binders `(h : ...)` y `{h : ...}`
+            hipotesis = set(re.findall(r"[({]\s*(\w+)\s*:", cuerpo))
+            if not hipotesis:
+                return False          # sin hipotesis no puede haber tautologia
+
+            # el termino de prueba: lo que va tras el ULTIMO `:=`
+            trozo = cuerpo.rsplit(":=", 1)
+            if len(trozo) != 2:
+                return False
+            prueba = trozo[1].strip()
+
+            # una prueba por tacticas no es una tautologia por devolver h
+            if prueba.startswith("by"):
+                cuerpo_tactico = prueba[2:].strip()
+                m = re.fullmatch(r"exact\s+(\w+)(?:\.symm)?", cuerpo_tactico)
+                return bool(m and m.group(1) in hipotesis)
+
+            m = re.fullmatch(r"(\w+)(?:\.symm)?", prueba)
+            return bool(m and m.group(1) in hipotesis)
 
         if _is_trivial_lean(lean_code):
-            # Regenerar con prompt más fuerte
+            # Regenerar diciendo QUE esta mal, no QUE MATEMATICAS usar.
+            #
+            # El reintento llevaba cableado un dominio concreto —«usa la
+            # geometria euclidiana o espacios con producto interior, con
+            # inner_mul_le_norm_sq o norm_add_sq_real»—, escrito para un caso
+            # de Pitagoras y aplicado a TODA consulta que disparase el
+            # detector. Con el falso positivo de arriba, eso significaba que
+            # «¿cuanto es 127 + 458?» se formalizaba como un teorema sobre
+            # vectores ortogonales: Lean lo verificaba, la insignia decia
+            # VERIFICADO, y el teorema no era el que nadie habia preguntado.
+            #
+            # Un reintento no debe elegir la matematica. Debe decir cual es el
+            # defecto y devolver el problema al enunciado original.
             retry_prompt = (
                 f"{formalize_prompt}\n\n"
-                "ATENCIÓN: Tu respuesta anterior fue trivial (tomaste la ecuación como hipótesis). "
-                "Genera una formalización REAL usando la geometría euclidiana o espacios con producto interior. "
-                "Usa `inner_mul_le_norm_sq` o `norm_add_sq_real` de Mathlib, con `sorry` si no sabes la táctica exacta."
+                "ATENCIÓN: tu respuesta anterior era una TAUTOLOGÍA — tomaba la "
+                "afirmación como hipótesis y la devolvía como prueba, así que no "
+                "demuestra nada.\n"
+                "Formaliza el enunciado ORIGINAL tal cual: el teorema debe decir "
+                "lo que la pregunta pide, sin hipótesis que ya contengan la "
+                "conclusión. No cambies de tema ni lo traduzcas a otra rama de "
+                "las matemáticas. Si no sabes la prueba, escribe el enunciado "
+                "correcto y cierra con `sorry`."
             )
             lean_gen2 = await self._llm.generate(
                 retry_prompt, system=lean_system, context=context

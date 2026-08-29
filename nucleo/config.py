@@ -151,7 +151,10 @@ class MESConfig:
 class LLMConfig:
     """Configuracion del LLM (Claude)."""
     # Modelo
-    model: str = "claude-sonnet-4-20250514"
+    # `claude-sonnet-4-20250514` estaba RETIRADO: la API devolvia 404
+    # not_found_error en cada llamada, con la clave perfectamente valida.
+    # Los IDs vigentes no llevan sufijo de fecha.
+    model: str = "claude-opus-5"
 
     # Parametros de generacion
     max_tokens: int = 4096

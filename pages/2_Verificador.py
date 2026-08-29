@@ -43,7 +43,8 @@ section[data-testid="stSidebar"] .stTextInput label {
 
 _PROVIDERS = {
     "Anthropic": {
-        "models": ["claude-haiku-4-5-20251001", "claude-sonnet-4-6"],
+        "models": ["claude-opus-5", "claude-sonnet-5",
+                   "claude-haiku-4-5-20251001", "claude-sonnet-4-6"],
         "key_label": "Anthropic API Key",
         "key_placeholder": "sk-ant-...",
         "key_help": "Obtener en console.anthropic.com",
