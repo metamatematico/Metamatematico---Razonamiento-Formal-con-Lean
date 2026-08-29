@@ -190,9 +190,9 @@ def complexificar(
         preservacion.
     """
     from nucleo.graph.complexity import find_cocones, find_colimit_cong
-    from nucleo.graph.no_delgado import congruencia_automatica
+    from nucleo.graph.no_delgado import congruencia_declarada
 
-    cong = cong if cong is not None else congruencia_automatica(graph)
+    cong = cong if cong is not None else congruencia_declarada(graph)
     res = ResultadoComplexificacion()
 
     def _cerrado(gap) -> bool:

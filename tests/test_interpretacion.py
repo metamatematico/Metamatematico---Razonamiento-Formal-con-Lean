@@ -16,7 +16,7 @@ from nucleo.graph.interpretacion import (
     SIN_PUSHOUT, PUSHOUT_SI_DETERMINISTA, RESTRICCIONES,
     DEGRADADAS, FUSIONES, SUBCATEGORIA_PLENA, NOTA_FUSION,
     cambia_de_valor, resolver, vertices_tras_fusionar,
-    APICE_FALTANTE, ARISTA_FALTANTE, NO_SON_DOS_COCIENTES,
+    APICE_FALTANTE, NO_SON_DOS_COCIENTES, DEGRADADAS_A_FLECHA,
     PATRONES_ESPURIOS, VECINO_VERDADERO, FUNCTORS_SOBRA,
     VERTICES_ANADIDOS, LAS_DEL_AUTOR,
 )
@@ -45,18 +45,22 @@ class TestCobertura:
     def test_no_hay_veredictos_inventados(self, grafo):
         """Salvo los que el propio grafo obligo a añadir, y esos estan
         declarados aparte precisamente para que esta guardia siga sirviendo."""
-        sobran = sorted(set(VEREDICTO) - set(grafo.skill_ids) - VERTICES_ANADIDOS)
+        sobran = sorted(set(VEREDICTO) - set(grafo.skill_ids)
+                        - VERTICES_ANADIDOS - DEGRADADAS_A_FLECHA)
         assert not sobran, f"no estan en el grafo: {sobran}"
 
-    def test_los_anadidos_pendientes_siguen_sin_estar_en_el_grafo(self, grafo):
-        """El hallazgo, no un fallo: son vertices que el grafo detecto que le
-        FALTAN. `sheafed-space-complexes` ya se inserto —cerro su hueco y dio
-        el primer objeto de orden 3—; los otros dos siguen pendientes."""
-        puestos = VERTICES_ANADIDOS & set(grafo.skill_ids)
-        assert puestos == {"sheafed-space-complexes"}
-        assert VERTICES_ANADIDOS - puestos == {
-            "derived-category", "graded-objects",
-        }
+    def test_los_tres_anadidos_ya_estan_en_el_grafo(self, grafo):
+        """Los tres vertices que el grafo detecto que le faltaban ya estan
+        puestos. Ninguno se invento: cada uno cerro un hueco que estaba
+        marcado, y su nombre lo puso la matematica."""
+        assert VERTICES_ANADIDOS <= set(grafo.skill_ids)
+
+    def test_las_degradadas_a_flecha_ya_no_son_vertices(self, grafo):
+        """`homology` y `cohomology` son funtores, y un funtor es una flecha.
+        Siguen en el veredicto por trazabilidad, no en el grafo."""
+        assert not (DEGRADADAS_A_FLECHA & set(grafo.skill_ids))
+        for k in DEGRADADAS_A_FLECHA:
+            assert marca(k) == F
 
     def test_el_recuento_cuadra_con_el_documento(self):
         """Las cifras del veredicto, tal como las publico el autor: sobre sus
@@ -282,8 +286,8 @@ class TestFormaDelGrafoReal:
         suficiente: hacen falta diagramas con enlaces.
         """
         formas = [forma_de(p) for p, _ in descomposiciones]
-        assert len(descomposiciones) == 32
-        assert formas.count(FORMA_COPRODUCTO) == 27
+        assert len(descomposiciones) == 31
+        assert formas.count(FORMA_COPRODUCTO) == 26
         assert formas.count(FORMA_PUSHOUT) == 5
 
     def test_ninguna_pierde_su_colimite_por_las_decisiones(self, descomposiciones):
@@ -451,79 +455,87 @@ class TestElApiceQueFaltaba:
                  for p in pm.all_patterns if cb.get_colimit_for_pattern(p.id)]
         return g, descs
 
-    # ── EL TEST QUE FALSA LA LECTURA ────────────────────────────────────────
+    # ── LO QUE ERA UNA LECTURA, Y AHORA ES EL GRAFO ─────────────────────
 
-    def test_exact_sequences_emite_luego_no_es_una_cospan(self, grafo_patrones):
-        """El test estructural que decide entre las dos lecturas.
+    def test_la_inclusion_de_los_aciclicos_ya_existe(self, grafo_patrones):
+        """La arista que el pushout necesitaba y que NO estaba.
 
-        Para que el apice sea el cociente, `exact-sequences` tiene que ser
-        FUENTE de flechas. Si solo recibiera, el diagrama seria una cospan, su
-        colimite seria trivialmente `homological-algebra`, la deteccion seria
-        vacia — y entonces habria que retirar las cuatro y dejar la arista.
-
-        Emite tres. La lectura del cociente sobrevive.
-        """
-        from nucleo.types import MorphismType
-        g, _ = grafo_patrones
-        salientes = {m.target_id for m in g.outgoing_morphisms("exact-sequences")
-                     if m.morphism_type != MorphismType.IDENTITY}
-        assert salientes, (
-            "exact-sequences no emite ninguna flecha: el diagrama es una "
-            "cospan y la lectura del cociente cae"
-        )
-        assert len(salientes) == 3
-
-    def test_la_pata_al_apice_no_transporta_informacion(self, grafo_patrones):
-        """Segunda comprobacion: la pata de `exact-sequences` es constante.
-
-        Si transportara informacion no seria un cociente. La arista al apice no
-        lleva `construccion`, luego es generica: no transporta nada.
-        """
-        from nucleo.types import MorphismType
-        g, _ = grafo_patrones
-        al_apice = [m for m in g.outgoing_morphisms("exact-sequences")
-                    if m.target_id == "homology"
-                    and m.morphism_type != MorphismType.IDENTITY]
-        assert al_apice, "no hay pata de exact-sequences al apice"
-        assert all(getattr(m, "construccion", None) is None for m in al_apice)
-
-    # ── EL HALLAZGO QUE EL TEST DESTAPO ─────────────────────────────────────
-
-    def test_falta_tambien_la_arista_de_la_inclusion(self, grafo_patrones):
-        """El test pasa, pero al mirar CUALES flechas emite aparece otra cosa.
-
-        La arista que el pushout necesita —la inclusion de los aciclicos,
-        `exact-sequences -> homological-algebra`— NO EXISTE en el grafo. Emite
-        a `abelian-categories`, a `homology` y a `tactic-ring`.
-
-        Al grafo le falta un vertice Y una arista. Lo primero ya se sabia.
+        El test estructural que decidia entre las dos lecturas —«¿emite
+        `exact-sequences` alguna flecha, o solo recibe?»— lo pasaba: emitia
+        tres. Pero ninguna de las tres era esta, y sin ella el cuadrado no era
+        un cuadrado. Al grafo le faltaba un vertice Y una arista.
         """
         g, _ = grafo_patrones
-        fuente, destino, _motivo = ARISTA_FALTANTE
-        assert not g.hom(fuente, destino), (
-            "la inclusion ya existe: ARISTA_FALTANTE esta obsoleta"
-        )
-        assert fuente == "exact-sequences"
-        assert destino == "homological-algebra"
+        ms = [m for m in g.hom("exact-sequences", "homological-algebra")
+              if m.metadata.get("construccion") == "inclusion-de-aciclicos"]
+        assert len(ms) == 1, "la inclusion de los aciclicos falta o esta doble"
+
+    def test_el_cuadrado_del_pushout_conmuta_por_declaracion(self, grafo_patrones):
+        """Incluir un aciclico y luego localizar da lo mismo que colapsarlo a
+        cero, porque eso es exactamente lo que hace invertir los
+        cuasi-isomorfismos. No es conjetura: es la definicion.
+
+        Y no es opcional: sin declararlo, `derived-category` es cota superior
+        MINIMAL de su propio patron y aun asi no admite co-cono.
+        """
+        from nucleo.graph.no_delgado import (RELACIONES_DECLARADAS,
+                                             congruencia_declarada,
+                                             congruencia_automatica)
+        g, _ = grafo_patrones
+        assert any("pushout" in m.lower() for _a, _b, m in RELACIONES_DECLARADAS)
+        assert (len(congruencia_declarada(g).relaciones)
+                > len(congruencia_automatica(g).relaciones))
+
+    def test_las_tres_patas_son_tres_construcciones_distintas(self, grafo_patrones):
+        """Ninguna de las tres es la homologia: por eso la descomposicion deja
+        de ser circular y pasa a ser un teorema."""
+        g, _ = grafo_patrones
+        esperadas = {
+            "exact-sequences": "colapso",
+            "homological-algebra": "localizacion",
+            "algebraic-topology": "cadenas-singulares",
+        }
+        for origen, construccion in esperadas.items():
+            ms = [m for m in g.hom(origen, "derived-category")
+                  if m.metadata.get("construccion") == construccion]
+            assert len(ms) == 1, f"falta la pata {construccion} desde {origen}"
+        assert len(set(esperadas.values())) == 3
+
+    def test_derived_category_es_el_colimite_del_patron_de_tres(self, grafo_patrones):
+        _, descs = grafo_patrones
+        conj = {frozenset(p.component_ids) for p, a in descs
+                if a == "derived-category"}
+        assert frozenset(APICE_FALTANTE["homology"]["componentes"]) in conj
+
+    def test_homology_y_cohomology_son_las_dos_flechas_del_apice(self, grafo_patrones):
+        """Son funtores entre categorias, luego flechas. Difieren en el signo
+        de la graduacion, no en dominio ni codominio, asi que van con
+        `construccion` para que la congruencia no las confunda: `Hom` tiene
+        DOS elementos ahi, y eso es multiplicidad de verdad.
+        """
+        g, _ = grafo_patrones
+        cs = {m.metadata.get("construccion")
+              for m in g.hom("derived-category", "graded-objects")
+              if m.metadata.get("construccion")}
+        assert cs == {"H_*", "H^*"}
 
     def test_no_son_cuatro_niveles_de_cociente_sino_uno_y_sus_subconjuntos(
             self, grafo_patrones):
         """Se esperaba que las cuatro se distinguieran por el nivel al que
-        toman el cociente (Ch -> K, K -> D) y colapsaran a dos al regenerarlas.
+        toman el cociente (Ch -> K, K -> D) y colapsaran a dos. No: eran un
+        patron de tres componentes mas sus subconjuntos.
 
-        No: son UN patron de tres componentes mas sus tres subconjuntos de dos,
-        que es lo que emite el detector desde que se habilito la multiplicidad.
-        No hay dos cocientes ahi, hay uno y su conjunto potencia.
+        Tras poner la inclusion, `{exact-seq, hom-alg}` deja de aparecer: su
+        supremo pasa a ser trivialmente `homological-algebra`, una componente.
+        Eso no es una perdida, es la inclusion haciendo su trabajo.
         """
         _, descs = grafo_patrones
-        conjuntos = [frozenset(p.component_ids)
-                     for p, ap in descs if ap == "homology"]
-        assert len(conjuntos) == 4
-        grande = max(conjuntos, key=len)
-        assert grande == frozenset(APICE_FALTANTE["homology"]["componentes"])
-        pequenos = [c for c in conjuntos if c != grande]
-        assert len(pequenos) == 3
-        assert all(len(c) == 2 and c < grande for c in pequenos)
+        conj = {frozenset(p.component_ids) for p, a in descs
+                if a == "derived-category"}
+        grande = frozenset(APICE_FALTANTE["homology"]["componentes"])
+        assert grande in conj
+        assert frozenset({"exact-sequences", "homological-algebra"}) not in conj
+        assert all(c <= grande for c in conj)
         assert NO_SON_DOS_COCIENTES
 
     # ── LOS VERTICES AÑADIDOS ───────────────────────────────────────────────

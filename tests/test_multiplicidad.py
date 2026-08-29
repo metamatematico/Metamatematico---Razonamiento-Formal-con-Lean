@@ -89,7 +89,10 @@ def test_hay_colimites_con_varias_descomposiciones(sistema):
         "ningun colimite tiene varias descomposiciones: el descubrimiento por "
         "subconjunto dejo de funcionar y MP vuelve a ser inalcanzable"
     )
-    assert "homology" in multi, f"esperaba homology entre {list(multi)}"
+    # Era `homology`, que resulto ser un FUNTOR y se degrado a flecha. Su
+    # papel lo hereda el apice que de verdad tenia encima.
+    assert "derived-category" in multi, (
+        f"esperaba derived-category entre {list(multi)}")
 
 
 def test_el_verificador_coincide_con_la_medicion(sistema):
@@ -143,12 +146,24 @@ class TestMultiplicidadDisponible:
             "ya no hay descomposiciones alternativas ocultas; si el algoritmo "
             "cambio para descubrirlas, actualiza test_multiplicidad entero"
         )
-        assert "homology" in d, f"esperaba homology entre {list(d)}"
+        assert "derived-category" in d, (
+            f"esperaba derived-category entre {list(d)}")
 
     def test_hay_parejas_no_conectadas(self, sistema):
         """
         Lo decisivo: sin parejas inconexas no habria MP aunque hubiera varias
-        descomposiciones. Hay tres, todas en `homology`.
+        descomposiciones.
+
+        Eran tres y todas estaban en `homology`. Ahora son DOS, y la bajada
+        tiene causa conocida: al poner la inclusion de los aciclicos,
+        `exact-sequences <= homological-algebra` pasa a ser cierto, y eso
+        CONECTA las parejas que antes eran libres en esa familia. No es
+        multiplicidad perdida por error, es una arista verdadera haciendo su
+        trabajo.
+
+        Y la multiplicidad no desaparecio: se MUDO. Las dos que quedan estan en
+        `sheafed-space-complexes` —el vertice nuevo, el de orden 3— y en
+        `homological-algebra-cat`.
         """
         import itertools
         from nucleo.graph.category import SkillCategory
@@ -167,7 +182,12 @@ class TestMultiplicidadDisponible:
             for S, T in itertools.combinations(sorted(D), 2)
             if not conectados(S, T) and not conectados(T, S)
         ]
-        assert len(libres) >= 3, (
-            f"parejas no conectadas: {len(libres)}, esperaba al menos 3. "
+        assert len(libres) >= 2, (
+            f"parejas no conectadas: {len(libres)}, esperaba al menos 2. "
             "Si bajo, el grafo perdio multiplicidad disponible."
+        )
+        apices = {j for j, _S, _T in libres}
+        assert "sheafed-space-complexes" in apices, (
+            "la multiplicidad ya no vive en el vertice de orden 3: si eso "
+            "cambio, revisa que la emergencia sigue en pie"
         )

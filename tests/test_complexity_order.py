@@ -523,7 +523,7 @@ class TestOrdenIrreducible:
         assert cn["homological-algebra-cat"] == 2
         assert o["homological-algebra-cat"] == 1
 
-    def test_los_emergentes_de_verdad_son_dos(self, sistema):
+    def test_los_emergentes_de_verdad(self, sistema):
         """La cifra que el sistema debe publicar cuando afirme emergencia. NO
         es `max_cn`, que aqui vale 2 sobre TRES objetos, uno de ellos inflado.
         """
@@ -532,7 +532,7 @@ class TestOrdenIrreducible:
         assert max(cn.values()) == 3
         assert set(objetos_emergentes(g, cb)) == {
             "arithmetic-geometry", "affine-varieties",
-            "sheafed-space-complexes",
+            "sheafed-space-complexes", "graded-objects",
         }
         # y el de orden 3 es el vertice que faltaba, no un inflado de altura
         from nucleo.graph.complexity import orden_irreducible

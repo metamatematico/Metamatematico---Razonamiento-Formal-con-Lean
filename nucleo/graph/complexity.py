@@ -408,13 +408,18 @@ def find_colimit_cong(
     LA CONGRUENCIA
     --------------
     «Conmutar» solo tiene sentido relativo a que caminos se declaran iguales.
-    Por defecto se usa `congruencia_automatica(graph)`: identifica aristas
-    paralelas que difieren solo en el TIPO (dep/an/tr) y no declaran
-    construccion, que es la semantica que el propio grafo ya afirmaba en
-    `is_preorder_leq`. No identifica nada mas: dos morfismos con construccion
-    distinta fueron demostrados distintos en Lean (`no_hay_iso`), y que dos
-    caminos compuestos coincidan es un teorema sobre el dominio, no una
-    convencion — eso sale por `pendientes_de_decidir`.
+    Por defecto se usa `congruencia_declarada(graph)`, que son dos cosas:
+
+      · `congruencia_automatica` — aristas paralelas que difieren solo en el
+        TIPO (dep/an/tr) y no declaran construccion. No es una decision: es la
+        semantica que el propio grafo ya afirmaba en `is_preorder_leq`.
+      · `RELACIONES_DECLARADAS` — las que SI son decisiones matematicas, una a
+        una y con su motivo. Hoy hay una: el cuadrado del pushout que define la
+        categoria derivada conmuta.
+
+    Lo que sigue sin identificarse: dos morfismos con construccion distinta
+    —Lean demostro que son distintos, `no_hay_iso`— y cualquier par de caminos
+    compuestos que nadie haya declarado; eso sale por `pendientes_de_decidir`.
 
     Por `cocono_monotono_en_la_congruencia`, mas identificaciones solo pueden
     AÑADIR co-conos. Asi que este resultado es una cota inferior honesta: lo
@@ -426,9 +431,9 @@ def find_colimit_cong(
         los casos en que la busqueda excedio su cota — no es «no existe», es
         «no se sabe», y el llamador no debe confundirlos.
     """
-    from nucleo.graph.no_delgado import congruencia_automatica, hay_cocono_cong
+    from nucleo.graph.no_delgado import congruencia_declarada, hay_cocono_cong
 
-    cong = cong if cong is not None else congruencia_automatica(graph)
+    cong = cong if cong is not None else congruencia_declarada(graph)
 
     cocones = find_cocones(pattern.component_ids, graph)
     if not cocones:

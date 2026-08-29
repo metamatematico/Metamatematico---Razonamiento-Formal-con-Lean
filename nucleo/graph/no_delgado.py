@@ -690,6 +690,61 @@ def _describir(graph: "SkillCategory", camino: tuple[str, ...]) -> str:
     return "  ".join(trozos)
 
 
+#: Relaciones que SI son decisiones matematicas, declaradas a mano.
+#:
+#: `congruencia_automatica` no las puede derivar —son teoremas o definiciones
+#: sobre el dominio, no convenciones del grafo— y por eso van aqui, una a una,
+#: con su motivo. Cada entrada es `(camino_a, camino_b, motivo)` donde cada
+#: camino es una lista de `(origen, destino, construccion)`: se identifican por
+#: CONSTRUCCION y no por id de arista, que cambia en cada carga del grafo.
+RELACIONES_DECLARADAS: list[tuple[list, list, str]] = [
+    (
+        [("exact-sequences", "homological-algebra", "inclusion-de-aciclicos"),
+         ("homological-algebra", "derived-category", "localizacion")],
+        [("exact-sequences", "derived-category", "colapso")],
+        "EL CUADRADO DEL PUSHOUT CONMUTA. Incluir un complejo aciclico y luego "
+        "localizar da lo mismo que colapsarlo a cero, porque eso es "
+        "exactamente lo que hace invertir los cuasi-isomorfismos. No es una "
+        "conjetura: es la definicion de la categoria derivada, y sin "
+        "declararlo `derived-category` es cota superior minimal de su propio "
+        "patron y aun asi no admite co-cono",
+    ),
+]
+
+
+def congruencia_declarada(graph: "SkillCategory") -> Congruencia:
+    """
+    La congruencia del sistema: la automatica mas las relaciones declaradas.
+
+    La automatica solo recoge lo que el grafo ya afirmaba de si mismo. Las
+    declaradas son afirmaciones sobre la MATEMATICA, y por eso se escriben una
+    a una en `RELACIONES_DECLARADAS` con su motivo, en vez de derivarse.
+
+    Una relacion cuyas aristas no existan en el grafo se omite en silencio: la
+    congruencia describe lo que hay, no lo impone.
+    """
+    cong = congruencia_automatica(graph)
+
+    def _resolver(camino) -> Optional[tuple[str, ...]]:
+        ids: list[str] = []
+        for origen, destino, construccion in camino:
+            m = next(
+                (h for h in graph.hom(origen, destino)
+                 if h.metadata.get("construccion") == construccion),
+                None,
+            )
+            if m is None:
+                return None
+            ids.append(m.id)
+        return tuple(ids)
+
+    for camino_a, camino_b, _motivo in RELACIONES_DECLARADAS:
+        a, b = _resolver(camino_a), _resolver(camino_b)
+        if a is not None and b is not None:
+            cong.declarar(a, b)
+    return cong
+
+
 def congruencia_automatica(graph: "SkillCategory") -> Congruencia:
     """
     La parte de la congruencia que se DERIVA, sin decidir nada nuevo.

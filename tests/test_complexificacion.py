@@ -298,7 +298,7 @@ class TestComplexificacionEnchufada:
         """
         *_, res, _cn, _gaps = corrida
         assert not res.revertida
-        assert len(res.nuevos) == 7
+        assert len(res.nuevos) == 8
         assert res.huecos_cerrados == 7
         assert len(res.retirados) == 1
 
@@ -307,12 +307,12 @@ class TestComplexificacionEnchufada:
         *_, res, _cn, _gaps = corrida
         assert res.colimites_rotos == []
         assert res.preserva
-        assert len(res.colimites_preservados) == 32
+        assert len(res.colimites_preservados) == 31
 
     def test_los_huecos_bajan(self, corrida):
         _g, _pm, _cb, _cong, antes, _res, _cn, gaps1 = corrida
-        assert antes[2] == 17
-        assert len(gaps1) == 10
+        assert antes[2] == 18
+        assert len(gaps1) == 16
 
     def test_declara_la_congruencia_constitutiva(self, corrida):
         """Un colimite viene CON su co-cono: que las patas de eta(P) conmuten
@@ -350,7 +350,11 @@ class TestComplexificacionEnchufada:
         g, _pm, cb, _c, _a, res, _cn, _gaps = corrida
         orden = orden_irreducible(g, cb)
         for obj in res.nuevos:
-            assert orden.get(obj.skill_id) == 1
+            assert orden.get(obj.skill_id) <= 1, (
+                f"{obj.skill_id} salio de orden {orden.get(obj.skill_id)}: si "
+                "la complexificacion empieza a producir emergencia, este test "
+                "hay que reescribirlo, que seria una buena noticia"
+            )
 
     def test_los_emergentes_siguen_siendo_los_dos_del_grafo_curado(self, corrida):
         """Antes y despues del paso: los mismos dos, y ninguno es emergente."""
@@ -358,7 +362,7 @@ class TestComplexificacionEnchufada:
         g, _pm, cb, *_ = corrida
         em = objetos_emergentes(g, cb)
         assert set(em) == {"arithmetic-geometry", "affine-varieties",
-                           "sheafed-space-complexes"}
+                           "sheafed-space-complexes", "graded-objects"}
         for k in em:
             sk = g.get_skill(k)
             assert not sk.metadata.get("emergente"), (

@@ -397,12 +397,12 @@ class Nucleo:
             from nucleo.graph.complexity import (
                 build_hierarchy_to_fixpoint, objetos_emergentes,
             )
-            from nucleo.graph.no_delgado import congruencia_automatica
+            from nucleo.graph.no_delgado import congruencia_declarada
 
             # La congruencia se calcula UNA VEZ y se conserva: la
             # complexificacion le añade las relaciones constitutivas de los
             # objetos que inserta, y el siguiente punto fijo tiene que verlas.
-            self._congruencia = congruencia_automatica(self._graph)
+            self._congruencia = congruencia_declarada(self._graph)
 
             _cn, self._concept_gaps = build_hierarchy_to_fixpoint(
                 self._graph, self._pattern_manager, self._colimit_builder,

@@ -310,7 +310,14 @@ class SkillCategory:
             if (otro is not None
                     and otro.target_id == target_id
                     and otro.morphism_type == morphism_type
-                    and otro.metadata.get("construccion") == construccion):
+                    # Se compara contra `meta`, NO contra el parametro.
+                    # Comparar con el parametro dejaba pasar duplicados
+                    # siempre que la construccion llegara dentro de
+                    # `metadata` —como hace INTER_PILLAR_TRANSLATIONS—:
+                    # el guardado tenia construccion y el parametro era
+                    # None, nunca coincidian, y la arista se repetia.
+                    and otro.metadata.get("construccion")
+                        == meta.get("construccion")):
                 return otro
 
         morphism = Morphism(

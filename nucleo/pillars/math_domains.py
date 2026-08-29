@@ -908,11 +908,25 @@ SUBBRANCH_SKILLS = [
         ["fundamental-group"], "topology",
         ["recubrimiento", "revestimiento", "espacio recubridor",
          "covering space", "deck transformation"]),
-    _sb("homology", "Homology",
-        "Singular and simplicial homology, Mayer-Vietoris, Euler characteristic",
-        ["algebraic-topology", "exact-sequences"], "topology",
-        ["homologia", "homologico", "mayer-vietoris", "caracteristica de euler",
-         "homology"]),
+    # `homology` y `cohomology` YA NO SON VERTICES: son FUNTORES entre
+    # categorias, y un funtor es una flecha. Se degradan como `limits`.
+    #
+    #     H_*, H^* : derived-category -> graded-objects
+    #
+    # Estan bien definidos precisamente porque el cociente ya invirtio lo que
+    # la homologia no distingue. La cohomologia es la misma flecha con el signo
+    # de la graduacion cambiado, no otro vertice.
+    #
+    # Sus aristas se reparten segun la direccion, que es lo que hace que no se
+    # pierda nada al degradarlas:
+    #   · las que ENTRABAN (alg-top, exact-seq, hom-alg -> homology) pasan a
+    #     `derived-category`, que es el apice que de verdad tenian encima;
+    #   · las que SALIAN (-> tactic-simp) pasan a `graded-objects`, que es su
+    #     codominio.
+    #
+    # Las palabras clave se reparten igual: las que nombran el INVARIANTE van
+    # al vertice del que sale la flecha, las que nombran TEOREMAS DE ESPACIOS
+    # se quedan en `algebraic-topology`, que es de donde hablan.
     # EL APICE QUE FALTABA de {arithmetic-geometry, homological-algebra,
     # point-set-topology}. El grafo detecto el hueco y no tenia nombre para el.
     # Es donde vive la cohomologia de haces ANTES de tomar cohomologia.
@@ -932,6 +946,46 @@ SUBBRANCH_SKILLS = [
     # INFORMACION. Conservarla obligaria a tomar el apice sobre complejos de
     # MODULOS, y entonces la pata del haz constante habria que reescribirla
     # sobre el anillo base. Queda anotado como la holgura que tiene.
+    # EL APICE de {algebraic-topology, exact-sequences, homological-algebra}.
+    # Es el cociente `homological-algebra` modulo `exact-sequences`: el pushout
+    # que mata los complejos aciclicos, que es literalmente lo que hace la
+    # localizacion por cuasi-isomorfismos.
+    #
+    #     exact-sequences ──inclusion──> homological-algebra
+    #            │                              │
+    #        colapso                            │
+    #            v                              v
+    #            0       ─────────────────>   D(A)
+    #
+    # Las tres patas son tres cosas DISTINTAS —la inclusion de los aciclicos,
+    # el colapso, y las cadenas singulares C_* desde `algebraic-topology`, que
+    # mandan equivalencias debiles a cuasi-isomorfismos y por tanto descienden
+    # al cociente—. Ninguna es la homologia: por eso la descomposicion deja de
+    # ser circular y pasa a ser un teorema.
+    # Las tres patas NO van como `dependencies`: van abajo como morfismos
+    # explicitos, porque cada una lleva su `construccion` y son tres cosas
+    # distintas. Declararlas aqui ademas crearia una arista generica PARALELA a
+    # cada una, y una generica junto a una con construccion son dos morfismos
+    # distintos para la congruencia —con razon—, o sea multiplicidad inventada.
+    _sb("derived-category", "Derived Category",
+        "Complexes modulo quasi-isomorphism; the localization at qis",
+        [],
+        "algebra",
+        ["categoria derivada", "categorias derivadas", "cuasi-isomorfismo",
+         "cuasi isomorfismo", "complejo de cadenas", "complejos de cadenas",
+         "homologia", "homologico", "cohomologia",
+         "derived category", "quasi-isomorphism", "homology", "cohomology"],
+        pillar=PillarType.CAT),
+
+    # El CODOMINIO de H_* y H^*. Tampoco estaba entre las 172: las aristas
+    # `homology` y `cohomology` no tenian donde llegar.
+    _sb("graded-objects", "Graded Objects",
+        "Graded abelian groups; the codomain of the (co)homology functors",
+        ["abelian-groups"], "algebra",
+        ["objeto graduado", "objetos graduados", "grupo abeliano graduado",
+         "graduacion", "graded object", "graded"],
+        pillar=PillarType.CAT),
+
     _sb("sheafed-space-complexes", "Sheafed Spaces of Complexes",
         "Spaces with a sheaf of chain complexes; where sheaf cohomology lives "
         "before taking cohomology",
@@ -943,10 +997,6 @@ SUBBRANCH_SKILLS = [
          "sheaf cohomology"],
         pillar=PillarType.CAT),
 
-    _sb("cohomology", "Cohomology",
-        "Cohomology, cup product, Poincare duality, de Rham",
-        ["homology"], "topology",
-        ["cohomologia", "producto cup", "poincare", "de rham", "cohomology"]),
 
     # ---- Geometria --------------------------------------------------------
     _sb("smooth-manifolds", "Smooth Manifolds",
@@ -1234,7 +1284,13 @@ EXTRA_KEYWORDS: dict[str, list[str]] = {
     # Topologia
     "point-set-topology": ["topologia", "topologico", "topologica", "abierto",
                            "cerrado", "entorno", "topology"],
-    "algebraic-topology": ["topologia algebraica"],
+    # Las palabras que nombran TEOREMAS SOBRE ESPACIOS se quedan aqui, que es
+    # de donde hablan; las que nombran el INVARIANTE se fueron a
+    # `derived-category`, que es el vertice del que sale la flecha H_*.
+    "algebraic-topology": ["topologia algebraica", "mayer-vietoris",
+                            "caracteristica de euler", "producto cup",
+                            "poincare", "de rham", "euler characteristic",
+                            "cup product"],
     "differential-topology": ["topologia diferencial"],
     "geometric-topology": ["topologia geometrica", "nudo", "nudos", "knot"],
     "homotopy-theory":    ["homotopia", "homotopy"],
@@ -1334,10 +1390,31 @@ INTER_PILLAR_TRANSLATIONS = [
     # son genuinos: el patron no tiene minima cota superior porque la matematica
     # se ramifica ahi. Forzarlos seria justo el error que se elimino de
     # build_join_for_pattern.
-    ("homological-algebra", "cohomology", MorphismType.DEPENDENCY,
-     {"relation": "derived-functors-give-cohomology"}),
-    ("homological-algebra", "homology", MorphismType.DEPENDENCY,
-     {"relation": "chain-complexes-give-homology"}),
+    # LA INCLUSION QUE FALTABA: una de las dos patas del pushout que define la
+    # categoria derivada. El grafo tenia el vertice a medias y esta arista no
+    # estaba en absoluto.
+    ("exact-sequences", "homological-algebra", MorphismType.DEPENDENCY,
+     {"relation": "acyclic-complexes-include-into-homological-algebra",
+      "construccion": "inclusion-de-aciclicos"}),
+    # Las que ENTRABAN en homology/cohomology pasan al apice real.
+    ("homological-algebra", "derived-category", MorphismType.DEPENDENCY,
+     {"relation": "quotient-by-quasi-isomorphisms",
+      "construccion": "localizacion"}),
+    ("exact-sequences", "derived-category", MorphismType.DEPENDENCY,
+     {"relation": "acyclics-collapse-to-zero", "construccion": "colapso"}),
+    ("algebraic-topology", "derived-category", MorphismType.DEPENDENCY,
+     {"relation": "singular-chains-descend-to-the-quotient",
+      "construccion": "cadenas-singulares"}),
+    # Y LAS FLECHAS QUE SON: H_* y H^*, del apice a su codominio. Difieren en
+    # el signo de la graduacion, no en dominio ni codominio, asi que llevan
+    # `construccion` para que la congruencia automatica no las confunda.
+    ("derived-category", "graded-objects", MorphismType.DEPENDENCY,
+     {"relation": "homology-functor", "construccion": "H_*"}),
+    ("derived-category", "graded-objects", MorphismType.DEPENDENCY,
+     {"relation": "cohomology-functor", "construccion": "H^*"}),
+    # Las que SALIAN de homology/cohomology salen ahora del codominio.
+    ("graded-objects", "tactic-simp", MorphismType.TRANSLATION,
+     {"relation": "graded-computations-normalize-by-simp"}),
     ("homological-algebra", "homological-algebra-cat", MorphismType.DEPENDENCY,
      {"relation": "module-version-precedes-categorical-version"}),
     # Algebra <-> Category Theory

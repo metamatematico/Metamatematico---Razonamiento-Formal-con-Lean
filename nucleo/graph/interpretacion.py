@@ -817,6 +817,23 @@ VERTICES_ANADIDOS: frozenset[str] = frozenset({
     "derived-category", "graded-objects", "sheafed-space-complexes",
 })
 
+#: Etiquetas del veredicto que YA NO SON VERTICES del grafo: se degradaron a
+#: flechas y se retiraron. Siguen en la tabla —el veredicto es un dato
+#: editorial y borrarlas perderia la trazabilidad de por que se fueron— pero no
+#: hay que buscarlas en el grafo.
+#:
+#: `homology` y `cohomology` son FUNTORES entre categorias, y un funtor es una
+#: flecha:
+#:
+#:     H_*, H^* : derived-category -> graded-objects
+#:
+#: Estan bien definidos precisamente porque el cociente ya invirtio lo que la
+#: homologia no distingue. La cohomologia es la misma flecha con el signo de la
+#: graduacion cambiado, no otro vertice.
+DEGRADADAS_A_FLECHA: frozenset[str] = frozenset({
+    "homology", "cohomology",
+})
+
 #: Cuantas etiquetas publico el autor.
 LAS_DEL_AUTOR = 172
 

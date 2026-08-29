@@ -200,8 +200,18 @@ class TestLoadMathDomains:
         """Loading on empty graph skips skills with missing deps."""
         g = SkillCategory(name="Empty")
         result = load_math_domains(g)
-        assert result["added"] == 0
-        assert result["skipped"] == len(ALL_DOMAIN_SKILLS)
+        # `derived-category` se declara SIN dependencias a proposito: sus tres
+        # patas van como morfismos explicitos porque cada una lleva su
+        # `construccion` y son tres cosas distintas —la inclusion de los
+        # aciclicos, el colapso y las cadenas singulares—. Declararlas ademas
+        # aqui crearia una arista generica paralela a cada una, y generica y
+        # con-construccion son dos morfismos distintos para la congruencia.
+        #
+        # Consecuencia: es el unico skill que carga sobre el grafo vacio.
+        sin_deps = [s for s in ALL_DOMAIN_SKILLS if not s.dependencies]
+        assert [s.id for s in sin_deps] == ["derived-category"]
+        assert result["added"] == len(sin_deps)
+        assert result["skipped"] == len(ALL_DOMAIN_SKILLS) - len(sin_deps)
 
     def test_load_partial_graph(self):
         """Loading with partial foundations adds available skills."""

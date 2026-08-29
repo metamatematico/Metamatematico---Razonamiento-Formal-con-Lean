@@ -632,7 +632,7 @@ class TestMigracionACocono:
         su condicion de co-cono es vacua y no hay nada que puedan incumplir.
         """
         descs = self._descs(sistema)
-        assert len(descs) == 32
+        assert len(descs) == 31
 
         hac = {frozenset(p.component_ids) for p, a in descs
                if a == "homological-algebra-cat"}
