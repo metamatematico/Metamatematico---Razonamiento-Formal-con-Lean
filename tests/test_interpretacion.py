@@ -16,6 +16,8 @@ from nucleo.graph.interpretacion import (
     SIN_PUSHOUT, PUSHOUT_SI_DETERMINISTA, RESTRICCIONES,
     DEGRADADAS, FUSIONES, SUBCATEGORIA_PLENA, NOTA_FUSION,
     cambia_de_valor, resolver, vertices_tras_fusionar,
+    APICE_FALTANTE, ARISTA_FALTANTE, NO_SON_DOS_COCIENTES,
+    VERTICES_ANADIDOS, LAS_DEL_AUTOR,
 )
 
 
@@ -40,15 +42,31 @@ class TestCobertura:
         assert not faltan, f"sin veredicto: {faltan}"
 
     def test_no_hay_veredictos_inventados(self, grafo):
-        sobran = sorted(set(VEREDICTO) - set(grafo.skill_ids))
+        """Salvo los que el propio grafo obligo a añadir, y esos estan
+        declarados aparte precisamente para que esta guardia siga sirviendo."""
+        sobran = sorted(set(VEREDICTO) - set(grafo.skill_ids) - VERTICES_ANADIDOS)
         assert not sobran, f"no estan en el grafo: {sobran}"
 
+    def test_los_vertices_anadidos_no_estan_en_el_grafo(self, grafo):
+        """Ese es el hallazgo, no un fallo: el grafo detecto un vertice que
+        FALTA. Cuando se añadan al grafo, este test cae y hay que borrarlo."""
+        assert not (VERTICES_ANADIDOS & set(grafo.skill_ids))
+
     def test_el_recuento_cuadra_con_el_documento(self):
-        """Las cifras del veredicto, tal como las publico el autor."""
-        assert recuento() == {C: 73, S: 14, F: 28, O: 4, T: 53}
+        """Las cifras del veredicto, tal como las publico el autor: sobre sus
+        172, sin contar los dos vertices que el grafo obligo a añadir."""
+        del_autor = {k: v for k, v in VEREDICTO.items()
+                     if k not in VERTICES_ANADIDOS}
+        assert len(del_autor) == LAS_DEL_AUTOR
+        cuenta: dict = {}
+        for v in del_autor.values():
+            cuenta[v.marca] = cuenta.get(v.marca, 0) + 1
+        assert cuenta == {C: 73, S: 14, F: 28, O: 4, T: 53}
 
     def test_87_vertices_28_aristas(self):
-        assert len(vertices()) == 87
+        """87 son los del autor; los dos añadidos van aparte."""
+        assert len(set(vertices()) - VERTICES_ANADIDOS) == 87
+        assert len(vertices()) == 89
         assert len(aristas()) == 28
 
 
@@ -296,8 +314,8 @@ class TestFusiones:
         vertices en el propio veredicto: proof-theory y recursion-theory son T,
         nat-trans y limits son F. Nunca estuvieron en los 87.
         """
-        assert len(vertices()) == 87
-        assert len(vertices_tras_fusionar()) == 81
+        assert len(set(vertices()) - VERTICES_ANADIDOS) == 87
+        assert len(set(vertices_tras_fusionar()) - VERTICES_ANADIDOS) == 81
         no_eran = [k for k in list(FUSIONES) + list(DEGRADADAS)
                    if marca(k) not in VERTICES]
         assert set(no_eran) == {"proof-theory", "recursion-theory",
@@ -373,3 +391,152 @@ class TestElCocienteNoMueveNingunValor:
             if {"algebraic-geometry", "arithmetic-geometry"} <= nodos:
                 colapsan += 1
         assert colapsan == 3
+
+
+class TestElApiceQueFaltaba:
+    """`homology` de apice: el grafo detecto un vertice que FALTA.
+
+    El diagnostico no es el de `limits`. Alli habia un objeto donde debia haber
+    una operacion y el patron estaba mal poblado. Aqui las componentes son
+    legitimas, la forma es correcta y el co-cono esta bien formado; lo unico
+    que falla es que el vertice de llegada se etiqueto con el nombre del
+    invariante que ese vertice calcula, porque era la etiqueta mas cercana
+    disponible entre las 172.
+    """
+
+    @pytest.fixture(scope="class")
+    def grafo_patrones(self):
+        sys.argv = ["x"]
+        from nucleo.graph.category import SkillCategory
+        from nucleo.pillars.math_domains import load_math_domains
+        from nucleo.mes.patterns import PatternManager, ColimitBuilder
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.no_delgado import registrar_morfismos_certificados
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+        g = SkillCategory(name="Apice")
+        n._graph = g
+        Nucleo._load_foundational_skills(n)
+        load_math_domains(g)
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        build_hierarchy_to_fixpoint(g, pm, cb)
+        descs = [(p, cb.get_colimit_for_pattern(p.id).skill_id)
+                 for p in pm.all_patterns if cb.get_colimit_for_pattern(p.id)]
+        return g, descs
+
+    # ── EL TEST QUE FALSA LA LECTURA ────────────────────────────────────────
+
+    def test_exact_sequences_emite_luego_no_es_una_cospan(self, grafo_patrones):
+        """El test estructural que decide entre las dos lecturas.
+
+        Para que el apice sea el cociente, `exact-sequences` tiene que ser
+        FUENTE de flechas. Si solo recibiera, el diagrama seria una cospan, su
+        colimite seria trivialmente `homological-algebra`, la deteccion seria
+        vacia — y entonces habria que retirar las cuatro y dejar la arista.
+
+        Emite tres. La lectura del cociente sobrevive.
+        """
+        from nucleo.types import MorphismType
+        g, _ = grafo_patrones
+        salientes = {m.target_id for m in g.outgoing_morphisms("exact-sequences")
+                     if m.morphism_type != MorphismType.IDENTITY}
+        assert salientes, (
+            "exact-sequences no emite ninguna flecha: el diagrama es una "
+            "cospan y la lectura del cociente cae"
+        )
+        assert len(salientes) == 3
+
+    def test_la_pata_al_apice_no_transporta_informacion(self, grafo_patrones):
+        """Segunda comprobacion: la pata de `exact-sequences` es constante.
+
+        Si transportara informacion no seria un cociente. La arista al apice no
+        lleva `construccion`, luego es generica: no transporta nada.
+        """
+        from nucleo.types import MorphismType
+        g, _ = grafo_patrones
+        al_apice = [m for m in g.outgoing_morphisms("exact-sequences")
+                    if m.target_id == "homology"
+                    and m.morphism_type != MorphismType.IDENTITY]
+        assert al_apice, "no hay pata de exact-sequences al apice"
+        assert all(getattr(m, "construccion", None) is None for m in al_apice)
+
+    # ── EL HALLAZGO QUE EL TEST DESTAPO ─────────────────────────────────────
+
+    def test_falta_tambien_la_arista_de_la_inclusion(self, grafo_patrones):
+        """El test pasa, pero al mirar CUALES flechas emite aparece otra cosa.
+
+        La arista que el pushout necesita —la inclusion de los aciclicos,
+        `exact-sequences -> homological-algebra`— NO EXISTE en el grafo. Emite
+        a `abelian-categories`, a `homology` y a `tactic-ring`.
+
+        Al grafo le falta un vertice Y una arista. Lo primero ya se sabia.
+        """
+        g, _ = grafo_patrones
+        fuente, destino, _motivo = ARISTA_FALTANTE
+        assert not g.hom(fuente, destino), (
+            "la inclusion ya existe: ARISTA_FALTANTE esta obsoleta"
+        )
+        assert fuente == "exact-sequences"
+        assert destino == "homological-algebra"
+
+    def test_no_son_cuatro_niveles_de_cociente_sino_uno_y_sus_subconjuntos(
+            self, grafo_patrones):
+        """Se esperaba que las cuatro se distinguieran por el nivel al que
+        toman el cociente (Ch -> K, K -> D) y colapsaran a dos al regenerarlas.
+
+        No: son UN patron de tres componentes mas sus tres subconjuntos de dos,
+        que es lo que emite el detector desde que se habilito la multiplicidad.
+        No hay dos cocientes ahi, hay uno y su conjunto potencia.
+        """
+        _, descs = grafo_patrones
+        conjuntos = [frozenset(p.component_ids)
+                     for p, ap in descs if ap == "homology"]
+        assert len(conjuntos) == 4
+        grande = max(conjuntos, key=len)
+        assert grande == frozenset(APICE_FALTANTE["homology"]["componentes"])
+        pequenos = [c for c in conjuntos if c != grande]
+        assert len(pequenos) == 3
+        assert all(len(c) == 2 and c < grande for c in pequenos)
+        assert NO_SON_DOS_COCIENTES
+
+    # ── LOS VERTICES AÑADIDOS ───────────────────────────────────────────────
+
+    def test_el_apice_correcto_esta_en_la_tabla_y_es_categoria(self):
+        assert marca("derived-category") == C
+        assert marca("graded-objects") == C
+        assert APICE_FALTANTE["homology"]["apice_correcto"] == "derived-category"
+        assert APICE_FALTANTE["homology"]["codominio"] == "graded-objects"
+
+    def test_homology_sigue_siendo_arista_pero_ahora_con_dominio(self):
+        """Su sitio no cambia —arista, no vertice, como decia el veredicto—.
+        Lo que cambia es que ahora tiene dominio propio: H_* : D(A) -> grAb.
+        """
+        assert marca("homology") == F
+        assert "D(A)" in VEREDICTO["homology"].morfismos
+        assert "derived-category" in VEREDICTO["homology"].nota
+
+    def test_las_tres_patas_son_distintas_y_ninguna_es_la_homologia(self):
+        """Ahi esta el nudo: con apice `grAb` la descomposicion seria circular
+        —las patas serian la propia homologia—; con el cociente, las tres patas
+        son la inclusion, el colapso y las cadenas singulares.
+        """
+        patas = APICE_FALTANTE["homology"]["patas"]
+        assert set(patas) == set(APICE_FALTANTE["homology"]["componentes"])
+        assert "homolog" not in patas["algebraic-topology"].lower()
+        assert "cadenas singulares" in patas["algebraic-topology"]
+
+    def test_el_apice_no_es_ninguna_de_sus_componentes(self):
+        """`homological-algebra` es componente: no puede ser tambien el vertice
+        de llegada. El apice tiene que ser un vertice nuevo.
+        """
+        apice = APICE_FALTANTE["homology"]["apice_correcto"]
+        assert apice not in APICE_FALTANTE["homology"]["componentes"]
+
+    def test_cohomology_no_aparece_de_apice(self, grafo_patrones):
+        """Valdria lo mismo sin cambiar nada —mismo cociente, misma arista,
+        distinto signo en la graduacion— pero hoy no hace falta.
+        """
+        _, descs = grafo_patrones
+        assert not [p for p, ap in descs if ap == "cohomology"]

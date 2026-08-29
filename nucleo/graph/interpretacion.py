@@ -129,9 +129,13 @@ VEREDICTO: dict[str, Etiqueta] = {
         C, "una categoria abeliana", "funtores exactos",
         "CategoryTheory.Abelian", "mismo objeto que abelian-categories"),
     "homology": _e(
-        F, "", "el funtor H_*", "HomologicalComplex.homology",
-        "ARISTA. El grupo abeliano graduado es el CODOMINIO de H_*, no lo que "
-        "la etiqueta nombra; tomarlo como vertice borra la funtorialidad"),
+        F, "", "el funtor H_* : D(A) -> grAb",
+        "HomologicalComplex.homology, DerivedCategory.HomologySequence",
+        "ARISTA, y ahora con DOMINIO PROPIO: sale de `derived-category` y llega "
+        "a `graded-objects`. Esta bien definida precisamente porque el cociente "
+        "ya invirtio lo que la homologia no distingue.\n"
+        "El grupo abeliano graduado es su CODOMINIO, no lo que la etiqueta "
+        "nombra; tomarlo como vertice borra la funtorialidad"),
     "limits": _e(
         F, "un cono sobre un diagrama fijo", "el funtor lim",
         "Limits.Cone, HasLimits",
@@ -430,6 +434,34 @@ VEREDICTO: dict[str, Etiqueta] = {
     "unique-factorization": _e(S, "un dominio de factorizacion unica", "homomorfismos",
                                "UniqueFactorizationMonoid"),
 
+    # ═══ VERTICES AÑADIDOS — no estaban entre las 172 ════════════════════
+    #
+    # El grafo detecto un vertice que FALTA, no un vertice malo, y lo etiqueto
+    # con el nombre del invariante que ese vertice calcula —`homology`— porque
+    # era la etiqueta mas cercana disponible.
+    "derived-category": _e(
+        C, "un complejo modulo cuasi-isomorfismo",
+        "los de la localizacion",
+        "DerivedCategory C, DerivedCategory.Q",
+        "EL APICE QUE FALTABA de las cuatro descomposiciones que apuntaban a "
+        "`homology`. Es el cociente `homological-algebra` modulo "
+        "`exact-sequences`: el pushout que mata los complejos aciclicos, que es "
+        "literalmente lo que hace la localizacion por cuasi-isomorfismos.\n"
+        "Las tres patas son tres cosas DISTINTAS —la inclusion de los "
+        "aciclicos, el colapso, y las cadenas singulares C_* desde "
+        "`algebraic-topology`, que manda equivalencias debiles a "
+        "cuasi-isomorfismos y por tanto desciende al cociente—. Ninguna de las "
+        "tres es la homologia: por eso la descomposicion deja de ser circular y "
+        "pasa a ser un teorema.\n"
+        "La variante intermedia es HomotopyCategory.quotient; la sucesion "
+        "exacta larga que justifica la pata de `exact-sequences` esta en "
+        "DerivedCategory/HomologySequence.lean"),
+    "graded-objects": _e(
+        C, "un objeto graduado (grupos abelianos graduados)",
+        "morfismos graduados", "CategoryTheory.GradedObject",
+        "el CODOMINIO de H_*. Tampoco estaba entre las 172: la arista `homology` "
+        "no tenia donde llegar"),
+
     # ═══ BLOQUE 3 — las que son tema, con su residuo ═════════════════════
     "algorithm-analysis": _e(T, nota="una disciplina"),
     "canonical-forms": _e(T, nota="clasificacion; el esqueleto de eigen-theory"),
@@ -726,6 +758,92 @@ def vertices_tras_fusionar() -> list[str]:
         resolver(k) for k, v in VEREDICTO.items()
         if v.es_vertice and k not in DEGRADADAS
     })
+
+
+# ---------------------------------------------------------------------------
+# El apice que faltaba
+# ---------------------------------------------------------------------------
+#
+# Cuatro descomposiciones apuntaban a `homology`, que es una ARISTA. El
+# diagnostico NO era el de `limits`:
+#
+#   · `limits` aparecia como COMPONENTE y el patron estaba mal poblado —habia
+#     un objeto donde debia haber una operacion—, luego las descomposiciones
+#     que lo contenian eran falsas como enunciados y hay que regenerarlas;
+#   · `homology` aparece como APICE con componentes legitimas, forma correcta y
+#     co-cono bien formado. Borrarlas seria tirar cuatro detecciones ciertas por
+#     un nombre mal puesto en el vertice de llegada.
+#
+# El apice correcto es el COCIENTE `homological-algebra` modulo
+# `exact-sequences` — la categoria derivada:
+#
+#       exact-sequences  ──inclusion──>  homological-algebra
+#              │                                │
+#          colapso                              │
+#              v                                v
+#              0        ──────────────────>    D(A)
+#
+# Y `homology` sale de ahi: H_* : D(A) -> grAb.
+
+#: Los vertices que NO estaban entre las 172 del veredicto. El grafo los pedia
+#: —una descomposicion apuntaba a un sitio que no existia como vertice— y los
+#: habia etiquetado con lo mas cercano disponible.
+#:
+#: Se mantienen aparte para que la guardia sobre el veredicto del autor siga
+#: siendo exacta: 172 etiquetas suyas, mas lo que el grafo obligue a añadir.
+VERTICES_ANADIDOS: frozenset[str] = frozenset({
+    "derived-category", "graded-objects",
+})
+
+#: Cuantas etiquetas publico el autor.
+LAS_DEL_AUTOR = 172
+
+
+APICE_FALTANTE: dict[str, dict] = {
+    "homology": {
+        "apice_correcto": "derived-category",
+        "codominio": "graded-objects",
+        "componentes": ["algebraic-topology", "exact-sequences",
+                        "homological-algebra"],
+        "patas": {
+            "exact-sequences": "la inclusion de los aciclicos, y el colapso",
+            "homological-algebra": "el cociente por cuasi-isomorfismos",
+            "algebraic-topology": "las cadenas singulares C_*, que mandan "
+                                  "equivalencias debiles a cuasi-isomorfismos",
+        },
+    },
+}
+
+#: LO QUE EL TEST ENCONTRO, y no estaba previsto.
+#:
+#: El test estructural que decide entre las lecturas (a) y (b) —«¿emite
+#: `exact-sequences` alguna flecha, o solo recibe?»— lo pasa: emite tres. No es
+#: una cospan, luego la deteccion no es vacia y la lectura del cociente
+#: sobrevive.
+#:
+#: Pero al mirar CUALES emite aparece que la arista que el pushout necesita
+#: —`exact-sequences -> homological-algebra`, la inclusion de los aciclicos—
+#: NO EXISTE en el grafo. Emite a `abelian-categories`, a `homology` y a
+#: `tactic-ring`; y recibe solo de `module-theory`.
+#:
+#: O sea: al grafo le falta un vertice Y una arista. Lo primero ya se sabia;
+#: lo segundo es nuevo.
+ARISTA_FALTANTE: tuple[str, str, str] = (
+    "exact-sequences", "homological-algebra",
+    "la inclusion de los complejos aciclicos, que es una de las dos patas del "
+    "pushout que define la categoria derivada",
+)
+
+#: Y una prediccion que NO se cumple. Se esperaba que las cuatro variantes se
+#: distinguieran por el nivel al que toman el cociente (Ch -> K, K -> D) y que
+#: al regenerarlas colapsaran a dos. No: son UN patron de tres componentes mas
+#: sus tres subconjuntos de dos, que es lo que emite el detector desde que se
+#: habilito la multiplicidad. No hay dos cocientes ahi, hay uno y su conjunto
+#: potencia.
+NO_SON_DOS_COCIENTES = (
+    "las cuatro son {alg-top, exact-seq, hom-alg} y sus tres subconjuntos de "
+    "dos, no cuatro niveles de cociente"
+)
 
 
 #: Restricciones que hay que imponer si la descomposicion usa ciertas
