@@ -118,6 +118,22 @@ def _censura(t):
     return re.sub(r"sk-ant-[A-Za-z0-9_\-]+", "sk-ant-«oculta»", t or "")
 
 
+#: Fallos de INFRAESTRUCTURA, no del sistema.
+#:
+#: Se separan porque confundirlos es justo la clase de medicion deshonesta
+#: contra la que este repo tiene una suite entera. La primera pasada de 24
+#: casos dio 7/24 y esa cifra no medía la fidelidad del sistema: medía en que
+#: caso se acabo el saldo de la API. Presentarla como nota habria sido mentir
+#: con una tabla.
+_INFRA = ("credit balance", "rate_limit", "overloaded", "not_found_error",
+          "authentication_error", "permission_error", "APIConnectionError",
+          "APITimeoutError", "InternalServerError")
+
+
+def _es_infra(msg):
+    return bool(msg) and any(p.lower() in msg.lower() for p in _INFRA)
+
+
 async def _juzgar(llm, pregunta, codigo):
     """El juez ve la pregunta y el código. NO ve el veredicto de Lean."""
     if not codigo:
@@ -184,7 +200,11 @@ async def main(rapido=False):
             except Exception as e:
                 motivo = "juez fallo: %s" % type(e).__name__
 
-        if espera == "no-math":
+        if _es_infra(err) or _es_infra(motivo):
+            # ok=None: NO MEDIDO. No cuenta ni a favor ni en contra.
+            ok = None
+            detalle = "NO MEDIDO — falló la API: " + (err or motivo)[:80]
+        elif espera == "no-math":
             ok = codigo is None
             detalle = "no tocó Lean" if ok else "entró al pipeline sin ser matemática"
         elif espera == "rechaza":
@@ -202,20 +222,38 @@ async def main(rapido=False):
         filas.append(dict(area=area, pregunta=q, espera=espera, ok=ok,
                           lean=lean, fiel=fiel, motivo=motivo, seg=round(dt, 1),
                           codigo=(codigo or "")[:400], error=err))
-        print("%2d/%d %-11s %-4s %5.0fs  %s" %
-              (i, len(casos), area, "ok" if ok else "FALLA", dt, q[:48]))
+        print("%2d/%d %-11s %-9s %5.0fs  %s" %
+              (i, len(casos), area,
+               "ok" if ok else ("NO MEDIDO" if ok is None else "FALLA"),
+               dt, q[:48]))
         print("        %s" % detalle)
 
+        # Sin saldo no tiene sentido seguir: cada caso restante seria otro
+        # NO MEDIDO y otra ejecucion de Lean tirada.
+        if "credit balance" in (err or "").lower():
+            print("\n  SE ACABÓ EL SALDO DE LA API — se detiene el banco.")
+            print("  Los %d casos restantes quedan SIN MEDIR." % (len(casos) - i))
+            break
+
     print("\n" + "=" * 70)
+    medidos = [f for f in filas if f["ok"] is not None]
+    sin_medir = len(casos) - len(medidos)
     for grupo in ("verifica", "rechaza", "no-math"):
-        sub = [f for f in filas if f["espera"] == grupo]
-        if sub:
-            print("  %-9s  %d/%d" % (grupo, sum(f["ok"] for f in sub), len(sub)))
-    infieles = [f for f in filas if f["fiel"] is False]
+        g = [f for f in medidos if f["espera"] == grupo]
+        if g:
+            print("  %-9s  %d/%d" % (grupo, sum(f["ok"] for f in g), len(g)))
+    infieles = [f for f in medidos if f["fiel"] is False]
     print("\n  VERIFICADOS PERO INFIELES: %d" % len(infieles))
     for f in infieles:
         print("     %s\n        %s" % (f["pregunta"][:56], f["motivo"]))
-    print("\n  TOTAL %d/%d" % (sum(f["ok"] for f in filas), len(filas)))
+    if medidos:
+        print("\n  TOTAL %d/%d MEDIDOS"
+              % (sum(f["ok"] for f in medidos), len(medidos)))
+    if sin_medir:
+        print("\n  %d de %d casos SIN MEDIR — fallo de la API, no del sistema."
+              % (sin_medir, len(casos)))
+        print("  Mientras queden sin medir, NO hay nota del sistema: una cifra "
+              "parcial\n  presentada como total seria una medicion deshonesta.")
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
     io.open(SALIDA, "w", encoding="utf-8").write(
