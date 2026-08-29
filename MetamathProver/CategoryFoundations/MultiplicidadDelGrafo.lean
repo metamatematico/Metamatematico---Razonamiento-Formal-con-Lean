@@ -59,7 +59,7 @@ theorem card_anillo_subyacente : Fintype.card (anilloSubyacente (ZMod 5)) = 5 :=
 
 theorem card_anillo_matrices :
     Fintype.card (anilloMatrices (ZMod 5)) = 625 := by
-  simp [anilloMatrices, Matrix, Fintype.card_fun]
+  simp [anilloMatrices, Matrix]
 
 theorem card_anillo_trivial : Fintype.card (anilloTrivial (ZMod 5)) = 1 := rfl
 

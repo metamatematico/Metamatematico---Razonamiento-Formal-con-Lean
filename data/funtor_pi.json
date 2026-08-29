@@ -382,13 +382,13 @@
     },
     {
       "componentes": [
-        "differential-geometry",
-        "complex-analysis"
+        "complex-analysis",
+        "differential-geometry"
       ],
       "join": "complex-geometry",
       "pi_componentes": [
-        "geometry",
-        "analysis"
+        "analysis",
+        "geometry"
       ],
       "pi_join": "geometry",
       "cocono": true,
@@ -412,17 +412,17 @@
     },
     {
       "componentes": [
-        "point-set-topology",
+        "arithmetic-geometry",
         "homological-algebra",
-        "functors",
-        "arithmetic-geometry"
+        "point-set-topology",
+        "functors"
       ],
       "join": "sheafed-space-complexes",
       "pi_componentes": [
-        "topology",
+        "number-theory",
         "algebra",
-        "fundacional",
-        "number-theory"
+        "topology",
+        "fundacional"
       ],
       "pi_join": "topology",
       "cocono": true,
@@ -431,13 +431,13 @@
     },
     {
       "componentes": [
-        "homotopy-theory",
-        "cic"
+        "cic",
+        "homotopy-theory"
       ],
       "join": "homotopy-type-theory",
       "pi_componentes": [
-        "topology",
-        "fundacional"
+        "fundacional",
+        "topology"
       ],
       "pi_join": "logic",
       "cocono": true,
@@ -461,15 +461,15 @@
     },
     {
       "componentes": [
-        "algebraic-number-theory",
         "algebraic-geometry",
-        "field-theory"
+        "field-theory",
+        "algebraic-number-theory"
       ],
       "join": "arithmetic-geometry",
       "pi_componentes": [
-        "number-theory",
         "geometry",
-        "algebra"
+        "algebra",
+        "number-theory"
       ],
       "pi_join": "number-theory",
       "cocono": true,
@@ -538,13 +538,13 @@
     },
     {
       "componentes": [
-        "point-set-topology",
-        "probability-theory"
+        "probability-theory",
+        "point-set-topology"
       ],
       "join": "ergodic-theory",
       "pi_componentes": [
-        "topology",
-        "probability"
+        "probability",
+        "topology"
       ],
       "pi_join": "probability",
       "cocono": true,
@@ -615,13 +615,13 @@
     },
     {
       "componentes": [
-        "fol-deduction",
-        "tactic-exact"
+        "tactic-exact",
+        "fol-deduction"
       ],
       "join": "strategy-contradiction",
       "pi_componentes": [
-        "fundacional",
-        "lean-tactics"
+        "lean-tactics",
+        "fundacional"
       ],
       "pi_join": "proof-strategies",
       "cocono": true,
@@ -645,13 +645,13 @@
     },
     {
       "componentes": [
-        "algebraic-number-theory",
-        "field-extensions"
+        "field-extensions",
+        "algebraic-number-theory"
       ],
       "join": "number-fields",
       "pi_componentes": [
-        "number-theory",
-        "algebra"
+        "algebra",
+        "number-theory"
       ],
       "pi_join": "number-theory",
       "cocono": true,
@@ -660,14 +660,14 @@
     },
     {
       "componentes": [
+        "exact-sequences",
         "algebraic-topology",
-        "homological-algebra",
-        "exact-sequences"
+        "homological-algebra"
       ],
       "join": "derived-category",
       "pi_componentes": [
-        "topology",
         "algebra",
+        "topology",
         "algebra"
       ],
       "pi_join": "algebra",
@@ -707,8 +707,8 @@
     },
     {
       "componentes": [
-        "derived-category",
-        "abelian-groups"
+        "abelian-groups",
+        "derived-category"
       ],
       "join": "graded-objects",
       "pi_componentes": [
@@ -723,14 +723,14 @@
     {
       "componentes": [
         "point-set-topology",
-        "homological-algebra",
-        "arithmetic-geometry"
+        "arithmetic-geometry",
+        "homological-algebra"
       ],
       "join": "sheafed-space-complexes",
       "pi_componentes": [
         "topology",
-        "algebra",
-        "number-theory"
+        "number-theory",
+        "algebra"
       ],
       "pi_join": "topology",
       "cocono": true,
@@ -784,13 +784,13 @@
     },
     {
       "componentes": [
-        "random-variables",
-        "measure-theory"
+        "measure-theory",
+        "random-variables"
       ],
       "join": "conditional-expectation",
       "pi_componentes": [
-        "probability",
-        "analysis"
+        "analysis",
+        "probability"
       ],
       "pi_join": "probability",
       "cocono": true,
