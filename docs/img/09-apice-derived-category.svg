@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 400" role="img" aria-label="El vertice que faltaba bajo la etiqueta homology. A la izquierda, el cuadrado del pushout que define la categoria derivada: secuencias exactas se incluye en algebra homologica por la inclusion de los aciclicos, y se colapsa a cero; el pushout de ambas es la categoria derivada, que es el vertice que faltaba. La topologia algebraica entra por las cadenas singulares, que mandan equivalencias debiles a cuasi-isomorfismos y por tanto descienden al cociente. A la derecha, la homologia y la cohomologia salen de la categoria derivada hacia los objetos graduados como dos funtores distintos, que difieren en el signo de la graduacion: ese par de flechas paralelas es multiplicidad genuina, dos elementos en un mismo Hom.">
+<style>
+  svg { color: #1f2328; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  text { fill: currentColor; }
+  .lbl  { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, sans-serif; font-weight: 500; }
+  .dim  { opacity: .62; }
+  .e-line { stroke: #5b4cc4; } .e-fill { fill: #5b4cc4; }
+  .v-line { stroke: #0f766e; } .v-fill { fill: #0f766e; }
+  .l-line { stroke: #a16207; } .l-fill { fill: #a16207; }
+  .g-line { stroke: #b91c1c; } .g-fill { fill: #b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    svg { color: #c9d1d9; }
+    .e-line { stroke: #a78bfa; } .e-fill { fill: #a78bfa; }
+    .v-line { stroke: #2dd4bf; } .v-fill { fill: #2dd4bf; }
+    .l-line { stroke: #fbbf24; } .l-fill { fill: #fbbf24; }
+    .g-line { stroke: #f87171; } .g-fill { fill: #f87171; }
+  }
+</style>
+
+  <defs>
+    <marker id="dv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="26" font-size="10.5" class="dim">EL CUADRADO QUE DEFINE EL VÉRTICE — y que hubo que declarar que conmuta</text>
+
+  <rect x="40" y="52" width="192" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="136" y="76" text-anchor="middle" font-size="11.5">exact-sequences</text>
+  <text x="136" y="92" text-anchor="middle" font-size="9" class="dim">los complejos acíclicos</text>
+
+  <rect x="352" y="52" width="204" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="454" y="76" text-anchor="middle" font-size="11.5">homological-algebra</text>
+  <text x="454" y="92" text-anchor="middle" font-size="9" class="dim">los complejos</text>
+
+  <rect x="40" y="224" width="192" height="46" rx="9" fill="none" class="dim" stroke="currentColor" stroke-width="1.4"/>
+  <text x="136" y="252" text-anchor="middle" font-size="12">0</text>
+
+  <rect x="336" y="216" width="236" height="62" rx="10" fill="none" class="e-line" stroke-width="2.6"/>
+  <text x="454" y="242" text-anchor="middle" class="lbl e-fill" font-size="13">derived-category</text>
+  <text x="454" y="262" text-anchor="middle" font-size="9.5" class="dim">complejos módulo cuasi-isomorfismo</text>
+
+  <line x1="232" y1="78" x2="352" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#dv)"/>
+  <text x="292" y="70" text-anchor="middle" font-size="9.5" class="e-fill">inclusión</text>
+
+  <line x1="136" y1="104" x2="136" y2="224" stroke="currentColor" stroke-width="1.5" marker-end="url(#dv)"/>
+  <text x="126" y="168" text-anchor="end" font-size="9.5" class="e-fill">colapso</text>
+
+  <line x1="454" y1="104" x2="454" y2="216" class="e-line" stroke-width="1.8" marker-end="url(#dv)"/>
+  <text x="466" y="164" font-size="9.5" class="e-fill">localización</text>
+
+  <line x1="232" y1="247" x2="336" y2="247" class="e-line" stroke-width="1.5" marker-end="url(#dv)"/>
+
+  <rect x="40" y="316" width="240" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="160" y="340" text-anchor="middle" font-size="11.5">algebraic-topology</text>
+  <text x="160" y="356" text-anchor="middle" font-size="9" class="dim">la tercera pata</text>
+
+  <path d="M 280 342 L 400 342 L 400 278" fill="none" class="e-line" stroke-width="1.6" marker-end="url(#dv)"/>
+  <text x="292" y="334" font-size="9.5" class="e-fill">cadenas singulares C₊</text>
+  <text x="292" y="368" font-size="9" class="dim">mandan equivalencias débiles a cuasi-isomorfismos, luego descienden</text>
+
+  <line x1="640" y1="40" x2="640" y2="380" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" class="dim"/>
+
+  <text x="676" y="26" font-size="10.5" class="dim">Y LAS DOS FLECHAS QUE SALEN DE ÉL</text>
+
+  <rect x="676" y="216" width="204" height="62" rx="10" fill="none" class="e-line" stroke-width="2"/>
+  <text x="778" y="242" text-anchor="middle" class="lbl e-fill" font-size="12.5">derived-category</text>
+  <text x="778" y="261" text-anchor="middle" font-size="9" class="dim">el mismo de la izquierda</text>
+
+  <rect x="676" y="52" width="204" height="62" rx="10" fill="none" class="v-line" stroke-width="2"/>
+  <text x="778" y="78" text-anchor="middle" class="lbl v-fill" font-size="12.5">graded-objects</text>
+  <text x="778" y="97" text-anchor="middle" font-size="9" class="dim">grupos abelianos graduados</text>
+
+  <path d="M 740 216 C 726 178, 726 152, 740 114" fill="none" class="v-line" stroke-width="1.9" marker-end="url(#dv)"/>
+  <path d="M 816 216 C 830 178, 830 152, 816 114" fill="none" class="v-line" stroke-width="1.9" marker-end="url(#dv)"/>
+  <text x="706" y="170" text-anchor="end" font-size="11.5" class="v-fill">H₊</text>
+  <text x="850" y="170" font-size="11.5" class="v-fill">H*</text>
+
+  <text x="778" y="316" text-anchor="middle" font-size="10.5" class="lbl v-fill">dos flechas paralelas distintas</text>
+  <text x="778" y="334" text-anchor="middle" font-size="9.5" class="dim">difieren en el signo de la graduación,</text>
+  <text x="778" y="350" text-anchor="middle" font-size="9.5" class="dim">no en dominio ni codominio</text>
+  <text x="778" y="372" text-anchor="middle" font-size="10" class="e-fill">|Hom| = 2 — multiplicidad genuina</text>
+</svg>

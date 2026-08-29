@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 960" role="img" aria-label="Flujo de METAMATEMATICO en tres bandas. Banda uno: la consulta entra en la red de cuatro co-reguladores, que decide si participa Lean; si no es matematica va al LLM conversacional. Banda dos, el pipeline Lean-primero: el LLM formaliza, Lean verifica y el LLM traduce el veredicto. El verificador tiene cuatro salidas: verificado sigue a la traduccion; error de modulo va a repair_imports y reverifica; error semantico devuelve el error al LLM para reformular; sorry va a la cascada de doce tacticas. Banda tres: evaluacion, memoria con PPO y complexificacion del grafo, despues de responder.">
+<style>
+  svg { color: #1f2328; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  text { fill: currentColor; }
+  .lbl  { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, sans-serif; font-weight: 500; }
+  .dim  { opacity: .62; }
+  .e-line { stroke: #5b4cc4; } .e-fill { fill: #5b4cc4; }
+  .v-line { stroke: #0f766e; } .v-fill { fill: #0f766e; }
+  .l-line { stroke: #a16207; } .l-fill { fill: #a16207; }
+  .g-line { stroke: #b91c1c; } .g-fill { fill: #b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    svg { color: #c9d1d9; }
+    .e-line { stroke: #a78bfa; } .e-fill { fill: #a78bfa; }
+    .v-line { stroke: #2dd4bf; } .v-fill { fill: #2dd4bf; }
+    .l-line { stroke: #fbbf24; } .l-fill { fill: #fbbf24; }
+    .g-line { stroke: #f87171; } .g-fill { fill: #f87171; }
+  }
+</style>
+
+  <defs>
+    <marker id="f1a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <!-- ══ BANDA 1 ═══════════════════════════════════════════════════════ -->
+  <text x="40" y="32" font-size="10.5" class="dim">BANDA 1 · decide SI participa Lean</text>
+
+  <rect x="40" y="50" width="196" height="66" rx="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <text x="138" y="76" text-anchor="middle" class="lbl" font-size="13">Consulta</text>
+  <text x="138" y="96" text-anchor="middle" font-size="10" class="dim">UI · CLI · scripts</text>
+
+  <rect x="300" y="50" width="300" height="66" rx="9" fill="none" class="e-line" stroke-width="1.8"/>
+  <text x="450" y="76" text-anchor="middle" class="lbl e-fill" font-size="13">Red de co-reguladores</text>
+  <text x="450" y="96" text-anchor="middle" font-size="10" class="dim">CR_tac · CR_org · CR_str · CR_int</text>
+
+  <rect x="664" y="50" width="196" height="66" rx="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <text x="762" y="76" text-anchor="middle" class="lbl" font-size="13">¿es matemática?</text>
+  <text x="762" y="96" text-anchor="middle" font-size="10" class="dim">_is_mathematical()</text>
+
+  <rect x="960" y="50" width="240" height="66" rx="9" fill="none" class="l-line" stroke-width="1.6"/>
+  <text x="1080" y="76" text-anchor="middle" class="lbl l-fill" font-size="13">LLM conversacional</text>
+  <text x="1080" y="96" text-anchor="middle" font-size="10" class="dim">sin verificación formal</text>
+
+  <line x1="236" y1="83" x2="300" y2="83" stroke="currentColor" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="600" y1="83" x2="664" y2="83" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="860" y1="83" x2="960" y2="83" class="l-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <text x="910" y="74" text-anchor="middle" font-size="11" class="l-fill">no</text>
+
+  <path d="M 762 116 L 762 150 L 620 150 L 620 186" fill="none" class="v-line" stroke-width="2" marker-end="url(#f1a)"/>
+  <text x="790" y="140" font-size="11" class="v-fill">sí</text>
+
+  <!-- ══ BANDA 2 ═══════════════════════════════════════════════════════ -->
+  <rect x="40" y="186" width="1160" height="430" rx="12" fill="none" class="v-line" stroke-width="2.2"/>
+  <text x="620" y="214" text-anchor="middle" class="lbl v-fill" font-size="13.5">BANDA 2 · PIPELINE LEAN-PRIMERO — la verdad la produce Lean, no el LLM</text>
+
+  <!-- fila principal -->
+  <rect x="86" y="250" width="236" height="84" rx="9" fill="none" class="l-line" stroke-width="1.8"/>
+  <text x="204" y="278" text-anchor="middle" class="lbl l-fill" font-size="13">1 · LLM formaliza</text>
+  <text x="204" y="300" text-anchor="middle" font-size="10" class="dim">rol: formalizador</text>
+  <text x="204" y="318" text-anchor="middle" font-size="10" class="dim">few-shot Lean 4</text>
+
+  <rect x="492" y="244" width="256" height="96" rx="9" fill="none" class="v-line" stroke-width="2.6"/>
+  <text x="620" y="276" text-anchor="middle" class="lbl v-fill" font-size="15">2 · LEAN verifica</text>
+  <text x="620" y="300" text-anchor="middle" font-size="10.5" class="v-fill">fuente de verdad</text>
+  <text x="620" y="320" text-anchor="middle" font-size="10" class="dim">lake env lean · Mathlib</text>
+
+  <rect x="900" y="250" width="236" height="84" rx="9" fill="none" class="l-line" stroke-width="1.8"/>
+  <text x="1018" y="278" text-anchor="middle" class="lbl l-fill" font-size="13">3 · LLM traduce</text>
+  <text x="1018" y="300" text-anchor="middle" font-size="10" class="dim">rol: traductor,</text>
+  <text x="1018" y="318" text-anchor="middle" font-size="10" class="dim">NO razonador</text>
+
+  <line x1="322" y1="292" x2="492" y2="292" class="v-line" stroke-width="2.2" marker-end="url(#f1a)"/>
+  <line x1="748" y1="292" x2="900" y2="292" class="v-line" stroke-width="2.2" marker-end="url(#f1a)"/>
+  <text x="824" y="282" text-anchor="middle" font-size="10.5" class="v-fill">verificado</text>
+
+  <!-- router: las cuatro salidas del verificador -->
+  <line x1="620" y1="340" x2="620" y2="382" class="v-line" stroke-width="1.6"/>
+  <text x="642" y="366" font-size="10.5" class="dim">¿qué dijo Lean?</text>
+  <line x1="160" y1="382" x2="1040" y2="382" class="v-line" stroke-width="1.4"/>
+  <line x1="160" y1="382" x2="160" y2="420" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="464" y1="382" x2="464" y2="420" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="968" y1="382" x2="968" y2="420" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <line x1="232" y1="420" x2="232" y2="382" class="e-line" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#f1a)"/>
+  <line x1="536" y1="420" x2="536" y2="382" class="e-line" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#f1a)"/>
+  <line x1="1040" y1="420" x2="1040" y2="382" class="e-line" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#f1a)"/>
+
+  <rect x="80" y="420" width="232" height="76" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="196" y="440" text-anchor="middle" font-size="10" class="e-fill">ERROR de módulo</text>
+  <text x="196" y="462" text-anchor="middle" class="lbl" font-size="12">repair_imports</text>
+  <text x="196" y="482" text-anchor="middle" font-size="9.5" class="dim">import · open ns · renombre</text>
+
+  <rect x="384" y="420" width="232" height="76" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="500" y="440" text-anchor="middle" font-size="10" class="e-fill">ERROR semántico</text>
+  <text x="500" y="462" text-anchor="middle" class="lbl" font-size="12">revisión con el error</text>
+  <text x="500" y="482" text-anchor="middle" font-size="9.5" class="dim">máx. 2 rondas</text>
+
+  <rect x="878" y="420" width="252" height="76" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="1004" y="440" text-anchor="middle" font-size="10" class="e-fill">SORRY</text>
+  <text x="1004" y="462" text-anchor="middle" class="lbl" font-size="12">cascada de 12 tácticas</text>
+  <text x="1004" y="482" text-anchor="middle" font-size="9.5" class="dim">orden aprendido · top-3 88 %</text>
+
+  <!-- retornos: corredor propio por DEBAJO, sin tocar titulo ni cajas -->
+  <text x="196" y="522" text-anchor="middle" font-size="9.5" class="e-fill">↑ reverifica en Lean</text>
+  <text x="500" y="522" text-anchor="middle" font-size="9.5" class="e-fill">↑ vuelve al paso 1</text>
+  <text x="1004" y="522" text-anchor="middle" font-size="9.5" class="e-fill">↑ reverifica en Lean</text>
+
+  <text x="620" y="588" text-anchor="middle" font-size="10.5" class="g-fill">Si Lean no verifica, el aviso va DELANTE de la explicación, con el motivo.</text>
+  <text x="620" y="606" text-anchor="middle" font-size="10" class="dim">Ninguna respuesta sale con el aspecto de verificada sin serlo.</text>
+
+  <!-- salida al usuario: corredor libre a la derecha -->
+  <path d="M 1136 292 L 1170 292 L 1170 700 L 1096 700" fill="none" class="l-line" stroke-width="1.8" marker-end="url(#f1a)"/>
+  <text x="1186" y="668" text-anchor="middle" font-size="9.5" class="l-fill">al usuario</text>
+
+  <!-- ══ BANDA 3 ═══════════════════════════════════════════════════════ -->
+  <text x="368" y="650" font-size="10.5" class="dim">BANDA 3 · aprende de esta consulta; los cambios sirven a las siguientes</text>
+  <line x1="146" y1="616" x2="146" y2="668" class="e-line" stroke-width="1.6" marker-end="url(#f1a)"/>
+  <text x="158" y="632" font-size="9.5" class="e-fill">entra la consulta,</text>
+  <text x="158" y="644" font-size="9.5" class="e-fill">la decisión y el veredicto</text>
+
+  <rect x="40" y="668" width="212" height="64" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="146" y="696" text-anchor="middle" class="lbl e-fill" font-size="12">4 · Evaluación</text>
+  <text x="146" y="716" text-anchor="middle" font-size="9.5" class="dim">éxito de la interacción</text>
+
+  <rect x="296" y="668" width="240" height="64" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="416" y="696" text-anchor="middle" class="lbl e-fill" font-size="12">5 · Memoria MES + PPO</text>
+  <text x="416" y="716" text-anchor="middle" font-size="9.5" class="dim">qué táctica funcionó</text>
+
+  <rect x="580" y="668" width="248" height="64" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="704" y="696" text-anchor="middle" class="lbl e-fill" font-size="12">6 · Complexificación</text>
+  <text x="704" y="716" text-anchor="middle" font-size="9.5" class="dim">colímites y huecos</text>
+
+  <rect x="900" y="668" width="196" height="64" rx="9" fill="none" class="v-line" stroke-width="1.8"/>
+  <text x="998" y="706" text-anchor="middle" class="lbl v-fill" font-size="13">Respuesta</text>
+
+  <line x1="252" y1="700" x2="296" y2="700" class="e-line" stroke-width="1.5" marker-end="url(#f1a)"/>
+  <line x1="536" y1="700" x2="580" y2="700" class="e-line" stroke-width="1.5" marker-end="url(#f1a)"/>
+
+  <!-- Lazo de realimentación: lo aprendido modifica el grafo que usarán las
+       consultas siguientes. Sin esta flecha la banda 3 parece un callejón sin
+       salida; en el codigo, apply_option cambia el numero de skills y
+       llenar_hueco_conceptual añade nodos verificados por Lean. -->
+  <path d="M 704 734 L 704 784 L 20 784 L 20 85 L 40 85"
+        fill="none" class="e-line" stroke-width="1.6" stroke-dasharray="6 4"
+        marker-end="url(#f1a)"/>
+  <text x="726" y="762" font-size="9.5" class="e-fill">el grafo cambia — no para esta consulta, para las siguientes</text>
+
+  <text x="40" y="828" font-size="9.5" class="dim">La respuesta ya salió cuando esta banda arranca: la consulta actual se resuelve sobre un grafo estable.</text>
+  <text x="40" y="844" font-size="9.5" class="dim">Lo que aquí se aprende —memoria, pesos, nodos nuevos verificados por Lean— entra en el grafo y beneficia a la consulta siguiente.</text>
+</svg>

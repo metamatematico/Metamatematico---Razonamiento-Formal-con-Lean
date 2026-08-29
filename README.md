@@ -2,11 +2,12 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-381_passing-brightgreen.svg)](#8-tests)
-[![Join-envoltorios](https://img.shields.io/badge/Agentes-19_join--envoltorios-blueviolet.svg)](#3-sistema-multi-agente-jerarquía-de-joins)
-[![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-546K_params-red.svg)](#5-red-neuronal-gnn--ppo)
-[![Dataset](https://img.shields.io/badge/Dataset-5.4M_ejemplos-orange.svg)](#datasets)
-[![Streamlit](https://img.shields.io/badge/App-Streamlit-ff4b4b.svg)](#10-aplicación-web)
+[![Tests](https://img.shields.io/badge/Tests-713_passing-brightgreen.svg)](#9-tests)
+[![Emergencia](https://img.shields.io/badge/Orden_de_Ehresmann-3-8b5cf6.svg)](#3-el-núcleo-categórico-cómo-el-grafo-descubre-conceptos)
+[![Join-envoltorios](https://img.shields.io/badge/Agentes-14_join--envoltorios-blueviolet.svg)](#4-sistema-multi-agente-jerarquía-de-joins)
+[![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-546K_params-red.svg)](#6-red-neuronal-gnn--ppo)
+[![Dataset](https://img.shields.io/badge/Dataset-5.4M_ejemplos-orange.svg)](#10-datasets)
+[![Streamlit](https://img.shields.io/badge/App-Streamlit-ff4b4b.svg)](#11-aplicación-web)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
@@ -17,18 +18,21 @@
 
 1. [Qué es este sistema](#1-qué-es-este-sistema)
 2. [El cerebro formal: NLE + Lean 4](#2-el-cerebro-formal-nle--lean-4)
-3. [Sistema Multi-Agente: Jerarquía de Joins](#3-sistema-multi-agente-jerarquía-de-joins)
-4. [Memory Evolutive Systems (MES)](#4-memory-evolutive-systems-mes)
-5. [Red Neuronal GNN + PPO](#5-red-neuronal-gnn--ppo)
-6. [Co-Reguladores](#6-co-reguladores)
-7. [Cómo funciona: flujo completo de una consulta](#7-cómo-funciona-flujo-completo-de-una-consulta)
-8. [Tests](#8-tests)
-9. [Datasets](#datasets)
-10. [Aplicación Web](#10-aplicación-web)
-11. [Entrenamiento](#11-entrenamiento)
-12. [Estructura del Repositorio](#12-estructura-del-repositorio)
-13. [Instalación](#13-instalación)
-14. [Fundamento Teórico](#14-fundamento-teórico)
+3. [El núcleo categórico: cómo el grafo descubre conceptos](#3-el-núcleo-categórico-cómo-el-grafo-descubre-conceptos)
+4. [Sistema Multi-Agente: Jerarquía de Joins](#4-sistema-multi-agente-jerarquía-de-joins)
+5. [Memory Evolutive Systems (MES)](#5-memory-evolutive-systems-mes)
+6. [Red Neuronal GNN + PPO](#6-red-neuronal-gnn--ppo)
+7. [Co-Reguladores](#7-co-reguladores)
+8. [Cómo funciona: flujo completo de una consulta](#8-cómo-funciona-flujo-completo-de-una-consulta)
+9. [Tests](#9-tests)
+10. [Datasets](#10-datasets)
+11. [Aplicación Web](#11-aplicación-web)
+12. [Entrenamiento](#12-entrenamiento)
+13. [Estructura del Repositorio](#13-estructura-del-repositorio)
+14. [Instalación](#14-instalación)
+15. [Fundamento Teórico](#15-fundamento-teórico)
+
+> **Documentación visual completa** — [Cómo funciona NLE v7.0 por dentro](https://claude.ai/code/artifact/8907db6a-017e-41ff-a434-b1eaf4ac0631): dieciséis secciones con los nueve diagramas de este README en contexto, el registro de los dieciocho defectos que encontró formalizar, y las cifras de cada medición. Fuente en [`docs/arquitectura_nle.html`](docs/arquitectura_nle.html).
 
 ---
 
@@ -57,6 +61,13 @@ Los modelos de lenguaje pueden generar demostraciones que *suenan* correctas per
 **Este sistema garantiza que el LLM nunca pueda inventar matemáticas** porque su rol está arquitecturalmente limitado a:
 1. Escribir código Lean (formalizar) — antes de que Lean lo verifique
 2. Traducir el resultado de Lean a palabras — después de que Lean lo verifique
+
+
+<p align="center">
+  <img src="docs/img/06-lean-fuente-verdad.svg" alt="LeanClient intenta primero un subproceso local de lake env lean. Si el binario no está disponible, cae a una petición HTTP al servicio remoto lean_api, que corre el mismo comando dentro de su propio contenedor con Mathlib precompilado." width="100%">
+</p>
+
+<p align="center"><sub>La verificación corre local por defecto, con respaldo remoto para despliegues sin los ~6 GB de Mathlib compilado. Ambos caminos devuelven el mismo <code>LeanResult</code>: el resto del sistema no distingue cuál se usó.</sub></p>
 
 ### Dos tipos de formalización
 
@@ -137,7 +148,103 @@ Si `try_fill_sorry_smart` ya intentó los N solvers en orden inteligente y fall�
 
 ---
 
-## 3. Sistema Multi-Agente: Jerarquía de Joins
+## 3. El núcleo categórico: cómo el grafo descubre conceptos
+
+El grafo de habilidades no es un índice: es una **categoría**, y el sistema le pregunta cosas que solo tienen sentido en ese lenguaje. La central es *¿qué concepto unifica estas áreas?* — formalmente, cuál es el **colímite** de un patrón.
+
+### Qué descubre
+
+Nadie declara estos conceptos. El sistema los encuentra buscando el co-cono límite entre los objetos que ya existen:
+
+| patrón | colímite descubierto | orden |
+|---|---|---|
+| geometría aritmética + álgebra homológica + topología conjuntista | **espacios con haz de complejos** | **3** |
+| teoría de números algebraica + teoría de cuerpos + geometría algebraica | **geometría aritmética** | 2 |
+| geometría algebraica + ideales y anillos cociente | **variedades afines** | 2 |
+| topología algebraica + sucesiones exactas + álgebra homológica | **categoría derivada** | 1 |
+| acciones de grupo + teoría de grupos + teoría de módulos | **teoría de representaciones** | 1 |
+| funtores + álgebra conmutativa | **geometría algebraica** | 1 |
+| teoría de homotopía + CIC | **teoría de tipos homotópica** | 1 |
+
+Y cuando **no** hay concepto unificador, el sistema no inventa un nodo: lo registra como hueco. Inventarlo y cablearlo hasta que cumpla la propiedad universal sería asumir la conclusión.
+
+<p align="center">
+  <img src="docs/img/07-complexificacion.svg" alt="A la izquierda, dentro de la categoría K: un patrón cuyas dos cotas superiores son incomparables no tiene mínima, y se archiva como hueco conceptual. En el centro, la complexificación K′ inserta η(P), el conjunto de las cotas superiores del patrón, que es por construcción su colímite. A la derecha, la condición de preservación: si el patrón ya tenía colímite, el objeto asignado coincide con él y no aparece ninguno nuevo." width="100%">
+</p>
+
+### La barrera que hubo que cruzar
+
+Durante mucho tiempo el grafo fue una **categoría delgada**: `Hom(a,b)` era un booleano — o hay flecha o no la hay. Formalizar esa situación en Lean produjo un teorema incómodo, `lub_de_lubs`: en una categoría delgada el colímite es el supremo, el supremo es asociativo, y por tanto **todo colímite iterado se aplana a un solo paso**. El orden de complejidad de Ehresmann —la emergencia, que es la razón de ser del sistema— quedaba excluido por álgebra.
+
+No era un bug. Era un teorema en contra, y salir de él exigió abrir tres capas:
+
+<p align="center">
+  <img src="docs/img/08-capas-delgadez.svg" alt="Las tres capas de delgadez que hubo que abrir. Primera: el objeto Hom era un booleano y ahora guarda varios morfismos distinguidos por su construcción, con cinco pares del grafo con más de uno. Segunda: el test del colímite preguntaba si el ápice era alcanzable desde cada componente, una pregunta sobre vértices, y ahora exige exhibir una elección de flechas que conmute con los enlaces del patrón. Tercera: conmutar solo tiene sentido respecto a qué caminos se declaran iguales, así que aparece una congruencia explícita con una parte derivada del grafo y otra declarada a mano con su motivo matemático." width="100%">
+</p>
+
+Cerrar solo la primera no basta: con `Hom` no delgado pero el test sobre vértices, la conmutación sigue sin comprobarse. Al cerrar la segunda **cayeron cuatro de los 31 colímites registrados** — eran cotas superiores minimales sobre las que ninguna elección de flechas conmutaba, y existían solo porque la delgadez regalaba la conmutación.
+
+### El vértice que el grafo pedía y no tenía
+
+El resultado más interesante llegó al auditar qué es cada nodo. Cuatro descomposiciones apuntaban a `homology`, que **no es una categoría: es un funtor**, y un funtor es una arista. Pero el patrón estaba bien: componentes legítimas, forma correcta, co-cono bien formado. El grafo tenía razón en que ahí había algo, y lo había etiquetado con el nombre del invariante que ese sitio calcula, porque era la etiqueta más cercana disponible.
+
+<p align="center">
+  <img src="docs/img/09-apice-derived-category.svg" alt="A la izquierda, el cuadrado del pushout que define la categoría derivada: las sucesiones exactas se incluyen en el álgebra homológica y se colapsan a cero, y el pushout de ambas es la categoría derivada. La topología algebraica entra por las cadenas singulares, que mandan equivalencias débiles a cuasi-isomorfismos y por tanto descienden al cociente. A la derecha, la homología y la cohomología salen de la categoría derivada hacia los objetos graduados como dos funtores distintos que difieren en el signo de la graduación: dos elementos en un mismo Hom, que es multiplicidad genuina." width="100%">
+</p>
+
+El ápice correcto es el cociente del álgebra homológica módulo las sucesiones exactas — la **categoría derivada**. Con ella las tres patas pasan a ser tres cosas distintas —la inclusión de los acíclicos, el colapso, y las cadenas singulares— y ninguna es la homología: la descomposición deja de ser circular y pasa a ser un teorema.
+
+`homology` y `cohomology` se degradan a lo que son: dos funtores `D(A) → grAb` que difieren en el signo de la graduación. Ese par de flechas paralelas es multiplicidad genuina — el mismo `Hom` con dos elementos distintos.
+
+### Altura no es emergencia
+
+Una distinción que costó descubrir y cambia las cifras. El sistema mide `cn`, la **altura constructiva**, tomando el máximo sobre todas las descomposiciones de un objeto. Está bien: es la altura bien fundada y es la que hace terminar la iteración.
+
+Pero altura no es irreducibilidad. Si un objeto admite *alguna* descomposición cuyas componentes sean todas de orden 0, es un colímite simple y su orden de Ehresmann es 1 — por muchas descomposiciones altas que tenga al lado. Ahí es donde el Principio de Multiplicidad deja de ser decorativo: solo mirando todas las descomposiciones se sabe.
+
+```
+cn (máximo)          0:152 · 1:16 · 2:4 · 3:1     ← altura
+orden irreducible    0:152 · 1:17 · 2:3 · 3:1     ← emergencia
+```
+
+**Objetos genuinamente emergentes: 4.** Y el máximo alcanzado es orden 3, que hereda de geometría aritmética porque esta aparece en todas sus descomposiciones. Ahí está la torre real: base → geometría aritmética → espacios con haz.
+
+### Qué es cada nodo
+
+Nada de lo anterior funciona sin saber qué es cada etiqueta. Mientras el grafo fue delgado, eran solo nombres; en cuanto `Hom` deja de ser un booleano hay que saber **qué flecha** y **si conmuta**. El caso que lo vuelve concreto: si `measure-theory` tiene por morfismos funciones medibles o núcleos, *cambia qué colímites existen*.
+
+Las 172 etiquetas se auditaron una por una:
+
+| marca | qué es | ¿vértice? | cuántas |
+|---|---|---|---|
+| **C** | una categoría | sí | 73 |
+| **S** | subcategoría plena de otra | sí | 14 |
+| **F** | un **funtor** — es arista, no vértice | no | 28 |
+| **O** | un objeto dentro de una categoría | no | 4 |
+| **T** | el nombre de un tema, sin objetos | no | 53 |
+
+Las 28 marcadas **F** estaban produciendo colímites falsos: el sistema «descubría» convergencias que eran errores de tipo. No se borran — se **degradan**, repartiendo sus aristas según la dirección, que es lo que hace que no se pierda nada.
+
+El detalle completo está en [`docs/INTERPRETACION_DEL_GRAFO.pdf`](docs/INTERPRETACION_DEL_GRAFO.pdf), generado desde `nucleo/graph/interpretacion.py` para que no pueda desfasarse.
+
+### Respaldo formal
+
+Cada operación categórica del Python está mapeada al teorema de Lean que la respalda, y la auditoría **valida los dos lados** — que el teorema exista y que la función exista:
+
+```
+57/58  operaciones con teorema que las respalda
+    0  sorry en todo el corpus (preguntado al compilador, no con grep)
+  385  teoremas en 21 archivos Lean
+    1  axiom explícito (gnnRankTactics_perm) + 3 opaque
+```
+
+`collectAxioms` confirma que ninguna constante depende de `sorryAx` y que todas se apoyan solo en los tres axiomas estándar de Mathlib.
+
+> **El límite de fondo, que ninguna cifra elimina**: Lean verifica los teoremas, no el Python. El mapeo `operación → teorema` es una afirmación bibliográfica comprobada en sus dos extremos, pero nadie ha demostrado que `find_colimit_cong` compute lo que el teorema caracteriza. Lo que sí se comprueba por test es que el grafo real cumpla las *hipótesis* de los teoremas.
+
+---
+
+## 4. Sistema Multi-Agente: Jerarquía de Joins
 
 ### Principio 3.1 — Separación proceso/objeto
 
@@ -149,7 +256,7 @@ El join (colímite en la categoría thin G del grafo) es un *objeto matemático*
 - El agente selecciona tácticas, consulta la memoria MES, actualiza pesos PPO
 - El reclamo matemático recae sobre el join; el agente es su envoltorio operativo
 
-El sistema tiene **19 join-envoltorios** en 3 niveles:
+El sistema tiene **19 join-envoltorios** en 3 niveles (14 de área + 4 pilares + 1 orquestador):
 
 ```
 L3: 1 Orchestrator         ← join-envoltorio del sistema completo
@@ -158,16 +265,16 @@ L2: 14 join-envoltorios    ← uno por área matemática (algebra, topology, …
        ↑
 L1:  4 PillarAgents        ← ZFC · CatThy · Logic · TypeThy
        ↑
-L0: 172 skills atómicos    ← los objetos del grafo (no agentes)
+L0: 173 skills atómicos    ← los objetos del grafo (no agentes)
 ```
 
 ### La jerarquía de 4 niveles
 
 ```
-L0: 172 skills atómicos (fundamentos + dominios + sub-ramas + estrategias)
+L0: 173 skills atómicos (fundamentos + dominios + sub-ramas + estrategias)
     ┌────────────────────────────────────────────────────────────┐
     │  ZFC (8)  │  CatThy (8)  │  Logic (7)  │  TypeThy (8)       │  (10 L0)
-    │  + 162 skills de dominio en 15 categorías, en tres niveles: │
+    │  + 163 skills de dominio en 15 categorías, en tres niveles: │
     │      L1 campo (group-theory, real-analysis…)                │
     │      L2 sub-área (homological-algebra, measure-theory…)     │
     │      L3 sub-rama (group-homomorphisms, prime-factorization, │
@@ -192,6 +299,13 @@ L2: 14 join-envoltorios de área
          ▼
 L3: Orchestrator  — join-envoltorio de los 14 joins de área
 ```
+
+
+<p align="center">
+  <img src="docs/img/04-multi-agente.svg" alt="Ciclo del sistema multi-agente. La consulta se clasifica en una de catorce categorías matemáticas. Con esa categoría se consulta la memoria procedimental del agente especializado, que devuelve la táctica que mejor le ha funcionado antes o nada si no tiene experiencia suficiente. Esa táctica encabeza la cascada de solvers que ejecuta Lean. El resultado de Lean vuelve a la memoria del agente de esa categoría." width="100%">
+</p>
+
+<p align="center"><sub>El ciclo se cierra con el veredicto de Lean, no con la opinión del modelo: la memoria solo guarda tácticas que de verdad cerraron un objetivo.</sub></p>
 
 ### Qué pilares fundamentan cada área
 
@@ -261,7 +375,13 @@ join-env[...]      ──→┘
 
 ---
 
-## 4. Memory Evolutive Systems (MES)
+## 5. Memory Evolutive Systems (MES)
+<p align="center">
+  <img src="docs/img/05-estado-compartido.svg" alt="PatternManager, ColimitBuilder y MESMemory se construyen una sola vez al iniciar Nucleo, encadenados porque ColimitBuilder necesita el PatternManager ya construido. Esas mismas referencias, más el grafo, se inyectan por constructor en CoRegulatorNetwork, EvolutionarySystem, MultiAgentOrchestrator, ConsultoresModule y el agente de RL." width="100%">
+</p>
+
+<p align="center"><sub>Cuando dos módulos «comparten memoria» en este sistema, literalmente apuntan al mismo objeto de Python. Si <code>EvolutionarySystem</code> recibiera su propio <code>PatternManager</code>, las uniones que proponen los co-reguladores apuntarían a patrones invisibles para él.</sub></p>
+
 
 Los Memory Evolutive Systems (Ehresmann) modelan cómo el conocimiento crece manteniendo coherencia estructural.
 
@@ -306,7 +426,7 @@ Sembrada inicialmente con **2,371 patrones** de ProofNet y NuminaMath. Crece con
 
 ---
 
-## 5. Red Neuronal GNN + PPO
+## 6. Red Neuronal GNN + PPO
 
 ### Arquitectura
 
@@ -382,7 +502,13 @@ Consulta → join-env selecciona táctica → Lean verifica
 
 ---
 
-## 6. Co-Reguladores
+## 7. Co-Reguladores
+<p align="center">
+  <img src="docs/img/03-co-reguladores.svg" alt="Los cuatro co-reguladores en orden de prioridad: táctico en cada interacción, organizacional cada 10 pasos, estratégico cada 100, integridad cada 50. Integridad es el único que puede sobreescribir la clasificación táctica, y solo con REPAIR_FRACTURE." width="100%">
+</p>
+
+<p align="center"><sub>El orden es fijo (Axioma 9.5): integridad &gt; estratégico &gt; organizacional &gt; táctico. Casi siempre gana el táctico porque es el único que corre en cada interacción.</sub></p>
+
 
 4 co-reguladores controlan el flujo antes de llegar a los join-envoltorios:
 
@@ -407,7 +533,14 @@ Consulta → join-env selecciona táctica → Lean verifica
 
 ---
 
-## 7. Cómo funciona: flujo completo de una consulta
+## 8. Cómo funciona: flujo completo de una consulta
+
+
+<p align="center">
+  <img src="docs/img/01-flujo-consulta.svg" alt="Flujo completo en tres bandas. La primera decide si Lean participa. La segunda es el pipeline Lean-primero: el LLM formaliza, Lean verifica y el LLM traduce; el verificador tiene cuatro salidas y cada una dispara una reparación distinta. La tercera aprende de la consulta después de haber respondido, y lo aprendido entra en el grafo para las consultas siguientes." width="100%">
+</p>
+
+<p align="center"><sub>El recorrido completo. La tercera banda arranca <em>después</em> de que la respuesta salió: la consulta actual se resuelve siempre sobre un grafo estable, y lo que aprende beneficia a la siguiente.</sub></p>
 
 ### El principio fundamental
 
@@ -536,38 +669,53 @@ El LLM formaliza (antes de Lean) y traduce (después de Lean). Nunca razona por 
 
 ---
 
-## 8. Tests
+
+<p align="center">
+  <img src="docs/img/02-ciclo-secuencia.svg" alt="Diagrama de secuencia con seis participantes: Usuario, Nucleo, CoRegulatorNetwork, Grafo más Memoria MES, LLM y Lean. Nucleo pide la decisión a la red de co-reguladores, lee el grafo y la memoria para construir el contexto, pide al LLM que formalice, verifica con Lean, usa la cascada de solucionadores si queda algún sorry, pide al LLM traducir el resultado verificado, guarda la experiencia y devuelve la respuesta." width="100%">
+</p>
+
+<p align="center"><sub>Trece pasos, dos llamadas al LLM y una verificación real de Lean en medio. El grafo se toca dos veces: se lee para dar contexto <em>antes</em> de formalizar, y se escribe para aprender <em>después</em> de responder.</sub></p>
+
+---
+
+## 9. Tests
 
 ```bash
 python -m pytest tests/ -o "addopts=" -v
 ```
 
-**382 tests en 18 suites**, organizadas por subsistema:
+**713 tests en 34 suites**. Las mayores, por lo que verifican:
 
 | Suite | Tests | Qué verifica |
 |---|---|---|
-| `test_colimits.py` | 28 | Propiedad universal, co-conos, morfismo mediador |
-| `test_evolution.py` | 22 | Extensión del grafo, snapshots, functores de transición |
-| `test_emergence.py` | 18 | Links simples/complejos, detección de emergencia |
-| `test_multiplicity.py` | 15 | Principio de multiplicidad (Principio 3.1) |
-| `test_co_regulators.py` | 20 | 4 CRs activos, E-equivalencia |
-| `test_gnn.py` | 25 | SkillGNN forward pass, graph_to_pyg() |
-| `test_ppo.py` | 18 | PPO update, GAE, clipping |
-| `test_lean.py` | 30 | Cliente Lean 4, SolverCascade, sorry analyzer |
-| `test_memory.py` | 22 | MES Memory, patrones procedimentales |
-| `test_live_learning.py` | 10 | Chat → PPO → weights update ciclo completo |
-| `test_cli.py` | 10 | `python -m nucleo chat` REPL |
-| `test_multi_agent.py` | 35 | join-envoltorios, PillarAgent, MES Bridge, classify_query() |
-| `test_patterns.py` | 26 | Axiomas 8.1–8.4, Teoremas 8.5–8.7, is_join() |
-| `test_math_domains.py` | 32 | 162 definiciones de dominio en 15 categorías |
-| `test_domain_tactic_pipeline.py` | 30 | classify_query ES+EN, domain_default_tactic, GoalAnalyzer.prioritize, try_fill_sorry_smart, skip_cascade, pipeline completo |
-| + 3 suites auxiliares | ~41 | Config, types, eval, graph base |
+| `test_interpretacion.py` | 61 | Las 172 etiquetas: qué es categoría, qué es funtor, qué se degrada |
+| `test_no_delgado.py` | 49 | La salida de la delgadez: `Hom` no booleano, congruencia, co-conos |
+| `test_lean_integration.py` | 48 | Cliente Lean 4, cascada de solvers, análisis de `sorry` |
+| `test_complexity_order.py` | 35 | Orden `cn`, orden irreducible, jerarquía emergente |
+| `test_math_domains.py` | 32 | Las 163 definiciones de dominio en 15 categorías |
+| `test_domain_tactic_pipeline.py` | 30 | `_math_via_lean` → táctica de dominio → cascada |
+| `test_hierarchy_integration.py` | 27 | Integración jerarquía ↔ razonamiento |
+| `test_colimits.py` | 26 | Propiedad universal, co-conos, morfismo mediador |
+| `test_formal_properties.py` | 26 | Axiomas 8.1–8.4, Teoremas 8.5–8.7 |
+| `test_ppo.py` | 25 | PPO update, GAE, clipping |
+| `test_complexificacion.py` | 19 | El paso K → K′, preservación y retirada selectiva |
+| `test_emergence.py` | 18 | Enlaces simples/complejos, ligaduras que descubren y no fabrican |
+| `test_funtor.py` | 11 | El funtor cociente π: Skills → Agentes |
+| `test_arranque_real.py` | 6 | Lo que solo aparece al **encender** el sistema entero |
+| + 20 suites más | 290 | Memoria, co-reguladores, pilares, GNN, CLI, evolución, guardianes |
+
+Cuatro suites son **guardianes**, y existen porque el proyecto ya se quemó con lo que vigilan:
+
+- `test_ui_coherencia.py` — las cifras escritas a mano que envejecen en silencio. La interfaz llegó a anunciar 76 skills con 172 cargados, y 124.420 parámetros cuando la red tiene 546.820.
+- `test_respaldo_lean.py` — que el mapeo `operación → teorema` no retroceda ni nombre cosas inexistentes.
+- `test_taxonomia_coherente.py` — que las categorías del grafo no se contradigan entre sí.
+- `test_arranque_real.py` — el más reciente. Los tres defectos que fija pasaron desapercibidos a 681 tests que verificaban cada módulo por separado: el grafo crecía al usarlo, el clasificador no reconocía «¿cuánto es 2 + 2?», y la multiplicidad que Lean certificó no llegaba al runtime.
 
 Los tests del pipeline de tácticas (`test_domain_tactic_pipeline.py`) verifican sin Lean instalado usando mocks del `LeanClient`.
 
 ---
 
-## 9. Datasets
+## 10. Datasets
 
 El sistema integra **5.4M+ ejemplos matemáticos** de datasets públicos:
 
@@ -588,7 +736,7 @@ El sistema integra **5.4M+ ejemplos matemáticos** de datasets públicos:
 
 ---
 
-## 10. Aplicación Web
+## 11. Aplicación Web
 
 La interfaz Streamlit permite usar el sistema sin escribir código:
 
@@ -630,14 +778,14 @@ Abre en `http://localhost:8501` · Demo en Streamlit Cloud disponible.
 | Pestaña | Qué muestra |
 |---|---|
 | **Grafo de Skills** | 172 nodos y 553 morfismos. Skills activados: amarillo. Dependencias: morado. Tácticas: verde. |
-| **Embeddings** | t-SNE/PCA de los 172 skills (320 dims). Estrellas naranjas = tus queries del chat. |
+| **Embeddings** | t-SNE/PCA de los 173 skills (320 dims). Estrellas naranjas = tus queries del chat. |
 | **Extensión del Grafo** | Patrón P, join[P] verificado por `is_join()` y la estructura K' extendida. |
 | **Pipeline** | Diagrama de flujo del sistema. |
 | **Agentes** | Jerarquía de 19 join-envoltorios, métricas F1/F2, pesos cargados. |
 
 ---
 
-## 11. Entrenamiento
+## 12. Entrenamiento
 
 ### Etapa A — Balancear datasets
 
@@ -674,7 +822,7 @@ python scripts/seed_from_datasets.py   # 2,371 patrones → data/memory.json
 
 ---
 
-## 12. Estructura del Repositorio
+## 13. Estructura del Repositorio
 
 ```
 Metamatematico/
@@ -698,9 +846,13 @@ Metamatematico/
 │   │   └── mes_bridge.py          # MESBridge: convergencia → extensión del grafo
 │   │
 │   ├── graph/                     # Grafo categórico de skills
-│   │   ├── category.py            # SkillCategory: nodos, morfismos, reachable_from()
-│   │   ├── evolution.py           # Extensión del grafo, snapshots, functores de transición
-│   │   └── math_domains.py        # 162 skills L1-L3 en 15 categorías
+│   │   ├── category.py            # SkillCategory: nodos, morfismos, Hom no delgado
+│   │   ├── complexity.py          # cn, orden irreducible, find_colimit_cong
+│   │   ├── complexificacion.py    # El paso K → K′, con preservación selectiva
+│   │   ├── no_delgado.py          # Congruencia, co-conos, morfismos certificados
+│   │   ├── interpretacion.py      # Qué es cada nodo: las 172 etiquetas
+│   │   ├── functor.py             # El funtor cociente π: Skills → Agentes
+│   │   └── evolution.py           # Extensión del grafo, snapshots, functores
 │   │
 │   ├── mes/                       # Memory Evolutive Systems
 │   │   ├── patterns.py            # Patrones, is_join(), propiedad universal verificada
@@ -726,7 +878,8 @@ Metamatematico/
 │   │   ├── zfc.py                 # 8 skills ZFC
 │   │   ├── category_theory.py     # 8 skills CatThy
 │   │   ├── logic.py               # 7 skills Logic
-│   │   └── type_theory.py         # 8 skills TypeThy
+│   │   ├── type_theory.py         # 8 skills TypeThy
+│   │   └── math_domains.py        # 163 skills L1-L3 en 15 categorías
 │   │
 │   ├── consultores/               # Módulo experto opcional
 │   │   ├── artifacts.py           # Dataclasses: Candidate, CandidateMetrics, ConsultingResult, RequestType
@@ -743,13 +896,16 @@ Metamatematico/
 │
 ├── scripts/                       # Entrenamiento y utilidades
 ├── data/                          # Datos generados (lean_examples.json versionado)
-├── tests/                         # 382 tests en 18 suites
-└── docs/                          # Paper NLE v7.0
+├── tests/                         # 713 tests en 34 suites
+└── docs/                          # Paper NLE v7.0, arquitectura, diagramas
+    ├── arquitectura_nle.html      # Fuente del documento visual completo
+    ├── INTERPRETACION_DEL_GRAFO.pdf  # Generado desde interpretacion.py
+    └── img/                       # Los 9 diagramas de este README, en SVG
 ```
 
 ---
 
-## 13. Instalación
+## 14. Instalación
 
 ```bash
 git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
@@ -809,7 +965,7 @@ La API key del proveedor LLM puede configurarse mediante variable de entorno (`A
 
 ---
 
-## 14. Fundamento Teórico
+## 15. Fundamento Teórico
 
 El NLE v7.0 está basado en el artículo **"Núcleo Lógico Evolutivo v7.0 — Memory Evolutive Systems y Razonamiento Formal"** (Jiménez Martínez, BIOMAT 2025), disponible en `docs/NLE_v7_PaperNN.pdf`.
 
@@ -823,7 +979,7 @@ La jerarquía L0→L1→L2→L3 refleja exactamente eso:
 - **L2** — áreas matemáticas: síntesis de skills de dominio + señales de pilares
 - **L3** — sistema completo: punto de entrada único
 
-Cada nivel es el join (cota superior mínima verificada) del nivel anterior en la categoría thin del grafo. Esta es la implementación directa del Teorema de Complexificación de Ehresmann.
+Cada nivel es el join del nivel anterior en el grafo. Pero la implementación literal de esa frase resultó tener un problema, y encontrarlo cambió el sistema: mientras el grafo fue una **categoría delgada**, `lub_de_lubs` demuestra que iterar joins nunca produce orden de complejidad ≥ 2 — el supremo es asociativo y todo se aplana. La complexificación de Ehresmann exige salir de la delgadez, y eso es lo que hace hoy el sistema. Ver la [sección 3](#3-el-núcleo-categórico-cómo-el-grafo-descubre-conceptos).
 
 ### Por qué teoría de categorías
 
@@ -833,6 +989,10 @@ La teoría de categorías es el lenguaje natural de las matemáticas modernas: e
 
 | Reclamo | Estado |
 |---|---|
+| El grafo es una categoría delgada | ✗ **ya no** — 5 de 387 pares tienen `Hom` con más de un elemento, cada uno con el teorema de Lean que lo certifica |
+| Un colímite exige co-cono, no solo alcanzabilidad | ✓ `find_colimit_cong` exige una elección de flechas que conmute. Al imponerlo cayeron 4 de 31 colímites que solo existían por la delgadez |
+| El sistema alcanza orden de Ehresmann ≥ 2 | ✓ 4 objetos irreducibles, máximo alcanzado **3** — medido con `orden_irreducible()`, que toma el mínimo sobre las descomposiciones y no el máximo |
+| La complexificación produce emergencia | ✗ **no**, y conviene decirlo: `η(P)` se inserta justo encima de las componentes, luego su orden es `1 + max(componentes)`. Cierra huecos; los conceptos siguen viniendo de la matemática |
 | join[P] es cota superior mínima en G_n | ✓ verificado por `is_join()` en Python |
 | Conexión formal con `CategoryTheory.Limits.IsColimit` de Mathlib | ✓ **Cerrado** — `isJoin_iff_nonempty_isColimit` en `IsColimitBridge.lean` (sin sorry): `IsJoin S j ↔ ∃ hub, Nonempty (IsColimit (joinCocone S j hub))` en la categoría thin del preorden de reachability |
 | GNN usada para selección de tácticas dentro de Lean | ✓ `GNNTacticRanker` usa `SkillGNN.forward_nodes()` + `goal_encoder` del modelo PPO-entrenado; ranking por similitud coseno, integrado en `try_fill_sorry_smart`. Prueba formal: `cascade_gnn_iff_exists` en `CoRegulatorNetwork.lean §VII.5` (sin sorry) |

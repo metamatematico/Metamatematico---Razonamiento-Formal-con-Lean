@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 380" role="img" aria-label="Comparacion entre lo que el sistema hacia antes y la complexificacion. A la izquierda, en la categoria K, el patron formado por c1 y c2 tiene dos cotas superiores X e Y que son incomparables entre si, de modo que no hay minima y el patron se archiva como hueco conceptual: es un callejon sin salida. A la derecha, en la complexificacion K prima, se inserta un objeto nuevo eta de P entre las componentes y las dos cotas: c1 y c2 apuntan a eta de P, y eta de P apunta a X y a Y. Ese objeto es por construccion la minima cota superior, luego el colimite del patron. Abajo se indica que si el patron ya tenia colimite j en K, entonces eta de P coincide con la imagen de j y no aparece ningun objeto nuevo.">
+<style>
+  svg { color: #1f2328; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  text { fill: currentColor; }
+  .lbl  { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, sans-serif; font-weight: 500; }
+  .dim  { opacity: .62; }
+  .e-line { stroke: #5b4cc4; } .e-fill { fill: #5b4cc4; }
+  .v-line { stroke: #0f766e; } .v-fill { fill: #0f766e; }
+  .l-line { stroke: #a16207; } .l-fill { fill: #a16207; }
+  .g-line { stroke: #b91c1c; } .g-fill { fill: #b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    svg { color: #c9d1d9; }
+    .e-line { stroke: #a78bfa; } .e-fill { fill: #a78bfa; }
+    .v-line { stroke: #2dd4bf; } .v-fill { fill: #2dd4bf; }
+    .l-line { stroke: #fbbf24; } .l-fill { fill: #fbbf24; }
+    .g-line { stroke: #f87171; } .g-fill { fill: #f87171; }
+  }
+</style>
+
+  <defs>
+    <marker id="cx" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="30" font-size="11.5" class="lbl g-fill">ANTES · dentro de K</text>
+  <text x="40" y="48" font-size="10" class="dim">solo se descubria lo que ya existia</text>
+
+  <rect x="40" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="88" y="275" text-anchor="middle" font-size="12">c₁</text>
+  <rect x="164" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="212" y="275" text-anchor="middle" font-size="12">c₂</text>
+
+  <rect x="40" y="110" width="96" height="40" rx="8" fill="none" class="g-line" stroke-width="1.5"/>
+  <text x="88" y="135" text-anchor="middle" font-size="12" class="g-fill">X</text>
+  <rect x="164" y="110" width="96" height="40" rx="8" fill="none" class="g-line" stroke-width="1.5"/>
+  <text x="212" y="135" text-anchor="middle" font-size="12" class="g-fill">Y</text>
+
+  <line x1="88" y1="250" x2="88" y2="150" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+  <line x1="212" y1="250" x2="212" y2="150" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+  <path d="M 108 250 L 196 150" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+  <path d="M 192 250 L 104 150" fill="none" stroke="currentColor" stroke-width="1.4" marker-end="url(#cx)"/>
+
+  <text x="150" y="94" text-anchor="middle" font-size="10" class="g-fill">X e Y incomparables</text>
+  <text x="150" y="78" text-anchor="middle" font-size="11" class="lbl g-fill">no hay mínima</text>
+  <text x="150" y="326" text-anchor="middle" font-size="11" class="lbl g-fill">→ ConceptGap</text>
+  <text x="150" y="344" text-anchor="middle" font-size="9.5" class="dim">callejón sin salida</text>
+
+  <line x1="330" y1="60" x2="330" y2="350" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" class="dim"/>
+
+  <text x="380" y="30" font-size="11.5" class="lbl v-fill">COMPLEXIFICACIÓN · K′</text>
+  <text x="380" y="48" font-size="10" class="dim">Complexificacion.lean — compleción de MacNeille</text>
+
+  <rect x="380" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="428" y="275" text-anchor="middle" font-size="12">c₁</text>
+  <rect x="504" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="552" y="275" text-anchor="middle" font-size="12">c₂</text>
+
+  <rect x="416" y="170" width="168" height="46" rx="9" fill="none" class="v-line" stroke-width="2.4"/>
+  <text x="500" y="190" text-anchor="middle" font-size="12.5" class="lbl v-fill">η(P)</text>
+  <text x="500" y="207" text-anchor="middle" font-size="9.5" class="dim">= cotas superiores de P</text>
+
+  <rect x="380" y="90" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="428" y="115" text-anchor="middle" font-size="12">X</text>
+  <rect x="504" y="90" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="552" y="115" text-anchor="middle" font-size="12">Y</text>
+
+  <line x1="428" y1="250" x2="450" y2="216" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+  <line x1="552" y1="250" x2="530" y2="216" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+  <line x1="466" y1="170" x2="440" y2="130" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+  <line x1="534" y1="170" x2="560" y2="130" class="v-line" stroke-width="1.8" marker-end="url(#cx)"/>
+
+  <text x="614" y="196" font-size="10" class="v-fill">objeto NUEVO</text>
+  <text x="614" y="211" font-size="9.5" class="dim">no estaba en K</text>
+  <text x="500" y="326" text-anchor="middle" font-size="11" class="lbl v-fill">η(P) es el colímite de P</text>
+  <text x="500" y="344" text-anchor="middle" font-size="9.5" class="dim">eta_es_colimite — por construcción, no por cableado</text>
+
+  <line x1="700" y1="60" x2="700" y2="350" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" class="dim"/>
+  <text x="740" y="30" font-size="11.5" class="lbl e-fill">Y LO QUE YA HABÍA</text>
+
+  <rect x="740" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="788" y="275" text-anchor="middle" font-size="12">c₁</text>
+  <rect x="864" y="250" width="96" height="40" rx="8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="912" y="275" text-anchor="middle" font-size="12">c₂</text>
+
+  <rect x="800" y="150" width="100" height="44" rx="9" fill="none" class="e-line" stroke-width="2"/>
+  <text x="850" y="169" text-anchor="middle" font-size="12" class="lbl e-fill">j</text>
+  <text x="850" y="186" text-anchor="middle" font-size="9" class="dim">ya era el join</text>
+
+  <line x1="788" y1="250" x2="818" y2="194" class="e-line" stroke-width="1.6" marker-end="url(#cx)"/>
+  <line x1="912" y1="250" x2="882" y2="194" class="e-line" stroke-width="1.6" marker-end="url(#cx)"/>
+
+  <text x="850" y="122" text-anchor="middle" font-size="11" class="lbl e-fill">η(P) = ι(j)</text>
+  <text x="850" y="104" text-anchor="middle" font-size="9.5" class="dim">no aparece nada nuevo</text>
+  <text x="850" y="326" text-anchor="middle" font-size="9.5" class="e-fill">eta_eq_iota_of_isLUB</text>
+  <text x="850" y="344" text-anchor="middle" font-size="9.5" class="dim">la preservación del Teorema 1</text>
+</svg>

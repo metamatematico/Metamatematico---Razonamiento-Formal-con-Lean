@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 430" role="img" aria-label="PatternManager, ColimitBuilder y MESMemory se construyen una sola vez al iniciar Nucleo, encadenados porque ColimitBuilder necesita el PatternManager ya construido. Esas mismas tres referencias, mas el grafo SkillCategory que ya existia, se inyectan por constructor en CoRegulatorNetwork, EvolutionarySystem, MultiAgentOrchestrator, ConsultoresModule y el agente de RL — cada uno con un subconjunto distinto segun lo que necesita.">
+<style>
+  svg { color: #1f2328; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  text { fill: currentColor; }
+  .lbl  { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, sans-serif; font-weight: 500; }
+  .dim  { opacity: .62; }
+  .e-line { stroke: #5b4cc4; } .e-fill { fill: #5b4cc4; }
+  .v-line { stroke: #0f766e; } .v-fill { fill: #0f766e; }
+  .l-line { stroke: #a16207; } .l-fill { fill: #a16207; }
+  .g-line { stroke: #b91c1c; } .g-fill { fill: #b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    svg { color: #c9d1d9; }
+    .e-line { stroke: #a78bfa; } .e-fill { fill: #a78bfa; }
+    .v-line { stroke: #2dd4bf; } .v-fill { fill: #2dd4bf; }
+    .l-line { stroke: #fbbf24; } .l-fill { fill: #fbbf24; }
+    .g-line { stroke: #f87171; } .g-fill { fill: #f87171; }
+  }
+</style>
+
+  <defs>
+    <marker id="pC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <text x="20" y="20" font-size="11" class="dim">construcción, en <code class="mono">Nucleo.initialize()</code> — una sola vez, en este orden:</text>
+
+  <!-- construction chain -->
+  <rect x="20" y="34" width="200" height="54" rx="8" fill="none" class="e-line" stroke-width="1.6"/>
+  <text x="120" y="56" text-anchor="middle" font-size="11.5" class="e-fill">PatternManager()</text>
+  <text x="120" y="72" text-anchor="middle" font-size="9" class="dim">mes/patterns.py</text>
+
+  <line x1="220" y1="61" x2="256" y2="61" stroke="currentColor" stroke-width="1.3" marker-end="url(#pC)"/>
+
+  <rect x="256" y="34" width="220" height="54" rx="8" fill="none" class="v-line" stroke-width="1.6"/>
+  <text x="366" y="56" text-anchor="middle" font-size="11.5" class="v-fill">ColimitBuilder(pattern_manager)</text>
+  <text x="366" y="72" text-anchor="middle" font-size="9" class="dim">necesita el anterior ya construido</text>
+
+  <line x1="476" y1="61" x2="512" y2="61" stroke="currentColor" stroke-width="1.3" marker-end="url(#pC)"/>
+
+  <rect x="512" y="34" width="200" height="54" rx="8" fill="none" class="l-line" stroke-width="1.6"/>
+  <text x="612" y="56" text-anchor="middle" font-size="11.5" class="l-fill">MESMemory(...)</text>
+  <text x="612" y="72" text-anchor="middle" font-size="9" class="dim">mes/memory.py</text>
+
+  <rect x="742" y="34" width="216" height="54" rx="8" fill="none" stroke="currentColor" stroke-width="1.3" class="dim" stroke-dasharray="4 3"/>
+  <text x="850" y="56" text-anchor="middle" font-size="11">SkillCategory (grafo)</text>
+  <text x="850" y="72" text-anchor="middle" font-size="9" class="dim">ya existía — 173 habilidades</text>
+
+  <!-- funnel down -->
+  <line x1="490" y1="88" x2="490" y2="130" stroke="currentColor" stroke-width="1.4" marker-end="url(#pC)"/>
+  <text x="500" y="112" font-size="10.5">se inyectan las mismas 4 referencias — nunca una copia — en:</text>
+
+  <!-- 5 consumer boxes -->
+  <!-- box width 178, gap 14, 5 boxes: total 178*5+14*4=946, start x=17 -->
+  <rect x="17" y="150" width="178" height="156" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="106" y="172" text-anchor="middle" font-size="11" class="lbl e-fill">CoRegulatorNetwork</text>
+  <text x="30" y="194" font-size="9.5">recibe:</text>
+  <text x="30" y="209" font-size="9.5">· patrones</text>
+  <text x="30" y="223" font-size="9.5">· colímites</text>
+  <text x="30" y="237" font-size="9.5">· memoria</text>
+  <text x="30" y="253" font-size="8.7" class="dim">+ el grafo, pasado</text>
+  <text x="30" y="265" font-size="8.7" class="dim">en cada decide()</text>
+  <text x="30" y="279" font-size="8.7" class="e-fill">+ los huecos, vía</text>
+  <text x="30" y="291" font-size="8.7" class="e-fill">set_concept_gaps()</text>
+
+  <rect x="209" y="150" width="178" height="140" rx="9" fill="none" class="e-line" stroke-width="1.5"/>
+  <text x="298" y="172" text-anchor="middle" font-size="11" class="lbl e-fill">EvolutionarySystem</text>
+  <text x="222" y="194" font-size="9.5">recibe:</text>
+  <text x="222" y="209" font-size="9.5">· grafo</text>
+  <text x="222" y="223" font-size="9.5">· patrones</text>
+  <text x="222" y="237" font-size="9.5">· colímites</text>
+  <text x="222" y="258" font-size="8.7" class="g-fill">deben ser los mismos</text>
+  <text x="222" y="270" font-size="8.7" class="g-fill">objetos: si no, las</text>
+  <text x="222" y="282" font-size="8.7" class="g-fill">uniones no se ven</text>
+
+  <rect x="401" y="150" width="178" height="140" rx="9" fill="none" class="l-line" stroke-width="1.5"/>
+  <text x="490" y="172" text-anchor="middle" font-size="11" class="lbl l-fill">MultiAgentOrchestrator</text>
+  <text x="414" y="192" font-size="9">→ MESBridge</text>
+  <text x="414" y="210" font-size="9.5">recibe:</text>
+  <text x="414" y="225" font-size="9.5">· grafo</text>
+  <text x="414" y="239" font-size="9.5">· patrones</text>
+  <text x="414" y="253" font-size="9.5">· colímites</text>
+  <text x="414" y="272" font-size="8.7" class="dim">(alimenta la memoria</text>
+  <text x="414" y="284" font-size="8.7" class="dim">por categoría, §6)</text>
+
+  <rect x="593" y="150" width="178" height="140" rx="9" fill="none" stroke="currentColor" stroke-width="1.3"/>
+  <text x="682" y="172" text-anchor="middle" font-size="11" class="lbl">ConsultoresModule</text>
+  <text x="606" y="194" font-size="9.5">recibe:</text>
+  <text x="606" y="209" font-size="9.5">· patrones</text>
+  <text x="606" y="223" font-size="9.5">· memoria</text>
+  <text x="606" y="241" font-size="8.7" class="dim">+ el LLM y Lean,</text>
+  <text x="606" y="253" font-size="8.7" class="dim">mismas instancias</text>
+  <text x="606" y="270" font-size="8.7" class="dim">(no colímites: no</text>
+  <text x="606" y="282" font-size="8.7" class="dim">los necesita)</text>
+
+  <rect x="785" y="150" width="178" height="140" rx="9" fill="none" stroke="currentColor" stroke-width="1.3"/>
+  <text x="874" y="172" text-anchor="middle" font-size="11" class="lbl">Agente RL + Cascada</text>
+  <text x="798" y="194" font-size="9.5">recibe:</text>
+  <text x="798" y="209" font-size="9.5">· grafo (solo)</text>
+  <text x="798" y="230" font-size="8.7" class="dim">construye la vista GNN</text>
+  <text x="798" y="242" font-size="8.7" class="dim">del grafo; no toca</text>
+  <text x="798" y="254" font-size="8.7" class="dim">patrones ni memoria</text>
+
+  <!-- connecting stems from funnel line to each box -->
+  <line x1="106" y1="130" x2="106" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="298" y1="130" x2="298" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="490" y1="130" x2="490" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="682" y1="130" x2="682" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="874" y1="130" x2="874" y2="150" stroke="currentColor" stroke-width="1" class="dim"/>
+  <line x1="106" y1="130" x2="874" y2="130" stroke="currentColor" stroke-width="1" class="dim"/>
+</svg>

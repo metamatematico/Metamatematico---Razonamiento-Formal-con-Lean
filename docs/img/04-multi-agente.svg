@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 470" role="img" aria-label="Ciclo del sistema multi-agente. La consulta se clasifica en una de catorce categorias matematicas. Con esa categoria se consulta la memoria procedimental del agente especializado, que devuelve la tactica que mejor le ha funcionado antes o nada si no tiene experiencia suficiente. Esa tactica encabeza la cascada de solvers que ejecuta Lean. El resultado de Lean vuelve a la memoria del agente de esa categoria, de modo que la siguiente consulta de la misma rama parte de mejor informacion.">
+<style>
+  svg { color: #1f2328; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  text { fill: currentColor; }
+  .lbl  { font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, sans-serif; font-weight: 500; }
+  .dim  { opacity: .62; }
+  .e-line { stroke: #5b4cc4; } .e-fill { fill: #5b4cc4; }
+  .v-line { stroke: #0f766e; } .v-fill { fill: #0f766e; }
+  .l-line { stroke: #a16207; } .l-fill { fill: #a16207; }
+  .g-line { stroke: #b91c1c; } .g-fill { fill: #b91c1c; }
+  @media (prefers-color-scheme: dark) {
+    svg { color: #c9d1d9; }
+    .e-line { stroke: #a78bfa; } .e-fill { fill: #a78bfa; }
+    .v-line { stroke: #2dd4bf; } .v-fill { fill: #2dd4bf; }
+    .l-line { stroke: #fbbf24; } .l-fill { fill: #fbbf24; }
+    .g-line { stroke: #f87171; } .g-fill { fill: #f87171; }
+  }
+</style>
+
+  <defs>
+    <marker id="m6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+
+  <rect x="30" y="40" width="200" height="64" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="130" y="66" text-anchor="middle" class="lbl" font-size="12">classify_query()</text>
+  <text x="130" y="86" text-anchor="middle" font-size="9.5" class="dim">una de 14 categorías</text>
+
+  <rect x="300" y="40" width="240" height="64" rx="9" fill="none" class="l-line" stroke-width="1.7"/>
+  <text x="420" y="66" text-anchor="middle" class="lbl l-fill" font-size="12">SpecializedAgent</text>
+  <text x="420" y="86" text-anchor="middle" font-size="9.5" class="dim">pesos propios de la categoría</text>
+
+  <rect x="610" y="40" width="260" height="64" rx="9" fill="none" class="e-line" stroke-width="1.7"/>
+  <text x="740" y="66" text-anchor="middle" class="lbl e-fill" font-size="12">query_best_tactic()</text>
+  <text x="740" y="86" text-anchor="middle" font-size="9.5" class="dim">memoria procedimental</text>
+
+  <line x1="230" y1="72" x2="300" y2="72" stroke="currentColor" stroke-width="1.5" marker-end="url(#m6)"/>
+  <line x1="540" y1="72" x2="610" y2="72" class="l-line" stroke-width="1.5" marker-end="url(#m6)"/>
+
+  <path d="M 740 104 L 740 148 L 500 148 L 500 186" fill="none" class="e-line" stroke-width="1.5" marker-end="url(#m6)"/>
+  <text x="756" y="132" font-size="9.5" class="e-fill">táctica con más éxito</text>
+  <text x="756" y="146" font-size="9.5" class="dim">— o nada, si no hay experiencia</text>
+
+  <rect x="290" y="186" width="420" height="70" rx="9" fill="none" class="v-line" stroke-width="1.8"/>
+  <text x="500" y="212" text-anchor="middle" class="lbl v-fill" font-size="12.5">encabeza la cascada de solvers</text>
+  <text x="500" y="232" text-anchor="middle" font-size="9.5" class="dim">por delante del orden aprendido y del regex del goal</text>
+  <text x="500" y="248" text-anchor="middle" font-size="9.5" class="dim">si no hay táctica de categoría, la cascada arranca igual</text>
+
+  <line x1="500" y1="256" x2="500" y2="298" class="v-line" stroke-width="1.8" marker-end="url(#m6)"/>
+
+  <rect x="360" y="298" width="280" height="60" rx="9" fill="none" class="v-line" stroke-width="2.2"/>
+  <text x="500" y="324" text-anchor="middle" class="lbl v-fill" font-size="13">Lean verifica</text>
+  <text x="500" y="344" text-anchor="middle" font-size="9.5" class="dim">success · partial · failed</text>
+
+  <path d="M 640 328 L 962 328 L 962 72 L 870 72" fill="none" class="e-line" stroke-width="1.6" marker-end="url(#m6)"/>
+  <text x="952" y="196" text-anchor="end" font-size="9.5" class="e-fill">report_lean_result()</text>
+  <text x="952" y="210" text-anchor="end" font-size="9.5" class="dim">el veredicto real</text>
+  <text x="952" y="224" text-anchor="end" font-size="9.5" class="dim">alimenta la memoria</text>
+
+  <text x="30" y="392" font-size="9.5" class="dim">El ciclo se cierra con el veredicto de Lean, no con la opinión del modelo: la memoria solo</text>
+  <text x="30" y="408" font-size="9.5" class="dim">guarda tácticas que de verdad cerraron un objetivo.</text>
+
+  <text x="30" y="444" font-size="9.5" class="dim">14 agentes · uno por categoría · pesos en training/agents/best/*.pt · memoria compartida con el resto del sistema (Fig. 5)</text>
+</svg>
