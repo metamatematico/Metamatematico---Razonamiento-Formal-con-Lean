@@ -17,6 +17,7 @@ from nucleo.graph.interpretacion import (
     DEGRADADAS, FUSIONES, SUBCATEGORIA_PLENA, NOTA_FUSION,
     cambia_de_valor, resolver, vertices_tras_fusionar,
     APICE_FALTANTE, ARISTA_FALTANTE, NO_SON_DOS_COCIENTES,
+    PATRONES_ESPURIOS, VECINO_VERDADERO, FUNCTORS_SOBRA,
     VERTICES_ANADIDOS, LAS_DEL_AUTOR,
 )
 
@@ -47,10 +48,15 @@ class TestCobertura:
         sobran = sorted(set(VEREDICTO) - set(grafo.skill_ids) - VERTICES_ANADIDOS)
         assert not sobran, f"no estan en el grafo: {sobran}"
 
-    def test_los_vertices_anadidos_no_estan_en_el_grafo(self, grafo):
-        """Ese es el hallazgo, no un fallo: el grafo detecto un vertice que
-        FALTA. Cuando se añadan al grafo, este test cae y hay que borrarlo."""
-        assert not (VERTICES_ANADIDOS & set(grafo.skill_ids))
+    def test_los_anadidos_pendientes_siguen_sin_estar_en_el_grafo(self, grafo):
+        """El hallazgo, no un fallo: son vertices que el grafo detecto que le
+        FALTAN. `sheafed-space-complexes` ya se inserto —cerro su hueco y dio
+        el primer objeto de orden 3—; los otros dos siguen pendientes."""
+        puestos = VERTICES_ANADIDOS & set(grafo.skill_ids)
+        assert puestos == {"sheafed-space-complexes"}
+        assert VERTICES_ANADIDOS - puestos == {
+            "derived-category", "graded-objects",
+        }
 
     def test_el_recuento_cuadra_con_el_documento(self):
         """Las cifras del veredicto, tal como las publico el autor: sobre sus
@@ -66,7 +72,7 @@ class TestCobertura:
     def test_87_vertices_28_aristas(self):
         """87 son los del autor; los dos añadidos van aparte."""
         assert len(set(vertices()) - VERTICES_ANADIDOS) == 87
-        assert len(vertices()) == 89
+        assert len(vertices()) == 90
         assert len(aristas()) == 28
 
 
@@ -276,9 +282,9 @@ class TestFormaDelGrafoReal:
         suficiente: hacen falta diagramas con enlaces.
         """
         formas = [forma_de(p) for p, _ in descomposiciones]
-        assert len(descomposiciones) == 27
-        assert formas.count(FORMA_COPRODUCTO) == 24
-        assert formas.count(FORMA_PUSHOUT) == 3
+        assert len(descomposiciones) == 32
+        assert formas.count(FORMA_COPRODUCTO) == 27
+        assert formas.count(FORMA_PUSHOUT) == 5
 
     def test_ninguna_pierde_su_colimite_por_las_decisiones(self, descomposiciones):
         """Las cuatro que tocan un vertice decidido son de forma coproducto,
@@ -559,3 +565,114 @@ class TestElApiceQueFaltaba:
         """
         _, descs = grafo_patrones
         assert not [p for p, ap in descs if ap == "cohomology"]
+
+
+class TestElApiceDeLosHaces:
+    """`sheafed-space-complexes`: el primer objeto de orden 3 del sistema.
+
+    De los tres huecos sin cotas que darian emergencia, uno se pega y dos no.
+    Este es el que se pega, y su ausencia entre las 172 es el hallazgo: mismo
+    caso que `derived-category`, un vertice que falta y que el sistema estaba
+    nombrando por aproximacion.
+    """
+
+    @pytest.fixture(scope="class")
+    def sistema(self):
+        sys.argv = ["x"]
+        from nucleo.graph.category import SkillCategory
+        from nucleo.pillars.math_domains import load_math_domains
+        from nucleo.mes.patterns import PatternManager, ColimitBuilder
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.no_delgado import (registrar_morfismos_certificados,
+                                             congruencia_automatica)
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+        g = SkillCategory(name="Haces")
+        n._graph = g
+        Nucleo._load_foundational_skills(n)
+        load_math_domains(g)
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        cong = congruencia_automatica(g)
+        build_hierarchy_to_fixpoint(g, pm, cb, cong=cong)
+        return g, pm, cb, cong
+
+    def test_es_el_primer_objeto_de_orden_tres(self, sistema):
+        from nucleo.graph.complexity import orden_irreducible
+        g, _pm, cb, _c = sistema
+        o = orden_irreducible(g, cb)
+        assert o["sheafed-space-complexes"] == 3
+        assert max(o.values()) == 3
+        assert [k for k, v in o.items() if v == 3] == ["sheafed-space-complexes"]
+
+    def test_es_colimite_de_las_tres_componentes(self, sistema):
+        _g, pm, cb, _c = sistema
+        conj = {frozenset(pm.get_pattern(c.pattern_id).component_ids)
+                for c in cb.all_colimits
+                if c.skill_id == "sheafed-space-complexes" and c.pattern_id}
+        assert frozenset({"arithmetic-geometry", "homological-algebra",
+                          "point-set-topology"}) in conj
+
+    def test_su_orden_lo_hereda_de_arithmetic_geometry(self, sistema):
+        """Es de orden 3 porque `arithmetic-geometry` es de orden 2 y aparece
+        en TODAS sus descomposiciones. Ahi esta la torre real: base ->
+        arithmetic-geometry (2) -> apice (3)."""
+        from nucleo.graph.complexity import orden_irreducible
+        _g, pm, cb, _c = sistema
+        o = orden_irreducible(_g, cb)
+        assert o["arithmetic-geometry"] == 2
+        ds = [pm.get_pattern(c.pattern_id) for c in cb.all_colimits
+              if c.skill_id == "sheafed-space-complexes" and c.pattern_id]
+        assert ds
+        for d in ds:
+            assert "arithmetic-geometry" in d.component_ids
+
+    def test_functors_sobra_en_el_patron(self, sistema):
+        """La cuarta pata seria la hacificacion y solo existe instanciando
+        `functors` como prehaces. Sin eso sus unicos caminos al apice son
+        COMPUESTOS y pasan por sus propias co-componentes: eso no es una pata,
+        es la enfermedad del vertice de segundo nivel.
+        """
+        from nucleo.graph.no_delgado import caminos
+        g, _pm, _cb, _c = sistema
+        apice, _motivo = FUNCTORS_SOBRA
+        cs = caminos(g, "functors", apice, 4)
+        assert cs, "si no hay ningun camino, este test ya no dice nada"
+        assert all(len(c) > 1 for c in cs), (
+            "existe un camino DIRECTO functors -> apice: alguien añadio la "
+            "hacificacion y hay que instanciar `functors` como prehaces"
+        )
+        for c in cs:
+            intermedios = {g.get_morphism(m).target_id for m in c[:-1]}
+            assert intermedios & {"algebraic-geometry", "homological-algebra"}
+
+    def test_los_dos_espurios_se_retiran_con_su_motivo(self):
+        assert len(PATRONES_ESPURIOS) == 2
+        combi = ("algebraic-combinatorics", "group-theory", "module-theory")
+        assert "NO ES UNA CATEGORIA" in PATRONES_ESPURIOS[combi]
+        otro = ("algebraic-geometry", "functors", "homological-algebra",
+                "limits", "operator-theory")
+        assert "pata forzada no es una pata" in PATRONES_ESPURIOS[otro]
+
+    def test_el_espurio_tiene_un_vecino_que_si_se_pega(self, sistema):
+        """Sustituyendo la etiqueta T por el vertice que si nombra objetos, el
+        apice existe y ya tenia etiqueta: `representation-theory`."""
+        _g, pm, cb, _c = sistema
+        combi = ("algebraic-combinatorics", "group-theory", "module-theory")
+        v = VECINO_VERDADERO[combi]
+        assert v["sustituir"] == ("algebraic-combinatorics", "group-actions")
+        assert marca("algebraic-combinatorics") == T   # no es categoria
+        assert marca("group-actions") == C             # si lo es
+        conj = {frozenset(pm.get_pattern(c.pattern_id).component_ids)
+                for c in cb.all_colimits
+                if c.skill_id == v["apice"] and c.pattern_id}
+        assert frozenset({"group-actions", "group-theory",
+                          "module-theory"}) in conj
+
+    def test_el_vecino_declara_sus_tres_patas(self):
+        combi = ("algebraic-combinatorics", "group-theory", "module-theory")
+        patas = VECINO_VERDADERO[combi]["patas"]
+        assert set(patas) == {"group-actions", "group-theory", "module-theory"}
+        assert "linearization" in patas["group-actions"]
+        assert "grupo trivial" in patas["module-theory"]

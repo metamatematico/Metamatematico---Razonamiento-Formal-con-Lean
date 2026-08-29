@@ -529,11 +529,14 @@ class TestOrdenIrreducible:
         """
         from nucleo.graph.complexity import objetos_emergentes
         g, _pm, cb, cn = sistema
-        assert max(cn.values()) == 2
-        assert len([k for k, v in cn.items() if v >= 2]) == 3
+        assert max(cn.values()) == 3
         assert set(objetos_emergentes(g, cb)) == {
             "arithmetic-geometry", "affine-varieties",
+            "sheafed-space-complexes",
         }
+        # y el de orden 3 es el vertice que faltaba, no un inflado de altura
+        from nucleo.graph.complexity import orden_irreducible
+        assert orden_irreducible(g, cb)["sheafed-space-complexes"] == 3
 
     def test_un_emergente_no_tiene_ninguna_descomposicion_baja(self, sistema):
         """Lo que significa ser irreducible: TODA descomposicion tiene alguna

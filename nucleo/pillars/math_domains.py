@@ -913,6 +913,36 @@ SUBBRANCH_SKILLS = [
         ["algebraic-topology", "exact-sequences"], "topology",
         ["homologia", "homologico", "mayer-vietoris", "caracteristica de euler",
          "homology"]),
+    # EL APICE QUE FALTABA de {arithmetic-geometry, homological-algebra,
+    # point-set-topology}. El grafo detecto el hueco y no tenia nombre para el.
+    # Es donde vive la cohomologia de haces ANTES de tomar cohomologia.
+    #
+    # Objeto:   un par (X, K) — espacio topologico X con un haz de complejos
+    #           de grupos abelianos sobre X.
+    # Morfismo: un par (f, phi) — f : X -> Y continua, mas phi : K_Y -> f_* K_X
+    #           sobre Y (equivalentemente f^-1 K_Y -> K_X sobre X). Es la
+    #           convencion estandar de los espacios anillados.
+    # Mathlib:  AlgebraicGeometry.SheafedSpace C con
+    #           C = CochainComplex AddCommGrp Z. El marco esta; lo que NO esta
+    #           es la version derivada, invirtiendo cuasi-isomorfismos fibra a
+    #           fibra.
+    #
+    # COEFICIENTES: se toma sobre grupos abelianos. La pata desde
+    # `arithmetic-geometry` olvida la multiplicacion de O_X y por tanto TIRA
+    # INFORMACION. Conservarla obligaria a tomar el apice sobre complejos de
+    # MODULOS, y entonces la pata del haz constante habria que reescribirla
+    # sobre el anillo base. Queda anotado como la holgura que tiene.
+    _sb("sheafed-space-complexes", "Sheafed Spaces of Complexes",
+        "Spaces with a sheaf of chain complexes; where sheaf cohomology lives "
+        "before taking cohomology",
+        ["point-set-topology", "homological-algebra", "arithmetic-geometry"],
+        "topology",
+        ["espacio anillado", "espacios anillados", "haz de complejos",
+         "haces de complejos", "cohomologia de haces", "espacio con haz",
+         "ringed space", "sheafed space", "sheaf of complexes",
+         "sheaf cohomology"],
+        pillar=PillarType.CAT),
+
     _sb("cohomology", "Cohomology",
         "Cohomology, cup product, Poincare duality, de Rham",
         ["homology"], "topology",
@@ -1335,6 +1365,20 @@ INTER_PILLAR_TRANSLATIONS = [
     # Combinatorics <-> Algebra
     ("algebraic-combinatorics", "representation-theory", MorphismType.ANALOGY,
      {"analogy": "symmetric-group-representations"}),
+    # LA PATA QUE FALTABA. `representation-theory`, leida como categoria TOTAL
+    # sobre grupos variables —objeto (G, M), morfismo (phi, f) con phi : G -> H
+    # y f : M -> Res_phi N equivariante— es el apice de
+    # {group-actions, group-theory, module-theory}:
+    #
+    #   group-actions  -> linealizacion,  (G, X) |-> (G, k[X])   [Rep.linearization]
+    #   group-theory   -> regular,        G      |-> (G, k[G])
+    #   module-theory  -> grupo trivial,  M      |-> (1, M)
+    #
+    # Las tres covariantes. En Mathlib `Rep k G` es la version con G FIJO; la
+    # version sobre G variable es la construccion de Grothendieck de la
+    # restriccion y hay que montarla a mano.
+    ("group-actions", "representation-theory", MorphismType.DEPENDENCY,
+     {"relation": "linearization-of-a-G-set", "construccion": "linearization"}),
     # Lean Tactics <-> Proof Strategies
     ("tactic-apply", "strategy-backward", MorphismType.DEPENDENCY,
      {"relation": "apply-enables-backward-reasoning"}),

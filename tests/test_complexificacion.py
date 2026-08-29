@@ -307,12 +307,12 @@ class TestComplexificacionEnchufada:
         *_, res, _cn, _gaps = corrida
         assert res.colimites_rotos == []
         assert res.preserva
-        assert len(res.colimites_preservados) == 27
+        assert len(res.colimites_preservados) == 32
 
     def test_los_huecos_bajan(self, corrida):
         _g, _pm, _cb, _cong, antes, _res, _cn, gaps1 = corrida
-        assert antes[2] == 19
-        assert len(gaps1) == 12
+        assert antes[2] == 17
+        assert len(gaps1) == 10
 
     def test_declara_la_congruencia_constitutiva(self, corrida):
         """Un colimite viene CON su co-cono: que las patas de eta(P) conmuten
@@ -357,10 +357,14 @@ class TestComplexificacionEnchufada:
         from nucleo.graph.complexity import objetos_emergentes
         g, _pm, cb, *_ = corrida
         em = objetos_emergentes(g, cb)
-        assert set(em) == {"arithmetic-geometry", "affine-varieties"}
+        assert set(em) == {"arithmetic-geometry", "affine-varieties",
+                           "sheafed-space-complexes"}
         for k in em:
             sk = g.get_skill(k)
-            assert not sk.metadata.get("emergente")
+            assert not sk.metadata.get("emergente"), (
+                f"{k} lo produjo la complexificacion: si eso pasa, el paso SI "
+                "genera emergencia y hay que reescribir este test"
+            )
 
     def test_la_palanca_esta_identificada(self, corrida):
         """Donde estaria el orden >= 2, y por que no se alcanza hoy.

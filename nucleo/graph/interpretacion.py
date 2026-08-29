@@ -456,6 +456,28 @@ VEREDICTO: dict[str, Etiqueta] = {
         "La variante intermedia es HomotopyCategory.quotient; la sucesion "
         "exacta larga que justifica la pata de `exact-sequences` esta en "
         "DerivedCategory/HomologySequence.lean"),
+    "sheafed-space-complexes": _e(
+        C, "un par (X, K): espacio topologico con un haz de complejos de "
+           "grupos abelianos",
+        "un par (f, phi): f : X -> Y continua mas phi : K_Y -> f_* K_X",
+        "AlgebraicGeometry.SheafedSpace (CochainComplex AddCommGrp Z)",
+        "EL APICE QUE FALTABA de {arithmetic-geometry, homological-algebra, "
+        "point-set-topology}. Donde vive la cohomologia de haces ANTES de "
+        "tomar cohomologia.\n"
+        "Las tres patas, todas covariantes: el HAZ CONSTANTE desde "
+        "point-set-topology (X |-> (X, Z_X), funtorial porque f^-1 Z_Y = Z_X, "
+        "luego phi es la identidad — la pata mas pobre y por eso la que fija "
+        "la normalizacion); el OLVIDO a espacio anillado desde "
+        "arithmetic-geometry (X |-> (X, O_X en grado 0), via la torre "
+        "Scheme -> LocallyRingedSpace -> SheafedSpace que Mathlib ya tiene); y "
+        "la FIBRA SOBRE EL PUNTO desde homological-algebra (K |-> (pt, K)), "
+        "plenamente fiel, que es la pata que explica por que el patron no es "
+        "trivial: identifica el algebra homologica pura con la cohomologia de "
+        "haces sobre el espacio terminal.\n"
+        "El marco esta en Mathlib parametrizado por una categoria cualquiera; "
+        "lo que NO esta es la version derivada, invirtiendo cuasi-isomorfismos "
+        "fibra a fibra.\n"
+        "PRIMER OBJETO DE ORDEN IRREDUCIBLE 3 DEL SISTEMA."),
     "graded-objects": _e(
         C, "un objeto graduado (grupos abelianos graduados)",
         "morfismos graduados", "CategoryTheory.GradedObject",
@@ -792,7 +814,7 @@ def vertices_tras_fusionar() -> list[str]:
 #: Se mantienen aparte para que la guardia sobre el veredicto del autor siga
 #: siendo exacta: 172 etiquetas suyas, mas lo que el grafo obligue a añadir.
 VERTICES_ANADIDOS: frozenset[str] = frozenset({
-    "derived-category", "graded-objects",
+    "derived-category", "graded-objects", "sheafed-space-complexes",
 })
 
 #: Cuantas etiquetas publico el autor.
@@ -843,6 +865,85 @@ ARISTA_FALTANTE: tuple[str, str, str] = (
 NO_SON_DOS_COCIENTES = (
     "las cuatro son {alg-top, exact-seq, hom-alg} y sus tres subconjuntos de "
     "dos, no cuatro niveles de cociente"
+)
+
+
+# ---------------------------------------------------------------------------
+# Patrones espurios: no les falta apice, les falta poder tenerlo
+# ---------------------------------------------------------------------------
+#
+# Un hueco sin cotas superiores no significa siempre «falta un concepto». A
+# veces significa que el patron no puede tener colimite, y entonces buscarle
+# apice es perder el tiempo. Hay que retirarlo, como se retiraron los cuatro de
+# `homological-algebra-cat`.
+
+PATRONES_ESPURIOS: dict[tuple[str, ...], str] = {
+    ("algebraic-combinatorics", "group-theory", "module-theory"): (
+        "`algebraic-combinatorics` NO ES UNA CATEGORIA: esta marcada T porque "
+        "no nombra objetos —nadie dice «sea X una combinatoria algebraica»—. "
+        "Un co-cono exige un funtor desde CADA componente; sin objetos no hay "
+        "funtor, sin funtor no hay pata, y con dos patas de tres no hay "
+        "colimite. Lo que el sistema detecto es co-ocurrencia bibliografica "
+        "—funciones simetricas, tablas de Young y caracteres del simetrico "
+        "aparecen juntos en los tres sitios—: tema compartido, no vertice "
+        "compartido"
+    ),
+    ("algebraic-geometry", "functors", "homological-algebra", "limits",
+     "operator-theory"): (
+        "dos motivos independientes, cualquiera basta. (a) Contiene `limits`, "
+        "ya degradado: esta en el lote de los que hay que regenerar. (b) Lo "
+        "que queda tampoco se pega: el unico apice concebible es el mundo no "
+        "conmutativo —categorias dg o estables, X |-> Perf(X)— y ahi fallan "
+        "dos patas de cuatro. Un objeto de `homological-algebra` es un "
+        "complejo, no una categoria; uno de `functors` es un funtor, no una "
+        "categoria. Se les pueden forzar patas —el algebra dg de "
+        "endomorfismos, el colage— pero ninguna es canonica, y una pata "
+        "forzada no es una pata. La de `algebraic-geometry` si existe pero es "
+        "CONTRAVARIANTE, el caso Spec. Con dos patas ausentes y una invertida "
+        "lo que hay es una cota superior en la literatura, no un co-cono"
+    ),
+}
+
+#: El vecino verdadero del primer espurio. Sustituyendo la etiqueta T por el
+#: vertice que si nombra objetos, el apice existe y ya tenia etiqueta.
+VECINO_VERDADERO: dict[tuple[str, ...], dict] = {
+    ("algebraic-combinatorics", "group-theory", "module-theory"): {
+        "sustituir": ("algebraic-combinatorics", "group-actions"),
+        "apice": "representation-theory",
+        "lectura": "categoria TOTAL sobre grupos variables: objeto (G, M), "
+                   "morfismo (phi, f) con phi : G -> H y f : M -> Res_phi N "
+                   "equivariante",
+        "patas": {
+            "group-actions": "linealizacion, (G, X) |-> (G, k[X]) — en "
+                             "Mathlib es Rep.linearization",
+            "group-theory": "representacion regular, G |-> (G, k[G]); sobre "
+                            "un morfismo phi, su extension lineal",
+            "module-theory": "fibra sobre el grupo trivial, M |-> (1, M): un "
+                             "modulo es una representacion del grupo trivial",
+        },
+        "mathlib": "Rep k G para G FIJO; la version sobre G variable es la "
+                   "construccion de Grothendieck de la restriccion y hay que "
+                   "montarla a mano",
+    },
+}
+
+#: `functors` sobra en el patron de `sheafed-space-complexes`, y se comprueba.
+#:
+#: La cuarta pata seria la HACIFICACION, P |-> (X, P^++), y solo existe si
+#: `functors` se instancia como PREHACES, [Abiertos(X)^op, Ch(Ab)]. Sin fijar
+#: dominio y codominio, `functors` nombra `Cat` y no hay pata.
+#:
+#: MEDIDO: la variante de cuatro componentes registra colimite, pero los unicos
+#: caminos de `functors` al apice son COMPUESTOS Y PASAN POR SUS PROPIAS
+#: CO-COMPONENTES (functors -> algebraic-geometry -> arithmetic-geometry -> apice,
+#: y functors -> homological-algebra -> apice). Eso no es una pata: es la
+#: enfermedad del vertice de segundo nivel, la misma de `limits` y la misma de
+#: `homological-algebra-cat`.
+FUNCTORS_SOBRA = (
+    "sheafed-space-complexes",
+    "la pata de `functors` seria la hacificacion y solo existe instanciandolo "
+    "como prehaces; sin eso sus unicos caminos al apice pasan por sus propias "
+    "co-componentes",
 )
 
 
