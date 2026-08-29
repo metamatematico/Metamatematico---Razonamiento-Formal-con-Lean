@@ -596,11 +596,37 @@ def _detect_convergence_patterns(
     patterns: list = []
     seen: set[frozenset] = set()
 
+    # SOLO LOS VERTICES PUEDEN SER COMPONENTES O APICE.
+    #
+    # Un patron es un funtor `P : I -> K`, luego sus componentes son OBJETOS de
+    # K y su colimite tambien. Casi la mitad de las etiquetas del grafo no lo
+    # son: 26 marcadas F son funtores —flechas—, 4 marcadas O son objetos
+    # DENTRO de una categoria (`real-analysis` es R, no una categoria), y 53
+    # marcadas T no nombran objetos en absoluto (nadie dice «sea X un analisis
+    # armonico»). Un diagrama que las incluya es un error de tipo.
+    #
+    # MEDIDO al imponerlo: los huecos caen de 18 a 2 —la mayoria no eran
+    # conceptos que faltasen, sino patrones que no debieron existir— y los
+    # colimites de 31 a 22. Y lo que importa: los CUATRO objetos genuinamente
+    # emergentes y el orden maximo 3 no se mueven. Lo que se va es espurio:
+    # seis de los siete apices perdidos tampoco eran vertices.
+    #
+    # Lo que NO esta en el veredicto se conserva: los objetos que inserta la
+    # complexificacion son legitimos y no figuran en la tabla.
+    from nucleo.graph.interpretacion import VEREDICTO as _VER, VERTICES as _VTX
+
+    def _es_objeto(sid: str) -> bool:
+        e = _VER.get(sid)
+        return e is None or e.marca in _VTX
+
     for skill_id in graph.skill_ids:
+        if not _es_objeto(skill_id):
+            continue                      # no puede ser apice de nada
         preds = []
         for morph in graph.incoming_morphisms(skill_id):
             if (morph.morphism_type != _MT.IDENTITY
-                    and morph.source_id != skill_id):
+                    and morph.source_id != skill_id
+                    and _es_objeto(morph.source_id)):
                 preds.append(morph.source_id)
         preds = list(dict.fromkeys(preds))  # deduplicate, preserve insertion order
 

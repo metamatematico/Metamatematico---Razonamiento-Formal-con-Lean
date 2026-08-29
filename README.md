@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-726_passing-brightgreen.svg)](#9-tests)
+[![Tests](https://img.shields.io/badge/Tests-730_passing-brightgreen.svg)](#9-tests)
 [![Emergencia](https://img.shields.io/badge/Orden_de_Ehresmann-3-8b5cf6.svg)](#3-el-núcleo-categórico-cómo-el-grafo-descubre-conceptos)
 [![Join-envoltorios](https://img.shields.io/badge/Agentes-14_join--envoltorios-blueviolet.svg)](#4-sistema-multi-agente-jerarquía-de-joins)
 [![GNN+PPO](https://img.shields.io/badge/GNN%2BPPO-546K_params-red.svg)](#6-red-neuronal-gnn--ppo)
@@ -684,7 +684,7 @@ El LLM formaliza (antes de Lean) y traduce (después de Lean). Nunca razona por 
 python -m pytest tests/ -o "addopts=" -v
 ```
 
-**726 tests en 35 suites**. Las mayores, por lo que verifican:
+**730 tests en 35 suites**. Las mayores, por lo que verifican:
 
 | Suite | Tests | Qué verifica |
 |---|---|---|
@@ -896,7 +896,7 @@ Metamatematico/
 │
 ├── scripts/                       # Entrenamiento y utilidades
 ├── data/                          # Datos generados (lean_examples.json versionado)
-├── tests/                         # 726 tests en 35 suites
+├── tests/                         # 730 tests en 35 suites
 └── docs/                          # Paper NLE v7.0, arquitectura, diagramas
     ├── arquitectura_nle.html      # Fuente del documento visual completo
     ├── INTERPRETACION_DEL_GRAFO.pdf  # Generado desde interpretacion.py

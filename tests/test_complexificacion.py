@@ -298,21 +298,23 @@ class TestComplexificacionEnchufada:
         """
         *_, res, _cn, _gaps = corrida
         assert not res.revertida
-        assert len(res.nuevos) == 8
-        assert res.huecos_cerrados == 7
-        assert len(res.retirados) == 1
+        assert len(res.nuevos) == 2
+        assert res.huecos_cerrados == 2
+        # Ya no hay culpables que retirar: los objetos que robaban minimalidad
+        # nacian de patrones mal formados, y esos patrones ya no se emiten.
+        assert len(res.retirados) == 0
 
     def test_ningun_colimite_previo_se_rompe(self, corrida):
         """El objetivo (iii) de la opcion: preservar lo que ya existia."""
         *_, res, _cn, _gaps = corrida
         assert res.colimites_rotos == []
         assert res.preserva
-        assert len(res.colimites_preservados) == 31
+        assert len(res.colimites_preservados) == 22
 
     def test_los_huecos_bajan(self, corrida):
         _g, _pm, _cb, _cong, antes, _res, _cn, gaps1 = corrida
-        assert antes[2] == 18
-        assert len(gaps1) == 16
+        assert antes[2] == 3
+        assert len(gaps1) == 1
 
     def test_declara_la_congruencia_constitutiva(self, corrida):
         """Un colimite viene CON su co-cono: que las patas de eta(P) conmuten
@@ -391,8 +393,17 @@ class TestComplexificacionEnchufada:
                 darian_2 += 1
                 if not find_cocones(list(gap.component_ids), g):
                     sin_cotas += 1
-        assert darian_2 >= 8, "ya no hay huecos que darian orden >= 2"
-        assert sin_cotas >= 6, (
-            "si estos huecos ganaran cotas superiores, el paso si produciria "
-            "emergencia y este test hay que reescribirlo"
+        # Antes eran 8 con 6 sin cotas. Al exigir que las componentes sean
+        # objetos, casi todos aquellos huecos resultaron ser patrones mal
+        # formados y desaparecieron: quedan muy pocos, y el unico sin cotas es
+        # el que el veredicto ya declaro ESPURIO —`{algebraic-geometry,
+        # functors, homological-algebra, operator-theory}`, donde dos patas de
+        # cuatro no son canonicas—.
+        #
+        # Lo que el test sigue vigilando es la forma del limite: si un hueco
+        # que daria orden >= 2 GANARA cotas superiores, el paso si produciria
+        # emergencia y habria que reescribir esto.
+        assert sin_cotas == darian_2, (
+            "un hueco que daria orden >= 2 tiene ahora cotas superiores: la "
+            "complexificacion podria cerrarlo y producir emergencia"
         )

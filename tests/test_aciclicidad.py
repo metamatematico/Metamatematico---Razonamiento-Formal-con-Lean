@@ -48,7 +48,9 @@ def _alcanzables(a, joins):
 
 
 def test_hay_joins_que_comprobar(joins):
-    assert len(joins) >= 18, f"solo {len(joins)} joins; el test perderia sentido"
+    # Eran 18 cuando el detector admitia como componentes etiquetas que no
+    # nombran objetos. Al exigir que lo sean, los joins espurios se van.
+    assert len(joins) >= 14, f"solo {len(joins)} joins; el test perderia sentido"
 
 
 def test_ningun_join_se_alcanza_a_si_mismo(joins):

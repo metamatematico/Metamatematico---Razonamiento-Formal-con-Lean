@@ -512,16 +512,29 @@ class TestOrdenIrreducible:
         for k, v in o.items():
             assert v <= cn.get(k, 0), f"{k}: irreducible {v} > altura {cn[k]}"
 
-    def test_hay_un_objeto_donde_las_dos_medidas_difieren(self, sistema):
-        """La diferencia no es teorica: `homological-algebra-cat` tiene cn=2 y
-        orden irreducible 1, porque su descomposicion
-        `{homological-algebra, limits}` tiene las dos componentes en orden 0.
+    def test_ya_no_hay_ninguno_inflado(self, sistema):
+        """El ejemplo que motivo esta distincion DESAPARECIO, y por buena razon.
+
+        `homological-algebra-cat` tenia cn=2 y orden irreducible 1: la culpable
+        era su descomposicion `{homological-algebra, limits}`, y `limits` es un
+        FUNTOR. Al exigir que las componentes sean objetos, ese patron dejo de
+        emitirse y el apice se fue con el.
+
+        O sea que la brecha entre altura e irreducibilidad la abria un error de
+        tipo, no la matematica. La distincion sigue siendo real —y el test de
+        abajo la mantiene como propiedad— pero hoy no hay ningun objeto que la
+        exhiba. Si vuelve a aparecer uno, este test cae y hay que mirarlo: o es
+        emergencia de verdad, o es otro patron mal formado.
         """
         from nucleo.graph.complexity import orden_irreducible
         g, _pm, cb, cn = sistema
         o = orden_irreducible(g, cb)
-        assert cn["homological-algebra-cat"] == 2
-        assert o["homological-algebra-cat"] == 1
+        inflados = {k: (cn[k], o[k]) for k in cn
+                    if cn[k] >= 2 and o.get(k, 0) < cn[k]}
+        assert inflados == {}, (
+            f"reapareceria la brecha altura/irreducibilidad en {inflados}: "
+            "comprueba si el patron esta bien formado"
+        )
 
     def test_los_emergentes_de_verdad(self, sistema):
         """La cifra que el sistema debe publicar cuando afirme emergencia. NO

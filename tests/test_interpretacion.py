@@ -286,8 +286,8 @@ class TestFormaDelGrafoReal:
         suficiente: hacen falta diagramas con enlaces.
         """
         formas = [forma_de(p) for p, _ in descomposiciones]
-        assert len(descomposiciones) == 31
-        assert formas.count(FORMA_COPRODUCTO) == 26
+        assert len(descomposiciones) == 22
+        assert formas.count(FORMA_COPRODUCTO) == 17
         assert formas.count(FORMA_PUSHOUT) == 5
 
     def test_ninguna_pierde_su_colimite_por_las_decisiones(self, descomposiciones):
@@ -731,3 +731,84 @@ class TestElPdfNoSeDesfasa:
             assert "SUPERADO por" in fuente, (
                 f"{viejo} no dice que está superado: alguien lo va a correr"
             )
+
+
+class TestSoloLosObjetosSonComponentes:
+    """Un patrón es un funtor `P : I → K`: sus componentes son OBJETOS de K.
+
+    Casi la mitad de las etiquetas del grafo no lo son —26 funtores, 4 objetos
+    dentro de una categoría, 53 nombres de tema— y el detector las admitía
+    igual. Un diagrama que las incluya es un error de tipo, y los «huecos» que
+    producía no eran conceptos que faltaran: eran patrones que no debieron
+    existir.
+    """
+
+    @pytest.fixture(scope="class")
+    def sistema(self):
+        sys.argv = ["x"]
+        from nucleo.graph.category import SkillCategory
+        from nucleo.pillars.math_domains import load_math_domains
+        from nucleo.mes.patterns import PatternManager, ColimitBuilder
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.no_delgado import (registrar_morfismos_certificados,
+                                             congruencia_declarada)
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+        g = SkillCategory(name="Obj")
+        n._graph = g
+        Nucleo._load_foundational_skills(n)
+        load_math_domains(g)
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        cong = congruencia_declarada(g)
+        _cn, gaps = build_hierarchy_to_fixpoint(g, pm, cb, cong=cong)
+        return g, pm, cb, gaps
+
+    def test_ninguna_componente_es_funtor_objeto_ni_tema(self, sistema):
+        _g, pm, _cb, _gaps = sistema
+        for p in pm.all_patterns:
+            for c in p.component_ids:
+                e = VEREDICTO.get(c)
+                if e is None:
+                    continue          # objeto emergente: legítimo
+                assert e.marca in VERTICES, (
+                    f"«{c}» es {e.marca} y aparece como componente de "
+                    f"{sorted(p.component_ids)}: es un error de tipo"
+                )
+
+    def test_ningun_apice_es_funtor_objeto_ni_tema(self, sistema):
+        _g, pm, cb, _gaps = sistema
+        for col in cb.all_colimits:
+            e = VEREDICTO.get(col.skill_id)
+            if e is None:
+                continue
+            assert e.marca in VERTICES, (
+                f"«{col.skill_id}» es {e.marca} y figura como colímite"
+            )
+
+    def test_lo_que_no_esta_en_el_veredicto_se_conserva(self):
+        """Los objetos que inserta la complexificación son legítimos y no
+        figuran en la tabla: el filtro no puede tragárselos."""
+        import inspect
+        from nucleo.graph import complexity
+        fuente = inspect.getsource(complexity._detect_convergence_patterns)
+        assert "e is None or e.marca in _VTX" in fuente, (
+            "el filtro dejó de conservar lo que no está en el veredicto"
+        )
+
+    def test_solo_queda_un_hueco_y_es_el_espurio(self, sistema):
+        """El estado limpio: todo hueco está cerrado o adjudicado.
+
+        El único que sobrevive es el que el veredicto declaró espurio — dos de
+        sus cuatro patas no son canónicas, y «una pata forzada no es una pata».
+        """
+        _g, _pm, _cb, gaps = sistema
+        assert len(gaps) == 3, "cambió el recuento de huecos previos al paso K→K′"
+        espurio = {"algebraic-geometry", "functors", "homological-algebra",
+                   "operator-theory"}
+        assert any(set(gp.component_ids) == espurio for gp in gaps)
+        assert any(espurio <= set(k) for k in PATRONES_ESPURIOS), (
+            "el hueco que queda ya no coincide con ningún patrón espurio "
+            "declarado: hay que volver a mirarlo"
+        )

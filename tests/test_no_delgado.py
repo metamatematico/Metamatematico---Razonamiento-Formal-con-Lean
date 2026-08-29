@@ -632,7 +632,7 @@ class TestMigracionACocono:
         su condicion de co-cono es vacua y no hay nada que puedan incumplir.
         """
         descs = self._descs(sistema)
-        assert len(descs) == 31
+        assert len(descs) == 22
 
         hac = {frozenset(p.component_ids) for p, a in descs
                if a == "homological-algebra-cat"}
@@ -640,11 +640,10 @@ class TestMigracionACocono:
             "sobrevive una descomposicion con `functors`: la conmutacion no "
             "se esta comprobando"
         )
-        assert hac == {
-            frozenset({"algebraic-geometry", "limits"}),
-            frozenset({"homological-algebra", "limits"}),
-            frozenset({"algebraic-geometry", "homological-algebra", "limits"}),
-        }
+        # Ya no queda NINGUNA: las tres que sobrevivian a la migracion
+        # contenian `limits`, que es un funtor y dejo de admitirse como
+        # componente. El apice desaparece con ellas.
+        assert hac == set()
 
     def test_sobreviven_incluso_en_la_categoria_libre(self, sistema):
         """La cota inferior honesta. Por `cocono_monotono_en_la_congruencia`
