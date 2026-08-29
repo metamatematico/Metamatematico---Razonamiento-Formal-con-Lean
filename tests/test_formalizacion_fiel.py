@@ -127,3 +127,92 @@ class TestElReintentoNoCambiaDeTema:
         retry = self._prompt_del_reintento()
         assert "ORIGINAL" in retry
         assert "No cambies de tema" in retry
+
+
+# ---------------------------------------------------------------------------
+# Lean verifica, pero LA NEGACIÓN de lo que se preguntó
+# ---------------------------------------------------------------------------
+
+class TestRefutacion:
+    """Pedir algo falso no puede devolver una respuesta con sello de verificada.
+
+    Lo destapó el banco de fidelidad con «demuestra que la raíz de 4 es
+    irracional», que es falso. El modelo se comportó bien: detectó la falsedad,
+    formalizó `¬ Irrational (Real.sqrt 4)` y lo dijo en un comentario del
+    código. Era el pipeline el que no miraba — veía `SUCCESS` y estampaba la
+    insignia sobre una respuesta a otra pregunta.
+
+    Ahora el formalizador tiene un canal legible por máquina para lo que ya
+    hacía por su cuenta, y hay un estado propio: la respuesta sigue estando
+    respaldada por Lean, pero abre diciendo que el enunciado era falso.
+    """
+
+    @staticmethod
+    def _detector():
+        import inspect
+        import re as _re
+        fuente = inspect.getsource(Nucleo._math_via_lean)
+        ini = fuente.index("def _es_refutacion")
+        fin = fuente.index("# ── Detección de formalización trivial")
+        cuerpo = "\n".join(l[8:] if l.startswith(" " * 8) else l
+                           for l in fuente[ini:fin].splitlines())
+        ns: dict = {}
+        exec(cuerpo, {"re": _re}, ns)
+        return ns["_es_refutacion"]
+
+    REFUTACIONES = [
+        "-- REFUTACION: sqrt 4 = 2, que es racional\ntheorem t : ¬ Irrational (Real.sqrt 4) := by sorry",
+        "-- REFUTACIÓN: 2 es primo y par\ntheorem t : ¬ (∀ p, p.Prime → Odd p) := by sorry",
+        "/-- REFUTACION: el enunciado es falso -/\ntheorem t : ¬ P := by sorry",
+    ]
+
+    NORMALES = [
+        "theorem t : 127 + 458 = 585 := by norm_num",
+        "theorem t : Irrational (Real.sqrt 2) := by exact irrational_sqrt_two",
+        # una negación legítima, que NO es refutación de lo preguntado
+        "theorem t : ¬ (2 = 3) := by decide",
+        "-- la suma de dos pares es par\ntheorem t (a b : ℕ) : Even (2*a + 2*b) := by ring_nf; exact ⟨a+b, by ring⟩",
+    ]
+
+    @pytest.mark.parametrize("code", REFUTACIONES)
+    def test_reconoce_la_refutacion(self, code):
+        assert self._detector()(code), (
+            "sin esto la respuesta sale con sello de verificada sobre la "
+            "negación de lo que se preguntó"
+        )
+
+    @pytest.mark.parametrize("code", NORMALES)
+    def test_no_marca_lo_normal(self, code):
+        assert not self._detector()(code), (
+            "un teorema normal marcado como refutación haría que el sistema "
+            "avise de una falsedad que no existe"
+        )
+
+    def test_el_formalizador_tiene_el_canal(self):
+        import inspect
+        fuente = inspect.getsource(Nucleo._math_via_lean)
+        assert "REFUTACION:" in fuente
+        assert "formaliza su NEGACIÓN" in fuente
+
+    def test_hay_estado_propio_y_va_delante(self):
+        """No basta con detectarlo: el aviso tiene que ir DELANTE de la prosa,
+        como el de «Lean no verificó»."""
+        import inspect
+        fuente = inspect.getsource(Nucleo._math_via_lean)
+        assert 'verification_status = "refutado"' in fuente
+        i_titulo = fuente.index("_titulo = {")
+        bloque = fuente[i_titulo:i_titulo + 900]
+        assert '"refutado"' in bloque, (
+            "el estado existe pero no tiene presentación: caería en el "
+            "genérico «sin verificación formal», que dice algo falso — "
+            "Lean SÍ verificó, solo que otra cosa"
+        )
+
+    def test_la_confianza_no_baja(self):
+        """La respuesta está igual de respaldada: Lean la verificó. Lo que
+        cambia es QUÉ responde, no cuánto se sostiene."""
+        import inspect
+        fuente = inspect.getsource(Nucleo._math_via_lean)
+        i = fuente.index('verification_status = "refutado"')
+        bloque = fuente[i:i + 500]
+        assert "confidence    = 0.95" in bloque

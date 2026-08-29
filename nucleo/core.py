@@ -1515,6 +1515,8 @@ class Nucleo:
                 + "- PROHIBIDO: tomar la afirmación principal como hipótesis y concluirla trivialmente.\n"
                 "  EJEMPLO PROHIBIDO: `(h : a^2+b^2=c^2) : c^2=a^2+b^2 := h.symm` — tautología.\n"
                 "- PROHIBIDO: generar múltiples versiones del mismo resultado.\n"
+                "- Si el enunciado que se te pide es FALSO, NO lo demuestres: formaliza su NEGACIÓN\n"
+                "  y abre el bloque con la línea `-- REFUTACION: <por qué el enunciado es falso>`.\n"
                 "- Usa los tipos y teoremas de Mathlib apropiados.\n"
                 "- No pongas explicaciones fuera del bloque de código."
             )
@@ -1532,6 +1534,18 @@ class Nucleo:
         lean_code = self._extract_lean_code(lean_gen.content)
         if not lean_code:
             lean_code = lean_gen.content.strip()
+
+        # ── ¿Lean va a verificar la NEGACIÓN de lo preguntado? ────────────
+        def _es_refutacion(code: str) -> bool:
+            """El formalizador marca con `-- REFUTACION:` los enunciados falsos.
+
+            Es un canal explicito para algo que el modelo ya hacia por su
+            cuenta —escribir en un comentario que el enunciado propuesto era
+            falso— y que el pipeline no leia: veia SUCCESS y estampaba la
+            insignia de verificado sobre una respuesta a otra pregunta.
+            """
+            import re
+            return bool(re.search(r"REFUTACI[OÓ]N\s*:", code, re.I))
 
         # ── Detección de formalización trivial → regenerar ─────────────────
         def _is_trivial_lean(code: str) -> bool:
@@ -1660,6 +1674,25 @@ class Nucleo:
             )
             confidence    = 0.75
             success_value = 0.5
+
+        elif result.is_success and _es_refutacion(lean_code):
+            # LEAN VERIFICO, PERO LA NEGACION DE LO QUE SE PREGUNTO.
+            #
+            # Sin esta rama, pedir «demuestra que la raiz de 4 es irracional»
+            # —que es falso— devolvia una respuesta con sello de VERIFICADA. El
+            # modelo hacia lo correcto: detectaba la falsedad, formalizaba la
+            # negacion y lo decia en un comentario del codigo. Era el pipeline
+            # el que no miraba: veia SUCCESS y estampaba la insignia.
+            #
+            # La respuesta esta igual de respaldada que cualquier otra —Lean la
+            # verifico— pero responde OTRA COSA, y eso tiene que ir delante.
+            verification_status = "refutado"
+            verification_note = (
+                "Lean 4 verificó la NEGACIÓN del enunciado: lo que se preguntó "
+                "es falso."
+            )
+            confidence    = 0.95
+            success_value = 1.0
 
         elif result.is_success:
             verification_status = "verificado"
@@ -1831,6 +1864,10 @@ class Nucleo:
             )
         else:
             _titulo = {
+                "refutado": "🔍 **El enunciado que preguntaste es FALSO.** "
+                            "Lean 4 verificó formalmente su negación — lo que "
+                            "sigue explica el enunciado verdadero, no el que "
+                            "pediste.",
                 "parcial": "⚠️ **Verificación parcial** — Lean aceptó la estructura, "
                            "pero quedan pasos sin demostrar.",
                 "no_verificado": "❌ **Lean 4 NO verificó esta prueba.** "

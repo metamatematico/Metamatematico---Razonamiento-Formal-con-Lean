@@ -1,0 +1,98 @@
+[
+  {
+    "area": "aritmetica",
+    "pregunta": "¿Cuánto es 127 + 458?",
+    "espera": "verifica",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
+    "fiel": true,
+    "motivo": "El teorema enuncia exactamente la igualdad 127 + 458 = 585, que es la respuesta a la pregunta, sin hipótesis ni circularidad.",
+    "seg": 37.5,
+    "codigo": "import Mathlib\n\ntheorem sum_127_458 : 127 + 458 = 585 := by\n  norm_num",
+    "error": null
+  },
+  {
+    "area": "algebra",
+    "pregunta": "Demuestra que (a+b)^2 = a^2 + 2ab + b^2",
+    "espera": "verifica",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
+    "fiel": true,
+    "motivo": "El teorema enuncia la identidad del binomio al cuadrado para reales arbitrarios, sin hipótesis ni circularidad, tal como se pedía.",
+    "seg": 35.9,
+    "codigo": "import Mathlib\n\ntheorem sq_add (a b : ℝ) : (a + b) ^ 2 = a ^ 2 + 2 * a * b + b ^ 2 := by\n  ring",
+    "error": null
+  },
+  {
+    "area": "numeros",
+    "pregunta": "Demuestra que la raíz de 2 es irracional",
+    "espera": "verifica",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
+    "fiel": true,
+    "motivo": "El teorema enuncia exactamente que √2 es irracional usando la definición de Mathlib, y se prueba invocando un lema previo de la biblioteca, sin tomar la conclus",
+    "seg": 64.4,
+    "codigo": "import Mathlib\n\nimport Mathlib.NumberTheory.Real.Irrational\ntheorem sqrt_two_irrational : Irrational (Real.sqrt 2) :=\n  irrational_sqrt_two",
+    "error": null
+  },
+  {
+    "area": "numeros",
+    "pregunta": "Demuestra que n^2 es par si y solo si n es par",
+    "espera": "verifica",
+    "ok": false,
+    "lean": "LeanResultStatus.ERROR",
+    "fiel": true,
+    "motivo": "El enunciado formaliza exactamente la equivalencia «n² es par ↔ n es par» para todo entero n, sin hipótesis circulares (aunque la prueba invoca un lema inexiste",
+    "seg": 51.3,
+    "codigo": "import Mathlib\n\ntheorem even_sq_iff_even (n : ℤ) : Even (n ^ 2) ↔ Even n := by\n  constructor\n  · intro h\n    by_contra hn\n    rw [Int.not_even_iff_odd] at hn\n    have : Odd (n ^ 2) := by\n      simpa [sq] using hn.mul hn\n    rw [Int.even_iff_not_odd] at h\n    exact h this\n  · intro h\n    simpa [sq] using h.mul_right n",
+    "error": null
+  },
+  {
+    "area": "algebra-abs",
+    "pregunta": "Demuestra que en un grupo el elemento neutro es único",
+    "espera": "verifica",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
+    "fiel": true,
+    "motivo": "El teorema enuncia que un neutro por la izquierda y uno por la derecha en un grupo arbitrario coinciden, lo que es exactamente la unicidad del neutro, y se dedu",
+    "seg": 53.7,
+    "codigo": "import Mathlib\n\ntheorem group_identity_unique {G : Type*} [Group G] (e f : G)\n    (he : ∀ x : G, e * x = x) (hf : ∀ x : G, x * f = x) : e = f :=\n  calc e = e * f := (hf e).symm\n    _ = f := he f",
+    "error": null
+  },
+  {
+    "area": "logica",
+    "pregunta": "Demuestra que P implica (Q implica P)",
+    "espera": "verifica",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
+    "fiel": true,
+    "motivo": "El teorema enuncia exactamente P → (Q → P) para proposiciones arbitrarias y lo prueba construyendo el término correspondiente, sin asumir la conclusión.",
+    "seg": 43.4,
+    "codigo": "import Mathlib\n\ntheorem imp_imp_self_axiom (P Q : Prop) : P → (Q → P) :=\n  fun hp _ => hp",
+    "error": null
+  },
+  {
+    "area": "falso",
+    "pregunta": "Demuestra que la raíz de 4 es irracional",
+    "espera": "rechaza",
+    "ok": false,
+    "lean": "LeanResultStatus.SUCCESS",
+    "fiel": false,
+    "motivo": "El código no demuestra lo pedido sino su negación (¬ Irrational (√4)), lo cual es correcto matemáticamente porque el enunciado original es falso, pero no es la ",
+    "seg": 73.8,
+    "codigo": "import Mathlib\n\nimport Mathlib.NumberTheory.Real.Irrational\n/-- El enunciado propuesto es FALSO: `Real.sqrt 4 = 2`, que es racional.\n    Se formaliza el hecho verdadero: la raíz de 4 NO es irracional. -/\ntheorem not_irrational_sqrt_four : ¬ Irrational (Real.sqrt 4) := by\n  have h : Real.sqrt 4 = 2 := by\n    rw [show (4 : ℝ) = 2 ^ 2 by norm_num]\n    exact Real.sqrt_sq (by norm_num)\n  rw [h, show (2",
+    "error": null
+  },
+  {
+    "area": "no-math",
+    "pregunta": "¿Quién fue Alexander Grothendieck?",
+    "espera": "no-math",
+    "ok": true,
+    "lean": "",
+    "fiel": null,
+    "motivo": "",
+    "seg": 35.6,
+    "codigo": "",
+    "error": null
+  }
+]
