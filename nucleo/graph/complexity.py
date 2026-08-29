@@ -51,6 +51,90 @@ logger = logging.getLogger(__name__)
 # CORE ALGORITHM
 # =============================================================================
 
+def orden_irreducible(
+    graph: "SkillCategory",
+    colimit_builder: "ColimitBuilder",
+) -> dict[str, int]:
+    """
+    El orden que decide si hay EMERGENCIA: minimo sobre las descomposiciones.
+
+    NO SUSTITUYE A `compute_complexity_order`, QUE ES OTRA COSA
+    ----------------------------------------------------------
+    `cn` toma el MAXIMO sobre las descomposiciones, y hace bien: es la altura
+    que domina a las componentes de CADA descomposicion, esta respaldada por
+    `cn_ge_of_mem_decomp` y `hierarchy_well_founded_multi`, y es la que da la
+    buena fundacion que hace terminar la iteracion.
+
+    Pero la altura no es la irreducibilidad. Para preguntar «¿es X emergente?»
+    hace falta lo contrario: si X admite ALGUNA descomposicion cuyas
+    componentes sean todas de orden 0, entonces X es un colimite simple de
+    objetos de base y su orden de complejidad en el sentido de Ehresmann es 1,
+    por muchas otras descomposiciones altas que tenga.
+
+    Ahi es donde el Principio de Multiplicidad deja de ser decorativo: un
+    objeto con varias descomposiciones puede ser mas simple de lo que su
+    descomposicion mas alta sugiere, y solo mirando todas se sabe.
+
+    Medido sobre el grafo real: de los tres objetos con `cn = 2`, uno
+    (`homological-algebra-cat`) tiene orden irreducible 1 — su descomposicion
+    `{homological-algebra, limits}` tiene las dos componentes en orden 0. Los
+    otros dos si son irreducibles.
+
+    Returns:
+        dict skill_id -> orden irreducible (>= 0). 0 para los que no son
+        colimite de nada.
+    """
+    pm = colimit_builder._pattern_manager
+
+    # descomposiciones por objeto
+    decomps: dict[str, list[list[str]]] = {}
+    for col in colimit_builder.all_colimits:
+        pat = pm.get_pattern(col.pattern_id) if col.pattern_id else None
+        if pat is None or not pat.component_ids:
+            continue
+        decomps.setdefault(col.skill_id, []).append(list(pat.component_ids))
+
+    orden: dict[str, int] = {sid: 0 for sid in graph.skill_ids}
+
+    # Punto fijo descendente: se empieza por la altura `cn` (cota superior
+    # valida) y se baja mientras alguna descomposicion permita menos. Baja de
+    # forma monotona y esta acotada por 0, luego termina.
+    for sid, alt in compute_complexity_order(graph, colimit_builder).items():
+        orden[sid] = alt
+
+    cambio = True
+    vueltas = 0
+    while cambio and vueltas <= len(graph.skill_ids) + 2:
+        cambio = False
+        vueltas += 1
+        for obj, ds in decomps.items():
+            mejor = min(
+                1 + max((orden.get(c, 0) for c in comps), default=-1)
+                for comps in ds
+            )
+            if mejor < orden.get(obj, 0):
+                orden[obj] = mejor
+                cambio = True
+    return orden
+
+
+def objetos_emergentes(
+    graph: "SkillCategory",
+    colimit_builder: "ColimitBuilder",
+    minimo: int = 2,
+) -> dict[str, int]:
+    """
+    Los objetos genuinamente emergentes: irreducibles a orden < `minimo`.
+
+    Esta es la cifra que el sistema debe publicar cuando afirme emergencia, no
+    `max_cn`. Un objeto con `cn = 2` puede tener orden irreducible 1, y
+    entonces no es emergencia: es un colimite simple con una descomposicion
+    alta al lado.
+    """
+    orden = orden_irreducible(graph, colimit_builder)
+    return {k: v for k, v in orden.items() if v >= minimo}
+
+
 def compute_complexity_order(
     graph: "SkillCategory",
     colimit_builder: "ColimitBuilder",

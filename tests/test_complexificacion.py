@@ -256,3 +256,135 @@ class TestTerminacion:
             pat = pm2.get_pattern(col.pattern_id)
             if pat:
                 assert col.skill_id not in pat.component_ids
+
+
+# ---------------------------------------------------------------------------
+# El segundo paso: la complexificacion enchufada, y lo que NO consigue
+# ---------------------------------------------------------------------------
+
+class TestComplexificacionEnchufada:
+    """El paso deja de ser inerte, y se mide honestamente que produce."""
+
+    @pytest.fixture(scope="class")
+    def corrida(self):
+        import sys as _s
+        _s.argv = ["x"]
+        from nucleo.graph.category import SkillCategory
+        from nucleo.pillars.math_domains import load_math_domains
+        from nucleo.mes.patterns import PatternManager, ColimitBuilder
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.complexificacion import complexificar
+        from nucleo.graph.no_delgado import (registrar_morfismos_certificados,
+                                             congruencia_automatica)
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+        g = SkillCategory(name="CxE")
+        n._graph = g
+        Nucleo._load_foundational_skills(n)
+        load_math_domains(g)
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        cong = congruencia_automatica(g)
+        cn0, gaps0 = build_hierarchy_to_fixpoint(g, pm, cb, cong=cong)
+        antes = (len(g.skill_ids), len(cb.all_colimits), len(gaps0))
+        res = complexificar(g, pm, cb, gaps0, preservar=True, cong=cong)
+        cn1, gaps1 = build_hierarchy_to_fixpoint(g, pm, cb, cong=cong)
+        return g, pm, cb, cong, antes, res, cn1, gaps1
+
+    def test_el_paso_ya_no_es_inerte(self, corrida):
+        """Con rollback todo-o-nada, 8 objetos cerraban 8 huecos y los 8 se
+        tiraban por culpa de 1. La retirada selectiva quita solo al culpable.
+        """
+        *_, res, _cn, _gaps = corrida
+        assert not res.revertida
+        assert len(res.nuevos) == 7
+        assert res.huecos_cerrados == 7
+        assert len(res.retirados) == 1
+
+    def test_ningun_colimite_previo_se_rompe(self, corrida):
+        """El objetivo (iii) de la opcion: preservar lo que ya existia."""
+        *_, res, _cn, _gaps = corrida
+        assert res.colimites_rotos == []
+        assert res.preserva
+        assert len(res.colimites_preservados) == 27
+
+    def test_los_huecos_bajan(self, corrida):
+        _g, _pm, _cb, _cong, antes, _res, _cn, gaps1 = corrida
+        assert antes[2] == 19
+        assert len(gaps1) == 12
+
+    def test_declara_la_congruencia_constitutiva(self, corrida):
+        """Un colimite viene CON su co-cono: que las patas de eta(P) conmuten
+        con los enlaces del patron no es una conjetura sobre el dominio, es lo
+        que significa el objeto insertado. Sin declararlo, eta(P) falla su
+        propio test de co-cono.
+        """
+        *_, res, _cn, _gaps = corrida
+        assert res.relaciones_nuevas
+        for (a, b) in res.relaciones_nuevas:
+            assert len(a) == 2 and len(b) == 1
+
+    def test_los_objetos_nuevos_son_colimites_de_verdad(self, corrida):
+        """No basta con que sean alcanzables: tienen que admitir co-cono."""
+        from nucleo.graph.no_delgado import hay_cocono_cong
+        g, pm, cb, cong, _a, res, _cn, _gaps = corrida
+        for obj in res.nuevos:
+            pats = [pm.get_pattern(p) for p in obj.patrones]
+            pats = [p for p in pats if p is not None]
+            assert any(
+                hay_cocono_cong(p, obj.skill_id, g, cong) is True for p in pats
+            ), f"{obj.skill_id} no admite co-cono sobre ninguno de sus patrones"
+
+    # ── LO QUE NO CONSIGUE, dicho con la misma claridad ──────────────────
+
+    def test_no_produce_ni_un_solo_objeto_emergente(self, corrida):
+        """El resultado honesto, y hay que dejarlo escrito.
+
+        `eta(P)` se inserta justo encima de las componentes de P, luego su
+        orden irreducible es `1 + max(orden de las componentes)`. Con todas las
+        componentes en orden 0 sale orden 1, siempre. La complexificacion
+        cierra huecos; no crea emergencia.
+        """
+        from nucleo.graph.complexity import orden_irreducible
+        g, _pm, cb, _c, _a, res, _cn, _gaps = corrida
+        orden = orden_irreducible(g, cb)
+        for obj in res.nuevos:
+            assert orden.get(obj.skill_id) == 1
+
+    def test_los_emergentes_siguen_siendo_los_dos_del_grafo_curado(self, corrida):
+        """Antes y despues del paso: los mismos dos, y ninguno es emergente."""
+        from nucleo.graph.complexity import objetos_emergentes
+        g, _pm, cb, *_ = corrida
+        em = objetos_emergentes(g, cb)
+        assert set(em) == {"arithmetic-geometry", "affine-varieties"}
+        for k in em:
+            sk = g.get_skill(k)
+            assert not sk.metadata.get("emergente")
+
+    def test_la_palanca_esta_identificada(self, corrida):
+        """Donde estaria el orden >= 2, y por que no se alcanza hoy.
+
+        Un hueco da orden >= 2 solo si alguna componente ya es colimite. De los
+        12 que quedan, la mayoria cumple eso — pero no tienen NINGUNA cota
+        superior, luego no se pueden cerrar insertando un minimo entre ellas:
+        `eta(P)` seria el objeto maximo y colgaria de todo el grafo.
+
+        Esos huecos necesitan un concepto NOMBRADO, que lo aporta la
+        matematica. Es exactamente el limite que el modulo ya declaraba.
+        """
+        from nucleo.graph.complexity import find_cocones, orden_irreducible
+        g, _pm, cb, _c, _a, _res, _cn, gaps = corrida
+        orden = orden_irreducible(g, cb)
+        darian_2, sin_cotas = 0, 0
+        for gap in gaps:
+            ords = [orden.get(c, 0) for c in gap.component_ids]
+            if ords and 1 + max(ords) >= 2:
+                darian_2 += 1
+                if not find_cocones(list(gap.component_ids), g):
+                    sin_cotas += 1
+        assert darian_2 >= 8, "ya no hay huecos que darian orden >= 2"
+        assert sin_cotas >= 6, (
+            "si estos huecos ganaran cotas superiores, el paso si produciria "
+            "emergencia y este test hay que reescribirlo"
+        )

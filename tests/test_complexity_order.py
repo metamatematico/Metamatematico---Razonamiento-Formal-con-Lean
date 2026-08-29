@@ -460,3 +460,94 @@ class TestLevelCnSeparation:
         assert g.get_cn_distribution() == {0: 1, 2: 1}
         assert [s.id for s in g.get_skills_at_cn(2)] == ["B"]
         assert g.stats["num_joins"] == 1
+
+
+# ---------------------------------------------------------------------------
+# Altura no es emergencia
+# ---------------------------------------------------------------------------
+
+class TestOrdenIrreducible:
+    """`cn` y `orden_irreducible` responden preguntas distintas.
+
+    `cn` toma el MAXIMO sobre las descomposiciones y hace bien: es la altura
+    que domina a las componentes de cada una, respaldada por
+    `cn_ge_of_mem_decomp`, y es la que da la buena fundacion.
+
+    Pero altura no es irreducibilidad. Si un objeto admite ALGUNA
+    descomposicion cuyas componentes sean todas de orden 0, es un colimite
+    simple de objetos de base y su orden de Ehresmann es 1, por muchas otras
+    descomposiciones altas que tenga. Ahi el Principio de Multiplicidad deja de
+    ser decorativo: solo mirando TODAS las descomposiciones se sabe.
+    """
+
+    @pytest.fixture(scope="class")
+    def sistema(self):
+        import sys as _s
+        _s.argv = ["x"]
+        from nucleo.graph.category import SkillCategory
+        from nucleo.pillars.math_domains import load_math_domains
+        from nucleo.mes.patterns import PatternManager, ColimitBuilder
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.no_delgado import (registrar_morfismos_certificados,
+                                             congruencia_automatica)
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+        g = SkillCategory(name="OI")
+        n._graph = g
+        Nucleo._load_foundational_skills(n)
+        load_math_domains(g)
+        registrar_morfismos_certificados(g)
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        cong = congruencia_automatica(g)
+        cn, _gaps = build_hierarchy_to_fixpoint(g, pm, cb, cong=cong)
+        return g, pm, cb, cn
+
+    def test_el_irreducible_nunca_supera_a_la_altura(self, sistema):
+        """`cn` es cota superior valida del orden irreducible: lo contrario
+        seria un error de la iteracion descendente."""
+        from nucleo.graph.complexity import orden_irreducible
+        g, _pm, cb, cn = sistema
+        o = orden_irreducible(g, cb)
+        for k, v in o.items():
+            assert v <= cn.get(k, 0), f"{k}: irreducible {v} > altura {cn[k]}"
+
+    def test_hay_un_objeto_donde_las_dos_medidas_difieren(self, sistema):
+        """La diferencia no es teorica: `homological-algebra-cat` tiene cn=2 y
+        orden irreducible 1, porque su descomposicion
+        `{homological-algebra, limits}` tiene las dos componentes en orden 0.
+        """
+        from nucleo.graph.complexity import orden_irreducible
+        g, _pm, cb, cn = sistema
+        o = orden_irreducible(g, cb)
+        assert cn["homological-algebra-cat"] == 2
+        assert o["homological-algebra-cat"] == 1
+
+    def test_los_emergentes_de_verdad_son_dos(self, sistema):
+        """La cifra que el sistema debe publicar cuando afirme emergencia. NO
+        es `max_cn`, que aqui vale 2 sobre TRES objetos, uno de ellos inflado.
+        """
+        from nucleo.graph.complexity import objetos_emergentes
+        g, _pm, cb, cn = sistema
+        assert max(cn.values()) == 2
+        assert len([k for k, v in cn.items() if v >= 2]) == 3
+        assert set(objetos_emergentes(g, cb)) == {
+            "arithmetic-geometry", "affine-varieties",
+        }
+
+    def test_un_emergente_no_tiene_ninguna_descomposicion_baja(self, sistema):
+        """Lo que significa ser irreducible: TODA descomposicion tiene alguna
+        componente que a su vez es colimite."""
+        from nucleo.graph.complexity import orden_irreducible, objetos_emergentes
+        g, pm, cb, _cn = sistema
+        o = orden_irreducible(g, cb)
+        for obj in objetos_emergentes(g, cb):
+            ds = [pm.get_pattern(c.pattern_id) for c in cb.all_colimits
+                  if c.skill_id == obj and c.pattern_id]
+            ds = [d for d in ds if d is not None]
+            assert ds
+            for d in ds:
+                assert any(o.get(c, 0) >= 1 for c in d.component_ids), (
+                    f"{obj} tiene una descomposicion enteramente de orden 0: "
+                    "no es irreducible"
+                )

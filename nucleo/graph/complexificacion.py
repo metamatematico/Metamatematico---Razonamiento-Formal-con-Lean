@@ -95,6 +95,18 @@ class ResultadoComplexificacion:
     colimites_preservados: list[str] = field(default_factory=list)
     colimites_rotos: list[str] = field(default_factory=list)
     revertida: bool = False
+    #: Objetos que se insertaron y se retiraron porque robaban la minimalidad
+    #: de un colimite previo. Retirarlos SOLO A ELLOS es lo que hace que el
+    #: paso no sea todo-o-nada.
+    retirados: list[str] = field(default_factory=list)
+    #: Las relaciones que el paso AÑADE a la congruencia. No son suposiciones:
+    #: un colimite viene con su co-cono, luego que las patas de `eta(P)`
+    #: conmuten con los enlaces del patron es CONSTITUTIVO del objeto que se
+    #: esta añadiendo, no un teorema sobre el dominio que haya que creerse.
+    #: Sin esto `eta(P)` se inserta y acto seguido falla su propio test de
+    #: co-cono, porque `camino directo` y `camino por el enlace` son dos
+    #: caminos paralelos que la congruencia automatica no identifica.
+    relaciones_nuevas: list = field(default_factory=list)
 
     @property
     def preserva(self) -> bool:
@@ -151,6 +163,7 @@ def complexificar(
     gaps: "list[ConceptGap]",
     *,
     preservar: bool = True,
+    cong=None,
 ) -> ResultadoComplexificacion:
     """
     Un paso de complexificacion: K -> K'.
@@ -176,9 +189,24 @@ def complexificar(
         ResultadoComplexificacion con los objetos nuevos y el balance de
         preservacion.
     """
-    from nucleo.graph.complexity import find_cocones, find_colimit
+    from nucleo.graph.complexity import find_cocones, find_colimit_cong
+    from nucleo.graph.no_delgado import congruencia_automatica
 
+    cong = cong if cong is not None else congruencia_automatica(graph)
     res = ResultadoComplexificacion()
+
+    def _cerrado(gap) -> bool:
+        """¿Tiene ya este hueco un colimite de verdad?
+
+        Con `find_colimit` bastaba una cota superior minimal, asi que huecos
+        genuinos —minimal sin co-cono— se daban por cerrados y no se
+        complexificaban nunca. Son justo los que la delgadez ocultaba.
+        """
+        pat = (pattern_manager.get_pattern(gap.pattern_id)
+               if gap.pattern_id else None)
+        if pat is None:
+            return False
+        return find_colimit_cong(pat, graph, colimit_builder, cong)[0] is not None
 
     # ── Estado previo, para poder reverificar y revertir ────────────────────
     previos: list[tuple[str, list[str]]] = []
@@ -196,7 +224,7 @@ def complexificar(
         # fabricacion de nodos: tras insertar eta(P), eta(P) pasa a ser cota
         # superior de P, luego el conjunto de cotas cambia, luego una segunda
         # llamada crea OTRO objeto por el mismo hueco, y asi sin fin.
-        if find_colimit(list(gap.component_ids), graph, colimit_builder) is not None:
+        if _cerrado(gap):
             logger.debug(
                 f"hueco ya cerrado, se omite: {list(gap.component_ids)[:3]}…"
             )
@@ -262,13 +290,75 @@ def complexificar(
         )
         graph.add_skill(skill)
         añadidos.append(obj.skill_id)
+        patas: dict[str, str] = {}
         for c in obj.component_ids:
-            graph.add_morphism(c, obj.skill_id, MorphismType.DEPENDENCY)
+            m = graph.add_morphism(c, obj.skill_id, MorphismType.DEPENDENCY)
+            if m is not None:
+                patas[c] = m.id
         for m in _minimales(obj.cotas, graph):
             graph.add_morphism(obj.skill_id, m, MorphismType.DEPENDENCY)
+
+        # LA CONGRUENCIA CONSTITUTIVA.
+        #
+        # `eta(P)` se añade PARA SER el colimite de P, y un colimite viene con
+        # su co-cono. Que `enlace ; pata_j = pata_i` no es una conjetura sobre
+        # el dominio: es lo que significa el objeto que se acaba de insertar.
+        # Sin declararlo, `eta(P)` falla su propio test de co-cono, porque el
+        # camino directo y el camino por el enlace son paralelos y la
+        # congruencia automatica —con razon— no los identifica.
+        for pid in obj.patrones:
+            pat = pattern_manager.get_pattern(pid)
+            if pat is None:
+                continue
+            for nombre, (i_idx, j_idx) in pat.index_morphisms.items():
+                link = pat.functor_map_morphisms.get(nombre)
+                ci = pat.functor_map_objects.get(i_idx)
+                cj = pat.functor_map_objects.get(j_idx)
+                if link is None or ci not in patas or cj not in patas:
+                    continue
+                rel = ((link, patas[cj]), (patas[ci],))
+                cong.declarar(*rel)
+                res.relaciones_nuevas.append(rel)
+
         res.nuevos.append(obj)
 
-    # ── Reverificacion ──────────────────────────────────────────────────────
+    # ── Reverificacion, y retirada SELECTIVA de los culpables ──────────────
+    #
+    # El rollback era todo-o-nada: un solo objeto que rompiera algo revertia el
+    # paso entero, y con eso la complexificacion resultaba inerte —medido: 8
+    # objetos cerraban 8 huecos y los 8 se tiraban por culpa de 1—.
+    #
+    # `is_join` ya dice QUIEN roba la minimalidad (`failed_minimality`), asi que
+    # se puede atribuir cada rotura y retirar solo a su causante. Se repite
+    # porque retirar uno puede sanar varias roturas a la vez.
+    def _balance():
+        rotos, ok, culpables = [], [], set()
+        for skill_id, comps in previos:
+            r = colimit_builder.is_join(skill_id, comps, graph)
+            if r["is_join"]:
+                ok.append(skill_id)
+            else:
+                rotos.append(skill_id)
+                culpables.update(
+                    x for x in r.get("failed_minimality", []) if x in añadidos
+                )
+        return ok, rotos, culpables
+
+    if preservar:
+        for _ in range(len(añadidos) + 1):
+            _ok, _rotos, culpables = _balance()
+            if not culpables:
+                break
+            for sid in culpables:
+                logger.info(
+                    f"complexificar: se retira {sid} — rompia la minimalidad "
+                    f"de un colimite previo"
+                )
+                graph.remove_skill(sid)
+                añadidos.remove(sid)
+                res.retirados.append(sid)
+                res.nuevos = [o for o in res.nuevos if o.skill_id != sid]
+
     for skill_id, comps in previos:
         if colimit_builder.is_join(skill_id, comps, graph)["is_join"]:
             res.colimites_preservados.append(skill_id)
@@ -276,7 +366,13 @@ def complexificar(
             res.colimites_rotos.append(skill_id)
 
     for obj in res.nuevos:
-        if find_colimit(obj.component_ids, graph, colimit_builder) == obj.skill_id:
+        pats = [pattern_manager.get_pattern(p) for p in obj.patrones]
+        pats = [p for p in pats if p is not None]
+        ok = any(
+            find_colimit_cong(p, graph, colimit_builder, cong)[0] == obj.skill_id
+            for p in pats
+        ) if pats else False
+        if ok:
             res.huecos_cerrados += 1
         else:
             logger.warning(
@@ -284,11 +380,15 @@ def complexificar(
                 f"patron — revisar las cotas minimales"
             )
 
-    # ── Preservacion: revertir si se rompio algo ───────────────────────────
+    # ── Ultimo recurso: si aun asi queda algo roto, revertir el paso ───────
+    #
+    # No deberia pasar —la retirada selectiva quita a los culpables— pero si
+    # una rotura no se atribuye a ningun objeto añadido, el paso no es seguro y
+    # se deshace entero. El objetivo (iii) de la opcion no se negocia.
     if preservar and res.colimites_rotos:
         logger.warning(
             f"complexificar: {len(res.colimites_rotos)} colimites previos "
-            f"perdieron la minimalidad; se revierte el paso entero"
+            f"siguen rotos sin culpable atribuible; se revierte el paso entero"
         )
         for sid in añadidos:
             graph.remove_skill(sid)

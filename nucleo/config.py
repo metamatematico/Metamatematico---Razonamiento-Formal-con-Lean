@@ -202,6 +202,23 @@ class NucleoConfig:
     # comportamiento previo (agente global unico).
     enable_multi_agent: bool = True
 
+    # Complexificacion automatica al arrancar: K -> K' cerrando los huecos que
+    # tienen cotas superiores.
+    #
+    # POR DEFECTO OFF, y no por prudencia generica: el paso INSERTA VERTICES
+    # SIN NOMBRE en el grafo de conocimiento. Son legitimos —cierran huecos
+    # reales y preservan los 27 colimites previos, medido— pero son objetos que
+    # la matematica todavia no ha nombrado, y hacer que aparezcan solos en cada
+    # arranque es una decision del autor, no del codigo.
+    #
+    # Medido sobre el grafo real: +7 objetos, 7 huecos cerrados (19 -> 12),
+    # 27 colimites preservados, 0 rotos, punto fijo en 2 pasos.
+    #
+    # Lo que NO hace, y conviene saberlo antes de activarlo: no produce
+    # emergencia. Los 7 objetos tienen orden irreducible 1, porque eta(P) se
+    # inserta justo encima de las componentes de P y todas son de orden 0.
+    complexificacion_automatica: bool = False
+
     def validate(self) -> None:
         """Validar toda la configuracion."""
         self.rl.validate()

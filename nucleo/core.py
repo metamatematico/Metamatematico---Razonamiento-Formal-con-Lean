@@ -265,6 +265,16 @@ class Nucleo:
         # Los llena build_hierarchy_to_fixpoint en initialize().
         self._concept_gaps: list = []
 
+        # La congruencia con la que se decide si un candidato es CO-CONO y no
+        # solo cota superior. Fuera de la delgadez las dos cosas dejan de
+        # coincidir, y sin ella el sistema volveria a contar como colimites los
+        # que solo son alcanzables. La llena initialize().
+        self._congruencia = None
+
+        # Objetos con orden IRREDUCIBLE >= 2: los genuinamente emergentes.
+        # Distinto de `max_cn`, que es una altura y puede estar inflada.
+        self._emergentes: dict = {}
+
         # Feedback tracking — last experience for retroactive update
         self._last_experience_id: Optional[str] = None
         self._last_action_type = None
@@ -384,15 +394,35 @@ class Nucleo:
         # medicion de partida. max_cn y num_joins son el KPI de si el motor de
         # complejificacion esta produciendo algo.
         try:
-            from nucleo.graph.complexity import build_hierarchy_to_fixpoint
-            _cn, self._concept_gaps = build_hierarchy_to_fixpoint(
-                self._graph, self._pattern_manager, self._colimit_builder
+            from nucleo.graph.complexity import (
+                build_hierarchy_to_fixpoint, objetos_emergentes,
             )
+            from nucleo.graph.no_delgado import congruencia_automatica
+
+            # La congruencia se calcula UNA VEZ y se conserva: la
+            # complexificacion le añade las relaciones constitutivas de los
+            # objetos que inserta, y el siguiente punto fijo tiene que verlas.
+            self._congruencia = congruencia_automatica(self._graph)
+
+            _cn, self._concept_gaps = build_hierarchy_to_fixpoint(
+                self._graph, self._pattern_manager, self._colimit_builder,
+                cong=self._congruencia,
+            )
+
+            if self.config.complexificacion_automatica:
+                self._complexificar_hasta_punto_fijo()
+
+            # `max_cn` es una ALTURA (maximo sobre descomposiciones), no una
+            # medida de emergencia: un objeto puede tener cn alto y ser
+            # reducible a un colimite de objetos de base. Se publican las dos.
+            emergentes = objetos_emergentes(self._graph, self._colimit_builder)
+            self._emergentes = emergentes
             logger.info(
                 f"Jerarquia emergente: max_cn={self._graph.stats['max_cn']}, "
                 f"colimites={self._graph.stats['num_joins']}, "
                 f"huecos conceptuales={len(self._concept_gaps)}, "
-                f"skills={len(self._graph.skill_ids)}"
+                f"skills={len(self._graph.skill_ids)}, "
+                f"EMERGENTES (orden irreducible >= 2)={len(emergentes)}"
             )
         except Exception as e:
             logger.warning(
@@ -400,9 +430,14 @@ class Nucleo:
                 exc_info=True,
             )
             self._concept_gaps = []
+            if self._congruencia is None:
+                from nucleo.graph.no_delgado import Congruencia
+                self._congruencia = Congruencia()
 
         # Los huecos son el material de trabajo de CR_org y CR_str: cada uno
         # señala donde falta el concepto que unifica un patron.
+        #
+        # (ver `_complexificar_hasta_punto_fijo` para el paso que los cierra)
         #
         # Va en su propio try: cuando esto vivia dentro del bloque anterior,
         # un AttributeError aqui reseteaba self._concept_gaps a [] y los 26
@@ -461,6 +496,53 @@ class Nucleo:
 
         self._initialized = True
         logger.info("Nucleo inicializado correctamente (PPO activo)")
+
+    def _complexificar_hasta_punto_fijo(self, max_pasos: int = 5) -> list:
+        """
+        K -> K' -> K'' ... hasta que un paso no añada nada.
+
+        Cada paso cierra los huecos que TIENEN cotas superiores insertando
+        `eta(P)` como minimo entre ellas, y vuelve a calcular el punto fijo con
+        la congruencia ampliada. Un hueco SIN cotas superiores no se puede
+        cerrar asi —`eta(P)` seria el objeto maximo y colgaria de todo el
+        grafo— y se deja abierto: el concepto que lo llena lo aporta la
+        matematica, no la cirugia sobre el grafo.
+
+        PRESERVACION. El objetivo (iii) de la opcion de Ehresmann exige no
+        romper los colimites que ya existian. Se cumple por RETIRADA SELECTIVA:
+        si un objeto insertado roba la minimalidad de un colimite previo, se
+        retira ese objeto, no el paso entero. Antes era todo-o-nada y la
+        complexificacion resultaba inerte —medido: 8 objetos cerraban 8 huecos
+        y los 8 se tiraban por culpa de 1—.
+
+        LO QUE NO HACE. No produce emergencia. `eta(P)` se inserta justo encima
+        de las componentes de P, luego su orden irreducible es
+        `1 + max(orden de las componentes)`; con componentes de orden 0 el
+        resultado es orden 1, siempre. Para orden >= 2 hace falta cerrar un
+        hueco cuyas componentes ya sean colimites, y los que hay de esos no
+        tienen cotas superiores.
+
+        Returns:
+            La lista de `ResultadoComplexificacion`, un elemento por paso.
+        """
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.complexificacion import complexificar
+
+        pasos = []
+        for i in range(max_pasos):
+            res = complexificar(
+                self._graph, self._pattern_manager, self._colimit_builder,
+                self._concept_gaps, preservar=True, cong=self._congruencia,
+            )
+            pasos.append(res)
+            logger.info(f"complexificacion paso {i + 1}: {res}")
+            if not res.nuevos:
+                break
+            _cn, self._concept_gaps = build_hierarchy_to_fixpoint(
+                self._graph, self._pattern_manager, self._colimit_builder,
+                cong=self._congruencia,
+            )
+        return pasos
 
     def _load_foundational_skills(self) -> None:
         """Cargar skills fundamentales de los 4 pilares (nivel 0)."""
