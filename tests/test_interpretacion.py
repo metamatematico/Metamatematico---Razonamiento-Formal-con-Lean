@@ -688,3 +688,46 @@ class TestElApiceDeLosHaces:
         assert set(patas) == {"group-actions", "group-theory", "module-theory"}
         assert "linearization" in patas["group-actions"]
         assert "grupo trivial" in patas["module-theory"]
+
+
+class TestElPdfNoSeDesfasa:
+    """La guardia contra el patrón que ya pasó dos veces en este proyecto.
+
+    `LAS_172_ETIQUETAS.pdf` y `LO_QUE_HAY_QUE_DECIDIR.pdf` se escribieron a
+    mano, el sistema creció, y quedaron mintiendo con toda confianza. El
+    reemplazo se genera desde `interpretacion.py`, que es la única fuente de
+    verdad, así que no puede divergir — pero solo mientras nadie lo edite a
+    mano ni resucite los viejos.
+    """
+
+    def test_el_generador_existe_y_lee_de_la_tabla(self):
+        import pathlib
+        raiz = pathlib.Path(__file__).resolve().parent.parent
+        gen = raiz / "scripts" / "generar_pdf_interpretacion.py"
+        assert gen.exists()
+        fuente = gen.read_text(encoding="utf-8")
+        assert "from nucleo.graph.interpretacion import" in fuente, (
+            "el generador dejó de leer de la tabla: puede desfasarse otra vez"
+        )
+        for nombre in ("VEREDICTO", "VERTICES_ANADIDOS", "DEGRADADAS_A_FLECHA",
+                       "FUSIONES", "PATRONES_ESPURIOS"):
+            assert nombre in fuente, f"el PDF ya no reporta {nombre}"
+
+    def test_los_pdf_superados_no_vuelven(self):
+        """Si alguien los regenera, vuelven a contradecir a la tabla."""
+        import pathlib
+        docs = pathlib.Path(__file__).resolve().parent.parent / "docs"
+        for viejo in ("LAS_172_ETIQUETAS.pdf", "LO_QUE_HAY_QUE_DECIDIR.pdf"):
+            assert not (docs / viejo).exists(), (
+                f"{viejo} volvió: lo superó INTERPRETACION_DEL_GRAFO.pdf, que "
+                "se genera desde la tabla en vez de escribirse a mano"
+            )
+
+    def test_los_generadores_viejos_estan_marcados(self):
+        import pathlib
+        scripts = pathlib.Path(__file__).resolve().parent.parent / "scripts"
+        for viejo in ("generar_pdf_etiquetas.py", "generar_pdf_decisiones.py"):
+            fuente = (scripts / viejo).read_text(encoding="utf-8")
+            assert "SUPERADO por" in fuente, (
+                f"{viejo} no dice que está superado: alguien lo va a correr"
+            )

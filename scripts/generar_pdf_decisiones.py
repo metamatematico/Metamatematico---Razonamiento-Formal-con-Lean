@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Genera el PDF con lo que hay que decidir, sin notacion categorica."""
+"""
+SUPERADO por `generar_pdf_interpretacion.py`.
+
+Este script hacia PREGUNTAS —que es arista, que es vertice, que morfismos tiene
+cada etiqueta— y todas estan contestadas. Ademas leia sus datos de un JSON en un
+directorio de scratchpad de sesion, que ya no existe: no vuelve a correr.
+
+Se conserva porque documenta COMO se formularon las preguntas, que es parte del
+razonamiento. El estado actual se genera desde la unica fuente de verdad,
+`nucleo/graph/interpretacion.py`, y por eso no puede volver a desfasarse.
+"""
 import sys
 sys.stdout.reconfigure(encoding="utf-8")
 
