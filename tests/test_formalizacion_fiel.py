@@ -216,3 +216,105 @@ class TestRefutacion:
         i = fuente.index('verification_status = "refutado"')
         bloque = fuente[i:i + 500]
         assert "confidence    = 0.95" in bloque
+
+
+# ---------------------------------------------------------------------------
+# Lean acepta un archivo que no demuestra nada
+# ---------------------------------------------------------------------------
+
+class TestSinTeorema:
+    """Un archivo sin proposiciones no puede estar «verificado».
+
+    Lo destapó el banco de fidelidad sobre «demuestra que la unión de dos
+    abiertos es abierta». Lean devolvió SUCCESS sobre esto:
+
+        import Mathlib
+        #check @GrothendieckGroup
+        #check @CategoryTheory.Limits.HasZeroMorphisms
+        #check @Module.Projective
+        #check @FredholmOperator
+
+    Cero teoremas, cero relación con la pregunta, y la respuesta salió con
+    sello de verificada. `#check` consulta un tipo; no demuestra nada. Lean no
+    puede rechazarlo porque el archivo es sintácticamente correcto — quien
+    tiene que mirarlo es el pipeline.
+
+    Es el tercer defecto de fidelidad de la misma familia, y el más crudo: los
+    dos anteriores verificaban OTRO teorema; este no verifica NINGUNO.
+    """
+
+    @staticmethod
+    def _detector():
+        import re as _re
+        # El patrón, tal como lo usa `_math_via_lean`.
+        pat = (r"^\s*(?:@\[[^\]]*\]\s*)?"
+               r"(?:private\s+|protected\s+|noncomputable\s+)*"
+               r"(theorem|lemma|example)[\s\S]*?:=")
+        return lambda code: bool(_re.search(pat, code, _re.M))
+
+    NO_PRUEBAN = [
+        # el caso exacto del banco
+        "import Mathlib\n#check @GrothendieckGroup\n#check @Module.Projective",
+        "import Mathlib\n#eval 2 + 2\n#print axioms Nat",
+        "import Mathlib\n-- solo un comentario",
+        "import Mathlib\nopen Set Topology",
+        "",
+    ]
+
+    PRUEBAN = [
+        "import Mathlib\ntheorem t : 2 + 2 = 4 := by norm_num",
+        "theorem t (a b : Set X) (ha : IsOpen a) (hb : IsOpen b) : IsOpen (a ∪ b) := ha.union hb",
+        "lemma foo : True := trivial",
+        "example : 1 = 1 := rfl",
+        "@[simp]\ntheorem t : 1 = 1 := rfl",
+        # con `sorry` SÍ cuenta como teorema: que quede un hueco lo detecta el
+        # estado `parcial`, que es harina de otro costal
+        "theorem t : IsOpen (∅ : Set ℕ) := by sorry",
+    ]
+
+    @pytest.mark.parametrize("code", NO_PRUEBAN)
+    def test_reconoce_que_no_hay_prueba(self, code):
+        assert not self._detector()(code), (
+            "sin esto, Lean devuelve SUCCESS y la respuesta sale con sello de "
+            "verificada sobre un archivo que no demuestra nada"
+        )
+
+    @pytest.mark.parametrize("code", PRUEBAN)
+    def test_no_estorba_a_los_teoremas_de_verdad(self, code):
+        assert self._detector()(code), (
+            "un teorema legítimo marcado como «sin prueba» tiraría respuestas "
+            "correctas"
+        )
+
+    def test_el_pipeline_tiene_la_rama_y_va_antes_del_exito(self):
+        """La rama debe evaluarse ANTES que la de éxito: si no, `is_success`
+        gana y el archivo vacío vuelve a salir verificado."""
+        import inspect
+        fuente = inspect.getsource(Nucleo._math_via_lean)
+        assert "_prueba_algo" in fuente
+        i_sin = fuente.index('verification_status = "sin_teorema"')
+        i_ok = fuente.index('verification_status = "verificado"')
+        assert i_sin < i_ok, (
+            "la rama de «sin teorema» va después de la de éxito: nunca se "
+            "alcanza"
+        )
+
+    def test_no_se_presenta_como_verificado(self):
+        import inspect
+        fuente = inspect.getsource(Nucleo._math_via_lean)
+        i = fuente.index("_titulo = {")
+        bloque = fuente[i:i + 1200]
+        assert '"sin_teorema"' in bloque, (
+            "sin presentación propia cae en el genérico, que no dice lo que "
+            "pasó: el código no contenía ningún teorema"
+        )
+
+    def test_la_confianza_baja(self):
+        """A diferencia de la refutación —que sí está respaldada— aquí no hay
+        nada demostrado, y la confianza tiene que reflejarlo."""
+        import inspect
+        fuente = inspect.getsource(Nucleo._math_via_lean)
+        i = fuente.index('verification_status = "sin_teorema"')
+        bloque = fuente[i:i + 400]
+        assert "confidence    = 0.30" in bloque
+        assert "success_value = 0.0" in bloque

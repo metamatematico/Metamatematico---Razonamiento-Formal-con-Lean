@@ -1535,6 +1535,35 @@ class Nucleo:
         if not lean_code:
             lean_code = lean_gen.content.strip()
 
+        # ── ¿El código DEMUESTRA algo, o Lean acepta un archivo vacío? ────
+        def _prueba_algo(code: str) -> bool:
+            """Un archivo sin proposiciones no puede estar «verificado».
+
+            Lean procesa sin errores un archivo que solo tiene `import` y
+            `#check`, y devuelve SUCCESS. El pipeline lo tomaba por bueno y
+            estampaba la insignia. Medido en el banco de fidelidad, sobre
+            «demuestra que la unión de dos abiertos es abierta»:
+
+                import Mathlib
+                #check @GrothendieckGroup
+                #check @CategoryTheory.Limits.HasZeroMorphisms
+                #check @Module.Projective
+                #check @FredholmOperator
+
+            Cero teoremas, cero relación con la pregunta, y respuesta con sello
+            de verificada. `#check` consulta un tipo; no demuestra nada.
+
+            Se exige una declaracion con CUERPO: `theorem`/`lemma`/`example`
+            seguidos, mas adelante, de `:=`. Un `theorem ... := by sorry` sí
+            cuenta aqui — que quede un `sorry` lo detecta el estado `parcial`,
+            que es harina de otro costal.
+            """
+            import re
+            return bool(re.search(
+                r"^\s*(?:@\[[^\]]*\]\s*)?(?:private\s+|protected\s+|noncomputable\s+)*"
+                r"(theorem|lemma|example)[\s\S]*?:=",
+                code, re.M))
+
         # ── ¿Lean va a verificar la NEGACIÓN de lo preguntado? ────────────
         def _es_refutacion(code: str) -> bool:
             """El formalizador marca con `-- REFUTACION:` los enunciados falsos.
@@ -1674,6 +1703,20 @@ class Nucleo:
             )
             confidence    = 0.75
             success_value = 0.5
+
+        elif result.is_success and not _prueba_algo(lean_code):
+            # LEAN ACEPTO UN ARCHIVO QUE NO DEMUESTRA NADA.
+            #
+            # No es un exito: es una formalizacion fallida que Lean no puede
+            # rechazar, porque un archivo de `#check` es sintacticamente
+            # correcto. La unica lectura honesta es que no hay prueba.
+            verification_status = "sin_teorema"
+            verification_note = (
+                "El código generado no contiene ningún teorema: Lean lo aceptó "
+                "porque es sintácticamente válido, pero no demuestra nada."
+            )
+            confidence    = 0.30
+            success_value = 0.0
 
         elif result.is_success and _es_refutacion(lean_code):
             # LEAN VERIFICO, PERO LA NEGACION DE LO QUE SE PREGUNTO.
@@ -1864,6 +1907,10 @@ class Nucleo:
             )
         else:
             _titulo = {
+                "sin_teorema": "❌ **No hay prueba.** El código generado no "
+                               "contiene ningún teorema — Lean lo aceptó por "
+                               "ser sintácticamente válido, pero no demuestra "
+                               "nada. Lo que sigue no tiene respaldo formal.",
                 "refutado": "🔍 **El enunciado que preguntaste es FALSO.** "
                             "Lean 4 verificó formalmente su negación — lo que "
                             "sigue explica el enunciado verdadero, no el que "

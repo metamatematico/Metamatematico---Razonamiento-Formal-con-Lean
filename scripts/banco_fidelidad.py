@@ -208,10 +208,30 @@ async def main(rapido=False):
             ok = codigo is None
             detalle = "no tocó Lean" if ok else "entró al pipeline sin ser matemática"
         elif espera == "rechaza":
-            ok = (not verifica) and aviso
-            detalle = ("rechazado y avisado" if ok else
-                       "VERIFICÓ UN ENUNCIADO FALSO" if verifica else
-                       "no verificó pero no avisa")
+            # DOS formas correctas de tratar un enunciado falso, y la segunda
+            # es MEJOR. El criterio original solo aceptaba la primera y por eso
+            # puntuaba como fallo el comportamiento que se acababa de arreglar:
+            #
+            #   a) Lean lo rechaza y la respuesta abre avisando;
+            #   b) el sistema DETECTA que es falso, formaliza la negacion,
+            #      Lean la verifica, y la respuesta abre diciendo que el
+            #      enunciado preguntado es falso.
+            #
+            # Lo unico inaceptable es presentar una prueba con sello de
+            # verificada como si demostrase lo que se pidio.
+            refuta = bool(codigo) and re.search(r"REFUTACI[OÓ]N\s*:", codigo, re.I)
+            avisa_falso = "es FALSO" in texto or "es falso" in texto
+            if refuta and avisa_falso:
+                ok, detalle = True, "detectó la falsedad y probó la negación"
+            elif (not verifica) and aviso:
+                ok, detalle = True, "rechazado y avisado"
+            elif verifica and not refuta:
+                ok, detalle = False, "VERIFICÓ UN ENUNCIADO FALSO"
+            elif refuta and not avisa_falso:
+                ok, detalle = False, ("probó la negación pero la respuesta no "
+                                      "avisa de que lo preguntado era falso")
+            else:
+                ok, detalle = False, "no verificó pero no avisa"
         else:
             ok = verifica and fiel is True
             detalle = ("verificado y fiel" if ok else
