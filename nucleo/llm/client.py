@@ -69,6 +69,19 @@ class LLMConfig:
     model: str = "claude-opus-5"
     max_tokens: int = 4096
     temperature: float = 0.7
+
+    # ESFUERZO. Controla la profundidad del pensamiento y, con ella, el gasto.
+    #
+    # Los modelos actuales traen pensamiento adaptativo ACTIVO por defecto y
+    # esfuerzo `high`, y los tokens de pensamiento se facturan como SALIDA
+    # —$25/MTok en Opus 5—. Sin fijar esto, cada formalizacion y cada
+    # traduccion piensan al maximo.
+    #
+    # Para esta carga `low` es lo sensato: formalizar un enunciado en Lean y
+    # explicar codigo ya verificado no son tareas de razonamiento profundo. El
+    # trabajo duro lo hace Lean, que es gratis. Subelo a `medium` o `high` solo
+    # si midiendo se ve que la calidad lo pide.
+    effort: str = "low"
     api_key: Optional[str] = None
     provider: LLMProvider = LLMProvider.ANTHROPIC
 
@@ -274,11 +287,15 @@ Responde en el mismo idioma que el usuario."""
                 # Sin `temperature`: los modelos actuales (Sonnet 5, Opus 5,
                 # Opus 4.7/4.8) rechazan los parametros de muestreo con un 400.
                 # El comportamiento se guia por el prompt, no por temperature.
+                _kw = {}
+                if getattr(self.config, "effort", None):
+                    _kw["output_config"] = {"effort": self.config.effort}
                 resp = client.messages.create(
                     model=model_name,
                     max_tokens=self.config.max_tokens,
                     system=sys_prompt,
                     messages=messages,
+                    **_kw,
                 )
                 # resp.content mezcla bloques: con pensamiento adaptativo (activo
                 # por defecto en Sonnet 5 / Opus 5) el primero es un ThinkingBlock
@@ -343,10 +360,23 @@ Responde en el mismo idioma que el usuario."""
             else:  # DEMO
                 content = client.generate(prompt, sys_prompt)
 
+            # CONTABILIDAD. Los tokens ya se capturaban y se tiraban: nada
+            # los sumaba, nada los persistia, y el sistema no sabia lo que
+            # costaba. Se noto cuando una tanda del banco se comio el saldo sin
+            # que nadie pudiera decir en que.
+            coste = 0.0
+            if in_tok or out_tok:
+                try:
+                    from nucleo.llm.contador import Contador
+                    coste = Contador.registrar(model_name, in_tok, out_tok)
+                except Exception:   # un contador roto no tumba una respuesta
+                    logger.debug("no se pudo registrar el uso", exc_info=True)
+
             llm_response = LLMResponse(
                 content=content,
                 model=model_name,
-                usage={"input_tokens": in_tok, "output_tokens": out_tok},
+                usage={"input_tokens": in_tok, "output_tokens": out_tok,
+                       "usd": round(coste, 6)},
             )
 
             # Agregar respuesta a la conversacion
