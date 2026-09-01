@@ -1,0 +1,275 @@
+{
+  "por_skill": {
+    "algebraic-geometry": [
+      "Mathlib.AlgebraicGeometry.Scheme"
+    ],
+    "algebraic-number-theory": [
+      "Mathlib.NumberTheory.FunctionField",
+      "Mathlib.NumberTheory.NumberField.Basic"
+    ],
+    "algebraic-topology": [
+      "Mathlib.Topology.CWComplex.Abstract.Basic",
+      "Mathlib.Topology.Category.TopCat.Basic"
+    ],
+    "arithmetic-geometry": [
+      "Mathlib.AlgebraicGeometry.Scheme",
+      "Mathlib.CategoryTheory.Comma.Over.Basic"
+    ],
+    "field-theory": [
+      "Mathlib.Algebra.Field.Defs"
+    ],
+    "functors": [
+      "Mathlib.CategoryTheory.Functor.Basic",
+      "Mathlib.CategoryTheory.NatTrans"
+    ],
+    "homological-algebra": [
+      "Mathlib.Algebra.Homology.DerivedCategory.Basic",
+      "Mathlib.Algebra.Homology.HomologicalComplex"
+    ],
+    "homological-algebra-cat": [
+      "Mathlib.CategoryTheory.Abelian.Basic"
+    ],
+    "operator-theory": [
+      "Mathlib.Analysis.CStarAlgebra.Classes",
+      "Mathlib.Topology.Algebra.Module.LinearMap"
+    ],
+    "abelian-categories": [
+      "Mathlib.CategoryTheory.Abelian.Basic"
+    ],
+    "affine-varieties": [
+      "Mathlib.AlgebraicGeometry.AffineScheme"
+    ],
+    "commutative-algebra": [
+      "Mathlib.Algebra.Category.Ring.Basic"
+    ],
+    "complex-analysis": [
+      "Mathlib.Analysis.Analytic.Basic",
+      "Mathlib.Analysis.Calculus.FDeriv.Defs"
+    ],
+    "descriptive-set-theory": [
+      "Mathlib.MeasureTheory.Constructions.Polish.Basic",
+      "Mathlib.Topology.MetricSpace.Polish"
+    ],
+    "differential-geometry": [
+      "Mathlib.Geometry.Manifold.ContMDiff.Defs",
+      "Mathlib.Geometry.Manifold.IsManifold.Basic"
+    ],
+    "ergodic-theory": [
+      "Mathlib.Dynamics.Ergodic.Ergodic",
+      "Mathlib.Dynamics.Ergodic.MeasurePreserving"
+    ],
+    "exact-sequences": [
+      "Mathlib.Algebra.Homology.ShortComplex.Exact"
+    ],
+    "field-extensions": [
+      "Mathlib.FieldTheory.IntermediateField.Basic"
+    ],
+    "functional-analysis": [
+      "Mathlib.Topology.Algebra.Module.LinearMap"
+    ],
+    "galois-theory": [
+      "Mathlib.FieldTheory.Galois.Basic",
+      "Mathlib.FieldTheory.IntermediateField.Basic"
+    ],
+    "group-theory": [
+      "Mathlib.Algebra.Category.Grp.Basic"
+    ],
+    "ideals-quotient-rings": [
+      "Mathlib.RingTheory.Ideal.Defs"
+    ],
+    "measure-theory": [
+      "Mathlib.CategoryTheory.Monad.Kleisli",
+      "Mathlib.MeasureTheory.Category.MeasCat"
+    ],
+    "number-fields": [
+      "Mathlib.NumberTheory.NumberField.Basic"
+    ],
+    "ordinals": [
+      "Mathlib.SetTheory.Ordinal.Basic"
+    ],
+    "point-set-topology": [
+      "Mathlib.Topology.Category.TopCat.Basic"
+    ],
+    "probability-theory": [
+      "Mathlib.Probability.Kernel.Defs"
+    ],
+    "solvable-groups": [
+      "Mathlib.GroupTheory.Solvable"
+    ],
+    "abelian-groups": [
+      "Mathlib.Algebra.Category.Grp.Basic"
+    ],
+    "banach-spaces": [
+      "Mathlib.Analysis.Normed.Module.Basic",
+      "Mathlib.Topology.UniformSpace.Cauchy"
+    ],
+    "bilinear-forms": [
+      "Mathlib.LinearAlgebra.BilinearMap",
+      "Mathlib.LinearAlgebra.QuadraticForm.Basic"
+    ],
+    "cat-basics": [
+      "Mathlib.CategoryTheory.Category.Cat"
+    ],
+    "compactness": [
+      "Mathlib.Topology.Category.CompHaus.Basic",
+      "Mathlib.Topology.Defs.Filter"
+    ],
+    "connectedness": [
+      "Mathlib.Topology.Connected.Basic"
+    ],
+    "covering-spaces": [
+      "Mathlib.Topology.Covering.Basic"
+    ],
+    "differential-topology": [
+      "Mathlib.Geometry.Manifold.IsManifold.Basic"
+    ],
+    "divisibility-gcd": [
+      "Mathlib.Algebra.GCDMonoid.Basic",
+      "Mathlib.Algebra.GroupWithZero.Associated"
+    ],
+    "eigen-theory": [
+      "Mathlib.Algebra.Module.LinearMap.End",
+      "Mathlib.LinearAlgebra.Eigenspace.Basic"
+    ],
+    "euclidean-geometry": [
+      "Mathlib.Analysis.InnerProductSpace.PiL2",
+      "Mathlib.Analysis.Normed.Affine.Isometry"
+    ],
+    "finite-fields": [
+      "Mathlib.Algebra.Field.Defs",
+      "Mathlib.Data.Fintype.Defs",
+      "Mathlib.FieldTheory.Finite.GaloisField"
+    ],
+    "fol-metatheory": [
+      "Mathlib.ModelTheory.Basic",
+      "Mathlib.ModelTheory.LanguageMap",
+      "Mathlib.ModelTheory.Syntax"
+    ],
+    "free-groups": [
+      "Mathlib.GroupTheory.FreeGroup.Basic"
+    ],
+    "graph-theory": [
+      "Mathlib.Combinatorics.SimpleGraph.Basic"
+    ],
+    "group-actions": [
+      "Mathlib.Algebra.Group.Action.Defs",
+      "Mathlib.CategoryTheory.Action.Basic"
+    ],
+    "harmonic-analysis": [
+      "Mathlib.Topology.Algebra.PontryaginDual"
+    ],
+    "higher-category-theory": [
+      "Mathlib.AlgebraicTopology.Quasicategory.Basic",
+      "Mathlib.CategoryTheory.Bicategory.Basic"
+    ],
+    "hilbert-spaces": [
+      "Mathlib.Analysis.InnerProductSpace.Adjoint",
+      "Mathlib.Analysis.InnerProductSpace.Defs",
+      "Mathlib.Topology.UniformSpace.Cauchy"
+    ],
+    "inner-product-spaces": [
+      "Mathlib.Analysis.InnerProductSpace.Defs"
+    ],
+    "large-cardinals": [
+      "Mathlib.SetTheory.Cardinal.Regular"
+    ],
+    "linear-algebra": [
+      "Mathlib.Algebra.Category.FGModuleCat.Basic",
+      "Mathlib.Algebra.Category.ModuleCat.Basic"
+    ],
+    "markov-chains": [
+      "Mathlib.Probability.Kernel.Defs"
+    ],
+    "martingale-theory": [
+      "Mathlib.Probability.Martingale.Basic",
+      "Mathlib.Probability.Process.Filtration"
+    ],
+    "metric-spaces": [
+      "Mathlib.Topology.MetricSpace.Defs"
+    ],
+    "model-theory": [
+      "Mathlib.ModelTheory.Basic",
+      "Mathlib.ModelTheory.ElementaryMaps"
+    ],
+    "modular-arithmetic": [
+      "Mathlib.Data.ZMod.Basic",
+      "Mathlib.Data.ZMod.Defs"
+    ],
+    "monads": [
+      "Mathlib.CategoryTheory.Monad.Basic",
+      "Mathlib.CategoryTheory.Monad.Kleisli"
+    ],
+    "noetherian-rings": [
+      "Mathlib.RingTheory.Noetherian.Defs"
+    ],
+    "p-adic-valuations": [
+      "Mathlib.NumberTheory.Padics.PadicIntegers",
+      "Mathlib.NumberTheory.Padics.PadicNumbers",
+      "Mathlib.RingTheory.Valuation.Basic"
+    ],
+    "partitions": [
+      "Mathlib.Combinatorics.Enumerative.Partition.Basic",
+      "Mathlib.Combinatorics.Young.YoungDiagram"
+    ],
+    "projective-geometry": [
+      "Mathlib.LinearAlgebra.Projectivization.Basic"
+    ],
+    "projective-injective-modules": [
+      "Mathlib.Algebra.Module.Projective",
+      "Mathlib.CategoryTheory.Preadditive.Injective.Basic"
+    ],
+    "representation-theory": [
+      "Mathlib.RepresentationTheory.Basic",
+      "Mathlib.RepresentationTheory.FDRep",
+      "Mathlib.RepresentationTheory.Rep"
+    ],
+    "riemannian-geometry": [
+      "Mathlib.Geometry.Manifold.Riemannian.Basic",
+      "Mathlib.Topology.VectorBundle.Riemannian"
+    ],
+    "ring-theory": [
+      "Mathlib.Algebra.Category.Ring.Basic"
+    ],
+    "schemes": [
+      "Mathlib.AlgebraicGeometry.Scheme"
+    ],
+    "separation-axioms": [
+      "Mathlib.Topology.Separation.Basic",
+      "Mathlib.Topology.Separation.Hausdorff"
+    ],
+    "smooth-manifolds": [
+      "Mathlib.Geometry.Manifold.IsManifold.Basic"
+    ],
+    "spectral-theory": [
+      "Mathlib.Algebra.Algebra.Spectrum.Basic",
+      "Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Unital"
+    ],
+    "stochastic-processes": [
+      "Mathlib.Probability.Process.Adapted",
+      "Mathlib.Probability.Process.Filtration"
+    ],
+    "subgroups-cosets": [
+      "Mathlib.Algebra.Group.Subgroup.Defs"
+    ],
+    "sylow-theory": [
+      "Mathlib.GroupTheory.Sylow"
+    ],
+    "topos-theory": [
+      "Mathlib.CategoryTheory.Sites.Sheaf",
+      "Mathlib.CategoryTheory.Topos.Classifier"
+    ],
+    "triangle-geometry": [
+      "Mathlib.LinearAlgebra.AffineSpace.Simplex.Basic"
+    ],
+    "unique-factorization": [
+      "Mathlib.RingTheory.UniqueFactorizationDomain.Defs"
+    ],
+    "derived-category": [
+      "Mathlib.Algebra.Homology.DerivedCategory.Basic"
+    ],
+    "graded-objects": [
+      "Mathlib.CategoryTheory.GradedObject"
+    ]
+  },
+  "nombres": 36590
+}

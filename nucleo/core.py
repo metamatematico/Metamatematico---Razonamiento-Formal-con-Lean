@@ -1661,6 +1661,18 @@ class Nucleo:
                 lean_code = lean_code2
 
         # ── Paso 2: Lean verifier ─────────────────────────────────────────
+        # EL GRAFO ELIGE LOS IMPORTS.
+        #
+        # Las skills activadas se traducen a modulos de Mathlib mediante
+        # `data/mathlib_modulos.json`, que se construye leyendo DONDE se
+        # declara cada nombre en el fuente. Es el sitio donde el grafo influye
+        # sobre lo que Lean ve, que era la idea original de ponerlo entre el
+        # LLM y el verificador.
+        try:
+            self._lean.sugerir_imports(self._modulos_mathlib(context))
+        except Exception:
+            logger.debug("no se pudieron sugerir imports", exc_info=True)
+
         result = await self._lean.check_code(lean_code)
 
         # ── Paso 2b: reparacion de imports y reintento ────────────────────
@@ -3279,6 +3291,32 @@ class Nucleo:
         "EuclideanGeometry", "Ideal.Quotient", "QuotientGroup",
         "RelCWComplex", "Turing.TM0", "Turing.TM1",
     })
+
+    _MODULOS_CACHE = None
+
+    def _modulos_mathlib(self, context) -> list:
+        """Modulos de Mathlib para las skills activadas en esta consulta."""
+        if not isinstance(context, dict):
+            return []
+        skills = context.get("relevant_skills") or []
+        if not skills:
+            return []
+        if Nucleo._MODULOS_CACHE is None:
+            import json as _j
+            import os as _o
+            ruta = "E:/Metamatematico/data/mathlib_modulos.json"
+            try:
+                Nucleo._MODULOS_CACHE = _j.load(
+                    open(ruta, encoding="utf-8"))["por_skill"]
+            except Exception:
+                Nucleo._MODULOS_CACHE = {}
+                logger.debug("sin mapa de modulos: %s", ruta)
+        fuera = []
+        for s in skills[:4]:
+            for m in Nucleo._MODULOS_CACHE.get(s, [])[:2]:
+                if m not in fuera:
+                    fuera.append(m)
+        return fuera[:6]
 
     def _nombres_mathlib(self, skills: list[str]) -> dict[str, str]:
         """Los nombres Mathlib comprobados de estas skills.

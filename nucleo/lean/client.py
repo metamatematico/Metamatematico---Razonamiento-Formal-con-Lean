@@ -651,6 +651,24 @@ class LeanClient:
                 break
         return "\n".join(lineas[:insert_at] + nuevos + lineas[insert_at:])
 
+    #: Modulos que el GRAFO sugiere para la consulta en curso.
+    #:
+    #: `_normalize_code` descarta `import Mathlib` —cargarlo entero se midio en
+    #: 742 s, por encima del timeout— y lo sustituye por una cabecera estrecha
+    #: mas imports elegidos POR PALABRAS CLAVE del enunciado. Ese es el punto
+    #: donde se decide QUE VE LEAN, y hasta ahora lo decidia un diccionario de
+    #: terminos en vez de la estructura de conceptos que el sistema ya tiene.
+    #:
+    #: Aqui entran los modulos derivados de las skills activadas, sacados del
+    #: fuente de Mathlib —donde se declara cada nombre— y no de una tabla
+    #: escrita a mano. Se ponen antes de verificar y se limpian despues, para
+    #: que una consulta no herede los de la anterior.
+    _imports_del_grafo: list = []
+
+    def sugerir_imports(self, modulos) -> None:
+        """Fija los modulos que el grafo propone para esta consulta."""
+        self._imports_del_grafo = [m for m in (modulos or []) if m]
+
     def _normalize_code(self, code: str) -> str:
         """
         Normaliza el código Lean antes de verificarlo:
@@ -670,6 +688,23 @@ class LeanClient:
         if any(l.strip() == "import Mathlib" for l in lines):
             lines = [l for l in lines if l.strip() != "import Mathlib"]
             code = "\n".join(lines)
+
+        # LOS MODULOS QUE PROPONE EL GRAFO, delante de todo.
+        #
+        # Van primero porque son los especificos de la consulta; la cabecera
+        # generica de tacticas viene despues. Si el grafo no propuso nada, no
+        # se toca nada — el comportamiento anterior queda intacto.
+        if self._imports_del_grafo:
+            ya = {l.strip() for l in lines}
+            nuevos = ["import " + m for m in self._imports_del_grafo
+                      if "import " + m not in ya]
+            if nuevos:
+                logger.info("Lean: el grafo aporta %d import(s): %s",
+                            len(nuevos),
+                            ", ".join(m.split(".")[-1] for m in
+                                      self._imports_del_grafo[:4]))
+                lines = nuevos + lines
+                code = "\n".join(lines)
 
         # Descartar imports de Mathlib que no existen. El LLM los inventa con
         # frecuencia (p.ej. `Mathlib.GroupTheory.QuotientGroup`, cuando el
