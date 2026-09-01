@@ -250,7 +250,8 @@ Responde en el mismo idioma que el usuario."""
         prompt: str,
         system: Optional[str] = None,
         context: Optional[dict[str, Any]] = None,
-        stream: bool = False
+        stream: bool = False,
+        sin_historial: bool = False,
     ) -> LLMResponse:
         """
         Generar respuesta del LLM.
@@ -283,7 +284,25 @@ Responde en el mismo idioma que el usuario."""
             in_tok = out_tok = 0
 
             if provider == LLMProvider.ANTHROPIC:
-                messages = [m.to_dict() for m in self._conversation]
+                # LLAMADAS SIN ESTADO.
+                #
+                # `_conversation` se acumulaba y no la limpiaba nadie: cada
+                # consulta arrastraba todas las anteriores, asi que los tokens
+                # de ENTRADA crecian con la longitud de la sesion. Medido sobre
+                # tres tandas del mismo dia: 7.401, 10.117 y 22.452 tokens de
+                # entrada por llamada. El coste sube de forma cuadratica sobre
+                # una sesion larga, y no compra nada — formalizar un enunciado,
+                # revisarlo con el error de Lean y traducir el resultado son
+                # tareas de un solo paso que no necesitan el chat anterior.
+                #
+                # Peor que el coste: el prompt de formalizacion de la consulta
+                # N llevaba dentro el texto de las N-1 previas, que es
+                # exactamente la clase de contaminacion que produce las
+                # formalizaciones que hablan de otra cosa.
+                if sin_historial:
+                    messages = [self._conversation[-1].to_dict()]
+                else:
+                    messages = [m.to_dict() for m in self._conversation]
                 # Sin `temperature`: los modelos actuales (Sonnet 5, Opus 5,
                 # Opus 4.7/4.8) rechazan los parametros de muestreo con un 400.
                 # El comportamiento se guia por el prompt, no por temperature.

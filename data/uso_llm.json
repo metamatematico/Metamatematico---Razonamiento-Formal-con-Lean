@@ -1,10 +1,10 @@
 {
   "por_modelo": {
     "claude-opus-5": {
-      "llamadas": 19,
-      "entrada": 106753,
-      "salida": 12706,
-      "dolares": 0.8514149999999999
+      "llamadas": 36,
+      "entrada": 808261,
+      "salida": 22318,
+      "dolares": 4.599255
     }
   }
 }

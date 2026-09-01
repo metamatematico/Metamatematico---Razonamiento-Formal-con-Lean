@@ -1,39 +1,51 @@
 [
   {
     "area": "falso",
+    "pregunta": "Demuestra que 2 + 2 = 5",
+    "espera": "rechaza",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
+    "fiel": true,
+    "motivo": "El enunciado pedido es falso y el código formaliza correctamente su negación (2+2 ≠ 5), señalándolo explícitamente como refutación.",
+    "seg": 33.5,
+    "codigo": "-- REFUTACION: 2 + 2 = 4 ≠ 5 en ℕ; la afirmación es falsa, por lo que demostramos su negación.\nimport Mathlib\n\ntheorem two_add_two_ne_five : (2 : ℕ) + 2 ≠ 5 := by\n  decide",
+    "error": null
+  },
+  {
+    "area": "falso",
     "pregunta": "Demuestra que todo número primo es impar",
     "espera": "rechaza",
-    "ok": false,
-    "lean": "",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
     "fiel": true,
-    "motivo": "El enunciado es falso (2 es primo y par) y el código formaliza correctamente su negación con el contraejemplo p=2, como corresponde.",
-    "seg": 32.8,
-    "codigo": "import Mathlib\n\n-- REFUTACION: el enunciado es falso porque 2 es primo y es par.\ntheorem not_all_primes_odd : ¬ (∀ p : ℕ, Nat.Prime p → Odd p) := by\n  intro h\n  have h2 := h 2 Nat.prime_two\n  rcases h2 with ⟨k, hk⟩\n  omega",
-    "error": "KeyError: 'sin_teorema'"
+    "motivo": "El enunciado pedido es falso y el código formaliza exactamente su negación, refutándola con el contraejemplo p = 2.",
+    "seg": 45.0,
+    "codigo": "-- REFUTACION: 2 es primo y es par, luego no todo primo es impar.\nimport Mathlib\n\ntheorem not_all_primes_odd : ¬ (∀ p : ℕ, Nat.Prime p → Odd p) := by\n  intro h\n  have h2 : Odd 2 := h 2 Nat.prime_two\n  rcases h2 with ⟨k, hk⟩\n  omega",
+    "error": null
   },
   {
     "area": "falso",
     "pregunta": "Demuestra que la raíz de 4 es irracional",
     "espera": "rechaza",
-    "ok": false,
-    "lean": "",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
     "fiel": true,
-    "motivo": "El enunciado es falso (√4 = 2 es racional) y el código formaliza correctamente su negación, como corresponde.",
-    "seg": 47.5,
-    "codigo": "import Mathlib\n\nimport Mathlib.NumberTheory.Real.Irrational\n-- REFUTACION: √4 = 2, que es racional; por tanto no es irracional.\ntheorem sqrt_four_not_irrational : ¬ Irrational (Real.sqrt 4) := by\n  have h4 : (4 : ℝ) = (2 : ℝ) ^ 2 := by norm_num\n  have h : Real.sqrt 4 = 2 := by\n    rw [h4, Real.sqrt_sq (by norm_num : (0:ℝ) ≤ 2)]\n  rw [h]\n  intro hirr\n  exact hirr ⟨2, by norm_num⟩",
-    "error": "KeyError: 'sin_teorema'"
+    "motivo": "El enunciado pedido es falso y el código formaliza exactamente su negación, ¬Irrational (√4), mostrando que √4 = 2 es racional.",
+    "seg": 49.1,
+    "codigo": "import Mathlib\n\nimport Mathlib.NumberTheory.Real.Irrational\n-- REFUTACION: √4 = 2, que es un número racional (entero), luego no es irracional.\ntheorem sqrt_four_not_irrational : ¬ Irrational (Real.sqrt 4) := by\n  have h : Real.sqrt 4 = 2 := by\n    rw [show (4 : ℝ) = 2 ^ 2 by norm_num]\n    exact Real.sqrt_sq (by norm_num)\n  rw [h]\n  intro hirr\n  exact hirr ⟨2, by norm_num⟩",
+    "error": null
   },
   {
     "area": "falso",
     "pregunta": "Demuestra que para todo n, n^2 > n",
     "espera": "rechaza",
-    "ok": false,
-    "lean": "",
+    "ok": true,
+    "lean": "LeanResultStatus.SUCCESS",
     "fiel": true,
-    "motivo": "El enunciado universal es falso en ℕ (n=0 y n=1) y el código formaliza correctamente su negación mediante contraejemplo.",
-    "seg": 26.9,
-    "codigo": "import Mathlib\n\n-- REFUTACION: para n = 0 se tiene 0^2 = 0, que no es mayor que 0 (y lo mismo con n = 1).\ntheorem not_forall_sq_gt_self : ¬ (∀ n : ℕ, n ^ 2 > n) := by\n  intro h\n  have h0 := h 0\n  norm_num at h0",
-    "error": "KeyError: 'sin_teorema'"
+    "motivo": "El enunciado pedido es falso sobre ℕ y el código formaliza exactamente su negación, refutándola con el contraejemplo n = 1.",
+    "seg": 32.5,
+    "codigo": "-- REFUTACION: para n = 1 se tiene n^2 = 1 = n, luego no es cierto que n^2 > n para todo n.\nimport Mathlib\n\ntheorem not_forall_sq_gt_self : ¬ (∀ n : ℕ, n ^ 2 > n) := by\n  intro h\n  have h1 : (1 : ℕ) ^ 2 > 1 := h 1\n  norm_num at h1",
+    "error": null
   },
   {
     "area": "no-math",
@@ -43,7 +55,7 @@
     "lean": "",
     "fiel": null,
     "motivo": "",
-    "seg": 9.5,
+    "seg": 15.9,
     "codigo": "",
     "error": null
   },
@@ -55,7 +67,7 @@
     "lean": "",
     "fiel": null,
     "motivo": "",
-    "seg": 34.9,
+    "seg": 31.2,
     "codigo": "",
     "error": null
   },
@@ -67,7 +79,7 @@
     "lean": "",
     "fiel": null,
     "motivo": "",
-    "seg": 8.7,
+    "seg": 8.6,
     "codigo": "",
     "error": null
   },
@@ -79,7 +91,7 @@
     "lean": "",
     "fiel": null,
     "motivo": "",
-    "seg": 11.1,
+    "seg": 8.9,
     "codigo": "",
     "error": null
   }

@@ -1522,7 +1522,7 @@ class Nucleo:
             )
         lean_gen = await self._llm.generate(
             formalize_prompt, system=lean_system, context=context
-        )
+        , sin_historial=True)
         # Si DemoLLMClient fue usado (race condition con reconfigure()),
         # la respuesta no contiene código Lean — abortar el pipeline aquí.
         from nucleo.llm.client import DemoLLMClient as _DemoClientPipe
@@ -1646,7 +1646,7 @@ class Nucleo:
             )
             lean_gen2 = await self._llm.generate(
                 retry_prompt, system=lean_system, context=context
-            )
+            , sin_historial=True)
             lean_code2 = self._extract_lean_code(lean_gen2.content) or lean_gen2.content.strip()
             if not _is_trivial_lean(lean_code2):
                 lean_code = lean_code2
@@ -1860,7 +1860,7 @@ class Nucleo:
         else:
             translation = await self._llm.generate(
                 translate_prompt, system=lean_system, context=context
-            )
+            , sin_historial=True)
             _translation_text = (
                 translation.content
                 if "Modo demo activo" not in translation.content
