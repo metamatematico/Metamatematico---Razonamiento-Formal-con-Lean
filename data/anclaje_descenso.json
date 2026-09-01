@@ -1,0 +1,31 @@
+{
+ "muestra": 3000,
+ "semilla": 20260901,
+ "sin_descender": 2103,
+ "profundidad_media": 1.5503333333333333,
+ "area_ok": 87,
+ "area_mal": 652,
+ "banco_camino_trivial": 20,
+ "banco_plano_vacio": 15,
+ "pilar_por_categoria": {
+  "algebra": {
+   "SET": 2073,
+   "TYPE": 12,
+   "LOG": 8,
+   "CAT": 5
+  },
+  "analysis": {
+   "SET": 159
+  },
+  "geometry": {
+   "SET": 124
+  },
+  "number-theory": {
+   "SET": 134,
+   "CAT": 2
+  },
+  "combinatorics": {
+   "SET": 126
+  }
+ }
+}
