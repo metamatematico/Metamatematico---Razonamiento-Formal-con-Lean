@@ -71,6 +71,27 @@ class Etiqueta:
     lean: Optional[str] = None   # nombre en Mathlib4; None = no existe
     nota: str = ""
 
+    #: El nombre de la TEORIA, cuando no coincide con el de la categoria.
+    #:
+    #: `lean` contesta «que es este nodo, categoricamente»: para group-theory
+    #: la respuesta es `GrpCat`, la categoria cuyos objetos son grupos. Es
+    #: correcta, y es la que sostiene los colimites y la emergencia.
+    #:
+    #: Pero el mismo campo se estaba usando para contestar otra pregunta muy
+    #: distinta: «que modulo tiene que importar Lean para una consulta sobre
+    #: grupos». Ahi `GrpCat` es un desastre: `Algebra.Category.Grp.Basic` vive
+    #: ARRIBA del DAG de imports de Mathlib —para construir la categoria Grp
+    #: hacen falta antes subgrupos y homomorfismos— asi que ante «demuestra que
+    #: un grupo de orden primo es ciclico» el sistema ofrecia la categoria Grp
+    #: en vez de `Subgroup` y `MonoidHom`, e importaba el envoltorio.
+    #:
+    #: Medido: 10 de 76 skills con modulo apuntaban al envoltorio categorico, y
+    #: explicaban 7 de las 13 dependencias que salian invertidas contra el DAG
+    #: real de Mathlib (data/funtor_mathlib.json).
+    #:
+    #: Vacio = no hay divergencia, la teoria y la categoria se nombran igual.
+    teoria: str = ""
+
     @property
     def es_vertice(self) -> bool:
         return self.marca in VERTICES
@@ -80,8 +101,21 @@ class Etiqueta:
         return self.marca == F
 
 
-def _e(marca, objeto="", morfismos="", lean=None, nota=""):
-    return Etiqueta(marca, objeto, morfismos, lean, nota)
+def nombres_de_trabajo(clave: str) -> str:
+    """Los nombres Mathlib con los que se TRABAJA en este nodo.
+
+    `teoria` si la hay, y si no `lean`. Es lo que deben consultar el prompt de
+    formalizacion y el selector de modulos; `Etiqueta.lean` a secas sigue
+    siendo la identidad categorica y no debe usarse para importar.
+    """
+    e = VEREDICTO.get(clave)
+    if not e:
+        return ""
+    return e.teoria or (e.lean or "")
+
+
+def _e(marca, objeto="", morfismos="", lean=None, nota="", teoria=""):
+    return Etiqueta(marca, objeto, morfismos, lean, nota, teoria)
 
 
 VEREDICTO: dict[str, Etiqueta] = {
@@ -99,7 +133,8 @@ VEREDICTO: dict[str, Etiqueta] = {
         C, "un CW-complejo", "aplicaciones continuas",
         "TopCat, RelCWComplex, TopCat.CWComplex",
         "si significara «espacio topologico» seria el mismo vertice que "
-        "point-set-topology"),
+        "point-set-topology",
+        teoria="FundamentalGroupoid, Path.Homotopy"),
     "arithmetic-geometry": _e(
         C, "un esquema separado y de tipo finito sobre Spec A_K",
         "morfismos sobre la base", "AlgebraicGeometry.Scheme + CategoryTheory.Over",
@@ -158,7 +193,8 @@ VEREDICTO: dict[str, Etiqueta] = {
     "algebraic-combinatorics": _e(T),
     "analytic-number-theory": _e(T),
     "commutative-algebra": _e(
-        C, "un anillo conmutativo", "homomorfismos de anillos", "CommRingCat"),
+        C, "un anillo conmutativo", "homomorfismos de anillos", "CommRingCat",
+        teoria="CommRing, Ideal, Ideal.span"),
     "complex-analysis": _e(
         C, "un dominio de C, o una superficie de Riemann",
         "aplicaciones holomorfas", "AnalyticOnNhd, DifferentiableOn",
@@ -196,7 +232,8 @@ VEREDICTO: dict[str, Etiqueta] = {
     "galois-theory": _e(
         C, "una extension de Galois finita de k", "k-homomorfismos",
         "IsGalois, IntermediateField"),
-    "group-theory": _e(C, "un grupo", "homomorfismos", "GrpCat"),
+    "group-theory": _e(C, "un grupo", "homomorfismos", "GrpCat",
+        teoria="Group, Subgroup, MonoidHom"),
     "homotopy-theory": _e(
         C, "el par (Top, W): la categoria RELATIVA, no el cociente ya tomado",
         "las de Top, localizadas en las equivalencias debiles",
@@ -241,12 +278,14 @@ VEREDICTO: dict[str, Etiqueta] = {
         "El objeto cambia: con funciones la medida era decoracion inerte "
         "—nada la preservaba—; con nucleos, una medida sobre X ES un morfismo "
         "1 -> X desde el espacio de un punto. Un espacio de probabilidad pasa a "
-        "ser «objeto mas estado»."),
+        "ser «objeto mas estado».",
+        teoria="MeasurableSpace, MeasureTheory.Measure, MeasureTheory.Integrable"),
     "number-fields": _e(
         C, "un cuerpo de numeros", "Q-homomorfismos", "NumberField"),
     "ordinals": _e(C, "un ordinal", "<= (categoria delgada)", "Ordinal"),
     "point-set-topology": _e(
-        C, "un espacio topologico", "continuas", "TopCat"),
+        C, "un espacio topologico", "continuas", "TopCat",
+        teoria="TopologicalSpace, IsOpen, Continuous"),
     "probabilistic-method": _e(T),
     "probability-theory": _e(
         C, "un espacio medible con estado (= objeto mas un morfismo 1 -> X)",
@@ -266,7 +305,8 @@ VEREDICTO: dict[str, Etiqueta] = {
     "tactic-rewrite": _e(T, nota="genera transporte por una igualdad; Eq.mpr"),
 
     # ═══ BLOQUE 3 — categorias y objetos ═════════════════════════════════
-    "abelian-groups": _e(C, "un grupo abeliano", "homomorfismos", "AddCommGrpCat"),
+    "abelian-groups": _e(C, "un grupo abeliano", "homomorfismos", "AddCommGrpCat",
+        teoria="AddCommGroup, AddSubgroup"),
     "adjunctions": _e(F, "", "un par F ⊣ G con unidad y counidad",
                       "CategoryTheory.Adjunction"),
     "banach-spaces": _e(
@@ -278,13 +318,15 @@ VEREDICTO: dict[str, Etiqueta] = {
     "brownian-motion": _e(O, "el proceso W, o la medida de Wiener", "",
                           "IsBrownianReal, IsPreBrownianReal"),
     "cardinal-arithmetic": _e(T, nota="el sustrato Cardinal si es categoria delgada"),
-    "cat-basics": _e(C, "una categoria pequeña", "funtores", "CategoryTheory.Cat"),
+    "cat-basics": _e(C, "una categoria pequeña", "funtores", "CategoryTheory.Cat",
+        teoria="CategoryTheory.Category, CategoryTheory.CategoryStruct"),
     "character-theory": _e(F, "", "chi = tr . rho, invariante de una representacion",
                            "FDRep.character"),
     "cohomology": _e(F, "", "el funtor H^*",
                      "HomologicalComplex.homology, CochainComplex"),
     "compactness": _e(S, "un espacio compacto", "continuas",
-                      "CompactSpace, CompHaus"),
+                      "CompactSpace, CompHaus",
+        teoria="CompactSpace, IsCompact"),
     "conformal-maps": _e(F, "", "las flechas de las superficies de Riemann",
                          "IsConformalMap"),
     "connectedness": _e(S, "un espacio conexo", "continuas", "ConnectedSpace"),
@@ -345,7 +387,8 @@ VEREDICTO: dict[str, Etiqueta] = {
     "lebesgue-integration": _e(F, "", "el funcional integral : L1 -> R",
                                "MeasureTheory.integral"),
     "linear-algebra": _e(C, "un espacio vectorial", "aplicaciones lineales",
-                         "ModuleCat, FGModuleCat"),
+                         "ModuleCat, FGModuleCat",
+        teoria="Module, LinearMap, Matrix"),
     "localization": _e(F, "", "S^-1 R; y la localizacion de categorias",
                        "IsLocalization, CategoryTheory.Localization"),
     "markov-chains": _e(C, "un objeto con un endomorfismo en la categoria de nucleos",
@@ -395,7 +438,8 @@ VEREDICTO: dict[str, Etiqueta] = {
     "riemann-zeta": _e(O, "la funcion zeta", "", "riemannZeta, LSeries"),
     "riemannian-geometry": _e(C, "una variedad riemanniana", "isometrias, o inmersiones",
                               "IsRiemannianManifold, Bundle.RiemannianMetric"),
-    "ring-theory": _e(C, "un anillo", "homomorfismos", "RingCat"),
+    "ring-theory": _e(C, "un anillo", "homomorfismos", "RingCat",
+        teoria="Ring, Ideal, RingHom"),
     "schemes": _e(C, "un esquema", "morfismos de esquemas",
                   "AlgebraicGeometry.Scheme", "mismo vertice que algebraic-geometry"),
     "separation-axioms": _e(S, "un espacio T0, T1, T2…",

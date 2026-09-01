@@ -8,8 +8,8 @@
       "Mathlib.NumberTheory.NumberField.Basic"
     ],
     "algebraic-topology": [
-      "Mathlib.Topology.CWComplex.Abstract.Basic",
-      "Mathlib.Topology.Category.TopCat.Basic"
+      "Mathlib.AlgebraicTopology.FundamentalGroupoid.Basic",
+      "Mathlib.Topology.Homotopy.Path"
     ],
     "arithmetic-geometry": [
       "Mathlib.AlgebraicGeometry.Scheme",
@@ -40,7 +40,9 @@
       "Mathlib.AlgebraicGeometry.AffineScheme"
     ],
     "commutative-algebra": [
-      "Mathlib.Algebra.Category.Ring.Basic"
+      "Mathlib.Algebra.Ring.Defs",
+      "Mathlib.RingTheory.Ideal.Defs",
+      "Mathlib.RingTheory.Ideal.Span"
     ],
     "complex-analysis": [
       "Mathlib.Analysis.Analytic.Basic",
@@ -72,14 +74,17 @@
       "Mathlib.FieldTheory.IntermediateField.Basic"
     ],
     "group-theory": [
-      "Mathlib.Algebra.Category.Grp.Basic"
+      "Mathlib.Algebra.Group.Defs",
+      "Mathlib.Algebra.Group.Hom.Defs",
+      "Mathlib.Algebra.Group.Subgroup.Defs"
     ],
     "ideals-quotient-rings": [
       "Mathlib.RingTheory.Ideal.Defs"
     ],
     "measure-theory": [
-      "Mathlib.CategoryTheory.Monad.Kleisli",
-      "Mathlib.MeasureTheory.Category.MeasCat"
+      "Mathlib.MeasureTheory.Function.L1Space.Integrable",
+      "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+      "Mathlib.MeasureTheory.Measure.MeasureSpaceDef"
     ],
     "number-fields": [
       "Mathlib.NumberTheory.NumberField.Basic"
@@ -88,7 +93,7 @@
       "Mathlib.SetTheory.Ordinal.Basic"
     ],
     "point-set-topology": [
-      "Mathlib.Topology.Category.TopCat.Basic"
+      "Mathlib.Topology.Defs.Basic"
     ],
     "probability-theory": [
       "Mathlib.Probability.Kernel.Defs"
@@ -97,7 +102,8 @@
       "Mathlib.GroupTheory.Solvable"
     ],
     "abelian-groups": [
-      "Mathlib.Algebra.Category.Grp.Basic"
+      "Mathlib.Algebra.Group.Defs",
+      "Mathlib.Algebra.Group.Subgroup.Defs"
     ],
     "banach-spaces": [
       "Mathlib.Analysis.Normed.Module.Basic",
@@ -108,10 +114,9 @@
       "Mathlib.LinearAlgebra.QuadraticForm.Basic"
     ],
     "cat-basics": [
-      "Mathlib.CategoryTheory.Category.Cat"
+      "Mathlib.CategoryTheory.Category.Basic"
     ],
     "compactness": [
-      "Mathlib.Topology.Category.CompHaus.Basic",
       "Mathlib.Topology.Defs.Filter"
     ],
     "connectedness": [
@@ -174,8 +179,9 @@
       "Mathlib.SetTheory.Cardinal.Regular"
     ],
     "linear-algebra": [
-      "Mathlib.Algebra.Category.FGModuleCat.Basic",
-      "Mathlib.Algebra.Category.ModuleCat.Basic"
+      "Mathlib.Algebra.Module.Defs",
+      "Mathlib.Algebra.Module.LinearMap.Defs",
+      "Mathlib.LinearAlgebra.Matrix.Defs"
     ],
     "markov-chains": [
       "Mathlib.Probability.Kernel.Defs"
@@ -228,7 +234,9 @@
       "Mathlib.Topology.VectorBundle.Riemannian"
     ],
     "ring-theory": [
-      "Mathlib.Algebra.Category.Ring.Basic"
+      "Mathlib.Algebra.Ring.Defs",
+      "Mathlib.Algebra.Ring.Hom.Defs",
+      "Mathlib.RingTheory.Ideal.Defs"
     ],
     "schemes": [
       "Mathlib.AlgebraicGeometry.Scheme"
@@ -271,5 +279,5 @@
       "Mathlib.CategoryTheory.GradedObject"
     ]
   },
-  "nombres": 36590
+  "nombres": 34723
 }

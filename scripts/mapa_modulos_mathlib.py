@@ -75,6 +75,13 @@ def construir():
                     largo = ".".join(pila + [m.group(1)]) if pila else m.group(1)
                     # el primero gana: los ficheros `Basic` suelen ir antes y
                     # son los que uno quiere importar
+                    # Los ficheros de `Mathlib.Tactic.*` declaran nombres de
+                    # teoria de paso (`Continuous` aparece en Tactic.FunProp) y
+                    # con la regla «el primero gana» se quedaban con el nombre.
+                    # Importar una tactica para hablar de topologia no es util:
+                    # lo que se busca es donde vive la TEORIA.
+                    if mod.startswith("Mathlib.Tactic."):
+                        continue
                     mapa.setdefault(largo, mod)
     return mapa, ficheros
 
@@ -88,15 +95,21 @@ def main():
         return 1
 
     # cobertura sobre el vocabulario del grafo
-    from nucleo.graph.interpretacion import VEREDICTO, VERTICES
+    # `nombres_de_trabajo` y no `e.lean`: para group-theory `e.lean` es
+    # `GrpCat`, la categoria — correcta como identidad y pesima como import,
+    # porque `Algebra.Category.Grp.Basic` esta arriba del DAG de Mathlib. Lo
+    # que hay que importar para hablar de grupos es `Subgroup`, `MonoidHom`.
+    from nucleo.graph.interpretacion import (
+        VEREDICTO, VERTICES, nombres_de_trabajo)
     invalidos = {"EuclideanGeometry", "Ideal.Quotient", "QuotientGroup",
                  "RelCWComplex", "Turing.TM0", "Turing.TM1"}
     por_skill, sin_modulo = {}, []
     for k, e in VEREDICTO.items():
-        if e.marca not in VERTICES or not e.lean:
+        nombres = nombres_de_trabajo(k)
+        if e.marca not in VERTICES or not nombres:
             continue
         mods = []
-        for pieza in re.split(r"[,+]", e.lean):
+        for pieza in re.split(r"[,+]", nombres):
             n = pieza.strip()
             if not n or n in invalidos:
                 continue

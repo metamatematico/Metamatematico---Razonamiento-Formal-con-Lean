@@ -1,0 +1,84 @@
+{
+ "medibles": 73,
+ "confirmadas": 57,
+ "invertidas": 6,
+ "independientes": 10,
+ "azar_pct": 32.578947368421055,
+ "skills_envoltorio_categorico": [
+  "cat-basics"
+ ],
+ "sin_envoltorio": {
+  "medibles": 72,
+  "confirmadas": 56,
+  "invertidas": 6,
+  "azar_pct": 32.792792792792795
+ },
+ "lista_invertidas": [
+  [
+   "algebraic-number-theory",
+   "arithmetic-geometry"
+  ],
+  [
+   "derived-category",
+   "graded-objects"
+  ],
+  [
+   "euclidean-geometry",
+   "triangle-geometry"
+  ],
+  [
+   "exact-sequences",
+   "abelian-categories"
+  ],
+  [
+   "homological-algebra",
+   "homological-algebra-cat"
+  ],
+  [
+   "probability-theory",
+   "ergodic-theory"
+  ]
+ ],
+ "lista_independientes": [
+  [
+   "algebraic-geometry",
+   "homological-algebra-cat"
+  ],
+  [
+   "algebraic-topology",
+   "derived-category"
+  ],
+  [
+   "euclidean-geometry",
+   "projective-geometry"
+  ],
+  [
+   "functors",
+   "operator-theory"
+  ],
+  [
+   "ideals-quotient-rings",
+   "unique-factorization"
+  ],
+  [
+   "number-fields",
+   "p-adic-valuations"
+  ],
+  [
+   "ordinals",
+   "descriptive-set-theory"
+  ],
+  [
+   "probability-theory",
+   "martingale-theory"
+  ],
+  [
+   "probability-theory",
+   "stochastic-processes"
+  ],
+  [
+   "stochastic-processes",
+   "markov-chains"
+  ]
+ ]
+}

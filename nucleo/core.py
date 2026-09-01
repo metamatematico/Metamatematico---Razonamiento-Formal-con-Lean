@@ -3326,15 +3326,23 @@ class Nucleo:
         ofrecerlo — el modelo ya inventa suficientes por su cuenta.
         """
         try:
-            from nucleo.graph.interpretacion import VEREDICTO
+            from nucleo.graph.interpretacion import nombres_de_trabajo
         except Exception:
             return {}
         fuera: dict[str, str] = {}
         for s in skills[:6]:
-            e = VEREDICTO.get(s)
-            if not e or not e.lean:
+            # LA TEORIA, NO LA CATEGORIA.
+            #
+            # `Etiqueta.lean` dice que ES el nodo: para group-theory, la
+            # categoria `GrpCat`. Ofrecerle eso al modelo ante «demuestra que
+            # un grupo de orden primo es ciclico» es darle el vocabulario
+            # equivocado — necesita `Subgroup` y `MonoidHom`, no la categoria
+            # de todos los grupos. `nombres_de_trabajo` devuelve `teoria`
+            # cuando las dos divergen, y `lean` cuando coinciden.
+            nombres = nombres_de_trabajo(s)
+            if not nombres:
                 continue
-            piezas = [p.strip() for p in e.lean.replace("+", ",").split(",")
+            piezas = [p.strip() for p in nombres.replace("+", ",").split(",")
                       if p.strip() and p.strip() not in self._MATHLIB_INVALIDOS]
             if piezas:
                 fuera[s] = ", ".join(piezas[:3])

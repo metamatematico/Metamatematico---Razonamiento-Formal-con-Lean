@@ -812,3 +812,68 @@ class TestSoloLosObjetosSonComponentes:
             "el hueco que queda ya no coincide con ningún patrón espurio "
             "declarado: hay que volver a mirarlo"
         )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# EL ENVOLTORIO CATEGORICO NO PUEDE VOLVER A COLARSE COMO IMPORT
+#
+# `Etiqueta.lean` dice que ES el nodo: para group-theory, la categoria GrpCat.
+# Es correcto. Pero el mismo campo se estaba usando para decidir que modulo
+# importa Lean, y ahi es un desastre: `Algebra.Category.Grp.Basic` vive arriba
+# del DAG de imports de Mathlib, asi que ante «demuestra que un grupo de orden
+# primo es ciclico» el sistema ofrecia la categoria de todos los grupos en vez
+# de `Subgroup` y `MonoidHom`.
+#
+# Medido contra el DAG real (scripts/funtor_dag_mathlib.py): eran 10 de 76
+# skills, y explicaban 7 de las 13 dependencias que salian invertidas. Con
+# `teoria` puesto: confirmadas 56.2 % -> 78.1 %, invertidas 17.8 % -> 8.2 %.
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: Las diez que divergen: su identidad categorica NO sirve para importar.
+_CON_TEORIA = frozenset({
+    "abelian-groups", "algebraic-topology", "cat-basics", "commutative-algebra",
+    "compactness", "group-theory", "linear-algebra", "measure-theory",
+    "point-set-topology", "ring-theory",
+})
+
+
+def test_las_diez_divergentes_conservan_su_teoria():
+    """Si alguien vacia `teoria`, el import vuelve al envoltorio en silencio."""
+    from nucleo.graph.interpretacion import VEREDICTO
+    sin = sorted(k for k in _CON_TEORIA if not (VEREDICTO[k].teoria or "").strip())
+    assert not sin, "perdieron el campo `teoria`: %s" % ", ".join(sin)
+
+
+def test_nombres_de_trabajo_prefiere_la_teoria():
+    from nucleo.graph.interpretacion import VEREDICTO, nombres_de_trabajo
+    assert nombres_de_trabajo("group-theory") == "Group, Subgroup, MonoidHom"
+    assert VEREDICTO["group-theory"].lean == "GrpCat"      # la identidad, intacta
+    # sin divergencia, cae a `lean`
+    assert nombres_de_trabajo("schemes") == VEREDICTO["schemes"].lean
+
+
+def test_ninguna_teoria_nombra_un_envoltorio_categorico():
+    """`GrpCat`, `TopCat`, `CommRingCat`… no son teoria, son la categoria."""
+    from nucleo.graph.interpretacion import VEREDICTO
+    malos = []
+    for k, e in VEREDICTO.items():
+        for pieza in (e.teoria or "").replace("+", ",").split(","):
+            n = pieza.strip()
+            if n.endswith("Cat") or n.endswith("CatMax") or ".Category." in n:
+                malos.append("%s: %s" % (k, n))
+    assert not malos, "teoria apuntando al envoltorio: %s" % "; ".join(malos)
+
+
+def test_el_mapa_de_modulos_no_importa_tacticas():
+    """`Continuous` se declara de paso en Tactic.FunProp; no es donde vive."""
+    import io
+    import json
+    import os
+    ruta = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "data", "mathlib_modulos.json")
+    if not os.path.exists(ruta):
+        return
+    d = json.load(io.open(ruta, encoding="utf-8"))["por_skill"]
+    malos = ["%s: %s" % (k, m) for k, v in d.items() for m in v
+             if ".Tactic." in m]
+    assert not malos, "modulos de tacticas en el mapa: %s" % "; ".join(malos)
