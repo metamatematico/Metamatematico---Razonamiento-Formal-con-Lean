@@ -36,6 +36,51 @@
 
 ---
 
+---
+
+## El flujo, de la entrada a la salida
+
+<p align="center">
+  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional sin tocar Lean. Si lo es, el grafo categórico aporta al prompt las habilidades activadas con sus prerrequisitos, los nombres de Mathlib verificados y ejemplos few-shot. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y su veredicto tiene seis salidas distintas. Finalmente el LLM traduce, y la respuesta sale con el veredicto delante del texto." width="100%">
+</p>
+
+**El grafo actúa en dos puntos, y en ninguno decide si algo es cierto.**
+
+| paso | quién | qué hace |
+|---|---|---|
+| 1 | **grafo** | activa habilidades, aporta prerrequisitos y **nombres de Mathlib verificados** |
+| 2 | LLM | escribe Lean 4 — no juzga si es correcto |
+| 3 | **grafo** | elige **qué módulos importa Lean**, derivados de las habilidades activadas |
+| 4 | **Lean** | verifica · su veredicto es inapelable |
+| 5 | LLM | traduce el código que Lean aceptó, no lo que el modelo creía |
+
+### Por qué el grafo está en esos dos sitios y no en otros
+
+Ambos puntos atacan el mismo fallo medido: **el modelo inventa nombres de Mathlib**. De 28 que propuso de memoria, 21 no existen — `tsum_geometric_two`, `Subgroup.isCyclic`, `isOpen_union` siguen la convención al dedillo y no están.
+
+El grafo acierta el **95 %**, y no de memoria: cada nombre está comprobado con `#check` contra Mathlib entero, y hay un guardián que lo revalida cuando Mathlib cambia. Es sustituir recuerdo por consulta justo donde el recuerdo falla tres de cada cuatro veces.
+
+El paso 3 es el más determinante y el menos obvio. `import Mathlib` entero tarda 742 s —más que el timeout— así que **algo tiene que decidir qué subconjunto ve Lean**. Hasta ahora lo decidía un diccionario de palabras clave; ahora lo derivan las habilidades activadas, con los módulos sacados de dónde se declara cada nombre en el fuente de Mathlib.
+
+### Las seis salidas del verificador
+
+Que Lean compile no significa que haya demostrado lo que se preguntó. Cada caso tiene su presentación, y el aviso va **delante** del texto:
+
+| salida | qué significa |
+|---|---|
+| **verificado** | hay teorema, lo prueba, y es el que se preguntó |
+| **no hay prueba** | Lean aceptó el archivo, pero no contiene ningún teorema |
+| **lo que pediste es falso** | Lean verificó la **negación** del enunciado |
+| error de módulo | falta un import → se repara y se reintenta |
+| error semántico | vuelve al LLM con el error de Lean, máximo 2 rondas |
+| `sorry` | cascada de 12 tácticas ordenadas por el rankeador entrenado |
+
+Las tres primeras existen porque las tres se dieron: el sistema llegó a estampar «verificado» sobre un archivo de `#check` sin teoremas, y sobre la negación de lo que se había pedido. Ver [el registro de defectos](https://claude.ai/code/artifact/8907db6a-017e-41ff-a434-b1eaf4ac0631) en la documentación visual.
+
+> **Qué NO está en este flujo.** Los co-reguladores deciden antes (responder o asistir) y la memoria MES registra después, pero **ninguno interviene en formalizar ni en verificar**. Se documentan en las secciones 5 y 7 como lo que son, no como parte de la cadena que produce la respuesta.
+
+---
+
 ## 1. Qué es este sistema
 
 **Metamatemático** es un asistente de razonamiento matemático formal. A diferencia de un LLM convencional que genera texto plausible, este sistema **verifica matemáticamente** cada respuesta antes de producirla.

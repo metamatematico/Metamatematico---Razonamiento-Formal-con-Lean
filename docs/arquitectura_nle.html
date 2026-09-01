@@ -222,6 +222,7 @@ footer.page-foot{margin-top:70px; padding-top:24px; border-top:1px solid var(--b
     <p class="toc-title">NLE v7.0 <span>/ arquitectura</span></p>
     <nav aria-label="Tabla de contenidos">
       <ol>
+        <li><a href="#flujo">El flujo, de la entrada a la salida</a></li>
         <li><a href="#resumen">Resumen ejecutivo</a></li>
         <li><a href="#panorama">Panorama del sistema</a></li>
         <li><a href="#piezas">Piezas y roles</a></li>
@@ -252,7 +253,7 @@ footer.page-foot{margin-top:70px; padding-top:24px; border-top:1px solid var(--b
     <div class="hero">
       <p class="hero-kicker"><span class="dot"></span> Grafo categórico · memoria evolutiva · Lean 4 · LLM</p>
       <h1>Cómo funciona <em>NLE v7.0</em> por dentro</h1>
-      <p class="lede">Una IA matemática que no confía en el LLM para decidir si algo es cierto: formaliza en Lean&nbsp;4, deja que el kernel lo verifique, y solo entonces traduce el resultado a lenguaje natural. Alrededor de ese principio se organiza un grafo categórico de habilidades, cuatro co-reguladores que deciden qué hacer con cada consulta, y catorce agentes especializados que aprenden por categoría matemática.</p>
+      <p class="lede">Una IA matemática que no confía en el LLM para decidir si algo es cierto: formaliza en Lean&nbsp;4, deja que el kernel lo verifique, y solo entonces traduce el resultado a lenguaje natural. El grafo categórico de habilidades interviene en dos puntos concretos de esa cadena: prepara el prompt de formalización con nombres de Mathlib <em>verificados</em>, y elige qué módulos verá Lean. Los co-reguladores y la memoria evolutiva rodean el proceso —deciden antes, aprenden después— pero no formalizan ni verifican.</p>
 
       <div class="stat-row">
         <div class="stat"><div class="n">4</div><div class="l">co-reguladores MES</div></div>
@@ -262,6 +263,155 @@ footer.page-foot{margin-top:70px; padding-top:24px; border-top:1px solid var(--b
         <div class="stat"><div class="n">3</div><div class="l">orden de emergencia alcanzado</div></div>
       </div>
     </div>
+
+    <!-- 0 -->
+    <section id="flujo" style="padding-top:40px;">
+      <div class="section-head"><span class="section-num">00</span><h2>El flujo, de la <span class="ac-e">entrada</span> a la <span class="ac-v">salida</span></h2></div>
+
+      <figure>
+        <div class="diagram-frame">
+<svg viewBox="0 0 1180 700" width="100%" role="img" aria-label="Flujo del sistema de la entrada a la salida. La consulta entra por un clasificador de forma que decide si es matemática; si no lo es va al LLM conversacional sin tocar Lean. Si lo es, el grafo categórico aporta tres cosas al prompt: las habilidades activadas con sus prerrequisitos, los nombres de Mathlib verificados con check, y ejemplos few-shot de LeanWorkbook. El LLM formaliza y produce código Lean candidato. Antes de verificar, el normalizador sustituye el import de Mathlib entero por los módulos que el grafo deriva de las habilidades activadas más una cabecera de tácticas. Lean verifica y su veredicto tiene seis salidas: verificado, sin teorema, refutación de lo preguntado, error de módulo que dispara la reparación de imports, error semántico que vuelve al LLM con máximo dos rondas, y sorry que va a la cascada de doce tácticas. Finalmente el LLM traduce y la respuesta sale con el veredicto delante del texto.">
+<defs>
+  <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+  </marker>
+</defs>
+
+<text x="30" y="26" font-size="11" class="dim">DE LA ENTRADA A LA SALIDA — el grafo actúa en DOS puntos, marcados en violeta</text>
+
+<rect x="30" y="48" width="150" height="46" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="105" y="70" text-anchor="middle" class="lbl" font-size="12">consulta</text>
+<text x="105" y="86" text-anchor="middle" font-size="9" class="dim">UI · CLI</text>
+
+<rect x="215" y="48" width="205" height="46" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="317" y="70" text-anchor="middle" class="lbl" font-size="12">¿es matemática?</text>
+<text x="317" y="86" text-anchor="middle" font-size="9" class="dim">forma + vocabulario</text>
+
+<rect x="470" y="42" width="215" height="58" rx="9" fill="none" class="l-line" stroke-width="1.5"/>
+<text x="577" y="66" text-anchor="middle" class="lbl l-fill" font-size="12">LLM conversacional</text>
+<text x="577" y="84" text-anchor="middle" font-size="9" class="dim">sin verificación formal</text>
+
+<line x1="180" y1="71" x2="215" y2="71" stroke="currentColor" stroke-width="1.5" marker-end="url(#fl)"/>
+<line x1="420" y1="71" x2="470" y2="71" class="l-line" stroke-width="1.5" marker-end="url(#fl)"/>
+<text x="445" y="63" text-anchor="middle" font-size="10" class="l-fill">no</text>
+<path d="M 317 100 L 317 128" class="v-line" stroke-width="1.8" marker-end="url(#fl)"/>
+<text x="333" y="120" font-size="10" class="v-fill">sí</text>
+
+<rect x="30" y="128" width="560" height="96" rx="11" fill="none" class="e-line" stroke-width="2.2"/>
+<text x="48" y="152" class="lbl g-fill" font-size="12.5">1 · EL GRAFO PREPARA EL TERRENO</text>
+<text x="48" y="176" font-size="10.5">habilidades activadas y sus prerrequisitos</text>
+<text x="48" y="194" font-size="10.5">nombres de Mathlib <tspan class="e-fill">verificados con #check</tspan> — 95 % existen</text>
+<text x="48" y="212" font-size="10.5">ejemplos few-shot de LeanWorkbook</text>
+
+<rect x="640" y="128" width="215" height="96" rx="9" fill="none" class="l-line" stroke-width="1.8"/>
+<text x="747" y="164" text-anchor="middle" class="lbl l-fill" font-size="12.5">2 · LLM formaliza</text>
+<text x="747" y="184" text-anchor="middle" font-size="9.5" class="dim">escribe Lean 4</text>
+<text x="747" y="202" text-anchor="middle" font-size="9.5" class="dim">no decide si es cierto</text>
+
+<line x1="590" y1="176" x2="640" y2="176" class="e-line" stroke-width="1.8" marker-end="url(#fl)"/>
+<path d="M 747 224 L 747 250 L 350 250 L 350 274" fill="none" class="l-line" stroke-width="1.6" marker-end="url(#fl)"/>
+
+<rect x="30" y="274" width="560" height="76" rx="11" fill="none" class="e-line" stroke-width="2.2"/>
+<text x="48" y="298" class="lbl g-fill" font-size="12.5">3 · EL GRAFO ELIGE QUÉ VE LEAN</text>
+<text x="48" y="320" font-size="10.5">descarta <tspan font-family="ui-monospace">import Mathlib</tspan> (742 s, más que el timeout)</text>
+<text x="48" y="338" font-size="10.5">y pone los <tspan class="e-fill">módulos de las habilidades activadas</tspan> + tácticas</text>
+
+<rect x="640" y="274" width="215" height="76" rx="10" fill="none" class="v-line" stroke-width="2.6"/>
+<text x="747" y="304" text-anchor="middle" class="lbl v-fill" font-size="14">4 · LEAN VERIFICA</text>
+<text x="747" y="326" text-anchor="middle" font-size="10" class="v-fill">la fuente de verdad</text>
+
+<line x1="590" y1="312" x2="640" y2="312" class="e-line" stroke-width="1.8" marker-end="url(#fl)"/>
+<line x1="747" y1="350" x2="747" y2="376" class="v-line" stroke-width="1.8"/>
+<line x1="150" y1="376" x2="1010" y2="376" class="v-line" stroke-width="1.4"/>
+
+<rect x="30" y="400" width="240" height="52" rx="8" fill="none" class="v-line" stroke-width="1.6"/>
+<text x="150" y="420" text-anchor="middle" font-size="10" class="v-fill">hay teorema y lo prueba</text>
+<text x="150" y="440" text-anchor="middle" class="lbl" font-size="11.5">VERIFICADO</text>
+
+<rect x="288" y="400" width="240" height="52" rx="8" fill="none" class="g-line" stroke-width="1.6"/>
+<text x="408" y="420" text-anchor="middle" font-size="10" class="g-fill">Lean acepta, pero sin teorema</text>
+<text x="408" y="440" text-anchor="middle" class="lbl" font-size="11.5">NO HAY PRUEBA</text>
+
+<rect x="546" y="400" width="240" height="52" rx="8" fill="none" class="g-line" stroke-width="1.6"/>
+<text x="666" y="420" text-anchor="middle" font-size="10" class="g-fill">verifica la NEGACIÓN</text>
+<text x="666" y="440" text-anchor="middle" class="lbl" font-size="11.5">LO QUE PEDISTE ES FALSO</text>
+
+<rect x="804" y="400" width="206" height="52" rx="8" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="907" y="420" text-anchor="middle" font-size="10" class="dim">error de módulo · semántico</text>
+<text x="907" y="440" text-anchor="middle" class="lbl" font-size="11.5">reparar y reintentar</text>
+
+<line x1="150" y1="376" x2="150" y2="400" class="v-line" stroke-width="1.5" marker-end="url(#fl)"/>
+<line x1="408" y1="376" x2="408" y2="400" class="g-line" stroke-width="1.5" marker-end="url(#fl)"/>
+<line x1="666" y1="376" x2="666" y2="400" class="g-line" stroke-width="1.5" marker-end="url(#fl)"/>
+<line x1="907" y1="376" x2="907" y2="400" stroke="currentColor" stroke-width="1.5" marker-end="url(#fl)"/>
+
+<path d="M 1010 426 L 1055 426 L 1055 312 L 862 312" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#fl)"/>
+<text x="1063" y="372" font-size="9" class="dim">imports · máx 2</text>
+<text x="1063" y="386" font-size="9" class="dim">rondas · 12 tácticas</text>
+
+<rect x="288" y="500" width="498" height="62" rx="10" fill="none" class="l-line" stroke-width="1.8"/>
+<text x="537" y="524" text-anchor="middle" class="lbl l-fill" font-size="12.5">5 · LLM traduce el veredicto</text>
+<text x="537" y="546" text-anchor="middle" font-size="9.5" class="dim">explica el código que Lean aceptó — no lo que el modelo creía</text>
+
+<line x1="150" y1="452" x2="150" y2="531" class="v-line" stroke-width="1.5"/>
+<line x1="150" y1="531" x2="288" y2="531" class="v-line" stroke-width="1.5" marker-end="url(#fl)"/>
+<line x1="408" y1="452" x2="408" y2="500" class="g-line" stroke-width="1.5" marker-end="url(#fl)"/>
+<line x1="666" y1="452" x2="666" y2="500" class="g-line" stroke-width="1.5" marker-end="url(#fl)"/>
+
+<rect x="288" y="600" width="498" height="56" rx="10" fill="none" stroke="currentColor" stroke-width="1.8"/>
+<text x="537" y="624" text-anchor="middle" class="lbl" font-size="12.5">respuesta</text>
+<text x="537" y="644" text-anchor="middle" font-size="9.5" class="dim">el veredicto va DELANTE del texto, siempre</text>
+<line x1="537" y1="562" x2="537" y2="600" stroke="currentColor" stroke-width="1.8" marker-end="url(#fl)"/>
+
+<text x="30" y="686" font-size="9.5" class="dim">Los co-reguladores y la memoria MES no aparecen: deciden antes y registran después, pero no intervienen en formalizar ni en verificar.</text>
+</svg>
+        </div>
+        <figcaption><b>Fig. 0 —</b> El recorrido completo. El grafo actúa en <em>dos</em> puntos y en ninguno decide si algo es cierto: prepara el prompt de formalización, y elige qué módulos de Mathlib verá Lean. La verdad la produce Lean, y su veredicto tiene seis salidas distintas — que Lean compile no significa que haya demostrado lo que se preguntó.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="mono">paso</th><th>quién</th><th>qué hace</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">1</td><td><strong>grafo</strong></td><td>activa habilidades, aporta prerrequisitos y <strong>nombres de Mathlib verificados</strong></td></tr>
+            <tr><td class="mono">2</td><td>LLM</td><td>escribe Lean 4 — no juzga si es correcto</td></tr>
+            <tr><td class="mono">3</td><td><strong>grafo</strong></td><td>elige <strong>qué módulos importa Lean</strong>, derivados de las habilidades activadas</td></tr>
+            <tr><td class="mono">4</td><td><strong>Lean</strong></td><td>verifica · su veredicto es inapelable</td></tr>
+            <tr><td class="mono">5</td><td>LLM</td><td>traduce el código que Lean aceptó, no lo que el modelo creía</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout e">
+        <strong>Por qué el grafo está en esos dos sitios</strong>
+        Los dos atacan el mismo fallo medido: <strong>el modelo inventa nombres de Mathlib</strong>. De 28 que propuso de memoria, 21 no existen — <code>tsum_geometric_two</code>, <code>Subgroup.isCyclic</code>, <code>isOpen_union</code> siguen la convención al dedillo y no están. El grafo acierta el <strong>95&nbsp;%</strong>, y no de memoria: cada nombre está comprobado con <code>#check</code> contra Mathlib entero, con un guardián que lo revalida cuando Mathlib cambia.
+        <br><br>El paso 3 es el más determinante y el menos obvio. <code>import Mathlib</code> entero tarda 742&nbsp;s —más que el timeout— así que <em>algo</em> tiene que decidir qué subconjunto ve Lean. Hasta ahora lo decidía un diccionario de palabras clave; ahora lo derivan las habilidades activadas, con los módulos sacados de dónde se declara cada nombre en el fuente.
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>salida del verificador</th><th>qué significa</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill v">verificado</span></td><td>hay teorema, lo prueba, y es el que se preguntó</td></tr>
+            <tr><td><span class="pill g">no hay prueba</span></td><td>Lean aceptó el archivo, pero no contiene ningún teorema</td></tr>
+            <tr><td><span class="pill g">lo pedido es falso</span></td><td>Lean verificó la <strong>negación</strong> del enunciado</td></tr>
+            <tr><td><span class="pill">error de módulo</span></td><td>falta un import → se repara y se reintenta</td></tr>
+            <tr><td><span class="pill">error semántico</span></td><td>vuelve al LLM con el error de Lean, máximo 2 rondas</td></tr>
+            <tr><td><span class="pill"><code>sorry</code></span></td><td>cascada de 12 tácticas ordenadas por el rankeador entrenado</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout g">
+        <strong>Las tres primeras existen porque las tres se dieron</strong>
+        El sistema llegó a estampar «verificado» sobre un archivo de <code>#check</code> sin ningún teorema, y sobre la <em>negación</em> de lo que se había pedido. Ninguna de las dos la encontraron los 760 tests: las encontró correr el sistema entero contra un banco de consultas. Ver la <a href="#hallazgos">sección&nbsp;15</a>.
+      </div>
+
+      <div class="callout">
+        <strong>Qué NO está en este flujo</strong>
+        Los co-reguladores deciden antes —responder o asistir— y la memoria MES registra después, pero <strong>ninguno interviene en formalizar ni en verificar</strong>. Se documentan en las secciones 5 y 7 como lo que son, no como parte de la cadena que produce la respuesta.
+      </div>
+    </section>
 
     <!-- 1 -->
     <section id="resumen">
