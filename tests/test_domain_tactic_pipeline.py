@@ -73,17 +73,64 @@ class TestDomainDefaultTactic:
         from nucleo.multi_agent.colimit_agents import domain_default_tactic
         assert domain_default_tactic("nonexistent-area") == "simp"
 
-    def test_algebra_returns_ring(self):
+    def test_algebra_returns_simp(self):
+        """Era `ring`, y `ring` no cierra NI UNA prueba de algebra en Mathlib.
+
+        Medido sobre las pruebas que se cierran en una linea, restringido a las
+        tacticas que SOLVER_CASCADE ofrece: simp 93 %, aesop 5 %, rfl 2 %, ring
+        0 %. El valor viejo no era una opinion discutible: era falso.
+        """
         from nucleo.multi_agent.colimit_agents import domain_default_tactic
-        assert domain_default_tactic("algebra") == "ring"
+        assert domain_default_tactic("algebra") == "simp"
 
     def test_optimization_returns_linarith(self):
         from nucleo.multi_agent.colimit_agents import domain_default_tactic
         assert domain_default_tactic("optimization") == "linarith"
 
-    def test_number_theory_returns_norm_num(self):
+    def test_number_theory_returns_simp(self):
+        """`norm_num` era la 4a de 4 en su propia area, con un 3 %."""
         from nucleo.multi_agent.colimit_agents import domain_default_tactic
-        assert domain_default_tactic("number-theory") == "norm_num"
+        assert domain_default_tactic("number-theory") == "simp"
+
+    def test_optimization_sigue_sin_medir(self):
+        """Mathlib no tiene esta area: se conserva lo que habia, y se declara.
+
+        Que viva en CATEGORY_TACTIC_ORDER_SIN_MEDIR y no en la tabla medida es
+        la diferencia entre «comprobado» y «no hay nada mejor». Meterla con las
+        demas borraria esa distincion.
+        """
+        from nucleo.multi_agent.colimit_agents import (
+            CATEGORY_TACTIC_ORDER, CATEGORY_TACTIC_ORDER_SIN_MEDIR)
+        assert "optimization" in CATEGORY_TACTIC_ORDER_SIN_MEDIR
+        assert "optimization" not in CATEGORY_TACTIC_ORDER
+
+    def test_el_orden_medido_empieza_por_simp(self):
+        """`simp` gana en las ONCE areas medidas, sin excepcion.
+
+        Por eso el area no discrimina en la cabeza, y por eso la tabla es una
+        LISTA: lo que distingue un area de otra esta en la cola.
+        """
+        from nucleo.multi_agent.colimit_agents import CATEGORY_TACTIC_ORDER
+        malas = [a for a, o in CATEGORY_TACTIC_ORDER.items() if o[0] != "simp"]
+        assert not malas, "areas medidas que no empiezan por simp: %s" % malas
+
+    def test_todo_el_orden_medido_esta_en_la_cascada(self):
+        """Proponer una tactica que la cascada no ofrece es no proponer nada.
+
+        Asi eran inertes `tauto` (logic) y `decide` (computation): la tabla
+        vieja las nombraba y `prioritize` las descartaba en silencio, con lo
+        que esas dos areas creian tener prior y no tenian ninguno.
+        """
+        from nucleo.lean.solver_cascade import SOLVER_CASCADE
+        from nucleo.multi_agent.colimit_agents import (
+            CATEGORY_TACTIC_ORDER, CATEGORY_TACTIC_ORDER_SIN_MEDIR)
+        disponibles = {n for n, _ in SOLVER_CASCADE}
+        fuera = [(a, t)
+                 for tabla in (CATEGORY_TACTIC_ORDER,
+                               CATEGORY_TACTIC_ORDER_SIN_MEDIR)
+                 for a, orden in tabla.items() for t in orden
+                 if t not in disponibles]
+        assert not fuera, "tacticas que la cascada no puede ofrecer: %s" % fuera
 
     def test_all_tactics_are_strings(self):
         from nucleo.multi_agent.colimit_agents import CATEGORY_DEFAULT_TACTICS
@@ -103,11 +150,49 @@ class TestGoalAnalyzerPrioritize:
         order = self.analyzer.prioritize("a * b = b * a", domain_tactic="ring")
         assert order[0][0] == "ring", f"Esperaba 'ring' primero, got {order[0][0]!r}"
 
-    def test_domain_tactic_first_overrides_pattern(self):
-        # El goal pattern detectaría "omega" para aritmética natural,
-        # pero domain_tactic="linarith" debe ir primero
+    def test_domain_tactic_cuando_el_goal_no_dice_nada(self):
+        """Sin patron que case, el prior del area es lo unico que hay."""
         order = self.analyzer.prioritize("n + 0 = n", domain_tactic="linarith")
         assert order[0][0] == "linarith"
+
+    def test_el_goal_manda_sobre_el_area(self):
+        """LA INVERSION QUE SE ARREGLO.
+
+        `domain_tactic` iba primero, por delante de los patrones del objetivo.
+        Como el prior del area estaba mal en 7 de 11 areas, desplazaba a la
+        unica senal que discrimina — y cada intento fallido cuesta una
+        invocacion de Lean.
+        """
+        order = [n for n, _ in self.analyzer.prioritize(
+            "2 + 3 = 5", domain_tactic="aesop")]
+        assert order[0] != "aesop", "el area volvio a colarse delante del goal"
+        assert "aesop" in order, "y sin embargo debe seguir estando, detras"
+        assert order.index("omega") < order.index("aesop")
+
+    def test_la_aprendida_va_delante_del_orden_medido(self):
+        """Exito real en este sistema pesa mas que la frecuencia en Mathlib."""
+        order = [n for n, _ in self.analyzer.prioritize(
+            "P x", domain_tactic="omega", domain_order=["simp", "ring"])]
+        assert order.index("omega") < order.index("simp")
+
+    def test_el_orden_del_area_se_respeta_entero(self):
+        order = [n for n, _ in self.analyzer.prioritize(
+            "P x", domain_order=["aesop", "ring", "linarith"])]
+        assert order.index("aesop") < order.index("ring") < order.index("linarith")
+
+    def test_reordenar_es_una_permutacion(self):
+        """La soundness no depende del orden, pero perder un solver si duele.
+
+        Se comprueba que ninguno desaparezca ni se duplique: es lo unico que
+        podria hacer que la cascada dejara de intentar algo que antes probaba.
+        """
+        from nucleo.lean.solver_cascade import SOLVER_CASCADE
+        for kwargs in ({"domain_tactic": "ring"},
+                       {"domain_order": ["simp", "aesop"]},
+                       {"domain_tactic": "omega", "domain_order": ["simp"]},
+                       {}):
+            order = self.analyzer.prioritize("a * b + c = d * e", **kwargs)
+            assert sorted(order) == sorted(SOLVER_CASCADE), kwargs
 
     def test_unknown_domain_tactic_ignored(self):
         from nucleo.lean.solver_cascade import SOLVER_CASCADE
@@ -269,14 +354,18 @@ class TestDomainTacticPipelineIntegration:
 
     def test_pipeline_algebra_uses_ring_first(self):
         from nucleo.multi_agent.specialized_agent import classify_query
-        from nucleo.multi_agent.colimit_agents import domain_default_tactic
+        from nucleo.multi_agent.colimit_agents import (
+            domain_default_tactic, domain_tactic_order)
         from nucleo.lean.solver_cascade import GoalAnalyzer
 
         area = classify_query("Demuestra que los grupos abelianos son conmutativos")
-        tactic = domain_default_tactic(area)
-        assert tactic == "ring"
+        assert domain_default_tactic(area) == "simp"   # medido; antes "ring"
 
-        order = GoalAnalyzer().prioritize("a * b = b * a", domain_tactic=tactic)
+        # Y aun asi `ring` sale primera, porque `a * b = b * a` es una
+        # identidad de anillo y el PATRON DEL OBJETIVO la detecta. Esa es la
+        # diferencia entre saberlo por el area (mal) y por el objetivo (bien).
+        order = GoalAnalyzer().prioritize(
+            "a * b = b * a", domain_order=domain_tactic_order(area))
         assert order[0][0] == "ring"
 
     def test_pipeline_optimization_uses_linarith_first(self):

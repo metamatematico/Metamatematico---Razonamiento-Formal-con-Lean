@@ -1360,19 +1360,38 @@ EXTRA_KEYWORDS: dict[str, list[str]] = {
 # El tipo es TRANSLATION y no DEPENDENCY a proposito: las tacticas son del
 # pilar TYPE y los dominios de SET/CAT/LOG, asi que el morfismo cruza pilares
 # (Definicion 4.2: TRANSLATION = transformacion entre pilares fundacionales).
+#: Area -> cajones de tactica que MAS CIERRAN en esa area de Mathlib, en orden.
+#:
+#: Era un cajon por area, elegido a mano, y estaba mal: medido contra las
+#: pruebas de Mathlib que cierran en una linea, siete de once areas apuntaban
+#: primero a una tactica que no cierra ni una prueba de su propia area
+#: (scripts/tacticas_reales_mathlib.py, y el analisis en CATEGORY_TACTIC_ORDER).
+#:
+#: Ahora son hasta tres, por frecuencia real, con su cuota. Que sean varios
+#: importa: `_find_relevant_context` recorre vecinos, y un solo vecino obligaba
+#: a acertar a la primera. El porcentaje viaja en el morfismo para que quien lo
+#: lea sepa cuanta evidencia hay detras, en vez de tratar las tres igual.
+CATEGORY_TACTIC_SKILLS: dict[str, list[tuple[str, int]]] = {
+    "algebra":         [("tactic-simp", 61), ("tactic-rewrite", 29), ("tactic-aesop", 4)],
+    "analysis":        [("tactic-simp", 50), ("tactic-rewrite", 23), ("tactic-aesop", 12)],
+    "category-theory": [("tactic-simp", 66), ("tactic-rewrite", 21), ("tactic-aesop", 6)],
+    "combinatorics":   [("tactic-simp", 56), ("tactic-rewrite", 16), ("tactic-aesop", 11)],
+    "computation":     [("tactic-simp", 29), ("tactic-aesop", 22), ("tactic-ring", 19)],
+    "geometry":        [("tactic-simp", 54), ("tactic-rewrite", 29), ("tactic-aesop", 5)],
+    "logic":           [("tactic-simp", 66), ("tactic-rewrite", 19), ("tactic-induction", 9)],
+    "number-theory":   [("tactic-simp", 55), ("tactic-rewrite", 22), ("tactic-ring", 7)],
+    "probability":     [("tactic-simp", 52), ("tactic-rewrite", 28), ("tactic-aesop", 11)],
+    "set-theory":      [("tactic-simp", 59), ("tactic-rewrite", 26), ("tactic-induction", 8)],
+    "topology":        [("tactic-simp", 58), ("tactic-rewrite", 20), ("tactic-aesop", 11)],
+    # SIN MEDIR: Mathlib no tiene un directorio para esta area. Se deja lo que
+    # habia, con cuota 0 para que se vea que no hay evidencia detras.
+    "optimization":    [("tactic-omega", 0)],
+}
+
+#: Compatibilidad: el cajon principal de cada area. Derivado, no escrito
+#: aparte, para que no puedan divergir.
 CATEGORY_TACTIC_SKILL: dict[str, str] = {
-    "algebra":         "tactic-ring",    # ring, ring_nf, field_simp
-    "analysis":        "tactic-omega",   # norm_num, linarith
-    "category-theory": "tactic-simp",
-    "combinatorics":   "tactic-omega",   # omega
-    "computation":     "tactic-aesop",   # decide
-    "geometry":        "tactic-omega",   # norm_num
-    "logic":           "tactic-aesop",   # tauto
-    "number-theory":   "tactic-omega",   # norm_num
-    "optimization":    "tactic-omega",   # linarith
-    "probability":     "tactic-omega",   # norm_num
-    "set-theory":      "tactic-simp",
-    "topology":        "tactic-simp",
+    k: v[0][0] for k, v in CATEGORY_TACTIC_SKILLS.items()
 }
 
 
@@ -1554,16 +1573,18 @@ def load_math_domains(graph: SkillCategory) -> dict[str, int]:
     # consulta, y ninguno era una tactica.
     tactic_links = 0
     for sdef in ALL_DOMAIN_SKILLS:
-        tactic_id = CATEGORY_TACTIC_SKILL.get(sdef.category)
-        if not tactic_id or sdef.id == tactic_id:
-            continue
-        if sdef.id in existing_ids and tactic_id in existing_ids:
-            result = graph.add_morphism(
-                sdef.id, tactic_id, MorphismType.TRANSLATION,
-                metadata={"translation": "area-to-default-tactic"},
-            )
-            if result:
-                tactic_links += 1
+        for tactic_id, cuota in CATEGORY_TACTIC_SKILLS.get(sdef.category, ()):
+            if sdef.id == tactic_id:
+                continue
+            if sdef.id in existing_ids and tactic_id in existing_ids:
+                result = graph.add_morphism(
+                    sdef.id, tactic_id, MorphismType.TRANSLATION,
+                    metadata={"translation": "area-to-measured-tactic",
+                              "cuota_mathlib": cuota,
+                              "construccion": "tactica-%s" % tactic_id},
+                )
+                if result:
+                    tactic_links += 1
 
     return {
         "added": added,

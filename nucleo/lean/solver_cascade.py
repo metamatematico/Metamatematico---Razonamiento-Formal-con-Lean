@@ -113,28 +113,46 @@ class GoalAnalyzer:
         goal: str,
         graph: Optional[SkillCategory] = None,
         domain_tactic: str = "",
+        domain_order: Optional[list[str]] = None,
     ) -> list[tuple[str, int]]:
         """
-        Reorder SOLVER_CASCADE based on goal structure and graph context.
+        Reordena SOLVER_CASCADE según el objetivo, el área y el grafo.
+
+        EL ORDEN DE LAS FUENTES IMPORTA, y estaba al revés. La táctica del área
+        iba PRIMERA, por delante de los patrones del objetivo. Dos motivos para
+        bajarla:
+
+        1. El área es un prior débil y estaba mal. Medido contra las pruebas de
+           Mathlib, siete de once áreas proponían una táctica que no cierra ni
+           una sola prueba de su propia área (ver CATEGORY_TACTIC_ORDER). Ante
+           un objetivo de álgebra la cascada probaba `ring` primero, que en el
+           álgebra de Mathlib cierra el 0 % de las pruebas de una línea.
+        2. El objetivo es evidencia DIRECTA. `GOAL_PATTERNS` mira si hay sumas
+           y productos, o desigualdades sobre ℕ/ℤ. Eso discrimina; el área no,
+           porque `simp` gana en las once áreas sin excepción.
+
+        Cada intento fallido cuesta una invocación de Lean, así que poner
+        delante el prior malo desplazaba a la señal buena y pagaba el retraso.
+
+        Sigue siendo una PERMUTACIÓN de SOLVER_CASCADE: ninguna reordenación
+        puede hacer que Lean acepte algo falso, solo cambia cuánto se tarda.
 
         Args:
-            goal: The Lean goal text to analyze
-            graph: Optional skill graph for domain-aware ordering
-            domain_tactic: Tactic provided by the ColimitAgent of the detected
-                area (paper §3.5, Principio 3.1). When present, it is placed
-                first in the cascade before any other heuristic reordering.
+            goal: texto del objetivo Lean.
+            graph: grafo de habilidades, para el orden según dominio.
+            domain_tactic: táctica aprendida de éxito real, si la hay.
+                Va por delante de `domain_order` porque es experiencia de
+                este sistema, no un prior de tabla.
+            domain_order: tácticas del área por frecuencia real medida. Es lo
+                que conviene pasar — un orden, no un nombre.
 
         Returns:
-            Reordered list of (solver_name, timeout) tuples
+            La cascada reordenada, lista de (solver, timeout).
         """
         priority_names: list[str] = []
-
-        # 0. Domain tactic from ColimitAgent (highest priority — paper §3.5)
         solver_names = {name for name, _ in SOLVER_CASCADE}
-        if domain_tactic and domain_tactic in solver_names:
-            priority_names.append(domain_tactic)
 
-        # 1. Pattern matching on goal text
+        # 1. El objetivo, que es evidencia directa: manda.
         for pattern, tactics in self.GOAL_PATTERNS:
             if re.search(pattern, goal):
                 for t in tactics:
@@ -142,7 +160,15 @@ class GoalAnalyzer:
                         priority_names.append(t)
                 break  # First match wins
 
-        # 2. Graph-based: find tactic skills connected to matched domains
+        # 2. La táctica APRENDIDA, si la hay. Es experiencia real de éxito en
+        #    consultas parecidas de este sistema, no un prior de tabla, así
+        #    que va por delante del orden del área.
+        # 3. El área, como prior medido: detrás del objetivo, nunca delante.
+        for t in ([domain_tactic] if domain_tactic else []) + list(domain_order or ()):
+            if t in solver_names and t not in priority_names:
+                priority_names.append(t)
+
+        # 4. El grafo: tácticas vecinas de los dominios que casan con el goal.
         if graph is not None:
             graph_tactics = self._tactics_from_graph(goal, graph)
             for t in graph_tactics:
@@ -152,7 +178,7 @@ class GoalAnalyzer:
         if not priority_names:
             return list(SOLVER_CASCADE)
 
-        # 3. Build reordered cascade: priority first, then remaining
+        # Y se arma la cascada: las prioritarias delante, el resto detrás.
         solver_dict = {name: timeout for name, timeout in SOLVER_CASCADE}
         ordered = []
         seen = set()
@@ -537,6 +563,7 @@ class SolverCascade:
         error_type: Optional[str] = None,
         imports: Optional[list[str]] = None,
         domain_tactic: str = "",
+        domain_order: Optional[list[str]] = None,
     ) -> CascadeResult:
         """
         Goal-aware solver cascade that reorders tactics by goal structure.
@@ -558,12 +585,14 @@ class SolverCascade:
         Returns:
             CascadeResult with success status and solver used
         """
-        if not goal_text and not domain_tactic:
+        if not goal_text and not domain_tactic and not domain_order:
             return await self.try_fill_sorry(code, sorry_line, error_type, imports)
 
-        # Stage 1: heuristic reordering (domain_tactic first, then regex patterns)
+        # Etapa 1: reordenamiento heuristico. El objetivo primero, luego la
+        # tactica aprendida, luego el orden medido del area. Ver prioritize.
         smart_order = self._goal_analyzer.prioritize(
-            goal_text, self._graph, domain_tactic=domain_tactic
+            goal_text, self._graph, domain_tactic=domain_tactic,
+            domain_order=domain_order,
         )
 
         # Stage 2: reordenamiento aprendido (permutacion — soundness intacta).

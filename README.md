@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-764_passing-brightgreen.svg)](#6-tests)
+[![Tests](https://img.shields.io/badge/Tests-770_passing-brightgreen.svg)](#6-tests)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#5-lo-que-está-medido)
 [![Vocabulario](https://img.shields.io/badge/Nombres_Mathlib-95%25_válidos-8b5cf6.svg)](#4-el-vocabulario-verificado)
 [![Emergencia](https://img.shields.io/badge/Orden_de_Ehresmann-3-8b5cf6.svg)](#7-lo-que-el-grafo-descubre-solo)
@@ -174,6 +174,44 @@ Dos avisos de método: importar a nivel de fichero no es prerrequisito conceptua
 python scripts/funtor_dag_mathlib.py
 ```
 
+### Qué táctica de Lean va con cada área
+
+El grafo tiene 9 nodos de táctica y morfismos dominio→táctica que **sí llegan a la cascada**: ante un `sorry`, la táctica del área se probaba primera. Pero esos morfismos salían de doce reglas escritas a mano que nadie había comprobado.
+
+Mathlib sí lo sabe. Contando, área por área, qué táctica cierra las pruebas de una línea —el análogo exacto de lo que hace la cascada— la tabla vieja resultó ser:
+
+| área | regla vieja | qué cierra de verdad en esa área |
+|---|---|---|
+| algebra | `ring` | **ni una prueba** — simp 93 %, aesop 5 % |
+| analysis | `norm_num` | ni una — simp 83 %, ring 8 % |
+| combinatorics | `omega` | ni una |
+| geometry, probability | `norm_num` | ni una |
+| logic | `tauto` | ni una, **y no está en la cascada** |
+| computation | `decide` | ni una, tampoco está |
+| number-theory | `norm_num` | 4ª de 4, un 3 % |
+| las 3 que decían `simp` | | acertaban |
+
+Siete de once áreas proponían primero una táctica que no cierra nada en su propia área, y dos eran además inertes porque el nombre no existe en la cascada. Las tres que acertaban decían `simp`, que es la más frecuente **en las once áreas sin excepción**: acertaban por decir lo que dice todo el mundo.
+
+**Dos arreglos.** La tabla pasa a ser una *lista ordenada* por frecuencia medida —si `simp` gana en todas partes, lo que distingue un área de otra está en la cola— y la táctica del área baja **por debajo** de los patrones del objetivo, que son evidencia directa y sí discriminan.
+
+Efecto, medido sobre 1 600 pruebas de Mathlib con la táctica que las cierra conocida:
+
+```
+posición media de la táctica que cierra
+  orden viejo   2.59
+  orden nuevo   1.29     ← 50.3 % menos invocaciones de Lean
+
+  mejoran 1163 (72.7 %) · empeoran 26 (1.6 %) · igual 411 (25.7 %)
+```
+
+Una área empeora: `set-theory`, +0.10, porque era de las que ya acertaba. Reordenar es una permutación, así que nada de esto puede hacer que Lean acepte algo falso — solo cambia cuánto se tarda.
+
+```bash
+python scripts/tacticas_reales_mathlib.py   # qué usa Mathlib
+python scripts/efecto_orden_cascada.py      # antes y después
+```
+
 ### Respaldo formal
 
 Cada operación categórica del Python está mapeada al teorema de Lean que la respalda, y la auditoría **valida los dos lados** — que el teorema exista y que la función exista:
@@ -205,7 +243,7 @@ Dos arreglos explican la diferencia. Los modelos actuales traen pensamiento adap
 python -m pytest tests/ -o "addopts=" -q
 ```
 
-**764 tests en 36 suites.** Las mayores:
+**770 tests en 36 suites.** Las mayores:
 
 | suite | tests | qué verifica |
 |---|---|---|
@@ -322,7 +360,7 @@ nucleo/
 
 MetamathProver/                # 385 teoremas Lean, 0 sorry
 scripts/                       # bancos de medida, auditorías, guardianes
-tests/                         # 764 tests en 36 suites
+tests/                         # 770 tests en 36 suites
 docs/
 ├── arquitectura_nle.html      # fuente del documento visual
 ├── INTERPRETACION_DEL_GRAFO.pdf

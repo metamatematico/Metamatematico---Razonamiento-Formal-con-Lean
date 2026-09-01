@@ -829,22 +829,92 @@ def _collect_category_morphisms(skill_ids: List[str], graph) -> List[str]:
     return morphism_ids
 
 
-CATEGORY_DEFAULT_TACTICS: dict[str, str] = {
-    "algebra":          "ring",
-    "analysis":         "norm_num",
-    "category-theory":  "simp",
-    "combinatorics":    "omega",
-    "computation":      "decide",
-    "geometry":         "norm_num",
-    "lean-tactics":     "simp",
-    "logic":            "tauto",
-    "number-theory":    "norm_num",
-    "optimization":     "linarith",
-    "probability":      "norm_num",
-    "proof-strategies": "exact",
-    "set-theory":       "simp",
-    "topology":         "simp",
+# ═══════════════════════════════════════════════════════════════════════════
+# QUE TACTICA VA CON CADA AREA — MEDIDO, NO SUPUESTO
+#
+# Esto eran doce reglas escritas a mano, una tactica por area ancha, y nadie
+# las habia comprobado nunca. El vocabulario del grafo tiene su 95 %, las
+# dependencias su 78 %; esta tabla no tenia numero ninguno.
+#
+# Se midio contra las pruebas de Mathlib, que dicen que tactica se uso de
+# verdad (scripts/tacticas_reales_mathlib.py). El criterio es el que toca: de
+# las pruebas que se cierran en UNA LINEA —el analogo exacto de lo que hace la
+# cascada ante un `sorry`— cual las cierra, contando solo las doce tacticas que
+# SOLVER_CASCADE puede ofrecer.
+#
+# Lo que dio la tabla vieja, area por area:
+#
+#     algebra        -> ring       no cierra NI UNA prueba de algebra
+#     analysis       -> norm_num   ni una
+#     combinatorics  -> omega      ni una
+#     geometry       -> norm_num   ni una
+#     probability    -> norm_num   ni una
+#     logic          -> tauto      ni una — y ni siquiera esta en la cascada
+#     computation    -> decide     ni una — tampoco esta en la cascada
+#     number-theory  -> norm_num   4a de 4, un 3 %
+#     las tres que decian simp                acertaban
+#
+# Siete de once areas proponian primero una tactica que no cierra nada en su
+# propia area, y dos eran ademas inertes porque el nombre no existe en la
+# cascada. Las tres que acertaban decian `simp`, que es la mas frecuente en las
+# ONCE areas sin excepcion: acertaban por decir lo que dice todo el mundo, no
+# por saber nada del area.
+#
+# POR ESO AHORA ES UNA LISTA Y NO UN NOMBRE. Si `simp` gana en todas partes, el
+# area no discrimina en la cabeza; lo que distingue un area de otra esta en la
+# COLA —`ring` pesa un 36 % en computation y un 2 % en topology, `linarith` un
+# 5 % en geometria y nada en algebra— y una lista ordenada si transporta esa
+# diferencia. Ademas la cascada consume un orden, no un nombre.
+#
+# AVISO: Mathlib es una libreria de lemas definicionales, y por eso `simp`
+# domina; sus enunciados vienen ya colocados para que la tactica corta funcione.
+# Esto mide el acierto de la regla contra la unica evidencia disponible, no que
+# cerraria un `sorry` cualquiera de un usuario.
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: Area -> tacticas por orden de frecuencia real al cerrar en una linea.
+#: Solo las que SOLVER_CASCADE ofrece; proponer otra no serviria de nada.
+CATEGORY_TACTIC_ORDER: dict[str, list[str]] = {
+    "algebra":          ["simp", "aesop", "rfl"],
+    "analysis":         ["simp", "ring", "linarith", "aesop"],
+    "category-theory":  ["simp", "aesop", "rfl"],
+    "combinatorics":    ["simp", "ring", "aesop", "linarith"],
+    "computation":      ["simp", "ring", "rfl", "norm_num"],
+    "geometry":         ["simp", "linarith", "rfl", "ring"],
+    "logic":            ["simp"],
+    "number-theory":    ["simp", "ring", "linarith", "norm_num"],
+    "probability":      ["simp", "linarith", "ring", "rfl"],
+    "set-theory":       ["simp", "aesop"],
+    "topology":         ["simp", "aesop", "ring", "norm_num"],
 }
+
+#: Areas que Mathlib no tiene como directorio propio: SIN MEDIR, y se dice.
+#: Se conserva lo que habia porque no hay nada mejor, no porque este validado.
+CATEGORY_TACTIC_ORDER_SIN_MEDIR: dict[str, list[str]] = {
+    "lean-tactics":     ["simp"],
+    "optimization":     ["linarith", "nlinarith", "simp"],
+    "proof-strategies": ["simp", "aesop"],
+}
+
+#: Compatibilidad: el primero de la lista, que es lo que consultaba el codigo
+#: anterior. Deriva de la tabla, no se escribe aparte, para que no puedan
+#: divergir.
+CATEGORY_DEFAULT_TACTICS: dict[str, str] = {
+    k: v[0] for k, v in
+    {**CATEGORY_TACTIC_ORDER, **CATEGORY_TACTIC_ORDER_SIN_MEDIR}.items()
+}
+
+
+def domain_tactic_order(category: str) -> list[str]:
+    """Las tácticas del área, de más a menos frecuente al cerrar sola.
+
+    Es lo que la cascada debe consumir: un orden, no un nombre. Devuelve lista
+    vacía para un área desconocida — sin evidencia es mejor no opinar y dejar
+    que manden los patrones del objetivo.
+    """
+    return list(CATEGORY_TACTIC_ORDER.get(category)
+                or CATEGORY_TACTIC_ORDER_SIN_MEDIR.get(category)
+                or ())
 
 
 def domain_default_tactic(category: str) -> str:

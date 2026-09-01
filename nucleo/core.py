@@ -1376,7 +1376,8 @@ class Nucleo:
             return self._demo_educational_response(input_text)
 
         from nucleo.multi_agent.specialized_agent import classify_query
-        from nucleo.multi_agent.colimit_agents import domain_default_tactic
+        from nucleo.multi_agent.colimit_agents import (
+            domain_default_tactic, domain_tactic_order)
         lean_system = LLMClient.LEAN_SYSTEM_PROMPT
         context = self._find_relevant_context(input_text, self._graph)
         context["task"] = "lean_formalization"
@@ -1385,7 +1386,15 @@ class Nucleo:
         # El join-envoltorio del área detectada provee la táctica de entrada
         # al SolverCascade (paper §3.5, Principio 3.1).
         _area = classify_query(input_text)
+        # El ORDEN medido del area (ver CATEGORY_TACTIC_ORDER), no un nombre:
+        # la cascada consume una secuencia, y `simp` gana en las once areas
+        # medidas, asi que lo que distingue un area de otra esta en la cola.
+        _domain_order = domain_tactic_order(_area)
         _domain_tactic = domain_default_tactic(_area)
+        # Vacia mientras no haya experiencia real. Se rellena abajo solo si el
+        # agente especializado recuerda una tactica que YA funciono aqui; solo
+        # entonces adelanta al orden medido.
+        _tactica_aprendida = ""
 
         # Si el sistema multi-agente esta activo, preferir una tactica
         # aprendida de exito real en esta categoria (memoria procedimental
@@ -1403,6 +1412,7 @@ class Nucleo:
                         f"reemplaza default '{_domain_tactic}' para area={_area!r}"
                     )
                     _domain_tactic = _learned
+                    _tactica_aprendida = _learned
             except Exception as e:
                 logger.debug(f"query_best_tactic error (no bloqueante): {e}")
 
@@ -1775,7 +1785,8 @@ class Nucleo:
             # domain_tactic: táctica por defecto del ColimitAgent del área
             # detectada, colocada primera en la cascada (paper §3.5).
             sorry_msg, confidence, success_value = await self._try_solve_sorries(
-                lean_code, result, domain_tactic=_domain_tactic
+                lean_code, result, domain_tactic=_tactica_aprendida,
+                domain_order=_domain_order,
             )
             verification_status = "parcial"
             verification_note = (
@@ -2107,7 +2118,8 @@ class Nucleo:
         return "\n\n".join(lines)
 
     async def _try_solve_sorries(
-        self, code: str, result: LeanResult, domain_tactic: str = ""
+        self, code: str, result: LeanResult, domain_tactic: str = "",
+        domain_order: Optional[list[str]] = None,
     ) -> tuple[str, float, float]:
         """Try solver cascade on sorry-containing code.
 
@@ -2138,12 +2150,13 @@ class Nucleo:
             filled = False
             cascade_already_ran = False
             # Smart cascade: domain_tactic placed first (paper §3.5)
-            if self._solver_cascade and (domain_tactic or ctx.goal):
+            if self._solver_cascade and (domain_tactic or domain_order or ctx.goal):
                 cascade_result = await self._solver_cascade.try_fill_sorry_smart(
                     code=code,
                     sorry_line=ctx.line_number,
                     goal_text=ctx.goal,
                     domain_tactic=domain_tactic,
+                    domain_order=domain_order,
                 )
                 cascade_already_ran = True
                 if cascade_result.success:

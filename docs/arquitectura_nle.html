@@ -205,7 +205,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
     <div class="toc-foot">
       Lean 4 — única fuente de verdad<br>
       E:\Metamatematico — repo canónico<br>
-      rev. 1 sep 2026 · 764 tests
+      rev. 1 sep 2026 · 770 tests
     </div>
   </aside>
 
@@ -220,7 +220,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
         <div><div class="n">21<span style="font-size:14px;color:var(--muted)">/24</span></div><div class="l">banco de fidelidad</div></div>
         <div><div class="n">95<span style="font-size:14px;color:var(--muted)">%</span></div><div class="l">nombres Mathlib válidos</div></div>
         <div><div class="n">3</div><div class="l">orden de emergencia</div></div>
-        <div><div class="n">764</div><div class="l">tests</div></div>
+        <div><div class="n">770</div><div class="l">tests</div></div>
       </div>
     </div>
 
@@ -608,6 +608,45 @@ esquemas           →  Mathlib.AlgebraicGeometry.Scheme</pre>
         Importar a nivel de fichero <em>no</em> es prerrequisito conceptual: Mathlib organiza ficheros por necesidades de compilación. Y se midió alcanzabilidad <em>transitiva</em>, que en un DAG denso es generosa en ambos sentidos. Una arista confirmada es evidencia débil; una invertida es evidencia fuerte en contra.
       </div>
 
+      <h3>Qué táctica de Lean va con cada área</h3>
+      <p>El grafo tiene nueve nodos de táctica, y sus morfismos dominio→táctica <strong>sí llegan a la cascada</strong>: ante un <code>sorry</code>, la táctica del área se probaba primera. Pero salían de doce reglas escritas a mano que nadie había comprobado. Mathlib sí lo sabe — basta contar qué táctica cierra las pruebas de una línea, que es el análogo exacto de lo que hace la cascada.</p>
+
+      <div class="tabla">
+        <table>
+          <thead><tr><th>área</th><th class="mono">regla vieja</th><th>qué cierra de verdad ahí</th></tr></thead>
+          <tbody>
+            <tr><td>algebra</td><td class="mono">ring</td><td><strong>ni una prueba</strong> — simp 93 %, aesop 5 %</td></tr>
+            <tr><td>analysis</td><td class="mono">norm_num</td><td>ni una — simp 83 %, ring 8 %</td></tr>
+            <tr><td>combinatorics, geometry, probability</td><td class="mono">omega / norm_num</td><td>ni una</td></tr>
+            <tr><td>logic</td><td class="mono">tauto</td><td>ni una — <strong>y ni siquiera está en la cascada</strong></td></tr>
+            <tr><td>computation</td><td class="mono">decide</td><td>ni una — tampoco está</td></tr>
+            <tr><td>number-theory</td><td class="mono">norm_num</td><td>4ª de 4, un 3 %</td></tr>
+            <tr><td class="dim">las 3 que decían simp</td><td class="mono">simp</td><td>acertaban</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nota a">
+        <b>Acertaban por decir lo que dice todo el mundo</b>
+        Siete de once áreas proponían primero una táctica que no cierra nada en su propia área, y dos eran además <em>inertes</em>, porque el nombre ni existe en la cascada y <code>prioritize</code> lo descartaba en silencio. Las tres que acertaban decían <code>simp</code>, que es la más frecuente en las <strong>once</strong> áreas sin excepción.
+        <br><br>Y ahí está la lección de fondo: si <code>simp</code> gana en todas partes, <strong>el área no discrimina</strong>. Una tabla área→táctica no puede aportar información que el área no contiene. Lo que sí discrimina es la forma del objetivo.
+      </div>
+
+      <p><strong>Dos arreglos.</strong> La tabla pasa a ser una <em>lista ordenada</em> por frecuencia medida, porque lo que distingue un área de otra está en la cola —<code>ring</code> pesa un 36 % en computation y un 2 % en topology—. Y la táctica del área baja <strong>por debajo</strong> de los patrones del objetivo, que son evidencia directa. Antes iba primera: el prior malo desplazaba a la señal buena, y cada intento fallido cuesta una invocación de Lean.</p>
+
+      <p>El efecto se mide sin gastar API, porque Mathlib es el conjunto de prueba: cada lema de una línea es un caso resuelto del que se conoce el enunciado, el área y la táctica que lo cerró.</p>
+
+      <pre>posición media de la táctica que cierra   (1 600 pruebas)
+  orden viejo   2.59
+  orden nuevo   1.29     50,3 % menos invocaciones de Lean
+
+  mejoran 1163 (72,7 %) · empeoran 26 (1,6 %) · igual 411 (25,7 %)</pre>
+
+      <div class="nota">
+        <b>Lo que empeora, y por qué se acepta</b>
+        <code>set-theory</code> sube 0,10 posiciones: era de las tres áreas donde la regla vieja ya acertaba, y ahora los patrones del objetivo a veces le adelantan algo peor. Es el precio de fiarse del objetivo por delante del área, y sale 72 a 2. Reordenar es una <em>permutación</em> de la cascada, así que nada de esto puede hacer que Lean acepte algo falso — solo cambia cuánto se tarda.
+      </div>
+
       <h3>Respaldo formal</h3>
       <p>Cada operación categórica del Python está mapeada al teorema de Lean que la respalda, y la auditoría <strong>valida los dos lados</strong> — que el teorema exista y que la función exista:</p>
       <pre>57/58  operaciones con teorema que las respalda
@@ -689,7 +728,7 @@ esquemas           →  Mathlib.AlgebraicGeometry.Scheme</pre>
       el recuento de conceptos, del grafo en memoria tras arrancar; el banco de fidelidad,
       de 24 consultas reales verificadas con Lean; el vocabulario, de comprobar cada nombre
       con <code>#check</code> contra Mathlib entero; el coste, del contador que el propio
-      sistema lleva. 764 tests en verde.
+      sistema lleva. 770 tests en verde.
     </footer>
   </main>
 </div>

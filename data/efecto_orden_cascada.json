@@ -1,0 +1,66 @@
+{
+ "muestra": 1600,
+ "semilla": 20260901,
+ "posicion_media_vieja": 2.58875,
+ "posicion_media_nueva": 1.285625,
+ "mejoran": 1163,
+ "empeoran": 26,
+ "igual": 411,
+ "por_area": {
+  "algebra": {
+   "viejo": 3.1771523178807946,
+   "nuevo": 1.4288079470198676,
+   "casos": 604
+  },
+  "logic": {
+   "viejo": 1.4736842105263157,
+   "nuevo": 1.0,
+   "casos": 19
+  },
+  "set-theory": {
+   "viejo": 1.0284697508896796,
+   "nuevo": 1.1245551601423487,
+   "casos": 281
+  },
+  "probability": {
+   "viejo": 2.737864077669903,
+   "nuevo": 1.0388349514563107,
+   "casos": 103
+  },
+  "number-theory": {
+   "viejo": 3.1594202898550723,
+   "nuevo": 1.434782608695652,
+   "casos": 69
+  },
+  "analysis": {
+   "viejo": 3.1794871794871793,
+   "nuevo": 1.3076923076923077,
+   "casos": 273
+  },
+  "combinatorics": {
+   "viejo": 2.7564102564102564,
+   "nuevo": 1.0769230769230769,
+   "casos": 78
+  },
+  "category-theory": {
+   "viejo": 1.7246376811594204,
+   "nuevo": 1.144927536231884,
+   "casos": 69
+  },
+  "topology": {
+   "viejo": 1.3548387096774193,
+   "nuevo": 1.0483870967741935,
+   "casos": 62
+  },
+  "geometry": {
+   "viejo": 3.727272727272727,
+   "nuevo": 1.9090909090909092,
+   "casos": 22
+  },
+  "computation": {
+   "viejo": 1.9,
+   "nuevo": 1.3,
+   "casos": 20
+  }
+ }
+}
