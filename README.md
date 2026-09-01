@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-760_passing-brightgreen.svg)](#6-tests)
+[![Tests](https://img.shields.io/badge/Tests-764_passing-brightgreen.svg)](#6-tests)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#5-lo-que-está-medido)
 [![Vocabulario](https://img.shields.io/badge/Nombres_Mathlib-95%25_válidos-8b5cf6.svg)](#4-el-vocabulario-verificado)
 [![Emergencia](https://img.shields.io/badge/Orden_de_Ehresmann-3-8b5cf6.svg)](#7-lo-que-el-grafo-descubre-solo)
@@ -157,6 +157,23 @@ python -m scripts.banco_fidelidad            # los 24 casos
 python -m scripts.banco_fidelidad --rapido   # 8, para iterar
 ```
 
+### El grafo curado contra el DAG real de Mathlib
+
+Las 236 dependencias del grafo están escritas a mano. Mathlib tiene la dependencia de verdad: **24 209 aristas de import**, extraídas del fuente y acíclicas. Si `A → B` dice que A es prerrequisito de B, el fichero de B debería importar el de A.
+
+| | confirmadas | invertidas | azar | factor |
+|---|---|---|---|---|
+| antes | 56.2 % | 17.8 % | 26.2 % | 2.15× |
+| **ahora** | **78.1 %** | **8.2 %** | 32.6 % | **2.40×** |
+
+**El grafo curado no es decoración**: acierta la dirección 2.4 veces más que el azar. Y la medición encontró un defecto en producción — diez conceptos cuyo módulo apuntaba al *envoltorio categórico* (`group-theory` → la categoría **Grp**) en vez de a la teoría. Correcto como identidad, pésimo como import: en Mathlib la categoría Grp está *arriba* del DAG. Ante «un grupo de orden primo es cíclico» el sistema ofrecía la categoría de todos los grupos en lugar de `Subgroup` y `MonoidHom`. Arreglado separando los dos campos.
+
+Dos avisos de método: importar a nivel de fichero no es prerrequisito conceptual, y se midió alcanzabilidad transitiva, generosa en ambos sentidos. Una arista confirmada es evidencia débil; una invertida, evidencia fuerte en contra.
+
+```bash
+python scripts/funtor_dag_mathlib.py
+```
+
 ### Respaldo formal
 
 Cada operación categórica del Python está mapeada al teorema de Lean que la respalda, y la auditoría **valida los dos lados** — que el teorema exista y que la función exista:
@@ -188,7 +205,7 @@ Dos arreglos explican la diferencia. Los modelos actuales traen pensamiento adap
 python -m pytest tests/ -o "addopts=" -q
 ```
 
-**760 tests en 36 suites.** Las mayores:
+**764 tests en 36 suites.** Las mayores:
 
 | suite | tests | qué verifica |
 |---|---|---|
@@ -305,7 +322,7 @@ nucleo/
 
 MetamathProver/                # 385 teoremas Lean, 0 sorry
 scripts/                       # bancos de medida, auditorías, guardianes
-tests/                         # 760 tests en 36 suites
+tests/                         # 764 tests en 36 suites
 docs/
 ├── arquitectura_nle.html      # fuente del documento visual
 ├── INTERPRETACION_DEL_GRAFO.pdf

@@ -205,7 +205,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
     <div class="toc-foot">
       Lean 4 — única fuente de verdad<br>
       E:\Metamatematico — repo canónico<br>
-      rev. 1 sep 2026 · 760 tests
+      rev. 1 sep 2026 · 764 tests
     </div>
   </aside>
 
@@ -220,7 +220,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
         <div><div class="n">21<span style="font-size:14px;color:var(--muted)">/24</span></div><div class="l">banco de fidelidad</div></div>
         <div><div class="n">95<span style="font-size:14px;color:var(--muted)">%</span></div><div class="l">nombres Mathlib válidos</div></div>
         <div><div class="n">3</div><div class="l">orden de emergencia</div></div>
-        <div><div class="n">760</div><div class="l">tests</div></div>
+        <div><div class="n">764</div><div class="l">tests</div></div>
       </div>
     </div>
 
@@ -582,6 +582,32 @@ esquemas           →  Mathlib.AlgebraicGeometry.Scheme</pre>
         </table>
       </div>
 
+      <h3>El grafo curado contra el DAG real de Mathlib</h3>
+      <p>Las 236 dependencias del grafo están escritas a mano. Mathlib tiene la dependencia de verdad: <strong>24 209 aristas de import</strong>, extraídas del fuente y acíclicas. Si <code>A → B</code> afirma que A es prerrequisito de B, el fichero de B debería importar el de A — y si ocurre lo contrario, el ciclo es imposible y la flecha está al revés sin apelación.</p>
+
+      <div class="tabla">
+        <table>
+          <thead><tr><th></th><th class="mono">confirmadas</th><th class="mono">invertidas</th><th class="mono">azar</th><th class="mono">factor</th></tr></thead>
+          <tbody>
+            <tr><td class="dim">antes</td><td class="mono">56,2 %</td><td class="mono">17,8 %</td><td class="mono">26,2 %</td><td class="mono">2,15×</td></tr>
+            <tr><td><strong>ahora</strong></td><td class="mono"><strong>78,1 %</strong></td><td class="mono"><strong>8,2 %</strong></td><td class="mono">32,6 %</td><td class="mono"><strong>2,40×</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>El grafo curado no es decoración</strong>: acierta la dirección 2,4 veces más que el azar, sobre una base ya alta porque el DAG de Mathlib es denso. No es un modelo fuerte —un 14 % de sus aristas son pares independientes en Mathlib— pero tampoco es arbitrario.</p>
+
+      <div class="nota g">
+        <b>Lo que la medición encontró de paso</b>
+        Diez conceptos —<code>group-theory</code>, <code>ring-theory</code>, <code>linear-algebra</code>, <code>point-set-topology</code>…— tenían como módulo el <strong>envoltorio categórico</strong>: <code>Algebra.Category.Grp.Basic</code>, la categoría <strong>Grp</strong>. Como <em>identidad</em> del nodo es correcto y es lo que sostiene los colímites. Como <em>import</em> era un desastre: en Mathlib la categoría Grp está <em>arriba</em> del DAG, porque para construirla hacen falta antes subgrupos y homomorfismos.
+        <br><br>Ante «demuestra que un grupo de orden primo es cíclico», el sistema ofrecía la categoría de todos los grupos e importaba su envoltorio, en vez de <code>Subgroup</code> y <code>MonoidHom</code>. Un solo campo contestaba dos preguntas distintas; ahora son dos. Eso explicaba 7 de las 13 flechas invertidas.
+      </div>
+
+      <div class="nota">
+        <b>Dos avisos de método</b>
+        Importar a nivel de fichero <em>no</em> es prerrequisito conceptual: Mathlib organiza ficheros por necesidades de compilación. Y se midió alcanzabilidad <em>transitiva</em>, que en un DAG denso es generosa en ambos sentidos. Una arista confirmada es evidencia débil; una invertida es evidencia fuerte en contra.
+      </div>
+
       <h3>Respaldo formal</h3>
       <p>Cada operación categórica del Python está mapeada al teorema de Lean que la respalda, y la auditoría <strong>valida los dos lados</strong> — que el teorema exista y que la función exista:</p>
       <pre>57/58  operaciones con teorema que las respalda
@@ -604,7 +630,7 @@ esquemas           →  Mathlib.AlgebraicGeometry.Scheme</pre>
     <!-- ═══ 7 ═══ -->
     <section id="defectos">
       <div class="head"><span class="num">07</span><h2>Lo que encontró <span class="a">medir</span></h2></div>
-      <p>Ninguno de estos era detectable leyendo el código, y ninguno lo encontraron los 760 tests. Los encontró correr el sistema entero y comparar dos medidas de la misma cifra.</p>
+      <p>Ninguno de estos era detectable leyendo el código, y ninguno lo encontraron los 760 tests de entonces. Los encontró correr el sistema entero y comparar dos medidas de la misma cifra.</p>
 
       <div class="defecto">
         <header><h3>El sistema verificaba teoremas que nadie había preguntado</h3></header>
@@ -663,7 +689,7 @@ esquemas           →  Mathlib.AlgebraicGeometry.Scheme</pre>
       el recuento de conceptos, del grafo en memoria tras arrancar; el banco de fidelidad,
       de 24 consultas reales verificadas con Lean; el vocabulario, de comprobar cada nombre
       con <code>#check</code> contra Mathlib entero; el coste, del contador que el propio
-      sistema lleva. 760 tests en verde.
+      sistema lleva. 764 tests en verde.
     </footer>
   </main>
 </div>
