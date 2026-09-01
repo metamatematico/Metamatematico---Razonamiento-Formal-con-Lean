@@ -1514,7 +1514,16 @@ class Nucleo:
                 + _solo_enunciar_hint
                 + "- PROHIBIDO: tomar la afirmación principal como hipótesis y concluirla trivialmente.\n"
                 "  EJEMPLO PROHIBIDO: `(h : a^2+b^2=c^2) : c^2=a^2+b^2 := h.symm` — tautología.\n"
-                "- PROHIBIDO: generar múltiples versiones del mismo resultado.\n"
+                + (("Nombres de Mathlib VERIFICADOS para esta consulta "
+                    "(existen; comprobados con #check):\n"
+                    + "\n".join("  %s: %s" % (k, v)
+                                 for k, v in context["mathlib_verificado"].items())
+                    + "\nUsa estos cuando encajen. Si necesitas otro que no esté "
+                      "aquí, escríbelo igualmente, pero sé consciente de que no "
+                      "está comprobado.\n\n")
+                   if isinstance(context, dict) and context.get("mathlib_verificado")
+                   else "")
+                + "- PROHIBIDO: generar múltiples versiones del mismo resultado.\n"
                 "- Si el enunciado que se te pide es FALSO, NO lo demuestres: formaliza su NEGACIÓN\n"
                 "  y abre el bloque con la línea `-- REFUTACION: <por qué el enunciado es falso>`.\n"
                 "- Usa los tipos y teoremas de Mathlib apropiados.\n"
@@ -3246,7 +3255,52 @@ class Nucleo:
         if formal_note:
             ctx["formal_definitions"] = formal_note
 
+        # NOMBRES DE MATHLIB VERIFICADOS.
+        #
+        # Medido: de 28 nombres de Mathlib que el modelo propuso de memoria,
+        # 21 NO EXISTEN — `tsum_geometric_two`, `Subgroup.isCyclic`,
+        # `isOpen_union` siguen la convencion al dedillo y no estan. El
+        # vocabulario del grafo acierta el 95%, y no de memoria: cada nombre
+        # esta comprobado con `#check` contra Mathlib entero
+        # (`scripts/verificar_vocabulario_grafo.py`).
+        #
+        # Darselos al modelo es sustituir RECUERDO por CONSULTA en lo unico
+        # donde el recuerdo falla tres de cada cuatro veces.
+        nombres = self._nombres_mathlib(matched)
+        if nombres:
+            ctx["mathlib_verificado"] = nombres
+
         return ctx
+
+    #: Nombres que NO se ofrecen: namespaces y conceptos que esta version de
+    #: Mathlib no tiene. Ofrecerlos seria reintroducir el problema que se
+    #: viene a resolver.
+    _MATHLIB_INVALIDOS = frozenset({
+        "EuclideanGeometry", "Ideal.Quotient", "QuotientGroup",
+        "RelCWComplex", "Turing.TM0", "Turing.TM1",
+    })
+
+    def _nombres_mathlib(self, skills: list[str]) -> dict[str, str]:
+        """Los nombres Mathlib comprobados de estas skills.
+
+        Solo salen los que `verificar_vocabulario_grafo.py` dio por buenos: si
+        un nombre no existe en la version instalada, callarse es mejor que
+        ofrecerlo — el modelo ya inventa suficientes por su cuenta.
+        """
+        try:
+            from nucleo.graph.interpretacion import VEREDICTO
+        except Exception:
+            return {}
+        fuera: dict[str, str] = {}
+        for s in skills[:6]:
+            e = VEREDICTO.get(s)
+            if not e or not e.lean:
+                continue
+            piezas = [p.strip() for p in e.lean.replace("+", ",").split(",")
+                      if p.strip() and p.strip() not in self._MATHLIB_INVALIDOS]
+            if piezas:
+                fuera[s] = ", ".join(piezas[:3])
+        return fuera
 
     def _formal_pillar_note(self, matched_skill_ids: list[str]) -> Optional[str]:
         """
