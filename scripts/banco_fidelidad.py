@@ -152,7 +152,7 @@ async def _juzgar(llm, pregunta, codigo):
         return None, "JSON del juez ilegible"
 
 
-async def main(rapido=False):
+async def main(rapido=False, desde=0):
     if not _cargar_clave():
         print("No hay ANTHROPIC_API_KEY ni .env — el banco necesita el LLM.")
         return 1
@@ -162,7 +162,9 @@ async def main(rapido=False):
     from nucleo.core import Nucleo
     from nucleo.config import NucleoConfig
 
-    casos = CASOS[::3] if rapido else CASOS
+    casos = CASOS[::3] if rapido else CASOS[desde:]
+    if desde:
+        print("(reanudando desde el caso %d de %d)" % (desde + 1, len(CASOS)))
     n = Nucleo(NucleoConfig())
     await n.initialize()
 
@@ -285,5 +287,7 @@ async def main(rapido=False):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--rapido", action="store_true")
+    ap.add_argument("--desde", type=int, default=0,
+                    help="reanuda desde este caso (0-based)")
     a = ap.parse_args()
-    sys.exit(asyncio.run(main(a.rapido)))
+    sys.exit(asyncio.run(main(a.rapido, a.desde)))

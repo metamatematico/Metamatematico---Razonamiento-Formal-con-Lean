@@ -1559,10 +1559,14 @@ class Nucleo:
             que es harina de otro costal.
             """
             import re
-            return bool(re.search(
-                r"^\s*(?:@\[[^\]]*\]\s*)?(?:private\s+|protected\s+|noncomputable\s+)*"
-                r"(theorem|lemma|example)[\s\S]*?:=",
-                code, re.M))
+            # Fuera comentarios: un `-- theorem ...` o un docstring que hable
+            # de teoremas no es un teorema. Y fuera la exigencia de inicio de
+            # linea, que fallaba sobre codigo real por razones tontas
+            # —indentacion, `namespace`, una declaracion partida—.
+            limpio = re.sub(r"/-[\s\S]*?-/", " ", code)
+            limpio = re.sub(r"--[^\n]*", " ", limpio)
+            return bool(re.search(r"\b(theorem|lemma|example)\b[\s\S]*?:=",
+                                  limpio))
 
         # ── ¿Lean va a verificar la NEGACIÓN de lo preguntado? ────────────
         def _es_refutacion(code: str) -> bool:
@@ -1874,13 +1878,31 @@ class Nucleo:
                 "verificado":    f"**Lean 4 ✓ — definición verificada formalmente** · área: `{_area}`",
                 "parcial":       f"**Lean 4 ~ — definición formalizada (parcial)** · área: `{_area}`",
                 "no_verificado": f"**Lean 4 ↯ — definición pendiente de ajuste Mathlib** · área: `{_area}`",
-            }[verification_status]
+                "refutado":      f"**Lean 4 ✓ — se verificó la NEGACIÓN del enunciado** · área: `{_area}`",
+                "sin_teorema":   f"**Lean 4 ⊘ — el código no contiene ningún teorema** · área: `{_area}`",
+            }.get(verification_status,
+                  f"**Lean 4 — {verification_status}** · área: `{_area}`")
         else:
             status_badge = {
                 "verificado":    f"**Lean 4 ✓ — prueba verificada formalmente** · área: `{_area}`",
                 "parcial":       f"**Lean 4 ~ — estructura verificada (sorry parcial)** · área: `{_area}`",
                 "no_verificado": f"**Lean 4 ↯ — formalización pendiente de ajuste** · área: `{_area}`",
-            }[verification_status]
+                "refutado":      f"**Lean 4 ✓ — se verificó la NEGACIÓN del enunciado** · área: `{_area}`",
+                "sin_teorema":   f"**Lean 4 ⊘ — el código no contiene ningún teorema** · área: `{_area}`",
+            }.get(verification_status,
+                  f"**Lean 4 — {verification_status}** · área: `{_area}`")
+
+        # POR QUE `.get` Y NO INDEXACION DIRECTA.
+        #
+        # Estos dos diccionarios indexaban con `[...]`, asi que cada estado
+        # nuevo reventaba la respuesta entera con un KeyError. Paso justo con
+        # `refutado` y `sin_teorema`: los dos arreglos de fidelidad tumbaban
+        # las mismas consultas que venian a arreglar, y la excepcion se
+        # tragaba mas arriba dejando una respuesta sin `lean_result` — es
+        # decir, sin ninguna senal de que Lean hubiera corrido.
+        #
+        # Lo encontro el banco de fidelidad, no los tests: 766 tests en verde
+        # y las tres consultas de refutacion caidas.
 
         # ── Compuerta: el veredicto de Lean gobierna la FORMA de la respuesta
         #

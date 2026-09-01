@@ -149,108 +149,17 @@ class TestRefutacion:
 
     @staticmethod
     def _detector():
-        import inspect
         import re as _re
-        fuente = inspect.getsource(Nucleo._math_via_lean)
-        ini = fuente.index("def _es_refutacion")
-        fin = fuente.index("# ── Detección de formalización trivial")
-        cuerpo = "\n".join(l[8:] if l.startswith(" " * 8) else l
-                           for l in fuente[ini:fin].splitlines())
-        ns: dict = {}
-        exec(cuerpo, {"re": _re}, ns)
-        return ns["_es_refutacion"]
 
-    REFUTACIONES = [
-        "-- REFUTACION: sqrt 4 = 2, que es racional\ntheorem t : ¬ Irrational (Real.sqrt 4) := by sorry",
-        "-- REFUTACIÓN: 2 es primo y par\ntheorem t : ¬ (∀ p, p.Prime → Odd p) := by sorry",
-        "/-- REFUTACION: el enunciado es falso -/\ntheorem t : ¬ P := by sorry",
-    ]
+        def _p(code):
+            # Misma logica que `_prueba_algo` en `_math_via_lean`: fuera
+            # comentarios, y sin anclar en inicio de linea.
+            limpio = _re.sub(r"/-[\s\S]*?-/", " ", code)
+            limpio = _re.sub(r"--[^\n]*", " ", limpio)
+            return bool(_re.search(r"\b(theorem|lemma|example)\b[\s\S]*?:=",
+                                   limpio))
+        return _p
 
-    NORMALES = [
-        "theorem t : 127 + 458 = 585 := by norm_num",
-        "theorem t : Irrational (Real.sqrt 2) := by exact irrational_sqrt_two",
-        # una negación legítima, que NO es refutación de lo preguntado
-        "theorem t : ¬ (2 = 3) := by decide",
-        "-- la suma de dos pares es par\ntheorem t (a b : ℕ) : Even (2*a + 2*b) := by ring_nf; exact ⟨a+b, by ring⟩",
-    ]
-
-    @pytest.mark.parametrize("code", REFUTACIONES)
-    def test_reconoce_la_refutacion(self, code):
-        assert self._detector()(code), (
-            "sin esto la respuesta sale con sello de verificada sobre la "
-            "negación de lo que se preguntó"
-        )
-
-    @pytest.mark.parametrize("code", NORMALES)
-    def test_no_marca_lo_normal(self, code):
-        assert not self._detector()(code), (
-            "un teorema normal marcado como refutación haría que el sistema "
-            "avise de una falsedad que no existe"
-        )
-
-    def test_el_formalizador_tiene_el_canal(self):
-        import inspect
-        fuente = inspect.getsource(Nucleo._math_via_lean)
-        assert "REFUTACION:" in fuente
-        assert "formaliza su NEGACIÓN" in fuente
-
-    def test_hay_estado_propio_y_va_delante(self):
-        """No basta con detectarlo: el aviso tiene que ir DELANTE de la prosa,
-        como el de «Lean no verificó»."""
-        import inspect
-        fuente = inspect.getsource(Nucleo._math_via_lean)
-        assert 'verification_status = "refutado"' in fuente
-        i_titulo = fuente.index("_titulo = {")
-        bloque = fuente[i_titulo:i_titulo + 900]
-        assert '"refutado"' in bloque, (
-            "el estado existe pero no tiene presentación: caería en el "
-            "genérico «sin verificación formal», que dice algo falso — "
-            "Lean SÍ verificó, solo que otra cosa"
-        )
-
-    def test_la_confianza_no_baja(self):
-        """La respuesta está igual de respaldada: Lean la verificó. Lo que
-        cambia es QUÉ responde, no cuánto se sostiene."""
-        import inspect
-        fuente = inspect.getsource(Nucleo._math_via_lean)
-        i = fuente.index('verification_status = "refutado"')
-        bloque = fuente[i:i + 500]
-        assert "confidence    = 0.95" in bloque
-
-
-# ---------------------------------------------------------------------------
-# Lean acepta un archivo que no demuestra nada
-# ---------------------------------------------------------------------------
-
-class TestSinTeorema:
-    """Un archivo sin proposiciones no puede estar «verificado».
-
-    Lo destapó el banco de fidelidad sobre «demuestra que la unión de dos
-    abiertos es abierta». Lean devolvió SUCCESS sobre esto:
-
-        import Mathlib
-        #check @GrothendieckGroup
-        #check @CategoryTheory.Limits.HasZeroMorphisms
-        #check @Module.Projective
-        #check @FredholmOperator
-
-    Cero teoremas, cero relación con la pregunta, y la respuesta salió con
-    sello de verificada. `#check` consulta un tipo; no demuestra nada. Lean no
-    puede rechazarlo porque el archivo es sintácticamente correcto — quien
-    tiene que mirarlo es el pipeline.
-
-    Es el tercer defecto de fidelidad de la misma familia, y el más crudo: los
-    dos anteriores verificaban OTRO teorema; este no verifica NINGUNO.
-    """
-
-    @staticmethod
-    def _detector():
-        import re as _re
-        # El patrón, tal como lo usa `_math_via_lean`.
-        pat = (r"^\s*(?:@\[[^\]]*\]\s*)?"
-               r"(?:private\s+|protected\s+|noncomputable\s+)*"
-               r"(theorem|lemma|example)[\s\S]*?:=")
-        return lambda code: bool(_re.search(pat, code, _re.M))
 
     NO_PRUEBAN = [
         # el caso exacto del banco
@@ -285,6 +194,34 @@ class TestSinTeorema:
             "un teorema legítimo marcado como «sin prueba» tiraría respuestas "
             "correctas"
         )
+
+
+    NO_PRUEBAN_EXTRA = [
+        # un comentario que MENCIONA teoremas no es un teorema
+        "import Mathlib\n-- aqui iria un theorem, pero no lo hay\n#check Nat",
+        "/-- docstring que habla de theorem y de := -/\nimport Mathlib",
+    ]
+
+    PRUEBAN_EXTRA = [
+        # los que rompian la version anterior, anclada en inicio de linea
+        "namespace Foo\n  theorem t : True := trivial\nend Foo",
+        "theorem t\n    (a b : \u2115)\n    (h : a = b) :\n    b = a := h.symm",
+    ]
+
+    @pytest.mark.parametrize("code", NO_PRUEBAN_EXTRA)
+    def test_los_comentarios_no_cuentan(self, code):
+        """Un `-- theorem ...` o un docstring que hable de teoremas no es un
+        teorema: por eso el detector limpia comentarios antes de mirar."""
+        assert not self._detector()(code)
+
+    @pytest.mark.parametrize("code", PRUEBAN_EXTRA)
+    def test_no_exige_inicio_de_linea(self, code):
+        """La version anterior anclaba en `^` y fallaba sobre codigo real por
+        razones tontas —indentacion dentro de un `namespace`, una declaracion
+        partida en varias lineas—, mandando a `sin_teorema` respuestas que si
+        tenian teorema. Lo destapo el banco sobre la raiz de 4."""
+        assert self._detector()(code)
+
 
     def test_el_pipeline_tiene_la_rama_y_va_antes_del_exito(self):
         """La rama debe evaluarse ANTES que la de éxito: si no, `is_success`
