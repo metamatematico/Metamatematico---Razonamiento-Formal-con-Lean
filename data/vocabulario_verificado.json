@@ -1,0 +1,218 @@
+{
+  "grafo": {
+    "total": 117,
+    "reales": [
+      "Field",
+      "Fintype",
+      "InnerProductSpace",
+      "LinearMap.BilinForm",
+      "MulAction",
+      "Subgroup",
+      "ZMod",
+      "ZMod.castHom"
+    ],
+    "inventados": [
+      "Adapted",
+      "AddCommGrpCat",
+      "Affine.Triangle",
+      "AffineIsometry",
+      "AlgebraicGeometry.AffineScheme",
+      "AlgebraicGeometry.Proj",
+      "AlgebraicGeometry.Scheme",
+      "AnalyticOnNhd",
+      "Associates",
+      "Bicategory",
+      "CStarAlgebra",
+      "CWComplex",
+      "Cardinal.IsInaccessible",
+      "CategoryTheory.Abelian",
+      "CategoryTheory.Action",
+      "CategoryTheory.Cat",
+      "CategoryTheory.Functor",
+      "CategoryTheory.GradedObject",
+      "CategoryTheory.Injective",
+      "CategoryTheory.Kleisli",
+      "CategoryTheory.Monad",
+      "CategoryTheory.Over",
+      "CommRingCat",
+      "CompHaus",
+      "CompactSpace",
+      "CompleteSpace",
+      "ConnectedSpace",
+      "ContMDiff",
+      "ContinuousFunctionalCalculus",
+      "ContinuousLinearMap",
+      "DerivedCategory",
+      "DerivedCategory.Q",
+      "DifferentiableOn",
+      "ElementaryEmbedding",
+      "Ergodic",
+      "EuclideanGeometry",
+      "EuclideanSpace",
+      "FDRep",
+      "FGModuleCat",
+      "Filtration",
+      "FirstOrder.Language",
+      "FirstOrder.Language.Structure",
+      "FreeGroup",
+      "FunctionField",
+      "GCDMonoid",
+      "GaloisField",
+      "Giry",
+      "GrpCat",
+      "HomologicalComplex",
+      "Ideal",
+      "Ideal.Quotient",
+      "IntermediateField",
+      "IsCoveringMap",
+      "IsGalois",
+      "IsManifold",
+      "IsMarkovKernel",
+      "IsNoetherianRing",
+      "IsRiemannianManifold",
+      "IsSolvable",
+      "Kleisli",
+      "LHom",
+      "MeasCat",
+      "MeasurePreserving",
+      "MeasureTheory.Martingale",
+      "MetricSpace",
+      "Module.End",
+      "Module.End.HasEigenvalue",
+      "Module.Projective",
+      "ModuleCat",
+      "Nat.Partition",
+      "NatTrans",
+      "NormedSpace",
+      "NumberField",
+      "NumberField.RingOfIntegers",
+      "Ordinal",
+      "PMF",
+      "Padic",
+      "PadicInt",
+      "PolishSpace",
+      "PontryaginDual",
+      "ProbabilityTheory.Kernel",
+      "Projectivization",
+      "QuadraticForm",
+      "QuotientGroup",
+      "RelCWComplex",
+      "Rep",
+      "Representation",
+      "RiemannianMetric",
+      "RingCat",
+      "SSet.Quasicategory",
+      "Scheme",
+      "Sheaf",
+      "ShortComplex.Exact",
+      "SimpleGraph",
+      "StandardBorelSpace",
+      "Subobject.Classifier",
+      "Sylow",
+      "Sylow.mulAction",
+      "T0Space",
+      "T2Space",
+      "Theory",
+      "TopCat",
+      "Turing.TM0",
+      "Turing.TM1",
+      "UniqueFactorizationMonoid",
+      "Valuation",
+      "YoungDiagram",
+      "adjoint",
+      "spectrum"
+    ]
+  },
+  "modelo": {
+    "propuestos": 28,
+    "inventados": 21,
+    "detalle": [
+      {
+        "consulta": "la suma de una serie geometrica de razon 1/2",
+        "propuestos": [
+          "tsum_geometric_two",
+          "tsum_geometric_two'",
+          "hasSum_geometric_two",
+          "sum_geometric_two_le"
+        ],
+        "reales": []
+      },
+      {
+        "consulta": "todo subgrupo de un grupo ciclico es ciclico",
+        "propuestos": [
+          "Subgroup.isCyclic",
+          "AddSubgroup.isAddCyclic"
+        ],
+        "reales": []
+      },
+      {
+        "consulta": "la union de dos conjuntos abiertos es abierta",
+        "propuestos": [
+          "IsOpen.union",
+          "isOpen_sUnion",
+          "isOpen_iUnion",
+          "isOpen_biUnion"
+        ],
+        "reales": [
+          "IsOpen.union",
+          "isOpen_biUnion",
+          "isOpen_iUnion",
+          "isOpen_sUnion"
+        ]
+      },
+      {
+        "consulta": "la raiz de 2 es irracional",
+        "propuestos": [
+          "irrational_sqrt_two",
+          "Nat.Prime.irrational_sqrt",
+          "irrational_nrt_of_notint_nrt",
+          "irrational_sqrt_rat_of_denom_eq_one"
+        ],
+        "reales": []
+      },
+      {
+        "consulta": "hay infinitos numeros primos",
+        "propuestos": [
+          "Nat.exists_infinite_primes",
+          "Nat.infinite_setOf_prime",
+          "Nat.Primes.infinite_setOf_prime",
+          "Nat.not_bddAbove_setOf_prime"
+        ],
+        "reales": []
+      },
+      {
+        "consulta": "el elemento neutro de un grupo es unico",
+        "propuestos": [
+          "MulOneClass.ext",
+          "Monoid.ext",
+          "Group.ext",
+          "eq_one_of_mul_eq_self_left"
+        ],
+        "reales": [
+          "MulOneClass.ext"
+        ]
+      },
+      {
+        "consulta": "el teorema fundamental del algebra",
+        "propuestos": [
+          "Complex.exists_root",
+          "Complex.isAlgClosed"
+        ],
+        "reales": [
+          "Complex.exists_root",
+          "Complex.isAlgClosed"
+        ]
+      },
+      {
+        "consulta": "toda funcion continua en un compacto alcanza su maximo",
+        "propuestos": [
+          "IsCompact.exists_isMaxOn",
+          "IsCompact.exists_forall_ge",
+          "IsCompact.exists_isMinOn",
+          "IsCompact.exists_forall_le"
+        ],
+        "reales": []
+      }
+    ]
+  }
+}

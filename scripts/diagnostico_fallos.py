@@ -50,13 +50,41 @@ backticks. Si crees que Mathlib no lo tiene, responde exactamente: NO EXISTE"""
 #: "sin saldo, no medido". Un guion de diagnostico que confunde las dos cosas
 #: es peor que no tenerlo: invita a leer un fallo de facturacion como un
 #: resultado sobre el sistema.
-_INFRA = ("credit balance", "rate_limit", "overloaded", "not_found_error",
-          "authentication_error", "permission_error", "APIConnectionError",
-          "APITimeoutError", "InternalServerError")
+#: TERMINALES: no tiene sentido reintentar, la tanda se corta.
+_TERMINAL = ("credit balance", "authentication_error", "permission_error",
+             "not_found_error")
+
+#: TRANSITORIOS: el servicio esta saturado o la red fallo. Se reintenta.
+#: Confundirlos con los anteriores hacia abandonar una tanda por un 529, y
+#: encima anunciarlo como "sin saldo" — un diagnostico falso sobre la causa.
+_TRANSITORIO = ("overloaded", "rate_limit", "APIConnectionError",
+                "APITimeoutError", "InternalServerError", "529", "503")
 
 
-def _es_infra(e):
-    return any(p.lower() in str(e).lower() for p in _INFRA)
+def _es_terminal(e):
+    return any(p.lower() in str(e).lower() for p in _TERMINAL)
+
+
+def _es_transitorio(e):
+    return any(p.lower() in str(e).lower() for p in _TRANSITORIO)
+
+
+async def _con_reintento(fn, intentos=3, espera=8):
+    """Llama a `fn`, reintentando los fallos transitorios."""
+    import asyncio as _a
+    ultimo = None
+    for i in range(intentos):
+        try:
+            return await fn(), None
+        except Exception as e:
+            ultimo = e
+            if _es_terminal(e) or not _es_transitorio(e):
+                return None, e
+            if i < intentos - 1:
+                print("   servicio saturado, reintento %d de %d en %ds..."
+                      % (i + 1, intentos - 1, espera))
+                await _a.sleep(espera)
+    return None, ultimo
 
 
 def _clave():
@@ -92,16 +120,16 @@ async def main():
     for q in FALLOS:
         print("─" * 72)
         print(q)
-        try:
-            r = await n._llm.generate(PREGUNTA.format(q=q), sin_historial=True)
-        except Exception as e:
-            if _es_infra(e):
-                print("   NO MEDIDO — falló la API: %s" % str(e)[:80])
-                print("\n  Sin saldo no hay diagnostico. Los %d casos que "
-                      "quedan tampoco se miden." % (len(FALLOS) - FALLOS.index(q) - 1))
-                sin_medir = True
-                break
-            raise
+        r, err = await _con_reintento(
+            lambda: n._llm.generate(PREGUNTA.format(q=q), sin_historial=True))
+        if err is not None:
+            motivo = ("saldo agotado" if _es_terminal(err)
+                      else "servicio saturado tras varios reintentos")
+            print("   NO MEDIDO — %s: %s" % (motivo, str(err)[:70]))
+            print("\n  Los %d casos restantes tampoco se miden."
+                  % (len(FALLOS) - FALLOS.index(q) - 1))
+            sin_medir = True
+            break
         crudo = (r.content or "").strip()
         if "NO EXISTE" in crudo.upper():
             print("   el modelo dice que Mathlib NO lo tiene")
@@ -134,7 +162,7 @@ async def main():
 
     print("\n" + "=" * 72)
     if sin_medir:
-        print("  SIN CONCLUSION: la tanda no se completo por falta de saldo.")
+        print("  SIN CONCLUSION: la tanda no se completo.")
         print("  Lo medido hasta el corte: %d recuperables." % recuperables)
         print("\n  " + Contador.resumen().splitlines()[-1])
         return 0

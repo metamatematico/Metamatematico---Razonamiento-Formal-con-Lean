@@ -97,12 +97,12 @@ VEREDICTO: dict[str, Etiqueta] = {
         "«cuerpos de numeros», los dos vertices coinciden"),
     "algebraic-topology": _e(
         C, "un CW-complejo", "aplicaciones continuas",
-        "TopCat, RelCWComplex, CWComplex",
+        "TopCat, RelCWComplex, TopCat.CWComplex",
         "si significara «espacio topologico» seria el mismo vertice que "
         "point-set-topology"),
     "arithmetic-geometry": _e(
         C, "un esquema separado y de tipo finito sobre Spec A_K",
-        "morfismos sobre la base", "Scheme + CategoryTheory.Over",
+        "morfismos sobre la base", "AlgebraicGeometry.Scheme + CategoryTheory.Over",
         "«un esquema sobre un anillo de enteros» es vacio: Spec Z es terminal "
         "en Sch, luego Sch/Spec Z = Sch y colapsaria sobre algebraic-geometry"),
     "cic": _e(
@@ -119,7 +119,7 @@ VEREDICTO: dict[str, Etiqueta] = {
         "Mathlib no tiene sistema deductivo sintactico; si el proyecto Foundation"),
     "functors": _e(
         C, "un funtor F : C => D", "transformaciones naturales",
-        "CategoryTheory.Functor, NatTrans",
+        "CategoryTheory.Functor, CategoryTheory.NatTrans",
         "misma categoria [C,D] que nat-trans, vista en dos capas; ninguna de "
         "las dos fija C y D"),
     "homological-algebra": _e(
@@ -183,10 +183,10 @@ VEREDICTO: dict[str, Etiqueta] = {
     "enumerative-combinatorics": _e(T, nota="ambiente: FintypeCat"),
     "ergodic-theory": _e(
         C, "(Omega, mu, T) con T que preserva mu", "factores equivariantes",
-        "MeasurePreserving, Ergodic"),
+        "MeasureTheory.MeasurePreserving, Ergodic"),
     "exact-sequences": _e(
         S, "un complejo aciclico", "morfismos de complejos",
-        "ShortComplex.Exact"),
+        "CategoryTheory.ShortComplex.Exact"),
     "field-extensions": _e(
         C, "una extension L/k, objeto de la coslice k ↓ Field",
         "k-homomorfismos", "Algebra k L, IntermediateField"),
@@ -230,8 +230,8 @@ VEREDICTO: dict[str, Etiqueta] = {
         "inclusiones; R ↦ R/I es el funtor", "Ideal, Ideal.Quotient"),
     "measure-theory": _e(
         C, "un espacio MEDIBLE (no un espacio de medida)",
-        "nucleos (Kleisli de la monada de Giry)",
-        "MeasCat + Giry + CategoryTheory.Kleisli",
+        "nucleos (CategoryTheory.Kleisli de la monada de MeasCat.Giry)",
+        "MeasCat + MeasCat.Giry + CategoryTheory.Kleisli",
         "DECIDIDO. Entre los dos mundos solo hay un funtor y va en una "
         "direccion: Dirac, delta : Meas -> Stoch, identidad en objetos y fiel. "
         "No hay funtor al reves porque un nucleo no es una funcion; con "
@@ -250,7 +250,7 @@ VEREDICTO: dict[str, Etiqueta] = {
     "probabilistic-method": _e(T),
     "probability-theory": _e(
         C, "un espacio medible con estado (= objeto mas un morfismo 1 -> X)",
-        "nucleos de Markov", "ProbabilityTheory.Kernel, IsMarkovKernel",
+        "nucleos de Markov", "ProbabilityTheory.Kernel, ProbabilityTheory.IsMarkovKernel",
         "SUBCATEGORIA ANCHA de measure-theory: mismos objetos, nucleos de "
         "Markov contenidos en los nucleos. Con funciones medibles la categoria "
         "no tiene el producto que hace falta para independencia; con nucleos es "
@@ -308,8 +308,8 @@ VEREDICTO: dict[str, Etiqueta] = {
     "finite-fields": _e(S, "un cuerpo finito", "homomorfismos",
                         "GaloisField, Field + Fintype"),
     "fol-metatheory": _e(C, "un lenguaje o una teoria de primer orden",
-                         "interpretaciones (LHom)",
-                         "FirstOrder.Language, Theory, LHom"),
+                         "interpretaciones (FirstOrder.Language.LHom)",
+                         "FirstOrder.Language, FirstOrder.Language.Theory, FirstOrder.Language.LHom"),
     "free-groups": _e(S, "un grupo libre; imagen del adjunto izquierdo de Set -> Grp",
                       "homomorfismos", "FreeGroup"),
     "fundamental-group": _e(F, "", "pi_1 : Top* => Grp; sin punto base, el grupoide",
@@ -322,15 +322,15 @@ VEREDICTO: dict[str, Etiqueta] = {
     "graph-theory": _e(C, "un grafo simple", "homomorfismos de grafos", "SimpleGraph"),
     "group-actions": _e(C, "un G-conjunto = un funtor BG => Set",
                         "aplicaciones equivariantes",
-                        "MulAction, CategoryTheory.Action"),
+                        "MulAction, Action"),
     "group-homomorphisms": _e(F, "", "la capa de flechas de group-theory", "MonoidHom"),
     "harmonic-analysis": _e(
         C, "un grupo abeliano localmente compacto",
         "homomorfismos continuos; Pontryagin es la autodualidad", "PontryaginDual"),
     "higher-category-theory": _e(C, "una n-categoria o una infinito-categoria",
-                                 "funtores", "Bicategory, SSet.Quasicategory"),
+                                 "funtores", "CategoryTheory.Bicategory, SSet.Quasicategory"),
     "hilbert-spaces": _e(C, "un espacio de Hilbert", "acotadas; es categoria daga",
-                         "InnerProductSpace + CompleteSpace, adjoint"),
+                         "InnerProductSpace + CompleteSpace, ContinuousLinearMap.adjoint"),
     "holomorphic-functions": _e(F, "", "las flechas de complex-analysis", "AnalyticOnNhd"),
     "ideal-class-group": _e(F, "", "el invariante K ↦ Cl(K)", "ClassGroup"),
     "inner-product-spaces": _e(C, "un espacio con producto interno",
@@ -351,20 +351,20 @@ VEREDICTO: dict[str, Etiqueta] = {
     "markov-chains": _e(C, "un objeto con un endomorfismo en la categoria de nucleos",
                         "intertwiners", "ProbabilityTheory.Kernel, PMF"),
     "martingale-theory": _e(S, "un proceso adaptado con la propiedad de martingala",
-                            "", "MeasureTheory.Martingale, Filtration"),
+                            "", "MeasureTheory.Martingale, MeasureTheory.Filtration"),
     "metric-spaces": _e(C, "un espacio metrico",
                         "Lipschitz, o isometrias, o continuas: ELIGE", "MetricSpace",
                         "la eleccion cambia que colimites existen"),
     "model-theory": _e(C, "una L-estructura",
                        "homomorfismos, o inmersiones elementales",
-                       "FirstOrder.Language.Structure, ElementaryEmbedding"),
+                       "FirstOrder.Language.Structure, FirstOrder.Language.ElementaryEmbedding"),
     "modular-arithmetic": _e(C, "Z/nZ, un diagrama indexado por (N, |)",
                              "reducciones; el limite es Z-sombrero",
                              "ZMod, ZMod.castHom"),
     "module-theory": _e(C, "un modulo sobre R", "R-lineales", "ModuleCat R"),
     "monads": _e(C, "una monada sobre C, monoide en [C,C]", "morfismos de monadas",
-                 "CategoryTheory.Monad, Kleisli"),
-    "nat-trans": _e(F, "", "la capa de 2-celdas de functors", "NatTrans"),
+                 "CategoryTheory.Monad, CategoryTheory.Kleisli"),
+    "nat-trans": _e(F, "", "la capa de 2-celdas de functors", "CategoryTheory.NatTrans"),
     "noetherian-rings": _e(S, "un anillo noetheriano", "homomorfismos",
                            "IsNoetherianRing"),
     "p-adic-valuations": _e(C, "un cuerpo valuado (K, v)",
@@ -394,7 +394,7 @@ VEREDICTO: dict[str, Etiqueta] = {
                               "BoxIntegral, intervalIntegral"),
     "riemann-zeta": _e(O, "la funcion zeta", "", "riemannZeta, LSeries"),
     "riemannian-geometry": _e(C, "una variedad riemanniana", "isometrias, o inmersiones",
-                              "IsRiemannianManifold, RiemannianMetric"),
+                              "IsRiemannianManifold, Bundle.RiemannianMetric"),
     "ring-theory": _e(C, "un anillo", "homomorfismos", "RingCat"),
     "schemes": _e(C, "un esquema", "morfismos de esquemas",
                   "AlgebraicGeometry.Scheme", "mismo vertice que algebraic-geometry"),
@@ -412,7 +412,7 @@ VEREDICTO: dict[str, Etiqueta] = {
     "splitting-fields": _e(F, "", "f ↦ SplittingField f",
                            "Polynomial.SplittingField, IsSplittingField"),
     "stochastic-processes": _e(C, "un proceso adaptado = un funtor desde el tiempo",
-                               "", "Filtration, Adapted"),
+                               "", "MeasureTheory.Filtration, MeasureTheory.Adapted"),
     "subgroups-cosets": _e(C, "un subgrupo de G; forman un reticulo completo",
                            "inclusiones; G/H es el G-conjunto asociado",
                            "Subgroup, QuotientGroup"),
@@ -424,7 +424,7 @@ VEREDICTO: dict[str, Etiqueta] = {
     "tensor-products": _e(F, "", "el bifuntor tensor, definido por coigualador",
                           "TensorProduct"),
     "topos-theory": _e(C, "un topos", "morfismos geometricos",
-                       "Subobject.Classifier, Sheaf", "sin topos elemental"),
+                       "CategoryTheory.Classifier, CategoryTheory.Sheaf", "sin topos elemental"),
     "triangle-geometry": _e(C, "un 2-simplex afin", "semejanzas",
                             "Affine.Triangle, EuclideanGeometry"),
     "turing-machines": _e(C, "una maquina de Turing", "simulaciones",
@@ -469,7 +469,7 @@ VEREDICTO: dict[str, Etiqueta] = {
         "luego phi es la identidad — la pata mas pobre y por eso la que fija "
         "la normalizacion); el OLVIDO a espacio anillado desde "
         "arithmetic-geometry (X |-> (X, O_X en grado 0), via la torre "
-        "Scheme -> LocallyRingedSpace -> SheafedSpace que Mathlib ya tiene); y "
+        "AlgebraicGeometry.Scheme -> LocallyRingedSpace -> SheafedSpace que Mathlib ya tiene); y "
         "la FIBRA SOBRE EL PUNTO desde homological-algebra (K |-> (pt, K)), "
         "plenamente fiel, que es la pata que explica por que el patron no es "
         "trivial: identifica el algebra homologica pura con la cohomologia de "
@@ -575,7 +575,7 @@ MORFISMO_SIN_FIJAR: list[str] = [
 #   FORMA PUSHOUT O COIGUALADOR — hay enlaces distinguidos.
 #       · en `measure-theory`: existe si y solo si las flechas del diagrama son
 #         DETERMINISTAS, y entonces se calcula en Meas exactamente como antes.
-#         Razon: delta es el funtor libre de la adjuncion de Kleisli, luego es
+#         Razon: delta es el funtor libre de la adjuncion de CategoryTheory.Kleisli, luego es
 #         adjunto por la izquierda, luego preserva TODOS los colimites; y Meas
 #         es cocompleta por ser topologica sobre Set. Con patas genuinamente
 #         estocasticas no hay garantia: la categoria de nucleos no es cocompleta.
