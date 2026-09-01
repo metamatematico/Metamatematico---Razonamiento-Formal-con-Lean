@@ -38,9 +38,74 @@ def grafo():
 
 class TestCobertura:
 
-    def test_todas_las_etiquetas_tienen_veredicto(self, grafo):
-        faltan = sorted(set(grafo.skill_ids) - set(VEREDICTO))
-        assert not faltan, f"sin veredicto: {faltan}"
+    def test_todo_nodo_interpretado_tiene_veredicto(self, grafo):
+        """Los nodos CURADOS necesitan veredicto; los de cobertura, no.
+
+        Al añadir los 44 conceptos generados desde la taxonomia de Mathlib esta
+        guardia salto, y tenia razon: eran nodos sin veredicto. Pero la
+        respuesta correcta no es inventarles uno. Un veredicto dice «un objeto
+        de este nodo es un grupo y las flechas son homomorfismos», y de los
+        generados nadie ha decidido eso: solo se sabe DONDE VIVEN en Mathlib.
+
+        Asi que la guardia distingue. Sigue exigiendo veredicto a todo lo
+        curado —que es lo que protegia— y exige a lo generado que este MARCADO,
+        que es la otra mitad de la misma disciplina.
+        """
+        sin_interpretar = {
+            sid for sid in grafo.skill_ids
+            if ((grafo.get_skill(sid).metadata or {}).get("interpretado")
+                is False)
+        }
+        faltan = sorted(set(grafo.skill_ids) - set(VEREDICTO) - sin_interpretar)
+        assert not faltan, f"nodos curados sin veredicto: {faltan}"
+
+    def test_los_nodos_de_cobertura_van_marcados(self, grafo):
+        """Sin la marca serian indistinguibles de los interpretados.
+
+        Y entonces `interpretacion.py` afirmaria sobre ellos lo que nadie ha
+        decidido, que es exactamente lo que este fichero existe para impedir.
+        """
+        for sid in grafo.skill_ids:
+            md = grafo.get_skill(sid).metadata or {}
+            if md.get("origen") == "mathlib":
+                assert md.get("interpretado") is False, (
+                    f"{sid} viene de Mathlib y no esta marcado como "
+                    f"no interpretado")
+                assert md.get("modulo"), f"{sid} sin modulo de origen"
+                assert sid not in VEREDICTO, (
+                    f"{sid} es de cobertura y alguien le puso veredicto: o se "
+                    f"interpreta de verdad y se quita la marca, o se retira el "
+                    f"veredicto")
+
+    def test_la_cobertura_no_entra_en_los_colimites(self, grafo):
+        """Un colimite exige propiedad universal sobre objetos y flechas
+        definidos. De los nodos de cobertura nadie ha dicho cuales son, asi que
+        no pueden ser componente ni apice de nada.
+
+        Es tambien lo que mantiene la maquinaria viable: con ellos dentro el
+        grafo pasa de 173 a 217 nodos y de 855 a 1162 morfismos, y la suite
+        paso de 35 s a mas de 600 s. Pero el motivo es el primero.
+        """
+        from nucleo.graph.complexity import build_hierarchy_to_fixpoint
+        from nucleo.graph.no_delgado import congruencia_automatica
+        from nucleo.mes.patterns import ColimitBuilder, PatternManager
+        cobertura = {
+            sid for sid in grafo.skill_ids
+            if (grafo.get_skill(sid).metadata or {}).get("origen") == "mathlib"
+        }
+        assert cobertura, "no hay nodos de cobertura: esta guardia no prueba nada"
+        pm = PatternManager()
+        cb = ColimitBuilder(pm)
+        _cn, huecos = build_hierarchy_to_fixpoint(
+            grafo, pm, cb, cong=congruencia_automatica(grafo))
+        for col in cb.all_colimits:
+            comps = set(getattr(col, "component_ids", ()) or ())
+            assert not (comps & cobertura), (
+                f"un nodo de cobertura entro en un colimite: {comps & cobertura}")
+        for h in huecos:
+            comps = set(getattr(h, "component_ids", ()) or ())
+            assert not (comps & cobertura), (
+                f"un nodo de cobertura entro en un hueco: {comps & cobertura}")
 
     def test_no_hay_veredictos_inventados(self, grafo):
         """Salvo los que el propio grafo obligo a añadir, y esos estan

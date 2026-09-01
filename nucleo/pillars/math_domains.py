@@ -1592,3 +1592,109 @@ def load_math_domains(graph: SkillCategory) -> dict[str, int]:
         "translations": translations,
         "tactic_links": tactic_links,
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LOS NODOS DE COBERTURA GENERADOS DESDE MATHLIB
+#
+# El grafo curado cubria el 32,7 % de los teoremas de Mathlib, y el hueco no
+# estaba repartido al azar: `Order` a cero con 12 128 teoremas, `Data` al 3,4 %
+# con 19 303 — es decir, orden, desigualdades y la matematica elemental. Medido:
+# ante `(a+b)^2 = a^2+2ab+b^2` NO HABIA NODO que recuperar, y por eso tres
+# emparejadores distintos sacaron ~7 % en algebra mientras acertaban 53-66 % en
+# geometria, donde el nodo si existe.
+#
+# Este cargador mete los 44 conceptos que mas pesan (>= 500 teoremas), leidos de
+# la taxonomia de Mathlib por scripts/generar_nodos_mathlib.py.
+#
+# TRES CAUTELAS, y las tres importan:
+#
+# 1. VAN MARCADOS. `origen="mathlib"`, `interpretado=False`. Los 173 de arriba
+#    llevan un veredicto categorico decidido a mano —«un objeto es un grupo, las
+#    flechas son homomorfismos»—; estos solo dicen donde vive algo. Sin la marca,
+#    interpretacion.py afirmaria sobre ellos lo que nadie ha decidido.
+#
+# 2. SUS DEPENDENCIAS SON REALES. Salen del DAG de imports de Mathlib, que es
+#    aciclico y esta en el fuente. No son curacion humana y no pueden estar al
+#    reves, a diferencia de las 223 escritas a mano, de las que 6 siguen bajo
+#    sospecha.
+#
+# 3. SE ENGANCHAN AL PILAR COMO LOS DEMAS. Un nodo sin conexion con el resto
+#    rompe la conexidad del grafo. Se usa la misma convencion que ya seguian los
+#    163 de dominio —`dependencies=["zfc-axioms"]`— y no una arista inventada.
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: Pilar -> el nodo de nivel 0 del que cuelga. Misma convencion que los curados.
+_BASE_DE_PILAR = {
+    "SET": "zfc-axioms",
+    "CAT": "cat-basics",
+    "LOG": "fol-deduction",
+    "TYPE": "cic",
+}
+
+
+def load_mathlib_coverage(graph) -> dict:
+    """Añade al grafo los nodos de cobertura generados desde Mathlib.
+
+    Devuelve el recuento, o ceros si el modulo generado no esta — que es un
+    estado legitimo: el grafo curado funciona sin el.
+    """
+    import logging
+    _log = logging.getLogger(__name__)
+    try:
+        from nucleo.pillars.mathlib_taxonomy import NODOS_MATHLIB
+    except ImportError:
+        _log.info("sin nucleo/pillars/mathlib_taxonomy.py: no se añade cobertura")
+        return {"added": 0, "skipped": 0, "links": 0}
+
+    existentes = set(graph.skill_ids)
+    added = skipped = links = 0
+
+    for nodo in NODOS_MATHLIB:
+        if nodo.id in existentes:
+            skipped += 1
+            continue
+        graph.add_skill(Skill(
+            id=nodo.id,
+            name=nodo.name,
+            description=nodo.description,
+            pillar=PillarType[nodo.pillar],
+            level=nodo.level,
+            metadata={
+                "category": nodo.category,
+                "keywords": nodo.keywords,
+                # La marca. Sin esto no se distingue de un nodo interpretado.
+                "origen": "mathlib",
+                "interpretado": False,
+                "modulo": nodo.modulo,
+                "teoremas": nodo.teoremas,
+            },
+        ))
+        added += 1
+        existentes.add(nodo.id)
+
+    # Las aristas, en una segunda pasada: una dependencia puede apuntar a un
+    # nodo que aun no se habia añadido cuando se leyo la ficha.
+    for nodo in NODOS_MATHLIB:
+        if nodo.id not in existentes:
+            continue
+        destinos = [d for d in nodo.dependencies if d in existentes]
+        if not destinos:
+            base = _BASE_DE_PILAR.get(nodo.pillar)
+            if base and base in existentes:
+                destinos = [base]
+        for dep in destinos:
+            if graph.add_morphism(dep, nodo.id, MorphismType.DEPENDENCY,
+                                  metadata={"relation": "mathlib-import",
+                                            "construccion": "import-mathlib"}):
+                links += 1
+        # y siempre colgado del pilar, para no dejar islas
+        base = _BASE_DE_PILAR.get(nodo.pillar)
+        if base and base in existentes and base not in destinos:
+            if graph.add_morphism(base, nodo.id, MorphismType.DEPENDENCY,
+                                  metadata={"relation": "cobertura-sobre-el-pilar",
+                                            "construccion": "cobertura"}):
+                links += 1
+
+    _log.info("Cobertura Mathlib: %d nodos, %d aristas", added, links)
+    return {"added": added, "skipped": skipped, "links": links}

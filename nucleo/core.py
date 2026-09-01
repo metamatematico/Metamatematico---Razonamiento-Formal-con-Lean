@@ -632,6 +632,24 @@ class Nucleo:
             result["added"], result["skipped"], result["translations"],
         )
 
+        # LA COBERTURA QUE FALTABA.
+        #
+        # Los 173 curados cubrian el 32,7 % de los teoremas de Mathlib, y el
+        # hueco era sistematico: `Order` a cero, `Data` al 3,4 % — orden,
+        # desigualdades y matematica elemental. Ante `(a+b)^2 = a^2+2ab+b^2` no
+        # habia ningun nodo que recuperar, y ningun emparejador recupera lo que
+        # no esta: tres estrategias distintas sacaron ~7 % en algebra mientras
+        # acertaban 53-66 % en geometria, donde el nodo si existia.
+        #
+        # Estos 44 vienen leidos de la taxonomia de Mathlib y van marcados como
+        # NO INTERPRETADOS: dicen donde vive algo, no que es categoricamente.
+        from nucleo.pillars.math_domains import load_mathlib_coverage
+        cobertura = load_mathlib_coverage(self._graph)
+        logger.info(
+            "Cobertura Mathlib: %d nodos, %d aristas",
+            cobertura["added"], cobertura["links"],
+        )
+
         # LA MULTIPLICIDAD QUE LEAN CERTIFICO.
         #
         # Sin esta llamada los seis morfismos demostrados distintos en Lean

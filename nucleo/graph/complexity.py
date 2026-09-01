@@ -616,6 +616,23 @@ def _detect_convergence_patterns(
     from nucleo.graph.interpretacion import VEREDICTO as _VER, VERTICES as _VTX
 
     def _es_objeto(sid: str) -> bool:
+        # LOS NODOS DE COBERTURA NO ENTRAN AQUI, y no es una optimizacion.
+        #
+        # Los 44 generados desde la taxonomia de Mathlib llevan
+        # `interpretado=False`: dicen DONDE VIVE algo, no que es
+        # categoricamente. Un colimite exige una propiedad universal sobre
+        # objetos y flechas definidos, y de estos nadie ha dicho cuales son
+        # sus objetos ni sus flechas. Meterlos seria afirmar una propiedad
+        # universal sobre algo sin interpretar.
+        #
+        # Ademas los hace inviables: con ellos dentro el grafo pasa de 173 a
+        # 217 nodos y de 855 a 1162 morfismos, y la deteccion de patrones
+        # —que recorre subconjuntos— dejo la suite de 35 s a mas de 600 s.
+        # Pero el motivo para excluirlos es el primero; la velocidad es
+        # consecuencia.
+        sk = graph.get_skill(sid)
+        if sk is not None and (sk.metadata or {}).get("interpretado") is False:
+            return False
         e = _VER.get(sid)
         return e is None or e.marca in _VTX
 

@@ -1,0 +1,235 @@
+{
+ "nivel": 2,
+ "conceptos": 1139,
+ "conceptos_cubiertos": 80,
+ "teoremas": 173636,
+ "teoremas_cubiertos": 56780,
+ "por_area": {
+  "Algebra": {
+   "cubiertos": 12062,
+   "totales": 27560
+  },
+  "AlgebraicGeometry": {
+   "cubiertos": 234,
+   "totales": 2906
+  },
+  "AlgebraicTopology": {
+   "cubiertos": 87,
+   "totales": 1233
+  },
+  "Analysis": {
+   "cubiertos": 10219,
+   "totales": 21240
+  },
+  "CategoryTheory": {
+   "cubiertos": 3364,
+   "totales": 11903
+  },
+  "Combinatorics": {
+   "cubiertos": 2826,
+   "totales": 5153
+  },
+  "Computability": {
+   "cubiertos": 0,
+   "totales": 1130
+  },
+  "Condensed": {
+   "cubiertos": 0,
+   "totales": 75
+  },
+  "Control": {
+   "cubiertos": 0,
+   "totales": 189
+  },
+  "Data": {
+   "cubiertos": 658,
+   "totales": 19303
+  },
+  "Dynamics": {
+   "cubiertos": 122,
+   "totales": 666
+  },
+  "FieldTheory": {
+   "cubiertos": 594,
+   "totales": 2113
+  },
+  "Geometry": {
+   "cubiertos": 2154,
+   "totales": 3846
+  },
+  "GroupTheory": {
+   "cubiertos": 288,
+   "totales": 3864
+  },
+  "InformationTheory": {
+   "cubiertos": 0,
+   "totales": 110
+  },
+  "LinearAlgebra": {
+   "cubiertos": 3489,
+   "totales": 8673
+  },
+  "Logic": {
+   "cubiertos": 0,
+   "totales": 1650
+  },
+  "MeasureTheory": {
+   "cubiertos": 5945,
+   "totales": 9011
+  },
+  "ModelTheory": {
+   "cubiertos": 168,
+   "totales": 972
+  },
+  "NumberTheory": {
+   "cubiertos": 1447,
+   "totales": 4906
+  },
+  "Order": {
+   "cubiertos": 0,
+   "totales": 12128
+  },
+  "Probability": {
+   "cubiertos": 1451,
+   "totales": 3117
+  },
+  "RepresentationTheory": {
+   "cubiertos": 110,
+   "totales": 673
+  },
+  "RingTheory": {
+   "cubiertos": 1985,
+   "totales": 12864
+  },
+  "SetTheory": {
+   "cubiertos": 2158,
+   "totales": 2532
+  },
+  "Topology": {
+   "cubiertos": 7419,
+   "totales": 15819
+  }
+ },
+ "faltan": {
+  "Algebra.Order": 5140,
+  "Analysis.SpecialFunctions": 3906,
+  "Data.Set": 2852,
+  "CategoryTheory.Limits": 2834,
+  "Algebra.Polynomial": 2380,
+  "Data.Finset": 2292,
+  "Order.Filter": 2192,
+  "Data.Nat": 1916,
+  "Order.Interval": 1916,
+  "MeasureTheory.Integral": 1871,
+  "Data.List": 1835,
+  "Analysis.Convex": 1708,
+  "Topology.Order": 1486,
+  "Analysis.Complex": 1366,
+  "CategoryTheory.Monoidal": 1316,
+  "Geometry.Euclidean": 1281,
+  "Algebra.Lie": 1228,
+  "Combinatorics.Matroid": 1180,
+  "Algebra.BigOperators": 1100,
+  "AlgebraicGeometry.EllipticCurve": 1030,
+  "Algebra.Category": 999,
+  "RingTheory.Polynomial": 884,
+  "Data.Multiset": 867,
+  "Analysis.Asymptotics": 761,
+  "Algebra.MvPolynomial": 755,
+  "Algebra.Star": 741,
+  "GroupTheory.Perm": 681,
+  "Data.Matrix": 665,
+  "Data.Fin": 660,
+  "Logic.Equiv": 659,
+  "Data.ENNReal": 649,
+  "Data.Finsupp": 617,
+  "LinearAlgebra.RootSystem": 590,
+  "GroupTheory.GroupAction": 566,
+  "Order.Hom": 555,
+  "RingTheory.PowerSeries": 554,
+  "Topology.Instances": 554,
+  "RingTheory.Localization": 551,
+  "LinearAlgebra.TensorProduct": 546,
+  "Topology.ContinuousMap": 541,
+  "AlgebraicTopology.SimplicialSet": 520,
+  "NumberTheory.ModularForms": 514,
+  "Data.Int": 510,
+  "Probability.Independence": 500,
+  "NumberTheory.LSeries": 485,
+  "Order.CompleteLattice": 468,
+  "Analysis.BoxIntegral": 422,
+  "RingTheory.MvPolynomial": 404,
+  "RingTheory.MvPowerSeries": 403,
+  "CategoryTheory.Triangulated": 400,
+  "Data.Real": 399,
+  "Probability.Moments": 395,
+  "Topology.Constructions": 395,
+  "Order.SuccPred": 385,
+  "Topology.Category": 382,
+  "AlgebraicGeometry.Morphisms": 379,
+  "MeasureTheory.Group": 374,
+  "RingTheory.HahnSeries": 373,
+  "LinearAlgebra.Dimension": 372,
+  "Data.EReal": 370,
+  "Combinatorics.Additive": 366,
+  "Topology.Compactness": 366,
+  "Analysis.LocallyConvex": 365,
+  "Order.UpperLower": 361,
+  "CategoryTheory.Localization": 357,
+  "CategoryTheory.MorphismProperty": 353,
+  "RingTheory.Spectrum": 351,
+  "Topology.EMetricSpace": 348,
+  "RepresentationTheory.Homological": 344,
+  "RingTheory.DedekindDomain": 344,
+  "Probability.Distributions": 340,
+  "Data.DFinsupp": 331,
+  "Data.Seq": 330,
+  "SetTheory.ZFC": 329,
+  "Analysis.Distribution": 314,
+  "Order.Monotone": 312,
+  "Analysis.RCLike": 311,
+  "Topology.Semicontinuity": 311,
+  "Data.Rat": 308,
+  "Logic.Function": 306,
+  "Algebra.MonoidAlgebra": 303,
+  "RingTheory.GradedAlgebra": 302,
+  "RingTheory.WittVector": 299,
+  "Topology.Sets": 284,
+  "Analysis.Real": 283,
+  "Order.Heyting": 280,
+  "Analysis.Fourier": 277,
+  "Order.Category": 268,
+  "LinearAlgebra.CliffordAlgebra": 266,
+  "MeasureTheory.VectorMeasure": 264,
+  "MeasureTheory.OuterMeasure": 259,
+  "Order.BooleanAlgebra": 252,
+  "RingTheory.TensorProduct": 249,
+  "Order.ConditionallyCompleteLattice": 248,
+  "Analysis.Meromorphic": 246,
+  "Algebra.Quaternion": 241,
+  "Algebra.CharP": 240,
+  "Data.PNat": 239,
+  "RingTheory.FractionalIdeal": 238,
+  "CategoryTheory.Shift": 236,
+  "Combinatorics.SetFamily": 229,
+  "CategoryTheory.Adjunction": 228,
+  "CategoryTheory.Subobject": 228,
+  "GroupTheory.SpecificGroups": 226,
+  "RingTheory.Extension": 225,
+  "Data.Sym": 223,
+  "Algebra.DirectSum": 221,
+  "Computability.Primrec": 221,
+  "FieldTheory.RatFunc": 218,
+  "LinearAlgebra.LinearIndependent": 217,
+  "Data.ENat": 214,
+  "Data.Num": 213,
+  "LinearAlgebra.Span": 211,
+  "Order.Bounds": 211,
+  "Topology.OpenPartialHomeomorph": 211,
+  "Logic.Basic": 209,
+  "RingTheory.IntegralClosure": 209,
+  "LinearAlgebra.Basis": 207,
+  "CategoryTheory.ObjectProperty": 206,
+  "Data.NNReal": 204
+ }
+}
