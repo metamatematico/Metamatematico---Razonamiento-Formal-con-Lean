@@ -1,0 +1,93 @@
+{
+ "k": 20,
+ "consultas": 3000,
+ "global": {
+  "nulo": {
+   "cobertura": 11.74698795180723,
+   "precision": 1.04,
+   "toca": 16.866666666666667
+  },
+  "lexico": {
+   "cobertura": 7.078313253012048,
+   "precision": 0.6267188932411034,
+   "toca": 11.2
+  },
+  "HIBRIDO": {
+   "cobertura": 14.043674698795181,
+   "precision": 1.2433747791593053,
+   "toca": 21.4
+  }
+ },
+ "por_area": [
+  {
+   "area": "Algebra",
+   "casos": 1091,
+   "lexico": 7.349537037037037,
+   "nulo": 13.310185185185185,
+   "hibrido": 16.493055555555557
+  },
+  {
+   "area": "Analysis",
+   "casos": 1047,
+   "lexico": 10.338069573738364,
+   "nulo": 13.081822635962764,
+   "hibrido": 16.658500734933856
+  },
+  {
+   "area": "CategoryTheory",
+   "casos": 403,
+   "lexico": 0.0,
+   "nulo": 9.774436090225564,
+   "hibrido": 5.2631578947368425
+  },
+  {
+   "area": "Combinatorics",
+   "casos": 190,
+   "lexico": 5.927835051546392,
+   "nulo": 4.639175257731959,
+   "hibrido": 9.278350515463918
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "casos": 118,
+   "lexico": 0.43859649122807015,
+   "nulo": 8.333333333333334,
+   "hibrido": 7.456140350877193
+  },
+  {
+   "area": "Data",
+   "casos": 68,
+   "lexico": 3.883495145631068,
+   "nulo": 15.533980582524272,
+   "hibrido": 15.533980582524272
+  },
+  {
+   "area": "Computability",
+   "casos": 42,
+   "lexico": 5.434782608695652,
+   "nulo": 5.434782608695652,
+   "hibrido": 9.782608695652174
+  },
+  {
+   "area": "AlgebraicTopology",
+   "casos": 33,
+   "lexico": 6.0,
+   "nulo": 8.0,
+   "hibrido": 12.0
+  },
+  {
+   "area": "Control",
+   "casos": 5,
+   "lexico": 16.666666666666668,
+   "nulo": 0.0,
+   "hibrido": 16.666666666666668
+  },
+  {
+   "area": "Condensed",
+   "casos": 3,
+   "lexico": 0.0,
+   "nulo": 0.0,
+   "hibrido": 0.0
+  }
+ ]
+}
