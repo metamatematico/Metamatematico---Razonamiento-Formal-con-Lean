@@ -1,0 +1,69 @@
+{
+ "n": 7,
+ "excluidos": 93,
+ "filas": [
+  {
+   "nombre": "one_lt_div",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Field/Basic.lean",
+   "tactica_mathlib": "rw",
+   "cerro": null,
+   "pos_nueva": null,
+   "pos_vieja": null
+  },
+  {
+   "nombre": "frequently_top",
+   "area": "set-theory",
+   "fichero": "Order/Filter/Basic.lean",
+   "tactica_mathlib": "simp",
+   "cerro": null,
+   "pos_nueva": null,
+   "pos_vieja": null
+  },
+  {
+   "nombre": "odd_sign_iff",
+   "area": "algebra",
+   "fichero": "Algebra/Ring/Int/Parity.lean",
+   "tactica_mathlib": "grind",
+   "cerro": null,
+   "pos_nueva": null,
+   "pos_vieja": null
+  },
+  {
+   "nombre": "invOf_lt_zero",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Invertible.lean",
+   "tactica_mathlib": "simp",
+   "cerro": "simp",
+   "pos_nueva": 1,
+   "pos_vieja": 2
+  },
+  {
+   "nombre": "smul_ne_zero",
+   "area": "algebra",
+   "fichero": "Algebra/Module/Torsion/Free.lean",
+   "tactica_mathlib": "simp",
+   "cerro": "aesop",
+   "pos_nueva": 2,
+   "pos_vieja": 12
+  },
+  {
+   "nombre": "div_lt_one",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Field/Basic.lean",
+   "tactica_mathlib": "rw",
+   "cerro": "aesop",
+   "pos_nueva": 2,
+   "pos_vieja": 3
+  },
+  {
+   "nombre": "one_le_div",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Field/Basic.lean",
+   "tactica_mathlib": "rw",
+   "cerro": null,
+   "pos_nueva": null,
+   "pos_vieja": null
+  }
+ ]
+}

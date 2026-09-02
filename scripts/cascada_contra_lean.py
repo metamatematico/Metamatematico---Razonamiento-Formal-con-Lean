@@ -52,6 +52,15 @@ TEO = re.compile(r"^\s*(?:@\[[^\]]*\]\s*)?(?:private\s+|protected\s+)?"
 IMP = re.compile(r"^(?:public\s+|meta\s+|private\s+|protected\s+)*import\s+"
                  r"([A-Za-z_][\w.]*)", re.M)
 PRIMERA = re.compile(r"^\s*([a-z_][A-Za-z0-9_]*)")
+#: EL CONTEXTO DEL FICHERO, sin el cual el enunciado no elabora.
+#:
+#: La primera version copiaba solo los `import` y EXCLUIA 93 de 100
+#: casos: los enunciados de Mathlib usan `variable`s, `open`s y secciones
+#: declarados arriba en su propio fichero. Con 7 medidos y 3 cerrados no
+#: se concluye nada — el instrumento se comia la medida entera.
+CONTEXTO = re.compile(
+    r"^(variable\b.*|open\b.*|universe\b.*|local\s+.*|"
+    r"noncomputable\s+section.*|section\b.*)$", re.M)
 
 #: La tabla vieja, para calcular el orden de antes sin volver a correr Lean.
 VIEJA = {
@@ -103,17 +112,21 @@ def candidatos(area_de_dir, n):
                 fuera.append({"nombre": m.group(1), "sig": sig.strip(),
                               "tactica_mathlib": p.group(1), "area": area,
                               "imports": cabecera[:8],
+                              # solo lo declarado ANTES del teorema
+                              "contexto": CONTEXTO.findall(
+                                  "\n".join(ls[:i]))[-25:],
                               "fichero": rel})
     random.seed(SEMILLA)
     random.shuffle(fuera)
-    return fuera[:n * 4]          # de sobra: muchos se caeran al elaborar
+    return fuera[:n * 8]          # de sobra: muchos se caeran al elaborar
 
 
-def corre(imports, sig, cuerpo):
+def corre(imports, sig, cuerpo, contexto=()):
     """True si Lean acepta. Devuelve tambien la salida, para diagnosticar."""
     ruta = RAIZ + "/_cascada_check.lean"
-    src = "\n".join("import " + i for i in imports) + \
-          "\n\ntheorem _probe_ %s := by\n  %s\n" % (sig, cuerpo)
+    src = ("\n".join("import " + i for i in imports)
+           + "\n\n" + "\n".join(contexto)
+           + "\n\ntheorem _probe_ %s := by\n  %s\n" % (sig, cuerpo))
     io.open(ruta, "w", encoding="utf-8").write(src)
     try:
         p = subprocess.run(["lake", "env", "lean", ruta], cwd=RAIZ,
@@ -145,7 +158,7 @@ def main(n):
         if len(filas) >= n:
             break
         # 1. ¿elabora el enunciado? Con `sorry`, que nunca falla por tactica.
-        ok_sorry, _ = corre(c["imports"], c["sig"], "sorry")
+        ok_sorry, _ = corre(c["imports"], c["sig"], "sorry", c["contexto"])
         if not ok_sorry:
             excluidos += 1
             continue
@@ -154,7 +167,7 @@ def main(n):
             c["sig"], domain_order=domain_tactic_order(c["area"]))]
         cerro, pos = None, None
         for i, tac in enumerate(orden, 1):
-            ok, _ = corre(c["imports"], c["sig"], tac)
+            ok, _ = corre(c["imports"], c["sig"], tac, c["contexto"])
             if ok:
                 cerro, pos = tac, i
                 break
