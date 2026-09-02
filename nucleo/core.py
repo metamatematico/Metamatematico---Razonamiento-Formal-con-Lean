@@ -1701,6 +1701,22 @@ class Nucleo:
         except Exception:
             logger.debug("no se pudieron sugerir imports", exc_info=True)
 
+        # LA FRONTERA: aqui el codigo del LLM esta terminado y Lean aun no lo
+        # ha visto. Todo lo de abajo —imports, reparaciones, cascada,
+        # premisas— es del sistema y se puede volver a ejecutar sin pagar.
+        #
+        # Grabar aqui convierte cualquier medicion posterior en gratuita: el
+        # modelo formaliza una vez y el resto se reprueba cuantas veces haga
+        # falta con `scripts/replay.py`. Apagado por defecto; se enciende con
+        # METAMAT_GRABAR=1.
+        try:
+            from nucleo.grabacion import grabar
+            grabar(consulta=input_text, codigo=lean_code, area=_area,
+                   skills=(context or {}).get("relevant_skills", ()),
+                   modelo=getattr(self.config.llm, "model", ""))
+        except Exception:
+            logger.debug("grabacion no disponible", exc_info=True)
+
         result = await self._lean.check_code(lean_code)
 
         # ── Paso 2b: reparacion de imports y reintento ────────────────────

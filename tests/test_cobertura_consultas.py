@@ -126,3 +126,79 @@ def test_los_modulos_que_salen_son_de_las_skills_activadas(sistema, consultas):
     assert llegaron > 0, (
         "ninguna consulta llego a producir modulos: la cadena "
         "skills -> modulos esta rota")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# EL BUCLE QUE NO CUESTA DINERO
+#
+# Cada pregunta importante sobre este sistema costaba API, y por eso la mas
+# importante —¿el nucleo mejora la respuesta?— llevaba dias sin contestar. La
+# grabacion rompe esa dependencia: el modelo formaliza UNA vez, se guarda, y
+# todo lo que el sistema hace despues —imports, cascada, premisas— se puede
+# reejecutar con Lean de juez y coste cero.
+#
+# Estas guardias protegen la frontera, que es lo unico delicado: lo que se
+# graba tiene que ser el codigo del LLM ANTES de que el sistema lo toque. Si
+# alguien mueve el gancho detras de la normalizacion, el replay medira el
+# sistema contra si mismo y dara siempre lo mismo.
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_la_grabacion_esta_apagada_por_defecto():
+    """No debe cambiar el comportamiento de quien no la pida."""
+    import os
+    from nucleo import grabacion
+    grabacion._ACTIVA = None                      # olvidar lo que se decidio
+    antes = os.environ.pop("METAMAT_GRABAR", None)
+    try:
+        assert grabacion.activa() is False
+    finally:
+        grabacion._ACTIVA = None
+        if antes is not None:
+            os.environ["METAMAT_GRABAR"] = antes
+
+
+def test_grabar_nunca_lanza():
+    """Grabar no puede tumbar una respuesta al usuario.
+
+    Se le pasa algo que no serializa; debe tragarlo y seguir.
+    """
+    from nucleo import grabacion
+    grabacion._ACTIVA = True
+    try:
+        grabacion.grabar(consulta="x", codigo="theorem t : True := trivial",
+                         extra={"no_serializable": object()})
+    finally:
+        grabacion._ACTIVA = None
+
+
+def test_el_gancho_graba_antes_de_que_lean_vea_el_codigo():
+    """LA FRONTERA. Si se mueve, el replay deja de medir nada.
+
+    El gancho tiene que estar ANTES de `check_code`: lo que se graba es lo que
+    escribio el LLM, y todo lo que viene despues es del sistema y por tanto
+    reejecutable. Grabar despues mediria el sistema contra su propia salida.
+    """
+    import re
+    from nucleo.rutas import RAIZ
+    src = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
+    i_grab = src.find("from nucleo.grabacion import grabar")
+    assert i_grab > 0, "el gancho de grabacion desaparecio de core.py"
+    # el primer check_code del pipeline principal, despues del gancho
+    m = re.search(r"result = await self\._lean\.check_code\(lean_code\)",
+                  src[i_grab:])
+    assert m, "no se encontro la verificacion despues del gancho"
+
+
+def test_el_replay_declara_sus_configuraciones():
+    """Cada configuración dice qué apaga, y `completo` no apaga nada."""
+    import importlib.util
+    from nucleo.rutas import RAIZ
+    spec = importlib.util.spec_from_file_location(
+        "replay", RAIZ / "scripts" / "replay.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.CONFIGS["completo"] == {"imports": True, "premisas": True}
+    assert mod.CONFIGS["desnudo"] == {"imports": False, "premisas": False}
+    for nombre, cfg in mod.CONFIGS.items():
+        assert set(cfg) == {"imports", "premisas"}, nombre
