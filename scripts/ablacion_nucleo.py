@@ -58,6 +58,29 @@ CASOS = [
     "Demuestra que P implica (Q implica P)",
 ]
 
+#: LOS DUROS. La tanda con los ocho de arriba dio 8/8 en las CUATRO
+#: configuraciones: efecto techo. Si todo acierta siempre, ninguna medida
+#: separa, y lo unico que se aprendio es que el sistema completo era el mas
+#: lento (39 s frente a 32, y 1,4 invocaciones de Lean frente a 1,2).
+#:
+#: Estos ocho estan elegidos donde el sistema falla o sufre, que es el unico
+#: sitio donde el contexto del grafo puede notarse:
+#:
+#:   · series y topologia, donde la formalizacion es menos mecanica;
+#:   · algebra abstracta, donde hace falta saber de que estructura se habla;
+#:   · dos FALSOS, porque detectar la falsedad y probar la negacion exige
+#:     entender el enunciado — y `n^2 > n` falla solo en n=0 y n=1.
+CASOS_DIFICILES = [
+    "Demuestra que la suma de 1/2^n desde n=1 hasta infinito es 1",
+    "Demuestra que la unión de conjuntos es conmutativa",
+    "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+    "Demuestra que la unión de dos conjuntos abiertos es abierta",
+    "Demuestra que hay infinitos números primos",
+    "Demuestra que n^2 es par si y solo si n es par",
+    "Demuestra que todo número primo es impar",
+    "Demuestra que para todo n, n^2 > n",
+]
+
 CONFIGS = ["completo", "sin-contexto", "sin-fewshot", "sin-tactica"]
 
 _INFRA = ("credit balance", "rate_limit", "overloaded", "not_found_error",
@@ -243,5 +266,47 @@ async def main(n_casos):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--casos", type=int, default=len(CASOS))
+    # ABLACION DISCRIMINANTE.
+    #
+    # La primera tanda —8 casos faciles por las 4 configuraciones— dio 8/8 en
+    # TODAS: efecto techo. Si todo acierta siempre, ninguna medida separa, y lo
+    # unico que se aprendio es que el sistema completo era el mas lento.
+    #
+    # Donde puede aparecer diferencia es donde hoy se falla o se sufre. Estas
+    # dos opciones permiten gastar el presupuesto ahi, en vez de volver a
+    # confirmar el techo:
+    #
+    #   --indices  los casos concretos, por posicion en CASOS
+    #   --configs  solo las configuraciones que contestan la pregunta
+    ap.add_argument("--dificiles", action="store_true",
+                    help="usa CASOS_DIFICILES en vez de los faciles")
+    ap.add_argument("--indices", default="",
+                    help="posiciones de CASOS separadas por coma")
+    ap.add_argument("--configs", default="",
+                    help="configuraciones a medir, separadas por coma")
     a = ap.parse_args()
+    if a.configs:
+        pedidas = [c.strip() for c in a.configs.split(",") if c.strip()]
+        malas = [c for c in pedidas if c not in CONFIGS]
+        if malas:
+            print("configuraciones desconocidas: %s" % ", ".join(malas))
+            sys.exit(2)
+        CONFIGS[:] = pedidas
+    if a.dificiles:
+        CASOS[:] = CASOS_DIFICILES
+        a.casos = len(CASOS)
+    if a.indices:
+        try:
+            idx = [int(i) for i in a.indices.split(",") if i.strip()]
+        except ValueError:
+            print("--indices tiene que ser numeros separados por coma")
+            sys.exit(2)
+        fuera = [i for i in idx if not 0 <= i < len(CASOS)]
+        if fuera:
+            print("indices fuera de rango (0-%d): %s" % (len(CASOS) - 1, fuera))
+            sys.exit(2)
+        CASOS[:] = [CASOS[i] for i in idx]
+        a.casos = len(CASOS)
+    print("  %d casos x %d configuraciones = %d corridas"
+          % (a.casos, len(CONFIGS), a.casos * len(CONFIGS)))
     sys.exit(asyncio.run(main(a.casos)))

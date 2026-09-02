@@ -3378,7 +3378,19 @@ class Nucleo:
         except Exception:
             return {}
         fuera: dict[str, str] = {}
-        for s in skills[:6]:
+        # LOS QUE NO APORTAN NOMBRES NO GASTAN CUPO.
+        #
+        # Antes se cogian las seis primeras skills y punto. Con los nodos de
+        # cobertura en el grafo eso salia caro: ganan sitio en el top-k del
+        # emparejador y hoy no inyectan nada —sus nombres estan deducidos, no
+        # comprobados con `#check`— asi que ocupaban una de las seis plazas y
+        # la dejaban vacia. Medido contra ProofNet: la cobertura caia de 14,2 %
+        # a 12,6 % solo por eso.
+        #
+        # Ahora se recorren en orden y se llenan seis plazas CON NOMBRES.
+        for s in skills:
+            if len(fuera) >= 6:
+                break
             # LA TEORIA, NO LA CATEGORIA.
             #
             # `Etiqueta.lean` dice que ES el nodo: para group-theory, la

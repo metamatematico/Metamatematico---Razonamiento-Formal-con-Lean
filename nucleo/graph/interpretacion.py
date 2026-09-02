@@ -109,9 +109,47 @@ def nombres_de_trabajo(clave: str) -> str:
     siendo la identidad categorica y no debe usarse para importar.
     """
     e = VEREDICTO.get(clave)
-    if not e:
-        return ""
-    return e.teoria or (e.lean or "")
+    if e:
+        return e.teoria or (e.lean or "")
+    # LOS NODOS DE COBERTURA NO INYECTAN NOMBRES TODAVIA, y esto se midio.
+    #
+    # Tienen modulo, y de ahi se dedujeron identificadores. Parecia obvio que
+    # ayudarian: sin ellos, un nodo de cobertura gana sitio en el top-k y no
+    # aporta nada. PERO al activarlos, contra ProofNet:
+    #
+    #     precision   13,5 %  ->  3,2 %      (modelo nulo: 2,9 %)
+    #     cobertura   14,2 %  -> 14,0 %      (modelo nulo: 14,4 %)
+    #
+    # Es decir: DEJARON DE SER MEJORES QUE OFRECER LOS NOMBRES MAS COMUNES. La
+    # razon es la que este proyecto lleva entera defendiendo — los 117 nombres
+    # curados estan COMPROBADOS con `#check` uno a uno, y estos estan DEDUCIDOS
+    # de la ruta del modulo. Deducir no es comprobar.
+    #
+    # Asi que se quedan fuera del prompt hasta que pasen por Lean. El campo
+    # `nombres` ya esta generado y la comprobacion es una corrida; hasta
+    # entonces, estos nodos sirven para RECUPERAR —que es donde se midio que
+    # ayudan, con algebra doblando— y no para AFIRMAR.
+    return ""
+
+
+_COBERTURA: Optional[dict] = None
+
+
+def _nombres_de_cobertura() -> dict:
+    """id -> identificadores, de los nodos generados desde Mathlib.
+
+    Se importa perezosamente porque el modulo generado puede no existir: el
+    grafo curado funciona sin el, y su ausencia no debe romper nada.
+    """
+    global _COBERTURA
+    if _COBERTURA is None:
+        try:
+            from nucleo.pillars.mathlib_taxonomy import NODOS_MATHLIB
+            _COBERTURA = {n.id: list(getattr(n, "nombres", ()) or ())
+                          for n in NODOS_MATHLIB}
+        except Exception:
+            _COBERTURA = {}
+    return _COBERTURA
 
 
 def _e(marca, objeto="", morfismos="", lean=None, nota="", teoria=""):

@@ -167,6 +167,7 @@ def _id(clave):
 
 
 def main(escribir):
+    global UMBRAL
     print("recorriendo Mathlib...")
     datos = recorrer()
     print("  %d conceptos a profundidad %d" % (len(datos), NIVEL))
@@ -177,7 +178,14 @@ def main(escribir):
     n = Nucleo.__new__(Nucleo)
     n._graph = SkillCategory()
     Nucleo._load_foundational_skills(n)
-    existentes = set(n._graph.skill_ids)
+    # LOS YA GENERADOS NO CUENTAN COMO «EXISTENTES».
+    #
+    # El grafo del runtime ya carga los nodos de una generacion anterior, asi
+    # que sin esta linea el generador los saltaria por «id repetido» y el
+    # fichero nuevo saldria SIN ELLOS: regenerar con otro umbral habria BORRADO
+    # los 44 de la tanda anterior en vez de ampliarlos. La generacion tiene que
+    # ser reproducible desde cero, no incremental sobre su propio resultado.
+    existentes = {s for s in n._graph.skill_ids if not s.startswith("mathlib-")}
 
     cubiertos = set()
     por_skill = json.load(io.open("E:/Metamatematico/data/mathlib_modulos.json",
@@ -206,6 +214,35 @@ def main(escribir):
                 if len(w) > 3:
                     cnt[w] += 1
         kws = [w for w, _ in cnt.most_common(MAX_KW)]
+
+        # LOS NOMBRES QUE EL NODO APORTA AL PROMPT.
+        #
+        # Sin esto un nodo de cobertura gana sitio en el top-k del emparejador
+        # y NO APORTA NI UN NOMBRE, porque `nombres_de_trabajo` solo lee el
+        # veredicto y estos no lo tienen. Medido al pasar de 44 a 125 nodos: la
+        # cobertura contra ProofNet BAJO de 14,2 % a 12,6 % y los enunciados
+        # con algo que ofrecer de 280 a 258. Ocupaban y no daban.
+        #
+        # `keywords` no sirve para esto: son fragmentos en minuscula —`smul`,
+        # `coeff`— y no identificadores. Lo que si es un identificador valido es
+        # el ultimo componente del modulo, que en Mathlib es casi siempre el
+        # namespace raiz: Polynomial, Finset, Filter, Nat. Y las declaraciones
+        # que empiezan por mayuscula, que son tipos y estructuras.
+        # Solo TIPOS, no lemas. «Empieza por mayuscula» colaba
+        # `C_eq_algebraMap` y `X_pow_smul_rTensor_monomial`, que son nombres de
+        # lema larguisimos y especificos: inundaban lo ofrecido y hundieron la
+        # precision contra ProofNet de 13,5 % a 3,1 %, por debajo del modelo
+        # nulo. Un tipo de Mathlib va en CamelCase SIN guiones bajos.
+        ultimo = clave.split(".")[-1]
+        tipos = []
+        for x in d["decls"]:
+            c0 = x.split(".")[-1]
+            if (c0[:1].isupper() and "_" not in c0 and len(c0) >= 3
+                    and c0 not in tipos and c0 != ultimo):
+                tipos.append(c0)
+            if len(tipos) >= 4:
+                break
+        nombres = [ultimo] + tipos
         # Sin docstring propio no se inventa: se describe con las palabras
         # del modulo y su vocabulario, que es verdad aunque sea pobre.
         if d["docs"]:
@@ -228,6 +265,7 @@ def main(escribir):
             "dependencies": deps[:6],
             "category": CATEGORIA.get(area, "algebra"),
             "keywords": kws,
+            "nombres": nombres,
             "modulo": "Mathlib." + clave,
             "teoremas": d["teoremas"],
         })
@@ -276,6 +314,9 @@ def main(escribir):
               '    teoremas: int',
               '    dependencies: list = field(default_factory=list)',
               '    keywords: list = field(default_factory=list)',
+              '    #: Identificadores de Mathlib que este nodo aporta al prompt.',
+              '    #: PENDIENTE de comprobar con `#check`, como manda la casa.',
+              '    nombres: list = field(default_factory=list)',
               '',
               '',
               'NODOS_MATHLIB = [']
@@ -289,6 +330,7 @@ def main(escribir):
         lineas.append('        modulo=%r, teoremas=%d,' % (f["modulo"], f["teoremas"]))
         lineas.append('        dependencies=%r,' % (f["dependencies"],))
         lineas.append('        keywords=%r,' % (f["keywords"],))
+        lineas.append('        nombres=%r,' % (f["nombres"],))
         lineas.append('    ),')
     lineas.append(']')
     lineas.append('')
@@ -300,5 +342,8 @@ def main(escribir):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--escribir", action="store_true")
+    ap.add_argument("--umbral", type=int, default=UMBRAL,
+                    help="teoremas minimos para generar un nodo")
     a = ap.parse_args()
+    UMBRAL = a.umbral
     sys.exit(main(a.escribir))
