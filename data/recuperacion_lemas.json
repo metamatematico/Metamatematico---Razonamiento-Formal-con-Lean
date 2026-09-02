@@ -1,0 +1,27 @@
+{
+ "k": 20,
+ "consultas": 2000,
+ "semilla": 20260901,
+ "resultados": {
+  "nulo": {
+   "cobertura": 77.04877444912107,
+   "precision": 7.78,
+   "toca": 86.85
+  },
+  "lexico_nl": {
+   "cobertura": 0.6437236939836594,
+   "precision": 0.06500812601575197,
+   "toca": 0.95
+  },
+  "lexico_formal": {
+   "cobertura": 2.079722703639515,
+   "precision": 0.21,
+   "toca": 3.25
+  },
+  "semantico": {
+   "cobertura": 0.37137905422134193,
+   "precision": 0.03750187509375469,
+   "toca": 0.75
+  }
+ }
+}

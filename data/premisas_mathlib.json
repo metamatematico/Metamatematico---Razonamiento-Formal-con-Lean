@@ -1,0 +1,82 @@
+{
+ "k": 20,
+ "consultas": 3000,
+ "global": {
+  "lexico": 4.5811518324607325,
+  "nulo": 9.205933682373473
+ },
+ "por_area": [
+  {
+   "area": "Algebra",
+   "casos": 438,
+   "lexico": 6.742738589211618,
+   "nulo": 12.759336099585063
+  },
+  {
+   "area": "Analysis",
+   "casos": 393,
+   "lexico": 7.44466800804829,
+   "nulo": 9.557344064386317
+  },
+  {
+   "area": "Topology",
+   "casos": 309,
+   "lexico": 7.381193124368049,
+   "nulo": 3.9433771486349847
+  },
+  {
+   "area": "Data",
+   "casos": 306,
+   "lexico": 2.9585798816568047,
+   "nulo": 5.4733727810650885
+  },
+  {
+   "area": "RingTheory",
+   "casos": 262,
+   "lexico": 3.197674418604651,
+   "nulo": 12.645348837209303
+  },
+  {
+   "area": "Order",
+   "casos": 221,
+   "lexico": 6.5055762081784385,
+   "nulo": 10.594795539033457
+  },
+  {
+   "area": "MeasureTheory",
+   "casos": 181,
+   "lexico": 1.385390428211587,
+   "nulo": 8.438287153652393
+  },
+  {
+   "area": "LinearAlgebra",
+   "casos": 167,
+   "lexico": 4.676258992805756,
+   "nulo": 11.151079136690647
+  },
+  {
+   "area": "CategoryTheory",
+   "casos": 130,
+   "lexico": 0.0,
+   "nulo": 8.550185873605948
+  },
+  {
+   "area": "NumberTheory",
+   "casos": 110,
+   "lexico": 3.5343035343035343,
+   "nulo": 9.147609147609147
+  },
+  {
+   "area": "Combinatorics",
+   "casos": 69,
+   "lexico": 0.9803921568627451,
+   "nulo": 8.333333333333334
+  },
+  {
+   "area": "GroupTheory",
+   "casos": 65,
+   "lexico": 5.936073059360731,
+   "nulo": 9.58904109589041
+  }
+ ]
+}
