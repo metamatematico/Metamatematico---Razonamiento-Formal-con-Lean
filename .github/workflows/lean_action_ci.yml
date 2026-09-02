@@ -58,8 +58,16 @@ jobs:
           restore-keys: |
             elan-${{ runner.os }}-
 
+      # `elan toolchain install` NO acepta flags: solo el nombre del toolchain.
+      # Llevaba `--no-self-update`, que es de `rustup`, y elan lo rechazaba con
+      # «Found argument '--no-self-update' which wasn't expected», tumbando el
+      # CI en cada push. Comprobado contra elan 4.1.2: la ayuda del subcomando
+      # lista `-h/--help` y nada mas.
+      #
+      # Tampoco hacia falta: elan no se autoactualiza al instalar un toolchain
+      # —eso es comportamiento de rustup— asi que quitarlo no cambia nada.
       - name: Instalar toolchain Lean 4
-        run: elan toolchain install ${{ steps.toolchain.outputs.version }} --no-self-update
+        run: elan toolchain install ${{ steps.toolchain.outputs.version }}
 
       - name: Fijar toolchain activo
         run: elan override set ${{ steps.toolchain.outputs.version }}
