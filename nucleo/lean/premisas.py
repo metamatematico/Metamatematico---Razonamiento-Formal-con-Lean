@@ -148,6 +148,21 @@ def tacticas_con_premisas(objetivo: str, area: str = "", k: int = 8,
     tactica tiene mas que mirar— y solo tienen sentido cuando la version
     desnuda ya fallo. Si la desnuda cierra, esto no llega a probarse.
     """
+    # SOLO SI EL CONTENIDO APORTO ALGO.
+    #
+    # Medido con Lean sobre 21 teoremas que la cascada desnuda no cerraba:
+    # añadir estas tacticas costo 231 invocaciones extra y cerro CERO. La razon
+    # es aritmetica y deberia haberla previsto: la cobertura de premisas es del
+    # 14 %, o sea que acertamos una de cada siete, y una prueba necesita TODAS
+    # las suyas —2,1 de media—, no una. Esperado 0,14² x 21 ≈ 0,4 cierres;
+    # observado, 0. Una metrica de recuperacion no se traduce en cierres.
+    #
+    # Cuando el contenido no encuentra nada, lo que se ofrece es el prior del
+    # area: lemas genericos como `mul_comm` que la tactica ya intento sola o
+    # que no vienen a cuento. Eso es coste puro. Asi que las premisas solo se
+    # ofrecen cuando el objetivo ENGANCHA con algo especifico del catalogo.
+    if not _por_contenido(objetivo, 1):
+        return []
     ps = premisas_para(objetivo, area, k)
     if not ps:
         return []
