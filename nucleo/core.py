@@ -3333,15 +3333,32 @@ class Nucleo:
         if not skills:
             return []
         if Nucleo._MODULOS_CACHE is None:
+            # RUTA RELATIVA Y AVISO RUIDOSO.
+            #
+            # Esto era una ruta absoluta a E:/Metamatematico dentro de un
+            # `try` cuyo `except` dejaba el cache en `{}` — que no es `None`,
+            # asi que no se reintentaba nunca, y encima es atributo de clase.
+            # El proyecto ya se movio una vez de sitio: si vuelve a pasar, el
+            # grafo deja de elegir los modulos que importa Lean —uno de los
+            # dos unicos puntos donde actua en caliente— y el unico rastro era
+            # un `logger.debug`. Un fallo de infraestructura presentado como
+            # funcionamiento normal, que es justo lo que este sistema existe
+            # para no hacer.
             import json as _j
-            import os as _o
-            ruta = "E:/Metamatematico/data/mathlib_modulos.json"
+            from nucleo.rutas import dato as _dato
+            ruta = _dato("mathlib_modulos.json")
             try:
-                Nucleo._MODULOS_CACHE = _j.load(
-                    open(ruta, encoding="utf-8"))["por_skill"]
-            except Exception:
+                with open(ruta, encoding="utf-8") as _f:
+                    Nucleo._MODULOS_CACHE = _j.load(_f)["por_skill"]
+                logger.debug("mapa de modulos: %d skills",
+                             len(Nucleo._MODULOS_CACHE))
+            except Exception as _e:
                 Nucleo._MODULOS_CACHE = {}
-                logger.debug("sin mapa de modulos: %s", ruta)
+                logger.warning(
+                    "SIN MAPA DE MODULOS (%s): %s. El grafo no podra elegir "
+                    "que importa Lean y se usaran los imports genericos. "
+                    "Regenerar con: python -m scripts.mapa_modulos_mathlib",
+                    type(_e).__name__, ruta)
         fuera = []
         for s in skills[:4]:
             for m in Nucleo._MODULOS_CACHE.get(s, [])[:2]:

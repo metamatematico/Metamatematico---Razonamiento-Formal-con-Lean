@@ -42,7 +42,14 @@ PRECIOS: dict[str, tuple[float, float]] = {
     "claude-haiku-4-5":  (1.0,   5.0),
 }
 
-RUTA = "E:/Metamatematico/data/uso_llm.json"
+# Ruta relativa al paquete: era absoluta a E:/Metamatematico, y si el proyecto
+# se mueve —ya paso una vez— la contabilidad del gasto deja de escribirse sin
+# que nadie se entere. Saber lo que cuesta cada consulta fue lo que permitio
+# bajarla de $0,59 a $0,096; perderlo en silencio seria caro en los dos
+# sentidos.
+from nucleo.rutas import dato as _dato
+
+RUTA = str(_dato("uso_llm.json"))
 
 
 def precio_de(modelo: str) -> tuple[float, float]:

@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-773_passing-brightgreen.svg)](#6-tests)
+[![Tests](https://img.shields.io/badge/Tests-777_passing-brightgreen.svg)](#6-tests)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#5-lo-que-está-medido)
 [![Vocabulario](https://img.shields.io/badge/Nombres_Mathlib-95%25_válidos-8b5cf6.svg)](#4-el-vocabulario-verificado)
 [![Emergencia](https://img.shields.io/badge/Orden_de_Ehresmann-3-8b5cf6.svg)](#7-lo-que-el-grafo-descubre-solo)
@@ -243,7 +243,7 @@ Dos arreglos explican la diferencia. Los modelos actuales traen pensamiento adap
 python -m pytest tests/ -o "addopts=" -q
 ```
 
-**773 tests en 36 suites.** Las mayores:
+**777 tests en 37 suites.** Las mayores:
 
 | suite | tests | qué verifica |
 |---|---|---|
@@ -360,7 +360,7 @@ nucleo/
 
 MetamathProver/                # 385 teoremas Lean, 0 sorry
 scripts/                       # bancos de medida, auditorías, guardianes
-tests/                         # 773 tests en 36 suites
+tests/                         # 777 tests en 37 suites
 docs/
 ├── arquitectura_nle.html      # fuente del documento visual
 ├── INTERPRETACION_DEL_GRAFO.pdf
