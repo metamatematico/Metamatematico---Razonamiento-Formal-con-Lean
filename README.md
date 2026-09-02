@@ -2,385 +2,382 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-777_passing-brightgreen.svg)](#6-tests)
-[![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#5-lo-que-está-medido)
-[![Vocabulario](https://img.shields.io/badge/Nombres_Mathlib-95%25_válidos-8b5cf6.svg)](#4-el-vocabulario-verificado)
-[![Emergencia](https://img.shields.io/badge/Orden_de_Ehresmann-3-8b5cf6.svg)](#7-lo-que-el-grafo-descubre-solo)
+[![Tests](https://img.shields.io/badge/Tests-777_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
+[![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
+[![Grafo](https://img.shields.io/badge/Grafo-298_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
 
-Una IA matemática que **no confía en el modelo de lenguaje para decidir si algo es cierto**. El LLM formaliza en Lean 4, el kernel verifica, y solo entonces se traduce el resultado. Un grafo categórico de conceptos interviene en dos puntos de esa cadena — y en ninguno decide qué es verdad.
+Una IA matemática que **no confía en el modelo de lenguaje para decidir si algo
+es cierto**. El LLM formaliza en Lean 4, el kernel verifica, y sólo entonces se
+traduce el resultado.
 
-> **Documentación visual completa** — [Metamatemático por dentro](https://claude.ai/code/artifact/8907db6a-017e-41ff-a434-b1eaf4ac0631): el flujo en detalle, el registro de defectos que encontró medir, y de dónde sale cada cifra. Fuente en [`docs/arquitectura_nle.html`](docs/arquitectura_nle.html).
+Alrededor de esa cadena hay **dos capas de conocimiento** con trabajos
+distintos: un grafo pequeño y curado que dice *de qué habla* algo, y una lista
+grande y extraída de Mathlib que dice *qué es cierto*. Ninguna de las dos
+decide la verdad — eso es Lean, siempre.
+
+> **Documentación visual completa** — [Metamatemático por dentro](https://claude.ai/code/artifact/8907db6a-017e-41ff-a434-b1eaf4ac0631):
+> las dos capas, el grafo dibujado, lo que está medido, **lo que se midió y no
+> sirve**, y los doce instrumentos rotos que hubo que cazar por el camino.
+> Fuente en [`docs/arquitectura_nle.html`](docs/arquitectura_nle.html).
 
 ---
 
 ## Índice
 
 1. [El flujo, de la entrada a la salida](#1-el-flujo-de-la-entrada-a-la-salida)
-2. [Lean decide, y sus seis veredictos](#2-lean-decide-y-sus-seis-veredictos)
-3. [El grafo: qué es y qué hace](#3-el-grafo-qué-es-y-qué-hace)
-4. [El vocabulario verificado](#4-el-vocabulario-verificado)
-5. [Lo que está medido](#5-lo-que-está-medido)
-6. [Tests](#6-tests)
-7. [Lo que el grafo descubre solo](#7-lo-que-el-grafo-descubre-solo)
-8. [Instalación y uso](#8-instalación-y-uso)
-9. [Estructura del repositorio](#9-estructura-del-repositorio)
-10. [Lo que no está](#10-lo-que-no-está)
+2. [Las dos capas](#2-las-dos-capas)
+3. [El grafo: de qué consta](#3-el-grafo-de-qué-consta)
+4. [La lista: 183 433 hechos](#4-la-lista-183-433-hechos)
+5. [Lean y sus seis veredictos](#5-lean-y-sus-seis-veredictos)
+6. [Lo que está medido](#6-lo-que-está-medido)
+7. [Tests y guardianes](#7-tests-y-guardianes)
+8. [Lo que se midió y no sirve](#8-lo-que-se-midió-y-no-sirve)
+9. [Instalación y uso](#9-instalación-y-uso)
+10. [Estructura del repositorio](#10-estructura-del-repositorio)
+11. [Lo que no está](#11-lo-que-no-está)
 
 ---
 
 ## 1. El flujo, de la entrada a la salida
 
-Todo pasa por `Nucleo.process(texto)`. Cinco pasos, y en dos de ellos actúa el grafo.
+Todo pasa por `Nucleo.process(texto)`.
 
 <p align="center">
-  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional sin tocar Lean. Si lo es, el grafo categórico aporta al prompt los conceptos activados con sus prerrequisitos, los nombres de Mathlib verificados y ejemplos few-shot. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y su veredicto tiene seis salidas distintas. Finalmente el LLM traduce, y la respuesta sale con el veredicto delante del texto." width="100%">
+  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional sin tocar Lean. Si lo es, el grafo aporta al prompt los conceptos activados con sus nombres de Mathlib verificados. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y su veredicto tiene seis salidas distintas. Finalmente el LLM traduce, y la respuesta sale con el veredicto delante del texto." width="100%">
 </p>
 
-| paso | quién | qué hace |
-|---|---|---|
-| 1 | **grafo** | activa conceptos, aporta prerrequisitos y **nombres de Mathlib verificados** |
-| 2 | LLM | escribe Lean 4 — no juzga si es correcto |
-| 3 | **grafo** | elige **qué módulos importa Lean**, derivados de esos conceptos |
-| 4 | **Lean** | verifica · su veredicto es inapelable |
-| 5 | LLM | traduce el código que Lean aceptó, no lo que el modelo creía |
+| paso | quién | qué hace | ¿aporta? |
+|---|---|---|---|
+| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 12× sobre el azar** |
+| 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
+| 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
+| 4 | **Lean** | verifica · su veredicto es inapelable | — |
+| 5 | LLM | traduce el código que Lean aceptó | — |
+| 6 | **grafo** | ordena las tácticas si queda un `sorry` | **sí — 2,4× menos intentos** |
 
-**Por qué el grafo está exactamente ahí.** Los dos puntos atacan el mismo fallo, y es un fallo medido: el modelo **inventa nombres de Mathlib**. De 28 que propuso de memoria, 21 no existen — `tsum_geometric_two`, `Subgroup.isCyclic`, `isOpen_union` siguen la convención al dedillo y no están. El grafo acierta el 95 %, y no de memoria: cada nombre está comprobado con `#check`.
-
-> **Qué no está en este flujo.** Los co-reguladores deciden antes —responder o asistir— y la memoria evolutiva registra después. Ninguno interviene en formalizar ni en verificar, así que no aparecen en la cadena. Existen y funcionan; no es aquí donde trabajan.
+La última columna sale de medir cada punto por separado. **No hay un veredicto
+único sobre «el núcleo»**: aporta en dos de sus puntos de actuación y es inerte
+en un tercero. El detalle está en la [sección 6](#6-lo-que-está-medido) y los
+negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
 
 ---
 
-## 2. Lean decide, y sus seis veredictos
+## 2. Las dos capas
 
-El principio que atraviesa el sistema: **Lean 4 es la única fuente de verdad matemática**. El LLM tiene un papel arquitectónicamente limitado — escribir código antes de la verificación y traducirlo después.
+|  | el grafo | la lista |
+|---|---|---|
+| **qué guarda** | conceptos — *de qué habla* | hechos — *qué es cierto* |
+| **tamaño** | 298 nodos | 183 433 entradas |
+| **cómo se hizo** | 173 a mano + 125 generados | extraída del fuente, entera |
+| **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
+| **estructura** | categórica: colímites, orden, pilares | plana, indexada |
+| **en el flujo** | pasos 1, 3 y 6 | alimenta el índice de premisas |
 
-Pero hay una trampa que costó tres defectos descubrir: **que Lean compile no significa que haya demostrado lo que se preguntó**. Por eso el veredicto tiene seis salidas, y el aviso va siempre *delante* del texto:
+**El puente ya existía.** Cada hecho de la lista lleva su `concepto`
+—`Algebra.Order`, `Data.Set`— y ésos son exactamente los identificadores de los
+125 nodos generados. No hubo que inventar la correspondencia: estaba en la ruta
+del módulo.
+
+### Por qué hacen falta las dos
+
+Medido: de los 169 nombres que el grafo inyecta hoy, **3 son teoremas o lemas y
+166 son tipos, estructuras y clases**. El grafo da los sustantivos.
+
+Y ahí no es donde el modelo falla. De los 28 nombres que propuso de memoria, los
+21 inexistentes eran *todos* lemas — `tsum_geometric_two`, `Subgroup.isCyclic`,
+`isOpen_union`. El modelo acierta razonablemente los sustantivos e inventa los
+hechos. **La lista existe para cubrir esa mitad.**
+
+---
+
+## 3. El grafo: de qué consta
+
+<p align="center">
+  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado: 298 nodos repartidos en cuatro sectores, uno por pilar fundacional, con los diez nodos base al centro y las sub-ramas hacia fuera. Los 125 nodos generados desde Mathlib aparecen en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
+</p>
+
+| pieza | cuántos | qué es |
+|---|---|---|
+| nodos curados | 173 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
+| nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
+| dependencias | 978 | prerrequisitos. Las de los generados salen del DAG de imports |
+| traducciones | 439 | entre pilares — Curry-Howard, conjuntos↔categorías |
+| analogías | 7 | correspondencias débiles, marcadas como tales |
+| identidades | 298 | una por objeto, como exige la definición de categoría |
+
+```bash
+python scripts/dibujar_grafo.py     # regenera la figura desde el grafo real
+```
+
+### Las nueve tácticas son sumideros
+
+`tactic-simp`, `tactic-ring` y las otras siete reciben **453 aristas y no emiten
+ninguna**. Por eso están dibujadas aparte: dentro convertían el grafo en un
+embudo donde cualquier recorrido terminaba.
+
+Es una categoría-error del mismo tipo que se corrigió con la homología. Una
+táctica no es una *cosa*, es una transformación de estado de prueba: como nodo
+es un sumidero, como flecha compondría y tendría dominio y codominio.
+**Identificado y sin arreglar.**
+
+### El grafo tiene ciclos, y no son de la matemática
+
+134 ciclos, todos entre los nodos generados; entre los 173 curados hay cero. Y
+la causa es la agregación: el DAG oficial de Mathlib es **acíclico** —Lean
+prohíbe imports circulares— pero al colapsar 7 747 módulos en conceptos de dos
+niveles, aparecen.
+
+```
+Topology.Instances → Analysis.Asymptotics → Analysis.Complex → Topology.Instances
+```
+
+Son tres desarrollos distintos, no un recorrido. **El ciclo marca dónde la
+división en ramas deja de funcionar.**
+
+> **Un resultado negativo sobre las «áreas».** Se intentó definirlas por
+> componentes fuertemente conexas, para que el corte lo dictara la estructura.
+> No funciona: da una mega-área con 918 de los 1 358 conceptos. A nivel de
+> fichero Mathlib es un DAG limpio; en cuanto se agrupa por ramas, casi todo
+> queda entrelazado. **La descomposición en ramas no es recuperable de las
+> dependencias** — el orden de construcción no respeta la frontera entre
+> álgebra, topología y análisis.
+
+---
+
+## 4. La lista: 183 433 hechos
+
+```
+121 756  theorem        54 MB en disco
+ 50 835  lemma          1 102 conceptos distintos
+ 10 842  instance       3 sin enunciado utilizable (0,0 %)
+```
+
+```bash
+python scripts/construir_lista_lemas.py --escribir
+python scripts/construir_banco_lemas.py          # el banco de evaluación
+```
+
+### El DAG oficial, que no hubo que reconstruir
+
+Mathlib trae la herramienta hecha, en `.lake/packages/importGraph`:
+
+| comando | qué da |
+|---|---|
+| `lake exe graph` | el DAG completo — 21 446 aristas, 7 747 módulos, **0 ciclos** |
+| `#min_imports` | los imports mínimos que necesita una declaración |
+| `#find_home` | en qué módulo debería vivir una declaración |
+| `#import_diff` | diferencia entre dos conjuntos de imports |
+
+Al compararlo con el extractor propio apareció un fallo: el lector del fuente
+metía unas 2 800 aristas falsas y con ellas un ciclo imposible de 1 244 módulos.
+El oficial da cero, como debe.
+
+### Mathlib no etiqueta por rama — etiqueta por táctica
+
+Se buscó una anotación de área y no existe. Lo que sí hay, en 83 111 líneas y
+162 atributos distintos, es qué herramienta puede usar cada lema:
+
+```
+@[simp]        40 736      @[gcongr]       575      @[continuity]  255
+@[norm_cast]    2 257      @[grind]        547      @[mono]        244
+@[fun_prop]     1 796      @[aesop]        286      @[measurability]
+```
+
+Es un índice *herramienta → lemas* curado por los mantenedores, y sirve: el
+**42,1 %** de las premisas que citan las pruebas ya llevan `@[simp]`, y `simp`
+las conoce sin que nadie se las pase. Filtrarlas movió la selección de premisas
+de empatar con un prior de frecuencia (9,4 % contra 9,2 %) a superarlo
+(14,0 % contra 11,7 %).
+
+---
+
+## 5. Lean y sus seis veredictos
+
+Que Lean compile no significa que haya demostrado lo que se preguntó. El aviso
+va **delante** del texto.
 
 | salida | qué significa |
 |---|---|
 | **verificado** | hay teorema, lo prueba, y es el que se preguntó |
 | **no hay prueba** | Lean aceptó el archivo, pero no contiene ningún teorema |
-| **lo pedido es falso** | Lean verificó la **negación** del enunciado |
-| error de módulo | falta un `import` → se repara y se reintenta |
+| **lo que pediste es falso** | Lean verificó la **negación** del enunciado |
+| error de módulo | falta un import → se repara y se reintenta |
 | error semántico | vuelve al LLM con el error de Lean, máximo 2 rondas |
-| `sorry` | cascada de 12 tácticas ordenadas por un rankeador entrenado |
+| `sorry` | cascada de 12 tácticas, ordenadas por lo medido |
 
-Las tres primeras existen porque las tres se dieron. El sistema llegó a estampar «verificado» sobre un archivo con cuatro `#check` y ningún teorema, y sobre la negación de lo que se había pedido. Ninguna la encontraron los tests: las encontró correr el sistema entero contra un banco de consultas.
-
----
-
-## 3. El grafo: qué es y qué hace
-
-**173 conceptos matemáticos y 569 morfismos.** Es un grafo de conocimiento, con dos propiedades que uno corriente no tiene.
-
-### Puede rechazar sus propios nodos
-
-En un grafo normal, si escribes «análisis armónico» eso es una entidad y punto. Aquí la disciplina categórica obliga a declarar *qué* es cada nodo — y casi la mitad no eran objetos:
-
-| marca | qué es | ¿vértice? | cuántas | ejemplo |
-|---|---|---|---|---|
-| **C** | una categoría | sí | 76 | `group-theory` |
-| **S** | subcategoría plena | sí | 14 | `finite-fields` |
-| **F** | un **funtor** — es arista, no vértice | no | 28 | `homology` |
-| **O** | un objeto *dentro* de una categoría | no | 4 | `real-analysis` (es ℝ) |
-| **T** | el nombre de un tema, sin objetos | no | 53 | `algebraic-combinatorics` |
-
-Las 28 marcadas **F** producían colímites falsos: el sistema «descubría» convergencias que eran errores de tipo. No se borran — se **degradan**, repartiendo sus aristas según la dirección.
-
-### Puede proponer nodos que nadie escribió
-
-Un grafo de conocimiento infiere *aristas*. Este infiere **vértices**: cuando varias áreas convergen calcula el colímite, y si no existe lo señala como hueco. No deduce una relación más — dice *aquí falta un concepto*.
-
-### Cada concepto, en tres niveles
-
-```
-ring-theory
-   objeto      un anillo
-   morfismos   homomorfismos
-   Lean        RingCat                              ← verificado con #check
-   módulo      Mathlib.Algebra.Category.Ring.Basic  ← el import
-```
-
-Los tres hacen falta: el primero da los colímites, el segundo el vocabulario, el tercero le dice a Lean dónde encontrarlo. **82** conceptos tienen nombre en Mathlib y **76** tienen módulo.
+Las tres primeras existen porque las tres se dieron: el sistema llegó a estampar
+«verificado» sobre un archivo de `#check` sin teoremas, y sobre la negación de lo
+que se había pedido. Ninguna la encontraron los tests — las encontró correr el
+sistema contra un banco de consultas reales.
 
 ---
 
-## 4. El vocabulario verificado
+## 6. Lo que está medido
 
-| quién propone el nombre | existe en Mathlib |
-|---|---|
-| **el grafo** — comprobado con `#check` | 109/115 · **95 %** |
-| **el modelo** — de memoria | 7/28 · **25 %** |
+Cada cifra con su método y su **modelo nulo**. Sin modelo nulo un porcentaje no
+dice nada: *61 % de acierto* suena bien hasta que se sabe que responder siempre
+lo mismo acierta el 79 %.
 
-Casi **cuatro veces** más fiable. Y el fallo residual del grafo es de otra naturaleza: no fabrica nombres, se le quedan desactualizados cuando Mathlib mueve algo. Eso es mantenimiento, y se vigila solo:
-
-```bash
-python -m scripts.verificar_vocabulario_grafo   # tras cada actualización de Mathlib
-python -m scripts.corregir_nombres_mathlib      # propone; --aplicar lo escribe
-```
-
-**Un caso que lo retrata.** Para «la unión de dos abiertos es abierta» el modelo propuso cuatro nombres. Uno era correcto —`IsOpen.union`— y lo enterró entre tres invenciones. Tenía la respuesta y no supo distinguirla de sus propias fabricaciones. Eso no lo arregla más razonamiento: lo arregla una lista de nombres que existen.
-
-### El segundo punto: qué ve Lean
-
-`import Mathlib` entero tarda 742 s, más que el timeout, así que *algo* tiene que decidir qué subconjunto se carga. Hasta hace poco lo decidía un diccionario de palabras clave; ahora lo derivan los conceptos activados, con los módulos sacados de dónde se declara cada nombre en el fuente:
-
-```
-anillos e ideales  →  Mathlib.Algebra.Category.Ring.Basic
-                      Mathlib.RingTheory.Ideal.Defs
-grupo abeliano     →  Mathlib.Algebra.Category.Grp.Basic
-esquemas           →  Mathlib.AlgebraicGeometry.Scheme
-```
-
----
-
-## 5. Lo que está medido
-
-Todas las cifras salen de ejecutar el sistema, no de estimarlo.
-
-### Banco de fidelidad — 21 de 24
-
-24 consultas de siete áreas. Mide **tres** cosas donde el sistema solo reportaba una: qué dijo Lean, si el teorema formalizado es el de la pregunta —lo dictamina un juez independiente que **no ve el veredicto de Lean**— y si los enunciados falsos se rechazan avisando.
-
-| grupo | resultado | lectura |
-|---|---|---|
-| ciertas y formalizables | 13/16 | los 3 que faltan son de *capacidad*, no de fidelidad |
-| falsas a propósito | 4/4 | detectadas y refutadas, avisando |
-| no matemáticas | 4/4 | ninguna tocó Lean |
-| **verificados infieles** | **0** | ningún «verificado» sobre algo que no se preguntó |
+| qué | resultado | modelo nulo | veredicto |
+|---|---|---|---|
+| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro</sub> | 13,6 % precisión | 1,1 % | **12× · aporta** |
+| Dependencias contra el DAG real<br><sub>21 446 aristas oficiales</sub> | 78,1 % confirmadas | 32,6 % | **2,4× · aporta** |
+| Orden de tácticas<br><sub>1 600 pruebas de Mathlib</sub> | 1,29 intentos | 2,59 | **−50 % · aporta** |
+| Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
+| Elección de imports<br><sub>40 enunciados, Lean como juez</sub> | 90 % elabora | 90 % | **inerte** |
+| Banco de fidelidad<br><sub>24 consultas, juez ciego al veredicto</sub> | 21/24 | — | **0 infieles** |
 
 ```bash
-python -m scripts.banco_fidelidad            # los 24 casos
-python -m scripts.banco_fidelidad --rapido   # 8, para iterar
+python scripts/recuperacion_contra_proofnet.py    # vocabulario
+python scripts/funtor_dag_mathlib.py              # dependencias
+python scripts/efecto_orden_cascada.py            # tácticas
+python scripts/premisas_sin_simp.py               # premisas
+python scripts/imports_del_grafo_contra_lean.py   # imports
+python -m scripts.banco_fidelidad                 # fidelidad (usa API)
 ```
 
-### El grafo curado contra el DAG real de Mathlib
-
-Las 236 dependencias del grafo están escritas a mano. Mathlib tiene la dependencia de verdad: **24 209 aristas de import**, extraídas del fuente y acíclicas. Si `A → B` dice que A es prerrequisito de B, el fichero de B debería importar el de A.
-
-| | confirmadas | invertidas | azar | factor |
-|---|---|---|---|---|
-| antes | 56.2 % | 17.8 % | 26.2 % | 2.15× |
-| **ahora** | **78.1 %** | **8.2 %** | 32.6 % | **2.40×** |
-
-**El grafo curado no es decoración**: acierta la dirección 2.4 veces más que el azar. Y la medición encontró un defecto en producción — diez conceptos cuyo módulo apuntaba al *envoltorio categórico* (`group-theory` → la categoría **Grp**) en vez de a la teoría. Correcto como identidad, pésimo como import: en Mathlib la categoría Grp está *arriba* del DAG. Ante «un grupo de orden primo es cíclico» el sistema ofrecía la categoría de todos los grupos en lugar de `Subgroup` y `MonoidHom`. Arreglado separando los dos campos.
-
-Dos avisos de método: importar a nivel de fichero no es prerrequisito conceptual, y se midió alcanzabilidad transitiva, generosa en ambos sentidos. Una arista confirmada es evidencia débil; una invertida, evidencia fuerte en contra.
-
-```bash
-python scripts/funtor_dag_mathlib.py
-```
-
-### Qué táctica de Lean va con cada área
-
-El grafo tiene 9 nodos de táctica y morfismos dominio→táctica que **sí llegan a la cascada**: ante un `sorry`, la táctica del área se probaba primera. Pero esos morfismos salían de doce reglas escritas a mano que nadie había comprobado.
-
-Mathlib sí lo sabe. Contando, área por área, qué táctica cierra las pruebas de una línea —el análogo exacto de lo que hace la cascada— la tabla vieja resultó ser:
-
-| área | regla vieja | qué cierra de verdad en esa área |
-|---|---|---|
-| algebra | `ring` | **ni una prueba** — simp 93 %, aesop 5 % |
-| analysis | `norm_num` | ni una — simp 83 %, ring 8 % |
-| combinatorics | `omega` | ni una |
-| geometry, probability | `norm_num` | ni una |
-| logic | `tauto` | ni una, **y no está en la cascada** |
-| computation | `decide` | ni una, tampoco está |
-| number-theory | `norm_num` | 4ª de 4, un 3 % |
-| las 3 que decían `simp` | | acertaban |
-
-Siete de once áreas proponían primero una táctica que no cierra nada en su propia área, y dos eran además inertes porque el nombre no existe en la cascada. Las tres que acertaban decían `simp`, que es la más frecuente **en las once áreas sin excepción**: acertaban por decir lo que dice todo el mundo.
-
-**Dos arreglos.** La tabla pasa a ser una *lista ordenada* por frecuencia medida —si `simp` gana en todas partes, lo que distingue un área de otra está en la cola— y la táctica del área baja **por debajo** de los patrones del objetivo, que son evidencia directa y sí discriminan.
-
-Efecto, medido sobre 1 600 pruebas de Mathlib con la táctica que las cierra conocida:
-
-```
-posición media de la táctica que cierra
-  orden viejo   2.59
-  orden nuevo   1.29     ← 50.3 % menos invocaciones de Lean
-
-  mejoran 1163 (72.7 %) · empeoran 26 (1.6 %) · igual 411 (25.7 %)
-```
-
-Una área empeora: `set-theory`, +0.10, porque era de las que ya acertaba. Reordenar es una permutación, así que nada de esto puede hacer que Lean acepte algo falso — solo cambia cuánto se tarda.
-
-```bash
-python scripts/tacticas_reales_mathlib.py   # qué usa Mathlib
-python scripts/efecto_orden_cascada.py      # antes y después
-```
+Todas sin API salvo la última.
 
 ### Respaldo formal
 
-Cada operación categórica del Python está mapeada al teorema de Lean que la respalda, y la auditoría **valida los dos lados** — que el teorema exista y que la función exista:
-
 ```
-57/58  operaciones con teorema que las respalda
+57/58  operaciones del Python con teorema Lean que las respalda
     0  sorry en todo el corpus (preguntado al compilador, no con grep)
   385  teoremas en 21 archivos Lean
-    1  axiom explícito + 3 opaque
 ```
 
 `collectAxioms` confirma que ninguna constante depende de `sorryAx`.
 
-### Coste
-
-El sistema mide lo que gasta: cada respuesta lleva su coste y hay un acumulado por modelo en `data/uso_llm.json`.
-
-```
-$0,096 por consulta   (antes $0,59)
-```
-
-Dos arreglos explican la diferencia. Los modelos actuales traen pensamiento adaptativo y esfuerzo máximo por defecto, y esos tokens se facturan como salida; bajar el esfuerzo lo dividió por seis. Y el historial del chat se acumulaba, así que formalizar la consulta N cargaba el texto de las N−1 anteriores.
-
 ---
 
-## 6. Tests
+## 7. Tests y guardianes
+
+**777 tests en 37 suites.** Los que más valen no comprueban que el código
+funcione, sino que **no vuelva a mentir**:
+
+| guardián | qué impide |
+|---|---|
+| `test_cobertura_consultas` | que el grafo deje de engancharse con las consultas reales sin avisar |
+| `test_interpretacion` | que un nodo generado se cuele como si estuviera interpretado |
+| `test_domain_tactic_pipeline` | que el prior del área vuelva a adelantar al objetivo |
+| rutas absolutas | que un `except` mudo degrade el sistema en silencio |
+| cifras declaradas | que la documentación anuncie números que ya no son ciertos |
 
 ```bash
-python -m pytest tests/ -o "addopts=" -q
+python -m pytest tests/ -o "addopts="
 ```
 
-**777 tests en 37 suites.** Las mayores:
+---
 
-| suite | tests | qué verifica |
-|---|---|---|
-| `test_interpretacion.py` | 65 | qué es cada concepto: categoría, funtor, objeto o tema |
-| `test_no_delgado.py` | 49 | `Hom` no booleano, congruencia, co-conos |
-| `test_lean_integration.py` | 48 | cliente Lean 4, cascada de solvers, análisis de `sorry` |
-| `test_formalizacion_fiel.py` | 37 | que el teorema verificado sea el que se preguntó |
-| `test_complexity_order.py` | 35 | orden `cn`, orden irreducible, jerarquía emergente |
-| `test_math_domains.py` | 32 | las definiciones de dominio y sus keywords |
-| `test_coste.py` | 12 | tarifas, acumulado, y que el esfuerzo se pase a la API |
-| `test_arranque_real.py` | 6 | lo que solo aparece al **encender** el sistema entero |
-| + 28 suites más | ~476 | colímites, complexificación, pilares, GNN, CLI, guardianes |
+## 8. Lo que se midió y no sirve
 
-Cinco suites son **guardianes**, y existen porque el proyecto ya se quemó con lo que vigilan: cifras escritas a mano que envejecen, el mapeo a Lean que retrocede, la taxonomía que se contradice, el vocabulario Mathlib que se desactualiza, y los defectos que solo salen al arrancar el sistema completo.
+Estos resultados costaron tanto trabajo como los positivos. Están aquí para que
+nadie los repita.
+
+**La elección de imports no aporta, y no queda margen.** Un conjunto fijo de
+tres módulos hace elaborar el 92,5 % de los enunciados; añadirle lo del grafo da
+el mismo 92,5 %. De 40 casos fallan 3: uno necesita `open Real`, otro usa
+sintaxis vieja, y sólo uno es de imports. **Margen real: 2,5 puntos.**
+
+**Las premisas no cierran pruebas.** Añadir tácticas con premisas costó 231
+invocaciones extra de Lean y cerró **cero**. La razón es aritmética: la
+cobertura es del 14 %, o sea una de cada siete, y una prueba las necesita
+*todas*. Una métrica de recuperación **no se traduce en cierres**.
+
+**Tres emparejadores fallaron, y la causa no era el emparejador.** Búsqueda
+plana 43,9 %, descenso anclado en pilares 11,8 %, embeddings 11,9 % — los tres
+por debajo del 79,4 % de decir siempre «álgebra». Para `(a+b)² = a²+2ab+b²`
+**no existía el nodo**: las 35 skills de álgebra eran todas álgebra abstracta.
+
+**La recuperación de lemas por contenido pierde contra la moda.** Sobre 23 243
+pruebas reales: contenido 0,6 % de cobertura, ofrecer siempre los 20 lemas más
+citados, 77 %. `sq_nonneg` no aparece en el enunciado ni tiene por qué — es una
+*herramienta*, no un concepto del que el problema hable.
 
 ---
 
-## 7. Lo que el grafo descubre solo
-
-Nadie declara estos conceptos. El sistema los encuentra buscando el co-cono límite entre los objetos que ya existen:
-
-| patrón | colímite descubierto | orden |
-|---|---|---|
-| geom. aritmética + álg. homológica + topología | **espacios con haz de complejos** | **3** |
-| t. números alg. + t. cuerpos + geom. algebraica | **geometría aritmética** | 2 |
-| geometría algebraica + ideales y cocientes | **variedades afines** | 2 |
-| top. algebraica + suc. exactas + álg. homológica | **categoría derivada** | 1 |
-| funtores + álgebra conmutativa | **geometría algebraica** | 1 |
-
-Y cuando *no* hay concepto unificador, el sistema no inventa un nodo: lo registra como hueco.
-
-### El hallazgo
-
-Cuatro descomposiciones apuntaban a `homology`. Pero **la homología no es una categoría: es un funtor** — una flecha ocupando el sitio de un vértice.
-
-Lo tentador era borrarlas, y habría sido un error: las componentes eran legítimas, la forma correcta, el co-cono bien formado. **El grafo tenía razón en que ahí había algo**, y lo había etiquetado con el nombre del invariante que ese sitio calcula.
-
-<p align="center">
-  <img src="docs/img/09-apice-derived-category.svg" alt="El cuadrado del pushout que define la categoría derivada: las sucesiones exactas se incluyen en el álgebra homológica y se colapsan a cero, y el pushout de ambas es la categoría derivada. La topología algebraica entra por las cadenas singulares. A la derecha, la homología y la cohomología salen de la categoría derivada hacia los objetos graduados como dos funtores distintos que difieren en el signo de la graduación." width="100%">
-</p>
-
-El ápice correcto es el cociente del álgebra homológica módulo las sucesiones exactas: la **categoría derivada**. Con ella las tres patas pasan a ser tres cosas *distintas* —la inclusión de los acíclicos, el colapso, y las cadenas singulares— y ninguna es la homología: la descomposición deja de ser circular y pasa a ser un teorema.
-
-**El reparto de mérito, sin adornos:** el grafo detectó el hueco y descartó las lecturas falsas; el nombre lo puso un matemático. El sistema no descubrió la categoría derivada — descubrió que le faltaba algo exactamente ahí, que es una forma de hallazgo distinta.
-
-### Altura no es emergencia
-
-El sistema mide `cn`, la altura constructiva, como el *máximo* sobre las descomposiciones. Pero altura no es irreducibilidad: si un objeto admite *alguna* descomposición con todas las componentes en orden 0, es un colímite simple y su orden de Ehresmann es 1. Ahí el Principio de Multiplicidad deja de ser decorativo.
-
-**Objetos genuinamente emergentes: 4.** Máximo alcanzado: **orden 3**.
-
----
-
-## 8. Instalación y uso
-
-### Python
+## 9. Instalación y uso
 
 ```bash
 git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
-cd Metamatematico---Razonamiento-Formal-con-Lean
+cd Metamatematico
 pip install -r requirements.txt
+
+# Lean 4 + Mathlib
+lake update && lake build          # 20-30 min la primera vez
+
+# la clave de API, en .env (gitignored)
+echo "ANTHROPIC_API_KEY=sk-..." > .env
+
+streamlit run app.py               # interfaz
+python -m nucleo chat              # REPL
 ```
 
-### Lean 4 + Mathlib
-
-Necesario para la verificación real. Sin él, el sistema genera el código pero lo marca como *sin verificar* — nunca como verificado.
+Los índices derivados de Mathlib se reconstruyen con:
 
 ```bash
-curl https://elan.lean-lang.org/elan-init.sh -sSf | sh   # Linux/macOS
-lake update && lake build                                 # ~20-30 min la primera vez
-```
-
-### API key
-
-El sistema lee `ANTHROPIC_API_KEY` del entorno o de un archivo `.env` en la raíz (ya está en `.gitignore`):
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-```
-
-Sin clave arranca en modo demo: responde con contenido educativo y lo dice en cada respuesta.
-
-### Lanzar
-
-```bash
-streamlit run app.py          # aplicación web
-python -m nucleo chat         # REPL en el terminal
+python -m scripts.mapa_modulos_mathlib
+python scripts/construir_lista_lemas.py --escribir
+python scripts/construir_indice_premisas.py
+lake exe graph --to Mathlib data/mathlib_imports.dot
 ```
 
 ---
 
-## 9. Estructura del repositorio
+## 10. Estructura del repositorio
 
 ```
 nucleo/
-├── core.py                    # Nucleo — orquestador único, el flujo de §1
-├── graph/                     # el grafo categórico
-│   ├── category.py            #   SkillCategory: nodos, morfismos, Hom no delgado
-│   ├── complexity.py          #   cn, orden irreducible, find_colimit_cong
-│   ├── complexificacion.py    #   el paso K → K′
-│   ├── no_delgado.py          #   congruencia, co-conos, morfismos certificados
-│   ├── interpretacion.py      #   qué es cada concepto + su nombre Mathlib
-│   └── functor.py             #   el funtor cociente π: conceptos → agentes
-├── lean/
-│   ├── client.py              # invoca lake · imports que aporta el grafo
-│   ├── solver_cascade.py      # 12 tácticas + rankeador entrenado
-│   └── sorry_filler.py
-├── llm/
-│   ├── client.py              # formalizar y traducir · sin historial
-│   └── contador.py            # cuánto cuesta cada llamada
-├── mes/                       # memoria evolutiva y co-reguladores (fuera del flujo)
-├── multi_agent/               # agentes por categoría matemática
-└── pillars/                   # ZFC · categorías · lógica · tipos + dominios
+  core.py                 el orquestador: Nucleo.process()
+  rutas.py                dónde está cada cosa, sin rutas absolutas
+  graph/                  la categoría de conceptos
+    interpretacion.py     el veredicto: qué es cada nodo, y su `teoria`
+    complexity.py         colímites, orden, emergencia
+  lean/
+    client.py             habla con Lean
+    solver_cascade.py     las 12 tácticas y su orden
+    premisas.py           qué lemas citar cuando la táctica desnuda no basta
+  pillars/
+    math_domains.py       los 163 conceptos curados
+    mathlib_taxonomy.py   los 125 generados (GENERADO — no editar a mano)
 
-MetamathProver/                # 385 teoremas Lean, 0 sorry
-scripts/                       # bancos de medida, auditorías, guardianes
-tests/                         # 777 tests en 37 suites
-docs/
-├── arquitectura_nle.html      # fuente del documento visual
-├── INTERPRETACION_DEL_GRAFO.pdf
-└── img/                       # diagramas en SVG
+scripts/                  cada medición, con su método en el docstring
+MetamathProver/           385 teoremas Lean · 21 archivos
+tests/                    777 tests en 37 suites
+data/                     índices derivados (los grandes van en .gitignore)
 ```
 
 ---
 
-## 10. Lo que no está
+## 11. Lo que no está
 
-**El grafo no está medido como acelerador.** Sé que pone los nombres y los imports correctos. No sé si eso sube la tasa de verificación, porque no está medido. Una ablación sobre casos elementales no discriminó — pero esos los cierra `ring` con grafo o sin él.
+**Sin respuesta todavía.** Si el vocabulario del paso 1 se traduce en más
+verificaciones. Es la única pregunta que necesita llamar al modelo, y está
+bloqueada por presupuesto. Lo que hay: en 8 casos fáciles apagar el núcleo
+entero no cambia ningún veredicto y el sistema completo tarda más — n=8 con
+efecto techo, no concluyente.
 
-**El emparejamiento consulta → concepto falla.** «Unión de dos abiertos» activa `descriptive-set-theory` en vez de topología. Por bueno que sea el vocabulario, si el concepto activado es el equivocado los dos puntos del grafo aportan lo que no toca.
+**Identificado y sin arreglar.**
 
-**La complexificación no produce emergencia.** Cierra huecos, pero `η(P)` se inserta justo encima de las componentes: su orden es `1 + max(componentes)`, y con componentes de orden 0 sale 1 siempre. Los cuatro objetos irreducibles no los construyó el paso.
+- El emparejamiento consulta→concepto. **15 de 24 consultas reales no activan
+  ninguna skill**, y los tres puntos donde el grafo actúa dependen de él.
+- Las tácticas como nodos: 453 aristas entrando en 9 sumideros.
+- Los nombres de los 125 nodos generados están *deducidos* de la ruta del
+  módulo, no comprobados con `#check`. Por eso no se inyectan: al activarlos la
+  precisión caía por debajo del azar.
+- Seis dependencias siguen bajo sospecha de ir al revés.
 
-**El grafo cubre conceptos, no lemas.** Su vocabulario son áreas —`Field`, `TopCat`— no los lemas concretos que cierran una prueba, que es lo que el modelo se inventaba.
+**Lo que el sistema no hace.**
 
-**Y el límite de fondo:** Lean verifica los teoremas, no el Python. El mapeo *operación → teorema* está comprobado en sus dos extremos, pero nadie ha demostrado que `find_colimit_cong` compute lo que el teorema caracteriza. Lo que sí se comprueba por test es que el grafo real cumpla las *hipótesis* de los teoremas.
+- No demuestra teoremas por sí solo: formaliza y verifica.
+- El grafo no decide qué es cierto en ningún punto. Eso es Lean, siempre.
+- Sin API no hay formalización, ni chat, ni banco de fidelidad. Lo que sigue
+  vivo sin ella es validar y mejorar el núcleo.
 
 ---
 
-**Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas · 2026**
+**Licencia MIT** · Leonardo Jiménez Martínez, BIOMAT — Centro de Biomatemáticas

@@ -1,0 +1,30 @@
+{
+ "n": 40,
+ "elabora_fijo": 37,
+ "fallos": [
+  {
+   "id": "lean_workbook_54888",
+   "faltan": [],
+   "modulos_necesarios": [],
+   "no_es_import": true,
+   "el_grafo_lo_tenia": false,
+   "grafo_propuso": []
+  },
+  {
+   "id": "lean_workbook_plus_2048",
+   "faltan": [],
+   "modulos_necesarios": [],
+   "no_es_import": false,
+   "el_grafo_lo_tenia": false,
+   "grafo_propuso": []
+  },
+  {
+   "id": "lean_workbook_plus_66384",
+   "faltan": [],
+   "modulos_necesarios": [],
+   "no_es_import": true,
+   "el_grafo_lo_tenia": false,
+   "grafo_propuso": []
+  }
+ ]
+}

@@ -187,50 +187,52 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
 </style>
 
 <div class="shell">
-  <aside class="toc">
-    <p class="toc-kicker">Documentación técnica</p>
-    <p class="toc-title">Metamatemático <span>/ por dentro</span></p>
-    <nav aria-label="Índice">
-      <ol>
-        <li><a href="#flujo">El flujo, de la entrada a la salida</a></li>
-        <li><a href="#lean">Lean decide, y sus seis veredictos</a></li>
-        <li><a href="#grafo">El grafo: qué es y qué hace</a></li>
-        <li><a href="#vocabulario">El vocabulario verificado</a></li>
-        <li><a href="#emergencia">Lo que el grafo descubre solo</a></li>
-        <li><a href="#medido">Lo que está medido</a></li>
-        <li><a href="#defectos">Lo que encontró medir</a></li>
-        <li><a href="#limites">Lo que no está</a></li>
-      </ol>
-    </nav>
-    <div class="toc-foot">
-      Lean 4 — única fuente de verdad<br>
-      E:\Metamatematico — repo canónico<br>
-      rev. 1 sep 2026 · 777 tests
+<nav class="toc">
+  <p class="toc-kicker">Metamatemático</p>
+  <p class="toc-title">Por <span>dentro</span></p>
+  <ol>
+    <li><a href="#flujo">El flujo, de la entrada a la salida</a></li>
+    <li><a href="#capas">Las dos capas</a></li>
+    <li><a href="#grafo">El grafo: de qué consta</a></li>
+    <li><a href="#hechos">La lista: 183 433 hechos</a></li>
+    <li><a href="#lean">Lean y sus seis veredictos</a></li>
+    <li><a href="#medido">Lo que está medido</a></li>
+    <li><a href="#nosirve">Lo que se midió y no sirve</a></li>
+    <li><a href="#instrumentos">Doce instrumentos rotos</a></li>
+    <li><a href="#limites">Lo que no está</a></li>
+  </ol>
+  <p class="toc-foot">
+    298 nodos · 1722 morfismos<br>
+    183 433 hechos indexados<br>
+    777 tests · 37 suites
+  </p>
+</nav>
+
+<main>
+  <header class="hero">
+    <p class="hero-kicker"><span class="dot"></span>Arquitectura, y qué está medido</p>
+    <h1>Un grafo de conceptos sobre una lista de <em>hechos</em>, y Lean decidiendo</h1>
+    <p class="lede">El sistema formaliza una consulta matemática en Lean 4 y la
+    verifica. Alrededor de esa cadena hay dos capas de conocimiento con trabajos
+    distintos: un grafo pequeño y curado que dice <em>de qué habla</em> algo, y
+    una lista grande y extraída que dice <em>qué es cierto</em>. Esta página
+    cuenta cómo encajan y qué se ha comprobado de cada pieza — incluidas las que
+    resultaron inertes.</p>
+    <div class="cifras">
+      <div><div class="n">298</div><div class="l">nodos en el grafo</div></div>
+      <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
+      <div><div class="n">21 446</div><div class="l">aristas del DAG oficial</div></div>
+      <div><div class="n">777</div><div class="l">tests en verde</div></div>
     </div>
-  </aside>
+  </header>
 
-  <main>
-    <div class="hero">
-      <p class="hero-kicker"><span class="dot"></span> grafo categórico · Lean 4 · LLM</p>
-      <h1>Cómo funciona <em>Metamatemático</em> por dentro</h1>
-      <p class="lede">Una IA matemática que no confía en el modelo de lenguaje para decidir si algo es cierto. El LLM formaliza en Lean&nbsp;4, el kernel verifica, y solo entonces se traduce el resultado. Un grafo categórico de conceptos interviene en dos puntos de esa cadena — y en ninguno decide qué es verdad.</p>
+  <section id="flujo">
+    <div class="head"><span class="num">01</span><h2>El flujo, de la <span class="g">entrada</span> a la <span class="v">salida</span></h2></div>
+    <p>Todo pasa por <code>Nucleo.process(texto)</code>. Cinco pasos, y el grafo
+    interviene en dos de ellos — en ninguno decide si algo es cierto.</p>
 
-      <div class="cifras">
-        <div><div class="n">173</div><div class="l">conceptos en el grafo</div></div>
-        <div><div class="n">21<span style="font-size:14px;color:var(--muted)">/24</span></div><div class="l">banco de fidelidad</div></div>
-        <div><div class="n">95<span style="font-size:14px;color:var(--muted)">%</span></div><div class="l">nombres Mathlib válidos</div></div>
-        <div><div class="n">3</div><div class="l">orden de emergencia</div></div>
-        <div><div class="n">777</div><div class="l">tests</div></div>
-      </div>
-    </div>
-
-    <!-- ═══ 1 ═══ -->
-    <section id="flujo">
-      <div class="head"><span class="num">01</span><h2>El flujo, de la <span class="g">entrada</span> a la <span class="v">salida</span></h2></div>
-      <p>Todo pasa por <code>Nucleo.process(texto)</code>. Lo que sigue es el recorrido completo, sin adornos: cinco pasos, y en dos de ellos actúa el grafo.</p>
-
-      <figure>
-        <div class="marco">
+    <figure>
+      <div class="marco">
 <svg viewBox="0 0 1180 700" width="100%" role="img" aria-label="Flujo del sistema de la entrada a la salida. La consulta entra por un clasificador de forma que decide si es matemática; si no lo es va al LLM conversacional sin tocar Lean. Si lo es, el grafo categórico aporta tres cosas al prompt: las habilidades activadas con sus prerrequisitos, los nombres de Mathlib verificados con check, y ejemplos few-shot de LeanWorkbook. El LLM formaliza y produce código Lean candidato. Antes de verificar, el normalizador sustituye el import de Mathlib entero por los módulos que el grafo deriva de las habilidades activadas más una cabecera de tácticas. Lean verifica y su veredicto tiene seis salidas: verificado, sin teorema, refutación de lo preguntado, error de módulo que dispara la reparación de imports, error semántico que vuelve al LLM con máximo dos rondas, y sorry que va a la cascada de doce tácticas. Finalmente el LLM traduce y la respuesta sale con el veredicto delante del texto.">
 <defs>
   <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -326,409 +328,880 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
 
 <text x="30" y="686" font-size="9.5" class="dim">Los co-reguladores y la memoria MES no aparecen: deciden antes y registran después, pero no intervienen en formalizar ni en verificar.</text>
 </svg>
-
-        </div>
-        <figcaption><b>Fig. 1 —</b> El grafo actúa dos veces y en ninguna decide si algo es cierto: prepara el prompt de formalización, y elige qué módulos de Mathlib verá Lean. La verdad la produce Lean, y su veredicto tiene seis salidas — porque que Lean compile no significa que haya demostrado lo que se preguntó.</figcaption>
-      </figure>
-
-      <div class="tabla">
-        <table>
-          <thead><tr><th class="mono">paso</th><th>quién</th><th>qué hace</th></tr></thead>
-          <tbody>
-            <tr><td class="mono">1</td><td><strong class="g">grafo</strong></td><td>activa conceptos, aporta prerrequisitos y <strong>nombres de Mathlib verificados</strong></td></tr>
-            <tr><td class="mono">2</td><td><strong class="l">LLM</strong></td><td>escribe Lean 4 — no juzga si es correcto</td></tr>
-            <tr><td class="mono">3</td><td><strong class="g">grafo</strong></td><td>elige <strong>qué módulos importa Lean</strong>, derivados de esos conceptos</td></tr>
-            <tr><td class="mono">4</td><td><strong class="v">Lean</strong></td><td>verifica · su veredicto es inapelable</td></tr>
-            <tr><td class="mono">5</td><td><strong class="l">LLM</strong></td><td>traduce el código que Lean aceptó, no lo que el modelo creía</td></tr>
-          </tbody>
-        </table>
       </div>
+      <figcaption><b>Fig. 1 —</b> El recorrido completo. La verdad la produce
+      Lean, y su veredicto tiene seis salidas distintas: que compile no
+      significa que haya demostrado lo que se preguntó.</figcaption>
+    </figure>
 
-      <div class="nota g">
-        <b>Por qué el grafo está exactamente ahí</b>
-        Los dos puntos atacan el mismo fallo, y es un fallo medido: <strong>el modelo inventa nombres de Mathlib</strong>. De 28 que propuso de memoria, 21 no existen. <code>tsum_geometric_two</code>, <code>Subgroup.isCyclic</code>, <code>isOpen_union</code> — siguen la convención de nombres al dedillo y no están en la biblioteca.
-        <br><br>El grafo acierta el 95&nbsp;%, y no de memoria: cada nombre está comprobado con <code>#check</code> contra Mathlib entero. Es sustituir <em>recuerdo</em> por <em>consulta</em> justo donde el recuerdo falla tres de cada cuatro veces.
-      </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th class="mono">paso</th><th>quién</th><th>qué hace</th><th>¿aporta?</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1</td><td><strong>grafo</strong></td><td>aporta nombres de Mathlib verificados al prompt</td><td><span class="pill v">sí, 12×</span></td></tr>
+          <tr><td class="mono">2</td><td>LLM</td><td>escribe Lean 4 — no juzga si es correcto</td><td>—</td></tr>
+          <tr><td class="mono">3</td><td><strong>grafo</strong></td><td>elige qué módulos importa Lean</td><td><span class="pill">inerte</span></td></tr>
+          <tr><td class="mono">4</td><td><strong>Lean</strong></td><td>verifica · su veredicto es inapelable</td><td>—</td></tr>
+          <tr><td class="mono">5</td><td>LLM</td><td>traduce el código que Lean aceptó</td><td>—</td></tr>
+          <tr><td class="mono">6</td><td><strong>grafo</strong></td><td>ordena las tácticas si queda un <code>sorry</code></td><td><span class="pill v">sí, 2,4×</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>La última columna es el resultado de medir cada punto por separado, y es
+    lo que esta página viene a documentar. <strong>No hay un veredicto único
+    sobre «el núcleo»</strong>: aporta en dos de sus puntos de actuación y es
+    inerte en un tercero.</p>
+  </section>
 
-      <div class="nota">
-        <b>Qué no está en este flujo</b>
-        Los co-reguladores deciden antes —responder o asistir— y la memoria evolutiva registra después. Ninguno interviene en formalizar ni en verificar, así que no aparecen en la cadena. Existen y funcionan; simplemente no es aquí donde trabajan.
-      </div>
-    </section>
+  <section id="capas">
+    <div class="head"><span class="num">02</span><h2>Las dos <span class="g">capas</span></h2></div>
+    <p>La arquitectura tiene dos almacenes de conocimiento, y confundirlos fue
+    el error que costó más tiempo. Hacen cosas distintas y se miden distinto.</p>
 
-    <!-- ═══ 2 ═══ -->
-    <section id="lean">
-      <div class="head"><span class="num">02</span><h2><span class="v">Lean</span> decide, y sus seis veredictos</h2></div>
-      <p>El principio que atraviesa el sistema: <strong>Lean 4 es la única fuente de verdad matemática</strong>. El LLM tiene el papel arquitectónicamente limitado de escribir código antes de la verificación y traducirlo después. No razona por su cuenta en ningún punto que afecte a la corrección.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th></th><th>el grafo</th><th>la lista</th></tr></thead>
+        <tbody>
+          <tr><td><strong>qué guarda</strong></td><td>conceptos — <em>de qué habla</em></td><td>hechos — <em>qué es cierto</em></td></tr>
+          <tr><td><strong>tamaño</strong></td><td class="mono">298 nodos</td><td class="mono">183 433 entradas</td></tr>
+          <tr><td><strong>cómo se hizo</strong></td><td>a mano, 173 nodos · generados desde Mathlib, 125</td><td>extraída del fuente, entera</td></tr>
+          <tr><td><strong>¿puede equivocarse?</strong></td><td><strong>sí</strong> — es curación humana</td><td>no sobre sí misma</td></tr>
+          <tr><td><strong>estructura</strong></td><td>categórica: colímites, orden, pilares</td><td>plana, indexada</td></tr>
+          <tr><td><strong>en el flujo</strong></td><td>pasos 1, 3 y 6</td><td>alimenta el índice de premisas</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-      <p>Pero hay una trampa que costó tres defectos descubrir: <strong>que Lean compile no significa que haya demostrado lo que se preguntó</strong>. Por eso el veredicto tiene seis salidas, cada una con su propia presentación, y el aviso va siempre <em>delante</em> del texto:</p>
+    <div class="nota g">
+      <b>El puente ya existía, y es gratis</b>
+      Cada hecho de la lista lleva su <code>concepto</code> —<code>Algebra.Order</code>,
+      <code>Data.Set</code>— y esos son exactamente los identificadores de los
+      125 nodos generados. Lista y grafo se enganchan por construcción: no hubo
+      que inventar la correspondencia, estaba en la ruta del módulo.
+    </div>
 
-      <div class="tabla">
-        <table>
-          <thead><tr><th>salida</th><th>qué significa</th><th>qué se muestra</th></tr></thead>
-          <tbody>
-            <tr><td><span class="pill v">verificado</span></td><td>hay teorema, lo prueba, y es el que se preguntó</td><td>la explicación, con su insignia y el código</td></tr>
-            <tr><td><span class="pill a">no hay prueba</span></td><td>Lean aceptó el archivo, pero no contiene ningún teorema</td><td>aviso delante: no hay respaldo formal</td></tr>
-            <tr><td><span class="pill a">lo pedido es falso</span></td><td>Lean verificó la <strong>negación</strong> del enunciado</td><td>aviso delante: lo que preguntaste es falso</td></tr>
-            <tr><td><span class="pill">error de módulo</span></td><td>falta un <code>import</code></td><td>se repara y se reintenta, en silencio</td></tr>
-            <tr><td><span class="pill">error semántico</span></td><td>tipo incompatible, táctica fallida</td><td>vuelve al LLM con el error, máx. 2 rondas</td></tr>
-            <tr><td><span class="pill"><code>sorry</code></span></td><td>estructura correcta, pasos sin demostrar</td><td>cascada de 12 tácticas, luego aviso parcial</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <h3>Por qué hacen falta las dos</h3>
+    <p>Medido: de los 169 nombres que el grafo inyecta hoy, <strong>3 son
+    teoremas o lemas y 166 son tipos, estructuras y clases</strong>. El grafo da
+    los sustantivos. Y ahí no es donde el modelo falla — de los 28 nombres que
+    propuso de memoria, los 21 inexistentes eran <em>todos</em> lemas:
+    <code>tsum_geometric_two</code>, <code>Subgroup.isCyclic</code>,
+    <code>isOpen_union</code>. El modelo acierta razonablemente los sustantivos e
+    inventa los hechos. La lista existe para cubrir esa mitad.</p>
+  </section>
 
-      <div class="nota a">
-        <b>Las tres primeras existen porque las tres se dieron</b>
-        El sistema llegó a estampar «verificado» sobre un archivo que solo tenía cuatro <code>#check</code> y ningún teorema. Y sobre la <em>negación</em> de lo que se había pedido: preguntar «demuestra que √4 es irracional» —que es falso— devolvía una prueba correcta de que no lo es, con sello de verificada y sin avisar de la inversión.
-        <br><br>Ninguna de las dos la encontraron los tests. Las encontró correr el sistema entero contra un banco de consultas. Ver la <a href="#defectos">sección&nbsp;7</a>.
-      </div>
-    </section>
+  <section id="grafo">
+    <div class="head"><span class="num">03</span><h2>El <span class="g">grafo</span>: de qué consta</h2></div>
 
-    <!-- ═══ 3 ═══ -->
-    <section id="grafo">
-      <div class="head"><span class="num">03</span><h2>El <span class="g">grafo</span>: qué es y qué hace</h2></div>
-      <p>173 conceptos matemáticos y 569 morfismos entre ellos. Es un grafo de conocimiento, pero con dos propiedades que uno corriente no tiene.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th class="mono">pieza</th><th class="mono">cuántos</th><th>qué es</th></tr></thead>
+        <tbody>
+          <tr><td>nodos curados</td><td class="mono">173</td><td>escritos a mano, con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos»</td></tr>
+          <tr><td>nodos generados</td><td class="mono">125</td><td>leídos de la taxonomía de Mathlib. Dicen <em>dónde vive</em> algo, no qué es. Van marcados <code>interpretado=False</code></td></tr>
+          <tr><td>dependencias</td><td class="mono">978</td><td>prerrequisitos. Las de los generados salen del DAG de imports, o sea que son reales</td></tr>
+          <tr><td>traducciones</td><td class="mono">439</td><td>entre pilares — Curry-Howard, conjuntos↔categorías</td></tr>
+          <tr><td>analogías</td><td class="mono">7</td><td>correspondencias débiles, marcadas como tales</td></tr>
+          <tr><td>identidades</td><td class="mono">298</td><td>una por objeto, como exige la definición de categoría</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-      <h3>Puede rechazar sus propios nodos</h3>
-      <p>En un grafo de conocimiento normal, si escribes «análisis armónico» eso es una entidad y punto. Aquí la disciplina categórica obliga a declarar <em>qué</em> es cada nodo — y al hacerlo resultó que casi la mitad no eran objetos:</p>
+    <figure>
+      <div class="marco">
+<svg viewBox="0 0 1100 780" role="img" aria-label="El grafo del runtime: 298 nodos repartidos en cuatro sectores, uno por pilar fundacional, con las bases al centro y las sub-ramas fuera. Los nodos generados desde Mathlib van en tono mas claro porque no estan interpretados. Las nueve tacticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna.">
+<style>svg{color:#1b1e17}.e{stroke:currentColor;opacity:.13;fill:none}.n{stroke:none}.g{fill:#564c9e}.c{fill:#167a68}.l{fill:#b4761f}.t{fill:#ae3b35}.cob{opacity:.42}.sm{font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62}.tt{font:600 12px ui-monospace,monospace;fill:currentColor}@media(prefers-color-scheme:dark){svg{color:#e8e6de}.g{fill:#948bdd}.c{fill:#4dc0aa}.l{fill:#e2a94f}.t{fill:#e2827a}.e{opacity:.18}}</style>
+<path class="e" d="M550 322 Q550 322 549 322"/>
+<path class="e" d="M490 422 Q489 421 488 420"/>
+<path class="e" d="M488 420 Q485 419 483 417"/>
+<path class="e" d="M488 420 Q486 420 485 419"/>
+<path class="e" d="M512 315 Q514 314 516 314"/>
+<path class="e" d="M466 351 Q466 349 467 348"/>
+<path class="e" d="M550 322 Q568 295 597 280"/>
+<path class="e" d="M550 322 Q573 298 605 288"/>
+<path class="e" d="M597 280 Q602 283 605 288"/>
+<path class="e" d="M605 288 Q599 284 594 278"/>
+<path class="e" d="M605 288 Q602 285 599 282"/>
+<path class="e" d="M605 288 Q592 281 584 270"/>
+<path class="e" d="M599 282 Q590 278 584 270"/>
+<path class="e" d="M550 322 Q569 296 598 281"/>
+<path class="e" d="M550 322 Q566 294 593 277"/>
+<path class="e" d="M593 277 Q599 280 603 285"/>
+<path class="e" d="M550 322 Q573 298 604 286"/>
+<path class="e" d="M604 286 Q593 281 585 271"/>
+<path class="e" d="M550 322 Q571 297 600 283"/>
+<path class="e" d="M467 348 Q439 332 421 305"/>
+<path class="e" d="M466 351 Q439 330 425 299"/>
+<path class="e" d="M550 322 Q564 294 590 275"/>
+<path class="e" d="M550 322 Q565 294 592 276"/>
+<path class="e" d="M550 322 Q568 295 596 279"/>
+<path class="e" d="M604 286 Q603 286 602 284"/>
+<path class="e" d="M549 322 Q563 293 588 273"/>
+<path class="e" d="M600 283 Q593 279 588 273"/>
+<path class="e" d="M467 348 Q437 338 414 316"/>
+<path class="e" d="M414 316 Q415 313 417 310"/>
+<path class="e" d="M512 315 Q508 282 520 252"/>
+<path class="e" d="M516 314 Q515 282 528 252"/>
+<path class="e" d="M604 286 Q593 281 586 272"/>
+<path class="e" d="M596 279 Q592 277 589 274"/>
+<path class="e" d="M592 276 Q590 275 589 274"/>
+<path class="e" d="M599 282 Q515 412 381 489"/>
+<path class="e" d="M488 420 Q442 467 381 489"/>
+<path class="e" d="M597 280 Q638 399 621 523"/>
+<path class="e" d="M599 282 Q639 400 621 523"/>
+<path class="e" d="M604 286 Q628 264 659 255"/>
+<path class="e" d="M600 283 Q627 262 659 255"/>
+<path class="e" d="M584 270 Q519 411 398 507"/>
+<path class="e" d="M488 420 Q453 474 398 507"/>
+<path class="e" d="M659 255 Q671 396 617 526"/>
+<path class="e" d="M604 286 Q639 405 617 526"/>
+<path class="e" d="M585 271 Q619 253 658 253"/>
+<path class="e" d="M659 255 Q658 254 658 253"/>
+<path class="e" d="M604 286 Q632 267 666 263"/>
+<path class="e" d="M600 283 Q631 265 666 263"/>
+<path class="e" d="M604 286 Q634 269 668 267"/>
+<path class="e" d="M666 263 Q667 264 668 267"/>
+<path class="e" d="M604 286 Q644 400 627 519"/>
+<path class="e" d="M666 263 Q677 395 627 519"/>
+<path class="e" d="M666 263 Q519 369 340 397"/>
+<path class="e" d="M488 420 Q411 426 340 397"/>
+<path class="e" d="M600 283 Q522 417 392 501"/>
+<path class="e" d="M488 420 Q450 472 392 501"/>
+<path class="e" d="M600 283 Q628 263 661 257"/>
+<path class="e" d="M659 255 Q660 256 661 257"/>
+<path class="e" d="M392 501 Q378 491 370 476"/>
+<path class="e" d="M488 420 Q436 462 370 476"/>
+<path class="e" d="M600 283 Q632 266 667 265"/>
+<path class="e" d="M392 501 Q501 350 667 265"/>
+<path class="e" d="M512 315 Q514 249 545 192"/>
+<path class="e" d="M370 476 Q424 313 545 192"/>
+<path class="e" d="M605 288 Q624 262 653 247"/>
+<path class="e" d="M594 278 Q620 256 653 247"/>
+<path class="e" d="M585 271 Q617 252 654 249"/>
+<path class="e" d="M590 275 Q619 254 654 249"/>
+<path class="e" d="M398 507 Q496 348 656 251"/>
+<path class="e" d="M653 247 Q655 249 656 251"/>
+<path class="e" d="M594 278 Q622 257 656 251"/>
+<path class="e" d="M592 276 Q637 395 623 522"/>
+<path class="e" d="M596 279 Q639 397 623 522"/>
+<path class="e" d="M596 279 Q628 262 664 261"/>
+<path class="e" d="M597 280 Q620 256 651 246"/>
+<path class="e" d="M592 276 Q618 254 651 246"/>
+<path class="e" d="M602 284 Q642 399 625 520"/>
+<path class="e" d="M592 276 Q638 394 625 520"/>
+<path class="e" d="M602 284 Q639 402 619 525"/>
+<path class="e" d="M602 284 Q634 268 670 269"/>
+<path class="e" d="M602 284 Q629 264 662 259"/>
+<path class="e" d="M600 283 Q629 263 662 259"/>
+<path class="e" d="M488 420 Q446 470 386 495"/>
+<path class="e" d="M483 417 Q444 468 386 495"/>
+<path class="e" d="M488 420 Q439 465 375 482"/>
+<path class="e" d="M485 419 Q438 464 375 482"/>
+<path class="e" d="M666 263 Q672 401 615 527"/>
+<path class="e" d="M627 519 Q622 525 615 527"/>
+<path class="e" d="M604 286 Q638 406 615 527"/>
+<path class="e" d="M466 351 Q431 288 428 215"/>
+<path class="e" d="M598 281 Q630 446 583 608"/>
+<path class="e" d="M583 608 Q604 593 630 590"/>
+<path class="e" d="M598 281 Q603 457 527 616"/>
+<path class="e" d="M598 281 Q654 429 636 587"/>
+<path class="e" d="M597 280 Q541 457 411 590"/>
+<path class="e" d="M597 280 Q612 453 547 614"/>
+<path class="e" d="M547 614 Q498 622 451 606"/>
+<path class="e" d="M597 280 Q614 452 550 614"/>
+<path class="e" d="M550 614 Q476 619 408 589"/>
+<path class="e" d="M597 280 Q657 425 644 582"/>
+<path class="e" d="M597 280 Q622 449 567 611"/>
+<path class="e" d="M451 606 Q434 604 420 595"/>
+<path class="e" d="M605 288 Q609 460 534 616"/>
+<path class="e" d="M605 288 Q577 465 471 611"/>
+<path class="e" d="M534 616 Q463 616 399 584"/>
+<path class="e" d="M534 616 Q521 619 507 616"/>
+<path class="e" d="M534 616 Q510 620 487 614"/>
+<path class="e" d="M594 278 Q625 446 577 609"/>
+<path class="e" d="M577 609 Q569 613 560 613"/>
+<path class="e" d="M420 595 Q492 587 560 613"/>
+<path class="e" d="M577 609 Q575 610 573 610"/>
+<path class="e" d="M577 609 Q493 620 414 592"/>
+<path class="e" d="M599 282 Q629 448 580 609"/>
+<path class="e" d="M599 282 Q539 458 405 587"/>
+<path class="e" d="M599 282 Q569 462 461 609"/>
+<path class="e" d="M621 523 Q631 558 624 593"/>
+<path class="e" d="M590 275 Q630 440 590 606"/>
+<path class="e" d="M590 606 Q529 623 468 610"/>
+<path class="e" d="M590 606 Q541 622 491 614"/>
+<path class="e" d="M491 614 Q541 597 593 605"/>
+<path class="e" d="M491 614 Q472 615 455 607"/>
+<path class="e" d="M653 247 Q612 451 484 613"/>
+<path class="e" d="M577 609 Q531 622 484 613"/>
+<path class="e" d="M484 613 Q511 608 537 615"/>
+<path class="e" d="M484 613 Q482 613 481 613"/>
+<path class="e" d="M654 249 Q603 452 464 610"/>
+<path class="e" d="M654 249 Q589 452 439 602"/>
+<path class="e" d="M604 286 Q553 463 426 597"/>
+<path class="e" d="M604 286 Q599 462 514 616"/>
+<path class="e" d="M514 616 Q553 600 596 604"/>
+<path class="e" d="M514 616 Q476 618 442 603"/>
+<path class="e" d="M604 286 Q588 464 494 615"/>
+<path class="e" d="M604 286 Q590 463 497 615"/>
+<path class="e" d="M497 615 Q509 613 521 616"/>
+<path class="e" d="M585 271 Q604 448 541 615"/>
+<path class="e" d="M541 615 Q571 600 605 601"/>
+<path class="e" d="M605 601 Q526 622 445 604"/>
+<path class="e" d="M541 615 Q574 598 612 598"/>
+<path class="e" d="M666 263 Q691 427 639 585"/>
+<path class="e" d="M666 263 Q647 453 544 615"/>
+<path class="e" d="M544 615 Q478 619 417 593"/>
+<path class="e" d="M600 283 Q647 437 618 596"/>
+<path class="e" d="M600 283 Q642 440 608 599"/>
+<path class="e" d="M600 283 Q553 461 429 599"/>
+<path class="e" d="M392 501 Q491 536 564 612"/>
+<path class="e" d="M564 612 Q582 602 602 602"/>
+<path class="e" d="M644 582 Q434 515 276 361"/>
+<path class="e" d="M600 283 Q446 343 280 327"/>
+<path class="e" d="M381 489 Q311 420 280 327"/>
+<path class="e" d="M656 251 Q477 334 280 327"/>
+<path class="e" d="M659 255 Q582 454 423 596"/>
+<path class="e" d="M423 596 Q430 597 436 601"/>
+<path class="e" d="M423 596 Q512 578 599 603"/>
+<path class="e" d="M398 507 Q529 516 642 584"/>
+<path class="e" d="M534 616 Q584 587 642 584"/>
+<path class="e" d="M642 584 Q553 618 458 608"/>
+<path class="e" d="M458 608 Q444 607 433 600"/>
+<path class="e" d="M593 277 Q535 454 402 586"/>
+<path class="e" d="M593 277 Q645 432 621 594"/>
+<path class="e" d="M488 420 Q373 381 289 294"/>
+<path class="e" d="M488 420 Q378 427 276 383"/>
+<path class="e" d="M485 419 Q372 386 285 305"/>
+<path class="e" d="M276 383 Q272 360 278 338"/>
+<path class="e" d="M485 419 Q378 432 277 395"/>
+<path class="e" d="M580 609 Q403 538 277 395"/>
+<path class="e" d="M276 383 Q273 366 277 349"/>
+<path class="e" d="M276 383 Q271 349 283 316"/>
+<path class="e" d="M421 305 Q407 223 432 144"/>
+<path class="e" d="M432 144 Q450 134 471 133"/>
+<path class="e" d="M425 299 Q422 214 458 136"/>
+<path class="e" d="M425 299 Q416 217 445 140"/>
+<path class="e" d="M550 322 Q621 448 627 591"/>
+<path class="e" d="M627 591 Q601 608 570 611"/>
+<path class="e" d="M627 591 Q578 616 524 616"/>
+<path class="e" d="M592 276 Q615 449 557 613"/>
+<path class="e" d="M592 276 Q602 453 531 616"/>
+<path class="e" d="M592 276 Q575 458 477 612"/>
+<path class="e" d="M596 279 Q615 451 554 614"/>
+<path class="e" d="M596 279 Q588 458 501 615"/>
+<path class="e" d="M596 279 Q575 460 474 612"/>
+<path class="e" d="M602 284 Q564 463 448 605"/>
+<path class="e" d="M448 605 Q484 602 517 616"/>
+<path class="e" d="M448 605 Q530 581 615 597"/>
+<path class="e" d="M497 615 Q554 592 615 597"/>
+<path class="e" d="M619 525 Q572 584 504 615"/>
+<path class="e" d="M619 525 Q634 555 633 588"/>
+<path class="e" d="M414 316 Q505 210 635 157"/>
+<path class="e" d="M635 157 Q626 155 619 149"/>
+<path class="e" d="M417 310 Q490 204 603 143"/>
+<path class="e" d="M512 315 Q528 217 587 137"/>
+<path class="e" d="M586 272 Q590 453 511 616"/>
+<path class="e" d="M586 272 Q626 439 586 607"/>
+<path class="e" d="M580 609 Q466 573 381 489"/>
+<path class="e" d="M381 489 Q314 443 276 372"/>
+<path class="e" d="M580 609 Q400 527 276 372"/>
+<path class="e" d="M392 501 Q318 451 276 372"/>
+<path class="e" d="M276 372 Q275 366 276 361"/>
+<path class="e" d="M276 372 Q275 366 276 361"/>
+<path class="e" d="M381 489 Q377 486 375 482"/>
+<path class="e" d="M398 507 Q384 498 375 482"/>
+<path class="e" d="M550 614 Q575 560 621 523"/>
+<path class="e" d="M597 280 Q602 283 605 288"/>
+<path class="e" d="M597 280 Q602 283 605 288"/>
+<path class="e" d="M597 280 Q602 283 605 288"/>
+<path class="e" d="M605 288 Q599 284 594 278"/>
+<path class="e" d="M605 288 Q599 284 594 278"/>
+<path class="e" d="M605 288 Q599 284 594 278"/>
+<circle class="n g" cx="550" cy="322" r="5.5"/>
+<circle class="n g" cx="549" cy="322" r="5.5"/>
+<circle class="n c" cx="490" cy="422" r="5.5"/>
+<circle class="n c" cx="488" cy="420" r="5.5"/>
+<circle class="n c" cx="483" cy="417" r="5.5"/>
+<circle class="n c" cx="485" cy="419" r="5.5"/>
+<circle class="n l" cx="466" cy="351" r="5.5"/>
+<circle class="n l" cx="467" cy="348" r="5.5"/>
+<circle class="n t" cx="512" cy="315" r="5.5"/>
+<circle class="n t" cx="516" cy="314" r="5.5"/>
+<circle class="n g" cx="597" cy="280" r="3.4"/>
+<circle class="n g" cx="605" cy="288" r="3.4"/>
+<circle class="n g" cx="594" cy="278" r="3.4"/>
+<circle class="n g" cx="599" cy="282" r="3.4"/>
+<circle class="n g" cx="584" cy="270" r="3.4"/>
+<circle class="n g" cx="598" cy="281" r="3.4"/>
+<circle class="n g" cx="593" cy="277" r="3.4"/>
+<circle class="n g" cx="603" cy="285" r="3.4"/>
+<circle class="n g" cx="604" cy="286" r="3.4"/>
+<circle class="n g" cx="585" cy="271" r="3.4"/>
+<circle class="n g" cx="600" cy="283" r="3.4"/>
+<circle class="n l" cx="421" cy="305" r="3.4"/>
+<circle class="n l" cx="425" cy="299" r="3.4"/>
+<circle class="n g" cx="590" cy="275" r="3.4"/>
+<circle class="n g" cx="592" cy="276" r="3.4"/>
+<circle class="n g" cx="596" cy="279" r="3.4"/>
+<circle class="n g" cx="602" cy="284" r="3.4"/>
+<circle class="n g" cx="588" cy="273" r="3.4"/>
+<circle class="n l" cx="414" cy="316" r="3.4"/>
+<circle class="n l" cx="417" cy="310" r="3.4"/>
+<circle class="n t" cx="520" cy="252" r="3.4"/>
+<circle class="n t" cx="528" cy="252" r="3.4"/>
+<circle class="n g" cx="586" cy="272" r="3.4"/>
+<circle class="n g" cx="589" cy="274" r="3.4"/>
+<circle class="n c" cx="381" cy="489" r="3.4"/>
+<circle class="n g" cx="621" cy="523" r="3.4"/>
+<circle class="n g" cx="659" cy="255" r="3.4"/>
+<circle class="n c" cx="398" cy="507" r="3.4"/>
+<circle class="n g" cx="617" cy="526" r="3.4"/>
+<circle class="n g" cx="658" cy="253" r="3.4"/>
+<circle class="n g" cx="666" cy="263" r="3.4"/>
+<circle class="n g" cx="668" cy="267" r="3.4"/>
+<circle class="n g" cx="627" cy="519" r="3.4"/>
+<circle class="n c" cx="340" cy="397" r="3.4"/>
+<circle class="n c" cx="392" cy="501" r="3.4"/>
+<circle class="n g" cx="661" cy="257" r="3.4"/>
+<circle class="n c" cx="370" cy="476" r="3.4"/>
+<circle class="n g" cx="667" cy="265" r="3.4"/>
+<circle class="n t" cx="545" cy="192" r="3.4"/>
+<circle class="n g" cx="653" cy="247" r="3.4"/>
+<circle class="n g" cx="654" cy="249" r="3.4"/>
+<circle class="n g" cx="656" cy="251" r="3.4"/>
+<circle class="n g" cx="623" cy="522" r="3.4"/>
+<circle class="n g" cx="664" cy="261" r="3.4"/>
+<circle class="n g" cx="651" cy="246" r="3.4"/>
+<circle class="n g" cx="625" cy="520" r="3.4"/>
+<circle class="n g" cx="619" cy="525" r="3.4"/>
+<circle class="n g" cx="670" cy="269" r="3.4"/>
+<circle class="n g" cx="662" cy="259" r="3.4"/>
+<circle class="n c" cx="386" cy="495" r="3.4"/>
+<circle class="n c" cx="375" cy="482" r="3.4"/>
+<circle class="n g" cx="615" cy="527" r="3.4"/>
+<circle class="n l" cx="403" cy="233" r="3.4"/>
+<circle class="n l" cx="436" cy="210" r="3.4"/>
+<circle class="n l" cx="428" cy="215" r="3.4"/>
+<circle class="n l" cx="411" cy="226" r="3.4"/>
+<circle class="n l" cx="445" cy="206" r="3.4"/>
+<circle class="n l" cx="419" cy="221" r="3.4"/>
+<circle class="n g" cx="583" cy="608" r="3.4"/>
+<circle class="n g" cx="630" cy="590" r="3.4"/>
+<circle class="n g" cx="527" cy="616" r="3.4"/>
+<circle class="n g" cx="636" cy="587" r="3.4"/>
+<circle class="n g" cx="411" cy="590" r="3.4"/>
+<circle class="n g" cx="547" cy="614" r="3.4"/>
+<circle class="n g" cx="451" cy="606" r="3.4"/>
+<circle class="n g" cx="550" cy="614" r="3.4"/>
+<circle class="n g" cx="408" cy="589" r="3.4"/>
+<circle class="n g" cx="644" cy="582" r="3.4"/>
+<circle class="n g" cx="567" cy="611" r="3.4"/>
+<circle class="n g" cx="420" cy="595" r="3.4"/>
+<circle class="n g" cx="534" cy="616" r="3.4"/>
+<circle class="n g" cx="471" cy="611" r="3.4"/>
+<circle class="n g" cx="399" cy="584" r="3.4"/>
+<circle class="n g" cx="507" cy="616" r="3.4"/>
+<circle class="n g" cx="487" cy="614" r="3.4"/>
+<circle class="n g" cx="577" cy="609" r="3.4"/>
+<circle class="n g" cx="560" cy="613" r="3.4"/>
+<circle class="n g" cx="573" cy="610" r="3.4"/>
+<circle class="n g" cx="414" cy="592" r="3.4"/>
+<circle class="n g" cx="580" cy="609" r="3.4"/>
+<circle class="n g" cx="405" cy="587" r="3.4"/>
+<circle class="n g" cx="461" cy="609" r="3.4"/>
+<circle class="n g" cx="624" cy="593" r="3.4"/>
+<circle class="n g" cx="590" cy="606" r="3.4"/>
+<circle class="n g" cx="468" cy="610" r="3.4"/>
+<circle class="n g" cx="491" cy="614" r="3.4"/>
+<circle class="n g" cx="593" cy="605" r="3.4"/>
+<circle class="n g" cx="455" cy="607" r="3.4"/>
+<circle class="n g" cx="484" cy="613" r="3.4"/>
+<circle class="n g" cx="537" cy="615" r="3.4"/>
+<circle class="n g" cx="481" cy="613" r="3.4"/>
+<circle class="n g" cx="464" cy="610" r="3.4"/>
+<circle class="n g" cx="439" cy="602" r="3.4"/>
+<circle class="n g" cx="426" cy="597" r="3.4"/>
+<circle class="n g" cx="514" cy="616" r="3.4"/>
+<circle class="n g" cx="596" cy="604" r="3.4"/>
+<circle class="n g" cx="442" cy="603" r="3.4"/>
+<circle class="n g" cx="494" cy="615" r="3.4"/>
+<circle class="n g" cx="497" cy="615" r="3.4"/>
+<circle class="n g" cx="521" cy="616" r="3.4"/>
+<circle class="n g" cx="541" cy="615" r="3.4"/>
+<circle class="n g" cx="605" cy="601" r="3.4"/>
+<circle class="n g" cx="445" cy="604" r="3.4"/>
+<circle class="n g" cx="612" cy="598" r="3.4"/>
+<circle class="n g" cx="639" cy="585" r="3.4"/>
+<circle class="n g" cx="544" cy="615" r="3.4"/>
+<circle class="n g" cx="417" cy="593" r="3.4"/>
+<circle class="n g" cx="618" cy="596" r="3.4"/>
+<circle class="n g" cx="608" cy="599" r="3.4"/>
+<circle class="n g" cx="429" cy="599" r="3.4"/>
+<circle class="n g" cx="564" cy="612" r="3.4"/>
+<circle class="n g" cx="602" cy="602" r="3.4"/>
+<circle class="n c" cx="276" cy="372" r="3.4"/>
+<circle class="n c" cx="276" cy="361" r="3.4"/>
+<circle class="n c" cx="280" cy="327" r="3.4"/>
+<circle class="n g" cx="423" cy="596" r="3.4"/>
+<circle class="n g" cx="436" cy="601" r="3.4"/>
+<circle class="n g" cx="599" cy="603" r="3.4"/>
+<circle class="n g" cx="642" cy="584" r="3.4"/>
+<circle class="n g" cx="458" cy="608" r="3.4"/>
+<circle class="n g" cx="433" cy="600" r="3.4"/>
+<circle class="n g" cx="402" cy="586" r="3.4"/>
+<circle class="n g" cx="621" cy="594" r="3.4"/>
+<circle class="n c" cx="289" cy="294" r="3.4"/>
+<circle class="n c" cx="276" cy="383" r="3.4"/>
+<circle class="n c" cx="285" cy="305" r="3.4"/>
+<circle class="n c" cx="278" cy="338" r="3.4"/>
+<circle class="n c" cx="277" cy="395" r="3.4"/>
+<circle class="n c" cx="277" cy="349" r="3.4"/>
+<circle class="n c" cx="283" cy="316" r="3.4"/>
+<circle class="n l" cx="432" cy="144" r="3.4"/>
+<circle class="n l" cx="471" cy="133" r="3.4"/>
+<circle class="n l" cx="458" cy="136" r="3.4"/>
+<circle class="n l" cx="445" cy="140" r="3.4"/>
+<circle class="n g" cx="627" cy="591" r="3.4"/>
+<circle class="n g" cx="570" cy="611" r="3.4"/>
+<circle class="n g" cx="524" cy="616" r="3.4"/>
+<circle class="n g" cx="557" cy="613" r="3.4"/>
+<circle class="n g" cx="531" cy="616" r="3.4"/>
+<circle class="n g" cx="477" cy="612" r="3.4"/>
+<circle class="n g" cx="554" cy="614" r="3.4"/>
+<circle class="n g" cx="501" cy="615" r="3.4"/>
+<circle class="n g" cx="474" cy="612" r="3.4"/>
+<circle class="n g" cx="448" cy="605" r="3.4"/>
+<circle class="n g" cx="517" cy="616" r="3.4"/>
+<circle class="n g" cx="615" cy="597" r="3.4"/>
+<circle class="n g" cx="504" cy="615" r="3.4"/>
+<circle class="n g" cx="633" cy="588" r="3.4"/>
+<circle class="n t" cx="635" cy="157" r="3.4"/>
+<circle class="n t" cx="619" cy="149" r="3.4"/>
+<circle class="n t" cx="603" cy="143" r="3.4"/>
+<circle class="n t" cx="587" cy="137" r="3.4"/>
+<circle class="n g" cx="511" cy="616" r="3.4"/>
+<circle class="n g" cx="586" cy="607" r="3.4"/>
+<circle class="n g cob" cx="695" cy="278" r="3.4"/>
+<circle class="n g cob" cx="712" cy="320" r="3.4"/>
+<circle class="n g cob" cx="719" cy="380" r="3.4"/>
+<circle class="n c cob" cx="347" cy="469" r="3.4"/>
+<circle class="n g cob" cx="696" cy="280" r="3.4"/>
+<circle class="n g cob" cx="717" cy="344" r="3.4"/>
+<circle class="n g cob" cx="699" cy="458" r="3.4"/>
+<circle class="n g cob" cx="719" cy="361" r="3.4"/>
+<circle class="n g cob" cx="696" cy="466" r="3.4"/>
+<circle class="n g cob" cx="710" cy="430" r="3.4"/>
+<circle class="n g cob" cx="718" cy="353" r="3.4"/>
+<circle class="n g cob" cx="706" cy="302" r="3.4"/>
+<circle class="n g cob" cx="644" cy="528" r="3.4"/>
+<circle class="n g cob" cx="705" cy="300" r="3.4"/>
+<circle class="n c cob" cx="338" cy="453" r="3.4"/>
+<circle class="n g cob" cx="718" cy="391" r="3.4"/>
+<circle class="n g cob" cx="691" cy="271" r="3.4"/>
+<circle class="n g cob" cx="714" cy="326" r="3.4"/>
+<circle class="n g cob" cx="685" cy="261" r="3.4"/>
+<circle class="n g cob" cx="700" cy="287" r="3.4"/>
+<circle class="n g cob" cx="687" cy="264" r="3.4"/>
+<circle class="n g cob" cx="669" cy="503" r="3.4"/>
+<circle class="n g cob" cx="719" cy="358" r="3.4"/>
+<circle class="n g cob" cx="703" cy="295" r="3.4"/>
+<circle class="n g cob" cx="694" cy="275" r="3.4"/>
+<circle class="n g cob" cx="699" cy="285" r="3.4"/>
+<circle class="n g cob" cx="717" cy="399" r="3.4"/>
+<circle class="n g cob" cx="718" cy="355" r="3.4"/>
+<circle class="n g cob" cx="717" cy="342" r="3.4"/>
+<circle class="n l cob" cx="376" cy="235" r="3.4"/>
+<circle class="n g cob" cx="716" cy="336" r="3.4"/>
+<circle class="n g cob" cx="717" cy="347" r="3.4"/>
+<circle class="n g cob" cx="713" cy="420" r="3.4"/>
+<circle class="n g cob" cx="718" cy="396" r="3.4"/>
+<circle class="n g cob" cx="697" cy="463" r="3.4"/>
+<circle class="n g cob" cx="668" cy="505" r="3.4"/>
+<circle class="n g cob" cx="648" cy="524" r="3.4"/>
+<circle class="n g cob" cx="675" cy="497" r="3.4"/>
+<circle class="n g cob" cx="712" cy="425" r="3.4"/>
+<circle class="n g cob" cx="652" cy="521" r="3.4"/>
+<circle class="n g cob" cx="702" cy="292" r="3.4"/>
+<circle class="n g cob" cx="706" cy="443" r="3.4"/>
+<circle class="n g cob" cx="718" cy="350" r="3.4"/>
+<circle class="n g cob" cx="689" cy="477" r="3.4"/>
+<circle class="n g cob" cx="707" cy="441" r="3.4"/>
+<circle class="n g cob" cx="702" cy="453" r="3.4"/>
+<circle class="n g cob" cx="704" cy="297" r="3.4"/>
+<circle class="n g cob" cx="673" cy="499" r="3.4"/>
+<circle class="n g cob" cx="671" cy="501" r="3.4"/>
+<circle class="n c cob" cx="324" cy="409" r="3.4"/>
+<circle class="n g cob" cx="719" cy="374" r="3.4"/>
+<circle class="n g cob" cx="687" cy="480" r="3.4"/>
+<circle class="n g cob" cx="654" cy="519" r="3.4"/>
+<circle class="n g cob" cx="693" cy="470" r="3.4"/>
+<circle class="n g cob" cx="658" cy="515" r="3.4"/>
+<circle class="n g cob" cx="701" cy="290" r="3.4"/>
+<circle class="n g cob" cx="711" cy="428" r="3.4"/>
+<circle class="n g cob" cx="678" cy="493" r="3.4"/>
+<circle class="n g cob" cx="715" cy="409" r="3.4"/>
+<circle class="n g cob" cx="716" cy="339" r="3.4"/>
+<circle class="n g cob" cx="713" cy="323" r="3.4"/>
+<circle class="n g cob" cx="656" cy="517" r="3.4"/>
+<circle class="n g cob" cx="709" cy="310" r="3.4"/>
+<circle class="n g cob" cx="692" cy="473" r="3.4"/>
+<circle class="n c cob" cx="342" cy="461" r="3.4"/>
+<circle class="n c cob" cx="335" cy="444" r="3.4"/>
+<circle class="n g cob" cx="666" cy="507" r="3.4"/>
+<circle class="n g cob" cx="650" cy="523" r="3.4"/>
+<circle class="n g cob" cx="686" cy="482" r="3.4"/>
+<circle class="n g cob" cx="684" cy="484" r="3.4"/>
+<circle class="n g cob" cx="690" cy="475" r="3.4"/>
+<circle class="n g cob" cx="715" cy="331" r="3.4"/>
+<circle class="n g cob" cx="719" cy="377" r="3.4"/>
+<circle class="n g cob" cx="660" cy="513" r="3.4"/>
+<circle class="n g cob" cx="707" cy="305" r="3.4"/>
+<circle class="n g cob" cx="694" cy="468" r="3.4"/>
+<circle class="n g cob" cx="711" cy="315" r="3.4"/>
+<circle class="n g cob" cx="642" cy="529" r="3.4"/>
+<circle class="n g cob" cx="719" cy="372" r="3.4"/>
+<circle class="n l cob" cx="384" cy="227" r="3.4"/>
+<circle class="n g cob" cx="693" cy="273" r="3.4"/>
+<circle class="n g cob" cx="680" cy="491" r="3.4"/>
+<circle class="n g cob" cx="662" cy="511" r="3.4"/>
+<circle class="n g cob" cx="640" cy="531" r="3.4"/>
+<circle class="n g cob" cx="711" cy="318" r="3.4"/>
+<circle class="n g cob" cx="698" cy="461" r="3.4"/>
+<circle class="n g cob" cx="708" cy="307" r="3.4"/>
+<circle class="n g cob" cx="703" cy="451" r="3.4"/>
+<circle class="n g cob" cx="716" cy="407" r="3.4"/>
+<circle class="n g cob" cx="709" cy="436" r="3.4"/>
+<circle class="n g cob" cx="709" cy="433" r="3.4"/>
+<circle class="n g cob" cx="705" cy="446" r="3.4"/>
+<circle class="n g cob" cx="664" cy="509" r="3.4"/>
+<circle class="n g cob" cx="700" cy="456" r="3.4"/>
+<circle class="n g cob" cx="710" cy="313" r="3.4"/>
+<circle class="n g cob" cx="698" cy="282" r="3.4"/>
+<circle class="n g cob" cx="688" cy="266" r="3.4"/>
+<circle class="n g cob" cx="719" cy="369" r="3.4"/>
+<circle class="n g cob" cx="681" cy="489" r="3.4"/>
+<circle class="n c cob" cx="329" cy="427" r="3.4"/>
+<circle class="n g cob" cx="714" cy="328" r="3.4"/>
+<circle class="n c cob" cx="351" cy="477" r="3.4"/>
+<circle class="n c cob" cx="326" cy="418" r="3.4"/>
+<circle class="n g cob" cx="717" cy="401" r="3.4"/>
+<circle class="n g cob" cx="683" cy="486" r="3.4"/>
+<circle class="n g cob" cx="719" cy="385" r="3.4"/>
+<circle class="n g cob" cx="690" cy="268" r="3.4"/>
+<circle class="n t cob" cx="561" cy="177" r="3.4"/>
+<circle class="n g cob" cx="718" cy="388" r="3.4"/>
+<circle class="n g cob" cx="714" cy="417" r="3.4"/>
+<circle class="n g cob" cx="715" cy="334" r="3.4"/>
+<circle class="n g cob" cx="719" cy="366" r="3.4"/>
+<circle class="n g cob" cx="712" cy="423" r="3.4"/>
+<circle class="n g cob" cx="704" cy="448" r="3.4"/>
+<circle class="n g cob" cx="646" cy="526" r="3.4"/>
+<circle class="n l cob" cx="369" cy="243" r="3.4"/>
+<circle class="n g cob" cx="676" cy="495" r="3.4"/>
+<circle class="n g cob" cx="716" cy="404" r="3.4"/>
+<circle class="n c cob" cx="331" cy="436" r="3.4"/>
+<circle class="n g cob" cx="719" cy="363" r="3.4"/>
+<circle class="n g cob" cx="718" cy="393" r="3.4"/>
+<circle class="n g cob" cx="714" cy="415" r="3.4"/>
+<circle class="n g cob" cx="715" cy="412" r="3.4"/>
+<circle class="n g cob" cx="719" cy="382" r="3.4"/>
+<circle class="n g cob" cx="708" cy="438" r="3.4"/>
+<text class="sm" x="550" y="313" text-anchor="middle">zfc-axioms</text>
+<text class="sm" x="549" y="313" text-anchor="middle">ordinals</text>
+<text class="sm" x="490" y="413" text-anchor="middle">cat-basics</text>
+<text class="sm" x="488" y="411" text-anchor="middle">functors</text>
+<text class="sm" x="483" y="408" text-anchor="middle">nat-trans</text>
+<text class="sm" x="485" y="410" text-anchor="middle">limits</text>
+<text class="sm" x="466" y="342" text-anchor="middle">fol-deduction</text>
+<text class="sm" x="467" y="339" text-anchor="middle">fol-metatheory</text>
+<text class="sm" x="512" y="306" text-anchor="middle">cic</text>
+<text class="sm" x="516" y="305" text-anchor="middle">lean-kernel</text>
+<text class="tt" x="860" y="620">las 9 tacticas, aparte</text>
+<text class="sm" x="860" y="638">453 aristas entran · 0 salen</text>
+<circle class="n t" cx="866" cy="660" r="3.4"/>
+<text class="sm" x="876" y="664">aesop</text>
+<circle class="n t" cx="866" cy="673" r="3.4"/>
+<text class="sm" x="876" y="677">apply</text>
+<circle class="n t" cx="866" cy="686" r="3.4"/>
+<text class="sm" x="876" y="690">calc</text>
+<circle class="n t" cx="866" cy="699" r="3.4"/>
+<text class="sm" x="876" y="703">exact</text>
+<circle class="n t" cx="866" cy="712" r="3.4"/>
+<text class="sm" x="876" y="716">induction</text>
+<circle class="n t" cx="866" cy="725" r="3.4"/>
+<text class="sm" x="876" y="729">omega</text>
+<circle class="n t" cx="866" cy="738" r="3.4"/>
+<text class="sm" x="876" y="742">rewrite</text>
+<circle class="n t" cx="866" cy="751" r="3.4"/>
+<text class="sm" x="876" y="755">ring</text>
+<circle class="n t" cx="866" cy="764" r="3.4"/>
+<text class="sm" x="876" y="768">simp</text>
+<circle class="n g" cx="866" cy="60" r="4"/>
+<text class="sm" x="876" y="64">SET  230</text>
+<circle class="n c" cx="866" cy="79" r="4"/>
+<text class="sm" x="876" y="83">CAT  30</text>
+<circle class="n l" cx="866" cy="98" r="4"/>
+<text class="sm" x="876" y="102">LOG  19</text>
+<circle class="n t" cx="866" cy="117" r="4"/>
+<text class="sm" x="876" y="121">TYPE 10</text>
+<circle class="n g cob" cx="866" cy="136" r="4"/>
+<text class="sm" x="876" y="140">125 generados, sin interpretar</text>
+<text class="tt" x="860" y="174">298 nodos · 1722 morfismos</text>
+<text class="sm" x="860" y="189">se dibujan las 207 dependencias entre curados</text>
+</svg>      </div>
+      <figcaption><b>Fig. 2 —</b> El grafo real. Cuatro sectores, uno por pilar
+      fundacional; las bases al centro, las sub-ramas fuera. En tono claro, los
+      125 nodos generados que nadie ha interpretado. Se dibujan las 207
+      dependencias entre nodos curados: dibujar las 1722 daba una maraña que
+      escondía la estructura.</figcaption>
+    </figure>
 
-      <div class="tabla">
-        <table>
-          <thead><tr><th class="mono">marca</th><th>qué es</th><th>¿vértice?</th><th class="mono">cuántas</th><th>ejemplo</th></tr></thead>
-          <tbody>
-            <tr><td><span class="pill g">C</span></td><td>una categoría</td><td>sí</td><td class="mono">76</td><td class="mono">group-theory</td></tr>
-            <tr><td><span class="pill g">S</span></td><td>subcategoría plena</td><td>sí</td><td class="mono">14</td><td class="mono">finite-fields</td></tr>
-            <tr><td><span class="pill l">F</span></td><td>un <strong>funtor</strong> — es arista, no vértice</td><td>no</td><td class="mono">28</td><td class="mono">homology</td></tr>
-            <tr><td><span class="pill">O</span></td><td>un objeto <em>dentro</em> de una categoría</td><td>no</td><td class="mono">4</td><td class="mono">real-analysis (es ℝ)</td></tr>
-            <tr><td><span class="pill a">T</span></td><td>el nombre de un tema, sin objetos</td><td>no</td><td class="mono">53</td><td class="mono">algebraic-combinatorics</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="nota a">
+      <b>Las nueve tácticas son sumideros, y se ve</b>
+      <code>tactic-simp</code>, <code>tactic-ring</code> y las otras siete
+      reciben <strong>453 aristas y no emiten ninguna</strong>. Por eso están
+      dibujadas aparte: dentro convertían el grafo en un embudo donde cualquier
+      recorrido terminaba.
+      <br><br>Y es una categoría-error, del mismo tipo que se corrigió con la
+      homología. Una táctica no es una <em>cosa</em>, es una transformación de
+      estado de prueba: como nodo es un sumidero, como flecha compondría y
+      tendría dominio y codominio. Está identificado y sin arreglar.
+    </div>
 
-      <p>Las 28 marcadas <strong>F</strong> estaban produciendo colímites falsos: el sistema «descubría» convergencias que eran errores de tipo. No se borran — se <strong>degradan</strong>, repartiendo sus aristas según la dirección, y así no se pierde nada.</p>
+    <h3>El grafo tiene ciclos, y no son de la matemática</h3>
+    <p>134 ciclos, todos entre los nodos generados; entre los 173 curados hay
+    cero. Y la causa es la agregación, no Mathlib: el DAG oficial de imports es
+    <strong>acíclico</strong> —Lean prohíbe imports circulares— pero al colapsar
+    7 747 módulos en conceptos de dos niveles, aparecen.</p>
+    <pre>Topology.Instances → Analysis.Asymptotics → Analysis.Complex → Topology.Instances</pre>
+    <p>Son tres desarrollos distintos: los espacios vectoriales topológicos
+    necesitan la topología de <code>ℝ≥0∞</code>, el análisis asintótico complejo
+    necesita la notación Θ, y la topología de ℂ necesita su estructura normada.
+    Nadie dio la vuelta. <strong>El ciclo marca dónde la división en ramas deja
+    de funcionar</strong>, no un recorrido.</p>
 
-      <h3>Puede proponer nodos que nadie escribió</h3>
-      <p>Un grafo de conocimiento infiere <em>aristas</em>: si A→B y B→C, entonces A→C. Este infiere <strong>vértices</strong>. Cuando varias áreas convergen, calcula el colímite; si no existe en el grafo, lo señala como hueco. No deduce una relación más — dice <em>aquí falta un concepto</em>.</p>
+    <div class="nota">
+      <b>Un resultado negativo sobre las «áreas»</b>
+      Se intentó definir las áreas por componentes fuertemente conexas, para que
+      el corte lo dictara la estructura y no una elección de profundidad.
+      <strong>No funciona</strong>: da una mega-área con 918 de los 1 358
+      conceptos —Algebra, Data, Order, Topology y Analysis en el mismo saco— más
+      dos residuos.
+      <br><br>A nivel de fichero Mathlib es un DAG limpio; en cuanto se agrupa
+      por ramas, casi todo queda entrelazado. La descomposición en ramas
+      <strong>no es recuperable de las dependencias</strong>, y no por falta de
+      datos: el orden en que se construye la matemática formalizada no respeta
+      la frontera entre álgebra, topología y análisis. Las ramas son una capa
+      humana, útil y no derivable.
+    </div>
+  </section>
 
-      <div class="nota g">
-        <b>Cada concepto, en tres niveles</b>
-        <pre style="margin:10px 0 0; background:transparent; border:none; padding:0">ring-theory
-   objeto      un anillo
-   morfismos   homomorfismos
-   Lean        RingCat                              ← verificado
-   módulo      Mathlib.Algebra.Category.Ring.Basic  ← el import</pre>
-        Los tres hacen falta: el primero da los colímites, el segundo el vocabulario, el tercero le dice a Lean dónde encontrarlo. <strong>82</strong> conceptos tienen nombre en Mathlib y <strong>76</strong> tienen módulo.
-      </div>
-    </section>
+  <section id="hechos">
+    <div class="head"><span class="num">04</span><h2>La <span class="v">lista</span>: 183 433 hechos</h2></div>
+    <p>Extraída del fuente de Mathlib, con nombre, enunciado, módulo y concepto
+    por cada teorema, lema e instancia.</p>
 
-    <!-- ═══ 4 ═══ -->
-    <section id="vocabulario">
-      <div class="head"><span class="num">04</span><h2>El vocabulario <span class="v">verificado</span></h2></div>
-      <p>Este es el aporte del grafo más fácil de medir, y el que motivó ponerlo donde está.</p>
+    <pre>121 756  theorem        54 MB en disco
+ 50 835  lemma          1 102 conceptos distintos
+ 10 842  instance       3 sin enunciado utilizable (0,0 %)</pre>
 
-      <div class="tabla">
-        <table>
-          <thead><tr><th>quién propone el nombre</th><th class="mono">existe en Mathlib</th></tr></thead>
-          <tbody>
-            <tr><td><strong class="g">el grafo</strong> — comprobado con <code>#check</code></td><td class="mono">109/115 &nbsp;<strong>95 %</strong></td></tr>
-            <tr><td><strong class="l">el modelo</strong> — de memoria</td><td class="mono">7/28 &nbsp;<strong>25 %</strong></td></tr>
-          </tbody>
-        </table>
-      </div>
+    <h3>Y el DAG oficial, que no hubo que reconstruir</h3>
+    <p>Mathlib trae la herramienta hecha, en <code>.lake/packages/importGraph</code>:</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th class="mono">comando</th><th>qué da</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">lake exe graph</td><td>el DAG de imports completo — 21 446 aristas, 7 747 módulos, 0 ciclos</td></tr>
+          <tr><td class="mono">#min_imports</td><td>los imports mínimos que necesita una declaración</td></tr>
+          <tr><td class="mono">#find_home</td><td>en qué módulo debería vivir una declaración</td></tr>
+          <tr><td class="mono">#import_diff</td><td>diferencia entre dos conjuntos de imports</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Al compararlo con el extractor propio apareció un fallo: el lector del
+    fuente metía unas 2 800 aristas falsas y con ellas un ciclo imposible de
+    1 244 módulos. <strong>El oficial da cero</strong>, como debe.</p>
 
-      <p>Casi <strong>cuatro veces</strong> más fiable. Y el fallo residual del grafo es de otra naturaleza: no fabrica nombres, se le quedan desactualizados cuando Mathlib mueve algo de sitio. Eso es mantenimiento, y se vigila solo — <code>verificar_vocabulario_grafo.py</code> se corre tras cada actualización y dice qué se movió.</p>
+    <h3>Mathlib no etiqueta por rama — etiqueta por táctica</h3>
+    <p>Se buscó una anotación de área y no existe. Lo que sí hay, en 83 111
+    líneas y 162 atributos distintos, es qué herramienta puede usar cada lema:</p>
+    <pre>@[simp]        40 736      @[gcongr]       575      @[continuity]  255
+@[norm_cast]    2 257      @[grind]        547      @[mono]        244
+@[fun_prop]     1 796      @[aesop]        286      @[measurability]</pre>
+    <p>Es un índice <em>herramienta → lemas</em> curado por los mantenedores, y
+    sirve: el <strong>42,1 %</strong> de las premisas que citan las pruebas ya
+    llevan <code>@[simp]</code>, y <code>simp</code> las conoce sin que nadie se
+    las pase. Filtrarlas movió la selección de premisas de empatar con un prior
+    de frecuencia (9,4 % contra 9,2 %) a superarlo (14,0 % contra 11,7 %).</p>
+  </section>
 
-      <div class="nota">
-        <b>Un caso que lo retrata</b>
-        Para «la unión de dos abiertos es abierta», el modelo propuso cuatro nombres. Uno era correcto —<code>IsOpen.union</code>— y lo enterró entre tres invenciones. <strong>Tenía la respuesta y no supo distinguirla de sus propias fabricaciones.</strong> Eso no lo arregla más razonamiento: lo arregla una lista de nombres que existen.
-      </div>
+  <section id="lean">
+    <div class="head"><span class="num">05</span><h2><span class="v">Lean</span> y sus seis veredictos</h2></div>
+    <p>Que Lean compile no significa que haya demostrado lo que se preguntó.
+    Cada caso tiene su presentación, y el aviso va <strong>delante</strong> del
+    texto.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>salida</th><th>qué significa</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill v">verificado</span></td><td>hay teorema, lo prueba, y es el que se preguntó</td></tr>
+          <tr><td><span class="pill g">no hay prueba</span></td><td>Lean aceptó el archivo, pero no contiene ningún teorema</td></tr>
+          <tr><td><span class="pill g">lo pedido es falso</span></td><td>Lean verificó la <strong>negación</strong> del enunciado</td></tr>
+          <tr><td><span class="pill">error de módulo</span></td><td>falta un import → se repara y se reintenta</td></tr>
+          <tr><td><span class="pill">error semántico</span></td><td>vuelve al LLM con el error de Lean, máximo 2 rondas</td></tr>
+          <tr><td><span class="pill"><code>sorry</code></span></td><td>cascada de 12 tácticas, ordenadas por lo medido</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="nota g">
+      <b>Las tres primeras existen porque las tres se dieron</b>
+      El sistema llegó a estampar «verificado» sobre un archivo de
+      <code>#check</code> sin ningún teorema, y sobre la <em>negación</em> de lo
+      que se había pedido. Ninguna la encontraron los tests: las encontró correr
+      el sistema entero contra un banco de consultas reales.
+    </div>
+  </section>
 
-      <h3>Y el segundo punto: qué ve Lean</h3>
-      <p><code>import Mathlib</code> entero tarda 742&nbsp;s, más que el timeout, así que <em>algo</em> tiene que decidir qué subconjunto se carga. Hasta hace poco lo decidía un diccionario de palabras clave del enunciado. Ahora lo derivan los conceptos activados, con los módulos sacados de dónde se declara cada nombre en el fuente de Mathlib:</p>
+  <section id="medido">
+    <div class="head"><span class="num">06</span><h2>Lo que está <span class="v">medido</span></h2></div>
+    <p>Cada cifra con su método y su modelo nulo. Sin modelo nulo un porcentaje
+    no dice nada: <em>61 % de acierto</em> suena bien hasta que se sabe que
+    responder siempre lo mismo acierta el 79 %.</p>
 
-      <pre>anillos e ideales  →  Mathlib.Algebra.Category.Ring.Basic
-                      Mathlib.RingTheory.Ideal.Defs
-grupo abeliano     →  Mathlib.Algebra.Category.Grp.Basic
-esquemas           →  Mathlib.AlgebraicGeometry.Scheme</pre>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>qué</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
+        <tbody>
+          <tr><td>Vocabulario contra ProofNet<br><span class="mono" style="font-size:12px">371 ejercicios con formalización de oro</span></td><td class="mono">13,6 % precisión</td><td class="mono">1,1 %</td><td><span class="pill v">12× · aporta</span></td></tr>
+          <tr><td>Dependencias contra el DAG real<br><span class="mono" style="font-size:12px">21 446 aristas oficiales</span></td><td class="mono">78,1 % confirmadas</td><td class="mono">32,6 %</td><td><span class="pill v">2,4× · aporta</span></td></tr>
+          <tr><td>Orden de tácticas<br><span class="mono" style="font-size:12px">1 600 pruebas de Mathlib</span></td><td class="mono">1,29 intentos</td><td class="mono">2,59</td><td><span class="pill v">−50 % · aporta</span></td></tr>
+          <tr><td>Selección de premisas<br><span class="mono" style="font-size:12px">sin los @[simp], que simp ya tiene</span></td><td class="mono">14,0 % cobertura</td><td class="mono">11,7 %</td><td><span class="pill">mejora pequeña</span></td></tr>
+          <tr><td>Elección de imports<br><span class="mono" style="font-size:12px">40 enunciados, Lean como juez</span></td><td class="mono">90 % elabora</td><td class="mono">90 %</td><td><span class="pill a">inerte</span></td></tr>
+          <tr><td>Banco de fidelidad<br><span class="mono" style="font-size:12px">24 consultas, juez ciego al veredicto</span></td><td class="mono">21/24</td><td class="mono">—</td><td><span class="pill v">0 infieles</span></td></tr>
+        </tbody>
+      </table>
+    </div>
 
-      <p>Es el punto donde el grafo determina de verdad lo que Lean puede hacer, y el menos obvio de los dos.</p>
-    </section>
-
-    <!-- ═══ 5 ═══ -->
-    <section id="emergencia">
-      <div class="head"><span class="num">05</span><h2>Lo que el grafo <span class="g">descubre solo</span></h2></div>
-      <p>Nadie declara estos conceptos. El sistema los encuentra buscando el co-cono límite entre los objetos que ya existen:</p>
-
-      <div class="tabla">
-        <table>
-          <thead><tr><th>patrón</th><th>colímite descubierto</th><th class="mono">orden</th></tr></thead>
-          <tbody>
-            <tr><td class="mono">geom. aritmética + álg. homológica + topología</td><td><strong>espacios con haz de complejos</strong></td><td class="mono">3</td></tr>
-            <tr><td class="mono">t. números alg. + t. cuerpos + geom. algebraica</td><td><strong>geometría aritmética</strong></td><td class="mono">2</td></tr>
-            <tr><td class="mono">geometría algebraica + ideales y cocientes</td><td><strong>variedades afines</strong></td><td class="mono">2</td></tr>
-            <tr><td class="mono">top. algebraica + suc. exactas + álg. homológica</td><td><strong>categoría derivada</strong></td><td class="mono">1</td></tr>
-            <tr><td class="mono">funtores + álgebra conmutativa</td><td><strong>geometría algebraica</strong></td><td class="mono">1</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p>Y cuando <em>no</em> hay concepto unificador, el sistema no inventa un nodo: lo registra como hueco. Inventarlo y cablearlo hasta que cumpla la propiedad universal sería asumir la conclusión.</p>
-
-      <h3>El hallazgo</h3>
-      <p>Cuatro descomposiciones apuntaban a <code>homology</code> como punto de convergencia. Pero <strong>la homología no es una categoría: es un funtor</strong> — una flecha ocupando el sitio de un vértice.</p>
-
-      <p>Lo tentador era borrarlas. Habría sido un error: las componentes eran legítimas, la forma correcta, el co-cono bien formado. <strong>El grafo tenía razón en que ahí había algo</strong>, y lo había etiquetado con el nombre del invariante que ese sitio calcula, porque era la etiqueta más cercana de la que disponía.</p>
-
-      <figure>
-        <div class="marco">
-<svg viewBox="0 0 1020 400" role="img" aria-label="El vertice que faltaba bajo la etiqueta homology. A la izquierda, el cuadrado del pushout que define la categoria derivada: secuencias exactas se incluye en algebra homologica por la inclusion de los aciclicos, y se colapsa a cero; el pushout de ambas es la categoria derivada, que es el vertice que faltaba. La topologia algebraica entra por las cadenas singulares, que mandan equivalencias debiles a cuasi-isomorfismos y por tanto descienden al cociente. A la derecha, la homologia y la cohomologia salen de la categoria derivada hacia los objetos graduados como dos funtores distintos, que difieren en el signo de la graduacion: ese par de flechas paralelas es multiplicidad genuina, dos elementos en un mismo Hom.">
-<defs>
-    <marker id="dv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
-    </marker>
-  </defs>
-
-  <text x="30" y="26" font-size="10.5" class="dim">EL CUADRADO QUE DEFINE EL VÉRTICE — y que hubo que declarar que conmuta</text>
-
-  <rect x="40" y="52" width="192" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <text x="136" y="76" text-anchor="middle" font-size="11.5">exact-sequences</text>
-  <text x="136" y="92" text-anchor="middle" font-size="9" class="dim">los complejos acíclicos</text>
-
-  <rect x="352" y="52" width="204" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <text x="454" y="76" text-anchor="middle" font-size="11.5">homological-algebra</text>
-  <text x="454" y="92" text-anchor="middle" font-size="9" class="dim">los complejos</text>
-
-  <rect x="40" y="224" width="192" height="46" rx="9" fill="none" class="dim" stroke="currentColor" stroke-width="1.4"/>
-  <text x="136" y="252" text-anchor="middle" font-size="12">0</text>
-
-  <rect x="336" y="216" width="236" height="62" rx="10" fill="none" class="g-line" stroke-width="2.6"/>
-  <text x="454" y="242" text-anchor="middle" class="lbl e-fill" font-size="13">derived-category</text>
-  <text x="454" y="262" text-anchor="middle" font-size="9.5" class="dim">complejos módulo cuasi-isomorfismo</text>
-
-  <line x1="232" y1="78" x2="352" y2="78" stroke="currentColor" stroke-width="1.5" marker-end="url(#dv)"/>
-  <text x="292" y="70" text-anchor="middle" font-size="9.5" class="g-fill">inclusión</text>
-
-  <line x1="136" y1="104" x2="136" y2="224" stroke="currentColor" stroke-width="1.5" marker-end="url(#dv)"/>
-  <text x="126" y="168" text-anchor="end" font-size="9.5" class="g-fill">colapso</text>
-
-  <line x1="454" y1="104" x2="454" y2="216" class="g-line" stroke-width="1.8" marker-end="url(#dv)"/>
-  <text x="466" y="164" font-size="9.5" class="g-fill">localización</text>
-
-  <line x1="232" y1="247" x2="336" y2="247" class="g-line" stroke-width="1.5" marker-end="url(#dv)"/>
-
-  <rect x="40" y="316" width="240" height="52" rx="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
-  <text x="160" y="340" text-anchor="middle" font-size="11.5">algebraic-topology</text>
-  <text x="160" y="356" text-anchor="middle" font-size="9" class="dim">la tercera pata</text>
-
-  <path d="M 280 342 L 400 342 L 400 278" fill="none" class="g-line" stroke-width="1.6" marker-end="url(#dv)"/>
-  <text x="292" y="334" font-size="9.5" class="g-fill">cadenas singulares C₊</text>
-  <text x="292" y="368" font-size="9" class="dim">mandan equivalencias débiles a cuasi-isomorfismos, luego descienden</text>
-
-  <line x1="640" y1="40" x2="640" y2="380" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" class="dim"/>
-
-  <text x="676" y="26" font-size="10.5" class="dim">Y LAS DOS FLECHAS QUE SALEN DE ÉL</text>
-
-  <rect x="676" y="216" width="204" height="62" rx="10" fill="none" class="g-line" stroke-width="2"/>
-  <text x="778" y="242" text-anchor="middle" class="lbl e-fill" font-size="12.5">derived-category</text>
-  <text x="778" y="261" text-anchor="middle" font-size="9" class="dim">el mismo de la izquierda</text>
-
-  <rect x="676" y="52" width="204" height="62" rx="10" fill="none" class="v-line" stroke-width="2"/>
-  <text x="778" y="78" text-anchor="middle" class="lbl v-fill" font-size="12.5">graded-objects</text>
-  <text x="778" y="97" text-anchor="middle" font-size="9" class="dim">grupos abelianos graduados</text>
-
-  <path d="M 740 216 C 726 178, 726 152, 740 114" fill="none" class="v-line" stroke-width="1.9" marker-end="url(#dv)"/>
-  <path d="M 816 216 C 830 178, 830 152, 816 114" fill="none" class="v-line" stroke-width="1.9" marker-end="url(#dv)"/>
-  <text x="706" y="170" text-anchor="end" font-size="11.5" class="v-fill">H₊</text>
-  <text x="850" y="170" font-size="11.5" class="v-fill">H*</text>
-
-  <text x="778" y="316" text-anchor="middle" font-size="10.5" class="lbl v-fill">dos flechas paralelas distintas</text>
-  <text x="778" y="334" text-anchor="middle" font-size="9.5" class="dim">difieren en el signo de la graduación,</text>
-  <text x="778" y="350" text-anchor="middle" font-size="9.5" class="dim">no en dominio ni codominio</text>
-  <text x="778" y="372" text-anchor="middle" font-size="10" class="g-fill">|Hom| = 2 — multiplicidad genuina</text>
-</svg>
-        </div>
-        <figcaption><b>Fig. 2 —</b> El ápice correcto es el cociente del álgebra homológica módulo las sucesiones exactas: la categoría derivada. Con ella las tres patas pasan a ser tres cosas <em>distintas</em> —la inclusión de los acíclicos, el colapso, y las cadenas singulares— y ninguna es la homología: la descomposición deja de ser circular y pasa a ser un teorema. A la derecha, el par de flechas que la etiqueta escondía.</figcaption>
-      </figure>
-
-      <div class="nota g">
-        <b>El reparto de mérito, sin adornos</b>
-        El grafo detectó el hueco y descartó las lecturas falsas. El nombre —la categoría derivada— lo puso un matemático. El sistema <em>no</em> descubrió ese concepto: descubrió que le faltaba algo exactamente ahí, que es una forma de hallazgo distinta y menos común de lo que parece.
-        <br><br>Ese vértice resultó ser, además, el que abre el camino al orden 3.
-      </div>
-
-      <h3>Altura no es emergencia</h3>
-      <p>Una distinción que costó descubrir. El sistema mide <code>cn</code>, la altura constructiva, como el <em>máximo</em> sobre las descomposiciones de un objeto. Está bien: es la altura bien fundada y es la que hace terminar la iteración.</p>
-      <p>Pero altura no es irreducibilidad. Si un objeto admite <em>alguna</em> descomposición cuyas componentes sean todas de orden 0, es un colímite simple y su orden de Ehresmann es 1 — por muchas descomposiciones altas que tenga al lado. Ahí es donde el Principio de Multiplicidad deja de ser decorativo: solo mirando todas las descomposiciones se sabe.</p>
-      <p><strong>Objetos genuinamente emergentes: 4.</strong> Máximo alcanzado: orden 3.</p>
-    </section>
-
-    <!-- ═══ 6 ═══ -->
-    <section id="medido">
-      <div class="head"><span class="num">06</span><h2>Lo que está <span class="v">medido</span></h2></div>
-      <p>Todo lo de esta página sale de ejecutar el sistema, no de estimarlo. Estas son las cifras y de dónde salen.</p>
-
-      <h3>Banco de fidelidad — 21 de 24</h3>
-      <p>24 consultas de siete áreas, y mide <em>tres</em> cosas donde el sistema solo reportaba una: qué dijo Lean, si el teorema formalizado es el de la pregunta —lo dictamina un juez independiente que <strong>no ve el veredicto de Lean</strong>, para que el sello no lo contamine— y si los enunciados falsos se rechazan avisando.</p>
-
-      <div class="tabla">
-        <table>
-          <thead><tr><th>grupo</th><th class="mono">resultado</th><th>lectura</th></tr></thead>
-          <tbody>
-            <tr><td>ciertas y formalizables</td><td class="mono">13/16</td><td>los 3 que faltan son de <em>capacidad</em>, no de fidelidad</td></tr>
-            <tr><td>falsas a propósito</td><td class="mono">4/4</td><td>detectadas y refutadas, avisando</td></tr>
-            <tr><td>no matemáticas</td><td class="mono">4/4</td><td>ninguna tocó Lean</td></tr>
-            <tr><td><strong>verificados infieles</strong></td><td class="mono"><strong>0</strong></td><td>ningún «verificado» sobre algo que no se preguntó</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>El grafo curado contra el DAG real de Mathlib</h3>
-      <p>Las 236 dependencias del grafo están escritas a mano. Mathlib tiene la dependencia de verdad: <strong>24 209 aristas de import</strong>, extraídas del fuente y acíclicas. Si <code>A → B</code> afirma que A es prerrequisito de B, el fichero de B debería importar el de A — y si ocurre lo contrario, el ciclo es imposible y la flecha está al revés sin apelación.</p>
-
-      <div class="tabla">
-        <table>
-          <thead><tr><th></th><th class="mono">confirmadas</th><th class="mono">invertidas</th><th class="mono">azar</th><th class="mono">factor</th></tr></thead>
-          <tbody>
-            <tr><td class="dim">antes</td><td class="mono">56,2 %</td><td class="mono">17,8 %</td><td class="mono">26,2 %</td><td class="mono">2,15×</td></tr>
-            <tr><td><strong>ahora</strong></td><td class="mono"><strong>78,1 %</strong></td><td class="mono"><strong>8,2 %</strong></td><td class="mono">32,6 %</td><td class="mono"><strong>2,40×</strong></td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p><strong>El grafo curado no es decoración</strong>: acierta la dirección 2,4 veces más que el azar, sobre una base ya alta porque el DAG de Mathlib es denso. No es un modelo fuerte —un 14 % de sus aristas son pares independientes en Mathlib— pero tampoco es arbitrario.</p>
-
-      <div class="nota g">
-        <b>Lo que la medición encontró de paso</b>
-        Diez conceptos —<code>group-theory</code>, <code>ring-theory</code>, <code>linear-algebra</code>, <code>point-set-topology</code>…— tenían como módulo el <strong>envoltorio categórico</strong>: <code>Algebra.Category.Grp.Basic</code>, la categoría <strong>Grp</strong>. Como <em>identidad</em> del nodo es correcto y es lo que sostiene los colímites. Como <em>import</em> era un desastre: en Mathlib la categoría Grp está <em>arriba</em> del DAG, porque para construirla hacen falta antes subgrupos y homomorfismos.
-        <br><br>Ante «demuestra que un grupo de orden primo es cíclico», el sistema ofrecía la categoría de todos los grupos e importaba su envoltorio, en vez de <code>Subgroup</code> y <code>MonoidHom</code>. Un solo campo contestaba dos preguntas distintas; ahora son dos. Eso explicaba 7 de las 13 flechas invertidas.
-      </div>
-
-      <div class="nota">
-        <b>Dos avisos de método</b>
-        Importar a nivel de fichero <em>no</em> es prerrequisito conceptual: Mathlib organiza ficheros por necesidades de compilación. Y se midió alcanzabilidad <em>transitiva</em>, que en un DAG denso es generosa en ambos sentidos. Una arista confirmada es evidencia débil; una invertida es evidencia fuerte en contra.
-      </div>
-
-      <h3>Qué táctica de Lean va con cada área</h3>
-      <p>El grafo tiene nueve nodos de táctica, y sus morfismos dominio→táctica <strong>sí llegan a la cascada</strong>: ante un <code>sorry</code>, la táctica del área se probaba primera. Pero salían de doce reglas escritas a mano que nadie había comprobado. Mathlib sí lo sabe — basta contar qué táctica cierra las pruebas de una línea, que es el análogo exacto de lo que hace la cascada.</p>
-
-      <div class="tabla">
-        <table>
-          <thead><tr><th>área</th><th class="mono">regla vieja</th><th>qué cierra de verdad ahí</th></tr></thead>
-          <tbody>
-            <tr><td>algebra</td><td class="mono">ring</td><td><strong>ni una prueba</strong> — simp 93 %, aesop 5 %</td></tr>
-            <tr><td>analysis</td><td class="mono">norm_num</td><td>ni una — simp 83 %, ring 8 %</td></tr>
-            <tr><td>combinatorics, geometry, probability</td><td class="mono">omega / norm_num</td><td>ni una</td></tr>
-            <tr><td>logic</td><td class="mono">tauto</td><td>ni una — <strong>y ni siquiera está en la cascada</strong></td></tr>
-            <tr><td>computation</td><td class="mono">decide</td><td>ni una — tampoco está</td></tr>
-            <tr><td>number-theory</td><td class="mono">norm_num</td><td>4ª de 4, un 3 %</td></tr>
-            <tr><td class="dim">las 3 que decían simp</td><td class="mono">simp</td><td>acertaban</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="nota a">
-        <b>Acertaban por decir lo que dice todo el mundo</b>
-        Siete de once áreas proponían primero una táctica que no cierra nada en su propia área, y dos eran además <em>inertes</em>, porque el nombre ni existe en la cascada y <code>prioritize</code> lo descartaba en silencio. Las tres que acertaban decían <code>simp</code>, que es la más frecuente en las <strong>once</strong> áreas sin excepción.
-        <br><br>Y ahí está la lección de fondo: si <code>simp</code> gana en todas partes, <strong>el área no discrimina</strong>. Una tabla área→táctica no puede aportar información que el área no contiene. Lo que sí discrimina es la forma del objetivo.
-      </div>
-
-      <p><strong>Dos arreglos.</strong> La tabla pasa a ser una <em>lista ordenada</em> por frecuencia medida, porque lo que distingue un área de otra está en la cola —<code>ring</code> pesa un 36 % en computation y un 2 % en topology—. Y la táctica del área baja <strong>por debajo</strong> de los patrones del objetivo, que son evidencia directa. Antes iba primera: el prior malo desplazaba a la señal buena, y cada intento fallido cuesta una invocación de Lean.</p>
-
-      <p>El efecto se mide sin gastar API, porque Mathlib es el conjunto de prueba: cada lema de una línea es un caso resuelto del que se conoce el enunciado, el área y la táctica que lo cerró.</p>
-
-      <pre>posición media de la táctica que cierra   (1 600 pruebas)
-  orden viejo   2.59
-  orden nuevo   1.29     50,3 % menos invocaciones de Lean
-
-  mejoran 1163 (72,7 %) · empeoran 26 (1,6 %) · igual 411 (25,7 %)</pre>
-
-      <div class="nota">
-        <b>Lo que empeora, y por qué se acepta</b>
-        <code>set-theory</code> sube 0,10 posiciones: era de las tres áreas donde la regla vieja ya acertaba, y ahora los patrones del objetivo a veces le adelantan algo peor. Es el precio de fiarse del objetivo por delante del área, y sale 72 a 2. Reordenar es una <em>permutación</em> de la cascada, así que nada de esto puede hacer que Lean acepte algo falso — solo cambia cuánto se tarda.
-      </div>
-
-      <h3>Respaldo formal</h3>
-      <p>Cada operación categórica del Python está mapeada al teorema de Lean que la respalda, y la auditoría <strong>valida los dos lados</strong> — que el teorema exista y que la función exista:</p>
-      <pre>57/58  operaciones con teorema que las respalda
+    <h3>Respaldo formal</h3>
+    <pre>57/58  operaciones del Python con teorema Lean que las respalda
     0  sorry en todo el corpus (preguntado al compilador, no con grep)
   385  teoremas en 21 archivos Lean
-    1  axiom explícito + 3 opaque</pre>
-      <p><code>collectAxioms</code> confirma que ninguna constante depende de <code>sorryAx</code>. El teorema que demostraba que la delgadez bloqueaba la emergencia, <code>lub_de_lubs</code>, <strong>no depende de ningún axioma</strong>: es computación pura.</p>
+  777  tests en 37 suites</pre>
+    <p><code>collectAxioms</code> confirma que ninguna constante depende de
+    <code>sorryAx</code>.</p>
+  </section>
 
-      <h3>Coste</h3>
-      <p>El sistema mide lo que gasta: cada respuesta lleva su coste en dólares y hay un acumulado por modelo en disco.</p>
-      <pre>$0,096 por consulta   (antes $0,59)</pre>
-      <p>La diferencia son dos arreglos. Los modelos actuales traen pensamiento adaptativo activo y esfuerzo máximo por defecto, y esos tokens se facturan como salida; fijar el esfuerzo bajo lo dividió por seis. Y el historial del chat se acumulaba en cada llamada, así que formalizar la consulta N cargaba el texto de las N−1 anteriores.</p>
+  <section id="nosirve">
+    <div class="head"><span class="num">07</span><h2>Lo que se midió y <span class="a">no sirve</span></h2></div>
+    <p>Estos resultados costaron tanto trabajo como los positivos y valen igual.
+    Están aquí para que nadie los repita.</p>
 
-      <div class="nota v">
-        <b>El límite de fondo, que ninguna cifra elimina</b>
-        Lean verifica los teoremas, no el Python. El mapeo <em>operación → teorema</em> es una afirmación comprobada en sus dos extremos, pero nadie ha demostrado que <code>find_colimit_cong</code> compute lo que el teorema caracteriza. Lo que sí se comprueba por test es que el grafo real cumpla las <em>hipótesis</em> de los teoremas.
-      </div>
-    </section>
+    <div class="defecto">
+      <header><h3>La elección de imports no aporta nada, y no queda margen</h3></header>
+      <div class="paso"><div class="et">medido</div><p>Un conjunto fijo de tres módulos hace elaborar el 92,5 % de los enunciados. Añadirle lo que el grafo propone: el mismo 92,5 %, el mismo tiempo.</p></div>
+      <div class="paso"><div class="et">el margen</div><p>De 40 casos fallan 3. Uno necesita <code>open Real</code>, otro usa sintaxis vieja de Mathlib, y sólo uno es de imports. <strong>Margen real: 2,5 puntos.</strong></p></div>
+      <div class="paso"><div class="et">conclusión</div><p>El paso 3 está cerrado. Más trabajo ahí no puede ganar más de dos puntos y medio.</p></div>
+    </div>
 
-    <!-- ═══ 7 ═══ -->
-    <section id="defectos">
-      <div class="head"><span class="num">07</span><h2>Lo que encontró <span class="a">medir</span></h2></div>
-      <p>Ninguno de estos era detectable leyendo el código, y ninguno lo encontraron los 760 tests de entonces. Los encontró correr el sistema entero y comparar dos medidas de la misma cifra.</p>
+    <div class="defecto">
+      <header><h3>Las premisas no cierran pruebas</h3></header>
+      <div class="paso"><div class="et">medido</div><p>Añadir tácticas con premisas costó <strong>231 invocaciones extra de Lean y cerró cero</strong> sobre 21 teoremas que la cascada desnuda no cerraba.</p></div>
+      <div class="paso"><div class="et">por qué</div><p>Aritmética: la cobertura de premisas es 14 %, o sea una de cada siete, y una prueba las necesita <em>todas</em> — 2,1 de media. Esperado 0,14² × 21 ≈ 0,4 cierres; observado, 0.</p></div>
+      <div class="paso"><div class="et">la lección</div><p>Una métrica de recuperación <strong>no se traduce en cierres</strong>. El listón real está muy por encima del 14 % que la mejora celebraba.</p></div>
+    </div>
 
-      <div class="defecto">
-        <header><h3>El sistema verificaba teoremas que nadie había preguntado</h3></header>
-        <div class="paso"><span class="et">Traza</span><p>«¿Cuánto es 127 + 458?» → el LLM formaliza <em>bien</em> → un detector de tautologías lo marca trivial por error → el reintento le ordena usar «geometría euclidiana o espacios con producto interior», que estaba <strong>cableado en el prompt</strong> → Lean verifica un teorema sobre vectores ortogonales → la respuesta sale con sello de verificada.</p></div>
-        <div class="paso"><span class="et">Causa</span><p>El detector casaba con <code>:= by</code> al final de línea, o sea con toda prueba táctica multilínea. Se disparaba casi siempre. Y el reintento elegía la <em>matemática</em> en vez de señalar el fallo.</p></div>
-        <div class="paso"><span class="et">Ahora</span><p>El detector exige lo que la palabra significa: una hipótesis con nombre y un cuerpo de prueba que sea ese nombre. El reintento dice cuál es el defecto sin nombrar ninguna rama. La misma consulta pasó de 6 pasos a 3 y de 110&nbsp;s a 43&nbsp;s.</p></div>
-      </div>
+    <div class="defecto">
+      <header><h3>Tres emparejadores fallaron, y la causa no era el emparejador</h3></header>
+      <div class="paso"><div class="et">medido</div><p>Búsqueda plana 43,9 %, descenso anclado en pilares 11,8 %, embeddings 11,9 % — los tres por debajo del 79,4 % de decir siempre «álgebra».</p></div>
+      <div class="paso"><div class="et">la causa</div><p>Para <code>(a+b)² = a²+2ab+b²</code> <strong>no existía el nodo</strong>. Las 35 skills de álgebra eran todas álgebra abstracta. Ningún emparejador recupera lo que no está.</p></div>
+      <div class="paso"><div class="et">y el juez</div><p>Además MATH es 79 % álgebra escolar contra una ontología de investigación. Tres mediciones se hicieron contra el juez equivocado antes de notarlo.</p></div>
+    </div>
 
-      <div class="defecto">
-        <header><h3>Lean aceptaba archivos que no demuestran nada</h3></header>
-        <div class="paso"><span class="et">Qué pasó</span><p>«La unión de dos abiertos es abierta» produjo un archivo con cuatro <code>#check</code> de K-teoría y ningún teorema. Lean lo aceptó —es sintácticamente correcto— y el pipeline estampó la insignia.</p></div>
-        <div class="paso"><span class="et">Ahora</span><p>Estado propio <code>sin teorema</code>, evaluado <em>antes</em> que la rama de éxito. <code>#check</code> consulta un tipo; no demuestra nada.</p></div>
-      </div>
+    <div class="defecto">
+      <header><h3>La recuperación de lemas por contenido pierde contra la moda</h3></header>
+      <div class="paso"><div class="et">medido</div><p>Sobre 23 243 pruebas reales: contenido 0,6 % de cobertura, ofrecer siempre los 20 lemas más citados, 77 %.</p></div>
+      <div class="paso"><div class="et">por qué</div><p><code>sq_nonneg</code> no aparece en el enunciado ni tiene por qué: es una <em>herramienta</em> que el problema necesita, no un concepto del que hable. No hay parecido que encontrar.</p></div>
+      <div class="paso"><div class="et">alcance</div><p>En Mathlib general el nulo sólo vale 9,2 % y el contenido 4,6 %: lo que cambia por dominio es la fuerza del nulo, no la del método.</p></div>
+    </div>
+  </section>
 
-      <div class="defecto">
-        <header><h3>Pedir algo falso devolvía una respuesta con sello de verificada</h3></header>
-        <div class="paso"><span class="et">Qué pasó</span><p>«Demuestra que √4 es irracional» —falso— y el modelo hizo lo correcto: detectó la falsedad, formalizó la negación y lo dijo en un comentario. <strong>Era el pipeline el que no miraba</strong>: veía SUCCESS y estampaba la insignia sobre una respuesta a otra pregunta.</p></div>
-        <div class="paso"><span class="et">Ahora</span><p>El formalizador tiene un canal legible por máquina para lo que ya hacía solo, y la respuesta abre con «el enunciado que preguntaste es FALSO». La confianza no baja: la prueba <em>está</em> respaldada, lo que cambia es qué responde.</p></div>
-      </div>
+  <section id="instrumentos">
+    <div class="head"><span class="num">08</span><h2>Doce <span class="a">instrumentos rotos</span></h2></div>
+    <p>Doce veces un script propio presentó su propio fallo como si fuera un
+    resultado sobre el sistema — exactamente el defecto que este proyecto existe
+    para no cometer. Se listan porque las señales que los delataron son
+    reutilizables.</p>
 
-      <div class="defecto">
-        <header><h3>Casi la mitad de los nodos no podían ser componentes de un patrón</h3></header>
-        <div class="paso"><span class="et">Qué pasó</span><p>Un patrón es un funtor <code>P : I → K</code>, luego sus componentes son <em>objetos</em>. 83 de los 173 nodos no lo son: funtores, objetos dentro de una categoría, o nombres de tema. Un diagrama que los incluya es un error de tipo.</p></div>
-        <div class="paso"><span class="et">Al imponerlo</span><p>Los huecos cayeron de 18 a 3 — <strong>la mayoría no eran conceptos que faltaran, sino patrones que no debieron existir</strong>. Y lo que no se movió: los cuatro emergentes y el orden máximo 3.</p></div>
-      </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>lo que decía</th><th>lo que pasaba</th><th>qué lo delató</th></tr></thead>
+        <tbody>
+          <tr><td>«0 candidatos para todo»</td><td><code>grep</code> no estaba en el PATH, dentro de un <code>except</code> mudo</td><td>ni <code>Scheme</code> aparecía</td></tr>
+          <tr><td>vocabulario al 7 %</td><td>se medía tras sustituir los imports</td><td>el número era absurdo</td></tr>
+          <tr><td>«20× sobre el azar»</td><td>el DAG tenía 342 aristas: Mathlib usa <code>public import</code></td><td>342 para 7 746 ficheros</td></tr>
+          <tr><td>47 de 73 aristas sin evidencia</td><td>corpus de 99 ficheros de 7 746</td><td><code>commutative-algebra → algebraic-geometry</code> sin evidencia es absurdo</td></tr>
+          <tr><td>0,0 % en las tres variantes</td><td>ProofNet está en Lean 3 y el grafo en Mathlib 4</td><td><strong>el modelo nulo también daba cero</strong></td></tr>
+          <tr><td>el conjunto de oro vacío</td><td>la regex sólo cogía CamelCase; Lean 3 va en minúscula</td><td>de <code>irrational x</code> no extraía nada</td></tr>
+          <tr><td>93 de 100 casos excluidos</td><td>faltaban los <code>variable</code> y <code>open</code> del fichero</td><td>la tasa de exclusión</td></tr>
+          <tr><td><code>the</code>, el lema más citado de Mathlib</td><td>se leían declaraciones dentro de los comentarios</td><td>«the» no es un lema</td></tr>
+          <tr><td>«el grafo perjudica en el paso 3»</td><td>se midió sustitución donde el código hace unión</td><td>leer <code>client.py</code></td></tr>
+          <tr><td>ciclo de 1 244 módulos</td><td>el extractor metía 2 800 aristas falsas</td><td><strong>una alarma escrita en el propio script</strong></td></tr>
+          <tr><td>«0 fallos arreglables con import»</td><td>la regex buscaba comillas simples; Lean usa acentos graves</td><td>el resultado daba la razón demasiado limpio</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-      <div class="nota a">
-        <b>Y una lección sobre los instrumentos</b>
-        Cuatro de las mediciones de este trabajo mintieron antes de acertar, y todas de la misma forma: <strong>un fallo de la herramienta presentado como un resultado sobre lo medido</strong>. Un banco que contaba «sin saldo de API» como fallo del sistema. Una verificación que comprobaba nombres contra un Mathlib recortado y daba 7&nbsp;% donde había 79. Una búsqueda que devolvía «no existe» porque la herramienta no estaba instalada.
-        <br><br>Es el mismo defecto que el sistema tenía dentro —Lean aceptando archivos vacíos, el sello sobre otro teorema— reproducido en los aparatos que lo miden. Medir mal produce afirmaciones falsas con la misma facilidad que razonar mal.
-      </div>
-    </section>
+    <div class="nota a">
+      <b>Lo que sí funcionó como método</b>
+      Ninguno se detectó revisando el código. Se detectaron por <strong>señales
+      internas</strong>: un cero perfecto que incluye al azar, una tasa de
+      exclusión imposible, un resultado demasiado cómodo. Y el mejor caso fue el
+      undécimo, cazado por una alarma que el propio script llevaba escrita
+      —«si hay componentes no triviales aquí, el extractor está mal»—. Escribir
+      la alarma dentro del instrumento es lo único que ha funcionado de forma
+      fiable.
+      <br><br>Y un aviso sobre una defensa que <em>no</em> basta: registrar el
+      veredicto antes de medir impide mover el listón después, pero no impide
+      elegir mal <em>qué</em> se mide. Eso fue el noveno.
+    </div>
+  </section>
 
-    <!-- ═══ 8 ═══ -->
-    <section id="limites">
-      <div class="head"><span class="num">08</span><h2>Lo que <span class="a">no está</span></h2></div>
+  <section id="limites">
+    <div class="head"><span class="num">09</span><h2>Lo que <span class="a">no está</span></h2></div>
 
-      <h3>El grafo no está medido como acelerador</h3>
-      <p>Sé que pone los nombres correctos y los imports correctos. <strong>No sé si eso sube la tasa de verificación</strong>, porque no está medido. Una ablación sobre casos elementales no discriminó — pero esos casos los cierra <code>ring</code> con grafo o sin él, así que tampoco dice nada.</p>
+    <h3>Sin respuesta todavía</h3>
+    <p><strong>Si el vocabulario del paso 1 se traduce en más verificaciones.</strong>
+    Es la única pregunta que necesita llamar al modelo, y está bloqueada por
+    presupuesto. Lo que hay es que en 8 casos fáciles apagar el núcleo entero no
+    cambia ningún veredicto y el sistema completo tarda más — n=8 con efecto
+    techo, no concluyente.</p>
 
-      <h3>El emparejamiento consulta → concepto falla</h3>
-      <p>«Unión de dos abiertos» activa <code>descriptive-set-theory</code> en lugar de topología. Por bueno que sea el vocabulario, si el concepto activado es el equivocado los dos puntos del grafo aportan lo que no toca.</p>
+    <h3>Identificado y sin arreglar</h3>
+    <ul>
+      <li><strong>El emparejamiento consulta→concepto.</strong> 15 de 24 consultas reales no activan ninguna skill. Los tres puntos donde el grafo actúa dependen de él.</li>
+      <li><strong>Las tácticas como nodos.</strong> 453 aristas entrando en 9 sumideros. Deberían ser flechas.</li>
+      <li><strong>Los nombres de los 125 nodos generados</strong> están deducidos de la ruta del módulo, no comprobados con <code>#check</code>. Por eso no se inyectan: al activarlos la precisión caía por debajo del azar.</li>
+      <li><strong>Seis dependencias</strong> siguen bajo sospecha de ir al revés.</li>
+    </ul>
 
-      <h3>La complexificación no produce emergencia</h3>
-      <p>Cierra huecos —7 en el grafo real, preservando los colímites previos— pero <code>η(P)</code> se inserta justo encima de las componentes, luego su orden es <code>1 + max(componentes)</code>. Con componentes de orden 0 sale orden 1, siempre. Los cuatro objetos irreducibles no los construyó el paso: dos ya estaban y dos los aportó la matemática cuando se preguntó por el nombre del vértice que faltaba.</p>
+    <h3>Lo que el sistema no hace</h3>
+    <ul>
+      <li>No demuestra teoremas por sí solo: formaliza y verifica. La prueba la escribe el modelo o la cierra la cascada.</li>
+      <li>El grafo no decide qué es cierto en ningún punto. Eso es Lean, siempre.</li>
+      <li>Sin API no hay formalización, ni chat, ni banco de fidelidad. Lo que sigue vivo sin ella es validar y mejorar el núcleo.</li>
+    </ul>
+  </section>
 
-      <h3>Tres consultas del banco fallan por capacidad</h3>
-      <p>La serie <code>Σ1/2ⁿ</code>, los subgrupos de un grupo cíclico, y la unión de abiertos. No fallan por fidelidad — el sistema no miente sobre ellas, simplemente no sabe demostrarlas. Es distinto y mucho menos grave.</p>
-
-      <h3>Y el grafo cubre conceptos, no lemas</h3>
-      <p>Su vocabulario son <em>áreas</em> —<code>Field</code>, <code>TopCat</code>, <code>RingCat</code>— no los lemas concretos que cierran una prueba, que es lo que el modelo se inventaba. Son vocabularios de nivel distinto, y el segundo sigue sin cubrir.</p>
-    </section>
-
-    <footer>
-      Cada cifra de este documento procede de una medición ejecutada sobre el sistema:
-      el recuento de conceptos, del grafo en memoria tras arrancar; el banco de fidelidad,
-      de 24 consultas reales verificadas con Lean; el vocabulario, de comprobar cada nombre
-      con <code>#check</code> contra Mathlib entero; el coste, del contador que el propio
-      sistema lleva. 777 tests en verde.
-    </footer>
-  </main>
+  <footer>
+    De dónde sale cada cifra — vocabulario y dependencias: comprobados contra
+    Mathlib con <code>#check</code> y contra el DAG oficial de 21 446 aristas.
+    Tácticas: 1 600 pruebas de una línea de Mathlib. Premisas: 23 243 pruebas
+    Lean 4 reales de LeanWorkbook. Imports: 40 enunciados de oro con Lean como
+    juez. Fidelidad: 24 consultas reales con juez independiente ciego al
+    veredicto de Lean. Todas las mediciones sin API salvo el banco de fidelidad.
+    <br><br>Los negativos están en la sección 7 con el mismo detalle que los
+    positivos, y los doce instrumentos rotos en la 8.
+  </footer>
+</main>
 </div>
