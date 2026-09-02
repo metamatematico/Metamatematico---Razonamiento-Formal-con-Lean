@@ -162,16 +162,27 @@ def main(n):
         if not ok_sorry:
             excluidos += 1
             continue
-        # 2. la cascada, con el orden NUEVO
+        # 2. la cascada, con el orden NUEVO.
+        #
+        # Y detras, las tacticas CON PREMISAS. La cascada desnuda cerraba el
+        # 16 %, y de los 21 fallos OCHO usaban `simp` — que si ofrece. Mathlib
+        # escribe `simp [foo, bar]`; sin poder citar un hecho, la cascada no
+        # puede reproducir esas pruebas. Se cuentan aparte para saber cuanto
+        # aportan de verdad.
         orden = [x for x, _ in an.prioritize(
             c["sig"], domain_order=domain_tactic_order(c["area"]))]
+        n_desnudas = min(6, len(orden))
+        orden = orden[:n_desnudas]
+        try:
+            from nucleo.lean.premisas import tacticas_con_premisas
+            orden += [t for t, _ in tacticas_con_premisas(c["sig"], c["area"])]
+        except Exception as e:
+            print("   sin premisas: %s" % type(e).__name__)
         cerro, pos = None, None
         for i, tac in enumerate(orden, 1):
             ok, _ = corre(c["imports"], c["sig"], tac, c["contexto"])
             if ok:
                 cerro, pos = tac, i
-                break
-            if i >= 6:            # mas alla de 6 el coste no compensa
                 break
         # 3. donde habria estado ESA tactica con el orden viejo, sin Lean
         pos_vieja = None
@@ -188,6 +199,8 @@ def main(n):
             viejo += [x for x in solvers if x not in viejo]
             pos_vieja = viejo.index(cerro) + 1
         filas.append({"nombre": c["nombre"], "area": c["area"],
+                      "con_premisas": bool(cerro and "[" in cerro),
+                      "n_desnudas": n_desnudas,
                       "fichero": c["fichero"],
                       "tactica_mathlib": c["tactica_mathlib"],
                       "cerro": cerro, "pos_nueva": pos, "pos_vieja": pos_vieja})
@@ -197,6 +210,11 @@ def main(n):
             else "no cerro en 6 intentos"))
 
     cerrados = [f for f in filas if f["cerro"]]
+    con_p = [f for f in cerrados if f.get("con_premisas")]
+    print("\n  de los que cerraron, lo hicieron CON PREMISAS: %d de %d"
+          % (len(con_p), len(cerrados)))
+    for f in con_p:
+        print("     %-34s %s" % (f["nombre"][:32], f["cerro"][:70]))
     print("\n" + "=" * 66)
     print("  medidos      : %d   (excluidos por no elaborar: %d)"
           % (len(filas), excluidos))

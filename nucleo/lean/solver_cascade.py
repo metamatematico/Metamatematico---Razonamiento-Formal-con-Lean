@@ -564,6 +564,7 @@ class SolverCascade:
         imports: Optional[list[str]] = None,
         domain_tactic: str = "",
         domain_order: Optional[list[str]] = None,
+        area_premisas: str = "",
     ) -> CascadeResult:
         """
         Goal-aware solver cascade that reorders tactics by goal structure.
@@ -615,6 +616,27 @@ class SolverCascade:
                 "Heuristic cascade order (no GNN): %s...",
                 [s for s, _ in smart_order[:4]],
             )
+
+        # LAS PREMISAS, AL FINAL DE LA CASCADA.
+        #
+        # Medido con Lean como juez sobre teoremas de una linea de Mathlib: la
+        # cascada cierra el 16 %, y de los 21 que fallaron OCHO usaban `simp`
+        # —que la cascada si ofrece—. Mathlib escribe `simp [foo, bar]`, y la
+        # cascada probaba `simp` a secas: no podia reproducir ninguna prueba
+        # que necesitara CITAR un hecho.
+        #
+        # Van detras a proposito: son mas caras y solo tienen sentido cuando la
+        # version desnuda fallo. Si la desnuda cierra, esto no llega a probarse.
+        # Y no tocan la correccion: una premisa mal elegida hace fallar la
+        # tactica y se pasa a la siguiente.
+        try:
+            from nucleo.lean.premisas import tacticas_con_premisas
+            extra = tacticas_con_premisas(goal_text, area_premisas or "")
+            if extra:
+                smart_order = list(smart_order) + [
+                    e for e in extra if e[0] not in {n for n, _ in smart_order}]
+        except Exception as e:
+            logger.debug("sin premisas (%s)", type(e).__name__)
 
         # Temporarily swap solver order and run
         original_solvers = self._solvers

@@ -1804,7 +1804,7 @@ class Nucleo:
             # detectada, colocada primera en la cascada (paper §3.5).
             sorry_msg, confidence, success_value = await self._try_solve_sorries(
                 lean_code, result, domain_tactic=_tactica_aprendida,
-                domain_order=_domain_order,
+                domain_order=_domain_order, area_premisas=_area,
             )
             verification_status = "parcial"
             verification_note = (
@@ -2137,7 +2137,7 @@ class Nucleo:
 
     async def _try_solve_sorries(
         self, code: str, result: LeanResult, domain_tactic: str = "",
-        domain_order: Optional[list[str]] = None,
+        domain_order: Optional[list[str]] = None, area_premisas: str = "",
     ) -> tuple[str, float, float]:
         """Try solver cascade on sorry-containing code.
 
@@ -2175,6 +2175,7 @@ class Nucleo:
                     goal_text=ctx.goal,
                     domain_tactic=domain_tactic,
                     domain_order=domain_order,
+                    area_premisas=area_premisas,
                 )
                 cascade_already_ran = True
                 if cascade_result.success:
