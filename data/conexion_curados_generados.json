@@ -1,0 +1,15 @@
+{
+ "curados": 190,
+ "generados": 125,
+ "cruzan": {
+  "curado->generado": 88
+ },
+ "costura_al_pilar": 125,
+ "sin_curado_en_su_cierre": [
+  "mathlib-logic-basic"
+ ],
+ "cuelgan_solo_del_pilar": [
+  "mathlib-logic-basic"
+ ],
+ "aristas_que_faltan": []
+}

@@ -613,6 +613,41 @@ class Nucleo:
         self._graph.add_morphism("cic", "lean-kernel", MorphismType.DEPENDENCY)
         self._graph.add_morphism("fol-deduction", "fol-metatheory", MorphismType.DEPENDENCY)
 
+        # LA LOGICA ES PRERREQUISITO DE ZFC, y faltaba.
+        #
+        # ZFC es una TEORIA DE PRIMER ORDEN: sus axiomas son formulas de primer
+        # orden con igualdad. Es el ejemplo canonico. Sin esta arista la logica
+        # alcanzaba 158 de los 315 nodos y la teoria de conjuntos 289 — o sea
+        # que la mitad de la matematica del grafo no tenia la logica detras.
+        #
+        # Con ella, la logica alcanza todo lo que se construye sobre conjuntos,
+        # que es donde la afirmacion es cierta. Una sola arista en lugar de las
+        # trescientas que haria falta poner una a una.
+        #
+        # LO QUE ALCANZA, MEDIDO Y SEPARADO POR TIPO DE ARISTA:
+        #
+        #     solo por DEPENDENCY      284 de 315   (20 de 31 CAT, 5 de 19 TYPE)
+        #     con TRANSLATION incluida 314 de 315
+        #
+        # La diferencia importa y conviene no confundirla. Que la logica llegue
+        # a la teoria de tipos NO dice que la teoria de tipos sea de primer
+        # orden: llega por la traduccion de Curry-Howard que se declara justo
+        # debajo, que es una CORRESPONDENCIA y no un prerrequisito.
+        #
+        # Y por dependencia alcanza ya 20 nodos CAT, porque hay categorias
+        # construidas sobre conjuntos. Eso es correcto: lo que no seria correcto
+        # es afirmar que `cat-basics` depende de la logica de primer orden, y
+        # esa arista no se pone.
+        #
+        # ES UNA ARISTA CURADA, no derivada: Mathlib no construye ZFC sobre
+        # `Logic.Basic`, asi que el DAG de imports no la contiene. Sale de un
+        # juicio matematico y va marcada como tal.
+        self._graph.add_morphism(
+            "fol-deduction", "zfc-axioms", MorphismType.DEPENDENCY,
+            metadata={"relation": "zfc-es-una-teoria-de-primer-orden",
+                      "construccion": "curada-no-derivada"},
+        )
+
         # Inter-pillar translations
         self._graph.add_morphism(
             "fol-deduction", "cic",
@@ -648,6 +683,24 @@ class Nucleo:
         logger.info(
             "Cobertura Mathlib: %d nodos, %d aristas",
             cobertura["added"], cobertura["links"],
+        )
+
+        # EL ESQUELETO QUE UNE LOS DOS GRAFOS.
+        #
+        # Sin esto habia DOS grafos: cero aristas entre curados y generados sin
+        # contar el enganche al pilar, y los 125 generados colgando directos de
+        # `zfc-axioms`. `mathlib-linearalgebra-basis` alcanzaba 81 nodos hacia
+        # arriba y ninguno era curado — no pasaba por `linear-algebra` ni por
+        # `ring-theory`, que existen.
+        #
+        # La jerarquia estaba escrita en el anidamiento de modulos de Mathlib, y
+        # va de lo GENERAL a lo ESPECIAL: `Algebra` se inyecta en
+        # `Algebra.Field`. Es la misma direccion que el grafo curado ya seguia.
+        from nucleo.pillars.math_domains import load_jerarquia_areas
+        jer = load_jerarquia_areas(self._graph)
+        logger.info(
+            "Esqueleto de areas: %d nodos, %d aristas",
+            jer["areas"], jer["aristas"],
         )
 
         # LA MULTIPLICIDAD QUE LEAN CERTIFICO.

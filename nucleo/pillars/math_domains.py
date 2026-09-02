@@ -1698,3 +1698,153 @@ def load_mathlib_coverage(graph) -> dict:
 
     _log.info("Cobertura Mathlib: %d nodos, %d aristas", added, links)
     return {"added": added, "skipped": skipped, "links": links}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# EL ESQUELETO DE AREAS: lo que faltaba entre los pilares y los dominios
+#
+# Medido: los 173 curados y los 125 generados eran DOS GRAFOS. Cero aristas
+# entre ellos sin contar la costura al pilar, y los 125 generados cuelgan
+# directos de `zfc-axioms` porque asi los enganche yo «para no dejar islas».
+#
+# `mathlib-linearalgebra-basis` alcanzaba 81 nodos hacia arriba y ni uno era
+# curado: no pasaba por `linear-algebra`, ni por `module-theory`, ni por
+# `ring-theory` —los tres existen— sino que saltaba a ZFC de una vez.
+#
+# LA JERARQUIA YA ESTABA ESCRITA, en el anidamiento de modulos de Mathlib:
+#
+#     Algebra  ->  Algebra.Field  ->  Algebra.Field.Defs
+#
+# Y LA DIRECCION ES DE LO GENERAL A LO ESPECIAL, que es la convencion que el
+# grafo curado ya seguia —`group-theory -> ring-theory -> field-theory`—. Un
+# cuerpo es un anillo con mas axiomas: la teoria general SE INYECTA en la
+# especializada. `Algebra` no es el colimite de sus ramas; es su base.
+#
+# De ahi que estos nodos entren con cn=0, como bases declaradas, y no como
+# objetos emergentes. Lo construido esta mas arriba, en lo que las liga.
+#
+# POR QUE ESTO Y NO EL DAG DE IMPORTS. Se probo: el DAG solo relacionaba 7 de
+# los 125, porque cada lado apunta a zonas distintas de Mathlib. El anidamiento
+# si los relaciona, y ademas es un ARBOL por construccion —un padre por modulo,
+# sin ciclos— a diferencia de la dependencia, que al agregarla producia 133
+# ciclos y una mega-area con el 68 % de Mathlib.
+#
+# QUE SE DEJA FUERA. `Data`, con 21 generados. No es una teoria matematica sino
+# infraestructura de Lean, y la lectura «lo general se inyecta en lo especial»
+# no dice nada de ella: `Data` no es una teoria mas general de `Data.Set`. Sus
+# nodos siguen colgando del pilar hasta que alguien decida que es.
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: Area de primer nivel de Mathlib -> el nodo base del que cuelga.
+_PILAR_DE_AREA = {
+    "CategoryTheory": "cat-basics",
+    "Logic": "fol-deduction",
+    "ModelTheory": "fol-deduction",
+    "Computability": "cic",
+}
+_PILAR_POR_DEFECTO = "zfc-axioms"
+
+#: Fuera del esqueleto, con su motivo.
+_AREAS_EXCLUIDAS = {
+    # infraestructura de Lean, no una teoria: `Data` no es mas general que
+    # `Data.Set` en ningun sentido matematico
+    "Data",
+}
+
+
+def _area_de(modulo: str) -> str:
+    """`Mathlib.Algebra.Field.Defs` -> `Algebra`."""
+    p = (modulo or "").replace("Mathlib.", "", 1).split(".")
+    return p[0] if p and p[0] else ""
+
+
+def load_jerarquia_areas(graph) -> dict:
+    """Inserta los nodos de área que unen los dos grafos.
+
+    Solo se crean las áreas donde HAY AMBOS TIPOS —curados y generados—, que
+    son las que de verdad cosen algo. Un área con un solo tipo no conecta nada
+    y solo añadiría un nodo sin interpretar más.
+    """
+    import json as _json
+    import logging as _logging
+    _log = _logging.getLogger(__name__)
+
+    try:
+        from nucleo.rutas import dato
+        with open(dato("mathlib_modulos.json"), encoding="utf-8") as fh:
+            por_skill = _json.load(fh)["por_skill"]
+    except Exception as e:
+        _log.warning("sin mapa de modulos (%s): no se crea el esqueleto de "
+                     "areas", type(e).__name__)
+        return {"areas": 0, "aristas": 0}
+    try:
+        from nucleo.pillars.mathlib_taxonomy import NODOS_MATHLIB
+    except ImportError:
+        NODOS_MATHLIB = []
+
+    existentes = set(graph.skill_ids)
+    miembros = {}          # area -> {"curados": [...], "generados": [...]}
+    for sk, mods in por_skill.items():
+        if sk not in existentes:
+            continue
+        for m in mods:
+            a = _area_de(m)
+            if a:
+                miembros.setdefault(a, {"curados": set(), "generados": set()})
+                miembros[a]["curados"].add(sk)
+                break
+    for nodo in NODOS_MATHLIB:
+        if nodo.id not in existentes:
+            continue
+        a = _area_de(nodo.modulo)
+        if a:
+            miembros.setdefault(a, {"curados": set(), "generados": set()})
+            miembros[a]["generados"].add(nodo.id)
+
+    areas = aristas = 0
+    for a, m in sorted(miembros.items()):
+        if a in _AREAS_EXCLUIDAS:
+            continue
+        if not (m["curados"] and m["generados"]):
+            continue          # con un solo tipo no cose nada
+        aid = "area-" + a.lower()
+        if aid in existentes:
+            continue
+        base = _PILAR_DE_AREA.get(a, _PILAR_POR_DEFECTO)
+        graph.add_skill(Skill(
+            id=aid,
+            name="Área · %s" % a,
+            description="La teoría general de %s, tal como Mathlib la agrupa. "
+                        "Se inyecta en cada una de sus especializaciones."
+                        % a,
+            pillar=graph.get_skill(base).pillar if graph.get_skill(base)
+            else PillarType.SET,
+            level=1,
+            metadata={
+                "category": "area",
+                "origen": "jerarquia-mathlib",
+                # No lleva veredicto categorico: es un nodo de ESTRUCTURA,
+                # leido del anidamiento de modulos y no interpretado a mano.
+                "interpretado": False,
+                "modulo": "Mathlib." + a,
+                "miembros_curados": sorted(m["curados"]),
+                "miembros_generados": sorted(m["generados"]),
+            },
+        ))
+        existentes.add(aid)
+        areas += 1
+        # el pilar es prerrequisito del area
+        if graph.add_morphism(base, aid, MorphismType.DEPENDENCY,
+                              metadata={"relation": "pilar-sostiene-area",
+                                        "construccion": "jerarquia"}):
+            aristas += 1
+        # y el area es prerrequisito de todo lo suyo: de lo general a lo
+        # especial, que es la direccion que el grafo curado ya seguia
+        for hijo in sorted(m["curados"] | m["generados"]):
+            if graph.add_morphism(aid, hijo, MorphismType.DEPENDENCY,
+                                  metadata={"relation": "general-se-inyecta-en-especial",
+                                            "construccion": "jerarquia"}):
+                aristas += 1
+
+    _log.info("Esqueleto de areas: %d nodos, %d aristas", areas, aristas)
+    return {"areas": areas, "aristas": aristas}

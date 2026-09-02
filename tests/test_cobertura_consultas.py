@@ -202,3 +202,109 @@ def test_el_replay_declara_sus_configuraciones():
     assert mod.CONFIGS["desnudo"] == {"imports": False, "premisas": False}
     for nombre, cfg in mod.CONFIGS.items():
         assert set(cfg) == {"imports", "premisas"}, nombre
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LOS DOS GRAFOS SON UNO, Y NO DEBEN VOLVER A SEPARARSE
+#
+# Medido antes del esqueleto de areas: CERO aristas entre los 173 curados y los
+# 125 generados sin contar el enganche al pilar, y los 125 colgando directos de
+# `zfc-axioms`. `mathlib-linearalgebra-basis` alcanzaba 81 nodos hacia arriba y
+# ni uno era curado — no pasaba por `linear-algebra` ni por `ring-theory`, que
+# existen. No habia un grafo de 298 nodos: habia dos que compartian el suelo.
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_los_dos_grafos_estan_cosidos(sistema):
+    """Sin esto, el grafo generado y el curado son universos paralelos."""
+    n, g = sistema
+    gen = {s.id for s in g.skills
+           if (s.metadata or {}).get("origen") == "mathlib"}
+    L0 = {s.id for s in g.skills if s.level == 0}
+    cruzan = 0
+    for m in g.morphisms:
+        a, b = m.source_id, m.target_id
+        if a in L0:
+            continue                      # la costura al pilar no cuenta
+        if (a in gen) != (b in gen):
+            cruzan += 1
+    assert cruzan >= 50, (
+        "solo %d aristas cruzan entre curados y generados. Antes del esqueleto "
+        "de areas eran 0 y los dos grafos eran universos paralelos." % cruzan)
+
+
+def test_casi_todo_generado_comparte_area_con_algun_curado(sistema):
+    """Un nodo que sólo alcanza ZFC no hereda contexto de nada.
+
+    OJO CON LO QUE ESTO AFIRMA, porque la primera versión de este test exigía
+    algo que el diseño no da y fallaba con 125 de 125.
+
+    Los generados NO son descendientes de los curados: son HERMANOS bajo un
+    nodo de área. `mathlib-linearalgebra-basis` y `linear-algebra` cuelgan los
+    dos de `area-algebra`, en paralelo. Y no se puede derivar cuál es más
+    general, porque la profundidad del módulo no ordena la generalidad:
+    `LinearAlgebra.Basis` está a profundidad 2 y `LinearAlgebra.Matrix.Defs` a
+    3, y sin embargo el álgebra lineal es más general que la noción de base.
+
+    Lo que sí se exige, y es lo que el esqueleto construyó: que cada generado
+    alcance un ÁREA, y que esa área sea también ancestro de algún curado. Eso
+    es ancestro común real, y es lo que antes no existía.
+    """
+    from collections import deque
+    n, g = sistema
+    gen = {s.id for s in g.skills
+           if (s.metadata or {}).get("origen") == "mathlib"}
+    areas = {s.id for s in g.skills
+             if (s.metadata or {}).get("category") == "area"}
+    L0 = {s.id for s in g.skills if s.level == 0}
+    curados = {s.id for s in g.skills
+               if (s.metadata or {}).get("origen") is None} - L0
+    assert areas, "no hay nodos de área: el esqueleto no se cargó"
+
+    def cierre(sid):
+        q, v = deque([sid]), set()
+        while q:
+            u = q.popleft()
+            for d in g.dependencies(u):
+                if d not in v:
+                    v.add(d)
+                    q.append(d)
+        return v
+
+    #: las áreas que además son ancestro de algún curado — las que cosen
+    utiles = {a for a in areas if any(a in cierre(c) for c in curados)}
+    assert utiles, "ningún área es ancestro de un curado: no cose nada"
+
+    huerfanos = [s for s in gen if not (cierre(s) & utiles)]
+    assert len(huerfanos) <= 5, (
+        "%d nodos generados no comparten área con ningún curado: %s"
+        % (len(huerfanos), sorted(huerfanos)[:8]))
+
+
+def test_la_logica_es_prerrequisito_de_zfc(sistema):
+    """ZFC es una teoría de primer orden — el ejemplo canónico.
+
+    Sin esta arista la lógica alcanzaba 158 de 315 nodos: media matemática del
+    grafo sin la lógica detrás. Con ella, 284 sólo por dependencia.
+    """
+    from collections import deque
+    from nucleo.types import MorphismType
+    n, g = sistema
+    assert g.has_morphism("fol-deduction", "zfc-axioms"), (
+        "falta `fol-deduction -> zfc-axioms`: ZFC es una teoria de primer "
+        "orden y sin esa arista la logica no sostiene la matematica del grafo")
+
+    ady = {}
+    for m in g.morphisms:
+        if m.morphism_type == MorphismType.DEPENDENCY:
+            ady.setdefault(m.source_id, set()).add(m.target_id)
+    q, v = deque(["fol-deduction"]), set()
+    while q:
+        u = q.popleft()
+        for x in ady.get(u, ()):
+            if x not in v:
+                v.add(x)
+                q.append(x)
+    assert len(v) >= 250, (
+        "la logica solo alcanza %d nodos por dependencia; eran 284 cuando se "
+        "puso la arista a ZFC" % len(v))
