@@ -119,7 +119,19 @@ def main(n, con_todo):
             nucleo, {"relevant_skills": skills}) or []
         for est in estrategias:
             if est == "grafo":
-                imports = del_grafo or list(FIJO)
+                # LA SEMANTICA DE PRODUCCION ES UNION, NO SUSTITUCION.
+                #
+                # La primera version ponia los modulos del grafo EN LUGAR del
+                # conjunto base, y con eso salia «el grafo perjudica»: 75 % de
+                # elaboracion frente al 90 % del fijo. Pero `client.py` los
+                # ANTEPONE y deja debajo la cabecera generica de tacticas
+                # (`lines = nuevos + lines`), asi que el grafo solo puede
+                # AÑADIR modulos, nunca quitar los que hacen falta.
+                #
+                # Medir la sustitucion es medir un sistema que no existe. Lo
+                # que se mide aqui es la CONTRIBUCION MARGINAL: base sola
+                # contra base mas lo que el grafo aporta.
+                imports = list(FIJO) + [m for m in del_grafo if m not in FIJO]
             elif est == "fijo":
                 imports = list(FIJO)
             elif est == "azar":

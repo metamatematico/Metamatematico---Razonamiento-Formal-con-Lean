@@ -1,0 +1,386 @@
+{
+ "n": 20,
+ "semilla": 20260901,
+ "resumen": {
+  "grafo": {
+   "ok": 18,
+   "n": 20,
+   "seg": 300.5003831386566,
+   "mods": 80
+  },
+  "fijo": {
+   "ok": 18,
+   "n": 20,
+   "seg": 301.6354205608368,
+   "mods": 60
+  },
+  "azar": {
+   "ok": 14,
+   "n": 20,
+   "seg": 239.22714138031006,
+   "mods": 62
+  }
+ },
+ "detalle": [
+  {
+   "id": "lean_workbook_plus_37629",
+   "grafo": {
+    "ok": true,
+    "seg": 15.0,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.2,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 13.3,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_13517",
+   "grafo": {
+    "ok": true,
+    "seg": 15.3,
+    "n_mods": 5
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 11.6,
+    "n_mods": 2
+   }
+  },
+  {
+   "id": "lean_workbook_plus_46176",
+   "grafo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": false,
+    "seg": 10.8,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_7867",
+   "grafo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": false,
+    "seg": 10.1,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_51947",
+   "grafo": {
+    "ok": true,
+    "seg": 15.0,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 13.0,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_8859",
+   "grafo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 5
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.1,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 11.5,
+    "n_mods": 2
+   }
+  },
+  {
+   "id": "lean_workbook_5879",
+   "grafo": {
+    "ok": true,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.9,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 12.4,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_63257",
+   "grafo": {
+    "ok": true,
+    "seg": 15.0,
+    "n_mods": 5
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.1,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 10.6,
+    "n_mods": 2
+   }
+  },
+  {
+   "id": "lean_workbook_plus_10590",
+   "grafo": {
+    "ok": true,
+    "seg": 15.5,
+    "n_mods": 9
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.4,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 13.2,
+    "n_mods": 6
+   }
+  },
+  {
+   "id": "lean_workbook_38036",
+   "grafo": {
+    "ok": true,
+    "seg": 15.5,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.9,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 11.5,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_25476",
+   "grafo": {
+    "ok": true,
+    "seg": 15.1,
+    "n_mods": 5
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.1,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 14.2,
+    "n_mods": 2
+   }
+  },
+  {
+   "id": "lean_workbook_plus_13510",
+   "grafo": {
+    "ok": true,
+    "seg": 15.2,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": false,
+    "seg": 10.3,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_54888",
+   "grafo": {
+    "ok": false,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": false,
+    "seg": 15.1,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": false,
+    "seg": 12.0,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_25921",
+   "grafo": {
+    "ok": true,
+    "seg": 15.1,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": false,
+    "seg": 13.0,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_2048",
+   "grafo": {
+    "ok": false,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": false,
+    "seg": 15.2,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": false,
+    "seg": 11.7,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_14832",
+   "grafo": {
+    "ok": true,
+    "seg": 15.2,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 11.8,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_51143",
+   "grafo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 11.5,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_60631",
+   "grafo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 15.2,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 12.1,
+    "n_mods": 3
+   }
+  },
+  {
+   "id": "lean_workbook_plus_32816",
+   "grafo": {
+    "ok": true,
+    "seg": 15.2,
+    "n_mods": 9
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.7,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 13.0,
+    "n_mods": 6
+   }
+  },
+  {
+   "id": "lean_workbook_plus_18912",
+   "grafo": {
+    "ok": true,
+    "seg": 14.8,
+    "n_mods": 3
+   },
+   "fijo": {
+    "ok": true,
+    "seg": 14.9,
+    "n_mods": 3
+   },
+   "azar": {
+    "ok": true,
+    "seg": 11.7,
+    "n_mods": 3
+   }
+  }
+ ]
+}
