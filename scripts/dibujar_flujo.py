@@ -39,6 +39,7 @@ prefijo estas reglas repintaban las cifras de portada del artefacto.
 import argparse
 import io
 import os
+import re
 import sys
 
 sys.stdout.reconfigure(encoding="utf-8")
@@ -46,30 +47,52 @@ sys.stdout.reconfigure(encoding="utf-8")
 SALIDA = "E:/Metamatematico/docs/img/00-flujo-real.svg"
 W, H = 1120, 810
 
-CLARO = [
-    ('svg', 'color:#1b1e17'),
-    ('.bg', 'fill:#ffffff;stroke:#ddd6c2'),
-    ('.gr', 'fill:#e7e4f5;stroke:#564c9e'),
-    ('.ve', 'fill:#dbf0ea;stroke:#167a68'),
-    ('.ll', 'fill:#f5e7cf;stroke:#b4761f'),
-    ('.al', 'fill:#f6dfdc;stroke:#ae3b35'),
-    ('.ln', 'stroke:currentColor;opacity:.5;fill:none;stroke-width:1.6'),
-    ('.pf', 'fill:currentColor;opacity:.5'),
-    ('.t', 'font:13px ui-sans-serif,system-ui;fill:currentColor'),
-    ('.b', 'font:600 13px ui-sans-serif,system-ui;fill:currentColor'),
-    ('.s', 'font:11px ui-sans-serif,system-ui;fill:currentColor;opacity:.66'),
-    ('.m', 'font:11px ui-monospace,monospace;fill:currentColor;opacity:.78'),
-    ('rect', 'stroke-width:1.3'),
-]
+#: EL DIBUJO NO PUEDE DEPENDER DE SU <style>. En GitHub el SVG se sirve como
+#: <img> desde /raw/, con su propia CSP y su propia cache; alli todo el color
+#: colgaba de que el bloque de estilo y el `id` del <svg> llegaran intactos. Si
+#: se pierde cualquiera de los dos no casa ningun selector y el navegador pinta
+#: los valores por defecto de SVG: relleno negro, sin trazo, sin fuente.
+#:
+#: Asi que el tema claro va en ATRIBUTOS DE PRESENTACION, elemento a elemento,
+#: y el <style> queda SOLO para el oscuro. Cualquier regla de CSS gana por
+#: especificidad a un atributo de presentacion, asi que donde el CSS llega el
+#: modo oscuro sigue mandando, y donde no llega se ve el dibujo en claro.
+SANS = "ui-sans-serif,system-ui,sans-serif"
+MONO = "ui-monospace,SFMono-Regular,Menlo,monospace"
 
-OSCURO = [
-    ('svg', 'color:#e8e6de'),
-    ('.bg', 'fill:#171b23;stroke:#2b3140'),
-    ('.gr', 'fill:#242038;stroke:#948bdd'),
-    ('.ve', 'fill:#152722;stroke:#4dc0aa'),
-    ('.ll', 'fill:#332714;stroke:#e2a94f'),
-    ('.al', 'fill:#331d1b;stroke:#e2827a'),
-]
+CLARO = {
+    "bg": {"fill": "#ffffff", "stroke": "#ddd6c2", "stroke-width": "1.3"},
+    "gr": {"fill": "#e7e4f5", "stroke": "#564c9e", "stroke-width": "1.3"},
+    "ve": {"fill": "#dbf0ea", "stroke": "#167a68", "stroke-width": "1.3"},
+    "ll": {"fill": "#f5e7cf", "stroke": "#b4761f", "stroke-width": "1.3"},
+    "al": {"fill": "#f6dfdc", "stroke": "#ae3b35", "stroke-width": "1.3"},
+    "ln": {"fill": "none", "stroke": "#1b1e17", "stroke-width": "1.6",
+           "opacity": ".5"},
+    "pf": {"fill": "#1b1e17", "opacity": ".5"},
+    "t":  {"fill": "#1b1e17", "font-family": SANS, "font-size": "13"},
+    "b":  {"fill": "#1b1e17", "font-family": SANS, "font-size": "13",
+           "font-weight": "600"},
+    "s":  {"fill": "#1b1e17", "font-family": SANS, "font-size": "11",
+           "opacity": ".66"},
+    "m":  {"fill": "#1b1e17", "font-family": MONO, "font-size": "11",
+           "opacity": ".78"},
+}
+
+#: el oscuro repite TODO lo que lleva color: si una clase se queda fuera,
+#: hereda el claro y se pinta texto claro sobre fondo claro
+OSCURO = {
+    "bg": {"fill": "#171b23", "stroke": "#2b3140"},
+    "gr": {"fill": "#242038", "stroke": "#948bdd"},
+    "ve": {"fill": "#152722", "stroke": "#4dc0aa"},
+    "ll": {"fill": "#332714", "stroke": "#e2a94f"},
+    "al": {"fill": "#331d1b", "stroke": "#e2827a"},
+    "ln": {"stroke": "#e8e6de"},
+    "pf": {"fill": "#e8e6de"},
+    "t":  {"fill": "#e8e6de"},
+    "b":  {"fill": "#e8e6de"},
+    "s":  {"fill": "#e8e6de"},
+    "m":  {"fill": "#e8e6de"},
+}
 
 CAJAS = []   # (nombre, x, y, w, h, rol) — las que participan en el flujo
 TODAS = []   # (x, y, w, h) — tambien las decorativas, para medir el texto
@@ -87,21 +110,22 @@ def caja(nombre, x, y, w, h, cls="", r=9, rol="normal"):
         CAJAS.append((nombre, x, y, w, h, rol))
     if rol != "chip":
         TODAS.append((x, y, w, h))
-    return ('<rect class="%s" x="%d" y="%d" width="%d" height="%d" rx="%d"/>'
-            % (cls, x, y, w, h, r))
+    return ('<rect class="%s"%s x="%d" y="%d" width="%d" height="%d" rx="%d"/>'
+            % (cls, pinta(cls), x, y, w, h, r))
 
 
 def txt(x, y, s, cls="t", anc="start"):
     TEXTOS.append((x, y, s, cls, anc))
-    return ('<text class="%s" x="%d" y="%d" text-anchor="%s">%s</text>'
-            % (cls, x, y, anc, s))
+    return ('<text class="%s"%s x="%d" y="%d" text-anchor="%s">%s</text>'
+            % (cls, pinta(cls), x, y, anc, s))
 
 
 def ruta(*puntos):
     """Flecha por waypoints. Registra el primer y el ultimo punto."""
     ARCOS.append((puntos[0][0], puntos[0][1], puntos[-1][0], puntos[-1][1]))
     d = "M%d %d " % puntos[0] + " ".join("L%d %d" % q for q in puntos[1:])
-    return '<path class="ln" d="%s" marker-end="url(#p)"/>' % d
+    return ('<path class="ln"%s d="%s" marker-end="url(#p)"/>'
+            % (pinta("ln"), d))
 
 
 def chip(x, y, s, cls="bg"):
@@ -110,22 +134,18 @@ def chip(x, y, s, cls="bg"):
             + txt(x + w // 2, y + 16, s, "m", "middle")), w
 
 
-def estilo(ident, claro, oscuro):
-    """Prefija cada selector con el id del dibujo.
+def pinta(cls):
+    """Los atributos de presentacion de una clase, para no depender del CSS."""
+    return "".join(' %s="%s"' % kv for kv in sorted(CLARO[cls].items()))
 
-    Un <style> dentro de un <svg> inline en HTML NO esta encapsulado: define
-    reglas del documento entero. Sin prefijo, `.l` y `.n` de aqui repintaban
-    las cifras de portada del artefacto, que usan esas mismas clases.
-    """
-    def pre(reglas):
-        salida = []
-        for sel, decl in reglas:
-            sel = "#%s" % ident if sel == "svg" else "#%s %s" % (ident, sel)
-            salida.append("%s{%s}" % (sel, decl))
-        return "".join(salida)
-    return ("<style>" + pre(claro)
-            + "@media(prefers-color-scheme:dark){" + pre(oscuro) + "}"
-            + "</style>")
+
+def estilo(ident, oscuro):
+    """El <style> lleva SOLO el tema oscuro; el claro va en los atributos."""
+    reglas = "".join(
+        "#%s .%s{%s}" % (ident, cls, ";".join("%s:%s" % kv
+                                              for kv in sorted(d.items())))
+        for cls, d in oscuro.items())
+    return ("<style>@media(prefers-color-scheme:dark){%s}</style>" % reglas)
 
 
 ARIA = (
@@ -183,8 +203,8 @@ def main(_):
          % (ARIA, W, H)]
     p.append('<defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" '
              'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
-             '<path d="M0 0 L10 5 L0 10 z" class="pf"/></marker></defs>')
-    p.append(estilo("fig-flujo", CLARO, OSCURO))
+             '<path class="pf"%s d="M0 0 L10 5 L0 10 z"/>' % pinta("pf") + '</marker></defs>')
+    p.append(estilo("fig-flujo", OSCURO))
 
     p.append(txt(24, 26, "DE LA ENTRADA A LA SALIDA", "b"))
     p.append(txt(232, 26, "— el grafo actúa en TRES puntos, y sólo dos aportan",
@@ -303,6 +323,16 @@ def main(_):
     p.append("</svg>")
     io.open(SALIDA, "w", encoding="utf-8").write("\n".join(p))
 
+    # ── y NADA puede depender del <style> ──────────────────────────────────
+    # Si el bloque de estilo no llega —otra CSP, otro sanitizador, otro visor—
+    # un elemento sin `fill` propio se pinta NEGRO por defecto y el dibujo se
+    # convierte en una mancha. El tema claro tiene que ir en los atributos de
+    # presentacion; el <style> solo puede llevar el oscuro.
+    _els = re.findall(r"<(?:rect|text|circle|path)\b[^>]*>",
+                      io.open(SALIDA, encoding="utf-8").read())
+    _pelados = [e[:70] for e in _els if "fill=" not in e]
+
+
     # ── el dibujo tiene que cerrar, y se comprueba ─────────────────────────
     # Esto es lo que fallo: el paso 5 tenia entrada y no tenia salida, y nadie
     # lo vio hasta que el usuario leyo el dibujo. Se mira el registro, no el
@@ -321,6 +351,8 @@ def main(_):
         if not sale and rol != "salida":
             sin_salida.append(c[0])
 
+    sin_oscuro = sorted(set(CLARO) - set(OSCURO))
+    print("  clases sin tema oscuro: %s" % (sin_oscuro or "ninguna"))
     fuera = [c[0] for c in CAJAS if c[1] + c[3] > W or c[2] + c[4] > H]
 
     # y ningun texto puede salirse de su caja: sin renderizador a mano es lo
@@ -337,11 +369,12 @@ def main(_):
         if x0 < c[0] + 5 or x0 + w > c[0] + c[2] - 5:
             desborda.append(cad[:38])
     print("  texto que se sale     : %s" % (desborda or "ninguno"))
+    print("  sin color propio      : %s" % (_pelados or "ninguno"))
     print("  cajas: %d · flechas: %d" % (len(CAJAS), len(ARCOS)))
     print("  sin flecha que entre : %s" % (sin_entrada or "ninguna"))
     print("  sin flecha que salga : %s" % (sin_salida or "ninguna"))
     print("  fuera del lienzo     : %s" % (fuera or "ninguna"))
-    if sin_entrada or sin_salida or fuera or desborda:
+    if sin_entrada or sin_salida or fuera or desborda or sin_oscuro or _pelados:
         print("     ATENCIÓN: el diagrama corta el flujo donde el código sigue")
         return 1
     print("\n  -> %s (%.1f KB)" % (SALIDA, os.path.getsize(SALIDA) / 1024))
