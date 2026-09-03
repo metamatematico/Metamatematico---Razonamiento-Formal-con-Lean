@@ -17,6 +17,7 @@ divergen, fallan aqui en vez de mentirle al usuario.
 """
 import ast
 import pathlib
+import io
 import re
 
 import pytest
@@ -43,26 +44,59 @@ def _metricas_fijas(fuente: str) -> dict[str, str]:
 
 class TestCifrasDeclaradas:
 
-    def test_numero_de_tests_declarado(self):
-        """La pagina anuncia cuantos tests hay: debe cuadrar con los que hay."""
-        fuente = _fuente_pagina()
-        declarado = _metricas_fijas(fuente).get("Tests")
-        if declarado is None:
-            pytest.skip("la pagina ya no declara un numero fijo de tests")
+    def test_numero_de_tests_declarado(self, request):
+        """Todo lo publicado anuncia cuantos tests pasan: tiene que cuadrar.
 
-        reales = 0
-        for f in sorted((RAIZ / "tests").glob("test_*.py")):
-            arbol = ast.parse(f.read_text(encoding="utf-8"))
-            reales += sum(
-                1 for n in ast.walk(arbol)
-                if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
-                and n.name.startswith("test_")
-            )
+        Antes esto contaba funciones `def test_*` con el AST y solo miraba la
+        pagina de Streamlit. Eso dejaba DOS cantidades distintas circulando:
 
-        assert int(declarado.replace(",", "")) == reales, (
-            f"La interfaz anuncia {declarado} tests y hay {reales}. "
-            f"Actualiza la metrica en {PAGINA.name} o hazla dinamica."
-        )
+            729  funciones definidas
+            790  casos que pytest ejecuta
+
+        No son la misma cosa —diez `parametrize` toman sus valores de
+        constantes del modulo, y el AST no puede expandirlos— y el README y el
+        artefacto declaraban la segunda, desactualizada en 788, sin que nada
+        saltara. La cifra la encontro el usuario leyendo la portada.
+
+        Ahora se compara con lo que pytest ACABA de recolectar en esta misma
+        sesion. Es exacto, no cuesta un subproceso, y cubre los tres sitios
+        donde la cifra se publica.
+        """
+        casos = len(request.session.items)
+        if casos < 500:
+            pytest.skip("sesion parcial (%d casos): no hay con que comparar"
+                        % casos)
+
+        declarados = []
+        pagina = _metricas_fijas(_fuente_pagina()).get("Tests")
+        if pagina is not None:
+            declarados.append((PAGINA.name, int(pagina.replace(",", ""))))
+
+        #: en el README y el artefacto la cifra va suelta en la prosa, asi que
+        #: se buscan las formas en que se escribe, no un numero cualquiera
+        for nombre, patrones in (
+            ("README.md", (r"Tests-(\d+)_passing",
+                           r"\*\*(\d+) tests en \d+ suites",
+                           r"tests/\s+(\d+) tests en")),
+            ("docs/arquitectura_nle.html", (r"(\d+) tests · \d+ suites",
+                                            r'"n">(\d+)</div><div class="l">tests en verde',
+                                            r"(\d+)  tests en \d+ suites")),
+        ):
+            p = RAIZ / nombre
+            if not p.exists():
+                continue
+            doc = io.open(p, encoding="utf-8").read()
+            for pat in patrones:
+                for m in re.finditer(pat, doc):
+                    declarados.append((nombre, int(m.group(1))))
+
+        assert declarados, "ya no se publica en ningun sitio cuantos tests hay"
+        malos = sorted({(n, v) for n, v in declarados if v != casos})
+        assert not malos, (
+            "pytest recolecta %d casos y se publica otra cifra en: %s. "
+            "Actualizar los tres sitios: el badge y la seccion 7 del README, "
+            "la portada y el indice del artefacto, y la metrica de %s."
+            % (casos, "; ".join("%s dice %d" % m for m in malos), PAGINA.name))
 
     def test_numero_de_suites_declarado(self):
         fuente = _fuente_pagina()
