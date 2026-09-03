@@ -1,0 +1,27 @@
+{
+ "k": 20,
+ "consultas": 2000,
+ "localizacion_correcta": 7.0,
+ "resultados": {
+  "nulo": {
+   "cobertura": 9.784324039978959,
+   "precision": 0.93,
+   "toca": 14.65
+  },
+  "sin podar": {
+   "cobertura": 5.996843766438716,
+   "precision": 0.6107688186445218,
+   "toca": 10.4
+  },
+  "real": {
+   "cobertura": 3.971593897948448,
+   "precision": 0.4193512552766052,
+   "toca": 6.8
+  },
+  "ORACULO": {
+   "cobertura": 6.7859021567596,
+   "precision": 0.7318318488682135,
+   "toca": 11.55
+  }
+ }
+}

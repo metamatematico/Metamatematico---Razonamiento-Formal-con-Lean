@@ -108,6 +108,11 @@ def recolectar(cortos, largos, tope):
                 vistos.add(nombre)
                 if premisas and len(enunciado) > 10:
                     casos.append({"nombre": nombre, "area": area,
+                                  # la SUB-AREA, para poder podar fino: el
+                                  # area de primer nivel resulto demasiado
+                                  # grande —`Algebra` tiene 27 000 hechos—
+                                  "concepto": ".".join(
+                                      rel[:-5].replace("\\", "/").split("/")[:2]),
                                   "enunciado": enunciado[:400],
                                   "premisas": sorted(premisas)})
             if len(casos) > tope:
