@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""El traductor es→en: lo que NO puede romper.
+r"""El traductor es→en: lo que NO puede romper.
 
 Los alumnos preguntan en español y todo lo que el grafo compara está en inglés.
 La traducción es la lente para consultarlo, y tiene dos formas de estropear más
@@ -100,3 +100,77 @@ class TestProteccion:
     def test_la_notacion_suelta_tambien_se_protege(self):
         r"""Los alumnos escriben `\sin x < x` sin dólares, y `\sin` se traducía."""
         assert NOTACION.search(r"demuestra que \sin x < x")
+
+
+# ---------------------------------------------------------------------------
+# La frontera: el sistema trabaja en inglés, el alumno lee español
+# ---------------------------------------------------------------------------
+
+class TestFronteraDelIdioma:
+    """La pregunta se traduce para el pipeline; la respuesta vuelve en español.
+
+    Traducir la consulta entera es lo que hace que el sistema funcione —el
+    grafo, los ejemplos few-shot y Lean son todos ingleses— pero abre dos
+    formas de estropearlo, y las dos son invisibles hasta que un alumno las
+    sufre:
+
+      · que se le enseñe como «pregunta original» una traducción que no escribió
+      · que se le conteste en inglés
+
+    Ninguna se puede comprobar llamando al modelo —haría falta API— así que se
+    comprueban sobre el código y sobre el estado que deja la frontera.
+    """
+
+    def test_la_respuesta_se_fija_en_espanol_si_se_tradujo(self):
+        """`edu_prompt` decía «Responde en el mismo idioma que el usuario».
+
+        Con la pregunta ya traducida al inglés, esa instrucción hace que el
+        modelo conteste en INGLES a un alumno que escribió en español. Es el
+        único sitio donde traducir la pregunta rompía el idioma de salida.
+        """
+        from nucleo.core import Nucleo
+        n = Nucleo.__new__(Nucleo)
+
+        n._respuesta_en_espanol = True
+        assert "español" in Nucleo._idioma_de_salida(n).lower()
+
+        n._respuesta_en_espanol = False
+        assert "mismo idioma" in Nucleo._idioma_de_salida(n).lower()
+
+    def test_sin_frontera_el_metodo_no_revienta(self):
+        """`_idioma_de_salida` se llama desde caminos que no pasan por process."""
+        from nucleo.core import Nucleo
+        assert Nucleo._idioma_de_salida(Nucleo.__new__(Nucleo))
+
+    def test_al_alumno_se_le_ensena_SU_pregunta(self):
+        """Si ahí apareciera la traducción, leería algo que no escribió.
+
+        Se comprueba sobre el fuente porque el prompt sólo se arma con una
+        llamada al modelo, y eso cuesta API. Lo que se exige es concreto: las
+        líneas que rotulan «Pregunta original» tienen que usar
+        `_consulta_original`, nunca `input_text`, que a esa altura ya viene
+        traducido.
+        """
+        import io
+        import re
+        from nucleo.rutas import RAIZ
+        fuente = io.open(RAIZ / "nucleo" / "core.py", encoding="utf-8").read()
+        lineas = [l.strip() for l in fuente.split("\n")
+                  if "Pregunta original" in l and "{" in l]
+        assert lineas, "ya no se le enseña al alumno su pregunta"
+        malas = [l for l in lineas if "_consulta_original" not in l]
+        assert not malas, (
+            "estas líneas enseñan la pregunta TRADUCIDA como si fuera la del "
+            "alumno: %s" % malas)
+
+    def test_el_historial_guarda_lo_que_el_alumno_escribio(self):
+        """El historial es lo que se le muestra y lo que se guarda de él."""
+        import io
+        from nucleo.rutas import RAIZ
+        fuente = io.open(RAIZ / "nucleo" / "core.py", encoding="utf-8").read()
+        i = fuente.find('self._state.history.append({')
+        assert i > 0, "ya no hay historial"
+        bloque = fuente[i:i + 320]
+        assert "_consulta_original" in bloque, (
+            "el historial guarda la traducción en vez de lo que el alumno "
+            "escribió")

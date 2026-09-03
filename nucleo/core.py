@@ -738,11 +738,37 @@ class Nucleo:
         if not self._initialized:
             await self.initialize()
 
+        # ── LA FRONTERA DEL IDIOMA ────────────────────────────────────────
+        # Los alumnos preguntan en español y TODO el aparato es inglés: las
+        # 3 839 palabras clave del grafo, los 183 433 hechos de Mathlib, los
+        # ejemplos few-shot de miniF2F y el propio Lean. La pregunta se traduce
+        # UNA VEZ, aquí, y de aquí en adelante el sistema trabaja en un idioma.
+        #
+        # Antes esto estaba a medias —el grafo veía inglés y el LLM seguía
+        # viendo español— y eso es peor que cualquiera de las dos opciones
+        # enteras: el bloque de contexto salía de una lectura inglesa de una
+        # pregunta que el modelo leía en español.
+        #
+        # El inglés pasa directo, y la notación va protegida: sin protección el
+        # traductor convierte `\sin x` en `\without x`, porque «sin» en español
+        # es una preposición.
+        self._consulta_original = input_text
+        self._respuesta_en_espanol = False
+        try:
+            from nucleo.graph.traductor import al_ingles
+            input_text, _traducida = al_ingles(input_text)
+            self._respuesta_en_espanol = _traducida
+            if _traducida:
+                logger.info("consulta traducida es→en para el pipeline")
+        except Exception as exc:                  # noqa: BLE001
+            logger.debug("traductor no disponible: %s", exc)
+
         # Actualizar contexto
         self._state.context = input_text
         self._state.history.append({
             "role": "user",
-            "content": input_text,
+            # el historial guarda LO QUE EL ALUMNO ESCRIBIO, no la traducción
+            "content": self._consulta_original,
             "timestamp": datetime.now().isoformat()
         })
 
@@ -1356,7 +1382,10 @@ class Nucleo:
             "3. **Demostración / Explicación** — paso a paso, geométrica/visual si se pide, "
             "con intuición clara\n"
             f"{paso4}\n"
-            "Responde en el mismo idioma que el usuario."
+            # NO «el mismo idioma que el usuario»: la pregunta que llega aquí
+            # puede venir ya traducida al inglés, y con esa instrucción el
+            # modelo contestaría en inglés a un alumno que escribió en español.
+            + (self._idioma_de_salida())
         )
         resp = await self._llm.generate(edu_prompt, system=edu_system, context=context)
         return NucleoResponse(
@@ -1935,7 +1964,8 @@ class Nucleo:
                 "IMPORTANTE: El código Lean de abajo es la fuente de verdad. "
                 "Tu explicación debe ser CONSISTENTE con los tipos que aparecen en él. "
                 "Si el código dice `eval : B^A × A → B`, tu explicación debe usar exactamente eso.\n\n"
-                + f"Pregunta original:\n> {input_text}\n\n"
+                # la pregunta que se le enseña al alumno es LA SUYA, no la traducción
+                + f"Pregunta original:\n> {self._consulta_original}\n\n"
                 f"Código Lean 4 (formalización de la definición):\n```lean\n{lean_code}\n```\n\n"
                 f"Estado: {_vn_for_llm}\n\n"
                 "Estructura tu respuesta así:\n\n"
@@ -1959,7 +1989,7 @@ class Nucleo:
                 "código Lean 4 en lenguaje natural claro, preciso y amable.\n\n"
                 "IMPORTANTE: Si el código Lean toma la afirmación principal como hipótesis "
                 "y la concluye trivialmente, indícalo y explica el teorema REAL.\n\n"
-                + f"Pregunta original del usuario:\n> {input_text}\n\n"
+                + f"Pregunta original del usuario:\n> {self._consulta_original}\n\n"
                 f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
                 f"Estado: {_vn_for_llm}\n\n"
                 "Escribe tu explicación con estas secciones:\n\n"
@@ -2439,6 +2469,19 @@ class Nucleo:
     #: frases son falsas y desmontan la arquitectura: Lean ESTA conectado, ya
     #: se ejecuto, y su veredicto es lo que se le pasa en Estado. El modelo no
     #: decide si algo esta verificado ni tiene un turno siguiente que ofrecer.
+    def _idioma_de_salida(self) -> str:
+        """En qué idioma tiene que salir la respuesta.
+
+        La pregunta se traduce al inglés en la frontera para que el grafo, los
+        ejemplos y Lean trabajen en un solo idioma. La RESPUESTA no: sale en el
+        idioma en que el alumno preguntó.
+        """
+        if getattr(self, "_respuesta_en_espanol", False):
+            return ("Responde SIEMPRE en español, aunque el enunciado de arriba "
+                    "esté en inglés: la pregunta se tradujo para procesarla y "
+                    "el alumno escribe en español.")
+        return "Responde en el mismo idioma que el usuario."
+
     _REGLAS_TRADUCTOR = (
         "REGLAS DE TU ROL (obligatorias):\n"
         "- Lean 4 con Mathlib YA SE EJECUTO sobre el codigo de abajo. El campo "
@@ -3285,21 +3328,11 @@ class Nucleo:
         This replaces the naive `skill_ids[:10]` approach with
         structurally-informed context that helps the LLM reason better.
         """
-        # ── EL GRAFO SE CONSULTA EN INGLES ────────────────────────────────
-        # Los alumnos preguntan en español y todo lo que el grafo compara esta
-        # en ingles: las 3 839 palabras clave, los 183 433 hechos de Mathlib,
-        # los ejemplos de miniF2F. Medido sobre las 24 consultas reales del
-        # banco, traduciendo antes de emparejar:
-        #
-        #     activan alguna skill    9/24  ->  11/24
-        #     abren alguna area       3/24  ->   9/24
-        #
-        # El ingles PASA DIRECTO —`al_ingles` lo detecta y no lo toca— asi que
-        # esto no puede mover las mediciones sobre ProofNet, que es ingles.
-        #
-        # SOLO PARA BUSCAR. El LLM sigue recibiendo el texto ORIGINAL: la
-        # traduccion es una lente para consultar el grafo, no una reescritura
-        # de lo que el alumno pregunto.
+        # La consulta llega YA en inglés desde la frontera de `process()`.
+        # Se vuelve a llamar a `al_ingles` porque este método también se invoca
+        # directamente —los tests de jerarquía lo hacen— y ahí no ha pasado por
+        # la frontera. Sobre un texto ya inglés la llamada es un no-op: `es_
+        # espanol` lo detecta y devuelve el texto sin tocarlo.
         try:
             from nucleo.graph.traductor import al_ingles
             consulta_en, _ = al_ingles(query)
