@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-784_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-787_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-315_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -105,10 +105,10 @@ hechos. **La lista existe para cubrir esa mitad.**
 | nodos curados | 173 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
 | nodos de área | 17 | leídos del anidamiento de módulos. Cosen los dos grafos: `Algebra`, `Topology`, `RingTheory`… |
 | nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
-| dependencias | 978 | prerrequisitos. Las de los generados salen del DAG de imports |
+| dependencias | 1156 | prerrequisitos. Las de los generados salen del DAG de imports |
 | traducciones | 439 | entre pilares — Curry-Howard, conjuntos↔categorías |
 | analogías | 7 | correspondencias débiles, marcadas como tales |
-| identidades | 298 | una por objeto, como exige la definición de categoría |
+| identidades | 315 | una por objeto, como exige la definición de categoría |
 
 ```bash
 python scripts/dibujar_grafo.py     # regenera la figura desde el grafo real
@@ -288,7 +288,7 @@ Todas sin API salvo la última.
 
 ## 7. Tests y guardianes
 
-**784 tests en 37 suites.** Los que más valen no comprueban que el código
+**787 tests en 37 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -408,7 +408,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    784 tests en 37 suites
+tests/                    787 tests en 37 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

@@ -1,648 +1,1497 @@
-<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El grafo del runtime: 315 nodos repartidos en cuatro sectores, uno por pilar fundacional, con las bases al centro y las sub-ramas hacia fuera. Los 125 nodos generados desde Mathlib van en tono mas claro porque no estan interpretados categoricamente. Las 9 tacticas se dibujan aparte abajo porque son sumideros: reciben aristas y no emiten ninguna." viewBox="0 0 1100 780">
-<style>svg{color:#1b1e17}.e{stroke:currentColor;opacity:.13;fill:none}.n{stroke:none}.g{fill:#564c9e}.c{fill:#167a68}.l{fill:#b4761f}.t{fill:#ae3b35}.cob{opacity:.42}.sm{font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62}.tt{font:600 12px ui-monospace,monospace;fill:currentColor}@media(prefers-color-scheme:dark){svg{color:#e8e6de}.g{fill:#948bdd}.c{fill:#4dc0aa}.l{fill:#e2a94f}.t{fill:#e2827a}.e{opacity:.18}}</style>
-<path class="e" d="M550 322 Q550 322 549 322"/>
-<path class="e" d="M490 422 Q489 421 488 420"/>
-<path class="e" d="M488 420 Q485 419 483 417"/>
-<path class="e" d="M488 420 Q486 420 486 419"/>
-<path class="e" d="M512 315 Q514 314 516 314"/>
-<path class="e" d="M466 351 Q466 349 467 348"/>
-<path class="e" d="M466 351 Q505 326 550 322"/>
-<path class="e" d="M550 322 Q578 302 613 296"/>
-<path class="e" d="M550 322 Q583 305 619 305"/>
-<path class="e" d="M613 296 Q617 300 619 305"/>
-<path class="e" d="M619 305 Q614 300 611 294"/>
-<path class="e" d="M619 305 Q616 302 615 299"/>
-<path class="e" d="M619 305 Q609 297 603 285"/>
-<path class="e" d="M615 299 Q607 293 603 285"/>
-<path class="e" d="M550 322 Q579 302 614 297"/>
-<path class="e" d="M550 322 Q576 300 610 293"/>
-<path class="e" d="M610 293 Q615 297 618 302"/>
-<path class="e" d="M550 322 Q582 305 619 304"/>
-<path class="e" d="M619 304 Q609 297 604 286"/>
-<path class="e" d="M550 322 Q580 303 616 300"/>
-<path class="e" d="M467 348 Q439 332 421 305"/>
-<path class="e" d="M466 351 Q439 330 425 299"/>
-<path class="e" d="M550 322 Q575 299 608 290"/>
-<path class="e" d="M550 322 Q576 300 609 292"/>
-<path class="e" d="M550 322 Q578 301 612 295"/>
-<path class="e" d="M619 304 Q617 303 617 301"/>
-<path class="e" d="M549 322 Q574 298 606 288"/>
-<path class="e" d="M616 300 Q610 295 606 288"/>
-<path class="e" d="M467 348 Q437 338 414 316"/>
-<path class="e" d="M414 316 Q415 313 417 310"/>
-<path class="e" d="M512 315 Q508 282 520 252"/>
-<path class="e" d="M516 314 Q515 282 528 252"/>
-<path class="e" d="M619 304 Q610 297 605 287"/>
-<path class="e" d="M612 295 Q609 293 607 289"/>
-<path class="e" d="M609 292 Q608 291 607 289"/>
-<path class="e" d="M615 299 Q518 420 377 484"/>
-<path class="e" d="M488 420 Q440 466 377 484"/>
-<path class="e" d="M613 296 Q640 414 610 530"/>
-<path class="e" d="M615 299 Q640 415 610 530"/>
-<path class="e" d="M619 304 Q646 286 678 282"/>
-<path class="e" d="M616 300 Q645 283 678 282"/>
-<path class="e" d="M603 285 Q524 419 393 502"/>
-<path class="e" d="M488 420 Q450 473 393 502"/>
-<path class="e" d="M678 282 Q672 416 606 532"/>
-<path class="e" d="M619 304 Q640 420 606 532"/>
-<path class="e" d="M604 286 Q640 274 677 280"/>
-<path class="e" d="M678 282 Q677 281 677 280"/>
-<path class="e" d="M619 304 Q649 289 683 290"/>
-<path class="e" d="M616 300 Q648 287 683 290"/>
-<path class="e" d="M619 304 Q650 291 685 294"/>
-<path class="e" d="M683 290 Q684 292 685 294"/>
-<path class="e" d="M619 304 Q644 415 616 527"/>
-<path class="e" d="M683 290 Q678 416 616 527"/>
-<path class="e" d="M683 290 Q524 384 339 394"/>
-<path class="e" d="M488 420 Q410 425 339 394"/>
-<path class="e" d="M616 300 Q525 426 387 497"/>
-<path class="e" d="M488 420 Q447 470 387 497"/>
-<path class="e" d="M616 300 Q646 284 679 284"/>
-<path class="e" d="M678 282 Q679 283 679 284"/>
-<path class="e" d="M387 497 Q374 486 367 471"/>
-<path class="e" d="M488 420 Q434 460 367 471"/>
-<path class="e" d="M616 300 Q649 288 684 292"/>
-<path class="e" d="M387 497 Q511 359 684 292"/>
-<path class="e" d="M512 315 Q514 249 545 192"/>
-<path class="e" d="M367 471 Q423 310 545 192"/>
-<path class="e" d="M619 305 Q643 283 673 274"/>
-<path class="e" d="M611 294 Q640 276 673 274"/>
-<path class="e" d="M604 286 Q638 273 675 276"/>
-<path class="e" d="M608 290 Q640 275 675 276"/>
-<path class="e" d="M393 502 Q508 356 676 278"/>
-<path class="e" d="M673 274 Q675 276 676 278"/>
-<path class="e" d="M611 294 Q642 278 676 278"/>
-<path class="e" d="M609 292 Q639 410 612 529"/>
-<path class="e" d="M612 295 Q640 412 612 529"/>
-<path class="e" d="M612 295 Q646 283 682 288"/>
-<path class="e" d="M613 296 Q640 277 672 272"/>
-<path class="e" d="M609 292 Q638 274 672 272"/>
-<path class="e" d="M617 301 Q643 415 614 528"/>
-<path class="e" d="M609 292 Q640 409 614 528"/>
-<path class="e" d="M617 301 Q640 417 608 531"/>
-<path class="e" d="M617 301 Q651 291 686 296"/>
-<path class="e" d="M617 301 Q647 286 680 286"/>
-<path class="e" d="M616 300 Q647 285 680 286"/>
-<path class="e" d="M488 420 Q443 468 382 491"/>
-<path class="e" d="M483 417 Q442 466 382 491"/>
-<path class="e" d="M488 420 Q437 463 372 478"/>
-<path class="e" d="M486 419 Q436 462 372 478"/>
-<path class="e" d="M683 290 Q672 421 604 534"/>
-<path class="e" d="M616 527 Q611 532 604 534"/>
-<path class="e" d="M619 304 Q639 420 604 534"/>
-<path class="e" d="M466 351 Q431 288 428 215"/>
-<path class="e" d="M614 297 Q630 459 571 611"/>
-<path class="e" d="M571 611 Q592 598 616 597"/>
-<path class="e" d="M614 297 Q604 468 518 616"/>
-<path class="e" d="M614 297 Q653 445 621 594"/>
-<path class="e" d="M613 296 Q547 467 410 590"/>
-<path class="e" d="M613 296 Q613 465 537 615"/>
-<path class="e" d="M537 615 Q491 621 448 605"/>
-<path class="e" d="M613 296 Q615 464 540 615"/>
-<path class="e" d="M540 615 Q471 618 408 589"/>
-<path class="e" d="M613 296 Q657 441 630 590"/>
-<path class="e" d="M613 296 Q622 462 556 613"/>
-<path class="e" d="M448 605 Q432 603 419 594"/>
-<path class="e" d="M619 305 Q609 472 525 616"/>
-<path class="e" d="M619 305 Q579 476 466 610"/>
-<path class="e" d="M525 616 Q458 615 399 584"/>
-<path class="e" d="M525 616 Q512 619 500 615"/>
-<path class="e" d="M525 616 Q503 620 481 613"/>
-<path class="e" d="M611 294 Q626 458 565 612"/>
-<path class="e" d="M565 612 Q558 615 550 614"/>
-<path class="e" d="M419 594 Q487 588 550 614"/>
-<path class="e" d="M565 612 Q563 612 562 612"/>
-<path class="e" d="M565 612 Q487 620 413 591"/>
-<path class="e" d="M615 299 Q629 461 568 611"/>
-<path class="e" d="M615 299 Q545 468 405 587"/>
-<path class="e" d="M615 299 Q573 472 457 608"/>
-<path class="e" d="M610 530 Q618 565 610 599"/>
-<path class="e" d="M608 290 Q631 454 577 609"/>
-<path class="e" d="M577 609 Q520 623 463 609"/>
-<path class="e" d="M577 609 Q531 622 484 613"/>
-<path class="e" d="M484 613 Q532 599 580 608"/>
-<path class="e" d="M484 613 Q467 614 451 606"/>
-<path class="e" d="M673 274 Q616 467 478 612"/>
-<path class="e" d="M565 612 Q522 623 478 612"/>
-<path class="e" d="M478 612 Q503 608 528 616"/>
-<path class="e" d="M478 612 Q477 612 475 612"/>
-<path class="e" d="M675 276 Q607 468 460 608"/>
-<path class="e" d="M675 276 Q594 467 436 601"/>
-<path class="e" d="M619 304 Q557 473 424 597"/>
-<path class="e" d="M619 304 Q600 473 506 616"/>
-<path class="e" d="M506 616 Q544 602 583 608"/>
-<path class="e" d="M506 616 Q471 617 439 602"/>
-<path class="e" d="M619 304 Q590 474 487 614"/>
-<path class="e" d="M619 304 Q592 474 490 614"/>
-<path class="e" d="M490 614 Q502 612 512 616"/>
-<path class="e" d="M604 286 Q607 460 531 616"/>
-<path class="e" d="M531 616 Q560 603 592 605"/>
-<path class="e" d="M592 605 Q517 622 442 603"/>
-<path class="e" d="M531 616 Q563 601 598 603"/>
-<path class="e" d="M683 290 Q690 448 624 593"/>
-<path class="e" d="M683 290 Q647 471 534 616"/>
-<path class="e" d="M534 616 Q472 618 416 593"/>
-<path class="e" d="M616 300 Q646 452 604 601"/>
-<path class="e" d="M616 300 Q642 455 595 604"/>
-<path class="e" d="M616 300 Q557 471 427 598"/>
-<path class="e" d="M387 497 Q484 535 553 614"/>
-<path class="e" d="M553 614 Q570 606 589 606"/>
-<path class="e" d="M630 590 Q425 517 276 358"/>
-<path class="e" d="M616 300 Q451 353 280 326"/>
-<path class="e" d="M377 484 Q310 416 280 326"/>
-<path class="e" d="M676 278 Q484 349 280 326"/>
-<path class="e" d="M678 282 Q587 469 422 595"/>
-<path class="e" d="M422 595 Q428 596 433 600"/>
-<path class="e" d="M422 595 Q505 581 586 607"/>
-<path class="e" d="M393 502 Q521 519 627 591"/>
-<path class="e" d="M525 616 Q573 591 627 591"/>
-<path class="e" d="M627 591 Q542 620 454 607"/>
-<path class="e" d="M454 607 Q441 606 430 599"/>
-<path class="e" d="M610 293 Q541 464 402 586"/>
-<path class="e" d="M610 293 Q645 447 607 600"/>
-<path class="e" d="M488 420 Q373 381 289 294"/>
-<path class="e" d="M488 420 Q377 426 276 380"/>
-<path class="e" d="M486 419 Q372 385 286 304"/>
-<path class="e" d="M276 380 Q272 358 279 336"/>
-<path class="e" d="M486 419 Q378 430 277 391"/>
-<path class="e" d="M568 611 Q396 536 277 391"/>
-<path class="e" d="M276 380 Q273 364 277 347"/>
-<path class="e" d="M276 380 Q272 347 283 315"/>
-<path class="e" d="M421 305 Q407 223 432 144"/>
-<path class="e" d="M432 144 Q450 134 471 133"/>
-<path class="e" d="M425 299 Q422 214 458 136"/>
-<path class="e" d="M425 299 Q416 217 445 140"/>
-<path class="e" d="M550 322 Q614 453 613 598"/>
-<path class="e" d="M613 598 Q588 612 559 613"/>
-<path class="e" d="M613 598 Q566 619 515 616"/>
-<path class="e" d="M609 292 Q617 461 546 615"/>
-<path class="e" d="M609 292 Q604 464 522 616"/>
-<path class="e" d="M609 292 Q579 468 472 611"/>
-<path class="e" d="M612 295 Q616 463 543 615"/>
-<path class="e" d="M612 295 Q591 469 494 615"/>
-<path class="e" d="M612 295 Q578 470 469 611"/>
-<path class="e" d="M617 301 Q567 473 445 604"/>
-<path class="e" d="M445 604 Q478 602 509 616"/>
-<path class="e" d="M445 604 Q523 584 601 602"/>
-<path class="e" d="M490 614 Q544 595 601 602"/>
-<path class="e" d="M608 531 Q562 586 497 615"/>
-<path class="e" d="M608 531 Q621 562 618 595"/>
-<path class="e" d="M414 316 Q505 210 635 157"/>
-<path class="e" d="M635 157 Q626 155 619 149"/>
-<path class="e" d="M417 310 Q490 204 603 143"/>
-<path class="e" d="M512 315 Q528 217 587 137"/>
-<path class="e" d="M605 287 Q593 464 503 615"/>
-<path class="e" d="M605 287 Q628 452 574 610"/>
-<path class="e" d="M568 611 Q457 571 377 484"/>
-<path class="e" d="M377 484 Q313 439 276 369"/>
-<path class="e" d="M568 611 Q393 525 276 369"/>
-<path class="e" d="M387 497 Q316 446 276 369"/>
-<path class="e" d="M276 369 Q275 364 276 358"/>
-<path class="e" d="M276 369 Q275 364 276 358"/>
-<path class="e" d="M377 484 Q373 482 372 478"/>
-<path class="e" d="M393 502 Q379 493 372 478"/>
-<path class="e" d="M540 615 Q565 564 610 530"/>
-<path class="e" d="M550 322 Q560 292 583 270"/>
-<path class="e" d="M583 270 Q645 424 630 590"/>
-<path class="e" d="M583 270 Q595 275 603 285"/>
-<path class="e" d="M583 270 Q442 357 276 369"/>
-<path class="e" d="M583 270 Q621 440 577 609"/>
-<path class="e" d="M583 270 Q618 442 571 611"/>
-<path class="e" d="M583 270 Q617 442 568 611"/>
-<path class="e" d="M583 270 Q600 279 611 294"/>
-<path class="e" d="M583 270 Q614 444 562 612"/>
-<path class="e" d="M583 270 Q603 448 540 615"/>
-<path class="e" d="M583 270 Q601 280 613 296"/>
-<path class="e" d="M583 270 Q506 402 377 484"/>
-<path class="e" d="M583 270 Q602 280 614 297"/>
-<path class="e" d="M583 270 Q561 454 457 608"/>
-<path class="e" d="M583 270 Q606 283 619 305"/>
-<path class="e" d="M583 270 Q538 451 416 593"/>
-<path class="e" d="M583 270 Q535 451 410 590"/>
-<path class="e" d="M550 322 Q561 292 585 271"/>
-<path class="e" d="M585 271 Q644 426 627 591"/>
-<path class="e" d="M585 271 Q517 410 393 502"/>
-<path class="e" d="M585 271 Q631 263 676 278"/>
-<path class="e" d="M585 271 Q547 453 430 599"/>
-<path class="e" d="M550 322 Q562 293 586 272"/>
-<path class="e" d="M586 272 Q514 408 387 497"/>
-<path class="e" d="M586 272 Q510 406 382 491"/>
-<path class="e" d="M550 322 Q563 293 587 273"/>
-<path class="e" d="M587 273 Q644 428 624 593"/>
-<path class="e" d="M587 273 Q597 277 604 286"/>
-<path class="e" d="M587 273 Q601 280 610 293"/>
-<path class="e" d="M587 273 Q602 450 534 616"/>
-<path class="e" d="M587 273 Q594 453 518 616"/>
-<path class="e" d="M587 273 Q478 363 339 394"/>
-<path class="e" d="M490 422 Q470 448 440 462"/>
-<path class="e" d="M440 462 Q350 446 277 391"/>
-<path class="e" d="M440 462 Q460 436 490 422"/>
-<path class="e" d="M440 462 Q459 435 488 420"/>
-<path class="e" d="M440 462 Q346 430 276 358"/>
-<path class="e" d="M440 462 Q408 478 372 478"/>
-<path class="e" d="M440 462 Q344 418 279 336"/>
-<path class="e" d="M440 462 Q344 407 283 315"/>
-<path class="e" d="M550 322 Q563 293 588 273"/>
-<path class="e" d="M588 273 Q603 281 612 295"/>
-<path class="e" d="M588 273 Q571 456 472 611"/>
-<path class="e" d="M550 322 Q564 294 590 274"/>
-<path class="e" d="M590 274 Q618 446 565 612"/>
-<path class="e" d="M590 274 Q610 449 550 614"/>
-<path class="e" d="M550 322 Q565 294 591 275"/>
-<path class="e" d="M591 275 Q635 268 678 282"/>
-<path class="e" d="M591 275 Q636 269 679 284"/>
-<path class="e" d="M591 275 Q551 457 433 600"/>
-<path class="e" d="M591 275 Q545 456 422 595"/>
-<path class="e" d="M550 322 Q565 294 592 276"/>
-<path class="e" d="M592 276 Q614 449 556 613"/>
-<path class="e" d="M592 276 Q544 456 419 594"/>
-<path class="e" d="M592 276 Q537 454 408 589"/>
-<path class="e" d="M550 322 Q566 294 593 277"/>
-<path class="e" d="M593 277 Q645 432 621 594"/>
-<path class="e" d="M593 277 Q609 287 618 302"/>
-<path class="e" d="M593 277 Q535 454 402 586"/>
-<path class="e" d="M550 322 Q567 295 595 278"/>
-<path class="e" d="M595 278 Q601 282 606 288"/>
-<path class="e" d="M595 278 Q583 459 490 614"/>
-<path class="e" d="M550 322 Q568 295 596 279"/>
-<path class="e" d="M596 279 Q634 267 673 274"/>
-<path class="e" d="M596 279 Q577 460 478 612"/>
-<path class="e" d="M596 279 Q575 460 475 612"/>
-<path class="e" d="M550 322 Q568 295 597 280"/>
-<path class="e" d="M597 280 Q587 459 497 615"/>
-<path class="e" d="M597 280 Q643 278 686 296"/>
-<path class="e" d="M597 280 Q609 288 617 301"/>
-<path class="e" d="M597 280 Q633 404 608 531"/>
-<path class="e" d="M550 322 Q569 296 598 281"/>
-<path class="e" d="M598 281 Q634 404 610 530"/>
-<path class="e" d="M550 322 Q570 296 599 282"/>
-<path class="e" d="M599 282 Q602 458 525 616"/>
-<path class="e" d="M599 282 Q580 462 481 613"/>
-<path class="e" d="M599 282 Q536 457 399 584"/>
-<path class="e" d="M550 322 Q570 297 600 283"/>
-<path class="e" d="M600 283 Q598 460 515 616"/>
-<path class="e" d="M600 283 Q580 309 549 322"/>
-<path class="e" d="M550 322 Q571 297 602 284"/>
-<path class="e" d="M602 284 Q641 442 604 601"/>
-<path class="e" d="M602 284 Q637 445 595 604"/>
-<path class="e" d="M602 284 Q634 446 589 606"/>
-<path class="e" d="M602 284 Q643 277 683 290"/>
-<path class="e" d="M602 284 Q644 279 685 294"/>
-<path class="e" d="M602 284 Q584 463 487 614"/>
-<path class="e" d="M602 284 Q611 290 616 300"/>
-<path class="e" d="M602 284 Q552 462 427 598"/>
-<path class="e" d="M613 296 Q617 300 619 305"/>
-<path class="e" d="M613 296 Q617 300 619 305"/>
-<path class="e" d="M613 296 Q617 300 619 305"/>
-<path class="e" d="M619 305 Q614 300 611 294"/>
-<path class="e" d="M619 305 Q614 300 611 294"/>
-<path class="e" d="M619 305 Q614 300 611 294"/>
-<circle class="n g" cx="550" cy="322" r="5.5"/>
-<circle class="n g" cx="549" cy="322" r="5.5"/>
-<circle class="n c" cx="490" cy="422" r="5.5"/>
-<circle class="n c" cx="488" cy="420" r="5.5"/>
-<circle class="n c" cx="483" cy="417" r="5.5"/>
-<circle class="n c" cx="486" cy="419" r="5.5"/>
-<circle class="n l" cx="466" cy="351" r="5.5"/>
-<circle class="n l" cx="467" cy="348" r="5.5"/>
-<circle class="n t" cx="512" cy="315" r="5.5"/>
-<circle class="n t" cx="516" cy="314" r="5.5"/>
-<circle class="n g" cx="613" cy="296" r="3.4"/>
-<circle class="n g" cx="619" cy="305" r="3.4"/>
-<circle class="n g" cx="611" cy="294" r="3.4"/>
-<circle class="n g" cx="615" cy="299" r="3.4"/>
-<circle class="n g" cx="603" cy="285" r="3.4"/>
-<circle class="n g" cx="614" cy="297" r="3.4"/>
-<circle class="n g" cx="610" cy="293" r="3.4"/>
-<circle class="n g" cx="618" cy="302" r="3.4"/>
-<circle class="n g" cx="619" cy="304" r="3.4"/>
-<circle class="n g" cx="604" cy="286" r="3.4"/>
-<circle class="n g" cx="616" cy="300" r="3.4"/>
-<circle class="n l" cx="421" cy="305" r="3.4"/>
-<circle class="n l" cx="425" cy="299" r="3.4"/>
-<circle class="n g" cx="608" cy="290" r="3.4"/>
-<circle class="n g" cx="609" cy="292" r="3.4"/>
-<circle class="n g" cx="612" cy="295" r="3.4"/>
-<circle class="n g" cx="617" cy="301" r="3.4"/>
-<circle class="n g" cx="606" cy="288" r="3.4"/>
-<circle class="n l" cx="414" cy="316" r="3.4"/>
-<circle class="n l" cx="417" cy="310" r="3.4"/>
-<circle class="n t" cx="520" cy="252" r="3.4"/>
-<circle class="n t" cx="528" cy="252" r="3.4"/>
-<circle class="n g" cx="605" cy="287" r="3.4"/>
-<circle class="n g" cx="607" cy="289" r="3.4"/>
-<circle class="n c" cx="377" cy="484" r="3.4"/>
-<circle class="n g" cx="610" cy="530" r="3.4"/>
-<circle class="n g" cx="678" cy="282" r="3.4"/>
-<circle class="n c" cx="393" cy="502" r="3.4"/>
-<circle class="n g" cx="606" cy="532" r="3.4"/>
-<circle class="n g" cx="677" cy="280" r="3.4"/>
-<circle class="n g" cx="683" cy="290" r="3.4"/>
-<circle class="n g" cx="685" cy="294" r="3.4"/>
-<circle class="n g" cx="616" cy="527" r="3.4"/>
-<circle class="n c" cx="339" cy="394" r="3.4"/>
-<circle class="n c" cx="387" cy="497" r="3.4"/>
-<circle class="n g" cx="679" cy="284" r="3.4"/>
-<circle class="n c" cx="367" cy="471" r="3.4"/>
-<circle class="n g" cx="684" cy="292" r="3.4"/>
-<circle class="n t" cx="545" cy="192" r="3.4"/>
-<circle class="n g" cx="673" cy="274" r="3.4"/>
-<circle class="n g" cx="675" cy="276" r="3.4"/>
-<circle class="n g" cx="676" cy="278" r="3.4"/>
-<circle class="n g" cx="612" cy="529" r="3.4"/>
-<circle class="n g" cx="682" cy="288" r="3.4"/>
-<circle class="n g" cx="672" cy="272" r="3.4"/>
-<circle class="n g" cx="614" cy="528" r="3.4"/>
-<circle class="n g" cx="608" cy="531" r="3.4"/>
-<circle class="n g" cx="686" cy="296" r="3.4"/>
-<circle class="n g" cx="680" cy="286" r="3.4"/>
-<circle class="n c" cx="382" cy="491" r="3.4"/>
-<circle class="n c" cx="372" cy="478" r="3.4"/>
-<circle class="n g" cx="604" cy="534" r="3.4"/>
-<circle class="n l" cx="403" cy="233" r="3.4"/>
-<circle class="n l" cx="436" cy="210" r="3.4"/>
-<circle class="n l" cx="428" cy="215" r="3.4"/>
-<circle class="n l" cx="411" cy="226" r="3.4"/>
-<circle class="n l" cx="445" cy="206" r="3.4"/>
-<circle class="n l" cx="419" cy="221" r="3.4"/>
-<circle class="n g" cx="571" cy="611" r="3.4"/>
-<circle class="n g" cx="616" cy="597" r="3.4"/>
-<circle class="n g" cx="518" cy="616" r="3.4"/>
-<circle class="n g" cx="621" cy="594" r="3.4"/>
-<circle class="n g" cx="410" cy="590" r="3.4"/>
-<circle class="n g" cx="537" cy="615" r="3.4"/>
-<circle class="n g" cx="448" cy="605" r="3.4"/>
-<circle class="n g" cx="540" cy="615" r="3.4"/>
-<circle class="n g" cx="408" cy="589" r="3.4"/>
-<circle class="n g" cx="630" cy="590" r="3.4"/>
-<circle class="n g" cx="556" cy="613" r="3.4"/>
-<circle class="n g" cx="419" cy="594" r="3.4"/>
-<circle class="n g" cx="525" cy="616" r="3.4"/>
-<circle class="n g" cx="466" cy="610" r="3.4"/>
-<circle class="n g" cx="399" cy="584" r="3.4"/>
-<circle class="n g" cx="500" cy="615" r="3.4"/>
-<circle class="n g" cx="481" cy="613" r="3.4"/>
-<circle class="n g" cx="565" cy="612" r="3.4"/>
-<circle class="n g" cx="550" cy="614" r="3.4"/>
-<circle class="n g" cx="562" cy="612" r="3.4"/>
-<circle class="n g" cx="413" cy="591" r="3.4"/>
-<circle class="n g" cx="568" cy="611" r="3.4"/>
-<circle class="n g" cx="405" cy="587" r="3.4"/>
-<circle class="n g" cx="457" cy="608" r="3.4"/>
-<circle class="n g" cx="610" cy="599" r="3.4"/>
-<circle class="n g" cx="577" cy="609" r="3.4"/>
-<circle class="n g" cx="463" cy="609" r="3.4"/>
-<circle class="n g" cx="484" cy="613" r="3.4"/>
-<circle class="n g" cx="580" cy="608" r="3.4"/>
-<circle class="n g" cx="451" cy="606" r="3.4"/>
-<circle class="n g" cx="478" cy="612" r="3.4"/>
-<circle class="n g" cx="528" cy="616" r="3.4"/>
-<circle class="n g" cx="475" cy="612" r="3.4"/>
-<circle class="n g" cx="460" cy="608" r="3.4"/>
-<circle class="n g" cx="436" cy="601" r="3.4"/>
-<circle class="n g" cx="424" cy="597" r="3.4"/>
-<circle class="n g" cx="506" cy="616" r="3.4"/>
-<circle class="n g" cx="583" cy="608" r="3.4"/>
-<circle class="n g" cx="439" cy="602" r="3.4"/>
-<circle class="n g" cx="487" cy="614" r="3.4"/>
-<circle class="n g" cx="490" cy="614" r="3.4"/>
-<circle class="n g" cx="512" cy="616" r="3.4"/>
-<circle class="n g" cx="531" cy="616" r="3.4"/>
-<circle class="n g" cx="592" cy="605" r="3.4"/>
-<circle class="n g" cx="442" cy="603" r="3.4"/>
-<circle class="n g" cx="598" cy="603" r="3.4"/>
-<circle class="n g" cx="624" cy="593" r="3.4"/>
-<circle class="n g" cx="534" cy="616" r="3.4"/>
-<circle class="n g" cx="416" cy="593" r="3.4"/>
-<circle class="n g" cx="604" cy="601" r="3.4"/>
-<circle class="n g" cx="595" cy="604" r="3.4"/>
-<circle class="n g" cx="427" cy="598" r="3.4"/>
-<circle class="n g" cx="553" cy="614" r="3.4"/>
-<circle class="n g" cx="589" cy="606" r="3.4"/>
-<circle class="n c" cx="276" cy="369" r="3.4"/>
-<circle class="n c" cx="276" cy="358" r="3.4"/>
-<circle class="n c" cx="280" cy="326" r="3.4"/>
-<circle class="n g" cx="422" cy="595" r="3.4"/>
-<circle class="n g" cx="433" cy="600" r="3.4"/>
-<circle class="n g" cx="586" cy="607" r="3.4"/>
-<circle class="n g" cx="627" cy="591" r="3.4"/>
-<circle class="n g" cx="454" cy="607" r="3.4"/>
-<circle class="n g" cx="430" cy="599" r="3.4"/>
-<circle class="n g" cx="402" cy="586" r="3.4"/>
-<circle class="n g" cx="607" cy="600" r="3.4"/>
-<circle class="n c" cx="289" cy="294" r="3.4"/>
-<circle class="n c" cx="276" cy="380" r="3.4"/>
-<circle class="n c" cx="286" cy="304" r="3.4"/>
-<circle class="n c" cx="279" cy="336" r="3.4"/>
-<circle class="n c" cx="277" cy="391" r="3.4"/>
-<circle class="n c" cx="277" cy="347" r="3.4"/>
-<circle class="n c" cx="283" cy="315" r="3.4"/>
-<circle class="n l" cx="432" cy="144" r="3.4"/>
-<circle class="n l" cx="471" cy="133" r="3.4"/>
-<circle class="n l" cx="458" cy="136" r="3.4"/>
-<circle class="n l" cx="445" cy="140" r="3.4"/>
-<circle class="n g" cx="613" cy="598" r="3.4"/>
-<circle class="n g" cx="559" cy="613" r="3.4"/>
-<circle class="n g" cx="515" cy="616" r="3.4"/>
-<circle class="n g" cx="546" cy="615" r="3.4"/>
-<circle class="n g" cx="522" cy="616" r="3.4"/>
-<circle class="n g" cx="472" cy="611" r="3.4"/>
-<circle class="n g" cx="543" cy="615" r="3.4"/>
-<circle class="n g" cx="494" cy="615" r="3.4"/>
-<circle class="n g" cx="469" cy="611" r="3.4"/>
-<circle class="n g" cx="445" cy="604" r="3.4"/>
-<circle class="n g" cx="509" cy="616" r="3.4"/>
-<circle class="n g" cx="601" cy="602" r="3.4"/>
-<circle class="n g" cx="497" cy="615" r="3.4"/>
-<circle class="n g" cx="618" cy="595" r="3.4"/>
-<circle class="n t" cx="635" cy="157" r="3.4"/>
-<circle class="n t" cx="619" cy="149" r="3.4"/>
-<circle class="n t" cx="603" cy="143" r="3.4"/>
-<circle class="n t" cx="587" cy="137" r="3.4"/>
-<circle class="n g" cx="503" cy="615" r="3.4"/>
-<circle class="n g" cx="574" cy="610" r="3.4"/>
-<circle class="n g cob" cx="709" cy="308" r="3.4"/>
-<circle class="n g cob" cx="718" cy="350" r="3.4"/>
-<circle class="n g cob" cx="716" cy="406" r="3.4"/>
-<circle class="n c cob" cx="344" cy="465" r="3.4"/>
-<circle class="n g cob" cx="709" cy="311" r="3.4"/>
-<circle class="n g cob" cx="719" cy="373" r="3.4"/>
-<circle class="n g cob" cx="689" cy="477" r="3.4"/>
-<circle class="n g cob" cx="718" cy="388" r="3.4"/>
-<circle class="n g cob" cx="685" cy="483" r="3.4"/>
-<circle class="n g cob" cx="702" cy="452" r="3.4"/>
-<circle class="n g cob" cx="719" cy="381" r="3.4"/>
-<circle class="n g cob" cx="715" cy="333" r="3.4"/>
-<circle class="n g cob" cx="631" cy="537" r="3.4"/>
-<circle class="n g cob" cx="715" cy="330" r="3.4"/>
-<circle class="n c cob" cx="336" cy="448" r="3.4"/>
-<circle class="n g cob" cx="714" cy="416" r="3.4"/>
-<circle class="n g cob" cx="706" cy="301" r="3.4"/>
-<circle class="n g cob" cx="718" cy="356" r="3.4"/>
-<circle class="n g cob" cx="702" cy="292" r="3.4"/>
-<circle class="n g cob" cx="712" cy="318" r="3.4"/>
-<circle class="n g cob" cx="703" cy="294" r="3.4"/>
-<circle class="n g cob" cx="657" cy="516" r="3.4"/>
-<circle class="n g cob" cx="719" cy="386" r="3.4"/>
-<circle class="n g cob" cx="713" cy="325" r="3.4"/>
-<circle class="n g cob" cx="708" cy="306" r="3.4"/>
-<circle class="n g cob" cx="711" cy="316" r="3.4"/>
-<circle class="n g cob" cx="712" cy="424" r="3.4"/>
-<circle class="n g cob" cx="719" cy="383" r="3.4"/>
-<circle class="n g cob" cx="719" cy="371" r="3.4"/>
-<circle class="n l cob" cx="376" cy="235" r="3.4"/>
-<circle class="n g cob" cx="719" cy="366" r="3.4"/>
-<circle class="n g cob" cx="719" cy="376" r="3.4"/>
-<circle class="n g cob" cx="706" cy="443" r="3.4"/>
-<circle class="n g cob" cx="713" cy="421" r="3.4"/>
-<circle class="n g cob" cx="686" cy="481" r="3.4"/>
-<circle class="n g cob" cx="655" cy="518" r="3.4"/>
-<circle class="n g cob" cx="636" cy="534" r="3.4"/>
-<circle class="n g cob" cx="662" cy="511" r="3.4"/>
-<circle class="n g cob" cx="704" cy="448" r="3.4"/>
-<circle class="n g cob" cx="640" cy="531" r="3.4"/>
-<circle class="n g cob" cx="713" cy="323" r="3.4"/>
-<circle class="n g cob" cx="697" cy="464" r="3.4"/>
-<circle class="n g cob" cx="719" cy="378" r="3.4"/>
-<circle class="n g cob" cx="677" cy="494" r="3.4"/>
-<circle class="n g cob" cx="698" cy="461" r="3.4"/>
-<circle class="n g cob" cx="692" cy="473" r="3.4"/>
-<circle class="n g cob" cx="714" cy="328" r="3.4"/>
-<circle class="n g cob" cx="661" cy="513" r="3.4"/>
-<circle class="n g cob" cx="659" cy="514" r="3.4"/>
-<circle class="n c cob" cx="324" cy="405" r="3.4"/>
-<circle class="n g cob" cx="717" cy="401" r="3.4"/>
-<circle class="n g cob" cx="676" cy="496" r="3.4"/>
-<circle class="n g cob" cx="642" cy="529" r="3.4"/>
-<circle class="n g cob" cx="682" cy="488" r="3.4"/>
-<circle class="n g cob" cx="646" cy="526" r="3.4"/>
-<circle class="n g cob" cx="712" cy="320" r="3.4"/>
-<circle class="n g cob" cx="703" cy="450" r="3.4"/>
-<circle class="n g cob" cx="666" cy="507" r="3.4"/>
-<circle class="n g cob" cx="709" cy="433" r="3.4"/>
-<circle class="n g cob" cx="719" cy="368" r="3.4"/>
-<circle class="n g cob" cx="718" cy="353" r="3.4"/>
-<circle class="n g cob" cx="644" cy="528" r="3.4"/>
-<circle class="n g cob" cx="716" cy="340" r="3.4"/>
-<circle class="n g cob" cx="681" cy="490" r="3.4"/>
-<circle class="n c cob" cx="340" cy="457" r="3.4"/>
-<circle class="n c cob" cx="333" cy="440" r="3.4"/>
-<circle class="n g cob" cx="653" cy="520" r="3.4"/>
-<circle class="n g cob" cx="638" cy="533" r="3.4"/>
-<circle class="n g cob" cx="674" cy="498" r="3.4"/>
-<circle class="n g cob" cx="673" cy="500" r="3.4"/>
-<circle class="n g cob" cx="679" cy="492" r="3.4"/>
-<circle class="n g cob" cx="719" cy="361" r="3.4"/>
-<circle class="n g cob" cx="716" cy="404" r="3.4"/>
-<circle class="n g cob" cx="648" cy="525" r="3.4"/>
-<circle class="n g cob" cx="716" cy="335" r="3.4"/>
-<circle class="n g cob" cx="683" cy="485" r="3.4"/>
-<circle class="n g cob" cx="717" cy="345" r="3.4"/>
-<circle class="n g cob" cx="629" cy="538" r="3.4"/>
-<circle class="n g cob" cx="717" cy="399" r="3.4"/>
-<circle class="n l cob" cx="384" cy="227" r="3.4"/>
-<circle class="n g cob" cx="707" cy="304" r="3.4"/>
-<circle class="n g cob" cx="668" cy="505" r="3.4"/>
-<circle class="n g cob" cx="650" cy="523" r="3.4"/>
-<circle class="n g cob" cx="627" cy="540" r="3.4"/>
-<circle class="n g cob" cx="718" cy="348" r="3.4"/>
-<circle class="n g cob" cx="688" cy="479" r="3.4"/>
-<circle class="n g cob" cx="716" cy="338" r="3.4"/>
-<circle class="n g cob" cx="693" cy="470" r="3.4"/>
-<circle class="n g cob" cx="710" cy="431" r="3.4"/>
-<circle class="n g cob" cx="700" cy="457" r="3.4"/>
-<circle class="n g cob" cx="701" cy="455" r="3.4"/>
-<circle class="n g cob" cx="695" cy="466" r="3.4"/>
-<circle class="n g cob" cx="651" cy="521" r="3.4"/>
-<circle class="n g cob" cx="690" cy="475" r="3.4"/>
-<circle class="n g cob" cx="717" cy="343" r="3.4"/>
-<circle class="n g cob" cx="710" cy="313" r="3.4"/>
-<circle class="n g cob" cx="704" cy="296" r="3.4"/>
-<circle class="n g cob" cx="718" cy="396" r="3.4"/>
-<circle class="n g cob" cx="669" cy="503" r="3.4"/>
-<circle class="n c cob" cx="328" cy="423" r="3.4"/>
-<circle class="n g cob" cx="719" cy="358" r="3.4"/>
-<circle class="n c cob" cx="348" cy="472" r="3.4"/>
-<circle class="n c cob" cx="326" cy="414" r="3.4"/>
-<circle class="n g cob" cx="712" cy="426" r="3.4"/>
-<circle class="n g cob" cx="671" cy="502" r="3.4"/>
-<circle class="n g cob" cx="715" cy="411" r="3.4"/>
-<circle class="n g cob" cx="705" cy="299" r="3.4"/>
-<circle class="n t cob" cx="561" cy="177" r="3.4"/>
-<circle class="n g cob" cx="715" cy="414" r="3.4"/>
-<circle class="n g cob" cx="707" cy="440" r="3.4"/>
-<circle class="n g cob" cx="719" cy="363" r="3.4"/>
-<circle class="n g cob" cx="718" cy="394" r="3.4"/>
-<circle class="n g cob" cx="705" cy="445" r="3.4"/>
-<circle class="n g cob" cx="694" cy="468" r="3.4"/>
-<circle class="n g cob" cx="633" cy="535" r="3.4"/>
-<circle class="n l cob" cx="369" cy="243" r="3.4"/>
-<circle class="n g cob" cx="664" cy="509" r="3.4"/>
-<circle class="n g cob" cx="711" cy="428" r="3.4"/>
-<circle class="n c cob" cx="330" cy="432" r="3.4"/>
-<circle class="n g cob" cx="718" cy="391" r="3.4"/>
-<circle class="n g cob" cx="713" cy="419" r="3.4"/>
-<circle class="n g cob" cx="708" cy="438" r="3.4"/>
-<circle class="n g cob" cx="709" cy="436" r="3.4"/>
-<circle class="n g cob" cx="716" cy="409" r="3.4"/>
-<circle class="n g cob" cx="699" cy="459" r="3.4"/>
-<circle class="n g" cx="583" cy="270" r="3.4"/>
-<circle class="n g" cx="585" cy="271" r="3.4"/>
-<circle class="n g" cx="586" cy="272" r="3.4"/>
-<circle class="n g" cx="587" cy="273" r="3.4"/>
-<circle class="n c" cx="440" cy="462" r="3.4"/>
-<circle class="n g" cx="588" cy="273" r="3.4"/>
-<circle class="n g" cx="590" cy="274" r="3.4"/>
-<circle class="n g" cx="591" cy="275" r="3.4"/>
-<circle class="n g" cx="592" cy="276" r="3.4"/>
-<circle class="n g" cx="593" cy="277" r="3.4"/>
-<circle class="n g" cx="595" cy="278" r="3.4"/>
-<circle class="n g" cx="596" cy="279" r="3.4"/>
-<circle class="n g" cx="597" cy="280" r="3.4"/>
-<circle class="n g" cx="598" cy="281" r="3.4"/>
-<circle class="n g" cx="599" cy="282" r="3.4"/>
-<circle class="n g" cx="600" cy="283" r="3.4"/>
-<circle class="n g" cx="602" cy="284" r="3.4"/>
-<text class="sm" x="550" y="313" text-anchor="middle">zfc-axioms</text>
-<text class="sm" x="549" y="313" text-anchor="middle">ordinals</text>
-<text class="sm" x="490" y="413" text-anchor="middle">cat-basics</text>
-<text class="sm" x="488" y="411" text-anchor="middle">functors</text>
-<text class="sm" x="483" y="408" text-anchor="middle">nat-trans</text>
-<text class="sm" x="486" y="410" text-anchor="middle">limits</text>
-<text class="sm" x="466" y="342" text-anchor="middle">fol-deduction</text>
-<text class="sm" x="467" y="339" text-anchor="middle">fol-metatheory</text>
-<text class="sm" x="512" y="306" text-anchor="middle">cic</text>
-<text class="sm" x="516" y="305" text-anchor="middle">lean-kernel</text>
-<text class="tt" x="860" y="620">las 9 tacticas, aparte</text>
-<text class="sm" x="860" y="638">453 aristas entran · 0 salen</text>
-<circle class="n t" cx="866" cy="660" r="3.4"/>
-<text class="sm" x="876" y="664">aesop</text>
-<circle class="n t" cx="866" cy="673" r="3.4"/>
-<text class="sm" x="876" y="677">apply</text>
-<circle class="n t" cx="866" cy="686" r="3.4"/>
-<text class="sm" x="876" y="690">calc</text>
-<circle class="n t" cx="866" cy="699" r="3.4"/>
-<text class="sm" x="876" y="703">exact</text>
-<circle class="n t" cx="866" cy="712" r="3.4"/>
-<text class="sm" x="876" y="716">induction</text>
-<circle class="n t" cx="866" cy="725" r="3.4"/>
-<text class="sm" x="876" y="729">omega</text>
-<circle class="n t" cx="866" cy="738" r="3.4"/>
-<text class="sm" x="876" y="742">rewrite</text>
-<circle class="n t" cx="866" cy="751" r="3.4"/>
-<text class="sm" x="876" y="755">ring</text>
-<circle class="n t" cx="866" cy="764" r="3.4"/>
-<text class="sm" x="876" y="768">simp</text>
-<circle class="n g" cx="866" cy="60" r="4"/>
-<text class="sm" x="876" y="64">SET  246</text>
-<circle class="n c" cx="866" cy="79" r="4"/>
-<text class="sm" x="876" y="83">CAT  31</text>
-<circle class="n l" cx="866" cy="98" r="4"/>
-<text class="sm" x="876" y="102">LOG  19</text>
-<circle class="n t" cx="866" cy="117" r="4"/>
-<text class="sm" x="876" y="121">TYPE 10</text>
-<circle class="n g cob" cx="866" cy="136" r="4"/>
-<text class="sm" x="876" y="140">125 generados, sin interpretar</text>
-<text class="tt" x="860" y="174">315 nodos · 1917 morfismos</text>
-<text class="sm" x="860" y="189">se dibujan las 297 dependencias entre curados</text>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El grafo del runtime como arbol radial: 315 nodos que salen de los 10 pilares fundacionales del centro hacia las sub-ramas de fuera, con el angulo repartido por tamaño de subarbol. Los 125 generados desde Mathlib y los 17 de area van en tono mas claro porque no estan interpretados categoricamente. Las 9 tacticas se dibujan aparte porque son sumideros: reciben aristas y no emiten ninguna." viewBox="0 0 1180 820">
+<style>svg{color:#1b1e17}.e{stroke:currentColor;opacity:.11;fill:none}.n{stroke:none}.g{fill:#564c9e}.c{fill:#167a68}.l{fill:#b4761f}.t{fill:#ae3b35}.si{opacity:.38}.sm{font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62}.tt{font:600 12px ui-monospace,monospace;fill:currentColor}.lb{font:600 10.5px ui-sans-serif,system-ui;fill:currentColor;opacity:.8}@media(prefers-color-scheme:dark){svg{color:#e8e6de}.g{fill:#948bdd}.c{fill:#4dc0aa}.l{fill:#e2a94f}.t{fill:#e2827a}.e{opacity:.16}}</style>
+<path class="e" d="M610 487 Q585 448 655 745"/>
+<path class="e" d="M488 352 Q524 381 249 253"/>
+<path class="e" d="M249 253 Q405 331 507 335"/>
+<path class="e" d="M249 253 Q405 331 508 334"/>
+<path class="e" d="M550 319 Q555 364 559 318"/>
+<path class="e" d="M524 326 Q542 368 541 320"/>
+<path class="e" d="M524 326 Q542 368 610 487"/>
+<path class="e" d="M610 487 Q585 448 630 69"/>
+<path class="e" d="M610 487 Q585 448 733 108"/>
+<path class="e" d="M630 69 Q595 240 733 108"/>
+<path class="e" d="M733 108 Q646 259 608 65"/>
+<path class="e" d="M733 108 Q646 259 531 622"/>
+<path class="e" d="M733 108 Q646 259 571 62"/>
+<path class="e" d="M531 622 Q546 516 571 62"/>
+<path class="e" d="M610 487 Q585 448 644 72"/>
+<path class="e" d="M610 487 Q585 448 821 180"/>
+<path class="e" d="M821 180 Q691 295 891 518"/>
+<path class="e" d="M610 487 Q585 448 527 621"/>
+<path class="e" d="M527 621 Q543 516 816 175"/>
+<path class="e" d="M610 487 Q585 448 528 757"/>
+<path class="e" d="M541 320 Q550 365 443 231"/>
+<path class="e" d="M524 326 Q542 368 447 228"/>
+<path class="e" d="M610 487 Q585 448 523 621"/>
+<path class="e" d="M610 487 Q585 448 518 620"/>
+<path class="e" d="M610 487 Q585 448 881 276"/>
+<path class="e" d="M527 621 Q543 516 812 650"/>
+<path class="e" d="M655 745 Q608 577 886 533"/>
+<path class="e" d="M528 757 Q544 583 886 533"/>
+<path class="e" d="M541 320 Q550 365 451 226"/>
+<path class="e" d="M451 226 Q505 318 455 224"/>
+<path class="e" d="M550 319 Q555 364 519 200"/>
+<path class="e" d="M559 318 Q560 364 524 199"/>
+<path class="e" d="M527 621 Q543 516 514 619"/>
+<path class="e" d="M881 276 Q721 343 510 618"/>
+<path class="e" d="M518 620 Q539 515 510 618"/>
+<path class="e" d="M531 622 Q546 516 637 71"/>
+<path class="e" d="M249 253 Q405 331 637 71"/>
+<path class="e" d="M630 69 Q595 240 791 670"/>
+<path class="e" d="M531 622 Q546 516 791 670"/>
+<path class="e" d="M527 621 Q543 516 902 344"/>
+<path class="e" d="M528 757 Q544 583 902 344"/>
+<path class="e" d="M571 62 Q566 236 759 124"/>
+<path class="e" d="M249 253 Q405 331 759 124"/>
+<path class="e" d="M902 344 Q731 377 506 617"/>
+<path class="e" d="M527 621 Q543 516 506 617"/>
+<path class="e" d="M816 175 Q688 292 501 616"/>
+<path class="e" d="M902 344 Q731 377 501 616"/>
+<path class="e" d="M527 621 Q543 516 625 752"/>
+<path class="e" d="M528 757 Q544 583 625 752"/>
+<path class="e" d="M527 621 Q543 516 618 753"/>
+<path class="e" d="M625 752 Q592 581 618 753"/>
+<path class="e" d="M527 621 Q543 516 497 615"/>
+<path class="e" d="M625 752 Q592 581 497 615"/>
+<path class="e" d="M625 752 Q592 581 878 269"/>
+<path class="e" d="M249 253 Q405 331 878 269"/>
+<path class="e" d="M528 757 Q544 583 792 150"/>
+<path class="e" d="M249 253 Q405 331 792 150"/>
+<path class="e" d="M528 757 Q544 583 903 352"/>
+<path class="e" d="M902 344 Q731 377 903 352"/>
+<path class="e" d="M792 150 Q676 280 411 256"/>
+<path class="e" d="M249 253 Q405 331 411 256"/>
+<path class="e" d="M528 757 Q544 583 493 613"/>
+<path class="e" d="M792 150 Q676 280 493 613"/>
+<path class="e" d="M550 319 Q555 364 529 198"/>
+<path class="e" d="M411 256 Q486 333 529 198"/>
+<path class="e" d="M733 108 Q646 259 865 578"/>
+<path class="e" d="M608 65 Q584 238 865 578"/>
+<path class="e" d="M816 175 Q688 292 489 612"/>
+<path class="e" d="M523 621 Q541 515 489 612"/>
+<path class="e" d="M759 124 Q659 267 765 129"/>
+<path class="e" d="M865 578 Q712 494 765 129"/>
+<path class="e" d="M608 65 Q584 238 765 129"/>
+<path class="e" d="M518 620 Q539 515 485 610"/>
+<path class="e" d="M881 276 Q721 343 485 610"/>
+<path class="e" d="M881 276 Q721 343 481 609"/>
+<path class="e" d="M630 69 Q595 240 477 607"/>
+<path class="e" d="M518 620 Q539 515 477 607"/>
+<path class="e" d="M812 650 Q686 530 473 605"/>
+<path class="e" d="M518 620 Q539 515 473 605"/>
+<path class="e" d="M812 650 Q686 530 806 656"/>
+<path class="e" d="M812 650 Q686 530 833 626"/>
+<path class="e" d="M812 650 Q686 530 469 604"/>
+<path class="e" d="M528 757 Q544 583 469 604"/>
+<path class="e" d="M249 253 Q405 331 799 157"/>
+<path class="e" d="M507 335 Q533 373 799 157"/>
+<path class="e" d="M249 253 Q405 331 257 238"/>
+<path class="e" d="M508 334 Q534 372 257 238"/>
+<path class="e" d="M625 752 Q592 581 465 602"/>
+<path class="e" d="M497 615 Q529 512 465 602"/>
+<path class="e" d="M527 621 Q543 516 465 602"/>
+<path class="e" d="M524 326 Q542 368 467 217"/>
+<path class="e" d="M644 72 Q602 241 593 64"/>
+<path class="e" d="M593 64 Q577 237 461 600"/>
+<path class="e" d="M644 72 Q602 241 831 192"/>
+<path class="e" d="M644 72 Q602 241 906 443"/>
+<path class="e" d="M630 69 Q595 240 745 115"/>
+<path class="e" d="M630 69 Q595 240 457 598"/>
+<path class="e" d="M457 598 Q508 504 453 595"/>
+<path class="e" d="M630 69 Q595 240 622 68"/>
+<path class="e" d="M622 68 Q591 239 907 435"/>
+<path class="e" d="M630 69 Q595 240 564 62"/>
+<path class="e" d="M630 69 Q595 240 908 393"/>
+<path class="e" d="M453 595 Q507 503 908 426"/>
+<path class="e" d="M733 108 Q646 259 785 676"/>
+<path class="e" d="M733 108 Q646 259 449 593"/>
+<path class="e" d="M785 676 Q672 543 681 736"/>
+<path class="e" d="M785 676 Q672 543 446 591"/>
+<path class="e" d="M785 676 Q672 543 688 734"/>
+<path class="e" d="M608 65 Q584 238 895 317"/>
+<path class="e" d="M895 317 Q728 363 898 326"/>
+<path class="e" d="M908 426 Q734 418 898 326"/>
+<path class="e" d="M895 317 Q728 363 615 66"/>
+<path class="e" d="M895 317 Q728 363 442 589"/>
+<path class="e" d="M531 622 Q546 516 600 64"/>
+<path class="e" d="M531 622 Q546 516 438 586"/>
+<path class="e" d="M531 622 Q546 516 726 104"/>
+<path class="e" d="M791 670 Q676 540 435 584"/>
+<path class="e" d="M523 621 Q541 515 586 63"/>
+<path class="e" d="M586 63 Q573 236 431 581"/>
+<path class="e" d="M586 63 Q573 236 428 578"/>
+<path class="e" d="M428 578 Q494 494 424 576"/>
+<path class="e" d="M428 578 Q494 494 421 573"/>
+<path class="e" d="M865 578 Q712 494 848 606"/>
+<path class="e" d="M895 317 Q728 363 848 606"/>
+<path class="e" d="M848 606 Q704 508 418 570"/>
+<path class="e" d="M848 606 Q704 508 843 613"/>
+<path class="e" d="M489 612 Q524 511 415 567"/>
+<path class="e" d="M489 612 Q524 511 411 564"/>
+<path class="e" d="M527 621 Q543 516 408 561"/>
+<path class="e" d="M527 621 Q543 516 405 558"/>
+<path class="e" d="M405 558 Q483 484 402 555"/>
+<path class="e" d="M405 558 Q483 484 399 551"/>
+<path class="e" d="M527 621 Q543 516 535 757"/>
+<path class="e" d="M527 621 Q543 516 869 570"/>
+<path class="e" d="M869 570 Q714 490 396 548"/>
+<path class="e" d="M816 175 Q688 292 394 545"/>
+<path class="e" d="M394 545 Q477 477 391 541"/>
+<path class="e" d="M391 541 Q475 476 388 538"/>
+<path class="e" d="M394 545 Q477 477 386 534"/>
+<path class="e" d="M625 752 Q592 581 811 169"/>
+<path class="e" d="M625 752 Q592 581 826 186"/>
+<path class="e" d="M826 186 Q693 298 739 111"/>
+<path class="e" d="M528 757 Q544 583 647 747"/>
+<path class="e" d="M528 757 Q544 583 640 749"/>
+<path class="e" d="M528 757 Q544 583 520 756"/>
+<path class="e" d="M792 150 Q676 280 383 531"/>
+<path class="e" d="M383 531 Q472 470 632 750"/>
+<path class="e" d="M564 62 Q562 236 253 246"/>
+<path class="e" d="M528 757 Q544 583 415 253"/>
+<path class="e" d="M637 71 Q598 240 415 253"/>
+<path class="e" d="M765 129 Q663 270 415 253"/>
+<path class="e" d="M902 344 Q731 377 907 385"/>
+<path class="e" d="M907 385 Q734 397 906 377"/>
+<path class="e" d="M907 385 Q734 397 381 527"/>
+<path class="e" d="M759 124 Q659 267 752 120"/>
+<path class="e" d="M785 676 Q672 543 752 120"/>
+<path class="e" d="M752 120 Q656 265 378 523"/>
+<path class="e" d="M378 523 Q469 467 785 144"/>
+<path class="e" d="M821 180 Q691 295 888 525"/>
+<path class="e" d="M821 180 Q691 295 376 520"/>
+<path class="e" d="M249 253 Q405 331 418 250"/>
+<path class="e" d="M249 253 Q405 331 422 247"/>
+<path class="e" d="M508 334 Q534 372 425 244"/>
+<path class="e" d="M422 247 Q491 328 307 171"/>
+<path class="e" d="M508 334 Q534 372 246 260"/>
+<path class="e" d="M600 64 Q580 237 246 260"/>
+<path class="e" d="M422 247 Q491 328 429 241"/>
+<path class="e" d="M422 247 Q491 328 313 165"/>
+<path class="e" d="M443 231 Q501 320 484 210"/>
+<path class="e" d="M484 210 Q522 310 488 208"/>
+<path class="e" d="M447 228 Q503 319 493 207"/>
+<path class="e" d="M447 228 Q503 319 497 205"/>
+<path class="e" d="M610 487 Q585 448 374 516"/>
+<path class="e" d="M374 516 Q467 463 372 512"/>
+<path class="e" d="M374 516 Q467 463 673 739"/>
+<path class="e" d="M518 620 Q539 515 370 508"/>
+<path class="e" d="M518 620 Q539 515 368 504"/>
+<path class="e" d="M518 620 Q539 515 893 308"/>
+<path class="e" d="M881 276 Q721 343 366 500"/>
+<path class="e" d="M881 276 Q721 343 364 496"/>
+<path class="e" d="M881 276 Q721 343 362 492"/>
+<path class="e" d="M812 650 Q686 530 361 488"/>
+<path class="e" d="M361 488 Q460 449 359 484"/>
+<path class="e" d="M361 488 Q460 449 358 480"/>
+<path class="e" d="M869 570 Q714 490 358 480"/>
+<path class="e" d="M806 656 Q683 533 838 619"/>
+<path class="e" d="M806 656 Q683 533 356 476"/>
+<path class="e" d="M451 226 Q505 318 534 198"/>
+<path class="e" d="M534 198 Q547 304 539 197"/>
+<path class="e" d="M455 224 Q507 317 543 197"/>
+<path class="e" d="M550 319 Q555 364 548 196"/>
+<path class="e" d="M514 619 Q537 514 355 472"/>
+<path class="e" d="M514 619 Q537 514 354 468"/>
+<path class="e" d="M600 64 Q580 237 637 71"/>
+<path class="e" d="M637 71 Q598 240 578 62"/>
+<path class="e" d="M600 64 Q580 237 578 62"/>
+<path class="e" d="M792 150 Q676 280 578 62"/>
+<path class="e" d="M578 62 Q569 236 253 246"/>
+<path class="e" d="M578 62 Q569 236 253 246"/>
+<path class="e" d="M637 71 Q598 240 257 238"/>
+<path class="e" d="M759 124 Q659 267 257 238"/>
+<path class="e" d="M622 68 Q591 239 791 670"/>
+<path class="e" d="M651 74 Q606 242 700 91"/>
+<path class="e" d="M672 81 Q616 245 700 91"/>
+<path class="e" d="M720 101 Q640 255 700 91"/>
+<path class="e" d="M357 343 Q458 376 700 91"/>
+<path class="e" d="M346 425 Q453 417 700 91"/>
+<path class="e" d="M347 429 Q453 419 700 91"/>
+<path class="e" d="M610 487 Q585 448 700 91"/>
+<path class="e" d="M651 74 Q606 242 875 262"/>
+<path class="e" d="M700 91 Q630 251 875 262"/>
+<path class="e" d="M706 94 Q633 252 875 262"/>
+<path class="e" d="M836 198 Q698 304 875 262"/>
+<path class="e" d="M845 210 Q702 310 875 262"/>
+<path class="e" d="M849 216 Q704 313 875 262"/>
+<path class="e" d="M610 487 Q585 448 875 262"/>
+<path class="e" d="M651 74 Q606 242 353 463"/>
+<path class="e" d="M700 91 Q630 251 353 463"/>
+<path class="e" d="M357 343 Q458 376 353 463"/>
+<path class="e" d="M352 459 Q456 435 353 463"/>
+<path class="e" d="M348 442 Q454 426 353 463"/>
+<path class="e" d="M350 451 Q455 430 353 463"/>
+<path class="e" d="M610 487 Q585 448 353 463"/>
+<path class="e" d="M658 76 Q609 243 266 224"/>
+<path class="e" d="M262 231 Q411 320 266 224"/>
+<path class="e" d="M275 210 Q418 310 266 224"/>
+<path class="e" d="M280 203 Q420 307 266 224"/>
+<path class="e" d="M285 196 Q423 303 266 224"/>
+<path class="e" d="M347 429 Q453 419 266 224"/>
+<path class="e" d="M488 352 Q524 381 266 224"/>
+<path class="e" d="M651 74 Q606 242 706 94"/>
+<path class="e" d="M665 78 Q613 244 706 94"/>
+<path class="e" d="M686 86 Q623 248 706 94"/>
+<path class="e" d="M693 88 Q626 249 706 94"/>
+<path class="e" d="M700 91 Q630 251 706 94"/>
+<path class="e" d="M357 343 Q458 376 706 94"/>
+<path class="e" d="M610 487 Q585 448 706 94"/>
+<path class="e" d="M651 74 Q606 242 352 459"/>
+<path class="e" d="M700 91 Q630 251 352 459"/>
+<path class="e" d="M347 429 Q453 419 352 459"/>
+<path class="e" d="M346 420 Q453 415 352 459"/>
+<path class="e" d="M346 411 Q453 411 352 459"/>
+<path class="e" d="M348 442 Q454 426 352 459"/>
+<path class="e" d="M610 487 Q585 448 352 459"/>
+<path class="e" d="M651 74 Q606 242 351 455"/>
+<path class="e" d="M700 91 Q630 251 351 455"/>
+<path class="e" d="M836 198 Q698 304 351 455"/>
+<path class="e" d="M352 459 Q456 435 351 455"/>
+<path class="e" d="M346 411 Q453 411 351 455"/>
+<path class="e" d="M350 451 Q455 430 351 455"/>
+<path class="e" d="M610 487 Q585 448 351 455"/>
+<path class="e" d="M651 74 Q606 242 350 451"/>
+<path class="e" d="M665 78 Q613 244 350 451"/>
+<path class="e" d="M700 91 Q630 251 350 451"/>
+<path class="e" d="M706 94 Q633 252 350 451"/>
+<path class="e" d="M357 343 Q458 376 350 451"/>
+<path class="e" d="M347 429 Q453 419 350 451"/>
+<path class="e" d="M610 487 Q585 448 350 451"/>
+<path class="e" d="M700 91 Q630 251 349 446"/>
+<path class="e" d="M352 459 Q456 435 349 446"/>
+<path class="e" d="M346 411 Q453 411 349 446"/>
+<path class="e" d="M350 451 Q455 430 349 446"/>
+<path class="e" d="M353 463 Q456 437 349 446"/>
+<path class="e" d="M352 359 Q456 385 349 446"/>
+<path class="e" d="M610 487 Q585 448 349 446"/>
+<path class="e" d="M651 74 Q606 242 879 548"/>
+<path class="e" d="M700 91 Q630 251 879 548"/>
+<path class="e" d="M840 204 Q700 307 879 548"/>
+<path class="e" d="M875 262 Q717 336 879 548"/>
+<path class="e" d="M883 540 Q721 475 879 548"/>
+<path class="e" d="M351 455 Q455 432 879 548"/>
+<path class="e" d="M610 487 Q585 448 879 548"/>
+<path class="e" d="M651 74 Q606 242 348 442"/>
+<path class="e" d="M700 91 Q630 251 348 442"/>
+<path class="e" d="M347 429 Q453 419 348 442"/>
+<path class="e" d="M348 438 Q454 424 348 442"/>
+<path class="e" d="M350 451 Q455 430 348 442"/>
+<path class="e" d="M353 463 Q456 437 348 442"/>
+<path class="e" d="M610 487 Q585 448 348 442"/>
+<path class="e" d="M651 74 Q606 242 849 216"/>
+<path class="e" d="M665 78 Q613 244 849 216"/>
+<path class="e" d="M700 91 Q630 251 849 216"/>
+<path class="e" d="M861 235 Q710 323 849 216"/>
+<path class="e" d="M868 248 Q714 329 849 216"/>
+<path class="e" d="M875 262 Q717 336 849 216"/>
+<path class="e" d="M610 487 Q585 448 849 216"/>
+<path class="e" d="M347 394 Q453 402 558 758"/>
+<path class="e" d="M353 463 Q456 437 558 758"/>
+<path class="e" d="M351 455 Q455 432 558 758"/>
+<path class="e" d="M346 416 Q453 413 558 758"/>
+<path class="e" d="M349 446 Q455 428 558 758"/>
+<path class="e" d="M346 398 Q453 404 558 758"/>
+<path class="e" d="M610 487 Q585 448 558 758"/>
+<path class="e" d="M665 78 Q613 244 845 210"/>
+<path class="e" d="M700 91 Q630 251 845 210"/>
+<path class="e" d="M706 94 Q633 252 845 210"/>
+<path class="e" d="M836 198 Q698 304 845 210"/>
+<path class="e" d="M849 216 Q704 313 845 210"/>
+<path class="e" d="M861 235 Q710 323 845 210"/>
+<path class="e" d="M610 487 Q585 448 845 210"/>
+<path class="e" d="M658 76 Q609 243 275 210"/>
+<path class="e" d="M262 231 Q411 320 275 210"/>
+<path class="e" d="M266 224 Q413 317 275 210"/>
+<path class="e" d="M285 196 Q423 303 275 210"/>
+<path class="e" d="M488 352 Q524 381 275 210"/>
+<path class="e" d="M849 216 Q704 313 904 360"/>
+<path class="e" d="M875 262 Q717 336 904 360"/>
+<path class="e" d="M573 758 Q566 584 904 360"/>
+<path class="e" d="M610 487 Q585 448 904 360"/>
+<path class="e" d="M672 81 Q616 245 679 83"/>
+<path class="e" d="M700 91 Q630 251 679 83"/>
+<path class="e" d="M706 94 Q633 252 679 83"/>
+<path class="e" d="M352 459 Q456 435 679 83"/>
+<path class="e" d="M346 411 Q453 411 679 83"/>
+<path class="e" d="M347 433 Q454 422 679 83"/>
+<path class="e" d="M610 487 Q585 448 679 83"/>
+<path class="e" d="M357 343 Q458 376 887 292"/>
+<path class="e" d="M353 463 Q456 437 887 292"/>
+<path class="e" d="M349 446 Q455 428 887 292"/>
+<path class="e" d="M347 390 Q453 400 887 292"/>
+<path class="e" d="M610 487 Q585 448 887 292"/>
+<path class="e" d="M665 78 Q613 244 651 74"/>
+<path class="e" d="M700 91 Q630 251 651 74"/>
+<path class="e" d="M352 459 Q456 435 651 74"/>
+<path class="e" d="M346 420 Q453 415 651 74"/>
+<path class="e" d="M346 411 Q453 411 651 74"/>
+<path class="e" d="M348 442 Q454 426 651 74"/>
+<path class="e" d="M610 487 Q585 448 651 74"/>
+<path class="e" d="M665 78 Q613 244 772 134"/>
+<path class="e" d="M693 88 Q626 249 772 134"/>
+<path class="e" d="M706 94 Q633 252 772 134"/>
+<path class="e" d="M347 429 Q453 419 772 134"/>
+<path class="e" d="M722 718 Q641 564 772 134"/>
+<path class="e" d="M610 487 Q585 448 772 134"/>
+<path class="e" d="M651 74 Q606 242 658 76"/>
+<path class="e" d="M672 81 Q616 245 658 76"/>
+<path class="e" d="M693 88 Q626 249 658 76"/>
+<path class="e" d="M262 231 Q411 320 658 76"/>
+<path class="e" d="M266 224 Q413 317 658 76"/>
+<path class="e" d="M275 210 Q418 310 658 76"/>
+<path class="e" d="M610 487 Q585 448 658 76"/>
+<path class="e" d="M665 78 Q613 244 722 718"/>
+<path class="e" d="M686 86 Q623 248 722 718"/>
+<path class="e" d="M693 88 Q626 249 722 718"/>
+<path class="e" d="M706 94 Q633 252 722 718"/>
+<path class="e" d="M845 210 Q702 310 722 718"/>
+<path class="e" d="M875 262 Q717 336 722 718"/>
+<path class="e" d="M610 487 Q585 448 722 718"/>
+<path class="e" d="M651 74 Q606 242 348 438"/>
+<path class="e" d="M700 91 Q630 251 348 438"/>
+<path class="e" d="M347 385 Q454 398 348 438"/>
+<path class="e" d="M348 442 Q454 426 348 438"/>
+<path class="e" d="M350 451 Q455 430 348 438"/>
+<path class="e" d="M353 463 Q456 437 348 438"/>
+<path class="e" d="M610 487 Q585 448 348 438"/>
+<path class="e" d="M706 94 Q633 252 836 198"/>
+<path class="e" d="M849 216 Q704 313 836 198"/>
+<path class="e" d="M861 235 Q710 323 836 198"/>
+<path class="e" d="M875 262 Q717 336 836 198"/>
+<path class="e" d="M573 758 Q566 584 836 198"/>
+<path class="e" d="M565 758 Q563 584 836 198"/>
+<path class="e" d="M610 487 Q585 448 836 198"/>
+<path class="e" d="M651 74 Q606 242 693 88"/>
+<path class="e" d="M686 86 Q623 248 693 88"/>
+<path class="e" d="M700 91 Q630 251 693 88"/>
+<path class="e" d="M706 94 Q633 252 693 88"/>
+<path class="e" d="M347 429 Q453 419 693 88"/>
+<path class="e" d="M346 420 Q453 415 693 88"/>
+<path class="e" d="M610 487 Q585 448 693 88"/>
+<path class="e" d="M651 74 Q606 242 720 101"/>
+<path class="e" d="M665 78 Q613 244 720 101"/>
+<path class="e" d="M700 91 Q630 251 720 101"/>
+<path class="e" d="M346 411 Q453 411 720 101"/>
+<path class="e" d="M349 372 Q455 391 720 101"/>
+<path class="e" d="M346 403 Q453 406 720 101"/>
+<path class="e" d="M610 487 Q585 448 720 101"/>
+<path class="e" d="M700 91 Q630 251 908 410"/>
+<path class="e" d="M352 459 Q456 435 908 410"/>
+<path class="e" d="M346 411 Q453 411 908 410"/>
+<path class="e" d="M348 442 Q454 426 908 410"/>
+<path class="e" d="M353 463 Q456 437 908 410"/>
+<path class="e" d="M908 402 Q734 406 908 410"/>
+<path class="e" d="M610 487 Q585 448 908 410"/>
+<path class="e" d="M651 74 Q606 242 347 433"/>
+<path class="e" d="M700 91 Q630 251 347 433"/>
+<path class="e" d="M347 429 Q453 419 347 433"/>
+<path class="e" d="M352 459 Q456 435 347 433"/>
+<path class="e" d="M346 411 Q453 411 347 433"/>
+<path class="e" d="M350 451 Q455 430 347 433"/>
+<path class="e" d="M610 487 Q585 448 347 433"/>
+<path class="e" d="M651 74 Q606 242 347 429"/>
+<path class="e" d="M352 459 Q456 435 347 429"/>
+<path class="e" d="M346 411 Q453 411 347 429"/>
+<path class="e" d="M350 451 Q455 430 347 429"/>
+<path class="e" d="M501 204 Q531 307 347 429"/>
+<path class="e" d="M506 203 Q533 306 347 429"/>
+<path class="e" d="M610 487 Q585 448 347 429"/>
+<path class="e" d="M347 429 Q453 419 501 204"/>
+<path class="e" d="M352 459 Q456 435 501 204"/>
+<path class="e" d="M346 411 Q453 411 501 204"/>
+<path class="e" d="M348 438 Q454 424 501 204"/>
+<path class="e" d="M350 451 Q455 430 501 204"/>
+<path class="e" d="M353 463 Q456 437 501 204"/>
+<path class="e" d="M524 326 Q542 368 501 204"/>
+<path class="e" d="M651 74 Q606 242 346 425"/>
+<path class="e" d="M700 91 Q630 251 346 425"/>
+<path class="e" d="M352 459 Q456 435 346 425"/>
+<path class="e" d="M361 330 Q461 370 346 425"/>
+<path class="e" d="M349 446 Q455 428 346 425"/>
+<path class="e" d="M610 487 Q585 448 346 425"/>
+<path class="e" d="M651 74 Q606 242 346 420"/>
+<path class="e" d="M700 91 Q630 251 346 420"/>
+<path class="e" d="M347 385 Q454 398 346 420"/>
+<path class="e" d="M352 459 Q456 435 346 420"/>
+<path class="e" d="M348 442 Q454 426 346 420"/>
+<path class="e" d="M348 438 Q454 424 346 420"/>
+<path class="e" d="M610 487 Q585 448 346 420"/>
+<path class="e" d="M679 83 Q620 247 897 496"/>
+<path class="e" d="M904 466 Q732 438 897 496"/>
+<path class="e" d="M895 503 Q728 457 897 496"/>
+<path class="e" d="M349 446 Q455 428 897 496"/>
+<path class="e" d="M610 487 Q585 448 897 496"/>
+<path class="e" d="M651 74 Q606 242 908 402"/>
+<path class="e" d="M700 91 Q630 251 908 402"/>
+<path class="e" d="M347 429 Q453 419 908 402"/>
+<path class="e" d="M350 451 Q455 430 908 402"/>
+<path class="e" d="M353 463 Q456 437 908 402"/>
+<path class="e" d="M908 418 Q734 414 908 402"/>
+<path class="e" d="M610 487 Q585 448 908 402"/>
+<path class="e" d="M352 459 Q456 435 346 416"/>
+<path class="e" d="M353 463 Q456 437 346 416"/>
+<path class="e" d="M363 326 Q462 368 346 416"/>
+<path class="e" d="M501 204 Q531 307 346 416"/>
+<path class="e" d="M506 203 Q533 306 346 416"/>
+<path class="e" d="M349 446 Q455 428 346 416"/>
+<path class="e" d="M610 487 Q585 448 346 416"/>
+<path class="e" d="M665 78 Q613 244 716 721"/>
+<path class="e" d="M693 88 Q626 249 716 721"/>
+<path class="e" d="M706 94 Q633 252 716 721"/>
+<path class="e" d="M868 248 Q714 329 716 721"/>
+<path class="e" d="M357 343 Q458 376 716 721"/>
+<path class="e" d="M346 420 Q453 415 716 721"/>
+<path class="e" d="M610 487 Q585 448 716 721"/>
+<path class="e" d="M651 74 Q606 242 573 758"/>
+<path class="e" d="M700 91 Q630 251 573 758"/>
+<path class="e" d="M845 210 Q702 310 573 758"/>
+<path class="e" d="M872 255 Q716 333 573 758"/>
+<path class="e" d="M357 343 Q458 376 573 758"/>
+<path class="e" d="M346 425 Q453 417 573 758"/>
+<path class="e" d="M610 487 Q585 448 573 758"/>
+<path class="e" d="M651 74 Q606 242 742 707"/>
+<path class="e" d="M700 91 Q630 251 742 707"/>
+<path class="e" d="M906 450 Q733 430 742 707"/>
+<path class="e" d="M904 466 Q732 438 742 707"/>
+<path class="e" d="M709 725 Q634 567 742 707"/>
+<path class="e" d="M610 487 Q585 448 742 707"/>
+<path class="e" d="M672 81 Q616 245 893 510"/>
+<path class="e" d="M346 411 Q453 411 893 510"/>
+<path class="e" d="M906 450 Q733 430 893 510"/>
+<path class="e" d="M901 481 Q730 445 893 510"/>
+<path class="e" d="M761 694 Q660 552 893 510"/>
+<path class="e" d="M702 728 Q631 569 893 510"/>
+<path class="e" d="M610 487 Q585 448 893 510"/>
+<path class="e" d="M700 91 Q630 251 588 757"/>
+<path class="e" d="M720 101 Q640 255 588 757"/>
+<path class="e" d="M845 210 Q702 310 588 757"/>
+<path class="e" d="M868 248 Q714 329 588 757"/>
+<path class="e" d="M875 262 Q717 336 588 757"/>
+<path class="e" d="M346 403 Q453 406 588 757"/>
+<path class="e" d="M610 487 Q585 448 588 757"/>
+<path class="e" d="M266 224 Q413 317 805 163"/>
+<path class="e" d="M275 210 Q418 310 805 163"/>
+<path class="e" d="M280 203 Q420 307 805 163"/>
+<path class="e" d="M347 429 Q453 419 805 163"/>
+<path class="e" d="M501 204 Q531 307 805 163"/>
+<path class="e" d="M610 487 Q585 448 805 163"/>
+<path class="e" d="M672 81 Q616 245 852 599"/>
+<path class="e" d="M836 198 Q698 304 852 599"/>
+<path class="e" d="M845 210 Q702 310 852 599"/>
+<path class="e" d="M868 248 Q714 329 852 599"/>
+<path class="e" d="M875 262 Q717 336 852 599"/>
+<path class="e" d="M857 592 Q708 501 852 599"/>
+<path class="e" d="M610 487 Q585 448 852 599"/>
+<path class="e" d="M700 91 Q630 251 346 411"/>
+<path class="e" d="M350 451 Q455 430 346 411"/>
+<path class="e" d="M361 330 Q461 370 346 411"/>
+<path class="e" d="M349 372 Q455 391 346 411"/>
+<path class="e" d="M353 463 Q456 437 346 411"/>
+<path class="e" d="M506 203 Q533 306 346 411"/>
+<path class="e" d="M610 487 Q585 448 346 411"/>
+<path class="e" d="M883 540 Q721 475 823 638"/>
+<path class="e" d="M879 548 Q720 479 823 638"/>
+<path class="e" d="M610 487 Q585 448 823 638"/>
+<path class="e" d="M651 74 Q606 242 857 592"/>
+<path class="e" d="M836 198 Q698 304 857 592"/>
+<path class="e" d="M845 210 Q702 310 857 592"/>
+<path class="e" d="M857 229 Q709 319 857 592"/>
+<path class="e" d="M875 262 Q717 336 857 592"/>
+<path class="e" d="M347 394 Q453 402 857 592"/>
+<path class="e" d="M610 487 Q585 448 857 592"/>
+<path class="e" d="M700 91 Q630 251 346 407"/>
+<path class="e" d="M266 224 Q413 317 346 407"/>
+<path class="e" d="M352 459 Q456 435 346 407"/>
+<path class="e" d="M350 451 Q455 430 346 407"/>
+<path class="e" d="M353 463 Q456 437 346 407"/>
+<path class="e" d="M360 334 Q460 372 346 407"/>
+<path class="e" d="M610 487 Q585 448 346 407"/>
+<path class="e" d="M651 74 Q606 242 840 204"/>
+<path class="e" d="M361 330 Q461 370 840 204"/>
+<path class="e" d="M353 463 Q456 437 840 204"/>
+<path class="e" d="M879 548 Q720 479 840 204"/>
+<path class="e" d="M349 446 Q455 428 840 204"/>
+<path class="e" d="M558 758 Q559 584 840 204"/>
+<path class="e" d="M610 487 Q585 448 840 204"/>
+<path class="e" d="M651 74 Q606 242 735 711"/>
+<path class="e" d="M665 78 Q613 244 735 711"/>
+<path class="e" d="M672 81 Q616 245 735 711"/>
+<path class="e" d="M686 86 Q623 248 735 711"/>
+<path class="e" d="M693 88 Q626 249 735 711"/>
+<path class="e" d="M700 91 Q630 251 735 711"/>
+<path class="e" d="M610 487 Q585 448 735 711"/>
+<path class="e" d="M665 78 Q613 244 729 714"/>
+<path class="e" d="M693 88 Q626 249 729 714"/>
+<path class="e" d="M700 91 Q630 251 729 714"/>
+<path class="e" d="M357 343 Q458 376 729 714"/>
+<path class="e" d="M346 420 Q453 415 729 714"/>
+<path class="e" d="M351 455 Q455 432 729 714"/>
+<path class="e" d="M610 487 Q585 448 729 714"/>
+<path class="e" d="M262 231 Q411 320 301 177"/>
+<path class="e" d="M266 224 Q413 317 301 177"/>
+<path class="e" d="M271 217 Q415 313 301 177"/>
+<path class="e" d="M280 203 Q420 307 301 177"/>
+<path class="e" d="M285 196 Q423 303 301 177"/>
+<path class="e" d="M290 190 Q425 300 301 177"/>
+<path class="e" d="M488 352 Q524 381 301 177"/>
+<path class="e" d="M700 91 Q630 251 346 403"/>
+<path class="e" d="M720 101 Q640 255 346 403"/>
+<path class="e" d="M357 343 Q458 376 346 403"/>
+<path class="e" d="M346 425 Q453 417 346 403"/>
+<path class="e" d="M361 330 Q461 370 346 403"/>
+<path class="e" d="M349 372 Q455 391 346 403"/>
+<path class="e" d="M610 487 Q585 448 346 403"/>
+<path class="e" d="M845 210 Q702 310 817 644"/>
+<path class="e" d="M861 235 Q710 323 817 644"/>
+<path class="e" d="M875 262 Q717 336 817 644"/>
+<path class="e" d="M879 548 Q720 479 817 644"/>
+<path class="e" d="M823 638 Q691 524 817 644"/>
+<path class="e" d="M610 487 Q585 448 817 644"/>
+<path class="e" d="M347 429 Q453 419 595 756"/>
+<path class="e" d="M352 459 Q456 435 595 756"/>
+<path class="e" d="M351 455 Q455 432 595 756"/>
+<path class="e" d="M610 487 Q585 448 595 756"/>
+<path class="e" d="M700 91 Q630 251 346 398"/>
+<path class="e" d="M352 459 Q456 435 346 398"/>
+<path class="e" d="M350 451 Q455 430 346 398"/>
+<path class="e" d="M353 463 Q456 437 346 398"/>
+<path class="e" d="M353 355 Q457 383 346 398"/>
+<path class="e" d="M349 446 Q455 428 346 398"/>
+<path class="e" d="M610 487 Q585 448 346 398"/>
+<path class="e" d="M658 76 Q609 243 610 754"/>
+<path class="e" d="M262 231 Q411 320 610 754"/>
+<path class="e" d="M266 224 Q413 317 610 754"/>
+<path class="e" d="M275 210 Q418 310 610 754"/>
+<path class="e" d="M352 459 Q456 435 610 754"/>
+<path class="e" d="M353 463 Q456 437 610 754"/>
+<path class="e" d="M610 487 Q585 448 610 754"/>
+<path class="e" d="M658 76 Q609 243 778 139"/>
+<path class="e" d="M266 224 Q413 317 778 139"/>
+<path class="e" d="M280 203 Q420 307 778 139"/>
+<path class="e" d="M348 442 Q454 426 778 139"/>
+<path class="e" d="M709 725 Q634 567 778 139"/>
+<path class="e" d="M610 487 Q585 448 778 139"/>
+<path class="e" d="M849 216 Q704 313 883 540"/>
+<path class="e" d="M908 402 Q734 406 883 540"/>
+<path class="e" d="M879 548 Q720 479 883 540"/>
+<path class="e" d="M351 455 Q455 432 883 540"/>
+<path class="e" d="M588 757 Q574 583 883 540"/>
+<path class="e" d="M610 487 Q585 448 883 540"/>
+<path class="e" d="M651 74 Q606 242 755 699"/>
+<path class="e" d="M700 91 Q630 251 755 699"/>
+<path class="e" d="M868 248 Q714 329 755 699"/>
+<path class="e" d="M352 459 Q456 435 755 699"/>
+<path class="e" d="M346 420 Q453 415 755 699"/>
+<path class="e" d="M349 372 Q455 391 755 699"/>
+<path class="e" d="M610 487 Q585 448 755 699"/>
+<path class="e" d="M353 463 Q456 437 904 466"/>
+<path class="e" d="M906 450 Q733 430 904 466"/>
+<path class="e" d="M893 510 Q727 460 904 466"/>
+<path class="e" d="M501 204 Q531 307 904 466"/>
+<path class="e" d="M742 707 Q651 558 904 466"/>
+<path class="e" d="M610 487 Q585 448 904 466"/>
+<path class="e" d="M346 425 Q453 417 347 394"/>
+<path class="e" d="M350 451 Q455 430 347 394"/>
+<path class="e" d="M610 487 Q585 448 347 394"/>
+<path class="e" d="M651 74 Q606 242 884 284"/>
+<path class="e" d="M665 78 Q613 244 884 284"/>
+<path class="e" d="M700 91 Q630 251 884 284"/>
+<path class="e" d="M845 210 Q702 310 884 284"/>
+<path class="e" d="M857 229 Q709 319 884 284"/>
+<path class="e" d="M347 429 Q453 419 884 284"/>
+<path class="e" d="M610 487 Q585 448 884 284"/>
+<path class="e" d="M861 235 Q710 323 603 755"/>
+<path class="e" d="M347 394 Q453 402 603 755"/>
+<path class="e" d="M352 459 Q456 435 603 755"/>
+<path class="e" d="M353 463 Q456 437 603 755"/>
+<path class="e" d="M351 455 Q455 432 603 755"/>
+<path class="e" d="M610 754 Q585 582 603 755"/>
+<path class="e" d="M610 487 Q585 448 603 755"/>
+<path class="e" d="M849 216 Q704 313 861 235"/>
+<path class="e" d="M868 248 Q714 329 861 235"/>
+<path class="e" d="M346 403 Q453 406 861 235"/>
+<path class="e" d="M908 402 Q734 406 861 235"/>
+<path class="e" d="M902 473 Q731 442 861 235"/>
+<path class="e" d="M901 481 Q730 445 861 235"/>
+<path class="e" d="M610 487 Q585 448 861 235"/>
+<path class="e" d="M353 463 Q456 437 347 390"/>
+<path class="e" d="M501 204 Q531 307 347 390"/>
+<path class="e" d="M346 416 Q453 413 347 390"/>
+<path class="e" d="M349 446 Q455 428 347 390"/>
+<path class="e" d="M610 487 Q585 448 347 390"/>
+<path class="e" d="M262 231 Q411 320 271 217"/>
+<path class="e" d="M266 224 Q413 317 271 217"/>
+<path class="e" d="M275 210 Q418 310 271 217"/>
+<path class="e" d="M280 203 Q420 307 271 217"/>
+<path class="e" d="M285 196 Q423 303 271 217"/>
+<path class="e" d="M290 190 Q425 300 271 217"/>
+<path class="e" d="M488 352 Q524 381 271 217"/>
+<path class="e" d="M266 224 Q413 317 280 203"/>
+<path class="e" d="M285 196 Q423 303 280 203"/>
+<path class="e" d="M349 446 Q455 428 280 203"/>
+<path class="e" d="M488 352 Q524 381 280 203"/>
+<path class="e" d="M700 91 Q630 251 709 725"/>
+<path class="e" d="M706 94 Q633 252 709 725"/>
+<path class="e" d="M347 385 Q454 398 709 725"/>
+<path class="e" d="M350 368 Q455 389 709 725"/>
+<path class="e" d="M346 398 Q453 404 709 725"/>
+<path class="e" d="M742 707 Q651 558 709 725"/>
+<path class="e" d="M610 487 Q585 448 709 725"/>
+<path class="e" d="M700 91 Q630 251 580 757"/>
+<path class="e" d="M875 262 Q717 336 580 757"/>
+<path class="e" d="M346 425 Q453 417 580 757"/>
+<path class="e" d="M350 451 Q455 430 580 757"/>
+<path class="e" d="M349 446 Q455 428 580 757"/>
+<path class="e" d="M603 755 Q581 583 580 757"/>
+<path class="e" d="M610 487 Q585 448 580 757"/>
+<path class="e" d="M658 76 Q609 243 799 663"/>
+<path class="e" d="M748 703 Q654 556 799 663"/>
+<path class="e" d="M610 487 Q585 448 799 663"/>
+<path class="e" d="M700 91 Q630 251 779 681"/>
+<path class="e" d="M706 94 Q633 252 779 681"/>
+<path class="e" d="M346 411 Q453 411 779 681"/>
+<path class="e" d="M351 455 Q455 432 779 681"/>
+<path class="e" d="M767 690 Q663 550 779 681"/>
+<path class="e" d="M722 718 Q641 564 779 681"/>
+<path class="e" d="M610 487 Q585 448 779 681"/>
+<path class="e" d="M700 91 Q630 251 828 632"/>
+<path class="e" d="M875 262 Q717 336 828 632"/>
+<path class="e" d="M879 548 Q720 479 828 632"/>
+<path class="e" d="M823 638 Q691 524 828 632"/>
+<path class="e" d="M817 644 Q689 527 828 632"/>
+<path class="e" d="M610 487 Q585 448 828 632"/>
+<path class="e" d="M651 74 Q606 242 347 385"/>
+<path class="e" d="M700 91 Q630 251 347 385"/>
+<path class="e" d="M346 420 Q453 415 347 385"/>
+<path class="e" d="M353 463 Q456 437 347 385"/>
+<path class="e" d="M353 355 Q457 383 347 385"/>
+<path class="e" d="M349 446 Q455 428 347 385"/>
+<path class="e" d="M610 487 Q585 448 347 385"/>
+<path class="e" d="M357 343 Q458 376 348 381"/>
+<path class="e" d="M350 451 Q455 430 348 381"/>
+<path class="e" d="M610 487 Q585 448 348 381"/>
+<path class="e" d="M347 429 Q453 419 664 742"/>
+<path class="e" d="M353 463 Q456 437 664 742"/>
+<path class="e" d="M610 487 Q585 448 664 742"/>
+<path class="e" d="M700 91 Q630 251 853 222"/>
+<path class="e" d="M857 229 Q709 319 853 222"/>
+<path class="e" d="M861 235 Q710 323 853 222"/>
+<path class="e" d="M875 262 Q717 336 853 222"/>
+<path class="e" d="M347 429 Q453 419 853 222"/>
+<path class="e" d="M350 451 Q455 430 853 222"/>
+<path class="e" d="M610 487 Q585 448 853 222"/>
+<path class="e" d="M700 91 Q630 251 349 377"/>
+<path class="e" d="M346 411 Q453 411 349 377"/>
+<path class="e" d="M350 451 Q455 430 349 377"/>
+<path class="e" d="M353 463 Q456 437 349 377"/>
+<path class="e" d="M506 203 Q533 306 349 377"/>
+<path class="e" d="M360 334 Q460 372 349 377"/>
+<path class="e" d="M610 487 Q585 448 349 377"/>
+<path class="e" d="M651 74 Q606 242 868 248"/>
+<path class="e" d="M700 91 Q630 251 868 248"/>
+<path class="e" d="M875 262 Q717 336 868 248"/>
+<path class="e" d="M346 403 Q453 406 868 248"/>
+<path class="e" d="M906 450 Q733 430 868 248"/>
+<path class="e" d="M902 473 Q731 442 868 248"/>
+<path class="e" d="M610 487 Q585 448 868 248"/>
+<path class="e" d="M603 755 Q581 583 550 758"/>
+<path class="e" d="M610 487 Q585 448 550 758"/>
+<path class="e" d="M651 74 Q606 242 349 372"/>
+<path class="e" d="M700 91 Q630 251 349 372"/>
+<path class="e" d="M346 411 Q453 411 349 372"/>
+<path class="e" d="M350 451 Q455 430 349 372"/>
+<path class="e" d="M354 351 Q457 381 349 372"/>
+<path class="e" d="M346 403 Q453 406 349 372"/>
+<path class="e" d="M610 487 Q585 448 349 372"/>
+<path class="e" d="M347 429 Q453 419 506 203"/>
+<path class="e" d="M350 451 Q455 430 506 203"/>
+<path class="e" d="M353 463 Q456 437 506 203"/>
+<path class="e" d="M510 202 Q535 306 506 203"/>
+<path class="e" d="M524 326 Q542 368 506 203"/>
+<path class="e" d="M672 81 Q616 245 686 86"/>
+<path class="e" d="M346 420 Q453 415 686 86"/>
+<path class="e" d="M906 450 Q733 430 686 86"/>
+<path class="e" d="M901 481 Q730 445 686 86"/>
+<path class="e" d="M351 455 Q455 432 686 86"/>
+<path class="e" d="M761 694 Q660 552 686 86"/>
+<path class="e" d="M610 487 Q585 448 686 86"/>
+<path class="e" d="M672 81 Q616 245 761 694"/>
+<path class="e" d="M901 481 Q730 445 761 694"/>
+<path class="e" d="M893 510 Q727 460 761 694"/>
+<path class="e" d="M351 455 Q455 432 761 694"/>
+<path class="e" d="M742 707 Q651 558 761 694"/>
+<path class="e" d="M702 728 Q631 569 761 694"/>
+<path class="e" d="M610 487 Q585 448 761 694"/>
+<path class="e" d="M665 78 Q613 244 695 731"/>
+<path class="e" d="M693 88 Q626 249 695 731"/>
+<path class="e" d="M700 91 Q630 251 695 731"/>
+<path class="e" d="M350 451 Q455 430 695 731"/>
+<path class="e" d="M610 487 Q585 448 695 731"/>
+<path class="e" d="M346 416 Q453 413 543 758"/>
+<path class="e" d="M603 755 Q581 583 543 758"/>
+<path class="e" d="M588 757 Q574 583 543 758"/>
+<path class="e" d="M610 487 Q585 448 543 758"/>
+<path class="e" d="M700 91 Q630 251 872 255"/>
+<path class="e" d="M845 210 Q702 310 872 255"/>
+<path class="e" d="M875 262 Q717 336 872 255"/>
+<path class="e" d="M349 372 Q455 391 872 255"/>
+<path class="e" d="M879 548 Q720 479 872 255"/>
+<path class="e" d="M351 455 Q455 432 872 255"/>
+<path class="e" d="M610 487 Q585 448 872 255"/>
+<path class="e" d="M352 359 Q456 385 350 368"/>
+<path class="e" d="M346 416 Q453 413 350 368"/>
+<path class="e" d="M610 487 Q585 448 350 368"/>
+<path class="e" d="M651 74 Q606 242 857 229"/>
+<path class="e" d="M672 81 Q616 245 857 229"/>
+<path class="e" d="M686 86 Q623 248 857 229"/>
+<path class="e" d="M845 210 Q702 310 857 229"/>
+<path class="e" d="M853 222 Q707 316 857 229"/>
+<path class="e" d="M868 248 Q714 329 857 229"/>
+<path class="e" d="M610 487 Q585 448 857 229"/>
+<path class="e" d="M262 231 Q411 320 351 364"/>
+<path class="e" d="M266 224 Q413 317 351 364"/>
+<path class="e" d="M353 463 Q456 437 351 364"/>
+<path class="e" d="M350 368 Q455 389 351 364"/>
+<path class="e" d="M346 416 Q453 413 351 364"/>
+<path class="e" d="M610 487 Q585 448 351 364"/>
+<path class="e" d="M658 76 Q609 243 905 458"/>
+<path class="e" d="M720 101 Q640 255 905 458"/>
+<path class="e" d="M908 402 Q734 406 905 458"/>
+<path class="e" d="M902 473 Q731 442 905 458"/>
+<path class="e" d="M893 510 Q727 460 905 458"/>
+<path class="e" d="M761 694 Q660 552 905 458"/>
+<path class="e" d="M610 487 Q585 448 905 458"/>
+<path class="e" d="M580 757 Q570 584 873 563"/>
+<path class="e" d="M610 487 Q585 448 873 563"/>
+<path class="e" d="M700 91 Q630 251 876 556"/>
+<path class="e" d="M346 425 Q453 417 876 556"/>
+<path class="e" d="M347 429 Q453 419 876 556"/>
+<path class="e" d="M558 758 Q559 584 876 556"/>
+<path class="e" d="M610 487 Q585 448 876 556"/>
+<path class="e" d="M353 463 Q456 437 352 359"/>
+<path class="e" d="M350 368 Q455 389 352 359"/>
+<path class="e" d="M610 487 Q585 448 352 359"/>
+<path class="e" d="M658 76 Q609 243 702 728"/>
+<path class="e" d="M686 86 Q623 248 702 728"/>
+<path class="e" d="M693 88 Q626 249 702 728"/>
+<path class="e" d="M720 101 Q640 255 702 728"/>
+<path class="e" d="M906 450 Q733 430 702 728"/>
+<path class="e" d="M901 481 Q730 445 702 728"/>
+<path class="e" d="M610 487 Q585 448 702 728"/>
+<path class="e" d="M700 91 Q630 251 353 355"/>
+<path class="e" d="M352 459 Q456 435 353 355"/>
+<path class="e" d="M353 463 Q456 437 353 355"/>
+<path class="e" d="M360 334 Q460 372 353 355"/>
+<path class="e" d="M610 487 Q585 448 353 355"/>
+<path class="e" d="M700 91 Q630 251 865 242"/>
+<path class="e" d="M875 262 Q717 336 865 242"/>
+<path class="e" d="M610 487 Q585 448 865 242"/>
+<path class="e" d="M720 101 Q640 255 713 97"/>
+<path class="e" d="M904 466 Q732 438 713 97"/>
+<path class="e" d="M610 487 Q585 448 713 97"/>
+<path class="e" d="M651 74 Q606 242 665 78"/>
+<path class="e" d="M346 411 Q453 411 665 78"/>
+<path class="e" d="M350 451 Q455 430 665 78"/>
+<path class="e" d="M908 410 Q734 410 665 78"/>
+<path class="e" d="M349 446 Q455 428 665 78"/>
+<path class="e" d="M742 707 Q651 558 665 78"/>
+<path class="e" d="M610 487 Q585 448 665 78"/>
+<path class="e" d="M651 74 Q606 242 354 351"/>
+<path class="e" d="M700 91 Q630 251 354 351"/>
+<path class="e" d="M346 411 Q453 411 354 351"/>
+<path class="e" d="M348 438 Q454 424 354 351"/>
+<path class="e" d="M350 451 Q455 430 354 351"/>
+<path class="e" d="M501 204 Q531 307 354 351"/>
+<path class="e" d="M610 487 Q585 448 354 351"/>
+<path class="e" d="M779 681 Q669 545 767 690"/>
+<path class="e" d="M748 703 Q654 556 767 690"/>
+<path class="e" d="M742 707 Q651 558 767 690"/>
+<path class="e" d="M610 487 Q585 448 767 690"/>
+<path class="e" d="M262 231 Q411 320 290 190"/>
+<path class="e" d="M266 224 Q413 317 290 190"/>
+<path class="e" d="M271 217 Q415 313 290 190"/>
+<path class="e" d="M275 210 Q418 310 290 190"/>
+<path class="e" d="M301 177 Q431 294 290 190"/>
+<path class="e" d="M488 352 Q524 381 290 190"/>
+<path class="e" d="M651 74 Q606 242 890 300"/>
+<path class="e" d="M700 91 Q630 251 890 300"/>
+<path class="e" d="M352 459 Q456 435 890 300"/>
+<path class="e" d="M350 451 Q455 430 890 300"/>
+<path class="e" d="M349 372 Q455 391 890 300"/>
+<path class="e" d="M506 203 Q533 306 890 300"/>
+<path class="e" d="M610 487 Q585 448 890 300"/>
+<path class="e" d="M266 224 Q413 317 262 231"/>
+<path class="e" d="M280 203 Q420 307 262 231"/>
+<path class="e" d="M296 184 Q428 297 262 231"/>
+<path class="e" d="M488 352 Q524 381 262 231"/>
+<path class="e" d="M262 231 Q411 320 296 184"/>
+<path class="e" d="M266 224 Q413 317 296 184"/>
+<path class="e" d="M285 196 Q423 303 296 184"/>
+<path class="e" d="M352 459 Q456 435 296 184"/>
+<path class="e" d="M353 463 Q456 437 296 184"/>
+<path class="e" d="M488 352 Q524 381 296 184"/>
+<path class="e" d="M700 91 Q630 251 908 418"/>
+<path class="e" d="M350 451 Q455 430 908 418"/>
+<path class="e" d="M908 402 Q734 406 908 418"/>
+<path class="e" d="M908 410 Q734 410 908 418"/>
+<path class="e" d="M501 204 Q531 307 908 418"/>
+<path class="e" d="M610 487 Q585 448 908 418"/>
+<path class="e" d="M693 88 Q626 249 773 685"/>
+<path class="e" d="M906 450 Q733 430 773 685"/>
+<path class="e" d="M893 510 Q727 460 773 685"/>
+<path class="e" d="M742 707 Q651 558 773 685"/>
+<path class="e" d="M735 711 Q648 560 773 685"/>
+<path class="e" d="M702 728 Q631 569 773 685"/>
+<path class="e" d="M610 487 Q585 448 773 685"/>
+<path class="e" d="M651 74 Q606 242 356 347"/>
+<path class="e" d="M700 91 Q630 251 356 347"/>
+<path class="e" d="M352 459 Q456 435 356 347"/>
+<path class="e" d="M346 420 Q453 415 356 347"/>
+<path class="e" d="M610 487 Q585 448 356 347"/>
+<path class="e" d="M700 91 Q630 251 672 81"/>
+<path class="e" d="M347 385 Q454 398 672 81"/>
+<path class="e" d="M346 420 Q453 415 672 81"/>
+<path class="e" d="M906 450 Q733 430 672 81"/>
+<path class="e" d="M610 487 Q585 448 672 81"/>
+<path class="e" d="M700 91 Q630 251 553 196"/>
+<path class="e" d="M506 203 Q533 306 553 196"/>
+<path class="e" d="M550 319 Q555 364 553 196"/>
+<path class="e" d="M665 78 Q613 244 900 335"/>
+<path class="e" d="M706 94 Q633 252 900 335"/>
+<path class="e" d="M779 681 Q669 545 900 335"/>
+<path class="e" d="M742 707 Q651 558 900 335"/>
+<path class="e" d="M722 718 Q641 564 900 335"/>
+<path class="e" d="M610 487 Q585 448 900 335"/>
+<path class="e" d="M651 74 Q606 242 899 488"/>
+<path class="e" d="M700 91 Q630 251 899 488"/>
+<path class="e" d="M347 429 Q453 419 899 488"/>
+<path class="e" d="M902 473 Q731 442 899 488"/>
+<path class="e" d="M901 481 Q730 445 899 488"/>
+<path class="e" d="M501 204 Q531 307 899 488"/>
+<path class="e" d="M610 487 Q585 448 899 488"/>
+<path class="e" d="M700 91 Q630 251 357 343"/>
+<path class="e" d="M350 451 Q455 430 357 343"/>
+<path class="e" d="M610 487 Q585 448 357 343"/>
+<path class="e" d="M700 91 Q630 251 358 339"/>
+<path class="e" d="M346 411 Q453 411 358 339"/>
+<path class="e" d="M350 451 Q455 430 358 339"/>
+<path class="e" d="M610 487 Q585 448 358 339"/>
+<path class="e" d="M887 292 Q724 351 895 503"/>
+<path class="e" d="M350 451 Q455 430 895 503"/>
+<path class="e" d="M356 347 Q458 378 895 503"/>
+<path class="e" d="M904 466 Q732 438 895 503"/>
+<path class="e" d="M901 481 Q730 445 895 503"/>
+<path class="e" d="M610 487 Q585 448 895 503"/>
+<path class="e" d="M353 463 Q456 437 360 334"/>
+<path class="e" d="M346 416 Q453 413 360 334"/>
+<path class="e" d="M349 446 Q455 428 360 334"/>
+<path class="e" d="M610 487 Q585 448 360 334"/>
+<path class="e" d="M501 204 Q531 307 565 758"/>
+<path class="e" d="M543 758 Q551 584 565 758"/>
+<path class="e" d="M610 487 Q585 448 565 758"/>
+<path class="e" d="M524 326 Q542 368 510 202"/>
+<path class="e" d="M706 94 Q633 252 748 703"/>
+<path class="e" d="M779 681 Q669 545 748 703"/>
+<path class="e" d="M742 707 Q651 558 748 703"/>
+<path class="e" d="M722 718 Q641 564 748 703"/>
+<path class="e" d="M702 728 Q631 569 748 703"/>
+<path class="e" d="M610 487 Q585 448 748 703"/>
+<path class="e" d="M347 429 Q453 419 906 450"/>
+<path class="e" d="M902 473 Q731 442 906 450"/>
+<path class="e" d="M901 481 Q730 445 906 450"/>
+<path class="e" d="M899 488 Q730 449 906 450"/>
+<path class="e" d="M895 503 Q728 457 906 450"/>
+<path class="e" d="M610 487 Q585 448 906 450"/>
+<path class="e" d="M262 231 Q411 320 285 196"/>
+<path class="e" d="M266 224 Q413 317 285 196"/>
+<path class="e" d="M280 203 Q420 307 285 196"/>
+<path class="e" d="M290 190 Q425 300 285 196"/>
+<path class="e" d="M352 359 Q456 385 285 196"/>
+<path class="e" d="M346 407 Q453 409 285 196"/>
+<path class="e" d="M488 352 Q524 381 285 196"/>
+<path class="e" d="M651 74 Q606 242 361 330"/>
+<path class="e" d="M700 91 Q630 251 361 330"/>
+<path class="e" d="M350 451 Q455 430 361 330"/>
+<path class="e" d="M346 403 Q453 406 361 330"/>
+<path class="e" d="M353 355 Q457 383 361 330"/>
+<path class="e" d="M610 487 Q585 448 361 330"/>
+<path class="e" d="M658 76 Q609 243 906 368"/>
+<path class="e" d="M700 91 Q630 251 906 368"/>
+<path class="e" d="M262 231 Q411 320 906 368"/>
+<path class="e" d="M266 224 Q413 317 906 368"/>
+<path class="e" d="M610 754 Q585 582 906 368"/>
+<path class="e" d="M610 487 Q585 448 906 368"/>
+<path class="e" d="M651 74 Q606 242 901 481"/>
+<path class="e" d="M686 86 Q623 248 901 481"/>
+<path class="e" d="M700 91 Q630 251 901 481"/>
+<path class="e" d="M706 94 Q633 252 901 481"/>
+<path class="e" d="M346 420 Q453 415 901 481"/>
+<path class="e" d="M906 450 Q733 430 901 481"/>
+<path class="e" d="M610 487 Q585 448 901 481"/>
+<path class="e" d="M906 450 Q733 430 902 473"/>
+<path class="e" d="M904 466 Q732 438 902 473"/>
+<path class="e" d="M895 503 Q728 457 902 473"/>
+<path class="e" d="M702 728 Q631 569 902 473"/>
+<path class="e" d="M610 487 Q585 448 902 473"/>
+<path class="e" d="M352 459 Q456 435 363 326"/>
+<path class="e" d="M506 203 Q533 306 363 326"/>
+<path class="e" d="M350 368 Q455 389 363 326"/>
+<path class="e" d="M346 416 Q453 413 363 326"/>
+<path class="e" d="M349 446 Q455 428 363 326"/>
+<path class="e" d="M610 487 Q585 448 363 326"/>
+<path class="e" d="M700 91 Q630 251 861 585"/>
+<path class="e" d="M875 262 Q717 336 861 585"/>
+<path class="e" d="M350 451 Q455 430 861 585"/>
+<path class="e" d="M610 487 Q585 448 861 585"/>
+<path class="e" d="M610 487 Q585 448 620 205"/>
+<path class="e" d="M620 205 Q590 307 564 62"/>
+<path class="e" d="M620 205 Q590 307 571 62"/>
+<path class="e" d="M620 205 Q590 307 578 62"/>
+<path class="e" d="M620 205 Q590 307 586 63"/>
+<path class="e" d="M620 205 Q590 307 593 64"/>
+<path class="e" d="M620 205 Q590 307 600 64"/>
+<path class="e" d="M620 205 Q590 307 608 65"/>
+<path class="e" d="M620 205 Q590 307 615 66"/>
+<path class="e" d="M620 205 Q590 307 622 68"/>
+<path class="e" d="M620 205 Q590 307 630 69"/>
+<path class="e" d="M620 205 Q590 307 637 71"/>
+<path class="e" d="M620 205 Q590 307 644 72"/>
+<path class="e" d="M620 205 Q590 307 651 74"/>
+<path class="e" d="M620 205 Q590 307 658 76"/>
+<path class="e" d="M620 205 Q590 307 665 78"/>
+<path class="e" d="M620 205 Q590 307 672 81"/>
+<path class="e" d="M620 205 Q590 307 679 83"/>
+<path class="e" d="M620 205 Q590 307 686 86"/>
+<path class="e" d="M620 205 Q590 307 693 88"/>
+<path class="e" d="M620 205 Q590 307 700 91"/>
+<path class="e" d="M620 205 Q590 307 706 94"/>
+<path class="e" d="M620 205 Q590 307 713 97"/>
+<path class="e" d="M620 205 Q590 307 720 101"/>
+<path class="e" d="M620 205 Q590 307 726 104"/>
+<path class="e" d="M620 205 Q590 307 733 108"/>
+<path class="e" d="M620 205 Q590 307 739 111"/>
+<path class="e" d="M620 205 Q590 307 745 115"/>
+<path class="e" d="M610 487 Q585 448 688 239"/>
+<path class="e" d="M688 239 Q624 324 752 120"/>
+<path class="e" d="M688 239 Q624 324 759 124"/>
+<path class="e" d="M688 239 Q624 324 765 129"/>
+<path class="e" d="M688 239 Q624 324 772 134"/>
+<path class="e" d="M688 239 Q624 324 778 139"/>
+<path class="e" d="M688 239 Q624 324 785 144"/>
+<path class="e" d="M610 487 Q585 448 707 254"/>
+<path class="e" d="M707 254 Q633 332 792 150"/>
+<path class="e" d="M707 254 Q633 332 799 157"/>
+<path class="e" d="M707 254 Q633 332 805 163"/>
+<path class="e" d="M610 487 Q585 448 738 291"/>
+<path class="e" d="M738 291 Q649 350 811 169"/>
+<path class="e" d="M738 291 Q649 350 816 175"/>
+<path class="e" d="M738 291 Q649 350 821 180"/>
+<path class="e" d="M738 291 Q649 350 826 186"/>
+<path class="e" d="M738 291 Q649 350 831 192"/>
+<path class="e" d="M738 291 Q649 350 836 198"/>
+<path class="e" d="M738 291 Q649 350 840 204"/>
+<path class="e" d="M738 291 Q649 350 845 210"/>
+<path class="e" d="M738 291 Q649 350 849 216"/>
+<path class="e" d="M738 291 Q649 350 853 222"/>
+<path class="e" d="M738 291 Q649 350 857 229"/>
+<path class="e" d="M738 291 Q649 350 861 235"/>
+<path class="e" d="M738 291 Q649 350 865 242"/>
+<path class="e" d="M738 291 Q649 350 868 248"/>
+<path class="e" d="M738 291 Q649 350 872 255"/>
+<path class="e" d="M738 291 Q649 350 875 262"/>
+<path class="e" d="M738 291 Q649 350 878 269"/>
+<path class="e" d="M488 352 Q524 381 385 287"/>
+<path class="e" d="M385 287 Q472 348 246 260"/>
+<path class="e" d="M385 287 Q472 348 488 352"/>
+<path class="e" d="M385 287 Q472 348 249 253"/>
+<path class="e" d="M385 287 Q472 348 253 246"/>
+<path class="e" d="M385 287 Q472 348 257 238"/>
+<path class="e" d="M385 287 Q472 348 262 231"/>
+<path class="e" d="M385 287 Q472 348 266 224"/>
+<path class="e" d="M385 287 Q472 348 271 217"/>
+<path class="e" d="M385 287 Q472 348 275 210"/>
+<path class="e" d="M385 287 Q472 348 280 203"/>
+<path class="e" d="M385 287 Q472 348 285 196"/>
+<path class="e" d="M385 287 Q472 348 290 190"/>
+<path class="e" d="M385 287 Q472 348 296 184"/>
+<path class="e" d="M385 287 Q472 348 301 177"/>
+<path class="e" d="M385 287 Q472 348 307 171"/>
+<path class="e" d="M385 287 Q472 348 313 165"/>
+<path class="e" d="M610 487 Q585 448 761 337"/>
+<path class="e" d="M761 337 Q661 374 881 276"/>
+<path class="e" d="M761 337 Q661 374 884 284"/>
+<path class="e" d="M761 337 Q661 374 887 292"/>
+<path class="e" d="M761 337 Q661 374 890 300"/>
+<path class="e" d="M761 337 Q661 374 893 308"/>
+<path class="e" d="M610 487 Q585 448 768 358"/>
+<path class="e" d="M768 358 Q664 384 895 317"/>
+<path class="e" d="M768 358 Q664 384 898 326"/>
+<path class="e" d="M768 358 Q664 384 900 335"/>
+<path class="e" d="M610 487 Q585 448 772 382"/>
+<path class="e" d="M772 382 Q666 396 902 344"/>
+<path class="e" d="M772 382 Q666 396 903 352"/>
+<path class="e" d="M772 382 Q666 396 904 360"/>
+<path class="e" d="M772 382 Q666 396 906 368"/>
+<path class="e" d="M772 382 Q666 396 906 377"/>
+<path class="e" d="M772 382 Q666 396 907 385"/>
+<path class="e" d="M610 487 Q585 448 774 412"/>
+<path class="e" d="M774 412 Q667 411 908 393"/>
+<path class="e" d="M774 412 Q667 411 908 402"/>
+<path class="e" d="M774 412 Q667 411 908 410"/>
+<path class="e" d="M774 412 Q667 411 908 418"/>
+<path class="e" d="M774 412 Q667 411 908 426"/>
+<path class="e" d="M774 412 Q667 411 907 435"/>
+<path class="e" d="M610 487 Q585 448 769 456"/>
+<path class="e" d="M769 456 Q665 433 906 443"/>
+<path class="e" d="M769 456 Q665 433 906 450"/>
+<path class="e" d="M769 456 Q665 433 905 458"/>
+<path class="e" d="M769 456 Q665 433 904 466"/>
+<path class="e" d="M769 456 Q665 433 902 473"/>
+<path class="e" d="M769 456 Q665 433 901 481"/>
+<path class="e" d="M769 456 Q665 433 899 488"/>
+<path class="e" d="M769 456 Q665 433 897 496"/>
+<path class="e" d="M769 456 Q665 433 895 503"/>
+<path class="e" d="M769 456 Q665 433 893 510"/>
+<path class="e" d="M769 456 Q665 433 891 518"/>
+<path class="e" d="M769 456 Q665 433 888 525"/>
+<path class="e" d="M610 487 Q585 448 755 497"/>
+<path class="e" d="M755 497 Q658 454 886 533"/>
+<path class="e" d="M755 497 Q658 454 883 540"/>
+<path class="e" d="M755 497 Q658 454 879 548"/>
+<path class="e" d="M755 497 Q658 454 876 556"/>
+<path class="e" d="M755 497 Q658 454 873 563"/>
+<path class="e" d="M755 497 Q658 454 869 570"/>
+<path class="e" d="M610 487 Q585 448 741 524"/>
+<path class="e" d="M741 524 Q651 467 865 578"/>
+<path class="e" d="M741 524 Q651 467 861 585"/>
+<path class="e" d="M741 524 Q651 467 857 592"/>
+<path class="e" d="M741 524 Q651 467 852 599"/>
+<path class="e" d="M741 524 Q651 467 848 606"/>
+<path class="e" d="M741 524 Q651 467 843 613"/>
+<path class="e" d="M610 487 Q585 448 721 550"/>
+<path class="e" d="M721 550 Q641 480 838 619"/>
+<path class="e" d="M721 550 Q641 480 833 626"/>
+<path class="e" d="M721 550 Q641 480 828 632"/>
+<path class="e" d="M721 550 Q641 480 823 638"/>
+<path class="e" d="M721 550 Q641 480 817 644"/>
+<path class="e" d="M721 550 Q641 480 812 650"/>
+<path class="e" d="M721 550 Q641 480 806 656"/>
+<path class="e" d="M610 487 Q585 448 705 568"/>
+<path class="e" d="M705 568 Q632 489 799 663"/>
+<path class="e" d="M705 568 Q632 489 791 670"/>
+<path class="e" d="M610 487 Q585 448 668 595"/>
+<path class="e" d="M668 595 Q614 502 785 676"/>
+<path class="e" d="M668 595 Q614 502 779 681"/>
+<path class="e" d="M668 595 Q614 502 773 685"/>
+<path class="e" d="M668 595 Q614 502 767 690"/>
+<path class="e" d="M668 595 Q614 502 761 694"/>
+<path class="e" d="M668 595 Q614 502 755 699"/>
+<path class="e" d="M668 595 Q614 502 748 703"/>
+<path class="e" d="M668 595 Q614 502 742 707"/>
+<path class="e" d="M668 595 Q614 502 735 711"/>
+<path class="e" d="M668 595 Q614 502 729 714"/>
+<path class="e" d="M668 595 Q614 502 722 718"/>
+<path class="e" d="M668 595 Q614 502 716 721"/>
+<path class="e" d="M668 595 Q614 502 709 725"/>
+<path class="e" d="M668 595 Q614 502 702 728"/>
+<path class="e" d="M668 595 Q614 502 695 731"/>
+<path class="e" d="M668 595 Q614 502 688 734"/>
+<path class="e" d="M668 595 Q614 502 681 736"/>
+<path class="e" d="M610 487 Q585 448 624 614"/>
+<path class="e" d="M624 614 Q592 512 673 739"/>
+<path class="e" d="M624 614 Q592 512 664 742"/>
+<path class="e" d="M624 614 Q592 512 655 745"/>
+<path class="e" d="M610 487 Q585 448 575 623"/>
+<path class="e" d="M575 623 Q567 517 647 747"/>
+<path class="e" d="M575 623 Q567 517 640 749"/>
+<path class="e" d="M575 623 Q567 517 632 750"/>
+<path class="e" d="M575 623 Q567 517 625 752"/>
+<path class="e" d="M575 623 Q567 517 618 753"/>
+<path class="e" d="M575 623 Q567 517 610 754"/>
+<path class="e" d="M575 623 Q567 517 603 755"/>
+<path class="e" d="M575 623 Q567 517 595 756"/>
+<path class="e" d="M575 623 Q567 517 588 757"/>
+<path class="e" d="M575 623 Q567 517 580 757"/>
+<path class="e" d="M575 623 Q567 517 573 758"/>
+<path class="e" d="M575 623 Q567 517 565 758"/>
+<path class="e" d="M575 623 Q567 517 558 758"/>
+<path class="e" d="M575 623 Q567 517 550 758"/>
+<path class="e" d="M575 623 Q567 517 543 758"/>
+<path class="e" d="M575 623 Q567 517 535 757"/>
+<path class="e" d="M575 623 Q567 517 528 757"/>
+<path class="e" d="M575 623 Q567 517 520 756"/>
+<path class="e" d="M630 69 Q595 240 733 108"/>
+<path class="e" d="M630 69 Q595 240 733 108"/>
+<path class="e" d="M630 69 Q595 240 733 108"/>
+<path class="e" d="M733 108 Q646 259 608 65"/>
+<path class="e" d="M733 108 Q646 259 608 65"/>
+<path class="e" d="M733 108 Q646 259 608 65"/>
+<circle class="n g" cx="610.4" cy="487.0" r="6.5"/>
+<circle class="n g" cx="655.1" cy="744.8" r="3.2"/>
+<circle class="n c" cx="488.2" cy="352.4" r="6.5"/>
+<circle class="n c" cx="249.4" cy="253.0" r="3.2"/>
+<circle class="n c" cx="506.5" cy="335.1" r="6.5"/>
+<circle class="n c" cx="508.1" cy="334.1" r="6.5"/>
+<circle class="n l" cx="523.6" cy="325.5" r="6.5"/>
+<circle class="n l" cx="540.5" cy="320.1" r="6.5"/>
+<circle class="n t" cx="549.7" cy="318.6" r="6.5"/>
+<circle class="n t" cx="559.1" cy="318.0" r="6.5"/>
+<circle class="n g" cx="629.5" cy="69.0" r="3.2"/>
+<circle class="n g" cx="732.5" cy="107.8" r="3.2"/>
+<circle class="n g" cx="607.7" cy="65.3" r="3.2"/>
+<circle class="n g" cx="531.2" cy="622.1" r="3.2"/>
+<circle class="n g" cx="571.0" cy="62.2" r="3.2"/>
+<circle class="n g" cx="643.9" cy="72.3" r="3.2"/>
+<circle class="n g" cx="821.5" cy="180.4" r="3.2"/>
+<circle class="n g" cx="890.9" cy="517.8" r="3.2"/>
+<circle class="n g" cx="526.9" cy="621.4" r="3.2"/>
+<circle class="n g" cx="816.5" cy="174.8" r="3.2"/>
+<circle class="n g" cx="527.9" cy="756.5" r="3.2"/>
+<circle class="n l" cx="442.9" cy="230.9" r="3.2"/>
+<circle class="n l" cx="446.8" cy="228.4" r="3.2"/>
+<circle class="n g" cx="522.6" cy="620.7" r="3.2"/>
+<circle class="n g" cx="518.3" cy="619.9" r="3.2"/>
+<circle class="n g" cx="881.2" cy="276.1" r="3.2"/>
+<circle class="n g" cx="811.7" cy="650.3" r="3.2"/>
+<circle class="n g" cx="885.7" cy="532.6" r="3.2"/>
+<circle class="n l" cx="450.7" cy="226.0" r="3.2"/>
+<circle class="n l" cx="454.7" cy="223.7" r="3.2"/>
+<circle class="n t" cx="519.2" cy="199.9" r="3.2"/>
+<circle class="n t" cx="524.0" cy="199.0" r="3.2"/>
+<circle class="n g" cx="514.0" cy="619.0" r="3.2"/>
+<circle class="n g" cx="509.7" cy="618.0" r="3.2"/>
+<circle class="n c" cx="636.7" cy="70.6" r="3.2"/>
+<circle class="n g" cx="791.4" cy="669.9" r="3.2"/>
+<circle class="n g" cx="901.7" cy="343.9" r="3.2"/>
+<circle class="n c" cx="758.6" cy="124.2" r="3.2"/>
+<circle class="n g" cx="505.5" cy="616.9" r="3.2"/>
+<circle class="n g" cx="501.3" cy="615.8" r="3.2"/>
+<circle class="n g" cx="624.9" cy="751.9" r="3.2"/>
+<circle class="n g" cx="617.5" cy="753.2" r="3.2"/>
+<circle class="n g" cx="497.1" cy="614.5" r="3.2"/>
+<circle class="n c" cx="878.0" cy="268.8" r="3.2"/>
+<circle class="n c" cx="791.6" cy="150.2" r="3.2"/>
+<circle class="n g" cx="903.1" cy="352.1" r="3.2"/>
+<circle class="n c" cx="411.4" cy="256.0" r="3.2"/>
+<circle class="n g" cx="492.9" cy="613.2" r="3.2"/>
+<circle class="n t" cx="528.8" cy="198.3" r="3.2"/>
+<circle class="n g" cx="864.9" cy="577.8" r="3.2"/>
+<circle class="n g" cx="488.8" cy="611.8" r="3.2"/>
+<circle class="n g" cx="765.3" cy="129.0" r="3.2"/>
+<circle class="n g" cx="484.7" cy="610.3" r="3.2"/>
+<circle class="n g" cx="480.6" cy="608.7" r="3.2"/>
+<circle class="n g" cx="476.6" cy="607.1" r="3.2"/>
+<circle class="n g" cx="472.6" cy="605.3" r="3.2"/>
+<circle class="n g" cx="806.0" cy="656.1" r="3.2"/>
+<circle class="n g" cx="833.0" cy="625.8" r="3.2"/>
+<circle class="n g" cx="468.6" cy="603.5" r="3.2"/>
+<circle class="n c" cx="798.6" cy="156.6" r="3.2"/>
+<circle class="n c" cx="257.4" cy="238.2" r="3.2"/>
+<circle class="n g" cx="464.7" cy="601.6" r="3.2"/>
+<circle class="n l" cx="458.8" cy="221.5" r="3.2"/>
+<circle class="n l" cx="462.8" cy="219.3" r="3.2"/>
+<circle class="n l" cx="467.0" cy="217.3" r="3.2"/>
+<circle class="n l" cx="471.1" cy="215.3" r="3.2"/>
+<circle class="n l" cx="475.3" cy="213.5" r="3.2"/>
+<circle class="n l" cx="479.6" cy="211.7" r="3.2"/>
+<circle class="n g" cx="593.1" cy="63.6" r="3.2"/>
+<circle class="n g" cx="460.8" cy="599.6" r="3.2"/>
+<circle class="n g" cx="831.2" cy="191.9" r="3.2"/>
+<circle class="n g" cx="906.5" cy="442.6" r="3.2"/>
+<circle class="n g" cx="745.2" cy="115.3" r="3.2"/>
+<circle class="n g" cx="456.9" cy="597.5" r="3.2"/>
+<circle class="n g" cx="453.1" cy="595.4" r="3.2"/>
+<circle class="n g" cx="622.3" cy="67.6" r="3.2"/>
+<circle class="n g" cx="907.1" cy="434.7" r="3.2"/>
+<circle class="n g" cx="563.7" cy="62.0" r="3.2"/>
+<circle class="n g" cx="907.6" cy="393.2" r="3.2"/>
+<circle class="n g" cx="907.6" cy="426.4" r="3.2"/>
+<circle class="n g" cx="784.6" cy="675.8" r="3.2"/>
+<circle class="n g" cx="449.4" cy="593.2" r="3.2"/>
+<circle class="n g" cx="681.1" cy="736.2" r="3.2"/>
+<circle class="n g" cx="445.7" cy="590.9" r="3.2"/>
+<circle class="n g" cx="688.2" cy="733.5" r="3.2"/>
+<circle class="n g" cx="895.3" cy="316.8" r="3.2"/>
+<circle class="n g" cx="897.7" cy="326.0" r="3.2"/>
+<circle class="n g" cx="615.0" cy="66.4" r="3.2"/>
+<circle class="n g" cx="442.0" cy="588.5" r="3.2"/>
+<circle class="n g" cx="600.4" cy="64.4" r="3.2"/>
+<circle class="n g" cx="438.4" cy="586.1" r="3.2"/>
+<circle class="n g" cx="726.1" cy="104.2" r="3.2"/>
+<circle class="n g" cx="434.8" cy="583.6" r="3.2"/>
+<circle class="n g" cx="585.8" cy="63.0" r="3.2"/>
+<circle class="n g" cx="431.3" cy="581.0" r="3.2"/>
+<circle class="n g" cx="427.8" cy="578.3" r="3.2"/>
+<circle class="n g" cx="424.4" cy="575.6" r="3.2"/>
+<circle class="n g" cx="421.1" cy="572.8" r="3.2"/>
+<circle class="n g" cx="847.6" cy="606.0" r="3.2"/>
+<circle class="n g" cx="417.8" cy="569.9" r="3.2"/>
+<circle class="n g" cx="842.8" cy="612.8" r="3.2"/>
+<circle class="n g" cx="414.5" cy="567.0" r="3.2"/>
+<circle class="n g" cx="411.4" cy="563.9" r="3.2"/>
+<circle class="n g" cx="408.2" cy="560.9" r="3.2"/>
+<circle class="n g" cx="405.2" cy="557.8" r="3.2"/>
+<circle class="n g" cx="402.2" cy="554.6" r="3.2"/>
+<circle class="n g" cx="399.3" cy="551.3" r="3.2"/>
+<circle class="n g" cx="535.3" cy="757.1" r="3.2"/>
+<circle class="n g" cx="868.8" cy="570.5" r="3.2"/>
+<circle class="n g" cx="396.4" cy="548.0" r="3.2"/>
+<circle class="n g" cx="393.7" cy="544.6" r="3.2"/>
+<circle class="n g" cx="390.9" cy="541.2" r="3.2"/>
+<circle class="n g" cx="388.3" cy="537.7" r="3.2"/>
+<circle class="n g" cx="385.7" cy="534.2" r="3.2"/>
+<circle class="n g" cx="811.3" cy="169.3" r="3.2"/>
+<circle class="n g" cx="826.4" cy="186.1" r="3.2"/>
+<circle class="n g" cx="738.9" cy="111.5" r="3.2"/>
+<circle class="n g" cx="646.9" cy="747.0" r="3.2"/>
+<circle class="n g" cx="639.6" cy="748.8" r="3.2"/>
+<circle class="n g" cx="520.4" cy="755.7" r="3.2"/>
+<circle class="n g" cx="383.2" cy="530.6" r="3.2"/>
+<circle class="n g" cx="632.3" cy="750.4" r="3.2"/>
+<circle class="n c" cx="578.4" cy="62.5" r="3.2"/>
+<circle class="n c" cx="253.3" cy="245.5" r="3.2"/>
+<circle class="n c" cx="414.7" cy="252.9" r="3.2"/>
+<circle class="n g" cx="907.1" cy="385.0" r="3.2"/>
+<circle class="n g" cx="906.4" cy="376.7" r="3.2"/>
+<circle class="n g" cx="380.8" cy="527.0" r="3.2"/>
+<circle class="n g" cx="751.7" cy="119.6" r="3.2"/>
+<circle class="n g" cx="378.5" cy="523.3" r="3.2"/>
+<circle class="n g" cx="784.9" cy="144.4" r="3.2"/>
+<circle class="n g" cx="888.4" cy="525.1" r="3.2"/>
+<circle class="n g" cx="376.2" cy="519.6" r="3.2"/>
+<circle class="n c" cx="418.1" cy="249.8" r="3.2"/>
+<circle class="n c" cx="421.5" cy="246.8" r="3.2"/>
+<circle class="n c" cx="425.0" cy="243.9" r="3.2"/>
+<circle class="n c" cx="307.0" cy="171.1" r="3.2"/>
+<circle class="n c" cx="245.8" cy="260.5" r="3.2"/>
+<circle class="n c" cx="428.6" cy="241.1" r="3.2"/>
+<circle class="n c" cx="312.8" cy="165.1" r="3.2"/>
+<circle class="n l" cx="483.9" cy="210.0" r="3.2"/>
+<circle class="n l" cx="488.2" cy="208.4" r="3.2"/>
+<circle class="n l" cx="492.6" cy="206.9" r="3.2"/>
+<circle class="n l" cx="497.0" cy="205.5" r="3.2"/>
+<circle class="n g" cx="374.0" cy="515.8" r="3.2"/>
+<circle class="n g" cx="371.9" cy="512.0" r="3.2"/>
+<circle class="n g" cx="673.1" cy="739.1" r="3.2"/>
+<circle class="n g" cx="369.8" cy="508.1" r="3.2"/>
+<circle class="n g" cx="367.9" cy="504.2" r="3.2"/>
+<circle class="n g" cx="892.8" cy="308.2" r="3.2"/>
+<circle class="n g" cx="366.0" cy="500.3" r="3.2"/>
+<circle class="n g" cx="364.2" cy="496.3" r="3.2"/>
+<circle class="n g" cx="362.4" cy="492.3" r="3.2"/>
+<circle class="n g" cx="360.8" cy="488.2" r="3.2"/>
+<circle class="n g" cx="359.3" cy="484.1" r="3.2"/>
+<circle class="n g" cx="357.8" cy="480.0" r="3.2"/>
+<circle class="n g" cx="837.9" cy="619.4" r="3.2"/>
+<circle class="n g" cx="356.4" cy="475.9" r="3.2"/>
+<circle class="n t" cx="533.7" cy="197.6" r="3.2"/>
+<circle class="n t" cx="538.6" cy="197.1" r="3.2"/>
+<circle class="n t" cx="543.4" cy="196.6" r="3.2"/>
+<circle class="n t" cx="548.3" cy="196.3" r="3.2"/>
+<circle class="n g" cx="355.1" cy="471.7" r="3.2"/>
+<circle class="n g" cx="353.9" cy="467.5" r="3.2"/>
+<circle class="n g si" cx="699.6" cy="91.2" r="3.2"/>
+<circle class="n g si" cx="874.9" cy="261.9" r="3.2"/>
+<circle class="n g si" cx="352.7" cy="463.3" r="3.2"/>
+<circle class="n c si" cx="266.0" cy="223.9" r="3.2"/>
+<circle class="n g si" cx="706.3" cy="94.3" r="3.2"/>
+<circle class="n g si" cx="351.7" cy="459.1" r="3.2"/>
+<circle class="n g si" cx="350.7" cy="454.8" r="3.2"/>
+<circle class="n g si" cx="349.9" cy="450.5" r="3.2"/>
+<circle class="n g si" cx="349.1" cy="446.2" r="3.2"/>
+<circle class="n g si" cx="879.5" cy="548.0" r="3.2"/>
+<circle class="n g si" cx="348.4" cy="441.9" r="3.2"/>
+<circle class="n g si" cx="849.0" cy="216.1" r="3.2"/>
+<circle class="n g si" cx="557.8" cy="758.0" r="3.2"/>
+<circle class="n g si" cx="844.7" cy="209.9" r="3.2"/>
+<circle class="n c si" cx="275.3" cy="209.9" r="3.2"/>
+<circle class="n g si" cx="904.4" cy="360.2" r="3.2"/>
+<circle class="n g si" cx="679.1" cy="83.0" r="3.2"/>
+<circle class="n g si" cx="887.4" cy="292.0" r="3.2"/>
+<circle class="n g si" cx="651.0" cy="74.1" r="3.2"/>
+<circle class="n g si" cx="772.0" cy="134.0" r="3.2"/>
+<circle class="n g si" cx="658.1" cy="76.1" r="3.2"/>
+<circle class="n g si" cx="722.3" cy="717.8" r="3.2"/>
+<circle class="n g si" cx="347.8" cy="437.6" r="3.2"/>
+<circle class="n g si" cx="835.8" cy="197.8" r="3.2"/>
+<circle class="n g si" cx="692.8" cy="88.4" r="3.2"/>
+<circle class="n g si" cx="719.6" cy="100.7" r="3.2"/>
+<circle class="n g si" cx="908.0" cy="409.8" r="3.2"/>
+<circle class="n g si" cx="347.3" cy="433.2" r="3.2"/>
+<circle class="n g si" cx="346.8" cy="428.9" r="3.2"/>
+<circle class="n l si" cx="501.4" cy="204.2" r="3.2"/>
+<circle class="n g si" cx="346.5" cy="424.5" r="3.2"/>
+<circle class="n g si" cx="346.2" cy="420.2" r="3.2"/>
+<circle class="n g si" cx="897.3" cy="495.7" r="3.2"/>
+<circle class="n g si" cx="907.9" cy="401.5" r="3.2"/>
+<circle class="n g si" cx="346.1" cy="415.8" r="3.2"/>
+<circle class="n g si" cx="715.6" cy="721.3" r="3.2"/>
+<circle class="n g si" cx="572.8" cy="757.8" r="3.2"/>
+<circle class="n g si" cx="741.9" cy="706.7" r="3.2"/>
+<circle class="n g si" cx="893.2" cy="510.5" r="3.2"/>
+<circle class="n g si" cx="587.8" cy="756.9" r="3.2"/>
+<circle class="n g si" cx="805.4" cy="163.2" r="3.2"/>
+<circle class="n g si" cx="852.1" cy="599.1" r="3.2"/>
+<circle class="n g si" cx="346.0" cy="411.4" r="3.2"/>
+<circle class="n g si" cx="822.6" cy="638.3" r="3.2"/>
+<circle class="n g si" cx="856.6" cy="592.1" r="3.2"/>
+<circle class="n g si" cx="346.0" cy="407.1" r="3.2"/>
+<circle class="n g si" cx="840.3" cy="203.8" r="3.2"/>
+<circle class="n g si" cx="735.5" cy="710.5" r="3.2"/>
+<circle class="n g si" cx="728.9" cy="714.2" r="3.2"/>
+<circle class="n c si" cx="301.3" cy="177.2" r="3.2"/>
+<circle class="n g si" cx="346.1" cy="402.7" r="3.2"/>
+<circle class="n g si" cx="817.2" cy="644.4" r="3.2"/>
+<circle class="n g si" cx="595.3" cy="756.2" r="3.2"/>
+<circle class="n g si" cx="346.3" cy="398.3" r="3.2"/>
+<circle class="n g si" cx="610.1" cy="754.4" r="3.2"/>
+<circle class="n g si" cx="778.5" cy="139.1" r="3.2"/>
+<circle class="n g si" cx="882.7" cy="540.4" r="3.2"/>
+<circle class="n g si" cx="754.6" cy="698.5" r="3.2"/>
+<circle class="n g si" cx="903.5" cy="465.5" r="3.2"/>
+<circle class="n g si" cx="346.6" cy="394.0" r="3.2"/>
+<circle class="n g si" cx="884.4" cy="284.0" r="3.2"/>
+<circle class="n g si" cx="602.7" cy="755.4" r="3.2"/>
+<circle class="n g si" cx="861.0" cy="235.3" r="3.2"/>
+<circle class="n g si" cx="347.0" cy="389.6" r="3.2"/>
+<circle class="n c si" cx="270.5" cy="216.8" r="3.2"/>
+<circle class="n c si" cx="280.1" cy="203.2" r="3.2"/>
+<circle class="n g si" cx="708.9" cy="724.6" r="3.2"/>
+<circle class="n g si" cx="580.3" cy="757.4" r="3.2"/>
+<circle class="n g si" cx="799.3" cy="662.7" r="3.2"/>
+<circle class="n g si" cx="778.8" cy="680.6" r="3.2"/>
+<circle class="n g si" cx="827.9" cy="632.1" r="3.2"/>
+<circle class="n g si" cx="347.4" cy="385.3" r="3.2"/>
+<circle class="n g si" cx="348.0" cy="381.0" r="3.2"/>
+<circle class="n g si" cx="664.1" cy="742.1" r="3.2"/>
+<circle class="n g si" cx="853.1" cy="222.4" r="3.2"/>
+<circle class="n g si" cx="348.6" cy="376.6" r="3.2"/>
+<circle class="n g si" cx="868.2" cy="248.4" r="3.2"/>
+<circle class="n g si" cx="550.3" cy="757.9" r="3.2"/>
+<circle class="n g si" cx="349.3" cy="372.3" r="3.2"/>
+<circle class="n l si" cx="505.8" cy="203.0" r="3.2"/>
+<circle class="n g si" cx="686.0" cy="85.6" r="3.2"/>
+<circle class="n g si" cx="760.8" cy="694.2" r="3.2"/>
+<circle class="n g si" cx="695.1" cy="730.7" r="3.2"/>
+<circle class="n g si" cx="542.8" cy="757.6" r="3.2"/>
+<circle class="n g si" cx="871.6" cy="255.1" r="3.2"/>
+<circle class="n g si" cx="350.2" cy="368.0" r="3.2"/>
+<circle class="n g si" cx="857.1" cy="228.8" r="3.2"/>
+<circle class="n g si" cx="351.1" cy="363.8" r="3.2"/>
+<circle class="n g si" cx="904.7" cy="457.9" r="3.2"/>
+<circle class="n g si" cx="872.5" cy="563.1" r="3.2"/>
+<circle class="n g si" cx="876.1" cy="555.6" r="3.2"/>
+<circle class="n g si" cx="352.0" cy="359.5" r="3.2"/>
+<circle class="n g si" cx="702.0" cy="727.7" r="3.2"/>
+<circle class="n g si" cx="353.1" cy="355.3" r="3.2"/>
+<circle class="n g si" cx="864.7" cy="241.8" r="3.2"/>
+<circle class="n g si" cx="713.0" cy="97.4" r="3.2"/>
+<circle class="n g si" cx="665.2" cy="78.3" r="3.2"/>
+<circle class="n g si" cx="354.3" cy="351.1" r="3.2"/>
+<circle class="n g si" cx="766.9" cy="689.8" r="3.2"/>
+<circle class="n c si" cx="290.4" cy="189.9" r="3.2"/>
+<circle class="n g si" cx="890.2" cy="300.1" r="3.2"/>
+<circle class="n c si" cx="261.6" cy="231.0" r="3.2"/>
+<circle class="n c si" cx="295.8" cy="183.5" r="3.2"/>
+<circle class="n g si" cx="907.9" cy="418.1" r="3.2"/>
+<circle class="n g si" cx="772.9" cy="685.3" r="3.2"/>
+<circle class="n g si" cx="355.5" cy="346.9" r="3.2"/>
+<circle class="n g si" cx="672.2" cy="80.6" r="3.2"/>
+<circle class="n t si" cx="553.2" cy="196.1" r="3.2"/>
+<circle class="n g si" cx="899.9" cy="335.2" r="3.2"/>
+<circle class="n g si" cx="899.1" cy="488.2" r="3.2"/>
+<circle class="n g si" cx="356.9" cy="342.7" r="3.2"/>
+<circle class="n g si" cx="358.3" cy="338.6" r="3.2"/>
+<circle class="n g si" cx="895.3" cy="503.1" r="3.2"/>
+<circle class="n g si" cx="359.8" cy="334.5" r="3.2"/>
+<circle class="n g si" cx="565.3" cy="758.0" r="3.2"/>
+<circle class="n l si" cx="510.3" cy="201.9" r="3.2"/>
+<circle class="n g si" cx="748.3" cy="702.7" r="3.2"/>
+<circle class="n g si" cx="905.7" cy="450.3" r="3.2"/>
+<circle class="n c si" cx="285.2" cy="196.5" r="3.2"/>
+<circle class="n g si" cx="361.4" cy="330.4" r="3.2"/>
+<circle class="n g si" cx="905.5" cy="368.5" r="3.2"/>
+<circle class="n g si" cx="900.8" cy="480.7" r="3.2"/>
+<circle class="n g si" cx="902.2" cy="473.1" r="3.2"/>
+<circle class="n g si" cx="363.0" cy="326.4" r="3.2"/>
+<circle class="n g si" cx="860.8" cy="585.0" r="3.2"/>
+<circle class="n g si" cx="620.3" cy="204.7" r="4.6"/>
+<circle class="n g si" cx="688.3" cy="238.7" r="4.6"/>
+<circle class="n g si" cx="706.7" cy="254.2" r="4.6"/>
+<circle class="n g si" cx="737.7" cy="290.8" r="4.6"/>
+<circle class="n c si" cx="384.9" cy="287.0" r="4.6"/>
+<circle class="n g si" cx="761.3" cy="337.4" r="4.6"/>
+<circle class="n g si" cx="767.7" cy="358.3" r="4.6"/>
+<circle class="n g si" cx="772.2" cy="381.9" r="4.6"/>
+<circle class="n g si" cx="774.0" cy="412.4" r="4.6"/>
+<circle class="n g si" cx="769.0" cy="455.8" r="4.6"/>
+<circle class="n g si" cx="755.4" cy="497.2" r="4.6"/>
+<circle class="n g si" cx="741.0" cy="524.1" r="4.6"/>
+<circle class="n g si" cx="721.5" cy="550.4" r="4.6"/>
+<circle class="n g si" cx="704.7" cy="567.6" r="4.6"/>
+<circle class="n g si" cx="667.9" cy="594.8" r="4.6"/>
+<circle class="n g si" cx="624.0" cy="614.2" r="4.6"/>
+<circle class="n g si" cx="574.8" cy="623.5" r="4.6"/>
+<text class="tt" x="617" y="479" text-anchor="start">zfc-axioms</text>
+<text class="tt" x="662" y="737" text-anchor="start">ordinals</text>
+<text class="tt" x="481" y="344" text-anchor="end">cat-basics</text>
+<text class="tt" x="242" y="245" text-anchor="end">functors</text>
+<text class="tt" x="500" y="327" text-anchor="end">nat-trans</text>
+<text class="tt" x="501" y="326" text-anchor="end">limits</text>
+<text class="tt" x="524" y="318" text-anchor="middle">fol-deduction</text>
+<text class="tt" x="541" y="312" text-anchor="middle">fol-metatheory</text>
+<text class="tt" x="550" y="311" text-anchor="middle">cic</text>
+<text class="tt" x="559" y="310" text-anchor="middle">lean-kernel</text>
+<text class="lb" x="627" y="197" text-anchor="start">algebra</text>
+<text class="lb" x="695" y="231" text-anchor="start">algebraicgeometry</text>
+<text class="lb" x="714" y="246" text-anchor="start">algebraictopology</text>
+<text class="lb" x="745" y="283" text-anchor="start">analysis</text>
+<text class="lb" x="378" y="279" text-anchor="end">categorytheory</text>
+<text class="lb" x="768" y="329" text-anchor="start">combinatorics</text>
+<text class="lb" x="775" y="350" text-anchor="start">fieldtheory</text>
+<text class="lb" x="779" y="374" text-anchor="start">geometry</text>
+<text class="lb" x="781" y="404" text-anchor="start">grouptheory</text>
+<text class="lb" x="776" y="448" text-anchor="start">linearalgebra</text>
+<text class="lb" x="762" y="489" text-anchor="start">measuretheory</text>
+<text class="lb" x="748" y="516" text-anchor="start">numbertheory</text>
+<text class="lb" x="728" y="542" text-anchor="start">probability</text>
+<text class="lb" x="712" y="560" text-anchor="start">representationtheory</text>
+<text class="lb" x="675" y="587" text-anchor="start">ringtheory</text>
+<text class="lb" x="631" y="606" text-anchor="start">settheory</text>
+<text class="lb" x="575" y="615" text-anchor="middle">topology</text>
+<text class="tt" x="966" y="620">las 9 tácticas, aparte</text>
+<text class="sm" x="966" y="638">453 aristas entran · 0 salen</text>
+<circle class="n t" cx="972" cy="660" r="3.2"/>
+<text class="sm" x="982" y="664">aesop</text>
+<circle class="n t" cx="972" cy="673" r="3.2"/>
+<text class="sm" x="982" y="677">apply</text>
+<circle class="n t" cx="972" cy="686" r="3.2"/>
+<text class="sm" x="982" y="690">calc</text>
+<circle class="n t" cx="972" cy="699" r="3.2"/>
+<text class="sm" x="982" y="703">exact</text>
+<circle class="n t" cx="972" cy="712" r="3.2"/>
+<text class="sm" x="982" y="716">induction</text>
+<circle class="n t" cx="972" cy="725" r="3.2"/>
+<text class="sm" x="982" y="729">omega</text>
+<circle class="n t" cx="972" cy="738" r="3.2"/>
+<text class="sm" x="982" y="742">rewrite</text>
+<circle class="n t" cx="972" cy="751" r="3.2"/>
+<text class="sm" x="982" y="755">ring</text>
+<circle class="n t" cx="972" cy="764" r="3.2"/>
+<text class="sm" x="982" y="768">simp</text>
+<circle class="n g" cx="972" cy="58" r="4"/>
+<text class="sm" x="982" y="62">SET  246</text>
+<circle class="n c" cx="972" cy="77" r="4"/>
+<text class="sm" x="982" y="81">CAT  31</text>
+<circle class="n l" cx="972" cy="96" r="4"/>
+<text class="sm" x="982" y="100">LOG  19</text>
+<circle class="n t" cx="972" cy="115" r="4"/>
+<text class="sm" x="982" y="119">TYPE 10</text>
+<circle class="n g si" cx="972" cy="142" r="4"/>
+<text class="sm" x="982" y="146">142 sin interpretar</text>
+<circle class="n g" cx="972" cy="161" r="4.6"/>
+<text class="sm" x="982" y="165">17 de área, que cosen</text>
+<text class="tt" x="966" y="196">315 nodos · 1917 morfismos</text>
+<text class="sm" x="966" y="214">se dibujan 1127 dependencias</text>
 </svg>

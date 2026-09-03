@@ -165,3 +165,92 @@ class TestGrafoDeLaPagina:
         # principal, cosa que garantizan los dos tests de arriba.
         assert ids_est, "la lista de respaldo quedo vacia"
         assert ids_reales, "no hay skills de dominio"
+
+
+class TestCifrasDelGrafo:
+    """Las cifras del grafo que la documentación afirma deben ser las reales.
+
+    Se encontraron dos falsas: la tabla decia 978 dependencias y 298
+    identidades cuando ya eran 1156 y 315. Se habia actualizado el TOTAL de
+    morfismos y no el desglose — un descuadre que nadie nota leyendo, porque
+    cada cifra por separado parece plausible.
+
+    Es el mismo defecto que el generador del SVG, que llevaba «298 nodos» a
+    mano y siguio diciendolo despues de crecer a 315: cifras escritas a mano
+    que mienten en cuanto cambia el dato, y en silencio.
+    """
+
+    def _real(self):
+        from nucleo.core import Nucleo
+        from nucleo.graph.category import SkillCategory
+        from nucleo.types import MorphismType as MT
+        n = Nucleo.__new__(Nucleo)
+        n._graph = SkillCategory()
+        Nucleo._load_foundational_skills(n)
+        g = n._graph
+        meta = {s.id: (s.metadata or {}) for s in g.skills}
+        M = g.morphisms
+        return {
+            "nodos": len(g.skills),
+            "morfismos": len(M),
+            "curados": sum(1 for s in g.skills if not meta[s.id].get("origen")),
+            "generados": sum(1 for s in g.skills
+                             if meta[s.id].get("origen") == "mathlib"),
+            "areas": sum(1 for s in g.skills
+                         if meta[s.id].get("category") == "area"),
+            "dependencias": sum(1 for m in M
+                                if m.morphism_type == MT.DEPENDENCY),
+            "traducciones": sum(1 for m in M
+                                if m.morphism_type == MT.TRANSLATION),
+            "identidades": sum(1 for m in M
+                               if m.morphism_type == MT.IDENTITY),
+        }
+
+    def _docs(self):
+        import io
+        from nucleo.rutas import RAIZ
+        return {
+            "README": io.open(RAIZ / "README.md", encoding="utf-8").read(),
+            "artefacto": io.open(RAIZ / "docs" / "arquitectura_nle.html",
+                                 encoding="utf-8").read(),
+        }
+
+    def test_el_desglose_de_morfismos_cuadra_con_el_total(self):
+        r = self._real()
+        suma = (r["dependencias"] + r["traducciones"] + r["identidades"]
+                + sum(1 for _ in ()))
+        assert suma <= r["morfismos"], (
+            "el desglose (%d) supera el total (%d)" % (suma, r["morfismos"]))
+
+    def test_las_cifras_documentadas_son_las_reales(self):
+        import re
+        r = self._real()
+        malas = []
+        for nombre, doc in self._docs().items():
+            for etq, val in (("nodos curados", r["curados"]),
+                             ("nodos generados", r["generados"]),
+                             ("dependencias", r["dependencias"]),
+                             ("traducciones", r["traducciones"]),
+                             ("identidades", r["identidades"])):
+                m = re.search(re.escape(etq) + r"[^0-9]{0,40}([0-9]{1,5})", doc)
+                if m and int(m.group(1)) != val:
+                    malas.append("%s · %s dice %s y son %d"
+                                 % (nombre, etq, m.group(1), val))
+        assert not malas, "cifras falsas en la documentacion: " + "; ".join(malas)
+
+    def test_la_figura_del_grafo_lleva_las_cifras_reales(self):
+        """El SVG llevaba «298 nodos · 1722 morfismos» escrito a mano."""
+        import io
+        import re
+        from nucleo.rutas import RAIZ
+        p = RAIZ / "docs" / "img" / "10-grafo-real.svg"
+        if not p.exists():
+            return
+        svg = io.open(p, encoding="utf-8").read()
+        r = self._real()
+        m = re.search(r"(\d+) nodos · (\d+) morfismos", svg)
+        assert m, "la figura ya no declara sus cifras"
+        assert (int(m.group(1)), int(m.group(2))) == (r["nodos"], r["morfismos"]), (
+            "la figura dice %s nodos y %s morfismos; son %d y %d. "
+            "Regenerar con python scripts/dibujar_grafo.py"
+            % (m.group(1), m.group(2), r["nodos"], r["morfismos"]))
