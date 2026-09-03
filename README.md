@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-812_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-820_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -345,9 +345,51 @@ Todas sin API salvo la última.
 
 ---
 
+### La sintaxis dice qué hechos hacen falta
+
+Lo que este repositorio llamaba «sintaxis» no lo era: eran n-gramas de 1 a 4
+caracteres sobre el texto sin palabras. Una bolsa de fragmentos de símbolos no
+sabe cuál es la relación principal del enunciado, ni si hay cuantificadores, ni
+qué es hipótesis y qué es tesis.
+
+La relación sintaxis–semántica sí se puede medir aquí sin metáforas, porque hay
+las dos mitades: **el enunciado en Lean** es un objeto puramente simbólico, y
+**los lemas que su prueba usó** son lo que hizo falta en el universo matemático.
+22 117 pares, 100 lemas con suficientes ejemplos:
+
+| | rasgos | cobertura | acierta alguno |
+|---|---|---|---|
+| modelo nulo — los 6 más citados | — | 56,6 % | 80,3 % |
+| n-gramas de caracteres | 40 000 | 76,8 % | 94,7 % |
+| **estructura sintáctica** | **68** | **76,3 %** | **94,9 %** |
+| **las dos juntas** | 40 068 | **80,9 %** | **96,8 %** |
+
+**Sesenta y ocho rasgos igualan a cuarenta mil**, y juntos suman cuatro puntos:
+no son la misma información. Los n-gramas estaban aproximando la estructura de
+forma cara e ilegible.
+
+Y lo que se aprende se lee, que es lo que una bolsa de n-gramas no da nunca:
+
+| lema | el rasgo **sintáctico** que lo predice | qué dice |
+|---|---|---|
+| `sq_nonneg` | relación principal `≤`/`≥` (+2,92) · **en contra** `=` (−2,54) | los cuadrados sirven para desigualdades, no para igualdades |
+| `mul_pos` | `<` o `>` **en las hipótesis** (+2,90) | hace falta cuando el signo viene supuesto |
+| `Real.sqrt_nonneg` | `√` en la conclusión (+1,67) · en contra tipo `ℤ` (−1,92) | no hay raíces sobre los enteros |
+| `mul_comm` | tipo `ℂ` y relación `=` · en contra `¬` y `%` | no es lo que se usa en aritmética modular |
+
+**Las advertencias, porque el número solo engaña.** El corpus es `lean_workbook`
+y está dominado por desigualdades: `sq_nonneg` aparece en el 72 % de las
+pruebas, y por eso el modelo nulo ya llega al 56,6 %. Esto mide *recuperar
+premisas*, no *cerrar pruebas*. Y son 100 lemas de los 809 que aparecen — los
+que tienen al menos 30 ejemplos.
+
+**Todavía no está en el camino.** Es una medición, no una pieza conectada.
+
+---
+
 ## 7. Tests y guardianes
 
-**812 tests en 38 suites.** Los que más valen no comprueban que el código
+**820 tests en 39 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -467,7 +509,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    812 tests en 38 suites
+tests/                    820 tests en 39 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

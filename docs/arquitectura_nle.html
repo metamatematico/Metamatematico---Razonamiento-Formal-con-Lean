@@ -204,7 +204,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
   <p class="toc-foot">
     320 nodos · 1349 morfismos<br>
     183 433 hechos indexados<br>
-    812 tests · 38 suites
+    820 tests · 39 suites
   </p>
 </nav>
 
@@ -222,7 +222,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
       <div><div class="n">320</div><div class="l">nodos en el grafo</div></div>
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">21 446</div><div class="l">aristas del DAG oficial</div></div>
-      <div><div class="n">812</div><div class="l">tests en verde</div></div>
+      <div><div class="n">820</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -1610,7 +1610,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
     <pre>57/58  operaciones del Python con teorema Lean que las respalda
     0  sorry en todo el corpus (preguntado al compilador, no con grep)
   385  teoremas en 21 archivos Lean
-  812  tests en 38 suites</pre>
+  820  tests en 39 suites</pre>
     <p><code>collectAxioms</code> confirma que ninguna constante depende de
     <code>sorryAx</code>.</p>
   </section>
@@ -1639,6 +1639,36 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
       <div class="paso"><div class="et">medido</div><p>Búsqueda plana 43,9 %, descenso anclado en pilares 11,8 %, embeddings 11,9 % — los tres por debajo del 79,4 % de decir siempre «álgebra».</p></div>
       <div class="paso"><div class="et">la causa</div><p>Para <code>(a+b)² = a²+2ab+b²</code> <strong>no existía el nodo</strong>. Las 35 skills de álgebra eran todas álgebra abstracta. Ningún emparejador recupera lo que no está.</p></div>
       <div class="paso"><div class="et">y el juez</div><p>Además MATH es 79 % álgebra escolar contra una ontología de investigación. Tres mediciones se hicieron contra el juez equivocado antes de notarlo.</p></div>
+    </div>
+
+    <div class="nota v">
+      <b>La sintaxis dice qué hechos hacen falta, y con 68 rasgos</b>
+      Lo que este sistema llamaba «sintaxis» no lo era: n-gramas de 1 a 4
+      caracteres sobre el texto sin palabras. Una bolsa de fragmentos de
+      símbolos no sabe cuál es la relación principal, ni qué es hipótesis y qué
+      es tesis.
+      <br><br>La relación sintaxis–semántica sí se mide aquí sin metáforas: el
+      <strong>enunciado en Lean</strong> es un objeto puramente simbólico y los
+      <strong>lemas que su prueba usó</strong> son lo que hizo falta en el
+      universo matemático. 22 117 pares:
+      <pre>                        rasgos   cobertura   acierta alguno
+nulo, los 6 más citados      —      56,6 %        80,3 %
+n-gramas de caracteres   40 000     76,8 %        94,7 %
+ESTRUCTURA                   68     76,3 %        94,9 %
+las dos juntas           40 068     80,9 %        96,8 %</pre>
+      <strong>Sesenta y ocho rasgos igualan a cuarenta mil</strong>, y juntos
+      suman cuatro puntos: no son la misma información.
+      <br><br>Y lo aprendido se lee. <code>sq_nonneg</code> se predice con
+      <code>+2,92</code> cuando la relación principal es <code>≤</code> y con
+      <code>−2,54</code> cuando es <code>=</code> —los cuadrados sirven para
+      desigualdades, no para igualdades—; <code>mul_pos</code> por un
+      <code>&lt;</code> <em>en las hipótesis</em>; <code>Real.sqrt_nonneg</code>
+      por <code>√</code> en la conclusión y en contra del tipo <code>ℤ</code>.
+      <br><br><b>Las advertencias:</b> el corpus es <code>lean_workbook</code>,
+      dominado por desigualdades —<code>sq_nonneg</code> está en el 72 % de las
+      pruebas, y por eso el nulo ya llega al 56,6 %—. Mide recuperar premisas,
+      no cerrar pruebas. Y <strong>todavía no está en el camino</strong>: es una
+      medición, no una pieza conectada.
     </div>
 
     <div class="defecto">

@@ -1,0 +1,25 @@
+{
+ "enunciados": 22117,
+ "lemas_aprendibles": 100,
+ "k": 6,
+ "minimo_ejemplos": 30,
+ "rasgos_estructura": 68,
+ "resultados": {
+  "nulo": [
+   56.62,
+   80.27
+  ],
+  "n-gramas": [
+   76.84,
+   94.69
+  ],
+  "ESTRUCTURA": [
+   76.29,
+   94.89
+  ],
+  "las dos": [
+   80.94,
+   96.79
+  ]
+ }
+}
