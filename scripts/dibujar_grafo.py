@@ -73,13 +73,19 @@ def main(_):
            and m.source_id in pos and m.target_id in pos
            and m.source_id not in cob and m.target_id not in cob]
 
-    p = ['<svg viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg" '
-         'role="img" aria-label="El grafo del runtime: 298 nodos repartidos en '
-         'cuatro sectores, uno por pilar fundacional, con las bases al centro y '
-         'las sub-ramas fuera. Los nodos generados desde Mathlib van en tono '
-         'mas claro porque no estan interpretados. Las nueve tacticas se '
-         'dibujan aparte abajo porque son sumideros: reciben 453 aristas y no '
-         'emiten ninguna.">' % (W, H)]
+    # La descripcion accesible tambien lleva las cifras CALCULADAS: escritas a
+    # mano mienten en cuanto el grafo cambia, y ademas en silencio — es lo que
+    # paso con «298 nodos · 1722 morfismos», que el dibujo siguio diciendo
+    # despues de que el grafo creciera a 315 y 1917.
+    aria = ("El grafo del runtime: %d nodos repartidos en cuatro sectores, uno "
+            "por pilar fundacional, con las bases al centro y las sub-ramas "
+            "hacia fuera. Los %d nodos generados desde Mathlib van en tono mas "
+            "claro porque no estan interpretados categoricamente. Las %d "
+            "tacticas se dibujan aparte abajo porque son sumideros: reciben "
+            "aristas y no emiten ninguna."
+            % (len(S), len(cob), len(tac)))
+    p = ['<svg xmlns="http://www.w3.org/2000/svg" role="img" '
+         'aria-label="%s" viewBox="0 0 %d %d">' % (aria, W, H)]
     # EL SVG LLEVA SU PROPIO COLOR, y para los dos temas.
     #
     # Se usa dentro del artefacto (inline, donde heredaria los tokens) pero
@@ -147,8 +153,12 @@ def main(_):
     p.append('<circle class="n g cob" cx="866" cy="%d" r="4"/>' % (60 + 4 * 19))
     p.append('<text class="sm" x="876" y="%d">%d generados, sin interpretar</text>'
              % (64 + 4 * 19, len(cob)))
-    p.append('<text class="tt" x="860" y="%d">298 nodos · 1722 morfismos</text>'
-             % (60 + 6 * 19))
+    # CALCULADO, no escrito a mano. Estaba fijo en «298 nodos · 1722
+    # morfismos» y el dibujo siguio diciendolo despues de que el grafo creciera
+    # a 315 y 1917. Una figura con cifras a mano miente en cuanto cambia el
+    # dato, y ademas en silencio.
+    p.append('<text class="tt" x="860" y="%d">%d nodos · %d morfismos</text>'
+             % (60 + 6 * 19, len(S), len(g.morphisms)))
     p.append('<text class="sm" x="860" y="%d">se dibujan las %d dependencias '
              'entre curados</text>' % (60 + 7 * 19 - 4, len(dep)))
     p.append("</svg>")

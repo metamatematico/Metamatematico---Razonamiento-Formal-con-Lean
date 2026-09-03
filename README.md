@@ -5,7 +5,7 @@
 [![Tests](https://img.shields.io/badge/Tests-784_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
-[![Grafo](https://img.shields.io/badge/Grafo-298_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
+[![Grafo](https://img.shields.io/badge/Grafo-315_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
@@ -71,7 +71,7 @@ negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
 |  | el grafo | la lista |
 |---|---|---|
 | **qué guarda** | conceptos — *de qué habla* | hechos — *qué es cierto* |
-| **tamaño** | 298 nodos | 183 433 entradas |
+| **tamaño** | 315 nodos | 183 433 entradas |
 | **cómo se hizo** | 173 a mano + 125 generados | extraída del fuente, entera |
 | **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
 | **estructura** | categórica: colímites, orden, pilares | plana, indexada |
@@ -103,6 +103,7 @@ hechos. **La lista existe para cubrir esa mitad.**
 | pieza | cuántos | qué es |
 |---|---|---|
 | nodos curados | 173 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
+| nodos de área | 17 | leídos del anidamiento de módulos. Cosen los dos grafos: `Algebra`, `Topology`, `RingTheory`… |
 | nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
 | dependencias | 978 | prerrequisitos. Las de los generados salen del DAG de imports |
 | traducciones | 439 | entre pilares — Curry-Howard, conjuntos↔categorías |
@@ -123,6 +124,35 @@ Es una categoría-error del mismo tipo que se corrigió con la homología. Una
 táctica no es una *cosa*, es una transformación de estado de prueba: como nodo
 es un sumidero, como flecha compondría y tendría dominio y codominio.
 **Identificado y sin arreglar.**
+
+### Eran dos grafos, y ahora son uno
+
+Medido: **cero aristas** entre los 173 curados y los 125 generados, sin contar
+el enganche al pilar. `mathlib-linearalgebra-basis` alcanzaba 81 nodos hacia
+arriba y **ni uno era curado** — no pasaba por `linear-algebra`, ni por
+`module-theory`, ni por `ring-theory`, que existen.
+
+La jerarquía ya estaba escrita en el **anidamiento de módulos** de Mathlib, y va
+de lo general a lo especial — la misma dirección que el grafo curado seguía con
+`group-theory → ring-theory → field-theory`.
+
+```
+                              antes    después
+aristas que cruzan                0         88
+generados con ancestro común   0/125    124/125
+la lógica alcanza               158     284 de 315
+```
+
+Y faltaba **`fol-deduction → zfc-axioms`**: ZFC es una teoría de primer orden,
+sus axiomas son fórmulas de primer orden con igualdad. Sin esa arista, media
+matemática del grafo no tenía la lógica detrás. Una arista en vez de
+trescientas. Es *curada*, no derivada — Mathlib no construye ZFC sobre
+`Logic.Basic`.
+
+**Lo que el esqueleto no da:** generados y curados son *hermanos* bajo un área,
+no descendientes. La profundidad del módulo no ordena la generalidad —
+`LinearAlgebra.Basis` está a profundidad 2 y `LinearAlgebra.Matrix.Defs` a 3, y
+sin embargo el álgebra lineal es más general que la noción de base.
 
 ### El grafo tiene ciclos, y no son de la matemática
 
@@ -230,6 +260,8 @@ lo mismo acierta el 79 %.
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
 | Elección de imports<br><sub>40 enunciados, Lean como juez</sub> | 90 % elabora | 90 % | **inerte** |
 | Banco de fidelidad<br><sub>24 consultas, juez ciego al veredicto</sub> | 21/24 | — | **0 infieles** |
+| Nombres de los nodos generados<br><sub>447 identificadores con `#check`</sub> | 346 existen | — | **95 no existen** |
+| Poda por área antes de elegir<br><sub>con localización perfecta — el techo</sub> | 6,8 % | 9,8 % | **no llega al nulo** |
 
 ```bash
 python scripts/recuperacion_contra_proofnet.py    # vocabulario
@@ -293,10 +325,39 @@ plana 43,9 %, descenso anclado en pilares 11,8 %, embeddings 11,9 % — los tres
 por debajo del 79,4 % de decir siempre «álgebra». Para `(a+b)² = a²+2ab+b²`
 **no existía el nodo**: las 35 skills de álgebra eran todas álgebra abstracta.
 
+**Podar por área tampoco sirve, ni acertando el área.** Con localización
+*perfecta* la cobertura sube de 6,0 % a 6,8 %; el modelo nulo da 9,8 %. Afinar
+a sub-área empeora: el espacio se divide por cuarenta, el techo sube 0,3 puntos
+y acertar es la mitad de fácil. Y una sospecha mía era falsa — el **77,1 %** de
+las premisas está en la misma área que el teorema, así que la poda no tira lo
+que hace falta: simplemente no ayuda.
+
+**95 de los 447 nombres generados no existen en Mathlib.** Estaban *deducidos*
+de la ruta del módulo; el filtro dejaba pasar `Basic` —un nombre de fichero—
+igual que `Polynomial` —un tipo—. Sólo Lean distingue. Cuatro nodos se quedan
+sin ningún nombre válido.
+
 **La recuperación de lemas por contenido pierde contra la moda.** Sobre 23 243
 pruebas reales: contenido 0,6 % de cobertura, ofrecer siempre los 20 lemas más
 citados, 77 %. `sq_nonneg` no aparece en el enunciado ni tiene por qué — es una
 *herramienta*, no un concepto del que el problema hable.
+
+---
+
+### El bucle que no cuesta dinero
+
+El modelo formaliza una consulta **una vez**, se graba, y todo lo que el sistema
+hace después —imports, reparación, cascada, premisas— se reejecuta con Lean de
+juez y coste cero.
+
+```bash
+METAMAT_GRABAR=1 python -m nucleo chat     # graba mientras trabajas
+python scripts/replay.py                   # reproduce, sin API
+```
+
+La frontera está donde tiene que estar: se graba el código del LLM *antes* de
+que Lean lo vea. Si el gancho se moviera detrás, el replay mediría el sistema
+contra su propia salida — hay un test que lo impide.
 
 ---
 

@@ -1,4 +1,4 @@
-<svg viewBox="0 0 1100 780" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El grafo del runtime: 298 nodos repartidos en cuatro sectores, uno por pilar fundacional, con las bases al centro y las sub-ramas fuera. Los nodos generados desde Mathlib van en tono mas claro porque no estan interpretados. Las nueve tacticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna.">
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El grafo del runtime: 315 nodos repartidos en cuatro sectores, uno por pilar fundacional, con las bases al centro y las sub-ramas hacia fuera. Los 125 nodos generados desde Mathlib van en tono mas claro porque no estan interpretados categoricamente. Las 9 tacticas se dibujan aparte abajo porque son sumideros: reciben aristas y no emiten ninguna." viewBox="0 0 1100 780">
 <style>svg{color:#1b1e17}.e{stroke:currentColor;opacity:.13;fill:none}.n{stroke:none}.g{fill:#564c9e}.c{fill:#167a68}.l{fill:#b4761f}.t{fill:#ae3b35}.cob{opacity:.42}.sm{font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62}.tt{font:600 12px ui-monospace,monospace;fill:currentColor}@media(prefers-color-scheme:dark){svg{color:#e8e6de}.g{fill:#948bdd}.c{fill:#4dc0aa}.l{fill:#e2a94f}.t{fill:#e2827a}.e{opacity:.18}}</style>
 <path class="e" d="M550 322 Q550 322 549 322"/>
 <path class="e" d="M490 422 Q489 421 488 420"/>
@@ -643,6 +643,6 @@
 <text class="sm" x="876" y="121">TYPE 10</text>
 <circle class="n g cob" cx="866" cy="136" r="4"/>
 <text class="sm" x="876" y="140">125 generados, sin interpretar</text>
-<text class="tt" x="860" y="174">298 nodos · 1722 morfismos</text>
+<text class="tt" x="860" y="174">315 nodos · 1917 morfismos</text>
 <text class="sm" x="860" y="189">se dibujan las 297 dependencias entre curados</text>
 </svg>
