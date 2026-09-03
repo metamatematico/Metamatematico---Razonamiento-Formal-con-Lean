@@ -1,0 +1,21 @@
+{
+ "temas": [
+  "math_algebra",
+  "math_counting_and_probability",
+  "math_geometry",
+  "math_intermediate_algebra",
+  "math_number_theory",
+  "math_prealgebra",
+  "math_precalculus"
+ ],
+ "train": 6000,
+ "test": 5750,
+ "nulo": 0.2377,
+ "peso_validacion": 0.4,
+ "solo_sintaxis": 0.6038,
+ "solo_palabras": 0.7393,
+ "combinado": 0.7537,
+ "combinado_equilibrado": 0.7587,
+ "techo": 0.8409,
+ "rescate_sintaxis": 0.3896
+}

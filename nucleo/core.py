@@ -3287,6 +3287,28 @@ class Nucleo:
         """
         matched = self._match_skills_to_query(query, graph)
 
+        # ── LA PUERTA SE MIDIO Y NO PAGA, ASI QUE NO ESTA AQUI ────────────
+        # `nucleo/graph/reconocedor.py` lee el AREA del enunciado por su forma
+        # —75,4 % sobre los 7 temas de MATH frente a un nulo del 23,8 %— y se
+        # cableo aqui como respaldo para cuando el emparejador lexico calla.
+        #
+        # Medido contra ProofNet por el camino real (brazo `lexico+puerta` de
+        # scripts/recuperacion_contra_proofnet.py):
+        #
+        #     lexico          precision 13,6 %  cobertura 13,6 %  ofrece 271
+        #     lexico+puerta   precision 12,9 %  cobertura 13,6 %  ofrece 282
+        #
+        # Ofrece nombres en 11 casos mas y NO SE USA NI UNO: la cobertura no se
+        # mueve y la precision baja 0,7 puntos. Es ruido.
+        #
+        # Por que no ayuda AQUI: en ProofNet el lexico solo calla en 31 de 371,
+        # asi que el margen era del 4 % desde el principio. El reconocedor se
+        # construyo para las consultas en español, donde el lexico calla en el
+        # 27 %, y para esas NO HAY BANCO con premisas de oro. Lo que falta no
+        # es cablearlo mejor: es medirlo donde se supone que sirve.
+        #
+        # El modulo se queda, entrenado y calibrado. Fuera del camino.
+
         deps: list[str] = []
         tactics: list[str] = []
         strategies: list[str] = []

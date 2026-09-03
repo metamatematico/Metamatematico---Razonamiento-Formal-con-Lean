@@ -178,7 +178,7 @@ def main(k):
         sem = None
 
     res = {}
-    for etiqueta in ("lexico", "semantico", "nulo"):
+    for etiqueta in ("lexico", "lexico+puerta", "semantico", "nulo"):
         if etiqueta == "semantico" and sem is None:
             continue
         tp = fp = fn = 0
@@ -189,6 +189,18 @@ def main(k):
                 continue
             if etiqueta == "lexico":
                 ofr = ofrecidos(Nucleo._match_skills_to_query(n, nl, g))
+            elif etiqueta == "lexico+puerta":
+                # LA PUERTA SOLO ACTUA DONDE EL LEXICO CALLA, igual que en
+                # `_find_relevant_context`. Aqui se replica ese camino para
+                # poder medirlo por separado: el brazo `lexico` es la linea
+                # base y este dice lo que aporta el reconocedor de forma.
+                m = Nucleo._match_skills_to_query(n, nl, g)
+                if not m:
+                    from nucleo.graph.reconocedor import areas_de
+                    puertas = [a for a in areas_de(nl) if g.get_skill(a)]
+                    hijos = [h for a in puertas for h in g.dependents(a)]
+                    m = (puertas + hijos)[:8]
+                ofr = ofrecidos(m)
             elif etiqueta == "semantico":
                 ofr = ofrecidos(sem[idx])
             else:
@@ -211,7 +223,7 @@ def main(k):
     print("    precision = de lo que el grafo ofrece, cuanto se usa de verdad")
     print("    cobertura = de lo que hacia falta, cuanto ofrecio el grafo")
     if "nulo" in res:
-        for e in ("lexico", "semantico"):
+        for e in ("lexico", "lexico+puerta", "semantico"):
             if e in res:
                 d = res[e]["cobertura"] - res["nulo"]["cobertura"]
                 print("    %s vs modelo nulo en cobertura: %+.1f puntos"

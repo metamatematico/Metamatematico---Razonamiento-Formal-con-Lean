@@ -10,6 +10,14 @@
    "fp": 1202,
    "fn": 1206
   },
+  "lexico+puerta": {
+   "precision": 13.328912466843502,
+   "cobertura": 14.398280802292264,
+   "con_algo": 285,
+   "tp": 201,
+   "fp": 1307,
+   "fn": 1195
+  },
   "semantico": {
    "precision": 9.109518935516888,
    "cobertura": 6.375358166189112,
