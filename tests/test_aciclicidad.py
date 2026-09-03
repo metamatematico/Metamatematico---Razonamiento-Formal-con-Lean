@@ -95,3 +95,96 @@ def test_cn_acotado_y_positivo(joins):
         f"max(cn) = {max(cn.values())}: el motor de complexificacion no esta "
         "produciendo conceptos de segundo orden"
     )
+
+
+# ---------------------------------------------------------------------------
+# Y la relacion DEPENDENCY entera, no solo la de joins
+# ---------------------------------------------------------------------------
+
+def test_la_dependencia_del_grafo_real_es_un_orden():
+    """El grafo dice ser una categoria delgada. Tenia 4 ciclos.
+
+    La maquinaria de colimites de `patterns.py` y la prueba de
+    `ColimitVerifier.lean` se apoyan en que la alcanzabilidad por DEPENDENCY
+    sea un PREORDEN. Medido con networkx: habia 4 componentes fuertemente
+    conexas, la mayor de 80 nodos. En una categoria delgada eso afirma que
+    esos 80 objetos son mutuamente isomorfos, y es falso.
+
+    Las 618 aristas culpables eran los imports de Mathlib AGREGADOS a los 125
+    nodos generados. Agregar un DAG no da un DAG: si un modulo del grupo A
+    importa uno de B y otro de B importa uno de A, el agregado tiene un
+    2-ciclo. Y el ciclo 15 restante era `cat-basics` figurando entre los
+    miembros del area que el mismo sostiene.
+
+    Nadie leia esas aristas, pero rompian ademas la puerta de entrada:
+    `area-algebra` alcanzaba 178 de 315 nodos y un nodo pertenecia a 4,3 areas
+    de media, asi que entrar por area no podaba nada.
+    """
+    import networkx as nx
+    from nucleo.core import Nucleo
+    from nucleo.graph.category import SkillCategory
+    from nucleo.types import MorphismType
+
+    n = Nucleo.__new__(Nucleo)
+    n._graph = SkillCategory()
+    Nucleo._load_foundational_skills(n)
+
+    G = nx.DiGraph()
+    for s in n._graph.skills:
+        G.add_node(s.id)
+    for m in n._graph.morphisms:
+        if (m.morphism_type == MorphismType.DEPENDENCY
+                and m.source_id != m.target_id):
+            G.add_edge(m.source_id, m.target_id)
+
+    ciclos = [sorted(c) for c in nx.strongly_connected_components(G)
+              if len(c) > 1]
+    assert not ciclos, (
+        "la dependencia tiene %d ciclos; el mayor con %d nodos: %s. "
+        "Una categoria delgada con un ciclo afirma que sus objetos son "
+        "mutuamente isomorfos, y los colimites dejan de estar justificados."
+        % (len(ciclos), max(len(c) for c in ciclos), ciclos[0][:6]))
+
+
+def test_entrar_por_un_area_poda_de_verdad():
+    """Los conos de area tienen que SEPARAR, o la puerta no sirve de nada.
+
+    Con las aristas de import agregado, `area-algebra` alcanzaba el 56 % del
+    grafo y los conos se solapaban entre el 62 % y el 77 %. Un clasificador
+    podia acertar el area y no servir para nada, porque el area acertada abria
+    media matematica. Esta guardia fija el criterio: ningun cono puede pasar
+    de un tercio del grafo, y un nodo no puede estar de media en mas de dos
+    areas.
+    """
+    import networkx as nx
+    from nucleo.core import Nucleo
+    from nucleo.graph.category import SkillCategory
+    from nucleo.types import MorphismType
+
+    n = Nucleo.__new__(Nucleo)
+    n._graph = SkillCategory()
+    Nucleo._load_foundational_skills(n)
+    g = n._graph
+
+    G = nx.DiGraph()
+    for s in g.skills:
+        G.add_node(s.id)
+    for m in g.morphisms:
+        if (m.morphism_type == MorphismType.DEPENDENCY
+                and m.source_id != m.target_id):
+            G.add_edge(m.source_id, m.target_id)
+
+    areas = [s.id for s in g.skills
+             if (s.metadata or {}).get("category") == "area"]
+    assert areas, "el grafo ya no tiene capa de areas"
+
+    conos = {a: nx.descendants(G, a) for a in areas}
+    mayor = max(conos.items(), key=lambda kv: len(kv[1]))
+    assert len(mayor[1]) <= len(G) // 3, (
+        "%s alcanza %d de %d nodos: entrar por ahi no poda nada"
+        % (mayor[0], len(mayor[1]), len(G)))
+
+    media = sum(len(c) for c in conos.values()) / len(G)
+    assert media <= 2.0, (
+        "un nodo pertenece a %.1f areas de media: los conos se solapan tanto "
+        "que no separan" % media)

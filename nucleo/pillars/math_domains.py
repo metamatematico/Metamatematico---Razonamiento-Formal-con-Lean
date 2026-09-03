@@ -1673,24 +1673,33 @@ def load_mathlib_coverage(graph) -> dict:
         added += 1
         existentes.add(nodo.id)
 
-    # Las aristas, en una segunda pasada: una dependencia puede apuntar a un
-    # nodo que aun no se habia añadido cuando se leyo la ficha.
+    # ── LOS IMPORTS AGREGADOS NO SON UNA DEPENDENCIA ──────────────────────
+    #
+    # Aqui se creaban 618 aristas DEPENDENCY con `nodo.dependencies`, que son
+    # los imports de Mathlib AGREGADOS a estos 125 nodos. Agregar un DAG no da
+    # un DAG: si un modulo del grupo A importa uno de B y otro de B importa uno
+    # de A, el agregado tiene un 2-ciclo. Medido con networkx: 4 componentes
+    # fuertemente conexas, la mayor de 80 nodos, con 426 aristas dentro.
+    #
+    # No es un detalle estetico. El grafo AFIRMA ser una categoria delgada —los
+    # colimites de `patterns.py` y la prueba de `ColimitVerifier.lean` piden que
+    # la alcanzabilidad sea un preorden— y una componente fuerte de 80 nodos
+    # dice que esos 80 objetos son mutuamente isomorfos. Es falso.
+    #
+    # Y rompian la puerta de entrada al grafo: con ellas, `area-algebra`
+    # alcanzaba 178 de 315 nodos y un nodo pertenecia a 4,3 areas de media.
+    # Entrar por area no podaba nada. Sin ellas: mediana 10 nodos por cono,
+    # 0,9 areas por nodo — casi una particion.
+    #
+    # La jerarquia REAL de estos nodos no se pierde: esta en las aristas
+    # `general-se-inyecta-en-especial`, que salen del anidamiento de modulos y
+    # si son aciclicas. El mapa de modulos sigue en su JSON para quien lo
+    # necesite; lo que desaparece es la pretension de que sea un orden.
     for nodo in NODOS_MATHLIB:
         if nodo.id not in existentes:
             continue
-        destinos = [d for d in nodo.dependencies if d in existentes]
-        if not destinos:
-            base = _BASE_DE_PILAR.get(nodo.pillar)
-            if base and base in existentes:
-                destinos = [base]
-        for dep in destinos:
-            if graph.add_morphism(dep, nodo.id, MorphismType.DEPENDENCY,
-                                  metadata={"relation": "mathlib-import",
-                                            "construccion": "import-mathlib"}):
-                links += 1
-        # y siempre colgado del pilar, para no dejar islas
         base = _BASE_DE_PILAR.get(nodo.pillar)
-        if base and base in existentes and base not in destinos:
+        if base and base in existentes:
             if graph.add_morphism(base, nodo.id, MorphismType.DEPENDENCY,
                                   metadata={"relation": "cobertura-sobre-el-pilar",
                                             "construccion": "cobertura"}):
@@ -1739,31 +1748,73 @@ def load_mathlib_coverage(graph) -> dict:
 _PILAR_DE_AREA = {
     "CategoryTheory": "cat-basics",
     "Logic": "fol-deduction",
+    # el orden es una estructura sobre conjuntos, y su base es ZFC como el
+    # resto; se deja explicito para que no dependa del valor por defecto
+    "OrderTheory": "zfc-axioms",
     "ModelTheory": "fol-deduction",
     "Computability": "cic",
 }
 _PILAR_POR_DEFECTO = "zfc-axioms"
 
-#: Fuera del esqueleto, con su motivo.
-_AREAS_EXCLUIDAS = {
-    # infraestructura de Lean, no una teoria: `Data` no es mas general que
-    # `Data.Set` en ningun sentido matematico
-    "Data",
+#: Fuera del esqueleto, con su motivo. Vacio hoy: `Data` estuvo aqui con el
+#: motivo «infraestructura de Lean, no una teoria», y era falso —`Data.Set`,
+#: `Data.Nat` y `Data.Real` son los objetos de la matematica elemental—. Lo
+#: cierto era otra cosa: «Data» no es el nombre de un area, es una carpeta.
+_AREAS_EXCLUIDAS: set[str] = set()
+
+#: `Data.X` -> el area de la que X habla de verdad.
+#:
+#: ESTO ES UN JUICIO, no una derivacion. La ruta del modulo no lo contiene:
+#: Mathlib guarda en la misma carpeta los naturales y las matrices. Sin este
+#: mapa los 21 nodos de `Data` cuelgan del pilar y de nada mas, que es donde
+#: se quedaron al retirar los imports agregados.
+_AREA_DE_DATA = {
+    # los conjuntos y los tipos finitos basicos
+    "Set": "SetTheory", "Fin": "SetTheory", "Sum": "SetTheory",
+    # los sistemas numericos
+    "Nat": "NumberTheory", "Int": "NumberTheory", "Rat": "NumberTheory",
+    "PNat": "NumberTheory", "ENat": "NumberTheory", "Num": "NumberTheory",
+    # la recta real y sus compactificaciones, y las sucesiones
+    "Real": "Analysis", "NNReal": "Analysis", "ENNReal": "Analysis",
+    "EReal": "Analysis", "Seq": "Analysis",
+    # matrices y funciones de soporte finito: la base de los modulos libres
+    "Matrix": "LinearAlgebra", "Finsupp": "LinearAlgebra",
+    "DFinsupp": "LinearAlgebra",
+    # estructuras de conteo
+    "Finset": "Combinatorics", "List": "Combinatorics",
+    "Multiset": "Combinatorics", "Sym": "Combinatorics",
 }
+
+#: Carpetas de Mathlib cuyo nombre no es el del area matematica.
+_RENOMBRA_AREA = {"Order": "OrderTheory"}
 
 
 def _area_de(modulo: str) -> str:
-    """`Mathlib.Algebra.Field.Defs` -> `Algebra`."""
+    """`Mathlib.Algebra.Field.Defs` -> `Algebra`.
+
+    Con dos excepciones curadas: `Data.X` se resuelve por X, porque «Data» es
+    una carpeta y no un area; y `Order` se llama teoria del orden.
+    """
     p = (modulo or "").replace("Mathlib.", "", 1).split(".")
-    return p[0] if p and p[0] else ""
+    if not p or not p[0]:
+        return ""
+    if p[0] == "Data" and len(p) > 1:
+        return _AREA_DE_DATA.get(p[1], "")
+    return _RENOMBRA_AREA.get(p[0], p[0])
 
 
 def load_jerarquia_areas(graph) -> dict:
     """Inserta los nodos de área que unen los dos grafos.
 
-    Solo se crean las áreas donde HAY AMBOS TIPOS —curados y generados—, que
-    son las que de verdad cosen algo. Un área con un solo tipo no conecta nada
-    y solo añadiría un nodo sin interpretar más.
+    Antes solo se creaban las áreas con AMBOS TIPOS —curados y generados—,
+    porque el área servía para COSER los dos grafos y una con un solo tipo no
+    cosía nada.
+
+    Ese criterio ya no vale: el área es ahora la PUERTA DE ENTRADA al grafo, y
+    una puerta con sólo nodos generados sigue siendo una puerta. El grafo no
+    tiene ninguna skill curada de orden ni de retículos, y la teoría del orden
+    no deja de existir por eso — con el criterio viejo, los doce nodos de
+    `Order.*` se quedaban sin área y sin forma de ser alcanzados.
     """
     import json as _json
     import logging as _logging
@@ -1805,8 +1856,8 @@ def load_jerarquia_areas(graph) -> dict:
     for a, m in sorted(miembros.items()):
         if a in _AREAS_EXCLUIDAS:
             continue
-        if not (m["curados"] and m["generados"]):
-            continue          # con un solo tipo no cose nada
+        if not (m["curados"] or m["generados"]):
+            continue          # un area vacia no es una puerta
         aid = "area-" + a.lower()
         if aid in existentes:
             continue
@@ -1841,6 +1892,12 @@ def load_jerarquia_areas(graph) -> dict:
         # y el area es prerrequisito de todo lo suyo: de lo general a lo
         # especial, que es la direccion que el grafo curado ya seguia
         for hijo in sorted(m["curados"] | m["generados"]):
+            # EL PILAR NO ES HIJO DEL AREA QUE SOSTIENE.
+            # `cat-basics` sostiene a `area-categorytheory` y ademas figuraba
+            # entre sus miembros: las dos aristas juntas daban un 2-ciclo, el
+            # unico que quedaba tras quitar los imports agregados.
+            if hijo == base:
+                continue
             if graph.add_morphism(aid, hijo, MorphismType.DEPENDENCY,
                                   metadata={"relation": "general-se-inyecta-en-especial",
                                             "construccion": "jerarquia"}):

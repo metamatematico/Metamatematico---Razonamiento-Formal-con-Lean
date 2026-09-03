@@ -2,10 +2,10 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-790_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-792_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
-[![Grafo](https://img.shields.io/badge/Grafo-315_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
+[![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
@@ -71,7 +71,7 @@ negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
 |  | el grafo | la lista |
 |---|---|---|
 | **qué guarda** | conceptos — *de qué habla* | hechos — *qué es cierto* |
-| **tamaño** | 315 nodos | 183 433 entradas |
+| **tamaño** | 320 nodos | 183 433 entradas |
 | **cómo se hizo** | 173 a mano + 125 generados | extraída del fuente, entera |
 | **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
 | **estructura** | categórica: colímites, orden, pilares | plana, indexada |
@@ -97,18 +97,18 @@ hechos. **La lista existe para cubrir esa mitad.**
 ## 3. El grafo: de qué consta
 
 <p align="center">
-  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado como árbol radial: 315 nodos que salen de los cuatro pilares fundacionales del centro hacia las sub-ramas de fuera, con el ángulo repartido por tamaño de subárbol para que ningún nodo tape a otro. Los 125 generados desde Mathlib y los 17 de área van en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
+  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado como árbol radial: 320 nodos que salen de los cuatro pilares fundacionales del centro hacia las sub-ramas de fuera, con el ángulo repartido por tamaño de subárbol para que ningún nodo tape a otro. Los 125 generados desde Mathlib y los 22 de área van en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
 </p>
 
 | pieza | cuántos | qué es |
 |---|---|---|
 | nodos curados | 173 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
-| nodos de área | 17 | leídos del anidamiento de módulos. Cosen los dos grafos: `Algebra`, `Topology`, `RingTheory`… |
+| nodos de área | 22 | la **puerta de entrada**: `Algebra`, `Topology`, `OrderTheory`… Entrar por una poda a 10 nodos de mediana |
 | nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
-| dependencias | 1156 | prerrequisitos. Las de los generados salen del DAG de imports |
+| dependencias | 583 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
 | traducciones | 439 | entre pilares — Curry-Howard, conjuntos↔categorías |
 | analogías | 7 | correspondencias débiles, marcadas como tales |
-| identidades | 315 | una por objeto, como exige la definición de categoría |
+| identidades | 320 | una por objeto, como exige la definición de categoría |
 
 ```bash
 python scripts/dibujar_grafo.py     # regenera la figura desde el grafo real
@@ -138,10 +138,16 @@ de lo general a lo especial — la misma dirección que el grafo curado seguía 
 
 ```
                               antes    después
-aristas que cruzan                0         88
-generados con ancestro común   0/125    124/125
-la lógica alcanza               158     284 de 315
+aristas que cruzan                0        125
+generados con ancestro común   0/125    109/125
+la lógica alcanza               158     278 de 320
 ```
+
+**Dos de esas cifras bajaron al arreglar la puerta, y es correcto que bajen.**
+`124 de 125` se midió cuando el grafo tenía 4 ciclos y una componente fuerte de
+80 nodos: casi todo alcanzaba a casi todo. Los 16 que ahora no llegan a un área
+con curados están en `computability`, `logic` y `ordertheory`, que **no tienen
+ni un solo nodo hecho a mano**. Es un hueco de los 173 curados, y ahora se ve.
 
 Y faltaba **`fol-deduction → zfc-axioms`**: ZFC es una teoría de primer orden,
 sus axiomas son fórmulas de primer orden con igualdad. Sin esa arista, media
@@ -302,7 +308,7 @@ Todas sin API salvo la última.
 
 ## 7. Tests y guardianes
 
-**790 tests en 37 suites.** Los que más valen no comprueban que el código
+**792 tests en 37 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -422,7 +428,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    790 tests en 37 suites
+tests/                    792 tests en 37 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 
