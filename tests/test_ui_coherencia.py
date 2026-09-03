@@ -207,12 +207,22 @@ class TestCifrasDelGrafo:
         }
 
     def _docs(self):
+        """El texto de la documentación, SIN los SVG incrustados.
+
+        La primera version leia el artefacto entero y la regex se metia dentro
+        de un `<svg>`, donde cogia una COORDENADA como si fuera una cifra
+        documentada: dijo «nodos generados dice 662» leyendo un `x="662"`. El
+        guardian tambien es un instrumento y se rompe igual.
+        """
         import io
+        import re
         from nucleo.rutas import RAIZ
+        art = io.open(RAIZ / "docs" / "arquitectura_nle.html",
+                      encoding="utf-8").read()
+        art = re.sub(r"<svg[\s\S]*?</svg>", " ", art)
         return {
             "README": io.open(RAIZ / "README.md", encoding="utf-8").read(),
-            "artefacto": io.open(RAIZ / "docs" / "arquitectura_nle.html",
-                                 encoding="utf-8").read(),
+            "artefacto": art,
         }
 
     def test_el_desglose_de_morfismos_cuadra_con_el_total(self):
@@ -254,3 +264,37 @@ class TestCifrasDelGrafo:
             "la figura dice %s nodos y %s morfismos; son %d y %d. "
             "Regenerar con python scripts/dibujar_grafo.py"
             % (m.group(1), m.group(2), r["nodos"], r["morfismos"]))
+
+    def test_el_diagrama_de_flujo_no_se_queda_viejo(self):
+        """El diagrama decía «DOS puntos» cuando ya eran tres.
+
+        Se escribio a mano, el flujo cambio y nadie lo noto durante horas — el
+        dibujo presentaba el paso 3 como contribucion del grafo cuando ya
+        estaba medido que es inerte. Ahora lo genera
+        `scripts/dibujar_flujo.py` y esta guardia comprueba que siga contando
+        los mismos puntos que la tabla del README.
+        """
+        import io
+        import re
+        from nucleo.rutas import RAIZ
+        p = RAIZ / "docs" / "img" / "00-flujo-real.svg"
+        if not p.exists():
+            return
+        svg = io.open(p, encoding="utf-8").read()
+        # `>N · ` a secas: el patron pedia «N · EL » y el paso 4 dice
+        # «4 · LEAN VERIFICA», asi que el guardian contaba 5 de 6 y acusaba al
+        # diagrama de estar incompleto cuando el roto era el.
+        pasos = set(re.findall(r">([1-9]) · ", svg))
+        readme = io.open(RAIZ / "README.md", encoding="utf-8").read()
+        filas = re.findall(r"^\| ([0-9]) \|", readme, re.M)
+        assert pasos, "el diagrama ya no numera sus pasos"
+        assert len(pasos) == len(set(filas)), (
+            "el diagrama tiene %d pasos numerados y la tabla del README %d. "
+            "Regenerar con python scripts/dibujar_flujo.py"
+            % (len(pasos), len(set(filas))))
+        #: los veredictos medidos tienen que estar EN el dibujo, no solo en el
+        #: texto: un diagrama que pinta los tres puntos igual engaña
+        assert "INERTE" in svg, (
+            "el diagrama ya no dice que el paso de imports es inerte")
+        assert svg.count("APORTA") == 2, (
+            "el diagrama debe marcar exactamente los dos puntos que aportan")
