@@ -44,10 +44,12 @@ decide la verdad — eso es Lean, siempre.
 
 ## 1. El flujo, de la entrada a la salida
 
-Todo pasa por `Nucleo.process(texto)`.
+Todo pasa por `Nucleo.process(texto)`. **Los alumnos preguntan en español y
+todo el aparato es inglés**, así que el flujo empieza y acaba en una frontera de
+idioma.
 
 <p align="center">
-  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional, que responde sin verificación formal. Si lo es, el grafo aporta al prompt los conceptos activados con sus nombres de Mathlib verificados. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico el error vuelve al modelo, máximo dos rondas; si queda un sorry entra la cascada de tácticas del grafo; y si Lean acepta se pasa directo al veredicto. Los caminos confluyen en un veredicto final de siete estados, que el LLM traduce antes de la respuesta, con el veredicto siempre delante del texto." width="100%">
+  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta entra en español o en inglés y cruza la frontera del idioma: si viene en español se traduce al inglés con un modelo local protegiendo la notación, y el inglés pasa directo. Después pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional, que responde sin verificación formal. Si lo es, el grafo aporta al prompt los conceptos activados con sus nombres de Mathlib verificados. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico el error vuelve al modelo, máximo dos rondas; si queda un sorry entra la cascada de tácticas del grafo; y si Lean acepta se pasa directo al veredicto. Los caminos confluyen en un veredicto final de siete estados, que el LLM traduce antes de la respuesta, con el veredicto siempre delante del texto." width="100%">
 </p>
 
 | paso | quién | qué hace | ¿aporta? |
@@ -63,6 +65,43 @@ La última columna sale de medir cada punto por separado. **No hay un veredicto
 único sobre «el núcleo»**: aporta en dos de sus puntos de actuación y es inerte
 en un tercero. El detalle está en la [sección 6](#6-lo-que-está-medido) y los
 negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
+
+### La frontera del idioma
+
+Los seis pasos no llevan idioma propio: **lo llevan sus datos, y son todos
+ingleses** — las 3 839 palabras clave del grafo, los 183 433 hechos de Mathlib,
+los ejemplos few-shot de miniF2F y el propio Lean. Un alumno que escribe
+«¿Es 17 un número primo?» no toca ninguna de esas palabras.
+
+Así que la consulta se traduce **una vez, al entrar**, con un modelo local
+(`Helsinki-NLP/opus-mt-es-en`, 74 M de parámetros, sin API), y el inglés pasa
+directo.
+
+```
+                            antes    después
+activan alguna skill         9/24      11/24     ← 24 consultas reales
+abren alguna área            3/24       9/24
+```
+
+**La notación se protege, y no era opcional.** Medido sobre el modelo desnudo:
+
+```
+$x^2 - 5x + 6$          →  $x^2 - 5x + $6
+\mathbb{R}$             →  \mathbb{R$
+\int_0^\infty ... dx$   →  int_0=infty ... dx$    (destruido)
+\sin x                  →  \without x
+```
+
+El último lo explica todo: `\sin` es el seno, y «sin» en español es una
+preposición. Se saca la notación, se sustituye por marcas que sobreviven al
+tokenizador, y se devuelve a su sitio.
+
+**Y la frontera se cruza de vuelta.** Si preguntó en español, la respuesta sale
+en español — hay que fijarlo en el prompt, porque el enunciado que el modelo
+tiene delante ya está en inglés y una instrucción como «responde en el mismo
+idioma que el usuario» le haría contestar en inglés. Lo que se le enseña como
+«pregunta original» es **la suya**, no la traducción, y el historial guarda lo
+que él escribió.
 
 ---
 

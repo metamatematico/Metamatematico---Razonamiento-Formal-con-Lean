@@ -235,107 +235,122 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
 
     <figure>
       <div class="marco">
-<svg role="img" id="fig-flujo" aria-label="El flujo de la consulta a la respuesta. La consulta entra por la interfaz y un clasificador decide si es matematica; si no lo es va al modelo conversacional, que responde sin verificacion formal. Si lo es, el grafo actua en tres puntos numerados: prepara el prompt con nombres de Mathlib comprobados, elige que modulos importa Lean, y ordena las tacticas si queda un sorry. Cada punto lleva su veredicto medido: el primero y el tercero aportan, el segundo es inerte. Lean verifica en medio y abre cuatro caminos: si falta un modulo se repara el encabezado y se reintenta una vez, si el error es semantico el error vuelve al modelo hasta dos rondas, si queda un sorry entra la cascada de tacticas, y si Lean acepta se pasa directo al veredicto. Los tres caminos confluyen en un veredicto final de siete estados, que el modelo traduce a lenguaje natural antes de la respuesta." viewBox="0 0 1120 810">
+<svg role="img" id="fig-flujo" aria-label="El flujo de la consulta a la respuesta. La consulta entra por la interfaz en español o en inglés y cruza la frontera del idioma: si viene en español se traduce al inglés con un modelo local, protegiendo la notación, porque todo el aparato del sistema es inglés; el inglés pasa directo. Un clasificador decide entonces si es matemática; si no lo es va al modelo conversacional, que responde sin verificación formal. Si lo es, el grafo actúa en tres puntos numerados: prepara el prompt con nombres de Mathlib comprobados, elige qué módulos importa Lean, y ordena las tácticas si queda un sorry. El primero y el tercero aportan, el segundo es inerte. Lean verifica y abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez, si el error es semántico vuelve al modelo hasta dos rondas, si queda un sorry entra la cascada de tácticas, y si Lean acepta se pasa directo al veredicto. Los caminos confluyen en un veredicto final de siete estados, que el modelo traduce a lenguaje natural. Al final se cruza la frontera de vuelta: la respuesta sale en el idioma en que se preguntó y la pregunta que se le enseña al alumno es la suya, no la traducción." viewBox="0 0 1180 1100">
 <defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="pf" fill="#1b1e17" opacity=".5" d="M0 0 L10 5 L0 10 z"/></marker></defs>
-<style>@media(prefers-color-scheme:dark){#fig-flujo .bg{fill:#171b23;stroke:#2b3140}#fig-flujo .gr{fill:#242038;stroke:#948bdd}#fig-flujo .ve{fill:#152722;stroke:#4dc0aa}#fig-flujo .ll{fill:#332714;stroke:#e2a94f}#fig-flujo .al{fill:#331d1b;stroke:#e2827a}#fig-flujo .ln{stroke:#e8e6de}#fig-flujo .pf{fill:#e8e6de}#fig-flujo .t{fill:#e8e6de}#fig-flujo .b{fill:#e8e6de}#fig-flujo .s{fill:#e8e6de}#fig-flujo .m{fill:#e8e6de}}</style>
+<style>@media(prefers-color-scheme:dark){#fig-flujo .bg{fill:#171b23;stroke:#2b3140}#fig-flujo .gr{fill:#242038;stroke:#948bdd}#fig-flujo .ve{fill:#152722;stroke:#4dc0aa}#fig-flujo .ll{fill:#332714;stroke:#e2a94f}#fig-flujo .al{fill:#331d1b;stroke:#e2827a}#fig-flujo .id{fill:#151f28;stroke:#6fb3d9}#fig-flujo .ln{stroke:#e8e6de}#fig-flujo .pf{fill:#e8e6de}#fig-flujo .t{fill:#e8e6de}#fig-flujo .b{fill:#e8e6de}#fig-flujo .s{fill:#e8e6de}#fig-flujo .m{fill:#e8e6de}}</style>
 <text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="24" y="26" text-anchor="start">DE LA ENTRADA A LA SALIDA</text>
 <text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="232" y="26" text-anchor="start">— el grafo actúa en TRES puntos, y sólo dos aportan</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="170" y="46" width="150" height="44" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="245" y="68" text-anchor="middle">consulta</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="245" y="84" text-anchor="middle">UI · CLI</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="344" y="46" width="176" height="44" rx="9"/>
-<text class="t" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" x="432" y="66" text-anchor="middle">¿es matemática?</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="432" y="82" text-anchor="middle">forma + vocabulario</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M320 68 L342 68" marker-end="url(#p)"/>
-<rect class="ll" fill="#f5e7cf" stroke="#b4761f" stroke-width="1.3" x="544" y="46" width="200" height="44" rx="9"/>
-<text class="t" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" x="644" y="68" text-anchor="middle">LLM conversacional</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="644" y="84" text-anchor="middle">no formaliza nada</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M520 68 L542 68" marker-end="url(#p)"/>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="531" y="60" text-anchor="middle">no</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="440" y="112" text-anchor="start">sí</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 90 L432 120" marker-end="url(#p)"/>
-<rect class="gr" fill="#e7e4f5" stroke="#564c9e" stroke-width="1.3" x="170" y="124" width="574" height="72" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="146" text-anchor="start">1 · EL GRAFO PREPARA EL PROMPT</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="166" text-anchor="start">conceptos activados · nombres de Mathlib comprobados con #check · ejemplos few-shot</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="184" text-anchor="start">APORTA · 12× sobre el azar, medido contra ProofNet</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 196 L432 212" marker-end="url(#p)"/>
-<rect class="ll" fill="#f5e7cf" stroke="#b4761f" stroke-width="1.3" x="170" y="216" width="574" height="64" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="238" text-anchor="start">2 · EL LLM FORMALIZA</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="256" text-anchor="start">escribe Lean 4 — no decide si es cierto</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="272" text-anchor="start">si sale una tautología, se rehace una vez antes de verificar</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 280 L432 296" marker-end="url(#p)"/>
-<rect class="gr" fill="#e7e4f5" stroke="#564c9e" stroke-width="1.3" x="170" y="300" width="574" height="72" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="322" text-anchor="start">3 · EL GRAFO ELIGE QUÉ MÓDULOS VE LEAN</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="342" text-anchor="start">descarta `import Mathlib` — 742 s, más que el timeout</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="360" text-anchor="start">INERTE · empata con un conjunto fijo de 3 módulos, y el margen total son 2,5 puntos</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 372 L432 388" marker-end="url(#p)"/>
-<rect class="ve" fill="#dbf0ea" stroke="#167a68" stroke-width="1.3" x="170" y="392" width="574" height="50" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="414" text-anchor="start">4 · LEAN VERIFICA</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="432" text-anchor="start">la fuente de verdad · su veredicto es inapelable</text>
-<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="170" y="458" width="136" height="52" rx="9"/>
-<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="238" y="480" text-anchor="middle">falta un módulo</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="238" y="498" text-anchor="middle">repara y reintenta</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 442 L432 450 L238 450 L238 458" marker-end="url(#p)"/>
-<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="316" y="458" width="136" height="52" rx="9"/>
-<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="384" y="480" text-anchor="middle">error semántico</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="384" y="498" text-anchor="middle">vuelve al LLM, ×2</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 442 L432 450 L384 450 L384 458" marker-end="url(#p)"/>
-<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="462" y="458" width="136" height="52" rx="9"/>
-<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="530" y="480" text-anchor="middle">queda un `sorry`</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="530" y="498" text-anchor="middle">va a la cascada</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 442 L432 450 L530 450 L530 458" marker-end="url(#p)"/>
-<rect class="ve" fill="#dbf0ea" stroke="#167a68" stroke-width="1.3" x="608" y="458" width="136" height="52" rx="9"/>
-<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="676" y="480" text-anchor="middle">Lean acepta</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="676" y="498" text-anchor="middle">no hay más que hacer</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 442 L432 450 L676 450 L676 458" marker-end="url(#p)"/>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M238 510 L238 526 L138 526 L138 417 L166 417" marker-end="url(#p)"/>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M384 510 L384 542 L98 542 L98 248 L166 248" marker-end="url(#p)"/>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M530 510 L530 530" marker-end="url(#p)"/>
-<rect class="gr" fill="#e7e4f5" stroke="#564c9e" stroke-width="1.3" x="170" y="532" width="460" height="72" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="554" text-anchor="start">5 · EL GRAFO ORDENA LAS TÁCTICAS</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="574" text-anchor="start">12 tácticas · premisas sólo si el objetivo engancha</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="592" text-anchor="start">APORTA · 2,4× menos intentos sobre 1600 pruebas de Mathlib</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M400 604 L400 616" marker-end="url(#p)"/>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M676 510 L676 616" marker-end="url(#p)"/>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="170" y="618" width="574" height="98" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="640" text-anchor="start">EL VEREDICTO FINAL — siete estados, no dos</text>
-<rect class="ve" fill="#dbf0ea" stroke="#167a68" stroke-width="1.3" x="186" y="652" width="86" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="229" y="668" text-anchor="middle">verificado</text>
-<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="282" y="652" width="66" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="315" y="668" text-anchor="middle">parcial</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="358" y="652" width="73" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="394" y="668" text-anchor="middle">refutado</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="441" y="652" width="92" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="487" y="668" text-anchor="middle">sin_teorema</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="186" y="682" width="105" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="238" y="698" text-anchor="middle">no_verificado</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="301" y="682" width="66" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="334" y="698" text-anchor="middle">timeout</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="377" y="682" width="92" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="423" y="698" text-anchor="middle">sin_entorno</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M744 667 L768 667" marker-end="url(#p)"/>
-<rect class="ll" fill="#f5e7cf" stroke="#b4761f" stroke-width="1.3" x="770" y="618" width="280" height="98" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="786" y="642" text-anchor="start">6 · EL LLM TRADUCE</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="664" text-anchor="start">explica el código que Lean</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="680" text-anchor="start">aceptó — no lo que el</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="696" text-anchor="start">modelo creía que era cierto</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M910 716 L910 740" marker-end="url(#p)"/>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="770" y="742" width="280" height="52" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="910" y="766" text-anchor="middle">respuesta</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="910" y="784" text-anchor="middle">el veredicto va delante, siempre</text>
-<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M744 68 L1074 68 L1074 775 L1052 775" marker-end="url(#p)"/>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="752" y="106" text-anchor="start">sin verificación formal</text>
-<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="770" y="124" width="270" height="380" rx="9"/>
-<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="786" y="148" text-anchor="start">Lo que el dibujo NO cuenta</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="172" text-anchor="start">Los co-reguladores deciden antes y la</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="189" text-anchor="start">memoria MES registra después: ninguno</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="206" text-anchor="start">formaliza ni verifica.</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="239" text-anchor="start">Los dos reintentos sólo se aceptan si</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="256" text-anchor="start">MEJORAN. Nunca se sustituye un</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="273" text-anchor="start">resultado por otro peor.</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="306" text-anchor="start">«Lean acepta» no es «hay prueba»:</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="323" text-anchor="start">sin_teorema sale de un archivo que sólo</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="340" text-anchor="start">hace #check, y refutado de haber</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="357" text-anchor="start">probado lo contrario de lo pedido.</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="390" text-anchor="start">La lista de 183 433 hechos de Mathlib</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="407" text-anchor="start">no toca el prompt: alimenta el índice</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="424" text-anchor="start">de premisas del paso 5.</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="457" text-anchor="start">Los nombres de los 125 nodos generados</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="474" text-anchor="start">no se inyectan: están deducidos, y 95</text>
-<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="786" y="491" text-anchor="start">de 447 no existen en Mathlib.</text>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="170" y="46" width="200" height="44" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="270" y="68" text-anchor="middle">consulta del alumno</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="270" y="84" text-anchor="middle">español · inglés · UI o CLI</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M270 90 L270 102" marker-end="url(#p)"/>
+<rect class="id" fill="#e4eef6" stroke="#2b6a94" stroke-width="1.3" x="170" y="104" width="574" height="88" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="127" text-anchor="start">LA FRONTERA DEL IDIOMA</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="148" text-anchor="start">el alumno pregunta en español y TODO el aparato es inglés: las 3 839 palabras</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="166" text-anchor="start">clave, los 183 433 hechos, los ejemplos de miniF2F y el propio Lean</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="184" text-anchor="start">traductor local de 74 M · la notación va protegida · el inglés pasa directo</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M290 192 L290 204" marker-end="url(#p)"/>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="170" y="206" width="240" height="50" rx="9"/>
+<text class="t" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" x="290" y="228" text-anchor="middle">¿es matemática?</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="290" y="244" text-anchor="middle">forma + vocabulario</text>
+<rect class="ll" fill="#f5e7cf" stroke="#b4761f" stroke-width="1.3" x="450" y="206" width="294" height="50" rx="9"/>
+<text class="t" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" x="597" y="228" text-anchor="middle">LLM conversacional</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="597" y="244" text-anchor="middle">no formaliza nada · sin veredicto</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M410 231 L448 231" marker-end="url(#p)"/>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="429" y="223" text-anchor="middle">no</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="298" y="270" text-anchor="start">sí</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M290 256 L290 274" marker-end="url(#p)"/>
+<rect class="gr" fill="#e7e4f5" stroke="#564c9e" stroke-width="1.3" x="170" y="276" width="574" height="72" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="298" text-anchor="start">1 · EL GRAFO PREPARA EL PROMPT</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="318" text-anchor="start">conceptos activados · nombres de Mathlib comprobados con #check · ejemplos few-shot</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="336" text-anchor="start">APORTA · 12× sobre el azar, medido contra ProofNet</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 348 L432 360" marker-end="url(#p)"/>
+<rect class="ll" fill="#f5e7cf" stroke="#b4761f" stroke-width="1.3" x="170" y="362" width="574" height="64" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="384" text-anchor="start">2 · EL LLM FORMALIZA</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="402" text-anchor="start">escribe Lean 4 — no decide si es cierto</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="418" text-anchor="start">si sale una tautología, se rehace una vez antes de verificar</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 426 L432 438" marker-end="url(#p)"/>
+<rect class="gr" fill="#e7e4f5" stroke="#564c9e" stroke-width="1.3" x="170" y="440" width="574" height="72" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="462" text-anchor="start">3 · EL GRAFO ELIGE QUÉ MÓDULOS VE LEAN</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="482" text-anchor="start">descarta `import Mathlib` — 742 s, más que el timeout</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="500" text-anchor="start">INERTE · empata con un conjunto fijo de 3 módulos, y el margen total son 2,5 puntos</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 512 L432 524" marker-end="url(#p)"/>
+<rect class="ve" fill="#dbf0ea" stroke="#167a68" stroke-width="1.3" x="170" y="526" width="574" height="50" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="548" text-anchor="start">4 · LEAN VERIFICA</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="566" text-anchor="start">la fuente de verdad · su veredicto es inapelable</text>
+<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="170" y="592" width="136" height="52" rx="9"/>
+<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="238" y="614" text-anchor="middle">falta un módulo</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="238" y="632" text-anchor="middle">repara y reintenta</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 576 L432 584 L238 584 L238 592" marker-end="url(#p)"/>
+<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="316" y="592" width="136" height="52" rx="9"/>
+<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="384" y="614" text-anchor="middle">error semántico</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="384" y="632" text-anchor="middle">vuelve al LLM, ×2</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 576 L432 584 L384 584 L384 592" marker-end="url(#p)"/>
+<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="462" y="592" width="136" height="52" rx="9"/>
+<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="530" y="614" text-anchor="middle">queda un `sorry`</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="530" y="632" text-anchor="middle">va a la cascada</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 576 L432 584 L530 584 L530 592" marker-end="url(#p)"/>
+<rect class="ve" fill="#dbf0ea" stroke="#167a68" stroke-width="1.3" x="608" y="592" width="136" height="52" rx="9"/>
+<text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="676" y="614" text-anchor="middle">Lean acepta</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="676" y="632" text-anchor="middle">no hay más que hacer</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 576 L432 584 L676 584 L676 592" marker-end="url(#p)"/>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M238 644 L238 654 L140 654 L140 551 L168 551" marker-end="url(#p)"/>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M384 644 L384 664 L100 664 L100 394 L168 394" marker-end="url(#p)"/>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M530 644 L530 666" marker-end="url(#p)"/>
+<rect class="gr" fill="#e7e4f5" stroke="#564c9e" stroke-width="1.3" x="170" y="668" width="460" height="72" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="690" text-anchor="start">5 · EL GRAFO ORDENA LAS TÁCTICAS</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="710" text-anchor="start">12 tácticas · premisas sólo si el objetivo engancha</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="728" text-anchor="start">APORTA · 2,4× menos intentos sobre 1600 pruebas de Mathlib</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M400 740 L400 756" marker-end="url(#p)"/>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M676 644 L676 756" marker-end="url(#p)"/>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="170" y="758" width="574" height="98" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="780" text-anchor="start">EL VEREDICTO FINAL — siete estados, no dos</text>
+<rect class="ve" fill="#dbf0ea" stroke="#167a68" stroke-width="1.3" x="186" y="792" width="86" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="229" y="808" text-anchor="middle">verificado</text>
+<rect class="al" fill="#f6dfdc" stroke="#ae3b35" stroke-width="1.3" x="282" y="792" width="66" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="315" y="808" text-anchor="middle">parcial</text>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="358" y="792" width="73" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="394" y="808" text-anchor="middle">refutado</text>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="441" y="792" width="92" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="487" y="808" text-anchor="middle">sin_teorema</text>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="186" y="822" width="105" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="238" y="838" text-anchor="middle">no_verificado</text>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="301" y="822" width="66" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="334" y="838" text-anchor="middle">timeout</text>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="377" y="822" width="92" height="24" rx="12"/><text class="m" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11" opacity=".78" x="423" y="838" text-anchor="middle">sin_entorno</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 856 L432 870" marker-end="url(#p)"/>
+<rect class="ll" fill="#f5e7cf" stroke="#b4761f" stroke-width="1.3" x="170" y="872" width="574" height="64" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="894" text-anchor="start">6 · EL LLM TRADUCE EL VEREDICTO</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="912" text-anchor="start">explica el código que Lean aceptó — no lo que el modelo creía que era cierto</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="928" text-anchor="start">el estado de Lean va dentro del prompt: no puede decir que no pudo comprobarlo</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 936 L432 950" marker-end="url(#p)"/>
+<rect class="id" fill="#e4eef6" stroke="#2b6a94" stroke-width="1.3" x="170" y="952" width="574" height="88" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="186" y="975" text-anchor="start">LA FRONTERA, DE VUELTA</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="996" text-anchor="start">si preguntó en español, la respuesta sale en español — se fija en el prompt,</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="1014" text-anchor="start">porque el enunciado que el modelo tiene delante ya está en inglés</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="186" y="1032" text-anchor="start">«pregunta original» es la del alumno · el historial guarda lo que él escribió</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M432 1040 L432 1052" marker-end="url(#p)"/>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="170" y="1054" width="574" height="44" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="457" y="1076" text-anchor="middle">respuesta</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="457" y="1092" text-anchor="middle">el veredicto va DELANTE del texto, siempre</text>
+<path class="ln" fill="none" opacity=".5" stroke="#1b1e17" stroke-width="1.6" d="M744 231 L1150 231 L1150 1076 L746 1076" marker-end="url(#p)"/>
+<rect class="bg" fill="#ffffff" stroke="#ddd6c2" stroke-width="1.3" x="780" y="276" width="300" height="664" rx="9"/>
+<text class="b" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="13" font-weight="600" x="796" y="300" text-anchor="start">Lo que el dibujo NO cuenta</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="324" text-anchor="start">Los co-reguladores deciden antes y la</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="341" text-anchor="start">memoria MES registra después: ninguno</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="358" text-anchor="start">formaliza ni verifica.</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="391" text-anchor="start">Los dos reintentos sólo se aceptan si</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="408" text-anchor="start">MEJORAN. Nunca se sustituye un</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="425" text-anchor="start">resultado por otro peor.</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="458" text-anchor="start">«Lean acepta» no es «hay prueba»:</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="475" text-anchor="start">sin_teorema sale de un archivo que sólo</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="492" text-anchor="start">hace #check, y refutado de haber</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="509" text-anchor="start">probado lo contrario de lo pedido.</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="542" text-anchor="start">La lista de 183 433 hechos de Mathlib</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="559" text-anchor="start">no toca el prompt: alimenta el índice</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="576" text-anchor="start">de premisas del paso 5.</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="609" text-anchor="start">El reconocedor de área lee la FORMA del</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="626" text-anchor="start">enunciado —75,4 % frente a un nulo del</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="643" text-anchor="start">23,8 %— y está FUERA de la cadena:</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="660" text-anchor="start">enchufarlo costaba 0,7 puntos de</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="677" text-anchor="start">precisión sin ganar cobertura.</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="710" text-anchor="start">Los nombres de los 125 nodos generados</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="727" text-anchor="start">no se inyectan: están deducidos, y 95</text>
+<text class="s" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11" opacity=".66" x="796" y="744" text-anchor="start">de 447 no existen en Mathlib.</text>
 </svg>
       </div>
       <figcaption><b>Fig. 1 —</b> El recorrido completo, con el veredicto
@@ -1374,6 +1389,43 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
       estado de prueba: como nodo es un sumidero, como flecha compondría y
       tendría dominio y codominio. Está identificado y sin arreglar.
     </div>
+
+    <h3>La frontera del idioma</h3>
+    <p>Los seis pasos no llevan idioma propio: <strong>lo llevan sus datos, y
+    son todos ingleses</strong> — las 3 839 palabras clave del grafo, los
+    183 433 hechos de Mathlib, los ejemplos few-shot de miniF2F y el propio
+    Lean. Un alumno que escribe «¿Es 17 un número primo?» no toca ninguna de
+    esas palabras.</p>
+    <p>La consulta se traduce <strong>una vez, al entrar</strong>, con un modelo
+    local de 74 M de parámetros —<code>Helsinki-NLP/opus-mt-es-en</code>, sin
+    API y sin coste por consulta— y el inglés pasa directo.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>sobre las 24 consultas reales</th><th class="mono">antes</th><th class="mono">después</th></tr></thead>
+        <tbody>
+          <tr><td>activan alguna skill</td><td class="mono">9/24</td><td class="mono">11/24</td></tr>
+          <tr><td>abren alguna área</td><td class="mono">3/24</td><td class="mono">9/24</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="nota a">
+      <b>La notación se protege, y no era opcional</b>
+      Medido sobre el modelo desnudo:
+      <pre>$x^2 - 5x + 6$          →  $x^2 - 5x + $6
+\mathbb{R}$             →  \mathbb{R$
+\int_0^\infty ... dx$   →  int_0=infty ... dx$    (destruido)
+\sin x                  →  \without x</pre>
+      El último lo explica todo: <code>\sin</code> es el seno, y «sin» en
+      español es una preposición. Un traductor general no distingue notación de
+      prosa, así que la notación se saca, se sustituye por marcas que sobreviven
+      al tokenizador, y se devuelve a su sitio.
+    </div>
+    <p><strong>Y la frontera se cruza de vuelta.</strong> Si preguntó en
+    español, la respuesta sale en español — hay que fijarlo en el prompt, porque
+    el enunciado que el modelo tiene delante ya está en inglés y una instrucción
+    como «responde en el mismo idioma que el usuario» le haría contestar en
+    inglés. Lo que se le enseña como «pregunta original» es <em>la suya</em>, no
+    la traducción.</p>
 
     <h3>Eran dos grafos, y ahora son uno</h3>
     <p>Medido: <strong>cero aristas</strong> entre los 173 curados y los 125
