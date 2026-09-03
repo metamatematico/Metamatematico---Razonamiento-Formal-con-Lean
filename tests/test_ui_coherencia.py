@@ -298,3 +298,57 @@ class TestCifrasDelGrafo:
             "el diagrama ya no dice que el paso de imports es inerte")
         assert svg.count("APORTA") == 2, (
             "el diagrama debe marcar exactamente los dos puntos que aportan")
+
+    def test_los_veredictos_dibujados_son_los_que_el_codigo_produce(self):
+        """El dibujo declaraba seis salidas y el código produce siete.
+
+        Y las seis no eran ni siquiera un subconjunto: dos de ellas —«error de
+        módulo» y «error semántico»— no son veredictos sino estados
+        intermedios, cada uno con su reintento. El diagrama cortaba el flujo
+        justo donde el código sigue trabajando.
+
+        La lista buena es la única que no se puede inventar: los literales que
+        `_math_via_lean` asigna a `verification_status`.
+        """
+        import io
+        import re
+        from nucleo.rutas import RAIZ
+        core = io.open(RAIZ / "nucleo" / "core.py", encoding="utf-8").read()
+        reales = set(re.findall(r'verification_status\s*=\s*"([a-z_]+)"', core))
+        assert len(reales) >= 6, "no se encuentran los veredictos en core.py"
+
+        for nombre in ("docs/img/00-flujo-real.svg", "README.md",
+                       "docs/arquitectura_nle.html"):
+            p = RAIZ / nombre
+            if not p.exists():
+                continue
+            doc = io.open(p, encoding="utf-8").read()
+            faltan = sorted(v for v in reales if v not in doc)
+            assert not faltan, (
+                "%s no nombra %s, que el código sí produce. "
+                "Regenerar con python scripts/dibujar_flujo.py"
+                % (nombre, ", ".join(faltan)))
+
+    def test_el_diagrama_de_flujo_no_deja_cajas_sin_salida(self):
+        """El paso 5 tenía flecha que entraba y ninguna que saliera.
+
+        Lo vio el usuario leyendo el dibujo, no el script que lo genera. Ahora
+        `dibujar_flujo.main` devuelve 1 si alguna caja del flujo queda
+        huérfana, y esta guardia lo corre.
+        """
+        import importlib.util
+        import io
+        import sys
+        from nucleo.rutas import RAIZ
+        ruta = RAIZ / "scripts" / "dibujar_flujo.py"
+        if not ruta.exists():
+            return
+        spec = importlib.util.spec_from_file_location("_dibujar_flujo", ruta)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        salida, sys.stdout = sys.stdout, io.StringIO()
+        try:
+            codigo = mod.main(None)
+        finally:
+            informe, sys.stdout = sys.stdout.getvalue(), salida
+        assert codigo == 0, "el diagrama corta el flujo:\n" + informe

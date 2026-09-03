@@ -32,7 +32,7 @@ decide la verdad — eso es Lean, siempre.
 2. [Las dos capas](#2-las-dos-capas)
 3. [El grafo: de qué consta](#3-el-grafo-de-qué-consta)
 4. [La lista: 183 433 hechos](#4-la-lista-183-433-hechos)
-5. [Lean y sus seis veredictos](#5-lean-y-sus-seis-veredictos)
+5. [Lean: cuatro caminos, siete veredictos](#5-lean-cuatro-caminos-siete-veredictos)
 6. [Lo que está medido](#6-lo-que-está-medido)
 7. [Tests y guardianes](#7-tests-y-guardianes)
 8. [Lo que se midió y no sirve](#8-lo-que-se-midió-y-no-sirve)
@@ -47,7 +47,7 @@ decide la verdad — eso es Lean, siempre.
 Todo pasa por `Nucleo.process(texto)`.
 
 <p align="center">
-  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional sin tocar Lean. Si lo es, el grafo aporta al prompt los conceptos activados con sus nombres de Mathlib verificados. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y su veredicto tiene seis salidas distintas. Finalmente el LLM traduce, y la respuesta sale con el veredicto delante del texto." width="100%">
+  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional, que responde sin verificación formal. Si lo es, el grafo aporta al prompt los conceptos activados con sus nombres de Mathlib verificados. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico el error vuelve al modelo, máximo dos rondas; si queda un sorry entra la cascada de tácticas del grafo; y si Lean acepta se pasa directo al veredicto. Los caminos confluyen en un veredicto final de siete estados, que el LLM traduce antes de la respuesta, con el veredicto siempre delante del texto." width="100%">
 </p>
 
 | paso | quién | qué hace | ¿aporta? |
@@ -56,8 +56,8 @@ Todo pasa por `Nucleo.process(texto)`.
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
 | 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
-| 5 | LLM | traduce el código que Lean aceptó | — |
-| 6 | **grafo** | ordena las tácticas si queda un `sorry` | **sí — 2,4× menos intentos** |
+| 5 | **grafo** | ordena las tácticas si queda un `sorry` | **sí — 2,4× menos intentos** |
+| 6 | LLM | traduce el código que Lean aceptó | — |
 
 La última columna sale de medir cada punto por separado. **No hay un veredicto
 único sobre «el núcleo»**: aporta en dos de sus puntos de actuación y es inerte
@@ -75,7 +75,7 @@ negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
 | **cómo se hizo** | 173 a mano + 125 generados | extraída del fuente, entera |
 | **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
 | **estructura** | categórica: colímites, orden, pilares | plana, indexada |
-| **en el flujo** | pasos 1, 3 y 6 | alimenta el índice de premisas |
+| **en el flujo** | pasos 1, 3 y 5 | alimenta el índice de premisas |
 
 **El puente ya existía.** Cada hecho de la lista lleva su `concepto`
 —`Algebra.Order`, `Data.Set`— y ésos son exactamente los identificadores de los
@@ -97,7 +97,7 @@ hechos. **La lista existe para cubrir esa mitad.**
 ## 3. El grafo: de qué consta
 
 <p align="center">
-  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado: 298 nodos repartidos en cuatro sectores, uno por pilar fundacional, con los diez nodos base al centro y las sub-ramas hacia fuera. Los 125 nodos generados desde Mathlib aparecen en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
+  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado como árbol radial: 315 nodos que salen de los cuatro pilares fundacionales del centro hacia las sub-ramas de fuera, con el ángulo repartido por tamaño de subárbol para que ningún nodo tape a otro. Los 125 generados desde Mathlib y los 17 de área van en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
 </p>
 
 | pieza | cuántos | qué es |
@@ -225,21 +225,35 @@ de empatar con un prior de frecuencia (9,4 % contra 9,2 %) a superarlo
 
 ---
 
-## 5. Lean y sus seis veredictos
+## 5. Lean: cuatro caminos, siete veredictos
 
-Que Lean compile no significa que haya demostrado lo que se preguntó. El aviso
-va **delante** del texto.
+Hay que separar dos cosas que se confundían. Lo que Lean dice abre **cuatro
+caminos**, y tres de ellos siguen trabajando; sólo al final hay un veredicto.
 
-| salida | qué significa |
+| lo que dice Lean | qué pasa después |
 |---|---|
-| **verificado** | hay teorema, lo prueba, y es el que se preguntó |
-| **no hay prueba** | Lean aceptó el archivo, pero no contiene ningún teorema |
-| **lo que pediste es falso** | Lean verificó la **negación** del enunciado |
-| error de módulo | falta un import → se repara y se reintenta |
-| error semántico | vuelve al LLM con el error de Lean, máximo 2 rondas |
-| `sorry` | cascada de 12 tácticas, ordenadas por lo medido |
+| falta un módulo | se repara el encabezado y se reintenta **una vez** |
+| error semántico | el error vuelve al LLM, **máximo 2 rondas** |
+| queda un `sorry` | entra la cascada de 12 tácticas del paso 5 |
+| acepta el archivo | pasa directo al veredicto |
 
-Las tres primeras existen porque las tres se dieron: el sistema llegó a estampar
+Los dos reintentos **sólo se aceptan si mejoran**: nunca se sustituye un
+resultado por otro peor.
+
+Y que Lean compile no significa que haya demostrado lo que se preguntó. El
+veredicto final tiene siete estados, y va **delante** del texto.
+
+| veredicto | qué significa |
+|---|---|
+| **`verificado`** | hay teorema, lo prueba, y es el que se preguntó |
+| **`parcial`** | la estructura compila; la cascada intentó cerrar el `sorry` |
+| **`refutado`** | Lean verificó la **negación** del enunciado |
+| **`sin_teorema`** | Lean aceptó el archivo, pero no contiene ningún teorema |
+| `no_verificado` | Lean rechazó y los reintentos no lo arreglaron |
+| `timeout` | Lean no terminó dentro del límite |
+| `sin_entorno` | no hay `lake` instalado — no es un fallo de lógica |
+
+`verificado`, `sin_teorema` y `refutado` existen porque los tres se dieron: el sistema llegó a estampar
 «verificado» sobre un archivo de `#check` sin teoremas, y sobre la negación de lo
 que se había pedido. Ninguna la encontraron los tests — las encontró correr el
 sistema contra un banco de consultas reales.

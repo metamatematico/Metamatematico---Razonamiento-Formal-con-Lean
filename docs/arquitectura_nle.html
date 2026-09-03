@@ -195,7 +195,7 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
     <li><a href="#capas">Las dos capas</a></li>
     <li><a href="#grafo">El grafo: de qué consta</a></li>
     <li><a href="#hechos">La lista: 183 433 hechos</a></li>
-    <li><a href="#lean">Lean y sus seis veredictos</a></li>
+    <li><a href="#lean">Lean: cuatro caminos, siete veredictos</a></li>
     <li><a href="#medido">Lo que está medido</a></li>
     <li><a href="#nosirve">Lo que se midió y no sirve</a></li>
     <li><a href="#instrumentos">Doce instrumentos rotos</a></li>
@@ -235,86 +235,112 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="El flujo de la consulta a la respuesta. La consulta entra por la interfaz y un clasificador decide si es matematica; si no lo es va al modelo conversacional sin verificacion formal. Si lo es, el grafo actua en tres puntos numerados: prepara el prompt con nombres de Mathlib comprobados, elige que modulos importa Lean, y ordena las tacticas si queda un sorry. Cada punto lleva su veredicto medido: el primero y el tercero aportan, el segundo es inerte. Lean verifica en medio y su veredicto tiene seis salidas distintas." viewBox="0 0 1120 700">
+<svg role="img" id="fig-flujo" aria-label="El flujo de la consulta a la respuesta. La consulta entra por la interfaz y un clasificador decide si es matematica; si no lo es va al modelo conversacional, que responde sin verificacion formal. Si lo es, el grafo actua en tres puntos numerados: prepara el prompt con nombres de Mathlib comprobados, elige que modulos importa Lean, y ordena las tacticas si queda un sorry. Cada punto lleva su veredicto medido: el primero y el tercero aportan, el segundo es inerte. Lean verifica en medio y abre cuatro caminos: si falta un modulo se repara el encabezado y se reintenta una vez, si el error es semantico el error vuelve al modelo hasta dos rondas, si queda un sorry entra la cascada de tacticas, y si Lean acepta se pasa directo al veredicto. Los tres caminos confluyen en un veredicto final de siete estados, que el modelo traduce a lenguaje natural antes de la respuesta." viewBox="0 0 1120 810">
 <defs><marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="pf"/></marker></defs>
-<style>svg{color:#1b1e17}.bg{fill:#ffffff;stroke:#ddd6c2}.gr{fill:#e7e4f5;stroke:#564c9e}.ve{fill:#dbf0ea;stroke:#167a68}.ll{fill:#f5e7cf;stroke:#b4761f}.al{fill:#f6dfdc;stroke:#ae3b35}.ln{stroke:currentColor;opacity:.5;fill:none;stroke-width:1.6}.pf{fill:currentColor;opacity:.5}.t{font:13px ui-sans-serif,system-ui;fill:currentColor}.b{font:600 13px ui-sans-serif,system-ui;fill:currentColor}.s{font:11px ui-sans-serif,system-ui;fill:currentColor;opacity:.66}.m{font:11px ui-monospace,monospace;fill:currentColor;opacity:.72}.gt{fill:#564c9e}.vt{fill:#167a68}.lt{fill:#b4761f}.at{fill:#ae3b35}@media(prefers-color-scheme:dark){svg{color:#e8e6de}.bg{fill:#171b23;stroke:#2b3140}.gr{fill:#242038;stroke:#948bdd}.ve{fill:#152722;stroke:#4dc0aa}.ll{fill:#332714;stroke:#e2a94f}.al{fill:#331d1b;stroke:#e2827a}.gt{fill:#948bdd}.vt{fill:#4dc0aa}.lt{fill:#e2a94f}.at{fill:#e2827a}}rect{stroke-width:1.3}</style>
+<style>#fig-flujo{color:#1b1e17}#fig-flujo .bg{fill:#ffffff;stroke:#ddd6c2}#fig-flujo .gr{fill:#e7e4f5;stroke:#564c9e}#fig-flujo .ve{fill:#dbf0ea;stroke:#167a68}#fig-flujo .ll{fill:#f5e7cf;stroke:#b4761f}#fig-flujo .al{fill:#f6dfdc;stroke:#ae3b35}#fig-flujo .ln{stroke:currentColor;opacity:.5;fill:none;stroke-width:1.6}#fig-flujo .pf{fill:currentColor;opacity:.5}#fig-flujo .t{font:13px ui-sans-serif,system-ui;fill:currentColor}#fig-flujo .b{font:600 13px ui-sans-serif,system-ui;fill:currentColor}#fig-flujo .s{font:11px ui-sans-serif,system-ui;fill:currentColor;opacity:.66}#fig-flujo .m{font:11px ui-monospace,monospace;fill:currentColor;opacity:.78}#fig-flujo rect{stroke-width:1.3}@media(prefers-color-scheme:dark){#fig-flujo{color:#e8e6de}#fig-flujo .bg{fill:#171b23;stroke:#2b3140}#fig-flujo .gr{fill:#242038;stroke:#948bdd}#fig-flujo .ve{fill:#152722;stroke:#4dc0aa}#fig-flujo .ll{fill:#332714;stroke:#e2a94f}#fig-flujo .al{fill:#331d1b;stroke:#e2827a}}</style>
 <text class="b" x="24" y="26" text-anchor="start">DE LA ENTRADA A LA SALIDA</text>
 <text class="s" x="232" y="26" text-anchor="start">— el grafo actúa en TRES puntos, y sólo dos aportan</text>
-<rect class="bg" x="24" y="46" width="150" height="46" rx="9"/>
-<text class="b" x="99" y="68" text-anchor="middle">consulta</text>
-<text class="s" x="99" y="84" text-anchor="middle">UI · CLI</text>
-<rect class="bg" x="196" y="46" width="176" height="46" rx="9"/>
-<text class="t" x="284" y="66" text-anchor="middle">¿es matemática?</text>
-<text class="s" x="284" y="82" text-anchor="middle">forma + vocabulario</text>
-<path class="ln" d="M174 69 L194 69" marker-end="url(#p)"/>
-<rect class="ll" x="396" y="46" width="210" height="46" rx="9"/>
-<text class="t" x="501" y="66" text-anchor="middle">LLM conversacional</text>
-<text class="s" x="501" y="82" text-anchor="middle">sin verificación formal</text>
-<path class="ln" d="M372 69 L394 69" marker-end="url(#p)"/>
-<text class="s" x="383" y="62" text-anchor="middle">no</text>
-<text class="s" x="290" y="108" text-anchor="middle">sí</text>
-<path class="ln" d="M284 92 L284 122" marker-end="url(#p)"/>
-<rect class="gr" x="24" y="126" width="582" height="74" rx="9"/>
-<text class="b" x="40" y="148" text-anchor="start">1 · EL GRAFO PREPARA EL PROMPT</text>
-<text class="s" x="40" y="168" text-anchor="start">conceptos activados · nombres de Mathlib comprobados con #check · ejemplos few-shot</text>
-<text class="s" x="40" y="186" text-anchor="start">APORTA · 12× sobre el azar, medido contra ProofNet</text>
-<circle cx="590" cy="140" r="5" class="gt"/>
-<rect class="ll" x="24" y="214" width="582" height="56" rx="9"/>
-<text class="b" x="40" y="236" text-anchor="start">2 · EL LLM FORMALIZA</text>
-<text class="s" x="40" y="256" text-anchor="start">escribe Lean 4 — no decide si es cierto</text>
-<path class="ln" d="M315 200 L315 212" marker-end="url(#p)"/>
-<rect class="gr" x="24" y="284" width="582" height="74" rx="9"/>
-<text class="b" x="40" y="306" text-anchor="start">3 · EL GRAFO ELIGE QUÉ MÓDULOS VE LEAN</text>
-<text class="s" x="40" y="326" text-anchor="start">descarta `import Mathlib` — 742 s, más que el timeout</text>
-<text class="s" x="40" y="344" text-anchor="start">INERTE · empata con un conjunto fijo de 3 módulos, y el margen total son 2,5 puntos</text>
-<path class="ln" d="M315 270 L315 282" marker-end="url(#p)"/>
-<rect class="ve" x="24" y="372" width="582" height="52" rx="9"/>
-<text class="b" x="40" y="394" text-anchor="start">4 · LEAN VERIFICA</text>
-<text class="s" x="40" y="412" text-anchor="start">la fuente de verdad · su veredicto es inapelable</text>
-<path class="ln" d="M315 358 L315 370" marker-end="url(#p)"/>
-<rect class="ve" x="24" y="442" width="182" height="30" rx="15"/>
-<text class="m" x="115" y="462" text-anchor="middle">verificado</text>
-<rect class="bg" x="220" y="442" width="182" height="30" rx="15"/>
-<text class="m" x="311" y="462" text-anchor="middle">no hay prueba</text>
-<rect class="bg" x="416" y="442" width="182" height="30" rx="15"/>
-<text class="m" x="507" y="462" text-anchor="middle">lo pedido es falso</text>
-<rect class="bg" x="24" y="482" width="182" height="30" rx="15"/>
-<text class="m" x="115" y="502" text-anchor="middle">error de módulo</text>
-<rect class="bg" x="220" y="482" width="182" height="30" rx="15"/>
-<text class="m" x="311" y="502" text-anchor="middle">error semántico</text>
-<rect class="al" x="416" y="482" width="182" height="30" rx="15"/>
-<text class="m" x="507" y="502" text-anchor="middle">queda un `sorry`</text>
-<path class="ln" d="M315 424 L315 440" marker-end="url(#p)"/>
-<rect class="gr" x="24" y="534" width="582" height="74" rx="9"/>
-<text class="b" x="40" y="556" text-anchor="start">5 · EL GRAFO ORDENA LAS TÁCTICAS</text>
-<text class="s" x="40" y="576" text-anchor="start">12 tácticas · premisas sólo si el objetivo engancha con algo específico</text>
-<text class="s" x="40" y="594" text-anchor="start">APORTA · 2,4× menos intentos, medido sobre 1600 pruebas de Mathlib</text>
-<path class="ln" d="M115 512 L115 532" marker-end="url(#p)"/>
-<rect class="ll" x="646" y="372" width="450" height="74" rx="9"/>
-<text class="b" x="662" y="394" text-anchor="start">6 · EL LLM TRADUCE EL VEREDICTO</text>
-<text class="s" x="662" y="414" text-anchor="start">explica el código que Lean aceptó —</text>
-<text class="s" x="662" y="432" text-anchor="start">no lo que el modelo creía</text>
-<path class="ln" d="M606 398 L644 398" marker-end="url(#p)"/>
-<rect class="bg" x="646" y="470" width="450" height="66" rx="9"/>
-<text class="b" x="871" y="496" text-anchor="middle">respuesta</text>
-<text class="s" x="871" y="516" text-anchor="middle">el veredicto va DELANTE del texto, siempre</text>
-<path class="ln" d="M871 446 L871 468" marker-end="url(#p)"/>
-<rect class="bg" x="646" y="126" width="450" height="210" rx="9"/>
-<text class="b" x="662" y="150" text-anchor="start">Lo que NO está en esta cadena</text>
-<text class="s" x="662" y="174" text-anchor="start">Los co-reguladores deciden antes y la</text>
-<text class="s" x="662" y="190" text-anchor="start">memoria MES registra después: ninguno</text>
-<text class="s" x="662" y="206" text-anchor="start">formaliza ni verifica.</text>
-<text class="s" x="662" y="236" text-anchor="start">La LISTA de 183 433 hechos de Mathlib</text>
-<text class="s" x="662" y="252" text-anchor="start">no toca el prompt: alimenta el índice</text>
-<text class="s" x="662" y="268" text-anchor="start">de premisas del paso 5.</text>
-<text class="s" x="662" y="298" text-anchor="start">Los nombres de los 125 nodos generados</text>
-<text class="s" x="662" y="314" text-anchor="start">no se inyectan: están deducidos, y 95</text>
-<text class="s" x="662" y="330" text-anchor="start">de 447 no existen en Mathlib.</text>
+<rect class="bg" x="170" y="46" width="150" height="44" rx="9"/>
+<text class="b" x="245" y="68" text-anchor="middle">consulta</text>
+<text class="s" x="245" y="84" text-anchor="middle">UI · CLI</text>
+<rect class="bg" x="344" y="46" width="176" height="44" rx="9"/>
+<text class="t" x="432" y="66" text-anchor="middle">¿es matemática?</text>
+<text class="s" x="432" y="82" text-anchor="middle">forma + vocabulario</text>
+<path class="ln" d="M320 68 L342 68" marker-end="url(#p)"/>
+<rect class="ll" x="544" y="46" width="200" height="44" rx="9"/>
+<text class="t" x="644" y="68" text-anchor="middle">LLM conversacional</text>
+<text class="s" x="644" y="84" text-anchor="middle">no formaliza nada</text>
+<path class="ln" d="M520 68 L542 68" marker-end="url(#p)"/>
+<text class="s" x="531" y="60" text-anchor="middle">no</text>
+<text class="s" x="440" y="112" text-anchor="start">sí</text>
+<path class="ln" d="M432 90 L432 120" marker-end="url(#p)"/>
+<rect class="gr" x="170" y="124" width="574" height="72" rx="9"/>
+<text class="b" x="186" y="146" text-anchor="start">1 · EL GRAFO PREPARA EL PROMPT</text>
+<text class="s" x="186" y="166" text-anchor="start">conceptos activados · nombres de Mathlib comprobados con #check · ejemplos few-shot</text>
+<text class="s" x="186" y="184" text-anchor="start">APORTA · 12× sobre el azar, medido contra ProofNet</text>
+<path class="ln" d="M432 196 L432 212" marker-end="url(#p)"/>
+<rect class="ll" x="170" y="216" width="574" height="64" rx="9"/>
+<text class="b" x="186" y="238" text-anchor="start">2 · EL LLM FORMALIZA</text>
+<text class="s" x="186" y="256" text-anchor="start">escribe Lean 4 — no decide si es cierto</text>
+<text class="s" x="186" y="272" text-anchor="start">si sale una tautología, se rehace una vez antes de verificar</text>
+<path class="ln" d="M432 280 L432 296" marker-end="url(#p)"/>
+<rect class="gr" x="170" y="300" width="574" height="72" rx="9"/>
+<text class="b" x="186" y="322" text-anchor="start">3 · EL GRAFO ELIGE QUÉ MÓDULOS VE LEAN</text>
+<text class="s" x="186" y="342" text-anchor="start">descarta `import Mathlib` — 742 s, más que el timeout</text>
+<text class="s" x="186" y="360" text-anchor="start">INERTE · empata con un conjunto fijo de 3 módulos, y el margen total son 2,5 puntos</text>
+<path class="ln" d="M432 372 L432 388" marker-end="url(#p)"/>
+<rect class="ve" x="170" y="392" width="574" height="50" rx="9"/>
+<text class="b" x="186" y="414" text-anchor="start">4 · LEAN VERIFICA</text>
+<text class="s" x="186" y="432" text-anchor="start">la fuente de verdad · su veredicto es inapelable</text>
+<rect class="al" x="170" y="458" width="136" height="52" rx="9"/>
+<text class="m" x="238" y="480" text-anchor="middle">falta un módulo</text>
+<text class="s" x="238" y="498" text-anchor="middle">repara y reintenta</text>
+<path class="ln" d="M432 442 L432 450 L238 450 L238 458" marker-end="url(#p)"/>
+<rect class="al" x="316" y="458" width="136" height="52" rx="9"/>
+<text class="m" x="384" y="480" text-anchor="middle">error semántico</text>
+<text class="s" x="384" y="498" text-anchor="middle">vuelve al LLM, ×2</text>
+<path class="ln" d="M432 442 L432 450 L384 450 L384 458" marker-end="url(#p)"/>
+<rect class="al" x="462" y="458" width="136" height="52" rx="9"/>
+<text class="m" x="530" y="480" text-anchor="middle">queda un `sorry`</text>
+<text class="s" x="530" y="498" text-anchor="middle">va a la cascada</text>
+<path class="ln" d="M432 442 L432 450 L530 450 L530 458" marker-end="url(#p)"/>
+<rect class="ve" x="608" y="458" width="136" height="52" rx="9"/>
+<text class="m" x="676" y="480" text-anchor="middle">Lean acepta</text>
+<text class="s" x="676" y="498" text-anchor="middle">no hay más que hacer</text>
+<path class="ln" d="M432 442 L432 450 L676 450 L676 458" marker-end="url(#p)"/>
+<path class="ln" d="M238 510 L238 526 L138 526 L138 417 L166 417" marker-end="url(#p)"/>
+<path class="ln" d="M384 510 L384 542 L98 542 L98 248 L166 248" marker-end="url(#p)"/>
+<path class="ln" d="M530 510 L530 530" marker-end="url(#p)"/>
+<rect class="gr" x="170" y="532" width="460" height="72" rx="9"/>
+<text class="b" x="186" y="554" text-anchor="start">5 · EL GRAFO ORDENA LAS TÁCTICAS</text>
+<text class="s" x="186" y="574" text-anchor="start">12 tácticas · premisas sólo si el objetivo engancha</text>
+<text class="s" x="186" y="592" text-anchor="start">APORTA · 2,4× menos intentos sobre 1600 pruebas de Mathlib</text>
+<path class="ln" d="M400 604 L400 616" marker-end="url(#p)"/>
+<path class="ln" d="M676 510 L676 616" marker-end="url(#p)"/>
+<rect class="bg" x="170" y="618" width="574" height="98" rx="9"/>
+<text class="b" x="186" y="640" text-anchor="start">EL VEREDICTO FINAL — siete estados, no dos</text>
+<rect class="ve" x="186" y="652" width="86" height="24" rx="12"/><text class="m" x="229" y="668" text-anchor="middle">verificado</text>
+<rect class="al" x="282" y="652" width="66" height="24" rx="12"/><text class="m" x="315" y="668" text-anchor="middle">parcial</text>
+<rect class="bg" x="358" y="652" width="73" height="24" rx="12"/><text class="m" x="394" y="668" text-anchor="middle">refutado</text>
+<rect class="bg" x="441" y="652" width="92" height="24" rx="12"/><text class="m" x="487" y="668" text-anchor="middle">sin_teorema</text>
+<rect class="bg" x="186" y="682" width="105" height="24" rx="12"/><text class="m" x="238" y="698" text-anchor="middle">no_verificado</text>
+<rect class="bg" x="301" y="682" width="66" height="24" rx="12"/><text class="m" x="334" y="698" text-anchor="middle">timeout</text>
+<rect class="bg" x="377" y="682" width="92" height="24" rx="12"/><text class="m" x="423" y="698" text-anchor="middle">sin_entorno</text>
+<path class="ln" d="M744 667 L768 667" marker-end="url(#p)"/>
+<rect class="ll" x="770" y="618" width="280" height="98" rx="9"/>
+<text class="b" x="786" y="642" text-anchor="start">6 · EL LLM TRADUCE</text>
+<text class="s" x="786" y="664" text-anchor="start">explica el código que Lean</text>
+<text class="s" x="786" y="680" text-anchor="start">aceptó — no lo que el</text>
+<text class="s" x="786" y="696" text-anchor="start">modelo creía que era cierto</text>
+<path class="ln" d="M910 716 L910 740" marker-end="url(#p)"/>
+<rect class="bg" x="770" y="742" width="280" height="52" rx="9"/>
+<text class="b" x="910" y="766" text-anchor="middle">respuesta</text>
+<text class="s" x="910" y="784" text-anchor="middle">el veredicto va delante, siempre</text>
+<path class="ln" d="M744 68 L1074 68 L1074 775 L1052 775" marker-end="url(#p)"/>
+<text class="s" x="752" y="106" text-anchor="start">sin verificación formal</text>
+<rect class="bg" x="770" y="124" width="270" height="380" rx="9"/>
+<text class="b" x="786" y="148" text-anchor="start">Lo que el dibujo NO cuenta</text>
+<text class="s" x="786" y="172" text-anchor="start">Los co-reguladores deciden antes y la</text>
+<text class="s" x="786" y="189" text-anchor="start">memoria MES registra después: ninguno</text>
+<text class="s" x="786" y="206" text-anchor="start">formaliza ni verifica.</text>
+<text class="s" x="786" y="239" text-anchor="start">Los dos reintentos sólo se aceptan si</text>
+<text class="s" x="786" y="256" text-anchor="start">MEJORAN. Nunca se sustituye un</text>
+<text class="s" x="786" y="273" text-anchor="start">resultado por otro peor.</text>
+<text class="s" x="786" y="306" text-anchor="start">«Lean acepta» no es «hay prueba»:</text>
+<text class="s" x="786" y="323" text-anchor="start">sin_teorema sale de un archivo que sólo</text>
+<text class="s" x="786" y="340" text-anchor="start">hace #check, y refutado de haber</text>
+<text class="s" x="786" y="357" text-anchor="start">probado lo contrario de lo pedido.</text>
+<text class="s" x="786" y="390" text-anchor="start">La lista de 183 433 hechos de Mathlib</text>
+<text class="s" x="786" y="407" text-anchor="start">no toca el prompt: alimenta el índice</text>
+<text class="s" x="786" y="424" text-anchor="start">de premisas del paso 5.</text>
+<text class="s" x="786" y="457" text-anchor="start">Los nombres de los 125 nodos generados</text>
+<text class="s" x="786" y="474" text-anchor="start">no se inyectan: están deducidos, y 95</text>
+<text class="s" x="786" y="491" text-anchor="start">de 447 no existen en Mathlib.</text>
 </svg>
       </div>
       <figcaption><b>Fig. 1 —</b> El recorrido completo, con el veredicto
       medido de cada punto donde el grafo actúa. La verdad la produce Lean, y
-      su veredicto tiene seis salidas: que compile no significa que haya
+      su veredicto abre cuatro caminos y termina en siete estados: que
       demostrado lo que se preguntó. Generado por
       <code>scripts/dibujar_flujo.py</code>, no dibujado a mano — el anterior
       decía «dos puntos» y llevaba horas obsoleto.</figcaption>
@@ -349,11 +375,11 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
         <thead><tr><th></th><th>el grafo</th><th>la lista</th></tr></thead>
         <tbody>
           <tr><td><strong>qué guarda</strong></td><td>conceptos — <em>de qué habla</em></td><td>hechos — <em>qué es cierto</em></td></tr>
-          <tr><td><strong>tamaño</strong></td><td class="mono">298 nodos</td><td class="mono">183 433 entradas</td></tr>
+          <tr><td><strong>tamaño</strong></td><td class="mono">315 nodos</td><td class="mono">183 433 entradas</td></tr>
           <tr><td><strong>cómo se hizo</strong></td><td>a mano, 173 nodos · generados desde Mathlib, 125</td><td>extraída del fuente, entera</td></tr>
           <tr><td><strong>¿puede equivocarse?</strong></td><td><strong>sí</strong> — es curación humana</td><td>no sobre sí misma</td></tr>
           <tr><td><strong>estructura</strong></td><td>categórica: colímites, orden, pilares</td><td>plana, indexada</td></tr>
-          <tr><td><strong>en el flujo</strong></td><td>pasos 1, 3 y 6</td><td>alimenta el índice de premisas</td></tr>
+          <tr><td><strong>en el flujo</strong></td><td>pasos 1, 3 y 5</td><td>alimenta el índice de premisas</td></tr>
         </tbody>
       </table>
     </div>
@@ -395,8 +421,8 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="El grafo del runtime como arbol radial: 315 nodos que salen de los 10 pilares fundacionales del centro hacia las sub-ramas de fuera, con el angulo repartido por tamaño de subarbol. Los 125 generados desde Mathlib y los 17 de area van en tono mas claro porque no estan interpretados categoricamente. Las 9 tacticas se dibujan aparte porque son sumideros: reciben aristas y no emiten ninguna." viewBox="0 0 1180 820">
-<style>svg{color:#1b1e17}.e{stroke:currentColor;opacity:.11;fill:none}.n{stroke:none}.g{fill:#564c9e}.c{fill:#167a68}.l{fill:#b4761f}.t{fill:#ae3b35}.si{opacity:.38}.sm{font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62}.tt{font:600 12px ui-monospace,monospace;fill:currentColor}.lb{font:600 10.5px ui-sans-serif,system-ui;fill:currentColor;opacity:.8}@media(prefers-color-scheme:dark){svg{color:#e8e6de}.g{fill:#948bdd}.c{fill:#4dc0aa}.l{fill:#e2a94f}.t{fill:#e2827a}.e{opacity:.16}}</style>
+<svg role="img" id="fig-grafo" aria-label="El grafo del runtime como arbol radial: 315 nodos que salen de los 10 pilares fundacionales del centro hacia las sub-ramas de fuera, con el angulo repartido por tamaño de subarbol. Los 125 generados desde Mathlib y los 17 de area van en tono mas claro porque no estan interpretados categoricamente. Las 9 tacticas se dibujan aparte porque son sumideros: reciben aristas y no emiten ninguna." viewBox="0 0 1180 820">
+<style>#fig-grafo{color:#1b1e17}#fig-grafo .e{stroke:currentColor;opacity:.11;fill:none}#fig-grafo .n{stroke:none}#fig-grafo .g{fill:#564c9e}#fig-grafo .c{fill:#167a68}#fig-grafo .l{fill:#b4761f}#fig-grafo .t{fill:#ae3b35}#fig-grafo .si{opacity:.38}#fig-grafo .sm{font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62}#fig-grafo .tt{font:600 12px ui-monospace,monospace;fill:currentColor}#fig-grafo .lb{font:600 10.5px ui-sans-serif,system-ui;fill:currentColor;opacity:.8}@media(prefers-color-scheme:dark){#fig-grafo{color:#e8e6de}#fig-grafo .g{fill:#948bdd}#fig-grafo .c{fill:#4dc0aa}#fig-grafo .l{fill:#e2a94f}#fig-grafo .t{fill:#e2827a}#fig-grafo .e{opacity:.16}}</style>
 <path class="e" d="M610 487 Q585 448 655 745"/>
 <path class="e" d="M488 352 Q524 381 249 253"/>
 <path class="e" d="M249 253 Q405 331 507 335"/>
@@ -2021,25 +2047,46 @@ footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--border);
   </section>
 
   <section id="lean">
-    <div class="head"><span class="num">05</span><h2><span class="v">Lean</span> y sus seis veredictos</h2></div>
-    <p>Que Lean compile no significa que haya demostrado lo que se preguntó.
-    Cada caso tiene su presentación, y el aviso va <strong>delante</strong> del
-    texto.</p>
+    <div class="head"><span class="num">05</span><h2><span class="v">Lean</span>: cuatro caminos, siete veredictos</h2></div>
+    <p>Había dos cosas mezcladas en una sola tabla, y no son lo mismo. Lo que
+    Lean dice abre <strong>cuatro caminos</strong>, y tres de ellos siguen
+    trabajando; el veredicto viene después.</p>
     <div class="tabla">
       <table>
-        <thead><tr><th>salida</th><th>qué significa</th></tr></thead>
+        <thead><tr><th>lo que dice Lean</th><th>qué pasa después</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill">falta un módulo</span></td><td>se repara el encabezado y se reintenta <strong>una vez</strong></td></tr>
+          <tr><td><span class="pill">error semántico</span></td><td>el error vuelve al LLM, <strong>máximo 2 rondas</strong></td></tr>
+          <tr><td><span class="pill">queda un <code>sorry</code></span></td><td>entra la cascada de 12 tácticas del paso 5</td></tr>
+          <tr><td><span class="pill v">acepta el archivo</span></td><td>pasa directo al veredicto</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="nota">
+      <b>Los dos reintentos sólo se aceptan si MEJORAN</b>
+      Nunca se sustituye un resultado por otro peor. Sin esa condición, un
+      reintento que rompe lo que ya compilaba sería indistinguible de uno que
+      arregla, y el sistema iría hacia atrás sin avisar.
+    </div>
+    <p>Y que Lean compile no significa que haya demostrado lo que se preguntó.
+    El veredicto final tiene <strong>siete estados</strong>, y va
+    <strong>delante</strong> del texto.</p>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>veredicto</th><th>qué significa</th></tr></thead>
         <tbody>
           <tr><td><span class="pill v">verificado</span></td><td>hay teorema, lo prueba, y es el que se preguntó</td></tr>
-          <tr><td><span class="pill g">no hay prueba</span></td><td>Lean aceptó el archivo, pero no contiene ningún teorema</td></tr>
-          <tr><td><span class="pill g">lo pedido es falso</span></td><td>Lean verificó la <strong>negación</strong> del enunciado</td></tr>
-          <tr><td><span class="pill">error de módulo</span></td><td>falta un import → se repara y se reintenta</td></tr>
-          <tr><td><span class="pill">error semántico</span></td><td>vuelve al LLM con el error de Lean, máximo 2 rondas</td></tr>
-          <tr><td><span class="pill"><code>sorry</code></span></td><td>cascada de 12 tácticas, ordenadas por lo medido</td></tr>
+          <tr><td><span class="pill a">parcial</span></td><td>la estructura compila; la cascada intentó cerrar el <code>sorry</code></td></tr>
+          <tr><td><span class="pill g">refutado</span></td><td>Lean verificó la <strong>negación</strong> del enunciado</td></tr>
+          <tr><td><span class="pill g">sin_teorema</span></td><td>Lean aceptó el archivo, pero no contiene ningún teorema</td></tr>
+          <tr><td><span class="pill">no_verificado</span></td><td>Lean rechazó y los reintentos no lo arreglaron</td></tr>
+          <tr><td><span class="pill">timeout</span></td><td>Lean no terminó dentro del límite</td></tr>
+          <tr><td><span class="pill">sin_entorno</span></td><td>no hay <code>lake</code> instalado — no es un fallo de lógica</td></tr>
         </tbody>
       </table>
     </div>
     <div class="nota g">
-      <b>Las tres primeras existen porque las tres se dieron</b>
+      <b>Tres de los siete existen porque los tres se dieron</b>
       El sistema llegó a estampar «verificado» sobre un archivo de
       <code>#check</code> sin ningún teorema, y sobre la <em>negación</em> de lo
       que se había pedido. Ninguna la encontraron los tests: las encontró correr

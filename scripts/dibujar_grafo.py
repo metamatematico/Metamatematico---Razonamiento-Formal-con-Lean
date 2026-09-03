@@ -41,6 +41,47 @@ import sys
 sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+CLARO = [
+    ('svg', 'color:#1b1e17'),
+    ('.e', 'stroke:currentColor;opacity:.11;fill:none'),
+    ('.n', 'stroke:none'),
+    ('.g', 'fill:#564c9e'),
+    ('.c', 'fill:#167a68'),
+    ('.l', 'fill:#b4761f'),
+    ('.t', 'fill:#ae3b35'),
+    ('.si', 'opacity:.38'),
+    ('.sm', 'font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62'),
+    ('.tt', 'font:600 12px ui-monospace,monospace;fill:currentColor'),
+    ('.lb', 'font:600 10.5px ui-sans-serif,system-ui;fill:currentColor;opacity:.8'),
+]
+
+OSCURO = [
+    ('svg', 'color:#e8e6de'),
+    ('.g', 'fill:#948bdd'),
+    ('.c', 'fill:#4dc0aa'),
+    ('.l', 'fill:#e2a94f'),
+    ('.t', 'fill:#e2827a'),
+    ('.e', 'opacity:.16'),
+]
+
+def estilo(ident, claro, oscuro):
+    """Prefija cada selector con el id del dibujo.
+
+    Un <style> dentro de un <svg> inline en HTML NO esta encapsulado: define
+    reglas del documento entero. Sin prefijo, `.l` y `.n` de aqui repintaban
+    las cifras de portada del artefacto, que usan esas mismas clases.
+    """
+    def pre(reglas):
+        salida = []
+        for sel, decl in reglas:
+            sel = "#%s" % ident if sel == "svg" else "#%s %s" % (ident, sel)
+            salida.append("%s{%s}" % (sel, decl))
+        return "".join(salida)
+    return ("<style>" + pre(claro)
+            + "@media(prefers-color-scheme:dark){" + pre(oscuro) + "}"
+            + "</style>")
+
+
 SALIDA = "E:/Metamatematico/docs/img/10-grafo-real.svg"
 W, H = 1180, 820
 CX, CY = 560, 410
@@ -143,22 +184,9 @@ def main(_):
             "aparte porque son sumideros: reciben aristas y no emiten ninguna."
             % (len(S), len(raices), len(gen), len(areas), len(tac)))
     p = ['<svg xmlns="http://www.w3.org/2000/svg" role="img" '
-         'aria-label="%s" viewBox="0 0 %d %d">' % (aria, W, H)]
-    p.append('<style>'
-             'svg{color:#1b1e17}'
-             '.e{stroke:currentColor;opacity:.11;fill:none}'
-             '.n{stroke:none}'
-             '.g{fill:#564c9e}.c{fill:#167a68}.l{fill:#b4761f}.t{fill:#ae3b35}'
-             '.si{opacity:.38}'
-             '.sm{font:10px ui-sans-serif,system-ui;fill:currentColor;opacity:.62}'
-             '.tt{font:600 12px ui-monospace,monospace;fill:currentColor}'
-             '.lb{font:600 10.5px ui-sans-serif,system-ui;fill:currentColor;'
-             'opacity:.8}'
-             '@media(prefers-color-scheme:dark){'
-             'svg{color:#e8e6de}'
-             '.g{fill:#948bdd}.c{fill:#4dc0aa}.l{fill:#e2a94f}.t{fill:#e2827a}'
-             '.e{opacity:.16}}'
-             '</style>')
+         'id="fig-grafo" aria-label="%s" viewBox="0 0 %d %d">'
+         % (aria, W, H)]
+    p.append(estilo("fig-grafo", CLARO, OSCURO))
 
     for a_, b_ in dep:
         x1, y1 = pos[a_]
