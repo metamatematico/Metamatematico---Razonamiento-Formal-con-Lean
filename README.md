@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-792_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-808_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -308,7 +308,7 @@ Todas sin API salvo la última.
 
 ## 7. Tests y guardianes
 
-**792 tests en 37 suites.** Los que más valen no comprueban que el código
+**808 tests en 38 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -428,7 +428,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    792 tests en 37 suites
+tests/                    808 tests en 38 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

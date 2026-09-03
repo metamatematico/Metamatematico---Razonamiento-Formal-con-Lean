@@ -3285,7 +3285,29 @@ class Nucleo:
         This replaces the naive `skill_ids[:10]` approach with
         structurally-informed context that helps the LLM reason better.
         """
-        matched = self._match_skills_to_query(query, graph)
+        # ── EL GRAFO SE CONSULTA EN INGLES ────────────────────────────────
+        # Los alumnos preguntan en español y todo lo que el grafo compara esta
+        # en ingles: las 3 839 palabras clave, los 183 433 hechos de Mathlib,
+        # los ejemplos de miniF2F. Medido sobre las 24 consultas reales del
+        # banco, traduciendo antes de emparejar:
+        #
+        #     activan alguna skill    9/24  ->  11/24
+        #     abren alguna area       3/24  ->   9/24
+        #
+        # El ingles PASA DIRECTO —`al_ingles` lo detecta y no lo toca— asi que
+        # esto no puede mover las mediciones sobre ProofNet, que es ingles.
+        #
+        # SOLO PARA BUSCAR. El LLM sigue recibiendo el texto ORIGINAL: la
+        # traduccion es una lente para consultar el grafo, no una reescritura
+        # de lo que el alumno pregunto.
+        try:
+            from nucleo.graph.traductor import al_ingles
+            consulta_en, _ = al_ingles(query)
+        except Exception as exc:                  # noqa: BLE001
+            logger.debug("traductor no disponible: %s", exc)
+            consulta_en = query
+
+        matched = self._match_skills_to_query(consulta_en, graph)
 
         # ── LA PUERTA SE MIDIO Y NO PAGA, ASI QUE NO ESTA AQUI ────────────
         # `nucleo/graph/reconocedor.py` lee el AREA del enunciado por su forma
