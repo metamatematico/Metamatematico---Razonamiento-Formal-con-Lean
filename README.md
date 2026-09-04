@@ -58,12 +58,12 @@ idioma.
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
 | 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
-| 5 | **grafo** | ordena las tácticas si queda un `sorry` | **sí — 2,4× menos intentos** |
+| 5 | **grafo** | ordena las tácticas si queda un `sorry` | **no bate al nulo** |
 | 6 | LLM | traduce el código que Lean aceptó | — |
 
 La última columna sale de medir cada punto por separado. **No hay un veredicto
-único sobre «el núcleo»**: aporta en dos de sus puntos de actuación y es inerte
-en un tercero. El detalle está en la [sección 6](#6-lo-que-está-medido) y los
+único sobre «el núcleo»**: aporta en **uno** de sus tres puntos de actuación, es
+inerte en otro, y en el tercero **no bate a su modelo nulo**. El detalle está en la [sección 6](#6-lo-que-está-medido) y los
 negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
 
 ### La frontera del idioma
@@ -315,7 +315,7 @@ lo mismo acierta el 79 %.
 |---|---|---|---|
 | Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro</sub> | 13,6 % precisión | 1,1 % | **12× · aporta** |
 | Dependencias contra el DAG real<br><sub>21 446 aristas oficiales</sub> | 78,1 % confirmadas | 32,6 % | **2,4× · aporta** |
-| Orden de tácticas<br><sub>1 600 pruebas de Mathlib</sub> | 1,29 intentos | 2,59 | **−50 % · aporta** |
+| Orden de tácticas<br><sub>1 600 pruebas de Mathlib</sub> | 1,29 intentos | **1,07** | **no bate al nulo** |
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
 | Elección de imports<br><sub>40 enunciados, Lean como juez</sub> | 90 % elabora | 90 % | **inerte** |
 | Banco de fidelidad<br><sub>24 consultas, juez ciego al veredicto</sub> | 21/24 | — | **0 infieles** |
@@ -342,6 +342,59 @@ Todas sin API salvo la última.
 ```
 
 `collectAxioms` confirma que ninguna constante depende de `sorryAx`.
+
+---
+
+### El orden de tácticas no batía a su modelo nulo, y nadie lo había preguntado
+
+Esta medición comparaba dos reglas entre sí —2,59 y 1,29— y de ahí salía
+«**APORTA · 2,4× menos intentos**», que este repositorio publicaba como el punto
+mejor medido del grafo. **Nunca preguntó contra qué suelo.**
+
+El suelo se ve en cuanto se mira la distribución de los 1 600 casos:
+
+```
+simp       1532  (95,8 %)
+aesop        34  ( 2,1 %)
+rfl          23  ( 1,4 %)
+norm_num      5  ( 0,3 %)
+linarith      5  ( 0,3 %)
+ring          1  ( 0,1 %)
+```
+
+Con eso, el modelo nulo es «probar `simp` primero y no mirar nada más». Medido
+en una partición de prueba del 20 %:
+
+| orden | posición media | 1er intento | en los 3 |
+|---|---|---|---|
+| viejo | 2,58 | 27,2 % | 92,2 % |
+| **regla de hoy** | **1,26** | 88,4 % | 94,4 % |
+| **MODELO NULO** | **1,09** | 94,4 % | 99,4 % |
+| clasificador entrenado | 1,06 | 95,9 % | 99,4 % |
+
+**La regla pierde contra el nulo en 24 casos y gana en 2**, con una diferencia
+media de +0,172 posiciones e intervalo de confianza del 95 % en
+`[+0,094, +0,253]` — entero por encima de cero. Es real.
+
+Y el mecanismo se ve en los casos: los patrones del objetivo **desplazan a
+`simp`** justo en objetivos que `simp` cierra.
+
+```
+: card α < ⊤ ↔ Finite α                    set-theory  ->  simp
+: ⁅x, m - n⁆ = ⁅x, m⁆ - ⁅x, n⁆             algebra     ->  simp
+: (pure a : Filter α) * pure b = pure (a * b)  set-theory -> simp
+```
+
+**Lo que sigue siendo cierto:** pasar de 2,59 a 1,29 es una mejora real sobre el
+orden viejo. Lo que no se sostiene es leerla como que el grafo aporta ahí.
+
+**Y el clasificador tampoco se cablea.** 1,06 frente a 1,09 no es nada sobre 320
+casos. El banco no puede distinguir: con el 95,8 % en una sola clase, casi
+cualquier cosa que ponga `simp` primero da lo mismo. La conclusión honesta no es
+«el orden de tácticas es malo», sino **este banco no puede decidirlo**.
+
+`efecto_orden_cascada.py` calcula ahora su modelo nulo y lo imprime, para que la
+cifra no se pueda volver a citar sola.
 
 ---
 

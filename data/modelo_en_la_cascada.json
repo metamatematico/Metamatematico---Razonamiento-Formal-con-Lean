@@ -1,0 +1,42 @@
+{
+ "casos": 1600,
+ "train": 1280,
+ "test": 320,
+ "semilla": 20260901,
+ "tacticas": 12,
+ "distribucion": {
+  "simp": 1532,
+  "aesop": 34,
+  "rfl": 23,
+  "linarith": 5,
+  "norm_num": 5,
+  "ring": 1
+ },
+ "columnas": [
+  "posicion_media",
+  "1er_intento_pct",
+  "en_los_3_pct"
+ ],
+ "resultados": {
+  "viejo": [
+   2.575,
+   27.2,
+   92.2
+  ],
+  "regla": [
+   1.262,
+   88.4,
+   94.4
+  ],
+  "NULO": [
+   1.091,
+   94.4,
+   99.4
+  ],
+  "modelo": [
+   1.062,
+   95.9,
+   99.4
+  ]
+ }
+}

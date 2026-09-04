@@ -59,7 +59,7 @@ acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
             |                                                       |
             +-- falta un módulo   --> repara y reintenta x1 --> a 4 |
             +-- error semántico   --> vuelve al LLM x2      --> a 2 |
-            +-- queda un `sorry`  --> 5 · TÁCTICAS  APORTA 2,4x     |
+            +-- queda un `sorry`  --> 5 · TÁCTICAS  NO BATE AL NULO |
             +-- Lean acepta       --------------------------+       |
                                                             v       |
     EL VEREDICTO FINAL — siete estados                              |
@@ -236,8 +236,8 @@ hueco de los 173 curados, y ahora se ve.
     371 ejercicios con formalización de oro
   Dependencias contra el DAG real    78,1 %       32,6 %     2,4x · APORTA
     21 446 aristas oficiales de Mathlib
-  Orden de tácticas                1,29 int.     2,59 int.   -50 % · APORTA
-    1 600 pruebas de Mathlib · 1 163 mejoran, 26 empeoran
+  Orden de tácticas                1,29 int.     1,07 int.   NO BATE AL NULO
+    1 600 pruebas de Mathlib · `simp` cierra el 95,8 % · ver §7.7
   Selección de premisas              14,0 %       11,7 %     mejora pequeña
     sin los @[simp], que simp ya tiene
   Banco de fidelidad                  21/24         —        0 infieles
@@ -246,9 +246,9 @@ hueco de los 173 curados, y ahora se ve.
   Elección de imports              90 % (18/20) 90 % (18/20) INERTE
     40 enunciados, Lean como juez · azar 14/20
 
-NO HAY UN VEREDICTO ÚNICO SOBRE «EL NÚCLEO». El grafo aporta en dos de sus tres
-puntos de actuación y es inerte en el tercero. Decirlo de otra manera sería
-mentir por agregación.
+NO HAY UN VEREDICTO ÚNICO SOBRE «EL NÚCLEO». El grafo aporta en UNO de sus tres
+puntos de actuación, es inerte en otro, y en el tercero NO BATE A SU MODELO
+NULO. Decirlo de otra manera sería mentir por agregación.
 
 
 ================================================================================
@@ -286,7 +286,34 @@ mentir por agregación.
      precisión baja 1,0. En ProofNet el léxico sólo calla en 31 de 371, así que
      el margen era del 4 % desde el principio. Está FUERA de la cadena.
 
-7.6  LOS NOMBRES DE LOS NODOS GENERADOS
+7.6  EL ORDEN DE TÁCTICAS NO BATE A SU MODELO NULO
+     Esta era la afirmación de portada del proyecto: «APORTA · 2,4x menos
+     intentos», el punto MEJOR MEDIDO del grafo. La medición comparaba dos
+     reglas entre sí —2,59 y 1,29— y NUNCA PREGUNTÓ CONTRA QUÉ SUELO.
+
+     El suelo se ve en la distribución: `simp` cierra el 95,8 % de los 1 600
+     casos. El nulo «probar simp primero» da 1,07 sobre el corpus entero.
+     En una partición de prueba del 20 %:
+
+         orden                 media   1er intento   en los 3
+         viejo                  2,58        27,2 %     92,2 %
+         regla de hoy           1,26        88,4 %     94,4 %
+         MODELO NULO            1,09        94,4 %     99,4 %
+         clasificador           1,06        95,9 %     99,4 %
+
+     La regla PIERDE en 24 casos y gana en 2. Diferencia media +0,172
+     posiciones, IC bootstrap 95 % [+0,094, +0,253] — entero por encima de
+     cero. Y el mecanismo se ve: los patrones del objetivo DESPLAZAN a `simp`
+     en objetivos que `simp` cierra.
+
+     Sigue siendo cierto que 2,59 -> 1,29 es una mejora real sobre el orden
+     VIEJO. Lo que no se sostiene es leerla como que el grafo aporta ahí.
+
+     Y el clasificador tampoco se cablea: 1,06 frente a 1,09 no es nada sobre
+     320 casos. Con el 95,8 % en una sola clase, ESTE BANCO NO PUEDE DECIDIR.
+     `efecto_orden_cascada.py` calcula ahora su nulo y lo imprime.
+
+7.7  LOS NOMBRES DE LOS NODOS GENERADOS
      De 447 identificadores comprobados uno a uno con `#check`: 346 existen,
      95 NO EXISTEN y 6 son namespaces. Estaban deducidos de la ruta del módulo,
      y el filtro pedía CamelCase — que deja pasar `Basic` (un fichero) igual que
@@ -391,10 +418,11 @@ Y en lo que la cascada paga, que son llamadas a Lean:
     orden fijo por frecuencia     4,64        23,8 %      51,5 %
     ORDENADO POR EL MODELO        1,90        67,1 %      88,3 %
 
-AVISO: NO es comparable con el 1,29 de la cascada. Ese número sale de otro
-corpus (1 600 pruebas de Mathlib), otro conjunto de tácticas (12, no 22) y otra
-tarea. Lo comparable es lo de dentro de esta medición. Para saber si MEJORA la
-cascada hay que medirlo en el banco de la cascada, y eso NO ESTÁ HECHO.
+YA MEDIDO EN EL BANCO DE LA CASCADA (§7.6): el clasificador da 1,06 frente al
+1,09 del nulo. No se cablea. El banco de la cascada tiene el 95,8 % de sus casos
+en una sola táctica y no puede distinguir nada. Donde el predictor SÍ muestra
+señal es aquí, con 22 tácticas y un nulo del 23,8 % — pero ésas no son las
+tácticas de la cascada.
 
 
 ================================================================================
@@ -502,12 +530,12 @@ IDENTIFICADO Y SIN ARREGLAR
 
 LO SIGUIENTE, POR VALOR ESPERADO
 
-  1. Medir el predictor de tácticas (§8.4) en el banco propio de la cascada
-     (efecto_orden_cascada.py, 1 600 pruebas, 12 tácticas). Es la única
-     comparación que decide si se cablea, y hoy la cascada es el mejor punto
-     del sistema.
-  2. Explotar las 25 214 transiciones estado->táctica para el ranking dentro
-     de la cascada, no sólo para el primer paso.
+  1. HECHO, y el resultado fue negativo (§7.6). El banco de la cascada no
+     puede decidir: 95,8 % de sus casos en una sola táctica. Lo que hace falta
+     es un banco de tácticas con distribución no degenerada — y las 25 214
+     transiciones de LeanWorkbook lo son (22 tácticas, nulo 23,8 %).
+  2. Revisar TODAS las mediciones que no tengan modelo nulo explícito. Ésta lo
+     escondía desde el principio y era la cifra de portada.
   3. Un banco EN ESPAÑOL con premisas de oro. Sin él, todo lo que se construye
      para el alumno hispanohablante se mide en inglés y por analogía.
   4. Arreglar el tokenizador del emparejador y re-medir el paso 1.
@@ -543,7 +571,8 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
 
   python scripts/recuperacion_contra_proofnet.py    vocabulario, 13,6 % vs 1,1 %
   python scripts/funtor_dag_mathlib.py             dependencias, 78,1 % / 32,6 %
-  python scripts/efecto_orden_cascada.py            tácticas, 2,59 -> 1,29
+  python scripts/efecto_orden_cascada.py            tácticas, con su nulo
+  python scripts/modelo_en_la_cascada.py            el nulo gana a la regla
   python scripts/premisas_sin_simp.py               premisas, 14,0 % vs 11,7 %
   python scripts/imports_del_grafo_contra_lean.py   imports, 18/20 vs 18/20
   python scripts/dos_etapas_localizar_y_elegir.py   poda por área, el negativo

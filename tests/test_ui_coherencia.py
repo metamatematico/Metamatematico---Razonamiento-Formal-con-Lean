@@ -330,8 +330,15 @@ class TestCifrasDelGrafo:
         #: texto: un diagrama que pinta los tres puntos igual engaña
         assert "INERTE" in svg, (
             "el diagrama ya no dice que el paso de imports es inerte")
-        assert svg.count("APORTA") == 2, (
-            "el diagrama debe marcar exactamente los dos puntos que aportan")
+        #: UNO, no dos. El paso 5 decia «APORTA · 2,4x menos intentos» y esa
+        #: medicion NO TENIA MODELO NULO: `simp` cierra el 95,8 % de los 1 600
+        #: casos, el nulo «probar simp primero» da 1,07 y la regla 1,29. Pierde
+        #: en 24 casos y gana en 2, IC 95 % [+0,094, +0,253].
+        assert svg.count("APORTA") == 1, (
+            "el diagrama debe marcar exactamente el UNICO punto que aporta: el "
+            "paso 5 no bate a su modelo nulo")
+        assert "NO BATE AL NULO" in svg, (
+            "el diagrama ya no dice que el orden de tacticas no bate al nulo")
 
     def test_los_veredictos_dibujados_son_los_que_el_codigo_produce(self):
         """El dibujo declaraba seis salidas y el código produce siete.

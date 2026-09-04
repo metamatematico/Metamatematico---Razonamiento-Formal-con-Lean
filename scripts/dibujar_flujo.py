@@ -150,7 +150,8 @@ ARIA = (
     "conversacional, que responde sin verificación formal. Si lo es, el grafo "
     "actúa en tres puntos numerados: prepara el prompt con nombres de Mathlib "
     "comprobados, elige qué módulos importa Lean, y ordena las tácticas si "
-    "queda un sorry. El primero y el tercero aportan, el segundo es inerte. "
+    "queda un sorry. Solo el primero aporta: el segundo es inerte y el "
+    "tercero no bate a su modelo nulo. "
     "Lean verifica y abre cuatro caminos: si falta un módulo se repara el "
     "encabezado y se reintenta una vez, si el error es semántico vuelve al "
     "modelo hasta dos rondas, si queda un sorry entra la cascada de tácticas, "
@@ -210,7 +211,7 @@ def main(_):
     p.append(estilo("fig-flujo", OSCURO))
 
     p.append(txt(24, 26, "DE LA ENTRADA A LA SALIDA", "b"))
-    p.append(txt(232, 26, "— el grafo actúa en TRES puntos, y sólo dos aportan",
+    p.append(txt(232, 26, "— el grafo actúa en TRES puntos, y sólo UNO aporta",
                  "s"))
 
     # ── entrada ────────────────────────────────────────────────────────────
@@ -293,8 +294,7 @@ def main(_):
     p.append(txt(186, 690, "5 · EL GRAFO ORDENA LAS TÁCTICAS", "b"))
     p.append(txt(186, 710, "12 tácticas · premisas sólo si el objetivo "
                            "engancha", "s"))
-    p.append(txt(186, 728, "APORTA · 2,4× menos intentos sobre 1600 pruebas de "
-                           "Mathlib", "s"))
+    p.append(txt(186, 728, "NO BATE AL NULO · 1,26 frente al 1,09 de «probar simp primero»", "s"))
 
     # ── el veredicto final ─────────────────────────────────────────────────
     p.append(ruta((400, 740), (400, 756)))

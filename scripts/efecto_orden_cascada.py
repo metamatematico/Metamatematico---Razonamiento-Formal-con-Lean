@@ -16,6 +16,14 @@ cascada queda esa tactica:
 
 Posicion mas baja = menos invocaciones de Lean antes de acertar.
 
+AVISO PRINCIPAL, AÑADIDO DESPUES: esta medicion no tenia MODELO NULO, y con
+`simp` cerrando el 95,8 % de los casos el nulo es «probar simp primero». Medido
+en una particion de prueba, el orden nuevo da 1,26 y el nulo 1,09: LA REGLA NO
+BATE AL SUELO. Pierde en 24 casos y gana en 2, IC 95 % [+0,094, +0,253].
+La mejora de 2,59 a 1,29 sobre el orden VIEJO es cierta; lo que no se sostiene
+es leerla como que el grafo aporta en este paso.
+Ver `scripts/modelo_en_la_cascada.py`.
+
 AVISOS, dos:
   · el enunciado no es exactamente el goal que veria la cascada (el goal
     aparece tras `intro`s y reescrituras), pero es lo mas cercano que hay sin
@@ -142,8 +150,21 @@ def main():
     muestra = random.sample(todos, min(MUESTRA, len(todos)))
     print("  muestra: %d (semilla %d)\n" % (len(muestra), SEMILLA))
 
+    # ── EL MODELO NULO, QUE FALTABA ───────────────────────────────────────
+    # Esta medicion comparaba dos reglas entre si y publicaba «2,4x de mejora»
+    # sin preguntar contra que suelo. El suelo es evidente en cuanto se mira la
+    # distribucion: `simp` cierra el 95,8 % de estos 1 600 casos, asi que
+    # «prueba simp primero y el resto por frecuencia» es lo minimo que hay que
+    # batir. Medido, la regla NO lo bate — pierde en 24 casos y gana en 2, con
+    # un intervalo de confianza del 95 % entero por encima de cero.
+    #
+    # Se deja aqui calculado para que la cifra no se pueda volver a citar sola.
+    frec = collections.Counter(t for _, _, t in todos)
+    nulo = [t for t, _ in frec.most_common()]
+    nulo += [x for x in SOLVERS if x not in nulo]
+
     an = GoalAnalyzer()
-    sv = sn = 0
+    sv = sn = s0 = 0
     mejor = peor = igual = 0
     por_area = collections.defaultdict(lambda: [0, 0, 0])
     for enunciado, area, tac in muestra:
@@ -151,6 +172,7 @@ def main():
         n = orden_nuevo(an, enunciado, area).index(tac) + 1
         sv += v
         sn += n
+        s0 += nulo.index(tac) + 1
         por_area[area][0] += v
         por_area[area][1] += n
         por_area[area][2] += 1
@@ -166,8 +188,19 @@ def main():
     print("    (cuantos solvers se prueban, de media, antes de acertar)\n")
     print("  orden viejo : %.2f" % (sv / N))
     print("  orden nuevo : %.2f" % (sn / N))
-    print("  mejora      : %.2f posiciones  (%.1f %%)"
+    print("  MODELO NULO : %.2f   <- probar `simp` primero, sin mirar nada"
+          % (s0 / N))
+    print("  mejora del nuevo sobre el viejo: %.2f posiciones  (%.1f %%)"
           % (sv / N - sn / N, 100.0 * (sv - sn) / sv))
+    if sn >= s0:
+        print("")
+        print("  EL ORDEN NUEVO NO BATE AL MODELO NULO (%.2f frente a %.2f)."
+              % (sn / N, s0 / N))
+        print("  `simp` cierra el %.1f %% de estos casos, y los patrones del"
+              % (100.0 * frec.most_common(1)[0][1] / len(todos)))
+        print("  objetivo lo DESPLAZAN en algunos donde es justo lo que")
+        print("  funciona. La mejora sobre el orden viejo es real; lo que no")
+        print("  vale es leerla como que el grafo aporta aqui.")
     print("\n  casos que mejoran : %5d  (%.1f %%)" % (mejor, 100.0 * mejor / N))
     print("  casos que empeoran: %5d  (%.1f %%)" % (peor, 100.0 * peor / N))
     print("  sin cambio        : %5d  (%.1f %%)" % (igual, 100.0 * igual / N))
