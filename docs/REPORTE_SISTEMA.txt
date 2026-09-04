@@ -1,13 +1,19 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 0d597c8 · 826 tests en verde
+  Estado a 2026-09-04 · commit 6e82905 · 826 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
 cifra viene de un script que se puede volver a correr, y va con su modelo nulo:
 sin modelo nulo un porcentaje no dice nada. Donde algo se midió y no sirvió,
 está escrito con la misma letra que lo que sí sirve.
+
+LO ÚLTIMO QUE SE MIDIÓ TIRÓ ABAJO LA CIFRA DE PORTADA. Este proyecto venía
+publicando «el orden de tácticas APORTA · 2,4x menos intentos» como su punto
+mejor medido. Esa medición NO TENÍA MODELO NULO: `simp` cierra el 95,8 % de sus
+casos, el suelo es 1,07 y la regla da 1,29. Pierde. Está en §7.6, y el método
+de cómo pasó, en §12.2 — que es la parte más útil de todo el documento.
 
 
 ================================================================================
@@ -479,14 +485,24 @@ tácticas de la cascada.
       decir con lo que pytest ACABA de recolectar
     · al alumno se le enseña SU pregunta, no la traducción
     · los rasgos sintácticos tienen que VARIAR entre enunciados distintos
+    · el diagrama tiene que marcar exactamente UN punto que aporta, y decir
+      que el orden de tácticas NO BATE AL NULO
 
   Esa última existe porque un extractor que devuelve lo mismo para todo sigue
   produciendo cifras perfectamente creíbles.
 
 
 ================================================================================
-12. INSTRUMENTOS QUE SE ROMPIERON
+12. CÓMO SE PRODUCEN CIFRAS FALSAS
 ================================================================================
+
+Esta sección es la que más vale del documento. Hay dos maneras de publicar un
+número que no significa lo que parece, y la segunda es mucho peor que la
+primera.
+
+--------------------------------------------------------------------------------
+12.1  INSTRUMENTOS QUE SE ROMPIERON
+--------------------------------------------------------------------------------
 
 Se listan porque cada uno produjo una cifra que parecía razonable:
 
@@ -506,6 +522,44 @@ Se listan porque cada uno produjo una cifra que parecía razonable:
 
   Ninguna de esas cifras se publicó. La lección que queda escrita en los
   scripts: un instrumento que falla en silencio da números creíbles.
+
+--------------------------------------------------------------------------------
+12.2  UN CONTROL AUSENTE, QUE ES PEOR
+--------------------------------------------------------------------------------
+
+Un instrumento roto da un número absurdo y tarde o temprano choca contra algo.
+UN CONTROL AUSENTE NO CHOCA CON NADA: el número es correcto, el método es
+correcto, y la conclusión es falsa.
+
+Es lo que pasó con el orden de tácticas. `efecto_orden_cascada.py` medía bien
+lo que medía —2,59 con el orden viejo, 1,29 con el nuevo, sobre 1 600 pruebas
+reales de Mathlib— y de ahí salió «APORTA · 2,4x menos intentos». Todo el
+cálculo es correcto. Lo que faltaba era una sola pregunta:
+
+    ¿y si no se mira nada?
+
+`simp` cierra el 95,8 % de esos casos. Probar `simp` primero da 1,07. La regla
+da 1,29, y PIERDE en 24 casos contra 2, con el intervalo de confianza entero
+por encima de cero. La regla no es que aporte poco: ACTIVAMENTE ESTORBA, porque
+los patrones del objetivo desplazan a `simp` en objetivos que `simp` cierra.
+
+Esa cifra estuvo publicada en el README, en el artefacto, en el diagrama de
+flujo y en este mismo reporte. Sobrevivió a decenas de revisiones porque no
+había nada que la contradijera: comparar dos versiones de tu propia idea da
+siempre un ganador.
+
+QUÉ SE HACE AHORA, y no es una promesa sino código:
+
+  · `efecto_orden_cascada.py` calcula su modelo nulo, lo imprime, y dice en voz
+    alta cuando la regla no lo bate. Esa cifra no se puede volver a citar sola.
+  · `scripts/modelo_en_la_cascada.py` mide las cuatro órdenes —viejo, regla,
+    nulo, clasificador— sobre la misma partición de prueba.
+  · queda pendiente revisar TODA medición de este repositorio que no imprima
+    su modelo nulo. Está en §13.
+
+REGLA QUE SALE DE AQUÍ: comparar dos versiones de tu propia idea no es una
+medición, es una preferencia. La medición empieza cuando aparece la opción
+que no se te había ocurrido defender.
 
 
 ================================================================================
