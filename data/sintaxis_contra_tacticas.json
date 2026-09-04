@@ -1,0 +1,39 @@
+{
+ "pruebas": 29750,
+ "usadas": 29406,
+ "tacticas": 25,
+ "minimo_ejemplos": 50,
+ "mayoritaria": "nlinarith",
+ "resultados": {
+  "nulo": [
+   22.63,
+   4.0
+  ],
+  "n-gramas": [
+   62.26,
+   39.44
+  ],
+  "ESTRUCTURA": [
+   58.26,
+   33.79
+  ],
+  "las dos": [
+   67.1,
+   44.79
+  ]
+ },
+ "distribucion": {
+  "nlinarith": 7032,
+  "have": 5731,
+  "intro": 3251,
+  "ring_nf": 2029,
+  "constructor": 1604,
+  "field_simp": 1407,
+  "norm_num": 1407,
+  "rw": 1400,
+  "apply": 875,
+  "simp": 814,
+  "cases'": 678,
+  "use": 668
+ }
+}
