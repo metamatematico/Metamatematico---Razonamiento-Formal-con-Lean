@@ -1,0 +1,66 @@
+{
+ "todas las transiciones": {
+  "casos": 24906,
+  "tacticas": 35,
+  "mayoritaria": "nlinarith",
+  "rasgos_estructura": 74,
+  "resultados": {
+   "nulo": [
+    12.67,
+    2.86
+   ],
+   "n-gramas": [
+    44.2,
+    22.55
+   ],
+   "ESTRUCTURA": [
+    44.16,
+    23.86
+   ],
+   "las dos": [
+    48.8,
+    31.9
+   ],
+   "intentos_fijo": [
+    7.23,
+    0.0
+   ],
+   "intentos_modelo": [
+    3.13,
+    0.0
+   ]
+  }
+ },
+ "SOLO LAS QUE CIERRAN": {
+  "casos": 13059,
+  "tacticas": 22,
+  "mayoritaria": "nlinarith",
+  "rasgos_estructura": 74,
+  "resultados": {
+   "nulo": [
+    23.77,
+    4.55
+   ],
+   "n-gramas": [
+    60.53,
+    34.14
+   ],
+   "ESTRUCTURA": [
+    61.14,
+    36.26
+   ],
+   "las dos": [
+    67.11,
+    47.65
+   ],
+   "intentos_fijo": [
+    4.64,
+    0.0
+   ],
+   "intentos_modelo": [
+    1.9,
+    0.0
+   ]
+  }
+ }
+}

@@ -102,3 +102,76 @@ class TestRasgos:
         assert len(varian) >= 15, (
             "sólo %d rasgos varían entre cinco enunciados muy distintos: el "
             "extractor está devolviendo casi lo mismo para todo" % len(varian))
+
+
+# ---------------------------------------------------------------------------
+# El estado de prueba: hipótesis arriba del ⊢, objetivo abajo
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="module")
+def es():
+    from estado_contra_tactica import parte_estado, rasgos_estado
+    return parte_estado, rasgos_estado
+
+
+class TestEstadoDePrueba:
+    """`⊢` es la barra de deducción: encima lo supuesto, debajo lo por probar.
+
+    Medido sobre las 13 511 transiciones de LeanWorkbook cuya táctica CIERRA
+    el objetivo, con 22 tácticas y un nulo del 23,8 %:
+
+        n-gramas, 7 796 rasgos     60,5 %
+        ESTRUCTURA, 74 rasgos      61,1 %   <- gana, con cien veces menos
+        las dos                    67,1 %
+
+    Y en intentos hasta acertar: 4,64 con el orden fijo por frecuencia, 1,90
+    ordenando por el modelo. Todo eso descansa en cortar bien por el `⊢`.
+    """
+
+    def test_el_corte_es_la_barra_de_deduccion(self, es):
+        parte_estado, _ = es
+        hip, obj = parte_estado("a b : ℝ\nha : 0 < a\n⊢ a + b > 0")
+        assert "ha : 0 < a" in hip
+        assert "a + b > 0" in obj
+        assert "ha" not in obj
+
+    def test_sin_barra_no_hay_objetivo(self, es):
+        """«no goals» no trae `⊢`, y no puede fingirse que sí."""
+        parte_estado, _ = es
+        hip, obj = parte_estado("no goals")
+        assert not obj.strip()
+
+    def test_la_relacion_del_objetivo_no_sale_de_las_hipotesis(self, es):
+        """Es el rasgo que más manda, y el que más fácil se contamina."""
+        _, rasgos_estado = es
+        r = rasgos_estado("a b : ℝ\nh : a = b\n⊢ a ^ 2 ≥ 0")
+        assert r.get("obj_rel=≥") == 1
+        assert r.get("obj_rel==", 0) == 0, "se leyó la igualdad de la hipótesis"
+        assert r["hip_="] == 1 and r["obj_="] == 0
+
+    def test_cuenta_las_hipotesis_de_verdad(self, es):
+        _, rasgos_estado = es
+        r = rasgos_estado("a b : ℝ\nha : 0 < a\nhb : 0 < b\n⊢ 0 < a * b")
+        assert r["n_hipotesis"] == 3 and r["hay_hipotesis"] == 1
+        assert rasgos_estado("⊢ 2 + 2 = 4")["hay_hipotesis"] == 0
+
+    def test_distingue_un_objetivo_negado(self, es):
+        _, rasgos_estado = es
+        assert rasgos_estado("⊢ ¬ (1 = 2)")["obj_negado"] == 1
+        assert rasgos_estado("⊢ 1 = 1")["obj_negado"] == 0
+
+    def test_los_rasgos_varian_entre_estados_distintos(self, es):
+        """Un extractor que devuelve lo mismo para todo sigue dando cifras."""
+        _, rasgos_estado = es
+        muestras = [
+            "⊢ 2 + 2 = 4",
+            "a b : ℝ\nha : 0 < a\n⊢ 0 < a * b",
+            "n : ℤ\n⊢ n ^ 2 ≥ 0",
+            "x : ℝ\nh : 0 ≤ x\n⊢ Real.sqrt x ≥ 0",
+            "s : Finset ℕ\n⊢ ¬ (s.card < 0)",
+        ]
+        rs = [rasgos_estado(m) for m in muestras]
+        varian = {k for k in rs[0] if len({r.get(k) for r in rs}) > 1}
+        assert len(varian) >= 15, (
+            "sólo %d rasgos varían entre cinco estados muy distintos"
+            % len(varian))
