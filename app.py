@@ -25,6 +25,38 @@ for _stream in (sys.stdout, sys.stderr):
     except OSError:
         pass
 
+# ── El .env, que NADIE estaba leyendo ────────────────────────────────────────
+#
+# Habia una clave de 108 caracteres en `E:\Metamatematico\.env` y el sistema
+# respondia en modo demo, porque no habia una sola llamada a `load_dotenv` en
+# todo el repositorio: el fichero existia y nadie lo abria.
+#
+# Va aqui arriba, ANTES de que se importe nada del nucleo, porque
+# `NucleoConfig` lee `os.environ` al construirse. Si `python-dotenv` no esta
+# instalado no pasa nada: se sigue con las variables que ya haya.
+try:
+    from dotenv import load_dotenv as _load_dotenv
+    _load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
+except Exception:                                              # noqa: BLE001
+    pass
+
+#: FOTO DE LAS CLAVES ANTES DE QUE STREAMLIT LAS PISE.
+#:
+#: Streamlit no se limita a leer `secrets.toml`: INYECTA cada secreto en
+#: `os.environ`. Y `ANTHROPIC_API_KEY = ""` —que es como queda el fichero de
+#: ejemplo si no se rellena— sobrescribe con la cadena vacia la clave buena que
+#: acaba de cargar el `.env`. Medido: 108 caracteres antes de tocar
+#: `st.secrets`, 0 despues. Ese vacio era el modo demo.
+#:
+#: Se guarda aqui una copia tomada ANTES de importar nada de Streamlit, y es la
+#: ultima fuente que se consulta. Asi un placeholder vacio no puede volver a
+#: borrar una clave que si existe.
+_CLAVES_DEL_ENV = {
+    _n: os.environ.get(_n, "")
+    for _n in ("ANTHROPIC_API_KEY", "GOOGLE_API_KEY",
+               "GROQ_API_KEY", "DEEPSEEK_API_KEY")
+}
+
 import logging as _logging
 import io as _io
 
@@ -1166,10 +1198,30 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
             _env_key = ""
             _sname = _secret_map.get(provider, "")
             if _sname:
-                try:
-                    _env_key = st.secrets[_sname]
-                except Exception:
-                    _env_key = os.environ.get(_sname, "")
+                # UN SECRETO VACIO NO ES UN SECRETO.
+                #
+                # Esto era `try: st.secrets[...] except: os.environ[...]`, y el
+                # `except` solo salta si hay EXCEPCION. Con
+                # `ANTHROPIC_API_KEY = ""` en secrets.toml —que es como queda
+                # el fichero de ejemplo si no se rellena— `st.secrets` devuelve
+                # la cadena vacia SIN error, asi que la rama de las variables
+                # de entorno no se ejecutaba nunca y la clave buena del `.env`
+                # quedaba ignorada. Sintoma: modo demo con la clave puesta.
+                #
+                # Ahora se recorren las fuentes en orden y gana la PRIMERA QUE
+                # TENGA ALGO, no la primera que no reviente.
+                for _fuente in (
+                    lambda: st.secrets[_sname],
+                    lambda: os.environ.get(_sname, ""),
+                    lambda: _CLAVES_DEL_ENV.get(_sname, ""),
+                ):
+                    try:
+                        _cand = (_fuente() or "").strip()
+                    except Exception:                          # noqa: BLE001
+                        _cand = ""
+                    if _cand:
+                        _env_key = _cand
+                        break
             # El widget necesita `key=` estable: sin el, cualquier st.rerun()
             # (por ejemplo al adjuntar un PDF) lo redibuja con value=_env_key y
             # BORRA la clave que el usuario acababa de pegar -> modo demo.
