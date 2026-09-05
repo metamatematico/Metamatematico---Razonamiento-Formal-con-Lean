@@ -1,0 +1,59 @@
+{
+  "mecanismo": {
+    "enunciados": 200,
+    "con_notacion": 200,
+    "con_hueco": 21,
+    "caracteres_notacion": 15014,
+    "caracteres_expuestos": 653,
+    "ejemplos": [
+      {
+        "consulta": "prove that \\n $(x+y+z)^5-x^5-y^5-z^5\\geq 60xyz(xy+yz+zx)$\\nif $x,y,z$ are positive reals",
+        "sin_proteger": [
+          "\\n                                            \\nif"
+        ]
+      },
+      {
+        "consulta": "Let a; b; c be positive real numbers such that $abc$ = 1, Prove that $a^2 + b^2 + c^2 \\geq a + b + c$",
+        "sin_proteger": [
+          "1,"
+        ]
+      },
+      {
+        "consulta": "Suppose $y$ between $x$ and $z.$ By AM-GM Inequality, we have \\n $4\\,xyz \\left( xy+zx+yz \\right) \\left( x+y+z ",
+        "sin_proteger": [
+          "AM-GM"
+        ]
+      },
+      {
+        "consulta": "By C-S $\\sum_{cyc}\\frac{a}{b+c+4d}\\geq\\frac{(a+b+c+d)^2}{\\sum\\limits_{cyc}(ab+ac+4da)}=\\frac{(a+b+c+d)^2}{5\\su",
+        "sin_proteger": [
+          "C-S"
+        ]
+      },
+      {
+        "consulta": "Claim 2. Let $x,y$ be nonnegative reals. Then\\n\\n $$\\frac{1}{2x+1}+\\frac{1}{2y+1}\\ge\\frac{2}{xy+2}.$$",
+        "sin_proteger": [
+          "2"
+        ]
+      },
+      {
+        "consulta": "Suppose $u+2v>4$, use AM-GM inequality to show that $2uv\\leq\\frac{u^2+4v^2}{2}$.",
+        "sin_proteger": [
+          "AM-GM"
+        ]
+      },
+      {
+        "consulta": "For a,b,c positive and a+b+c=1 prove that $ 2+9abc \\ge 7(ab+bc+ac)$",
+        "sin_proteger": [
+          "a+b+c=1"
+        ]
+      },
+      {
+        "consulta": "(even if you do not know Fermat's little theorem but notice that $121=11^2$ )\\n\\n$2014^{2015} = (1+183\\cdot 11",
+        "sin_proteger": [
+          "121)\\n\\nNow"
+        ]
+      }
+    ]
+  }
+}

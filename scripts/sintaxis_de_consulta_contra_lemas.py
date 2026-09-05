@@ -103,6 +103,7 @@ def main(a) -> int:
     top = {l for l, _ in collections.Counter(
         x for d in tr for x in d["lemas"] if x in aprendibles).most_common(a.k)}
     res["nulo"] = cobertura([top] * len(te))
+    guardadas: dict = {"nulo": [top] * len(te)}
     print("\nnulo = %s" % ", ".join(sorted(top)))
 
     def entrena(Xtr, Xte, etiqueta):
@@ -110,6 +111,7 @@ def main(a) -> int:
             LogisticRegression(max_iter=1000, C=1.0), n_jobs=-1).fit(Xtr, Y)
         d = m.decision_function(Xte)
         pred = [set(clases[fila.argsort()[::-1][:a.k]]) for fila in d]
+        guardadas[etiqueta] = pred
         res[etiqueta] = cobertura(pred)
 
     vN = TfidfVectorizer(analyzer="char_wb", ngram_range=(1, 4), min_df=3,
@@ -131,10 +133,39 @@ def main(a) -> int:
     print("\n  %-14s %12s %16s" % ("", "cobertura", "acierta alguno"))
     for k in ("nulo", "n-gramas", "ESTRUCTURA", "las dos"):
         print("  %-14s %10.1f %% %14.1f %%" % (k, res[k][0], res[k][1]))
-    print("\n  ESTRUCTURA sobre el nulo:  %+.1f puntos de cobertura"
-          % (res["ESTRUCTURA"][0] - res["nulo"][0]))
-    print("  las dos sobre n-gramas:    %+.1f puntos de cobertura"
-          % (res["las dos"][0] - res["n-gramas"][0]))
+    # ── ¿la diferencia se distingue del ruido? ─────────────────────────────
+    # Un «+0,8 puntos» puede ser una mejora o puede ser cómo cayó el reparto.
+    # Se remuestrean las consultas de test —EMPAREJADAS, las mismas para las
+    # dos configuraciones— y se mira si el intervalo del 95 % cruza el cero.
+    # Sin esto, «suma» y «no suma» se escriben igual.
+    rng = np.random.default_rng(20260904)
+    n_te = len(oro)
+
+    def diferencia(pa, pb, idx):
+        na = sum(len(pa[i] & oro[i]) for i in idx)
+        nb = sum(len(pb[i] & oro[i]) for i in idx)
+        den = sum(len(oro[i]) for i in idx)
+        return 100 * (na - nb) / max(1, den)
+
+    intervalos = {}
+    for etiqueta, contra in (("ESTRUCTURA", "nulo"),
+                             ("ESTRUCTURA", "n-gramas"),
+                             ("las dos", "n-gramas")):
+        muestras = [diferencia(guardadas[etiqueta], guardadas[contra],
+                               rng.integers(0, n_te, n_te))
+                    for _ in range(a.remuestreos)]
+        lo, hi = np.percentile(muestras, [2.5, 97.5])
+        intervalos["%s - %s" % (etiqueta, contra)] = [round(float(lo), 2),
+                                                      round(float(hi), 2)]
+
+    print()
+    for k, (lo, hi) in intervalos.items():
+        izq, der = k.split(" - ")
+        obs = res[izq][0] - res[der][0]
+        veredicto = ("SI" if lo > 0 else
+                     "NO, es peor" if hi < 0 else "no se distingue del ruido")
+        print("  %-26s %+6.1f  IC95 [%+.1f, %+.1f]   %s"
+              % (k, obs, lo, hi, veredicto))
 
     pathlib.Path(a.salida).write_text(json.dumps({
         "consultas": len(filas), "lemas_aprendibles": len(aprendibles),
@@ -143,6 +174,8 @@ def main(a) -> int:
         "rasgos_ngramas": int(Ntr.shape[1]),
         "resultados": {k: [round(v[0], 2), round(v[1], 2)]
                        for k, v in res.items()},
+        "ic95_diferencias": intervalos,
+        "remuestreos": a.remuestreos,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print("\nescrito -> %s" % a.salida)
     return 0
@@ -154,4 +187,5 @@ if __name__ == "__main__":
     ap.add_argument("--salida", default=str(SALIDA))
     ap.add_argument("--k", type=int, default=K)
     ap.add_argument("--minimo", type=int, default=MINIMO_EJEMPLOS)
+    ap.add_argument("--remuestreos", type=int, default=2000)
     raise SystemExit(main(ap.parse_args()))

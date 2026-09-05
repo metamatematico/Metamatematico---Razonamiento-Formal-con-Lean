@@ -1554,6 +1554,28 @@ class Nucleo:
         from nucleo.multi_agent.specialized_agent import classify_query
         from nucleo.multi_agent.colimit_agents import (
             domain_default_tactic, domain_tactic_order)
+
+        # ── La sintaxis del enunciado, ANTES de gastar nada ──────────────────
+        #
+        # Un paréntesis sin cerrar no hace que el sistema falle: hace algo
+        # peor. El modelo formaliza la fórmula que él cree que el alumno quiso
+        # escribir, Lean verifica ESA, y la respuesta sale con el sello de
+        # «verificado» puesto sobre un enunciado que nadie pidió. El único
+        # momento en que eso se puede ver es aquí, mirando lo que el alumno
+        # escribió antes de que nadie lo reinterprete.
+        #
+        # NO BLOQUEA. Sobre los 23 243 enunciados de LeanWorkbook —todos
+        # correctos— el revisor se equivoca en el 0,6 % cuando dice
+        # «delimitador», que es el único motivo que se le enseña al alumno.
+        # Negarle el servicio a ese 0,6 % sería peor que el aviso de más.
+        from nucleo.sintaxis import revisar as _revisar_sintaxis
+        try:
+            _revision = _revisar_sintaxis(input_text)
+        except Exception as e:                                  # noqa: BLE001
+            # La capa de sintaxis es un extra: si se cae, la consulta sigue.
+            logger.debug(f"revisión de sintaxis no disponible: {e}")
+            _revision = None
+
         lean_system = LLMClient.LEAN_SYSTEM_PROMPT
         context = self._find_relevant_context(input_text, self._graph)
         context["task"] = "lean_formalization"
@@ -2186,6 +2208,13 @@ class Nucleo:
 
         self._record_lean_experience("lean-tactics", success_value)
 
+        # El aviso de sintaxis va DELANTE de todo, incluso de un «verificado».
+        # Es el único sitio donde tiene sentido: si el enunciado que Lean
+        # verificó no era el que el alumno escribió, saberlo después de leer
+        # la prueba no sirve de nada.
+        if _revision is not None and _revision.aviso:
+            content = f"{_revision.aviso}\n\n---\n\n{content}"
+
         return NucleoResponse(
             content=content,
             action_type=ActionType.ASSIST,
@@ -2193,6 +2222,11 @@ class Nucleo:
             confidence=confidence,
             metadata={
                 "verification_status": verification_status,
+                # La revisión de la notación: qué tramos se reconocieron, cuál
+                # es la relación principal, y si algo estaba mal escrito. Se
+                # guarda siempre, se enseña casi nunca (ver nucleo/sintaxis).
+                "sintaxis": (_revision.resumen() if _revision is not None
+                             else {}),
                 # Booleano explicito para que la interfaz pueda distinguir sin
                 # tener que interpretar la cadena de estado.
                 #

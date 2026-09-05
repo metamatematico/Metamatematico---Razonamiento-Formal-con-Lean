@@ -1,0 +1,41 @@
+{
+  "consultas": 22117,
+  "lemas_aprendibles": 100,
+  "k": 6,
+  "minimo_ejemplos": 30,
+  "rasgos_estructura": 65,
+  "rasgos_ngramas": 40000,
+  "resultados": {
+    "nulo": [
+      56.62,
+      80.27
+    ],
+    "n-gramas": [
+      78.41,
+      94.06
+    ],
+    "ESTRUCTURA": [
+      67.91,
+      90.73
+    ],
+    "las dos": [
+      79.19,
+      95.16
+    ]
+  },
+  "ic95_diferencias": {
+    "ESTRUCTURA - nulo": [
+      10.2,
+      12.36
+    ],
+    "ESTRUCTURA - n-gramas": [
+      -11.43,
+      -9.62
+    ],
+    "las dos - n-gramas": [
+      0.25,
+      1.33
+    ]
+  },
+  "remuestreos": 2000
+}

@@ -217,3 +217,58 @@ def test_no_se_atraganta_con_nada():
         tokenizar(t)
         d = bien_formada(t)
         assert isinstance(d.ok, bool)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LO QUE EL RESTO DEL SISTEMA PIDE
+# ═══════════════════════════════════════════════════════════════════════════
+def test_solo_se_avisa_de_delimitadores():
+    """De los seis motivos, sólo dos llegan al alumno.
+
+    Los delimitadores fallan poco (0,6 % de falsos positivos) y cazan mucho
+    (99 %). Los otros cuatro fallan cuatro veces más y cazan la mitad: avisar
+    de ésos enseñaría a ignorar los avisos.
+    """
+    from nucleo.sintaxis import revisar
+
+    con = revisar("Demuestra que (a+b^2 = c")
+    assert not con.ok and con.codigo == "delimitador_sin_cerrar"
+    assert con.aviso and "delimitadores" in con.aviso
+
+    sin = revisar("x + = 3")
+    assert not sin.ok and sin.codigo == "token_inesperado"
+    assert sin.aviso == "", "sólo se avisa de delimitadores"
+
+
+def test_la_revision_nunca_bloquea():
+    """Devuelve un aviso, no un veredicto que corte la consulta."""
+    from nucleo.sintaxis import Revision, revisar
+
+    r = revisar("(((")
+    assert isinstance(r, Revision)
+    assert isinstance(r.rasgos, dict) and r.rasgos, "los rasgos salen siempre"
+
+
+def test_el_resumen_lleva_la_relacion_principal():
+    from nucleo.sintaxis import revisar
+
+    d = revisar("Prueba que ∀x ∈ ℝ, x² ≥ 0").resumen()
+    assert d["bien_formada"] is True
+    assert d["relacion"] == "≥" and d["conectiva"] == "∀"
+
+
+def test_core_pone_el_aviso_delante_y_guarda_el_resumen():
+    """El aviso va ANTES de la respuesta, incluso de un «verificado».
+
+    Se comprueba sobre la fuente y no ejecutando el pipeline porque éste
+    necesita clave de API y Lean; lo que se guarda aquí es que el cableado no
+    desaparezca en una reescritura.
+    """
+    fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
+    assert "from nucleo.sintaxis import revisar" in fuente
+    linea = next((l for l in fuente.splitlines()
+                  if "_revision.aviso}" in l and "{content}" in l), "")
+    assert linea, "no se ensambla el aviso con el contenido"
+    assert linea.index("_revision.aviso}") < linea.index("{content}"), (
+        "el aviso tiene que ir DELANTE del contenido, no detrás")
+    assert '"sintaxis": (_revision.resumen()' in fuente
