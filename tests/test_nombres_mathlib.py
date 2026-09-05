@@ -159,3 +159,101 @@ class TestLosDosIndices:
         assert N.revisar_afirmaciones("El identificador Basis no existe.") == []
         f = N.revisar_afirmaciones("La estructura Module.Basis no existe.")
         assert [x["nombre"] for x in f] == ["Module.Basis"]
+
+
+class TestRepararAntesDeCompilar:
+    """Cualificar los nombres ANTES de gastar un compilado de Lean.
+
+    El modelo escribia `Basis.exists_basis`, que no resuelve —en Mathlib
+    actual es `Module.Basis.exists_basis`— y el sistema lo descubria GASTANDO
+    un compilado y, despues, una ronda de revision con el modelo. Tres veces
+    seguidas sobre la misma consulta, y el repositorio sabia la respuesta todo
+    el rato: 217 419 nombres en un `set`.
+    """
+
+    CODIGO = (
+        "import Mathlib.LinearAlgebra.Basis.VectorSpace\n\n"
+        "theorem t (K : Type*) [Field K] (V : Type*) [AddCommGroup V] "
+        "[Module K V] :\n"
+        "    ∃ (i : Type _) (b : Basis i K V), True := by\n"
+        "  obtain ⟨b⟩ := Basis.exists_basis K V\n"
+        "  exact ⟨_, b, trivial⟩"
+    )
+
+    def test_cualifica_el_punteado_de_lectura_unica(self):
+        from nucleo.lean.nombres import reparar_codigo
+        nuevo, cambios = reparar_codigo(self.CODIGO)
+        assert ("Basis.exists_basis", "Module.Basis.exists_basis") in cambios
+        assert "Module.Basis.exists_basis" in nuevo
+
+    def test_y_el_suelto_con_el_namespace_ya_descubierto(self):
+        """`Basis` a solas tiene cuatro candidatos y seria una apuesta. Pero si
+        el fichero ya menciona `Module.Basis.exists_basis`, el namespace
+        `Module` esta puesto y deja de serlo."""
+        from nucleo.lean.nombres import reparar_codigo
+        nuevo, cambios = reparar_codigo(self.CODIGO)
+        assert ("Basis", "Module.Basis") in cambios
+        assert "(b : Module.Basis i K V)" in nuevo
+
+    def test_no_toca_las_lineas_de_import(self):
+        """`Mathlib.LinearAlgebra.Basis.VectorSpace` es una RUTA DE MODULO, no
+        un lema: no esta en el indice y no es un error."""
+        from nucleo.lean.nombres import reparar_codigo, revisar_codigo
+        nuevo, _ = reparar_codigo(self.CODIGO)
+        assert "import Mathlib.LinearAlgebra.Basis.VectorSpace" in nuevo
+        assert not any("Mathlib.LinearAlgebra" in f["nombre"]
+                       for f in revisar_codigo(self.CODIGO))
+
+    def test_lo_ambiguo_no_se_toca(self):
+        """Con dos lecturas o mas, adivinar seria peor que avisar."""
+        from nucleo.lean.nombres import reparar_codigo
+        nuevo, cambios = reparar_codigo("theorem t : Foo.bar_que_no_existe := x")
+        assert cambios == []
+        assert nuevo == "theorem t : Foo.bar_que_no_existe := x"
+
+    def test_no_toca_comentarios(self):
+        from nucleo.lean.nombres import reparar_codigo
+        c = "-- usa Basis.exists_basis aqui\ntheorem t : 1 = 1 := rfl"
+        nuevo, cambios = reparar_codigo(c)
+        assert nuevo == c and cambios == []
+
+    def test_no_rompe_las_pruebas_QUE_YA_FUNCIONAN(self):
+        """EL GUARDIAN QUE IMPORTA.
+
+        Un reparador que rompe codigo bueno es peor que no tenerlo. Medido
+        sobre las 241 pruebas reales de miniF2F/LeanWorkbook que hay en
+        `data/lean_examples.json`: CERO modificadas.
+        """
+        import json
+        import io as _io
+        p = RAIZ / "data" / "lean_examples.json"
+        if not p.exists():
+            pytest.skip("falta data/lean_examples.json")
+        from nucleo.lean.nombres import reparar_codigo
+        casos = []
+
+        def cosecha(x):
+            if isinstance(x, dict):
+                for v in x.values():
+                    cosecha(v)
+            elif isinstance(x, list):
+                for v in x:
+                    cosecha(v)
+            elif isinstance(x, str) and ("theorem" in x or "lemma" in x):
+                casos.append(x)
+
+        cosecha(json.load(_io.open(p, encoding="utf-8")))
+        assert len(casos) > 100, "no se leyeron las pruebas de referencia"
+        tocados = [c for c in casos if reparar_codigo(c)[1]]
+        assert not tocados, (
+            "%d de %d pruebas BUENAS modificadas. La primera: %s"
+            % (len(tocados), len(casos), reparar_codigo(tocados[0])[1][:3]))
+
+
+def test_core_repara_antes_de_compilar():
+    """Si se reparara DESPUES de compilar no ahorraria nada: el compilado ya
+    se habria gastado, que es justo lo que se queria evitar."""
+    fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
+    i_rep = fuente.index("_nom_lean.reparar_codigo(lean_code)")
+    i_check = fuente.index("result = await self._lean.check_code(lean_code)")
+    assert i_rep < i_check, "se repara despues de compilar: no ahorra nada"

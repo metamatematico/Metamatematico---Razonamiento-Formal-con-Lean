@@ -271,3 +271,161 @@ def aviso_de_correccion(fallos: Iterable) -> str:
         "⚠ **Corrección automática.** La explicación de abajo dice que estos "
         "nombres no existen en Mathlib, y sí existen: %s. El fallo de Lean no "
         "es de nombre: mira el error literal del verificador." % nombres)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# REPARAR EL CODIGO ANTES DE COMPILARLO
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# POR QUE ESTO EXISTE. El modelo escribia `Basis.exists_basis`, que no resuelve
+# —en Mathlib actual es `Module.Basis.exists_basis`— y el sistema lo descubria
+# GASTANDO un compilado de Lean y, despues, una ronda de revision con el
+# modelo. Tres veces seguidas sobre la misma consulta.
+#
+# El repositorio sabia la respuesta todo el rato: son 217 419 nombres en un
+# `set`. Comprobarlo cuesta microsegundos y ahorra el compilado entero.
+#
+# LA PRECISION MANDA SOBRE LA COBERTURA. Reescribir mal un identificador
+# ROMPE codigo que funcionaba, que es peor que no tocar nada. De ahi las tres
+# reglas de abajo, todas conservadoras.
+
+#: Palabras de Lean que parecen identificadores y no lo son. Sin esto, `by` o
+#: `Type` entrarian como nombres desconocidos.
+_PALABRAS_LEAN = frozenset("""
+theorem lemma example def abbrev structure class instance inductive where
+by at with from this fun let have show intro intros exact apply refine
+rfl simp ring norm_num linarith nlinarith omega decide trivial sorry
+constructor cases rcases obtain use exists forall induction rw rewrite
+calc match do return if then else universe variable open import namespace
+end section deriving attribute noncomputable private protected partial
+Type Sort Prop True False Nat Int Real Set Finset List Option Bool
+""".split())
+
+#: Un identificador de Lean tal como aparece en el codigo.
+_IDENT_CODIGO = re.compile(r"(?<![\w.])([A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_'!?]*)*)")
+
+#: Las lineas de `import`/`open` llevan RUTAS DE MODULO, no nombres de lemas:
+#: `Mathlib.LinearAlgebra.Basis.VectorSpace` no esta en el indice y no es un
+#: error. Sin excluirlas, cada import salia como identificador desconocido.
+_LINEA_MODULO = re.compile(r"^[ \t]*(?:import|open|namespace|end)\b[^\n]*",
+                           re.M)
+
+#: Comentarios y cadenas: no se toca nada dentro.
+_FUERA = re.compile(r'--[^\n]*|/-[\s\S]*?-/|"(?:[^"\\]|\\.)*"')
+
+
+def _zonas_intocables(codigo: str) -> list:
+    return ([(m.start(), m.end()) for m in _FUERA.finditer(codigo)]
+            + [(m.start(), m.end()) for m in _LINEA_MODULO.finditer(codigo)])
+
+
+def _dentro(pos: int, zonas: list) -> bool:
+    return any(a <= pos < b for a, b in zonas)
+
+
+def revisar_codigo(codigo: str) -> list:
+    """Los identificadores del codigo que NO existen en Mathlib.
+
+    Devuelve `[{"nombre", "sugerencia", "candidatos"}]`. `sugerencia` solo
+    viene rellena cuando hay UNA sola opcion: con dos o mas, adivinar seria
+    peor que avisar.
+
+    SOLO MIRA LOS PUNTEADOS. Un identificador sin punto puede ser una variable
+    local, un binder o una tactica, y no hay forma barata de distinguirlo del
+    nombre de un lema. Los punteados casi nunca son locales, y son justo donde
+    el modelo se inventa nombres: `Basis.exists_basis`, `Nat.succ_le_iff`.
+    """
+    _cargar()
+    if not codigo or not _NOMBRES:
+        return []
+    zonas = _zonas_intocables(codigo)
+    fuera, vistos = [], set()
+    for m in _IDENT_CODIGO.finditer(codigo):
+        nombre = m.group(1)
+        if "." not in nombre or nombre in vistos or _dentro(m.start(), zonas):
+            continue
+        if nombre.split(".")[0] in _PALABRAS_LEAN:
+            continue
+        vistos.add(nombre)
+        if nombre in _NOMBRES:
+            continue
+        cand = [x for x in _CORTOS.get(nombre.rsplit(".", 1)[-1], ())
+                if x.endswith("." + nombre)]
+        fuera.append({"nombre": nombre,
+                      "sugerencia": cand[0] if len(cand) == 1 else "",
+                      "candidatos": cand[:5]})
+    return fuera
+
+
+def reparar_codigo(codigo: str) -> tuple:
+    """Cualifica los nombres que solo admiten una lectura. `(codigo, cambios)`.
+
+    DOS REGLAS, Y LAS DOS CONSERVADORAS:
+
+      1. Un punteado desconocido con UN SOLO nombre de Mathlib que acabe en
+         el -> se cualifica. `Basis.exists_basis` no admite mas lectura que
+         `Module.Basis.exists_basis`.
+
+      2. Con los espacios de nombres que la regla 1 acaba de descubrir, se
+         resuelven los identificadores SIN puntear que sigan sin existir.
+         `Basis` a solas tiene cuatro candidatos y seria una apuesta; pero si
+         el fichero ya menciona `Module.Basis.exists_basis`, el namespace
+         `Module` esta puesto y `Module.Basis` deja de ser una apuesta.
+
+    Lo ambiguo NO se toca: se devuelve en `cambios` para que lo vea quien
+    tenga que verlo. Reescribir mal rompe codigo que funcionaba.
+    """
+    _cargar()
+    if not codigo or not _NOMBRES:
+        return codigo, []
+
+    cambios = []
+    nuevo = codigo
+
+    # ── regla 1 · los punteados de lectura unica ────────────────────────
+    for fallo in revisar_codigo(codigo):
+        if not fallo["sugerencia"]:
+            continue
+        viejo, bueno = fallo["nombre"], fallo["sugerencia"]
+        patron = re.compile(r"(?<![\w.])" + re.escape(viejo) + r"(?![\w'])")
+        zonas = _zonas_intocables(nuevo)
+        trozos, fin = [], 0
+        for m in patron.finditer(nuevo):
+            if _dentro(m.start(), zonas):
+                continue
+            trozos.append(nuevo[fin:m.start()] + bueno)
+            fin = m.end()
+        if trozos:
+            nuevo = "".join(trozos) + nuevo[fin:]
+            cambios.append((viejo, bueno))
+
+    # ── regla 2 · los sueltos, con los namespaces ya establecidos ───────
+    espacios = {b.rsplit(".", 1)[0].split(".")[0] for _a, b in cambios}
+    if espacios:
+        zonas = _zonas_intocables(nuevo)
+        sueltos = set()
+        for m in _IDENT_CODIGO.finditer(nuevo):
+            n = m.group(1)
+            if ("." in n or n in _PALABRAS_LEAN or not n[:1].isupper()
+                    or _dentro(m.start(), zonas)):
+                continue
+            sueltos.add(n)
+        for n in sorted(sueltos):
+            if n in _NOMBRES:
+                continue
+            cand = [f"{e}.{n}" for e in espacios if f"{e}.{n}" in _NOMBRES]
+            if len(cand) != 1:
+                continue
+            patron = re.compile(r"(?<![\w.])" + re.escape(n) + r"(?![\w'.])")
+            zonas2 = _zonas_intocables(nuevo)
+            trozos, fin = [], 0
+            for m in patron.finditer(nuevo):
+                if _dentro(m.start(), zonas2):
+                    continue
+                trozos.append(nuevo[fin:m.start()] + cand[0])
+                fin = m.end()
+            if trozos:
+                nuevo = "".join(trozos) + nuevo[fin:]
+                cambios.append((n, cand[0]))
+
+    return nuevo, cambios

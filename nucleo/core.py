@@ -1998,6 +1998,38 @@ class Nucleo:
         except Exception:
             logger.debug("grabacion no disponible", exc_info=True)
 
+        # ── Paso 2a: cualificar los nombres ANTES de gastar un compilado ────
+        #
+        # El modelo escribía `Basis.exists_basis`, que no resuelve —en Mathlib
+        # actual es `Module.Basis.exists_basis`— y el sistema lo descubría
+        # GASTANDO un compilado de Lean y, después, una ronda de revisión con
+        # el modelo. Tres veces seguidas sobre la misma consulta.
+        #
+        # El repositorio sabía la respuesta todo el rato: 217 419 nombres en un
+        # `set`. Comprobarlo cuesta microsegundos.
+        #
+        # SÓLO SE TOCA LO QUE NO ADMITE OTRA LECTURA. Medido sobre las 241
+        # pruebas reales de `data/lean_examples.json`: 0 modificadas. Un
+        # reparador que rompe código bueno sería peor que no tenerlo.
+        _cambios_nombres, _desconocidos = [], []
+        try:
+            from nucleo.lean import nombres as _nom_lean
+            _rep, _cambios_nombres = _nom_lean.reparar_codigo(lean_code)
+            if _cambios_nombres:
+                logger.info(
+                    "Lean: nombres cualificados antes de compilar: %s",
+                    ", ".join("%s -> %s" % (a, b) for a, b in _cambios_nombres))
+                lean_code = _rep
+            _desconocidos = [f for f in _nom_lean.revisar_codigo(lean_code)
+                             if not f["sugerencia"]]
+            if _desconocidos:
+                logger.warning(
+                    "Lean: nombres que NO estan en Mathlib y no se pueden "
+                    "cualificar solos: %s",
+                    ", ".join(f["nombre"] for f in _desconocidos[:6]))
+        except Exception as e:                                  # noqa: BLE001
+            logger.debug(f"reparacion de nombres no disponible: {e}")
+
         result = await self._lean.check_code(lean_code)
 
         # ── Paso 2b: reparacion de imports y reintento ────────────────────
