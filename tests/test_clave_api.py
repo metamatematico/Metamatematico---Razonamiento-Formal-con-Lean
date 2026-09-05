@@ -116,3 +116,45 @@ def test_la_clave_vuelve_a_os_environ_cuando_se_resuelve():
     pipeline sigue en demo."""
     src = _fuente()
     assert "os.environ[_env_name] = api_key" in src
+
+
+def test_vaciar_el_campo_borra_la_clave_de_verdad():
+    """Borrar el campo tiene que borrar la clave que USA el pipeline.
+
+    Los tres sitios donde se guardaba llevaban `if api_key:`, asi que vaciar
+    el campo no borraba nada: la copia persistente sobrevivia a la navegacion
+    entre paginas y —lo grave— `os.environ` seguia con la clave vieja, que es
+    de donde la lee el Nucleo. Se podia vaciar el campo, ver el hueco, y
+    seguir gastando la clave anterior en cada consulta.
+    """
+    fuente = _fuente()
+    bloque = fuente[fuente.index("_persist_key = f\"_apikey_persist_"):
+                    fuente.index("st.session_state[\"_api_key\"]")]
+    assert "else:" in bloque, "no hay rama para el campo vacio"
+    assert "st.session_state.pop(_persist_key, None)" in bloque, (
+        "vaciar el campo no borra la copia persistente")
+    assert "os.environ.pop(_env_name, None)" in bloque, (
+        "vaciar el campo no borra la variable de entorno, que es de donde el "
+        "Nucleo lee la clave")
+
+
+def test_se_dice_de_donde_salio_la_clave_que_se_ve():
+    """Encontrarse el campo relleno sin saber por que es desconcertante: la
+    clave puede venir del `.env`, de `secrets.toml` o de esta misma sesion."""
+    fuente = _fuente()
+    assert "cargada de `.env` al arrancar" in fuente
+    assert "escrita en esta sesión" in fuente
+    assert "volverá al reiniciar" in fuente, (
+        "hay que avisar de que el .env la repone, o el usuario cree que la "
+        "borro y vuelve sola")
+
+
+def test_un_401_se_traduce_a_algo_accionable():
+    """Sin esto, una clave mala sale como «El Núcleo encontró un error» y
+    parece un fallo del sistema."""
+    fuente = _fuente()
+    assert "La clave de API no es válida" in fuente
+    # las cuatro redacciones: `authentication_error` es la de Anthropic, y el
+    # 401 lo unico comun a los cuatro proveedores
+    for marca in ("authentication_error", "invalid x-api-key", '"401" in b'):
+        assert marca in fuente, "falta reconocer %s" % marca

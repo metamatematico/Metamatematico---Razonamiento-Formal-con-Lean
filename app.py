@@ -125,7 +125,11 @@ def _explica_error_proveedor(err) -> tuple[str, bool]:
             "El resto del sistema está bien: Lean y el grafo no dependen de esto.",
             True,
         )
-    if "authentication_error" in b or "invalid x-api-key" in b or "invalid api key" in b:
+    # Se acepta tambien el codigo numerico: `authentication_error` es la forma
+    # de Anthropic, pero Groq, Google y DeepSeek devuelven otras redacciones y
+    # el 401 es lo unico comun a los cuatro.
+    if ("authentication_error" in b or "invalid x-api-key" in b
+            or "invalid api key" in b or "401" in b or "unauthorized" in b):
         return (
             "**La clave de API no es válida.** Revísala en la barra lateral: "
             "suele ser una clave incompleta al pegarla, o de otro proveedor.",
@@ -1281,26 +1285,54 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
             if _key_problema:
                 st.error(_key_problema, icon="🔑")
 
-        # Copia no-widget: sobrevive a la navegacion entre paginas.
+        # ── BORRAR EL CAMPO TIENE QUE BORRAR LA CLAVE ────────────────────────
+        #
+        # Los tres sitios donde se guardaba llevaban `if api_key:`, así que
+        # vaciar el campo NO borraba nada: la copia persistente sobrevivía y
+        # —lo grave— `os.environ` seguía con la clave vieja, que es de donde la
+        # lee el Núcleo. Se podía vaciar el campo, ver el hueco, y seguir
+        # gastando la clave anterior en cada consulta.
+        #
+        # Ahora el campo manda dentro de la sesión: si está vacío, se limpia
+        # todo. Para quitarla de forma PERMANENTE hay que editar `.env`, que es
+        # de donde se rellena al arrancar.
+        _provider_env = {
+            "Anthropic":          "ANTHROPIC_API_KEY",
+            "Google AI Studio":   "GOOGLE_API_KEY",
+            "Groq (gratis)":      "GROQ_API_KEY",
+            "DeepSeek":           "DEEPSEEK_API_KEY",
+        }
+        _env_name = _provider_env.get(provider, "")
+        _persist_key = f"_apikey_persist_{provider}"
+
         if api_key:
-            st.session_state[f"_apikey_persist_{provider}"] = api_key
+            st.session_state[_persist_key] = api_key
+            if _env_name:
+                os.environ[_env_name] = api_key
+        else:
+            st.session_state.pop(_persist_key, None)
+            if _env_name:
+                os.environ.pop(_env_name, None)
 
         # Persist API config so other pages (Verificador, etc.) can reuse it
         st.session_state["_api_key"]    = api_key or ""
         st.session_state["_provider"]   = provider
         st.session_state["_model"]      = model
         st.session_state["_max_tokens"] = max_tokens
-        # Sincronizar env vars para que el LLMClient las detecte automáticamente
+
+        # ── DE DONDE SALIO LA CLAVE QUE SE VE ────────────────────────────────
+        # Sin esto, encontrarse el campo relleno sin saber por que es
+        # desconcertante: la clave puede venir del `.env`, de `secrets.toml` o
+        # de haberla escrito antes en esta sesion, y no hay forma de saberlo.
         if api_key:
-            _provider_env = {
-                "Anthropic":          "ANTHROPIC_API_KEY",
-                "Google AI Studio":   "GOOGLE_API_KEY",
-                "Groq (gratis)":      "GROQ_API_KEY",
-                "DeepSeek":           "DEEPSEEK_API_KEY",
-            }
-            _env_name = _provider_env.get(provider, "")
-            if _env_name:
-                os.environ[_env_name] = api_key
+            _origen = ("escrita en esta sesión"
+                       if api_key != _CLAVES_DEL_ENV.get(_env_name, "")
+                       else "cargada de `.env` al arrancar")
+            st.caption(f":gray[clave {_origen} · {len(api_key)} caracteres, "
+                       f"acaba en `…{api_key[-4:]}`]")
+        elif _CLAVES_DEL_ENV.get(_env_name, ""):
+            st.caption(":gray[campo vacío — hay una clave en `.env` que "
+                       "volverá al reiniciar. Bórrala de ahí para quitarla.]")
 
         st.divider()
 

@@ -2376,7 +2376,7 @@ with tab6:
     # busca el patron `"Tests", "N", "M suites"` con una regex, y un f-string
     # no encaja, asi que el test pasaba a saltarse en silencio. Una cifra
     # viva que apaga su propio control es peor que una literal vigilada.
-    col3.metric("Tests", "993", "50 suites")
+    col3.metric("Tests", "996", "50 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
