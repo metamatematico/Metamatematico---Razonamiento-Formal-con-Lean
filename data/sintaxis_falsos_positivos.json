@@ -1,0 +1,38 @@
+{
+  "n": 23243,
+  "falsos_positivos": 835,
+  "tasa_falsos_positivos": 0.03592479456180355,
+  "sin_notacion": 0,
+  "rotos": 23117,
+  "cazados": 14066,
+  "tasa_caza": 0.6084699571743738,
+  "nulo_moneda": 0.03592479456180355,
+  "ventaja_sobre_nulo": 0.5725451626125703,
+  "motivos_falso_positivo": {
+    "token_inesperado": 366,
+    "sobra_texto": 146,
+    "delimitador_sin_cerrar": 142,
+    "delimitador_sin_abrir": 152,
+    "operador_sin_operando": 26,
+    "expresion_vacia": 3
+  },
+  "caza_por_modo": {
+    "operando": {
+      "rotos": 6488,
+      "cazados": 3368
+    },
+    "doble": {
+      "rotos": 6443,
+      "cazados": 584
+    },
+    "cierra": {
+      "rotos": 5080,
+      "cazados": 5035
+    },
+    "abre": {
+      "rotos": 5106,
+      "cazados": 5079
+    }
+  },
+  "semilla": 20260904
+}
