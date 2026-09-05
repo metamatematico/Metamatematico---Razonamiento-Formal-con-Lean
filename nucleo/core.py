@@ -1615,12 +1615,15 @@ class Nucleo:
             logger.debug(f"decisor no disponible, se ejecuta todo: {e}")
             _plan, _corre = None, {"orden_de_cascada_por_area"}
 
-        if "orden_de_cascada_por_area" in _corre:
-            _domain_order = domain_tactic_order(_area)
-            _domain_tactic = domain_default_tactic(_area)
-        else:
-            _domain_order = []
-            _domain_tactic = ""
+        # SOLO SE APAGA EL ORDEN, NO LA ETIQUETA. `_domain_tactic` NO llega a
+        # la cascada —ahí va `_tactica_aprendida`, ver la llamada a
+        # `_apply_solver_cascade`—: se usa como etiqueta al reportar el
+        # resultado a la memoria de aprendizaje. Vaciarla no apagaba nada y sí
+        # metía una táctica en blanco en la memoria, que es peor que la que
+        # había. Lo que se apaga es `_domain_order`, que es lo medido.
+        _domain_tactic = domain_default_tactic(_area)
+        _domain_order = (domain_tactic_order(_area)
+                         if "orden_de_cascada_por_area" in _corre else [])
         # Vacia mientras no haya experiencia real. Se rellena abajo solo si el
         # agente especializado recuerda una tactica que YA funciono aqui; solo
         # entonces adelanta al orden medido.

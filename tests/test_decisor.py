@@ -190,3 +190,20 @@ def test_la_guarda_del_estrato_parte_el_promedio():
     # y sin notación no entra ni aunque el léxico calle: no habría de qué hablar
     sin_notacion = decidir(Contexto(rasgos={"sin_notacion": 1}, lexico_mudo=True))
     assert n not in [c.nombre for c in sin_notacion.activas]
+
+
+def test_apagar_el_orden_no_vacia_la_etiqueta_de_la_memoria():
+    """`_domain_tactic` NO llega a la cascada: va como etiqueta al reportar el
+    resultado a la memoria de aprendizaje (`report_lean_result`).
+
+    Al cablear el decisor la dejé en blanco junto con `_domain_order`, y eso
+    no apagaba nada —la cascada recibe `_tactica_aprendida`— pero sí metía una
+    táctica vacía en la memoria, que es peor que la que había. El guardián fija
+    que sólo se apague el orden.
+    """
+    fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
+    assert "_domain_tactic = domain_default_tactic(_area)" in fuente
+    assert '_domain_tactic = ""' not in fuente, (
+        "la etiqueta que va a la memoria no puede quedarse vacia")
+    # y el orden sí depende del decisor
+    assert '"orden_de_cascada_por_area" in _corre else []' in fuente

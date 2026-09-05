@@ -62,6 +62,29 @@ if (-not (Test-AppUp)) {
         if (Test-AppUp) { break }
     }
 
+    # SI NO LEVANTA, HAY QUE DECIRLO.
+    #
+    # Antes se abria el navegador pase lo que pase. Un error de import en
+    # nucleo/ —justo lo que pasa despues de tocar el codigo— dejaba una
+    # pestana en blanco y ninguna pista: el mensaje de Python estaba en
+    # streamlit_error.log y nadie lo miraba. Ahora se enseñan las ultimas
+    # lineas del log y no se abre un navegador contra nada.
+    if (-not (Test-AppUp)) {
+        $errLog = "$appDir\logs\streamlit_error.log"
+        $cola = ""
+        if (Test-Path $errLog) {
+            $cola = (Get-Content $errLog -Tail 12 -ErrorAction SilentlyContinue) -join "`n"
+        }
+        "[$(Get-Date)] NO ARRANCO tras 90 s`n$cola" |
+            Add-Content "$appDir\logs\launcher.log"
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.MessageBox]::Show(
+            "Metamatematico no arranco en 90 segundos.`n`n" +
+            "Ultimas lineas de $errLog :`n`n$cola",
+            "Metamatematico - fallo al arrancar") | Out-Null
+        exit 1
+    }
+
     "[$(Get-Date)] Metamatematico iniciado en $url" | Add-Content "$appDir\logs\launcher.log"
 }
 
