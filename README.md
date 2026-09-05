@@ -344,6 +344,9 @@ lo mismo acierta el 79 %.
 | Banco de fidelidad<br><sub>24 consultas, juez ciego al veredicto</sub> | 21/24 | — | **0 infieles** |
 | Nombres de los nodos generados<br><sub>447 identificadores con `#check`</sub> | 346 existen | — | **95 no existen** |
 | Poda por área antes de elegir<br><sub>con localización perfecta — el techo</sub> | 6,8 % | 9,8 % | **no llega al nulo** |
+| Revisión de sintaxis de la consulta<br><sub>23 243 enunciados de LeanWorkbook, todos correctos</sub> | 3,6 % falsos positivos<br>60,8 % de caza | 3,6 % (moneda) | **+57,3 puntos · aporta** |
+| Rasgos del árbol de la consulta<br><sub>22 117 consultas, bootstrap emparejado</sub> | 79,2 % cobertura | 78,4 % (n-gramas) | **+0,8 · real pero pequeño** |
+| Fibración π : Skills → Áreas<br><sub>860 pares (objeto, área debajo)</sub> | 0,3 % se levanta | 6,1 % (áreas al azar) | **peor que el azar** |
 
 ```bash
 python scripts/recuperacion_contra_proofnet.py    # vocabulario
@@ -462,6 +465,78 @@ que tienen al menos 30 ejemplos.
 **Todavía no está en el camino.** Es una medición, no una pieza conectada.
 
 ---
+
+### 6bis. El decisor: qué corre, decidido por la medición
+
+La tabla de arriba tenía filas que decían **«no bate al nulo»** y, aun así,
+esas capacidades seguían ejecutándose: el hallazgo estaba escrito en el
+informe y el `if` seguía en el código. `nucleo/decisor.py` cierra ese hueco.
+
+**La regla, y es una sola.** Una capacidad corre si (1) su guarda aplica a
+esta consulta **y** (2) su evidencia gana a su modelo nulo. La (2) no se
+negocia. Sin evidencia, sólo corre si es gratis: no se gasta una llamada al
+modelo ni un compilado de Lean en algo que nadie ha medido.
+
+**El veredicto se lee, no se recuerda.** Se guarda la *ruta* al número dentro
+del fichero de medición, no el número. Volver a medir cambia la decisión sola.
+Si una ruta deja de resolver, un test lo caza: una capacidad que se apaga en
+silencio es peor que no tener decisor.
+
+Qué apaga hoy:
+
+| capacidad | real | nulo |
+|---|---|---|
+| orden de cascada por área — *estaba en producción* | 1,262 | 1,091 |
+| dos etapas: localizar y elegir | 0,42 | 0,93 |
+| recuperación léxica de lemas | 0,065 | 7,78 |
+| emparejador semántico — *nunca se adoptó* | 12 % | 61 % |
+
+Su propio modelo nulo es «ejecutarlo todo», y está implementado. Coste por
+consulta: el decisor 0 llamadas al modelo y 1 compilado de Lean; el nulo 1 y 2.
+
+Verificar con Lean **no** pasa por esta regla, y se dice por qué: el nulo de
+«verificar» sería «no verificar», que es otro sistema, no una versión más
+barata de éste.
+
+```bash
+python scripts/decisor_del_sistema.py     # la tabla, recalculada
+```
+
+### 6ter. La sintaxis de la consulta
+
+Lo que había era una regex, y una regex no puede reconocer una expresión
+porque una expresión es un **árbol**. Partía `(a+b)^2 = a^2 + 2ab + b^2` por
+la mitad y no encontraba nada en `∀x ∈ ℝ, x² ≥ 0`: el alumno que escribe con
+símbolos era invisible.
+
+`nucleo/sintaxis/` la parsea por precedencia y dice si está bien formada. La
+primera versión rechazaba el **22,3 %** de los enunciados correctos de
+LeanWorkbook; las doce correcciones que lo bajaron al **3,6 %** salieron todas
+de mirar qué rechazaba —intervalos `[0,∞)`, `\mathbb{R^+}`, el espaciado
+`\;`, el guion de «Cauchy-Schwarz»—. El instrumento estaba mal, no los datos.
+
+Sólo se avisa al alumno de **delimitadores** (0,6 % de falsos positivos, 99 %
+de caza), que además es el error más caro: un paréntesis sin cerrar hace que
+el modelo formalice *otra* fórmula, Lean verifica ésa, y la respuesta sale con
+el sello de «verificado» sobre un enunciado que nadie pidió. Nunca bloquea.
+
+### 6quater. La fibración: el funtor existe, la fibración no
+
+Que π : Skills → Áreas sea funtor está verificado y **no basta**: un funtor
+que manda todo a un punto también cumple las dos leyes. La condición que dice
+que la base *sirve* es la de fibración, demostrada en
+`MetamathProver/CategoryFoundations/Fibracion.lean` (0 sorry).
+
+Sobre el grafo real **no se cumple**: 3 de 860 pares (0,3 %), contra el 6,1 %
+de barajar las áreas al azar. Y la razón está medida: sólo **29 de 230**
+morfismos de orden cruzan de área, y esos 29 generan **74** relaciones entre
+áreas al cerrar transitivamente. La base afirma de más, y el 93 % de los
+objetos no tiene ni un skill del área de abajo por debajo.
+
+El «supergrafo unificado por un funtor» tiene el funtor y no tiene la
+fibración, que es la parte que serviría para mover una pregunta entre áreas.
+No falta formalización: faltan morfismos que crucen de área.
+
 
 ## 7. Tests y guardianes
 

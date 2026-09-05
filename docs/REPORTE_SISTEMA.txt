@@ -284,6 +284,57 @@ computability, logic y ordertheory, que NO TIENEN NI UN nodo hecho a mano. Es un
 hueco de los 173 curados, y ahora se ve.
 
 
+--------------------------------------------------------------------------------
+5.2  LA FIBRACIÓN: EL FUNTOR EXISTE, LA FIBRACIÓN NO
+     MetamathProver/CategoryFoundations/Fibracion.lean · nucleo/graph/fibracion.py
+     scripts/fibracion_del_grafo.py
+--------------------------------------------------------------------------------
+
+Que π : Skills → Áreas sea FUNTOR está verificado y no basta: un funtor que
+manda todo a un punto también cumple las dos leyes. La condición que dice que
+la base SIRVE es la de fibración — que toda flecha `b' ≼ b` de la base se
+levante cartesianamente a todo objeto de la fibra de `b`.
+
+Lo que se gana si vale, demostrado en Lean (0 sorry; los tres teoremas de
+reindexado no dependen de ningún axioma):
+
+    reindexado_monotono      cada flecha de la base induce una aplicación
+                             MONÓTONA fibra(b) → fibra(b'). Es LA manera de
+                             trasladar una pregunta de un área a otra.
+    reindexado_compuesto     encadenar restricciones de área no depende del
+                             camino que se tome por la base.
+    no_toda_monotona_...     contraejemplo finito: la condición PUEDE fallar,
+                             luego comprobarla significa algo.
+
+MEDIDO SOBRE EL GRAFO REAL (173 skills, 230 morfismos de orden):
+
+    pares (objeto, área estrictamente debajo)     860
+    con levantamiento cartesiano                    3      0,3 %
+    modelo nulo (áreas barajadas, fibras fijas)            6,1 %
+    ventaja sobre el nulo                                 -5,8 puntos
+
+PEOR QUE EL AZAR, y la razón está medida, no supuesta:
+
+    morfismos que CRUZAN de área              29 de 230     12,6 %
+    pares sin NI UN skill del área de abajo   801 de 860     93,1 %
+    relaciones entre áreas por clausura                     74
+
+Esos 29 morfismos generan 74 relaciones entre áreas al cerrar
+transitivamente. LA BASE AFIRMA DE MÁS: dice «Topology alimenta a Algebra»
+porque hay UNA flecha, y el 93 % de los objetos de Algebra no tiene ni un
+skill de Topology debajo. Y sale peor que el azar porque el grafo real es
+MODULAR —los morfismos se quedan dentro del área— mientras que la condición
+de fibración premia justo lo contrario.
+
+De las 63 flechas de la base, CERO sostienen a toda su fibra; la mejor llega
+al 11 % (Analysis → Probability, 1 de 9).
+
+QUÉ SIGNIFICA. El «supergrafo unificado por un funtor» tiene el funtor y no
+tiene la fibración, que es la parte que serviría para mover una pregunta entre
+áreas. Y no es un problema de formalización: es que faltan morfismos que
+crucen de área. Es un problema de datos del grafo, y ahora está cuantificado.
+
+
 ================================================================================
 6. LO QUE ESTÁ MEDIDO Y APORTA
 ================================================================================
@@ -308,6 +359,56 @@ hueco de los 173 curados, y ahora se ve.
 NO HAY UN VEREDICTO ÚNICO SOBRE «EL NÚCLEO». El grafo aporta en UNO de sus tres
 puntos de actuación, es inerte en otro, y en el tercero NO BATE A SU MODELO
 NULO. Decirlo de otra manera sería mentir por agregación.
+
+
+================================================================================
+6bis. EL DECISOR — QUÉ CORRE, DECIDIDO POR LA MEDICIÓN
+      nucleo/decisor.py · scripts/decisor_del_sistema.py
+================================================================================
+
+Este informe tenía una sección entera de cosas medidas que NO baten a su nulo
+(§7) y, aun así, varias seguían ejecutándose: el hallazgo estaba escrito y el
+`if` seguía en el código. El decisor cierra ese hueco.
+
+LA REGLA, Y ES UNA SOLA. Una capacidad corre si (1) su guarda aplica a esta
+consulta Y (2) su evidencia gana a su modelo nulo. La (2) no se negocia y no
+depende de la consulta. Sin evidencia, sólo corre si es gratis: no se gasta
+una llamada al modelo ni un compilado de Lean en algo que nadie ha medido.
+
+EL VEREDICTO SE LEE, NO SE RECUERDA. Se guarda la RUTA al número dentro del
+fichero de medición, no el número. Volver a medir cambia la decisión sola, y
+una conclusión vieja no puede seguir mandando. Si una ruta deja de resolver,
+un test lo caza: una capacidad que se apaga en silencio es peor que no tener
+decisor.
+
+QUÉ APAGA HOY:
+
+    capacidad                       real     nulo    de dónde
+    ---------------------------------------------------------------------
+    orden de cascada por área      1,262    1,091    §7.6  (en producción)
+    dos etapas localizar+elegir     0,42     0,93    §7.3
+    recuperación léxica de lemas   0,065     7,78    data/recuperacion_lemas
+    emparejador semántico            12 %     61 %   §7.2  (nunca se adoptó)
+
+QUÉ DEJA CORRER, y con qué número:
+
+    revisión de sintaxis           caza 60,8 % contra 3,6 % de una moneda
+    rasgos del árbol para lemas    79,2 % contra 78,4 % de los n-gramas solos
+    reconocedor de área            0,759 contra 0,238
+    nombres de Mathlib al prompt   17,1 % de precisión contra 1,6 %
+    premisas híbridas              1,243 contra 1,040
+    TacticRanker                   0,598 contra 0,318 de la mayoritaria
+
+SU PROPIO MODELO NULO es «ejecutarlo todo», y está implementado. Coste por
+consulta: el decisor 0 llamadas al modelo y 1 compilado de Lean; el nulo 1 y 2.
+La CALIDAD no se compara ahí —haría falta gastar API y Lean— y el argumento de
+que no baja es la regla misma: lo que se apaga se apagó porque se midió que no
+batía a no hacerlo.
+
+LO QUE ESTO NO DECIDE. Verificar con Lean no pasa por esta regla, y se dice
+por qué: el nulo de «verificar» sería «no verificar», que es otro sistema, no
+una versión más barata de éste. Sus medidas son `banco_fidelidad.py` y
+`ablacion_nucleo.py`, no el decisor.
 
 
 ================================================================================
@@ -446,6 +547,12 @@ NULO. Decirlo de otra manera sería mentir por agregación.
      320 casos. Con el 95,8 % en una sola clase, ESTE BANCO NO PUEDE DECIDIR.
      `efecto_orden_cascada.py` calcula ahora su nulo y lo imprime.
 
+     Y DESDE 2026-09-04 EL SISTEMA ACTÚA EN CONSECUENCIA. Este hallazgo llevaba
+     escrito aquí sin cambiar el código: la regla seguía en producción porque
+     su `if` seguía en `core.py`. El decisor (§6bis) la apaga leyendo este
+     mismo número. El código de `domain_tactic_order` se queda donde está: si
+     alguien vuelve a medirlo y gana, se enciende solo.
+
 7.7  LOS NOMBRES DE LOS NODOS GENERADOS
      De 447 identificadores comprobados uno a uno con `#check`: 346 existen,
      95 NO EXISTEN y 6 son namespaces. Estaban deducidos de la ruta del módulo,
@@ -556,6 +663,70 @@ YA MEDIDO EN EL BANCO DE LA CASCADA (§7.6): el clasificador da 1,06 frente al
 en una sola táctica y no puede distinguir nada. Donde el predictor SÍ muestra
 señal es aquí, con 22 tácticas y un nulo del 23,8 % — pero ésas no son las
 tácticas de la cascada.
+
+
+--------------------------------------------------------------------------------
+8.5  LA SINTAXIS DE *LA CONSULTA*, QUE ES LA QUE HAY ANTES DE LLAMAR A NADIE
+     nucleo/sintaxis/ · scripts/sintaxis_falsos_positivos.py
+     scripts/sintaxis_de_consulta_contra_lemas.py
+--------------------------------------------------------------------------------
+
+Todo lo de §8.1-8.4 se calcula sobre el ENUNCIADO DE LEAN, que sólo existe
+DESPUÉS de que el modelo formalice. Para el paso 1 no servía. Esto se calcula
+sobre lo que escribe el alumno.
+
+LO QUE HABÍA era una regex (`traductor.NOTACION`), y una regex no puede
+reconocer una expresión porque una expresión es un ÁRBOL. Sobre seis consultas
+reales partía `(a+b)^2 = a^2 + 2ab + b^2` por la mitad y no encontraba NADA en
+`∀x ∈ ℝ, x² ≥ 0`: el alumno que escribe con símbolos era invisible.
+
+LAS DOS CIFRAS, sobre los 23 243 enunciados de LeanWorkbook —todos correctos,
+los formalizó alguien y Lean los aceptó—:
+
+    falsos positivos (rechaza lo bueno)          3,6 %
+    caza (los mismos, rotos a propósito)        60,8 %
+    ... si la rotura es un delimitador            99 %
+    modelo nulo (una moneda)                     3,6 %
+    ventaja sobre el nulo                       +57,3 puntos
+
+LA PRIMERA VERSIÓN DABA 22,3 % DE FALSOS POSITIVOS. Las doce correcciones que
+lo bajaron al 3,6 % salieron todas de MIRAR QUÉ RECHAZABA: intervalos medio
+abiertos `[0,∞)`, `\mathbb{R^+}`, el espaciado `\;`, la coma de la frase
+colada dentro del dólar, la fórmula partida en tres grupos de `$`, el guion de
+«Cauchy-Schwarz». El instrumento estaba mal, no los datos.
+
+SÓLO SE AVISA AL ALUMNO DE DELIMITADORES, y el reparto dice por qué:
+
+    delimitador sin cerrar     0,6 % de falsos positivos    99,1 % de caza
+    delimitador sin abrir      0,7 %                        99,5 %
+    los otros cuatro juntos    2,3 %                        ~50 %
+
+Y es el error más caro: un paréntesis sin cerrar hace que el modelo formalice
+OTRA fórmula, Lean verifica ésa, y la respuesta sale con el sello de
+«verificado» puesto sobre un enunciado que nadie pidió. No bloquea nunca.
+
+Y AHORA EL RESULTADO INCÓMODO. ¿Sirven los rasgos del árbol de la consulta
+para recuperar los lemas? Mismo corpus, mismo K y mismo nulo que §8.2, con
+bootstrap emparejado sobre 22 117 consultas:
+
+    configuración   cobertura    contra            diferencia   IC 95 %
+    ---------------------------------------------------------------------
+    nulo              56,6 %
+    n-gramas          78,4 %
+    ESTRUCTURA        67,9 %     el nulo             +11,3   [+10,2, +12,4]
+                                 los n-gramas        -10,5   [-11,4,  -9,6]
+    las dos           79,2 %     los n-gramas         +0,8   [ +0,2,  +1,3]
+
+Sobre el ENUNCIADO DE LEAN la estructura EMPATABA con 40 000 n-gramas (76,3
+contra 76,8). Sobre la CONSULTA no: pierde por diez puntos y sólo suma +0,8
+encima. Tiene sentido —la consulta es sobre todo prosa, y la prosa lleva casi
+toda la señal—. El +0,8 se distingue del ruido pero no justifica rehacer el
+emparejador. Queda medido y escrito.
+
+TAMBIÉN MEDIDO Y NEGATIVO: se esperaba que la regex que escuda la notación
+del traductor dejara huecos. Sobre 4 000 enunciados reales sólo expone el
+1,5 % de los caracteres, y lo que expone es «AM-GM» y «C-S», no fórmulas.
+Donde la notación va entre dólares, el escudo está bien.
 
 
 ================================================================================
