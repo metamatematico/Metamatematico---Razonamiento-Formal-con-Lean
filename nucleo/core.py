@@ -4083,6 +4083,20 @@ class Nucleo:
                 continue
 
             # Tokens del id y del nombre, por la misma via
+            # LAS SKILLS DE MATHLIB SON INALCANZABLES POR SU PROPIO NOMBRE,
+            # Y PARTIRLAS EMPEORA. El id concatena los segmentos del modulo
+            # —`mathlib-order-booleanalgebra`— y el nombre va en CamelCase, asi
+            # que ni «boolean» ni «algebra» casan. Ante «toda algebra de Boole
+            # tiene una complecion» el grafo activa `commutative-algebra` y
+            # `homological-algebra` —anillos y modulos— y NO
+            # `mathlib-order-booleanalgebra`, que existe y es la que hace falta.
+            #
+            # SE PROBO A PARTIRLOS por mayusculas y por diccionario, y MEDIDO
+            # sobre las 3000 consultas etiquetadas SALIO PEOR: la 1a skill del
+            # area buena caia del 52,1 % al 49,1 %. Partir `BooleanAlgebra` en
+            # «algebra» crea coincidencias espurias en media biblioteca, y se
+            # pierde mas de lo que se gana. Revertido; queda escrito para que
+            # nadie lo intente otra vez sin medirlo.
             skill_tokens = _tok(skill_id) | _tok(skill.name)
 
             # UNA PALABRA GENERICA NO ES EVIDENCIA POR SI SOLA.
