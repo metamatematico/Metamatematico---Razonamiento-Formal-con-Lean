@@ -116,3 +116,56 @@ def test_el_vacuo_se_comprueba_antes_que_sin_teorema():
     i_sin = fuente.index("not _prueba_algo(lean_code)")
     assert i_vacuo < i_sin
     assert '"vacuo"' in fuente
+
+
+class TestSeEnsenaElCodigoQueLeanVio:
+    """`check_code` NORMALIZA antes de compilar, y lo que se enseñaba era el
+    original.
+
+    Medido: se le pasa
+
+        import Mathlib
+        theorem t : 1 = 1 := rfl
+
+    y Lean ve seis imports estrechos, un `open Real` y el teorema. `import
+    Mathlib` se BORRA porque cargarlo entero tarda 742 s y siempre expira.
+
+    Consecuencia: se podia leer `import Mathlib` junto a un error diciendo que
+    un lema no existe —cuando con ese import SI existe—. Cuatro intentos
+    seguidos del usuario chocaron con esto sin que nada lo dijera.
+    """
+
+    def test_el_resultado_lleva_el_codigo_compilado(self):
+        from nucleo.lean.client import LeanResult, LeanResultStatus
+        r = LeanResult(status=LeanResultStatus.SUCCESS,
+                       codigo_verificado="import Mathlib.Tactic.Ring\ntheorem t : 1 = 1 := rfl")
+        assert r.codigo_verificado.startswith("import Mathlib.Tactic.Ring")
+
+    def test_core_muestra_ese_y_no_el_original(self):
+        fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
+        i_asig = fuente.index('_codigo_mostrado = (getattr(result, "codigo_verificado"')
+        # TODAS las apariciones: la del bloque que se enseña y —tan
+        # importante— las de los prompts del traductor, que si reciben el
+        # codigo sin normalizar hacen que el modelo explique un codigo que
+        # Lean no vio.
+        marca = "lean" + chr(92) + "n{lean_code}"
+        posiciones = []
+        desde = 0
+        while True:
+            j = fuente.find(marca, desde)
+            if j == -1:
+                break
+            posiciones.append(j)
+            desde = j + 1
+        assert posiciones, "no se encuentra el bloque de codigo"
+        assert i_asig < min(posiciones), (
+            "el codigo verificado se asigna DESPUES de usarse en %d sitio(s)"
+            % sum(1 for x in posiciones if x < i_asig))
+        assert "lean_code = _codigo_mostrado" in fuente
+
+    def test_si_no_hay_codigo_verificado_se_cae_al_original(self):
+        """Un `LeanResult` viejo o de otra ruta no puede dejar la respuesta sin
+        codigo."""
+        fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
+        assert "if not _codigo_mostrado:" in fuente
+        assert "_codigo_mostrado = lean_code" in fuente

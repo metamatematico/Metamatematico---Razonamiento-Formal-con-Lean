@@ -1,7 +1,7 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 8694758 · 1003 tests en verde
+  Estado a 2026-09-04 · commit 8694758 · 1006 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
@@ -858,7 +858,7 @@ leer el equilibrado sin ver de cuántos casos sale.
 11. TESTS Y GUARDIANES
 ================================================================================
 
-  1003 tests en 50 suites. Los que más valen no comprueban que el código
+  1006 tests en 50 suites. Los que más valen no comprueban que el código
   funcione, sino QUE NO VUELVA A MENTIR:
 
     · la dependencia del grafo tiene que ser un ORDEN (0 ciclos)
@@ -1059,7 +1059,7 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
   python scripts/politica_emparejador.py --curva    a volumen igualado
   python scripts/dibujar_flujo.py                   el diagrama, desde el código
   python scripts/dibujar_grafo.py                   la figura, desde el runtime
-  python -m pytest tests/ -o "addopts="             1003 tests
+  python -m pytest tests/ -o "addopts="             1006 tests
 
   Repositorio:
     github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean

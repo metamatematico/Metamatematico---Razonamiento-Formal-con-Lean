@@ -67,6 +67,17 @@ class LeanResult:
     messages: list[dict[str, Any]] = field(default_factory=list)
     output: str = ""
     elapsed_ms: float = 0.0
+    #: EL CODIGO QUE LEAN VIO DE VERDAD, que no es el que se le paso.
+    #:
+    #: `check_code` normaliza antes de compilar y —entre otras cosas— BORRA
+    #: `import Mathlib`, porque cargarlo entero tarda 742 s y siempre expira.
+    #: El llamante se quedaba con el codigo ORIGINAL y era ese el que se
+    #: enseñaba junto al veredicto: el alumno veia `import Mathlib` y un error
+    #: diciendo que un lema no existe, cuando con ese import si existe.
+    #:
+    #: En un sistema cuya tesis es «Lean respalda este codigo», enseñar un
+    #: codigo que Lean no ha visto rompe la tesis. Aqui viaja el de verdad.
+    codigo_verificado: str = ""
 
     @property
     def is_success(self) -> bool:
@@ -909,6 +920,7 @@ class LeanClient:
                 data.get("stdout", ""),
                 data.get("stderr", ""),
                 data.get("returncode", 0),
+                codigo_verificado=code,
             )
             logger.info("Lean verificado via HTTP API")
             return result
@@ -956,7 +968,15 @@ class LeanClient:
             stdout_b, stderr_b = proc.communicate(timeout=self.timeout_s)
             output = stdout_b.decode("utf-8", errors="replace")
             errors = stderr_b.decode("utf-8", errors="replace")
-            return self._parse_lean_output(output, errors, proc.returncode)
+            # El codigo que Lean vio esta en el fichero que se le paso, que
+            # es el YA NORMALIZADO. Leerlo de ahi es lo unico fiable: este
+            # ayudante recibe la ruta, no el texto original.
+            try:
+                _visto = Path(file_path).read_text(encoding="utf-8")
+            except Exception:                                  # noqa: BLE001
+                _visto = ""
+            return self._parse_lean_output(output, errors, proc.returncode,
+                                           codigo_verificado=_visto)
         except subprocess.TimeoutExpired:
             logger.warning(f"Lean timeout after {self.timeout_s}s — matando proceso {proc.pid}")
             self._kill_process_tree(proc.pid)
@@ -1000,7 +1020,8 @@ class LeanClient:
         self,
         stdout: str,
         stderr: str,
-        return_code: int
+        return_code: int,
+        codigo_verificado: str = "",
     ) -> LeanResult:
         """Parsear output de Lean."""
         messages = []
@@ -1045,7 +1066,8 @@ class LeanClient:
             status=status,
             goals=goals,
             messages=messages,
-            output=stdout + stderr
+            output=stdout + stderr,
+            codigo_verificado=codigo_verificado,
         )
 
     def check_code_sync(self, code: str) -> LeanResult:

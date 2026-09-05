@@ -62,6 +62,10 @@ BANCO = RAIZ / "data" / "lemas_mathlib.jsonl"
 
 _NOMBRES: Optional[frozenset] = None
 _CORTOS: Optional[dict] = None
+#: nombre cualificado -> modulo de Mathlib que lo define. El indice ya traia
+#: el campo `modulo` y no lo miraba nadie; es lo que hace falta para saber que
+#: `import` anadir cuando se cualifica un nombre.
+_MODULO: Optional[dict] = None
 
 
 #: Los sustantivos —tipos, clases, estructuras— viven en OTRO fichero.
@@ -78,15 +82,17 @@ _SUSTANTIVOS = RAIZ / "data" / "sustantivos_mathlib.jsonl"
 
 def _cargar() -> None:
     """Carga los nombres una vez. ~1 s y ~7 MB sobre los dos ficheros."""
-    global _NOMBRES, _CORTOS
+    global _NOMBRES, _CORTOS, _MODULO
     if _NOMBRES is not None:
         return
-    nombres, cortos = set(), {}
+    nombres, cortos, modulos = set(), {}, {}
 
-    def _mete(n: str) -> None:
+    def _mete(n: str, modulo: str = "") -> None:
         if n:
             nombres.add(n)
             cortos.setdefault(n.rsplit(".", 1)[-1], []).append(n)
+            if modulo:
+                modulos.setdefault(n, modulo)
 
     for ruta in (BANCO, _SUSTANTIVOS):
         try:
@@ -102,10 +108,26 @@ def _cargar() -> None:
                     # alguien, y para eso el corto es demasiado laxo: `Basis` a
                     # pelo da «unknown identifier», asi que quien diga que no
                     # existe tiene razon y corregirle seria mentir.
-                    _mete(d.get("nombre") or d.get("name") or "")
+                    _mete(d.get("nombre") or d.get("name") or "",
+                          d.get("modulo") or d.get("module") or "")
         except FileNotFoundError:
             continue
-    _NOMBRES, _CORTOS = frozenset(nombres), cortos
+    _NOMBRES, _CORTOS, _MODULO = frozenset(nombres), cortos, modulos
+
+
+def modulo_de(nombre: str) -> str:
+    """El modulo de Mathlib que define este nombre. Cadena vacia si no consta.
+
+    Hace falta porque `_normalize_code` BORRA `import Mathlib` —cargarlo entero
+    tarda 742 s y siempre expira— y lo sustituye por una cabecera estrecha. Bajo
+    esa cabecera, un lema perfectamente real da «Unknown constant» si su modulo
+    no esta. Cualificar el nombre sin traer su modulo no arregla nada.
+    """
+    _cargar()
+    if not _MODULO:
+        return ""
+    n = nombre.strip().strip("`").lstrip("@")
+    return _MODULO.get(n) or _MODULO.get(nombre_completo(n) or "") or ""
 
 
 def disponible() -> bool:
@@ -427,5 +449,33 @@ def reparar_codigo(codigo: str) -> tuple:
             if trozos:
                 nuevo = "".join(trozos) + nuevo[fin:]
                 cambios.append((n, cand[0]))
+
+    # ── regla 3 · traer el MODULO de lo que se ha cualificado ───────────
+    #
+    # Cualificar el nombre y no traer su modulo no arregla nada:
+    # `_normalize_code` BORRA `import Mathlib` —cargarlo entero tarda 742 s y
+    # siempre expira— y deja una cabecera estrecha. Bajo esa cabecera, un lema
+    # perfectamente real da «Unknown constant».
+    #
+    # Ese es exactamente el fallo que se repitio cuatro veces:
+    # `Module.Basis.exists_basis` existe, `#check` lo confirma con
+    # `import Mathlib`, y el pipeline decia que no — porque compilaba SIN el.
+    faltan = []
+    for _viejo, bueno in cambios:
+        mod = modulo_de(bueno)
+        if mod and ("import " + mod) not in nuevo and mod not in faltan:
+            faltan.append(mod)
+    if faltan:
+        lineas = nuevo.splitlines()
+        # detras del ultimo import que ya haya, o al principio si no hay ninguno
+        corte = 0
+        for i, l in enumerate(lineas):
+            if l.strip().startswith("import "):
+                corte = i + 1
+        nuevo = chr(10).join(lineas[:corte]
+                             + ["import " + m for m in faltan]
+                             + lineas[corte:])
+        for m in faltan:
+            cambios.append(("(import)", m))
 
     return nuevo, cambios

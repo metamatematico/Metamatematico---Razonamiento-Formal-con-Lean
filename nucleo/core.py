@@ -2207,6 +2207,27 @@ class Nucleo:
             }.get(verification_status, "failed")
             self.report_lean_result(input_text, _domain_tactic, _lean_outcome, success_value)
 
+        # ── SE ENSEÑA EL CODIGO QUE LEAN VIO, NO EL QUE SE LE PASO ──────────
+        #
+        # `check_code` normaliza antes de compilar y —entre otras cosas— BORRA
+        # `import Mathlib`, porque cargarlo entero tarda 742 s y siempre
+        # expira. Lo sustituye por una cabecera estrecha. Medido: se le pasa
+        #
+        #     import Mathlib
+        #     theorem t : 1 = 1 := rfl
+        #
+        # y Lean ve seis imports distintos, un `open Real` y el teorema.
+        #
+        # Se enseñaba el ORIGINAL junto al veredicto, así que se podía leer
+        # `import Mathlib` al lado de un error diciendo que un lema no existe
+        # —cuando con ese import sí existe—. En un sistema cuya tesis es que
+        # Lean respalda este código, enseñar un código que Lean no ha visto
+        # rompe la tesis justo donde se puede comprobar.
+        _codigo_mostrado = (getattr(result, "codigo_verificado", "") or "").strip()
+        if not _codigo_mostrado:
+            _codigo_mostrado = lean_code
+        lean_code = _codigo_mostrado
+
         # ── Paso 4: LLM traduce — el LLM es solo la boca, Lean es el cerebro ─
         _sin_entorno = verification_status == "sin_entorno"
         # Cuando lake no está disponible, el LLM NO debe ver el error de infraestructura.
@@ -2251,13 +2272,35 @@ class Nucleo:
                 + f"Pregunta original del usuario:\n> {self._consulta_original}\n\n"
                 f"Código Lean 4 generado:\n```lean\n{lean_code}\n```\n\n"
                 f"Estado: {_vn_for_llm}\n\n"
-                "Escribe tu explicación con estas secciones:\n\n"
-                "## ¿Qué dice este resultado?\n"
-                "[Explica el enunciado con tus palabras.]\n\n"
-                "## ¿Cómo lo demuestra Lean?\n"
-                "[Estrategia de la prueba, sin copiar código.]\n\n"
-                "## ¿Por qué es correcto?\n"
-                "[Intuición matemática detrás del argumento.]"
+                # LA MATEMATICA VA PRIMERA. LAS TACTICAS, AL FINAL Y CORTAS.
+                #
+                # El orden anterior era «qué dice · cómo lo demuestra Lean ·
+                # por qué es correcto», y sobre «todo espacio vectorial tiene
+                # una base» produjo media respuesta explicando `obtain` y
+                # `exact` —o sea, la fontanería— mientras la demostración de
+                # verdad (Zorn, cadenas, elemento maximal) caía TERCERA y
+                # disfrazada de sección de intuición.
+                #
+                # Quien pregunta quiere la demostración, no el informe de lo
+                # que hizo el verificador. Eso último interesa después, y en
+                # tres líneas.
+                "Escribe tu explicación con estas secciones, EN ESTE ORDEN:\n\n"
+                "## La demostración\n"
+                "[EL ARGUMENTO MATEMÁTICO, paso a paso, como se lo explicarías "
+                "a alguien en una pizarra. Es la sección principal y la más "
+                "larga.\n"
+                " SI EL CÓDIGO LEAN DELEGA EN UN LEMA DE MATHLIB, la "
+                "demostración que hay que dar es LA DEL LEMA —el contenido "
+                "matemático real—, no la de las dos tácticas que lo invocan. "
+                "Di de qué lema se trata y demuestra lo que ese lema afirma.\n"
+                " Si el código deja `sorry`, di exactamente qué paso falta.]\n\n"
+                "## Qué queda demostrado, exactamente\n"
+                "[El enunciado preciso, señalando sobre qué cuantifica cada "
+                "`∃` y `∀`, y en qué se diferencia de lo que se preguntó si se "
+                "diferencia en algo.]\n\n"
+                "## Cómo lo comprueba Lean\n"
+                "[DOS O TRES LÍNEAS, no más. Qué lema se invoca y qué hace la "
+                "táctica. Es un apéndice: no repitas aquí la matemática.]"
                 + (f"\n\n## Nota sobre la verificación\n[{verification_note}]"
                    if verification_status not in ("verificado", "sin_entorno") else "")
             )
@@ -2831,7 +2874,19 @@ class Nucleo:
         "el porque a partir del error. No lo presentes como si estuviera bien.\n"
         "- No ofrezcas alternativas ni preguntes si el usuario quiere algo mas. "
         "Tu salida es la respuesta final.\n"
-        "- No hables de ti ni de tus capacidades. Habla de las matematicas.\n\n"
+        "- No hables de ti ni de tus capacidades. Habla de las matematicas.\n"
+        # LO QUE SE PIDE ES LA DEMOSTRACION, NO EL PARTE DEL VERIFICADOR.
+        #
+        # Sobre «todo espacio vectorial tiene una base» el sistema devolvio
+        # media respuesta explicando `obtain` y `exact` —la fontaneria— y la
+        # demostracion de verdad (Zorn, cadenas, elemento maximal) quedaba
+        # tercera. Lean es el respaldo de la respuesta, no su tema.
+        "- LO QUE SE PIDE ES LA DEMOSTRACION MATEMATICA. Las tacticas de Lean "
+        "—`obtain`, `exact`, `simp`— son fontaneria: van al final y en dos "
+        "lineas. Nadie pregunta que hizo el verificador.\n"
+        "- Si la prueba se apoya en un lema de Mathlib, EL CONTENIDO ES EL DEL "
+        "LEMA. Demuestra lo que ese lema afirma; no describas la linea que lo "
+        "invoca.\n\n"
     )
 
     async def _revisar_con_lean(
