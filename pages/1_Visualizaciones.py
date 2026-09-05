@@ -969,8 +969,15 @@ def fig_architecture():
     box(0.2, 3.5, 1.8, 1.0, "Usuario", "Consulta NL", "#0d2137", "#60a5fa")
     # CR_tac
     box(2.4, 3.5, 2.2, 1.0, "CoRegulatorNetwork", "4 CRs, prioridad fija\n-> ASISTIR / RESPONDER", "#1a2a1a", "#4ade80")
-    # Grafo de Skills
-    box(5.0, 5.5, 3.5, 1.8, "Grafo Categorico", "172 skills, 4 pilares\ndep + analogia + traduccion", "#1a1a2e", "#818cf8")
+    # Grafo de Skills — el numero se cuenta, no se escribe: el literal decia
+    # 172 con 173 cargados, y volveria a quedarse viejo con cada ampliacion.
+    try:
+        _n_sk = len(_skills_viz())
+    except Exception:
+        _n_sk = 0
+    box(5.0, 5.5, 3.5, 1.8, "Grafo Categorico",
+        f"{_n_sk or '—'} skills, 4 pilares\ndep + analogia + traduccion",
+        "#1a1a2e", "#818cf8")
     # GoalAnalyzer
     box(5.0, 3.2, 2.2, 1.0, "GoalAnalyzer", "regex + grafo\n→ orden tácticas", "#1a1a2e", "#818cf8")
     # LLM
@@ -986,8 +993,20 @@ def fig_architecture():
     box(7.9, 1.5, 2.4, 1.0, "14 agentes", "uno por categoria\n-> 1a tactica de la cascada", "#0d1f1f", "#2dd4bf")
     box(11.0, 1.0, 2.5, 1.0, "Respuesta", "explicación +\nprueba Lean", "#1a1007", "#fbbf24")
 
+    # ── Las dos piezas que faltaban ──────────────────────────────────────────
+    # Faltaban en el diagrama y estan en el codigo desde que se cableo el
+    # decisor. Las dos son LOCALES —ni llamada al modelo ni compilado de Lean—
+    # y las dos cambian lo que pasa despues, asi que dibujarlas no es adorno.
+    box(0.2, 1.9, 2.0, 1.0, "Sintaxis",
+        "árbol de la consulta\nrasgos + delimitadores", "#0b1f22", "#2dd4bf")
+    box(2.4, 1.9, 2.2, 1.0, "Decisor",
+        "qué capacidades corren\nlee el nulo de cada una", "#0b1f22", "#2dd4bf")
+
     # Flechas
     arrow(2.0, 4.0, 2.4, 4.0, "consulta")
+    arrow(1.1, 3.5, 1.1, 2.9, "", "#2dd4bf")
+    arrow(2.2, 2.4, 2.4, 2.4, "", "#2dd4bf")
+    arrow(4.6, 2.15, 8.0, 3.05, "apaga el orden por área", "#f59e0b")
     arrow(4.6, 4.0, 5.0, 3.7, "ASISTIR")
     arrow(4.6, 3.8, 5.0, 2.0, "RESPONDER")
     arrow(6.0, 3.2, 6.0, 2.5)
@@ -1497,10 +1516,16 @@ def fig_pipeline():
     fig, ax = plt.subplots(figsize=(14.5, 9.6), facecolor=BG)
     ax.set_facecolor(BG)
     ax.set_xlim(0, 14)
-    ax.set_ylim(0, 9.6)
+    # LA NOTA DEL PIE TIENE SU PROPIA FRANJA. Con `ylim(0, 9.6)` la caja del
+    # aviso caia encima de la etiqueta del lazo de realimentacion y de la linea
+    # discontinua que lo dibuja. Bajar el limite le da sitio sin mover nada.
+    ax.set_ylim(-0.62, 9.6)
     ax.axis("off")
 
     VERDE, NARANJA, AZUL, MORADO, GRIS = "#4ade80", "#fb923c", "#60a5fa", "#818cf8", "#9ca3af"
+    #: Lo que es LOCAL — ni llamada al modelo ni compilado de Lean. Se le da
+    #: color propio porque es la diferencia que importa al leer el coste.
+    CIAN = "#2dd4bf"
 
     def caja(x, y, w, h, titulo, borde, relleno="#161b22", sub="", fs=8.4, fs_sub=6.6):
         """Caja con titulo y, opcionalmente, un subtitulo DENTRO (sin colisiones)."""
@@ -1549,6 +1574,18 @@ def fig_pipeline():
     flecha((10.05, 8.50), (10.75, 8.50), NARANJA)
     etiqueta(10.40, 8.72, "no", NARANJA, 7.2)
 
+    # ── PASO 0 · lo que ocurre ANTES de gastar nada ──────────────────────────
+    #
+    # Las dos cajas de esta franja faltaban y el diagrama contradecia al
+    # codigo: `_math_via_lean` empieza revisando la sintaxis de la consulta y
+    # despues pregunta al decisor que capacidades corren. Las dos son locales
+    # —ni una llamada al modelo ni un compilado de Lean— y las dos cambian lo
+    # que pasa a continuacion, asi que dibujarlas no es adorno.
+    caja(8.15, 7.06, 2.55, 0.76, "PASO 0 · SINTAXIS", CIAN, "#0b1f22",
+         sub="árbol · avisa delimitadores", fs=7.2, fs_sub=5.4)
+    caja(11.05, 7.06, 2.60, 0.76, "DECISOR", CIAN, "#0b1f22",
+         sub="qué corre, por medición", fs=7.2, fs_sub=5.4)
+
     # ═══ BANDA 2 — Pipeline Lean-primero ═════════════════════════════════════
     ax.add_patch(FancyBboxPatch(
         (0.30, 2.85), 13.40, 4.10, boxstyle="round,pad=0.12",
@@ -1556,8 +1593,12 @@ def fig_pipeline():
     etiqueta(7.00, 6.66,
              "② PIPELINE LEAN-PRIMERO   —   la verdad matemática la produce Lean, no el LLM",
              VERDE, 9.2)
-    flecha((9.12, 8.05), (8.30, 7.00), AZUL, curva=-0.15)
-    etiqueta(9.40, 7.45, "sí", VERDE, 7.6)
+    flecha((9.10, 8.05), (9.42, 7.82), AZUL)
+    etiqueta(9.68, 7.98, "sí", VERDE, 7.6)
+    flecha((10.70, 7.44), (11.05, 7.44), CIAN)
+    flecha((12.35, 7.06), (12.35, 6.99), CIAN)
+    etiqueta(12.35, 7.94, "LOCALES: ni llamada al modelo ni compilado de Lean",
+             GRIS, 5.8)
 
     caja(0.75, 4.85, 2.85, 1.15, "LLM FORMALIZA", NARANJA, "#1f1107",
          sub="rol: formalizador", fs=8.8, fs_sub=6.8)
@@ -1615,10 +1656,13 @@ def fig_pipeline():
              GRIS, 6.5)
 
     # ── Nota honesta sobre el GNN ────────────────────────────────────────────
-    ax.text(7.00, 0.26,
-            "El orden de la cascada lo fija el TacticRanker (top-3 88,1 % sobre 9.488 pares reales); "
-            "el agente de la categoría aporta la primera. El GNN+PPO está desactivado para el ENRUTADO: "
-            "se entrenó con etiqueta constante y CR_tac lo detecta degenerado, así que enruta la heurística.",
+    ax.text(7.00, -0.30,
+            "El orden de la cascada lo fijan el TacticRanker (0,598 contra 0,318 de la mayoritaria) y los"
+            " patrones del objetivo.\n"
+            "El ORDEN POR ÁREA está APAGADO: medía 1,262 posiciones contra 1,091 del nulo «simp primero»,"
+            " y el decisor apaga lo que no bate a su nulo.\n"
+            "El GNN+PPO sigue fuera del ENRUTADO: se entrenó con etiqueta constante y CR_tac lo detecta"
+            " degenerado.",
             ha="center", fontsize=6.9, color="#f59e0b", zorder=7,
             bbox=dict(boxstyle="round", facecolor="#1c1710",
                       edgecolor="#7c5a1e", alpha=0.95))
