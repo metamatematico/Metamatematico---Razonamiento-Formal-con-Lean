@@ -558,7 +558,10 @@ try:
     import re as _re
     from nucleo.utils.pdf_export import generate_pdf
     from datetime import datetime as _dt
-    _lean_match = _re.search(r'```lean\n(.*?)```', nr.content, _re.DOTALL)
+    # La etiqueta se consume ENTERA: `lean`, `lean4`, `Lean 4`… Mismo criterio
+    # que `_extract_lean_code`; buscar «```lean\n» a pelo no reconoce «lean4».
+    _lean_match = _re.search(r'```[ \t]*lean[ \t]*[0-9]*[^\n]*\n(.*?)```',
+                             nr.content, _re.DOTALL | _re.IGNORECASE)
     _lean_code  = _lean_match.group(1).strip() if _lean_match else ""
     _pdf_bytes  = generate_pdf(
         query=content_to_verify[:600],

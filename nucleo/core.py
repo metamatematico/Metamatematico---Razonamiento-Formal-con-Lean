@@ -1038,7 +1038,11 @@ class Nucleo:
 
         # ── Caso A: usuario pide formalizacion sin adjuntar codigo ───────────
         # El pipeline Lean-primero aplica siempre: Lean verifica, LLM traduce.
-        if "```lean" not in input_text:
+        # LA MISMA ETIQUETA QUE EN `_extract_lean_code`. Buscar la cadena
+        # «```lean» a pelo no reconoce «```lean4», que es como la escribe casi
+        # todo el mundo, asi que un usuario que adjuntaba codigo acababa en la
+        # rama de «no adjunto nada».
+        if not self._BLOQUE_LEAN.search(input_text or ""):
             # Defensa en profundidad: la rama RESPONSE filtra por
             # _is_mathematical, pero ASSIST no lo hacia. Si el clasificador se
             # equivoca (o la red devuelve ASSIST para todo), un saludo acababa
@@ -3246,13 +3250,42 @@ class Nucleo:
                     if self._evolution:
                         self._evolution.apply_option(option)
 
+    #: El bloque de código de la respuesta del modelo.
+    #:
+    #: LA ETIQUETA SE CONSUME ENTERA, hasta el salto de línea. La versión
+    #: anterior hacía `text.find("```lean") + 7`, y 7 son exactamente las
+    #: letras de «```lean», así que con la etiqueta más habitual
+    #:
+    #:     ```lean4
+    #:
+    #: el corte caía DETRÁS de `lean` y el `4` entraba en el código como una
+    #: línea suelta. Lean respondía «unexpected token; expected command» y
+    #: parecía culpa del modelo. Con `lean 4` pasaba igual, y con `Lean4` —L
+    #: mayúscula— no encontraba el bloque y devolvía LA PROSA ENTERA como
+    #: código, que se mandaba al verificador.
+    #:
+    #: Y el prompt dice «write ONE Lean 4 code block», con lo que `lean4` es la
+    #: etiqueta más probable de todas.
+    _BLOQUE_LEAN = re.compile(
+        r"```[ \t]*lean[ \t]*[0-9]*[^\n]*\n(.*?)(?:```|\Z)", re.S | re.I)
+    _BLOQUE_CUALQUIERA = re.compile(r"```[^\n]*\n(.*?)(?:```|\Z)", re.S)
+
     def _extract_lean_code(self, text: str) -> str:
-        """Extraer codigo Lean del texto."""
-        if "```lean" in text:
-            start = text.find("```lean") + 7
-            end = text.find("```", start)
-            return text[start:end].strip()
-        return text
+        """Extraer codigo Lean del texto.
+
+        Se prefiere un bloque etiquetado como Lean; si no, cualquier bloque; y
+        sólo si no hay ninguno se devuelve el texto tal cual. Esa última rama
+        es la peligrosa —manda la prosa al verificador— así que va la última.
+        """
+        if not text:
+            return ""
+        m = self._BLOQUE_LEAN.search(text)
+        if m:
+            return m.group(1).strip()
+        m = self._BLOQUE_CUALQUIERA.search(text)
+        if m:
+            return m.group(1).strip()
+        return text.strip()
 
     def _evaluate_result(
         self,

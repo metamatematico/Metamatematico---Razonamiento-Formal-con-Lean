@@ -1788,7 +1788,11 @@ los resultados se muestran aquí.
 
                 # Extraer lean_code del contenido para el PDF
                 import re as _re
-                _lean_match = _re.search(r'```lean\n(.*?)```', nr.content, _re.DOTALL)
+                # La etiqueta se consume ENTERA: `lean`, `lean4`, `Lean 4`…
+                # Buscar «```lean\n» a pelo no reconoce «```lean4» y dejaba el
+                # PDF sin código. Mismo criterio que `_extract_lean_code`.
+                _lean_match = _re.search(r'```[ \t]*lean[ \t]*[0-9]*[^\n]*\n(.*?)```',
+                                         nr.content, _re.DOTALL | _re.IGNORECASE)
                 _lean_code  = _lean_match.group(1).strip() if _lean_match else ""
                 _conf       = getattr(nr, "confidence", 0.0)
                 _area       = (nr.metadata.get("area", "") if hasattr(nr, "metadata") else "")
