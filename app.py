@@ -1267,8 +1267,17 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
                     )
                 else:
                     st.caption(f":green[● LLM activo] — cliente `{_cli}`")
-            except Exception:
-                pass
+            except Exception as _diag_err:
+                # NO SE CALLA. Este `except` se tragaba un `AttributeError`
+                # —`LLMConfig` sin `provider`— y el indicador se quedaba sin
+                # pintar nada: ni «activo» ni «demo». Sin señal, la lectura
+                # natural es «no ha conectado», y la clave sí había llegado.
+                st.caption(
+                    ":orange[● no se puede leer el estado del LLM] — "
+                    f"`{type(_diag_err).__name__}: {_diag_err}`. "
+                    "La clave puede estar bien: envía una consulta y mira el "
+                    "veredicto."
+                )
 
         model = st.selectbox("Modelo", cfg["models"])
         # Los modelos actuales piensan por defecto y `max_tokens` es el tope

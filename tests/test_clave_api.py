@@ -158,3 +158,70 @@ def test_un_401_se_traduce_a_algo_accionable():
     # 401 lo unico comun a los cuatro proveedores
     for marca in ("authentication_error", "invalid x-api-key", '"401" in b'):
         assert marca in fuente, "falta reconocer %s" % marca
+
+
+class TestLasDosLLMConfig:
+    """Hay DOS clases `LLMConfig` con el mismo nombre y distinta forma.
+
+        nucleo.config.LLMConfig      model, max_tokens, temperature,
+                                     embedding_dim, api_key
+        nucleo.llm.client.LLMConfig  ... + effort, PROVIDER
+
+    El Nucleo se construye con la PRIMERA al arrancar, asi que los seis sitios
+    que leen `self.config.provider` lanzaban `AttributeError` hasta que la
+    interfaz llamaba a `reconfigure_llm` con la segunda.
+
+    Y ese fallo se lo tragaba el `except` del indicador de la barra lateral,
+    que se quedaba sin pintar NADA —ni «activo» ni «demo»—. Sin señal, la
+    lectura natural es «la clave no ha conectado». Habia conectado: en el log
+    habia llamadas con 200 OK y hasta una prueba cerrada.
+    """
+
+    def test_siguen_teniendo_formas_distintas(self):
+        """Si algun dia se unifican, este test sobra — pero hay que enterarse,
+        no descubrirlo por un AttributeError en produccion."""
+        import dataclasses
+        from nucleo.config import LLMConfig as A
+        from nucleo.llm.client import LLMConfig as B
+        ca = {f.name for f in dataclasses.fields(A)}
+        cb = {f.name for f in dataclasses.fields(B)}
+        assert "provider" in cb
+        assert "provider" not in ca, (
+            "ya tienen la misma forma: se puede quitar la normalizacion")
+
+    def test_el_cliente_normaliza_la_config_que_le_falta_provider(self):
+        from nucleo.config import LLMConfig as ConfigDelNucleo
+        from nucleo.llm.client import LLMClient, LLMProvider
+        c = LLMClient(ConfigDelNucleo(api_key="sk-ant-loquesea"))
+        assert getattr(c.config, "provider", None) is not None
+        assert c.config.provider == LLMProvider.ANTHROPIC
+
+    def test_sin_clave_se_deduce_demo(self):
+        import os
+        from nucleo.config import LLMConfig as ConfigDelNucleo
+        from nucleo.llm.client import LLMClient, LLMProvider
+        previo = os.environ.pop("ANTHROPIC_API_KEY", None)
+        try:
+            c = LLMClient(ConfigDelNucleo(api_key=""))
+            assert c.config.provider == LLMProvider.DEMO
+        finally:
+            if previo is not None:
+                os.environ["ANTHROPIC_API_KEY"] = previo
+
+    def test_get_client_ya_no_revienta(self):
+        """Era el sintoma: `_get_client()` lanzaba y el indicador callaba."""
+        from nucleo.config import LLMConfig as ConfigDelNucleo
+        from nucleo.llm.client import LLMClient
+        c = LLMClient(ConfigDelNucleo(api_key="sk-ant-loquesea"))
+        assert type(c._get_client()).__name__ != ""
+
+
+def test_el_indicador_no_se_calla_si_no_puede_leer_el_estado():
+    """Un indicador que no pinta nada se lee como «no ha conectado». Si no
+    puede saberlo, tiene que decir que no puede saberlo."""
+    fuente = _fuente()
+    bloque = fuente[fuente.index("Estado REAL del cliente LLM"):
+                    fuente.index('model = st.selectbox("Modelo"')]
+    assert "except Exception:\n                pass" not in bloque, (
+        "el indicador vuelve a tragarse el fallo")
+    assert "no se puede leer el estado del LLM" in bloque

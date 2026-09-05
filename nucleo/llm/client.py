@@ -180,6 +180,44 @@ Responde en el mismo idioma que el usuario."""
 
     def __init__(self, config: Optional[LLMConfig] = None):
         self.config = config or LLMConfig()
+        self._normalizar_config()
+
+    def _normalizar_config(self) -> None:
+        """HAY DOS CLASES `LLMConfig` CON EL MISMO NOMBRE Y DISTINTA FORMA.
+
+            nucleo.config.LLMConfig      model, max_tokens, temperature,
+                                         embedding_dim, api_key
+            nucleo.llm.client.LLMConfig  ... + effort, PROVIDER
+
+        El Nucleo se construye con la PRIMERA al arrancar (`core.py`), asi que
+        los seis sitios que leen `self.config.provider` lanzaban
+        `AttributeError` hasta que la interfaz llamaba a `reconfigure_llm` con
+        la segunda.
+
+        Y ese fallo se lo tragaba el `except` del indicador de la barra
+        lateral, que se quedaba sin pintar NADA —ni «activo» ni «demo»—. Sin
+        señal, la lectura natural es «la clave no ha conectado». Habia
+        conectado: en el log habia llamadas con 200 OK y una prueba cerrada.
+
+        Se arregla en UN sitio en vez de en los seis: si a la config le falta
+        el campo, se le pone, deducido de si hay clave.
+        """
+        if getattr(self.config, "provider", None) is not None:
+            return
+        clave = getattr(self.config, "api_key", "") or ""
+        if not clave:
+            import os as _os
+            clave = _os.environ.get("ANTHROPIC_API_KEY", "")
+        deducido = LLMProvider.ANTHROPIC if clave else LLMProvider.DEMO
+        try:
+            self.config.provider = deducido
+        except Exception:                                      # noqa: BLE001
+            logger.warning("no se puede fijar `provider` en %s",
+                           type(self.config).__name__)
+            return
+        logger.info(
+            "config sin `provider` (%s): se deduce %s por la clave",
+            type(self.config).__name__, deducido.value)
         self._client = None
         self._conversation: list[LLMMessage] = []
 
