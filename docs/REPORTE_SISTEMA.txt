@@ -1,7 +1,7 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 8694758 · 1006 tests en verde
+  Estado a 2026-09-04 · commit 8694758 · 1008 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
@@ -231,7 +231,7 @@ ya sabe de áreas, que se la dé él— y está medida sobre 3 000 consultas:
 
     área correcta
        classify_query  (el puente de hoy)   61,2 %
-       1ª skill del grafo                   47,3 %
+       1ª skill del grafo                   52,1 %
 
 El puente actual gana por catorce puntos. Conectar la lista al grafo no es
 trabajo pendiente: sería cambiar el clasificador bueno por el malo. Lo que
@@ -858,7 +858,7 @@ leer el equilibrado sin ver de cuántos casos sale.
 11. TESTS Y GUARDIANES
 ================================================================================
 
-  1006 tests en 50 suites. Los que más valen no comprueban que el código
+  1008 tests en 50 suites. Los que más valen no comprueban que el código
   funcione, sino QUE NO VUELVA A MENTIR:
 
     · la dependencia del grafo tiene que ser un ORDEN (0 ciclos)
@@ -874,7 +874,7 @@ leer el equilibrado sin ver de cuántos casos sale.
       seguir solapando: si dejan de hacerlo, el medidor del paso 3 y el
       runtime miden cosas distintas EN SILENCIO
     · `premisas.py` no puede empezar a mirar el grafo sin volver a medir:
-      hoy `classify_query` gana 61,2 % contra el 47,3 % de la 1ª skill
+      hoy `classify_query` gana 61,2 % contra el 52,1 % de la 1ª skill
     · todo nodo del grafo tiene `sort`, y lo que no es matemática —tácticas,
       estrategias— NO puede tener área: `area=None` ahí es una respuesta
     · el codominio del funtor sobre la base de áreas no admite objetos que no
@@ -1059,7 +1059,7 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
   python scripts/politica_emparejador.py --curva    a volumen igualado
   python scripts/dibujar_flujo.py                   el diagrama, desde el código
   python scripts/dibujar_grafo.py                   la figura, desde el runtime
-  python -m pytest tests/ -o "addopts="             1006 tests
+  python -m pytest tests/ -o "addopts="             1008 tests
 
   Repositorio:
     github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean

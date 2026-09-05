@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1006_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1008_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -128,7 +128,7 @@ que no toca el grafo en ningún punto.
 
 Y **tenderlo al grafo lo empeoraría**, que es la parte que no era obvia. Medido
 sobre 3 000 consultas: `classify_query` acierta el área en el **61,2 %** de los
-casos y la primera skill del grafo en el **47,3 %**. Conectar la lista al grafo
+casos y la primera skill del grafo en el **52,1 %**. Conectar la lista al grafo
 no es trabajo pendiente — sería cambiar el clasificador bueno por el malo. Lo
 que falta no es el cable, es un motivo medido para tenderlo.
 
@@ -543,7 +543,7 @@ No falta formalización: faltan morfismos que crucen de área.
 
 ## 7. Tests y guardianes
 
-**1006 tests en 50 suites.** Los que más valen no comprueban que el código
+**1008 tests en 50 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -663,7 +663,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    1006 tests en 50 suites
+tests/                    1008 tests en 50 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

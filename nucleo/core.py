@@ -198,6 +198,21 @@ def enunciado_vacuo(code: str) -> bool:
     return False
 
 
+#: Palabras que salen en media biblioteca y no distinguen nada. Un
+#: solapamiento que consista SOLO en estas no es una coincidencia: es ruido.
+#:
+#: No se eliminan del texto —«prime number theorem» tiene que seguir casando
+#: entero—, solo se les niega el poder de abrir la puerta ellas solas.
+_GENERICAS = frozenset({
+    "theorem", "teorema", "lemma", "lema", "proof", "prueba", "demostracion",
+    "prove", "demuestra", "demostrar", "show", "muestra", "point", "punto",
+    "set", "conjunto", "number", "numero", "function", "funcion", "space",
+    "espacio", "group", "grupo", "problem", "problema", "result", "resultado",
+    "property", "propiedad", "general", "basic", "basico", "mathlib", "math",
+    "matematica", "matematicas", "formula", "ecuacion", "equation",
+})
+
+
 # ── Referencias ancladas de Mathlib ─────────────────────────────────────
 # Fuente de verdad que el LLM NO debe improvisar: nombres de lemas y modulos
 # reales, comprobados con `lake env lean`. Se consultan tanto en la ruta de
@@ -4037,7 +4052,22 @@ class Nucleo:
             # Tokens del id y del nombre, por la misma via
             skill_tokens = _tok(skill_id) | _tok(skill.name)
 
-            overlap = len(query_tokens & skill_tokens)
+            # UNA PALABRA GENERICA NO ES EVIDENCIA POR SI SOLA.
+            #
+            # Medido sobre «demuestra el teorema de punto fijo»: activaba
+            # `prime-number-theorem`, `residue-theorem` y `compactness-theorem`
+            # —los tres por la palabra «theorem»— y `point-set-topology` por
+            # «point». Ninguno tiene que ver con puntos fijos.
+            #
+            # Es la misma familia que el fallo de `the` del §12.1: contar una
+            # coincidencia en una palabra que sale en media biblioteca y
+            # presentarla como senal. Las genericas siguen sumando cuando van
+            # ACOMPANADAS —«prime number theorem» casa entero— pero solas no
+            # abren la puerta.
+            comunes = query_tokens & skill_tokens
+            overlap = len(comunes)
+            if comunes and comunes <= _GENERICAS:
+                overlap = 0
 
             # Terminos declarados en la skill (ES + EN). Sin esto, los IDs y
             # nombres en ingles hacen que ninguna consulta en español case, y

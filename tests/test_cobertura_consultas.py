@@ -325,3 +325,45 @@ def test_la_logica_es_prerrequisito_de_zfc(sistema):
     assert len(v) >= 250, (
         "la logica solo alcanza %d nodos por dependencia; eran 284 cuando se "
         "puso la arista a ZFC" % len(v))
+
+
+def test_una_palabra_generica_no_activa_una_skill():
+    """UNA PALABRA GENERICA NO ES EVIDENCIA POR SI SOLA.
+
+    Ante «demuestra el teorema de punto fijo» el emparejador activaba
+    `prime-number-theorem`, `residue-theorem` y `compactness-theorem` —los tres
+    por la palabra «theorem»— y `point-set-topology` por «point». Ninguno tiene
+    que ver con puntos fijos.
+
+    Es la misma familia que el fallo de `the` del §12.1: contar una
+    coincidencia en una palabra que sale en media biblioteca y presentarla como
+    señal.
+
+    MEDIDO con `scripts/medir_emparejamiento.py` sobre las mismas 3000
+    consultas etiquetadas: la primera skill acierta el area el 52,1 % frente al
+    47,3 % de antes, sin ofrecer menos (8,40 -> 8,31 skills por consulta).
+    """
+    from nucleo.core import Nucleo
+    from nucleo.graph.category import SkillCategory
+    n = Nucleo.__new__(Nucleo)
+    n._graph = SkillCategory()
+    Nucleo._load_foundational_skills(n)
+
+    sk = Nucleo._match_skills_to_query(n, "prove the fixed point theorem", n._graph)
+    for espurio in ("prime-number-theorem", "residue-theorem",
+                    "compactness-theorem", "point-set-topology"):
+        assert espurio not in sk, (
+            "«%s» casa por una palabra generica, no por el tema" % espurio)
+
+
+def test_pero_la_frase_entera_sigue_casando():
+    """Las genericas no se eliminan del texto: sólo se les niega el poder de
+    abrir la puerta ELLAS SOLAS. «prime number theorem» tiene que seguir
+    encontrando su skill."""
+    from nucleo.core import Nucleo
+    from nucleo.graph.category import SkillCategory
+    n = Nucleo.__new__(Nucleo)
+    n._graph = SkillCategory()
+    Nucleo._load_foundational_skills(n)
+    sk = Nucleo._match_skills_to_query(n, "prove the prime number theorem", n._graph)
+    assert "prime-number-theorem" in sk
