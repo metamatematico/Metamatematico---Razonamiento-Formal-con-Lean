@@ -3429,6 +3429,9 @@ class Nucleo:
         #     lexico          precision 13,6 %  cobertura 13,6 %  ofrece 271
         #     lexico+puerta   precision 12,9 %  cobertura 13,6 %  ofrece 282
         #
+        # (medido cuando el lexico daba 13,6 %. Hoy da 17,1 % / 15,5 %,
+        #  asi que el margen para la puerta es AUN MENOR que entonces.)
+        #
         # Ofrece nombres en 11 casos mas y NO SE USA NI UNO: la cobertura no se
         # mueve y la precision baja 0,7 puntos. Es ruido.
         #

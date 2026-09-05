@@ -18,7 +18,7 @@ son español.
 
 QUE HACE Y QUE NO. Devuelve un ÁREA, no una skill. El área es la puerta: desde
 ella se navega el grafo, que después de arreglarla poda a 10 nodos de mediana en
-vez de a 127. Nunca sustituye al emparejador léxico —que está medido en 13,6 %
+vez de a 127. Nunca sustituye al emparejador léxico —que está medido en 17,1 %
 de precisión contra ProofNet frente a un nulo de 1,1 %—: sólo actúa donde aquel
 se queda mudo.
 

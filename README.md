@@ -54,7 +54,7 @@ idioma.
 
 | paso | quién | qué hace | ¿aporta? |
 |---|---|---|---|
-| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 12× sobre el azar** |
+| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 10,7× sobre el azar** |
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
 | 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
@@ -130,6 +130,18 @@ Y ahí no es donde el modelo falla. De los 28 nombres que propuso de memoria, lo
 21 inexistentes eran *todos* lemas — `tsum_geometric_two`, `Subgroup.isCyclic`,
 `isOpen_union`. El modelo acierta razonablemente los sustantivos e inventa los
 hechos. **La lista existe para cubrir esa mitad.**
+
+Y la otra mitad estaba casi vacía. El extractor de hechos justificaba dejar
+fuera `def`, `structure` y `class` con «son sustantivos y *ya los cubre el
+grafo*». Contado sobre el fuente: Mathlib tiene **34 084 sustantivos** y el
+grafo inyecta 169 — el **0,50 %**. La frase estaba equivocada por un factor de
+200, justo en la mitad donde el reparto dice que el grafo aporta.
+
+`data/sustantivos_mathlib.jsonl` la construye, y los nombres se **leen de la
+declaración** en vez de deducirse de la ruta: `#check` sobre una muestra da
+**200 de 200 existentes**, frente al 77,4 % de los deducidos. Lo que no
+funciona es la vía de inyectarlos — el módulo de un nodo generado es un rincón
+de su área, y a volumen igualado pierde. Está medido en §7 del reporte.
 
 ---
 

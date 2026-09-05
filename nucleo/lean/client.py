@@ -112,8 +112,6 @@ class LeanClient:
     Metodos principales:
     - check_code: Verificar codigo Lean
     - check_theorem: Verificar un teorema
-    - get_goal_state: Obtener estado de goals
-    - apply_tactic: Aplicar una tactica
 
     Example:
         client = LeanClient(project_path="./")
@@ -860,43 +858,7 @@ class LeanClient:
 """
         return await self.check_code(code)
 
-    async def get_goal_state(
-        self,
-        code: str,
-        position: tuple[int, int],
-    ) -> list[LeanGoal]:
-        """
-        Obtener el estado de goals en una posicion del codigo.
 
-        Args:
-            code: Codigo Lean
-            position: (linea, columna) - 0-indexed
-
-        Returns:
-            Lista de goals pendientes
-        """
-        # Por ahora, parsear desde mensajes de error/info
-        result = await self.check_code(code)
-        return result.goals
-
-    async def apply_tactic(
-        self,
-        current_state: str,
-        tactic: str,
-    ) -> LeanResult:
-        """
-        Aplicar una tactica al estado actual.
-
-        Args:
-            current_state: Codigo Lean hasta el punto actual
-            tactic: Tactica a aplicar
-
-        Returns:
-            LeanResult con el nuevo estado
-        """
-        # Añadir la tactica al codigo
-        code = f"{current_state}\n  {tactic}"
-        return await self.check_code(code)
 
     async def _verify_via_http(self, code: str) -> Optional[LeanResult]:
         """
@@ -1063,12 +1025,3 @@ class LeanClient:
         """Version sincrona de check_code."""
         return asyncio.run(self.check_code(code))
 
-    def check_theorem_sync(
-        self,
-        name: str,
-        statement: str,
-        proof: str,
-        imports: Optional[list[str]] = None,
-    ) -> LeanResult:
-        """Version sincrona de check_theorem."""
-        return asyncio.run(self.check_theorem(name, statement, proof, imports))

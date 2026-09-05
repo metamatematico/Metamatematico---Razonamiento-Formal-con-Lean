@@ -1,7 +1,7 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 6e82905 · 826 tests en verde
+  Estado a 2026-09-04 · commit 4e96dd3 · 859 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
@@ -33,7 +33,7 @@ Lean no es un adorno: es la fuente de verdad. Que el modelo crea que algo es
 cierto no cuenta. Que Lean lo acepte, sí — y ni siquiera eso basta, porque Lean
 acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
 
-  Código:   31 761 líneas de Python en nucleo/ · 67 scripts · 39 suites de test
+  Código:   32 400 líneas de Python en nucleo/ · 69 scripts · 42 suites de test
   Lean:     21 archivos · 382 teoremas · 0 sorry (preguntado al compilador)
   Público:  alumnos de habla hispana
 
@@ -51,7 +51,7 @@ acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
     ¿es matemática?  --no-->  LLM conversacional  ------------------+
             | sí                                                    |
             v                                                       |
-    1 · EL GRAFO PREPARA EL PROMPT              APORTA  12x         |
+    1 · EL GRAFO PREPARA EL PROMPT           APORTA 10,7x           |
             |   conceptos activados · nombres de Mathlib con #check |
             v                                                       |
     2 · EL LLM FORMALIZA                                            |
@@ -66,6 +66,7 @@ acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
             +-- falta un módulo   --> repara y reintenta x1 --> a 4 |
             +-- error semántico   --> vuelve al LLM x2      --> a 2 |
             +-- queda un `sorry`  --> 5 · TÁCTICAS  NO BATE AL NULO |
+            |                          (las 12 en UN compilado, 12x)|
             +-- Lean acepta       --------------------------+       |
                                                             v       |
     EL VEREDICTO FINAL — siete estados                              |
@@ -114,8 +115,24 @@ ingleses — las 3 839 palabras clave del grafo, los 183 433 hechos de Mathlib,
 los ejemplos few-shot de miniF2F y el propio Lean. Un alumno que escribe
 «¿Es 17 un número primo?» no toca ninguna de esas palabras.
 
-  el emparejador léxico se queda mudo en  27 %   de las consultas en español
-                              y sólo en    8,4 % de las de ProofNet (inglesas)
+  el emparejador léxico se quedaba mudo en 27 %  de las consultas en español
+                               y sólo en   8,4 % de las de ProofNet (inglesas)
+
+  ARREGLADO, Y NO BASTABA CON TRADUCIR. El emparejador partía por espacios
+  sobre el texto en crudo, y comparaba dos alfabetos distintos: la PUNTUACIÓN
+  —`primo?` no es `primo`, así que «¿Es 17 un número primo?» no casaba con
+  nada— y los ACENTOS, porque las keywords se escribieron sin acentuar.
+
+  Normalizar sólo la consulta habría empeorado las cosas: una keyword acentuada
+  dejaría de casar. Se normalizan LOS DOS LADOS con la misma función, y los 22
+  nodos de área —que tenían CERO keywords— reciben 389 términos ES+EN.
+
+      consultas donde el grafo no activa NADA, sobre 3 000 del banco
+          antes   812 / 3000   27,1 %
+          ahora   173 / 3000    5,8 %
+
+  La `ñ` se conserva: es una letra, no una `n` con tilde. `año` -> `ano` cambia
+  la palabra.
 
 Traductor: Helsinki-NLP/opus-mt-es-en, 74 M de parámetros, LOCAL. Sin API, sin
 coste por consulta. (578 MB, fuera del repositorio, se prepara con
@@ -238,8 +255,9 @@ hueco de los 173 curados, y ahora se ve.
 
   QUÉ                              RESULTADO   MODELO NULO   VEREDICTO
   ---------------------------------------------------------------------------
-  Vocabulario contra ProofNet        13,6 %        1,1 %     12x · APORTA
-    371 ejercicios con formalización de oro
+  Vocabulario contra ProofNet        17,1 %        1,6 %   10,7x · APORTA
+    371 ejercicios de oro · precisión;  cobertura 15,5 % contra 3,3 %
+    política `concepto`, k=2, elegida en media muestra y comprobada en la otra
   Dependencias contra el DAG real    78,1 %       32,6 %     2,4x · APORTA
     21 446 aristas oficiales de Mathlib
   Orden de tácticas                1,29 int.     1,07 int.   NO BATE AL NULO
@@ -261,11 +279,32 @@ NULO. Decirlo de otra manera sería mentir por agregación.
 7. LO QUE SE MIDIÓ Y NO SIRVE
 ================================================================================
 
-7.1  EL PASO 3 (imports) ES INERTE
+7.1  EL PASO 3 (imports) ES INERTE — CON UNA CAUTELA QUE FALTABA
      El grafo elige los módulos y acierta 18 de 20. Un conjunto FIJO de 3
-     módulos acierta los mismos 18. El margen total del paso son 2,5 puntos.
-     Se queda porque descartar `import Mathlib` sí importa (742 s, más que el
-     timeout), pero el grafo no aporta la elección.
+     módulos acierta los mismos 18. Bate al azar (14 de 20), así que hace
+     trabajo real: lo que pasa es que ese trabajo es redundante con una
+     constante. Se queda porque descartar `import Mathlib` sí importa (742 s,
+     más que el timeout), pero el grafo no aporta la elección.
+
+     LA CAUTELA. El banco casi no puede detectar un beneficio aunque exista, y
+     eso no estaba dicho:
+
+       · el «conjunto fijo» no es pequeño: `Mathlib.Tactic` arrastra 2 972
+         módulos por transitividad, y los tres juntos cubren el 38,4 % de
+         Mathlib. Contra eso queda poquísimo que añadir.
+       · la medición es ADITIVA, no sustitutiva: el brazo «grafo» es el fijo
+         MÁS lo que el grafo aporta, y añadir imports nunca puede romper una
+         elaboración. La única forma de ganar era rescatar un fallo.
+       · en 14 de los 20 casos el grafo no añade NI UN módulo: las dos
+         estrategias son la misma ejecución. El empate es en parte por
+         construcción.
+       · y los 2 fallos no son de imports: uno necesita `open Real`, otro usa
+         sintaxis vieja.
+
+     O sea que el test discriminante tiene n aproximadamente 0. «INERTE» está
+     bien sostenido como NO SE MIDIÓ BENEFICIO, no como SE DEMOSTRÓ QUE NO LO
+     HAY. Es la misma forma de problema que §7.6 con el 95,8 % de `simp`: un
+     banco degenerado no puede decidir.
 
 7.2  BI-ENCODER SEMÁNTICO DE ESTANTERÍA
      paraphrase-multilingual-MiniLM-L12-v2, consulta contra descripción de cada
@@ -285,12 +324,65 @@ NULO. Decirlo de otra manera sería mentir por agregación.
      hacen falta 2,1 premisas por prueba: el valor esperado era 0,4.
 
 7.5  EL RECONOCEDOR DE ÁREA, ENCHUFADO AL PROMPT
-     Funciona (§8.1) pero no paga aquí:
+     Funciona (§8.1) pero no paga aquí. Las cifras son de cuando el léxico
+     daba 13,6 %; hoy da 17,1 % y el margen para la puerta es aún menor:
          léxico          precisión 13,6 %   cobertura 13,6 %   ofrece 271
          léxico+puerta   precisión 12,6 %   cobertura 13,8 %   ofrece 285
      Ofrece nombres en 14 casos más y la cobertura sube 0,2 puntos mientras la
      precisión baja 1,0. En ProofNet el léxico sólo calla en 31 de 371, así que
      el margen era del 4 % desde el principio. Está FUERA de la cadena.
+
+7.5bis  LOS SUSTANTIVOS DEL MÓDULO: LA LISTA SIRVE, LA VÍA NO
+     `construir_lista_lemas.py` justificaba dejar fuera los sustantivos con
+     «`def`, `structure` y `class` son sustantivos y YA LOS CUBRE EL GRAFO».
+     Contado sobre el fuente:
+
+         def 29 883 · abbrev 2 949 · class 1 845 · structure 1 490 · induct. 300
+         -------------------------------------------------------------------
+         34 084 sustantivos, y el grafo inyecta 169 = 0,50 %
+
+     Equivocado por un factor de 200, y en la mitad que el propio reparto le
+     asigna: el modelo acierta los sustantivos e inventa los lemas.
+
+     LA LISTA ES CORRECTA y se queda. Los nombres se LEEN de la declaración,
+     no se deducen de la ruta — la diferencia que produjo 95 identificadores
+     inexistentes:
+
+         deducidos de la ruta    346 de 447 existen   (77,4 %)
+         leídos del fuente       200 de 200 existen  (100,0 %)   #check
+
+     LA VÍA PIERDE. Ofrecer los sustantivos del módulo de cada nodo generado,
+     A VOLUMEN IGUALADO contra ProofNet:
+
+         volumen ~1 800-2 000   sin: 14,0 % / 17,8 %   con: 11,5 % / 16,5 %
+         volumen ~2 800-3 100   sin:  9,5 % / 18,9 %   con:  8,5 % / 19,1 %
+
+     Pierde precisión en los dos puntos. No es dilución: son peores nombres. Y
+     el motivo se ve sin estadística — el módulo de un nodo generado es un
+     RINCÓN de su área: `mathlib-analysis-real` ofrecía `Hyperreal.Infinite` y
+     `Real.ofDigits`, mientras `Real` y `Real.sqrt` viven en `Data/Real/Basic`.
+
+     QUEDA ABIERTO si un índice consultado POR LA CONSULTA —como `premisas.py`
+     hace con los lemas— funcionaría. Otro mecanismo, otra medición.
+
+7.5ter  UNA VENTAJA DE PRECISIÓN QUE ERA UN ARTEFACTO DEL VOLUMEN
+     Tres políticas de ranking para el paso 1. La plana daba 16,2 % de
+     precisión y la que antepone conceptos 9,5 %. La lectura obvia era que la
+     plana elige mejores nombres. Es falsa.
+
+     Sólo los CONCEPTO tienen nombres de Mathlib; los 125 MODULO y los 22 AREA
+     tienen cero. Bajo la política plana sobrevivían 2,02 conceptos al corte de
+     top-10, frente a 5,87. No acertaba más: OFRECÍA UN TERCIO DE LOS NOMBRES,
+     y la precisión subía porque bajaba el denominador.
+
+     A volumen igualado (~1 270 nombres) la política de conceptos gana en las
+     dos: 17,1 % contra 14,7 % de precisión y 15,5 % contra 13,3 % de
+     cobertura. Y la plana no puede subir de ahí: se satura.
+
+     LECCIÓN: precisión y cobertura no se comparan entre configuraciones que
+     HABLAN DISTINTA CANTIDAD. Un mando de volumen disfrazado de mando de
+     calidad produce una tabla creíble y una conclusión falsa.
+     `scripts/politica_emparejador.py --curva` compara a volumen igualado.
 
 7.6  EL ORDEN DE TÁCTICAS NO BATE A SU MODELO NULO
      Esta era la afirmación de portada del proyecto: «APORTA · 2,4x menos
@@ -472,7 +564,7 @@ tácticas de la cascada.
 11. TESTS Y GUARDIANES
 ================================================================================
 
-  826 tests en 39 suites. Los que más valen no comprueban que el código
+  859 tests en 42 suites. Los que más valen no comprueban que el código
   funcione, sino QUE NO VUELVA A MENTIR:
 
     · la dependencia del grafo tiene que ser un ORDEN (0 ciclos)
@@ -483,6 +575,12 @@ tácticas de la cascada.
     · ningún elemento de un SVG puede depender del <style> para tener color
     · la cifra de tests publicada se compara con `request.session.items`, es
       decir con lo que pytest ACABA de recolectar
+    · todo nodo del grafo tiene `sort`, y lo que no es matemática —tácticas,
+      estrategias— NO puede tener área: `area=None` ahí es una respuesta
+    · el codominio del funtor sobre la base de áreas no admite objetos que no
+      sean áreas; y pi sigue cumpliendo las dos leyes
+    · cada rama del `first |` de la cascada exige `done`, y el bloque tiene que
+      sobrevivir entero a las reescrituras de `_normalize_code`
     · al alumno se le enseña SU pregunta, no la traducción
     · los rasgos sintácticos tienen que VARIAR entre enunciados distintos
     · el diagrama tiene que marcar exactamente UN punto que aporta, y decir
@@ -519,6 +617,14 @@ Se listan porque cada uno produjo una cifra que parecía razonable:
   · el generador del SVG llevaba «298 nodos · 1722 morfismos» a mano
   · dos guardianes rotos: uno leía dentro del `<svg>`, otro no reconocía
     «4 · LEAN VERIFICA» como paso numerado
+  · `f`, `x`, `s` y `h` salieron como LOS SUSTANTIVOS MÁS CITADOS de Mathlib:
+    se contaron los identificadores de los enunciados sin filtrar, y son
+    variables ligadas. Es `the` otra vez, en versión sustantivo. Lo delató que
+    fueran de una letra
+  · y el guardián que se escribió CONTRA eso dio falso positivo dos veces:
+    `Set`, `Ab`, `log` y `Rel` son sustantivos legítimos de nombre corto. El
+    invariante que sí vale es que no haya nombres desnudos de 1-2 letras en la
+    CIMA del ranking
 
   Ninguna de esas cifras se publicó. La lección que queda escrita en los
   scripts: un instrumento que falla en silencio da números creíbles.
@@ -571,9 +677,11 @@ IDENTIFICADO Y SIN ARREGLAR
   · Las tácticas como NODOS. 453 aristas entran en 9 sumideros que no emiten
     ninguna. Una táctica no es una cosa, es una transformación de estado: como
     flecha compondría y tendría dominio y codominio.
-  · El emparejador consulta->concepto es una bolsa de palabras. Falla con la
-    puntuación (`primo?` no es `primo`) y con los acentos (las keywords están
-    sin acentuar). Arreglarlo mueve las cifras del paso 1 y hay que re-medir.
+  · [ARREGLADO] El emparejador consulta->concepto fallaba con la puntuación y
+    los acentos. Normalizados los dos lados y dadas keywords a las 22 áreas, el
+    silencio pasó del 27,1 % al 5,8 %. LO QUE QUEDA: no hay lematización, así
+    que `primos` sigue sin casar con `primo` — eso mueve la precisión y
+    necesita su propia medición.
   · 95 nombres generados que no existen en Mathlib siguen en el grafo, aunque
     no se inyecten.
   · computability, logic y ordertheory no tienen NI UN nodo curado.
@@ -592,7 +700,17 @@ LO SIGUIENTE, POR VALOR ESPERADO
      escondía desde el principio y era la cifra de portada.
   3. Un banco EN ESPAÑOL con premisas de oro. Sin él, todo lo que se construye
      para el alumno hispanohablante se mide en inglés y por analogía.
-  4. Arreglar el tokenizador del emparejador y re-medir el paso 1.
+  4. HECHO (§3). Silencio 27,1 % -> 5,8 %, ProofNet 13,6 % -> 17,1 % de
+     precisión y 13,6 % -> 15,5 % de cobertura.
+  5. LA CATEGORÍA DE TÁCTICAS. Sus objetos deben ser estados de prueba y sus
+     morfismos las tácticas; hoy son 9 nodos sumidero con 453 aristas
+     entrantes y 0 salientes. Ya no cuesta caro explorarlo: la cascada corre
+     en un compilado en vez de doce, y hay 25 214 transiciones
+     `state_before -> tactic -> state_after` en disco para construirla y
+     medirla sin API.
+  6. LA FIBRA DE HECHOS. `data/banco_lemas.jsonl` son 23 243 pares
+     (enunciado, lemas que la prueba usó): un grafo bipartito esperando a ser
+     construido, que hoy sólo alimenta un índice plano.
 
 LO QUE NO SE PUEDE COMPROBAR SIN API
 
@@ -623,7 +741,7 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
 15. CÓMO REPRODUCIR CADA CIFRA
 ================================================================================
 
-  python scripts/recuperacion_contra_proofnet.py    vocabulario, 13,6 % vs 1,1 %
+  python scripts/recuperacion_contra_proofnet.py   vocabulario, 17,1 % vs 1,6 %
   python scripts/funtor_dag_mathlib.py             dependencias, 78,1 % / 32,6 %
   python scripts/efecto_orden_cascada.py            tácticas, con su nulo
   python scripts/modelo_en_la_cascada.py            el nulo gana a la regla
@@ -636,9 +754,12 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
   python scripts/sintaxis_contra_premisas.py        68 rasgos = 40 000 n-gramas
   python scripts/sintaxis_contra_tacticas.py        enunciado -> táctica, 67,1 %
   python scripts/estado_contra_tactica.py          estado->táctica, 4,64 -> 1,90
+  python scripts/construir_lista_sustantivos.py --verificar 200
+                                                    34 084, 200/200 con #check
+  python scripts/politica_emparejador.py --curva    a volumen igualado
   python scripts/dibujar_flujo.py                   el diagrama, desde el código
   python scripts/dibujar_grafo.py                   la figura, desde el runtime
-  python -m pytest tests/ -o "addopts="             826 tests
+  python -m pytest tests/ -o "addopts="             859 tests
 
   Repositorio:
     github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean
