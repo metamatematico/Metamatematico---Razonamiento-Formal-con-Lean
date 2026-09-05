@@ -1,7 +1,7 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 8694758 · 967 tests en verde
+  Estado a 2026-09-04 · commit 8694758 · 985 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
@@ -33,7 +33,7 @@ Lean no es un adorno: es la fuente de verdad. Que el modelo crea que algo es
 cierto no cuenta. Que Lean lo acepte, sí — y ni siquiera eso basta, porque Lean
 acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
 
-  Código:   32 400 líneas de Python en nucleo/ · 76 scripts · 48 suites de test
+  Código:   32 400 líneas de Python en nucleo/ · 76 scripts · 49 suites de test
   Lean:     21 archivos · 382 teoremas · 0 sorry (preguntado al compilador)
   Público:  alumnos de habla hispana
 
@@ -103,21 +103,37 @@ instrumento está bien; lo que estaba mal era el dibujo.
 
 
 --------------------------------------------------------------------------------
-2.1  LOS SIETE VEREDICTOS
+2.1  LOS OCHO VEREDICTOS
 --------------------------------------------------------------------------------
 
   verificado      hay teorema, lo prueba, y es el que se preguntó
   parcial         la estructura compila; la cascada intentó cerrar el `sorry`
   refutado        Lean verificó la NEGACIÓN del enunciado
   sin_teorema     Lean aceptó el archivo, pero no contiene ningún teorema
+  vacuo           hay teorema y compila, pero su conclusión es `True`
   no_verificado   Lean rechazó y los reintentos no lo arreglaron
   timeout         Lean no terminó dentro del límite
   sin_entorno     no hay `lake` instalado — no es un fallo de lógica
 
-`verificado`, `sin_teorema` y `refutado` existen porque los tres se dieron: el
-sistema llegó a estampar «verificado» sobre un archivo de `#check` sin teoremas,
-y sobre la negación de lo que se había pedido. Ninguna la encontraron los tests
-— las encontró correr el sistema contra un banco de consultas reales.
+`sin_teorema`, `refutado` y `vacuo` existen porque los tres se dieron: el sistema
+llegó a estampar «verificado» sobre un archivo de `#check` sin teoremas, sobre la
+negación de lo que se había pedido, y sobre `theorem t : True := trivial`.
+
+EL TERCERO ES EL MÁS BARATO DE PRODUCIR Y EL MÁS CARO DE CREER. Ese teorema
+compila con exit 0 y sin una sola línea de salida; `_prueba_algo` lo daba por
+bueno —tiene `theorem` y tiene cuerpo— y la respuesta salía con el sello de
+«prueba verificada formalmente». Con hipótesis es peor todavía: `theorem t
+(h : 2+2=5) : True` parece que habla del problema.
+
+La regla que lo caza es ESTRECHA a propósito: sólo cuando la conclusión es
+exactamente `True`. `∃ (n : Nat), True` NO es vacuo —lo que afirma es la
+existencia de `n`— y rechazarlo tumbaría formalizaciones legítimas. No cubre
+`True ∧ True` ni `P → True`, y se dice para que nadie lo lea como una garantía
+de no-vacuidad.
+
+Ninguna la encontraron los tests: las dos primeras las encontró correr el sistema
+contra un banco de consultas reales, y la tercera una auditoría del camino del
+veredicto.
 
 
 ================================================================================
@@ -842,7 +858,7 @@ leer el equilibrado sin ver de cuántos casos sale.
 11. TESTS Y GUARDIANES
 ================================================================================
 
-  967 tests en 48 suites. Los que más valen no comprueban que el código
+  985 tests en 49 suites. Los que más valen no comprueban que el código
   funcione, sino QUE NO VUELVA A MENTIR:
 
     · la dependencia del grafo tiene que ser un ORDEN (0 ciclos)
@@ -1043,7 +1059,7 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
   python scripts/politica_emparejador.py --curva    a volumen igualado
   python scripts/dibujar_flujo.py                   el diagrama, desde el código
   python scripts/dibujar_grafo.py                   la figura, desde el runtime
-  python -m pytest tests/ -o "addopts="             967 tests
+  python -m pytest tests/ -o "addopts="             985 tests
 
   Repositorio:
     github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean

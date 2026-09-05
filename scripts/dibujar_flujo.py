@@ -22,7 +22,7 @@ LO QUE EL DIBUJO YA CONTABA BIEN, y sigue igual:
 Y el veredicto final tiene SIETE estados, no seis y no dos:
 
     verificado · parcial · refutado · sin_teorema
-    no_verificado · timeout · sin_entorno
+    vacuo · no_verificado · timeout · sin_entorno
 
 SE COMPRUEBA SOLO. Cada caja no terminal tiene que tener una flecha que entra y
 otra que sale —la caja huerfana del paso 5 la encontro el usuario leyendo el
@@ -196,7 +196,10 @@ RAMAS = [
 VEREDICTOS = [
     [("verificado", "ve"), ("parcial", "al"), ("refutado", "bg"),
      ("sin_teorema", "bg")],
-    [("no_verificado", "bg"), ("timeout", "bg"), ("sin_entorno", "bg")],
+    # `vacuo` es el octavo, y el que mas caro salia: `theorem t : True :=
+    # trivial` compila con exit 0 y se llevaba el sello de «verificado».
+    [("vacuo", "bg"), ("no_verificado", "bg"), ("timeout", "bg"),
+     ("sin_entorno", "bg")],
 ]
 
 

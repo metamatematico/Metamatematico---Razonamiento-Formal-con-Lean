@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-967_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-985_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -32,7 +32,7 @@ decide la verdad — eso es Lean, siempre.
 2. [Las dos capas](#2-las-dos-capas)
 3. [El grafo: de qué consta](#3-el-grafo-de-qué-consta)
 4. [La lista: 183 433 hechos](#4-la-lista-183-433-hechos)
-5. [Lean: cuatro caminos, siete veredictos](#5-lean-cuatro-caminos-siete-veredictos)
+5. [Lean: cuatro caminos, ocho veredictos](#5-lean-cuatro-caminos-ocho-veredictos)
 6. [Lo que está medido](#6-lo-que-está-medido)
 7. [Tests y guardianes](#7-tests-y-guardianes)
 8. [Lo que se midió y no sirve](#8-lo-que-se-midió-y-no-sirve)
@@ -293,7 +293,7 @@ de empatar con un prior de frecuencia (9,4 % contra 9,2 %) a superarlo
 
 ---
 
-## 5. Lean: cuatro caminos, siete veredictos
+## 5. Lean: cuatro caminos, ocho veredictos
 
 Hay que separar dos cosas que se confundían. Lo que Lean dice abre **cuatro
 caminos**, y tres de ellos siguen trabajando; sólo al final hay un veredicto.
@@ -317,14 +317,17 @@ veredicto final tiene siete estados, y va **delante** del texto.
 | **`parcial`** | la estructura compila; la cascada intentó cerrar el `sorry` |
 | **`refutado`** | Lean verificó la **negación** del enunciado |
 | **`sin_teorema`** | Lean aceptó el archivo, pero no contiene ningún teorema |
+| **`vacuo`** | hay teorema y compila, pero su conclusión es `True`: no dice nada |
 | `no_verificado` | Lean rechazó y los reintentos no lo arreglaron |
 | `timeout` | Lean no terminó dentro del límite |
 | `sin_entorno` | no hay `lake` instalado — no es un fallo de lógica |
 
-`verificado`, `sin_teorema` y `refutado` existen porque los tres se dieron: el sistema llegó a estampar
-«verificado» sobre un archivo de `#check` sin teoremas, y sobre la negación de lo
-que se había pedido. Ninguna la encontraron los tests — las encontró correr el
-sistema contra un banco de consultas reales.
+`sin_teorema`, `refutado` y `vacuo` existen porque los tres se dieron: el sistema llegó a estampar
+«verificado» sobre un archivo de `#check` sin teoremas, sobre la negación de lo
+que se había pedido, y sobre `theorem t : True := trivial` — que compila con
+exit 0 y sin una sola línea de salida. Ninguna la encontraron los tests: las dos
+primeras las encontró correr el sistema contra un banco de consultas reales, y la
+tercera una auditoría del camino del veredicto.
 
 ---
 
@@ -540,7 +543,7 @@ No falta formalización: faltan morfismos que crucen de área.
 
 ## 7. Tests y guardianes
 
-**967 tests en 48 suites.** Los que más valen no comprueban que el código
+**985 tests en 49 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -660,7 +663,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    967 tests en 48 suites
+tests/                    985 tests en 49 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

@@ -87,6 +87,33 @@ class LeanResult:
             if m.get("severity") == "error"
         ]
 
+    @property
+    def error_kinds(self) -> list[str]:
+        """El TIPO estructurado de cada error, tal como lo emite Lean.
+
+        Lean con `--json` etiqueta cada mensaje:
+
+            {"kind": "lean.unknownIdentifier._namedError",
+             "data": "Unknown identifier `Basis.exists_basis`", ...}
+
+        Ese campo llegaba entero en `messages` y no lo miraba nadie: el triaje
+        de `core.py` clasificaba por SUBCADENA sobre el texto. Y el texto no es
+        estable — para el MISMO fallo Lean escribe
+
+            «Unknown identifier `Basis.exists_basis`»            (coincide)
+            «The identifier `Basis` is unknown, y autoImplicit…»  (NO coincide)
+
+        La segunda forma es la que aparece cuando `autoImplicit` convierte el
+        nombre desconocido en una variable implicita, que es justo el caso que
+        se colo. Clasificar por `kind` no depende de como este redactado el
+        mensaje.
+        """
+        return [
+            (m.get("kind") or "")
+            for m in self.messages
+            if m.get("severity") == "error"
+        ]
+
     def get_first_error(self) -> Optional[str]:
         errors = self.error_messages
         return errors[0] if errors else None

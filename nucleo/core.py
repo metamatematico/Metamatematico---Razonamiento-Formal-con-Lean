@@ -149,6 +149,55 @@ class NucleoResponse:
 
 
 
+def enunciado_vacuo(code: str) -> bool:
+    """¿La conclusión del teorema es literalmente `True`?
+
+    EL AGUJERO QUE TAPA. `_prueba_algo` exige una declaración con
+    cuerpo, y `theorem t : True := trivial` la tiene. Lean lo compila
+    con exit 0 y sin una sola línea de salida, así que el pipeline lo
+    tomaba por SUCCESS y estampaba «prueba verificada formalmente»
+    sobre un enunciado que no dice nada. Comprobado ejecutándolo.
+
+    Con hipótesis es peor todavía: `theorem t (h : 2+2=5) : True` sale
+    verificado y encima parece que habla del problema.
+
+    LA REGLA ES ESTRECHA A PROPÓSITO: sólo cuando la conclusión es
+    EXACTAMENTE `True`. `∃ (n : Nat), True` NO es vacuo —lo que afirma
+    es la existencia de `n`, y el `True` es relleno del cuerpo—, y
+    rechazarlo sería tumbar formalizaciones legítimas. Se prefiere
+    dejar pasar un vacuo raro antes que rechazar una prueba buena.
+
+    LO QUE NO CUBRE: `True ∧ True`, `P → True` y demás disfraces. Se
+    dice para que nadie lea esto como una garantía de no-vacuidad.
+    """
+    import re as _re
+    limpio = _re.sub(r"/-[\s\S]*?-/", " ", code)
+    limpio = _re.sub(r"--[^\n]*", " ", limpio)
+    _ABRE, _CIERRA = "([{⟨", ")]}⟩"
+    for m in _re.finditer(r"\b(?:theorem|lemma|example)\b", limpio):
+        # la cabecera va del nombre hasta el `:=` del cuerpo
+        fin = limpio.find(":=", m.end())
+        if fin == -1:
+            continue
+        cabecera = limpio[m.end():fin]
+        # el ULTIMO `:` a profundidad cero separa hipótesis de tesis;
+        # los `:` de `(n : Nat)` van a profundidad uno y no cuentan
+        prof, corte = 0, -1
+        for i, c in enumerate(cabecera):
+            if c in _ABRE:
+                prof += 1
+            elif c in _CIERRA:
+                prof -= 1
+            elif c == ":" and prof == 0:
+                corte = i
+        if corte == -1:
+            continue
+        tesis = cabecera[corte + 1:].strip().strip("()").strip()
+        if tesis == "True":
+            return True
+    return False
+
+
 # ── Referencias ancladas de Mathlib ─────────────────────────────────────
 # Fuente de verdad que el LLM NO debe improvisar: nombres de lemas y modulos
 # reales, comprobados con `lake env lean`. Se consultan tanto en la ruta de
@@ -1820,6 +1869,7 @@ class Nucleo:
             return bool(re.search(r"\b(theorem|lemma|example)\b[\s\S]*?:=",
                                   limpio))
 
+
         # ── ¿Lean va a verificar la NEGACIÓN de lo preguntado? ────────────
         def _es_refutacion(code: str) -> bool:
             """El formalizador marca con `-- REFUTACION:` los enunciados falsos.
@@ -1978,8 +2028,7 @@ class Nucleo:
         # aceptando la revision solo si mejora.
         _rondas_revision = 0
         if result.status == LeanResultStatus.ERROR:
-            _primer_err = (result.get_first_error() or "").lower()
-            _es_mecanico = any(m in _primer_err for m in self._ERRORES_MECANICOS)
+            _es_mecanico = self._es_error_mecanico(result)
             if not _es_mecanico:
                 lean_code, result, _rondas_revision = await self._revisar_con_lean(
                     lean_code, result, formalize_prompt, lean_system, context
@@ -1996,6 +2045,26 @@ class Nucleo:
             )
             confidence    = 0.75
             success_value = 0.5
+
+        elif result.is_success and enunciado_vacuo(lean_code):
+            # LEAN VERIFICO UN ENUNCIADO QUE NO DICE NADA.
+            #
+            # `theorem t : True := trivial` compila con exit 0 y sin una sola
+            # linea de salida. `_prueba_algo` lo daba por bueno —tiene
+            # `theorem` y tiene cuerpo— y la respuesta salia con el sello de
+            # «prueba verificada formalmente». Con hipotesis es peor: `theorem
+            # t (h : 2+2=5) : True` parece que habla del problema.
+            #
+            # Va ANTES de `sin_teorema` porque aqui SI hay teorema: lo que no
+            # hay es contenido.
+            verification_status = "vacuo"
+            verification_note = (
+                "El teorema compila, pero su conclusión es `True`: no afirma "
+                "nada sobre la pregunta. Lean no puede rechazarlo —es "
+                "verdadero— y por eso el sello de verificado sería engañoso."
+            )
+            confidence    = 0.25
+            success_value = 0.0
 
         elif result.is_success and not _prueba_algo(lean_code):
             # LEAN ACEPTO UN ARCHIVO QUE NO DEMUESTRA NADA.
@@ -2171,6 +2240,7 @@ class Nucleo:
                 "no_verificado": f"**Lean 4 ↯ — definición pendiente de ajuste Mathlib** · área: `{_area}`",
                 "refutado":      f"**Lean 4 ✓ — se verificó la NEGACIÓN del enunciado** · área: `{_area}`",
                 "sin_teorema":   f"**Lean 4 ⊘ — el código no contiene ningún teorema** · área: `{_area}`",
+                "vacuo":         f"**Lean 4 ⊘ — el enunciado no dice nada (`True`)** · área: `{_area}`",
             }.get(verification_status,
                   f"**Lean 4 — {verification_status}** · área: `{_area}`")
         else:
@@ -2180,6 +2250,7 @@ class Nucleo:
                 "no_verificado": f"**Lean 4 ↯ — formalización pendiente de ajuste** · área: `{_area}`",
                 "refutado":      f"**Lean 4 ✓ — se verificó la NEGACIÓN del enunciado** · área: `{_area}`",
                 "sin_teorema":   f"**Lean 4 ⊘ — el código no contiene ningún teorema** · área: `{_area}`",
+                "vacuo":         f"**Lean 4 ⊘ — el enunciado no dice nada (`True`)** · área: `{_area}`",
             }.get(verification_status,
                   f"**Lean 4 — {verification_status}** · área: `{_area}`")
 
@@ -2220,6 +2291,10 @@ class Nucleo:
             )
         else:
             _titulo = {
+                "vacuo": "⊘ **El enunciado no dice nada.** Su conclusión es "
+                         "`True`: Lean lo acepta porque es verdadero, pero no "
+                         "afirma nada sobre lo que preguntaste. Un sello de "
+                         "verificado aquí sería engañoso.",
                 "sin_teorema": "❌ **No hay prueba.** El código generado no "
                                "contiene ningún teorema — Lean lo aceptó por "
                                "ser sintácticamente válido, pero no demuestra "
@@ -2538,6 +2613,32 @@ class Nucleo:
     # Errores que repair_imports puede arreglar solo: son de MODULO, no de
     # matematicas. El resto son semanticos y necesitan reformular la prueba.
     _ERRORES_MECANICOS = ("unknown identifier", "unknown constant", "unknown module")
+
+    #: Y los mismos, por el TIPO estructurado que Lean emite en `--json`.
+    #:
+    #: La clasificacion por subcadena falla porque el texto no es estable: para
+    #: el mismo fallo Lean escribe «Unknown identifier `X`» unas veces y «The
+    #: identifier `X` is unknown, y autoImplicit…» otras. La segunda es la que
+    #: aparece cuando `autoImplicit` convierte el nombre desconocido en una
+    #: variable implicita —el caso que se colo con `Basis`— y no contiene la
+    #: subcadena «unknown identifier», asi que el triaje la daba por semantica.
+    _TIPOS_MECANICOS = ("lean.unknownIdentifier", "lean.unknownConstant",
+                        "unknownIdentifier", "unknownConstant")
+
+    def _es_error_mecanico(self, result) -> bool:
+        """¿El fallo es de MODULO/NOMBRE y no de matematicas?
+
+        Se mira primero el tipo estructurado y solo despues el texto: el tipo
+        no depende de como este redactado el mensaje.
+        """
+        try:
+            for k in result.error_kinds:
+                if any(t in k for t in self._TIPOS_MECANICOS):
+                    return True
+        except AttributeError:                       # LeanResult antiguo
+            pass
+        primero = (result.get_first_error() or "").lower()
+        return any(m in primero for m in self._ERRORES_MECANICOS)
 
     def _lean_hint(self, error: str) -> str:
         low = (error or "").lower()
