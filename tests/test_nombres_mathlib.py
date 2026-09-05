@@ -128,3 +128,34 @@ def test_core_antepone_la_correccion():
     assert '"nombres_desmentidos"' in fuente, (
         "hay que dejar rastro en los metadatos: que deje de estar vacio es la "
         "senal de que el traductor inventa diagnosticos")
+
+
+class TestLosDosIndices:
+    """Los dos ficheros son complementarios y ninguno basta solo."""
+
+    def test_lemas_y_sustantivos_se_necesitan(self):
+        """Medido:
+
+            Module.Basis                lemas=NO   sustantivos=SI  (estructura)
+            Module.Basis.exists_basis   lemas=SI   sustantivos=NO  (teorema)
+
+        La primera version de `nombres.py` leia solo los lemas, asi que habria
+        dicho que `Module.Basis` no existe — exactamente el error que este
+        modulo existe para cazar.
+        """
+        assert N.existe("Module.Basis"), "falta el indice de sustantivos"
+        assert N.existe("Module.Basis.exists_basis"), "falta el de lemas"
+        assert N.cuantos() > 200000, "no se estan uniendo los dos ficheros"
+
+    def test_el_nombre_corto_no_desmiente(self):
+        """`Basis` a pelo da «unknown identifier» en Lean, aunque exista
+        `QuaternionAlgebra.Basis`. Quien diga que no existe tiene razon, y
+        corregirle seria mentir.
+
+        `sustantivos.existe` SI acepta el corto —legitimo para su uso, que es
+        la puerta previa a Lean bajo un `open`— y por eso aqui no se reutiliza
+        esa funcion sino que se leen los nombres cualificados.
+        """
+        assert N.revisar_afirmaciones("El identificador Basis no existe.") == []
+        f = N.revisar_afirmaciones("La estructura Module.Basis no existe.")
+        assert [x["nombre"] for x in f] == ["Module.Basis"]

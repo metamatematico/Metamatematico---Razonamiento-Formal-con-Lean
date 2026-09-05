@@ -64,26 +64,47 @@ _NOMBRES: Optional[frozenset] = None
 _CORTOS: Optional[dict] = None
 
 
+#: Los sustantivos —tipos, clases, estructuras— viven en OTRO fichero.
+#:
+#: LOS DOS INDICES SON COMPLEMENTARIOS Y NINGUNO BASTA SOLO. Medido:
+#:
+#:     Module.Basis                lemas=NO   sustantivos=SI   (es una estructura)
+#:     Module.Basis.exists_basis   lemas=SI   sustantivos=NO   (es un teorema)
+#:
+#: La primera version de este modulo leia solo los lemas, asi que habria dicho
+#: que `Module.Basis` no existe — exactamente el error que existe para cazar.
+_SUSTANTIVOS = RAIZ / "data" / "sustantivos_mathlib.jsonl"
+
+
 def _cargar() -> None:
-    """Carga los nombres una vez. ~0,95 s y ~6 MB sobre los 183 351."""
+    """Carga los nombres una vez. ~1 s y ~7 MB sobre los dos ficheros."""
     global _NOMBRES, _CORTOS
     if _NOMBRES is not None:
         return
     nombres, cortos = set(), {}
-    try:
-        with io.open(BANCO, encoding="utf-8") as fh:
-            for linea in fh:
-                try:
-                    d = json.loads(linea)
-                except Exception:                              # noqa: BLE001
-                    continue
-                n = d.get("nombre") or d.get("name")
-                if not n:
-                    continue
-                nombres.add(n)
-                cortos.setdefault(n.rsplit(".", 1)[-1], []).append(n)
-    except FileNotFoundError:
-        pass
+
+    def _mete(n: str) -> None:
+        if n:
+            nombres.add(n)
+            cortos.setdefault(n.rsplit(".", 1)[-1], []).append(n)
+
+    for ruta in (BANCO, _SUSTANTIVOS):
+        try:
+            with io.open(ruta, encoding="utf-8") as fh:
+                for linea in fh:
+                    try:
+                        d = json.loads(linea)
+                    except Exception:                          # noqa: BLE001
+                        continue
+                    # SOLO EL NOMBRE CUALIFICADO. `sustantivos.existe` acepta
+                    # tambien el corto —legitimo para su uso, que es la puerta
+                    # previa a Lean bajo un `open`— pero aqui se DESMIENTE a
+                    # alguien, y para eso el corto es demasiado laxo: `Basis` a
+                    # pelo da «unknown identifier», asi que quien diga que no
+                    # existe tiene razon y corregirle seria mentir.
+                    _mete(d.get("nombre") or d.get("name") or "")
+        except FileNotFoundError:
+            continue
     _NOMBRES, _CORTOS = frozenset(nombres), cortos
 
 
