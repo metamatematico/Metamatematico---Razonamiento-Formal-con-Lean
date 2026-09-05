@@ -1952,10 +1952,19 @@ class Nucleo:
                     or len(_r2.error_messages) < len(result.error_messages)
                 )
                 if _mejora:
-                    logger.info(
-                        f"Lean: reparacion de imports efectiva "
-                        f"({result.status.name} -> {_r2.status.name})"
-                    )
+                    # EL MOTIVO, NO SOLO EL ESTADO. Este mensaje decia
+                    # «reparacion efectiva (ERROR -> ERROR)», que leido en el
+                    # log parece una contradiccion: dos estados iguales y una
+                    # afirmacion de que algo mejoro. Mejoraba de verdad —caian
+                    # errores— pero eso no se veia, y un log que afirma sin
+                    # enseñar el motivo es peor que uno que calla.
+                    _antes, _despues = (len(result.error_messages),
+                                        len(_r2.error_messages))
+                    _porque = (f"{result.status.name} -> {_r2.status.name}"
+                               if result.status != _r2.status
+                               else f"{result.status.name}, pero "
+                                    f"{_antes} -> {_despues} errores")
+                    logger.info(f"Lean: reparacion de imports efectiva ({_porque})")
                     lean_code, result = _reparado, _r2
 
         # ── Paso 2c: revision con el veredicto de Lean como realimentacion ──
@@ -2250,6 +2259,33 @@ class Nucleo:
         if _revision is not None and _revision.aviso:
             content = f"{_revision.aviso}\n\n---\n\n{content}"
 
+        # ── ¿La explicación contradice a Mathlib? ────────────────────────────
+        #
+        # Un caso real: ante «todo espacio vectorial tiene una base» el
+        # traductor escribió «la constante `Module.Basis.exists_basis` no
+        # existe en Mathlib — es una invención o un nombre desactualizado».
+        # `#check` dice que SÍ existe, y el error de Lean no era ése sino un
+        # `Application type mismatch`. O sea: el modelo inventó un diagnóstico
+        # y lo presentó como «el error es claro».
+        #
+        # En un sistema cuya tesis es que la verdad la produce Lean y el modelo
+        # es sólo la boca, eso rompe la tesis justo donde el usuario la puede
+        # comprobar — y le manda a buscar el nombre correcto de un lema que ya
+        # lo tenía. Se comprueba contra los 183 351 nombres que el propio
+        # repositorio tiene, y sólo se corrige lo demostrablemente falso.
+        _correcciones = []
+        try:
+            from nucleo.lean import nombres as _nom
+            _correcciones = _nom.revisar_afirmaciones(content)
+            if _correcciones:
+                logger.warning(
+                    "la explicacion negaba nombres que SI existen en Mathlib: %s",
+                    ", ".join(c["nombre"] for c in _correcciones))
+                content = "%s\n\n---\n\n%s" % (
+                    _nom.aviso_de_correccion(_correcciones), content)
+        except Exception as e:                                  # noqa: BLE001
+            logger.debug(f"revision de nombres no disponible: {e}")
+
         return NucleoResponse(
             content=content,
             action_type=ActionType.ASSIST,
@@ -2262,6 +2298,10 @@ class Nucleo:
                 # guarda siempre, se enseña casi nunca (ver nucleo/sintaxis).
                 "sintaxis": (_revision.resumen() if _revision is not None
                              else {}),
+                # Los nombres que la explicación negaba y sí existen. Vacío es
+                # lo normal; que deje de estarlo es la señal de que el
+                # traductor está inventando diagnósticos.
+                "nombres_desmentidos": [c["nombre"] for c in _correcciones],
                 # Booleano explicito para que la interfaz pueda distinguir sin
                 # tener que interpretar la cadena de estado.
                 #
@@ -3266,6 +3306,20 @@ class Nucleo:
         try:
             prov = LLMProvider(provider)
         except ValueError:
+            # CAER A DEMO EN SILENCIO CON LA CLAVE PUESTA ES INDEPURABLE.
+            #
+            # Los valores del enum son minusculas (`anthropic`); pasar
+            # `"Anthropic"` —el nombre que se ensena en la interfaz— lanza
+            # ValueError y el sistema se iba a modo demo sin decir nada, con
+            # una clave de 108 caracteres delante. El sintoma es el mismo que
+            # el de no tener clave, asi que el rato se pierde buscando en el
+            # sitio equivocado.
+            if api_key:
+                logger.warning(
+                    "proveedor %r desconocido y hay clave de %d caracteres: "
+                    "se cae a modo DEMO. Los valores validos son %s",
+                    provider, len(api_key),
+                    ", ".join(repr(p.value) for p in LLMProvider))
             prov = LLMProvider.DEMO
 
         if self._llm is not None:
