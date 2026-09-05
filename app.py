@@ -779,7 +779,7 @@ def _onboarding_body():
         "✅ Con solo la **API key** ya puedes chatear y explorar matemáticas.  \n"
         "✅ Con **Lean + agente** cada demostración se verifica formalmente en tiempo real."
     )
-    if st.button("✓ Entendido, ¡comenzar!", type="primary", use_container_width=True):
+    if st.button("✓ Entendido, ¡comenzar!", type="primary", width="stretch"):
         st.session_state["onboarded"] = True
         st.rerun()
 

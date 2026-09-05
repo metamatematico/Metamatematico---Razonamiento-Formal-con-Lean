@@ -206,7 +206,7 @@ with st.sidebar:
             st.success(f"Actualizado a {n_candidates} candidatos")
 
     st.divider()
-    if st.button("← Volver al chat", use_container_width=True, key="_ca_back"):
+    if st.button("← Volver al chat", width="stretch", key="_ca_back"):
         home = st.session_state.get("_home_page")
         if home:
             st.switch_page(home)
@@ -390,7 +390,7 @@ for tab, rc in zip(tabs, result.ranked_candidates):
                     "▶ Ejecutar solver",
                     key=run_key,
                     type="primary",
-                    use_container_width=True,
+                    width="stretch",
                     help="Ejecuta el script Python y corre el bridge → Lean",
                 )
 

@@ -149,7 +149,7 @@ with st.sidebar:
             os.environ[_env_name] = v_api_key
 
     st.divider()
-    if st.button("← Volver al chat", use_container_width=True):
+    if st.button("← Volver al chat", width="stretch"):
         home = st.session_state.get("_home_page")
         if home:
             st.switch_page(home)
@@ -428,7 +428,7 @@ if _is_demo_mode:
 
 col_btn, col_hint = st.columns([2, 3])
 with col_btn:
-    run = st.button("🔬 Verificar con Lean 4", type="primary", use_container_width=True,
+    run = st.button("🔬 Verificar con Lean 4", type="primary", width="stretch",
                     disabled=(not v_api_key and not _is_demo_mode))
 with col_hint:
     _model_str = f"`{v_model}`" if not _is_demo_mode else "modo demo"
@@ -575,7 +575,7 @@ try:
         data=_pdf_bytes,
         file_name=_fn,
         mime="application/pdf",
-        use_container_width=True,
+        width="stretch",
     )
 except Exception as _pdf_err:
     st.caption(f"PDF no disponible: {_pdf_err}")
@@ -599,10 +599,10 @@ except Exception:
 st.divider()
 col_v1, col_v2 = st.columns(2)
 with col_v1:
-    if st.button("📊 Ver grafo de skills activados →", use_container_width=True):
+    if st.button("📊 Ver grafo de skills activados →", width="stretch"):
         st.switch_page("pages/1_Visualizaciones.py")
 with col_v2:
-    if st.button("💬 Continuar en el chat →", use_container_width=True):
+    if st.button("💬 Continuar en el chat →", width="stretch"):
         st.session_state["_pending_query"] = (
             f"Analiza y explica la verificación del archivo `{fname}` "
             f"que arrojó confianza {conf:.0%}"

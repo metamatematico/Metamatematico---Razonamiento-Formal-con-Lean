@@ -2031,7 +2031,75 @@ def fig_proof_trace(query: str):
 
 # ─── INTERFAZ STREAMLIT ───────────────────────────────────────────────────────
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LECTURA DE LAS MEDICIONES
+# ═══════════════════════════════════════════════════════════════════════════
+# Se leen los FICHEROS, no se copian los numeros. Un numero escrito a mano en
+# la interfaz envejece en silencio en cuanto alguien vuelve a medir, y esta
+# pagina es justo donde mas dano hace: es la que se ensena.
+import json as _json
+import pathlib as _pathlib
+
+_DATOS_DIR = _pathlib.Path(_page_dir) / "data"
+
+
+@st.cache_data(ttl=60)
+def _leer_medicion(nombre):
+    try:
+        return _json.loads((_DATOS_DIR / nombre).read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _buscar(d, ruta):
+    for k in ruta:
+        if d is None:
+            return None
+        d = d[k] if isinstance(k, int) else d.get(k)
+    return d
+
+
+#: (fichero, etiqueta, ruta al valor real, ruta al nulo, mas es mejor)
+_MEDICIONES = [
+    ("recuperacion_proofnet.json", "Vocabulario contra ProofNet (precisión)",
+     ("resultados", "lexico", "precision"),
+     ("resultados", "nulo", "precision"), True),
+    ("premisas_sin_simp.json", "Selección de premisas (precisión)",
+     ("global", "HIBRIDO", "precision"),
+     ("global", "nulo", "precision"), True),
+    ("dos_etapas.json", "Localizar el área y luego elegir (precisión)",
+     ("resultados", "real", "precision"),
+     ("resultados", "nulo", "precision"), True),
+    ("recuperacion_lemas.json", "Recuperación léxica de lemas (precisión)",
+     ("resultados", "lexico_nl", "precision"),
+     ("resultados", "nulo", "precision"), True),
+    ("modelo_en_la_cascada.json",
+     "Orden de cascada por área (posición, menos es mejor)",
+     ("resultados", "regla", 0), ("resultados", "NULO", 0), False),
+    ("modelo_en_la_cascada.json",
+     "Orden por el clasificador (posición, menos es mejor)",
+     ("resultados", "modelo", 0), ("resultados", "NULO", 0), False),
+    ("tactic_ranker_report.json", "TacticRanker (acierto)",
+     ("accuracy",), ("baseline_mayoritaria",), True),
+    ("reconocedor_area.json", "Reconocedor de área (acierto equilibrado)",
+     ("combinado_equilibrado",), ("nulo",), True),
+    ("sintaxis_falsos_positivos.json", "Revisión de sintaxis (caza)",
+     ("tasa_caza",), ("nulo_moneda",), True),
+    ("sintaxis_de_consulta_contra_lemas.json",
+     "Rasgos del árbol + n-gramas (cobertura)",
+     ("resultados", "las dos", 0), ("resultados", "n-gramas", 0), True),
+    ("sintaxis_de_consulta_contra_lemas.json",
+     "Rasgos del árbol donde el léxico falla (cobertura)",
+     ("estrato_sin_lexico", "resultados", "ESTRUCTURA", 0),
+     ("estrato_sin_lexico", "resultados", "nulo", 0), True),
+    ("fibracion_del_grafo.json", "Fibración π : Skills → Áreas (levantados)",
+     ("tasa",), ("nulo_media",), True),
+]
+
+
+(tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9,
+ tab10, tab11) = st.tabs([
     "⬡ Grafo de Skills",
     "◎ Espacio de Embeddings",
     "⚙ Arquitectura NLE",
@@ -2041,6 +2109,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "🔍 Traza de Prueba",
     "🤖 Agentes",
     "⧉ Emergencia",
+    "📐 Sintaxis",
+    "📊 Mediciones",
 ])
 
 with tab1:
@@ -2257,7 +2327,12 @@ with tab6:
     col2.metric("Parámetros GNN+PPO",
                 f"{_p_total:,}" if _p_total else "—",
                 "3 capas GATConv")
-    col3.metric("Tests", "948", "46 suites")
+    # LAS DOS CIFRAS VAN LITERALES A PROPOSITO. Intente contar las suites en
+    # vivo con un glob y eso DESACTIVO el guardian: `test_ui_coherencia.py`
+    # busca el patron `"Tests", "N", "M suites"` con una regex, y un f-string
+    # no encaja, asi que el test pasaba a saltarse en silencio. Una cifra
+    # viva que apaga su propio control es peor que una literal vigilada.
+    col3.metric("Tests", "949", "46 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
@@ -2501,7 +2576,7 @@ with tab8:
             })
         import pandas as _pd
         _df = _pd.DataFrame(_rows)
-        st.dataframe(_df, use_container_width=True, hide_index=True)
+        st.dataframe(_df, width="stretch", hide_index=True)
     else:
         st.warning("No se encontró training_summary.json — entrena primero con scripts/train_multiagent.py")
 
@@ -2700,3 +2775,252 @@ with tab9:
                  for g in _em["huecos"]],
                 width="stretch", hide_index=True,
             )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PESTANA 10 · SINTAXIS — la consulta como arbol
+# ═══════════════════════════════════════════════════════════════════════════
+with tab10:
+    st.markdown("### La consulta como árbol")
+    st.caption(
+        "Lo que había era una regex, y una regex no puede reconocer una "
+        "expresión porque una expresión es un **árbol**. Partía "
+        "`(a+b)^2 = a^2 + 2ab + b^2` por la mitad y no encontraba nada en "
+        "`∀x ∈ ℝ, x² ≥ 0`: el alumno que escribe con símbolos era invisible."
+    )
+
+    _q = st.text_input(
+        "Escribe una consulta y mira qué ve la capa de sintaxis",
+        value=_cq or "Demuestra que ∀x ∈ ℝ, x² ≥ 0",
+        key="viz_sintaxis_q")
+
+    try:
+        from nucleo.sintaxis import bien_formada, extraer, revisar
+
+        _tramos = extraer(_q)
+        _d = bien_formada(_q)
+        _rev = revisar(_q)
+
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Tramos de notación", str(len(_tramos)))
+        c2.metric("¿Bien formada?", "sí" if _d.ok else "NO",
+                  None if _d.ok else _d.fallos[0])
+        _rel = next((k[4:] for k in _rev.rasgos
+                     if k.startswith("rel=") and _rev.rasgos[k]), "ninguna")
+        c3.metric("Relación principal", _rel)
+
+        if _rev.aviso:
+            st.warning(_rev.aviso)
+
+        if _tramos:
+            st.markdown("**Notación encontrada**")
+            st.dataframe(
+                [{"tramo": t.texto,
+                  "desde": t.inicio, "hasta": t.fin,
+                  "¿entre $...$?": "sí" if t.explicito else "no"}
+                 for t in _tramos],
+                width="stretch", hide_index=True)
+        else:
+            st.info(
+                "Sin notación. **Eso no es un hueco**: dice que el enunciado "
+                "está en prosa, y la prosa se recupera por otras vías. Una "
+                "consulta sin fórmula está bien formada por definición.")
+
+        if _d.ok and _d.arbol is not None:
+            st.markdown("**El árbol**")
+            st.code(repr(_d.arbol), language="text")
+
+        _act = {k: v for k, v in _rev.rasgos.items() if v}
+        if _act:
+            st.markdown("**Rasgos activos** — los que van al emparejador")
+            st.code("  ".join(sorted(str(k) for k in _act)), language="text")
+
+    except Exception as _e:
+        st.error(f"la capa de sintaxis no está disponible: {_e}")
+
+    st.divider()
+    st.markdown("#### Las dos cifras que la gobiernan")
+    st.caption(
+        "Sobre los 23 243 enunciados de LeanWorkbook — todos correctos: los "
+        "formalizó alguien y Lean los aceptó."
+    )
+    try:
+        _fp = _leer_medicion("sintaxis_falsos_positivos.json")
+        if _fp:
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Falsos positivos",
+                      f"{100 * _fp['tasa_falsos_positivos']:.1f} %",
+                      "rechaza lo que está bien")
+            m2.metric("Caza de roturas", f"{100 * _fp['tasa_caza']:.1f} %",
+                      "99 % si es un delimitador")
+            m3.metric("Ventaja sobre el nulo",
+                      f"+{100 * _fp['ventaja_sobre_nulo']:.1f} pts",
+                      "contra una moneda")
+            st.caption(
+                "La primera versión daba **22,3 %** de falsos positivos. Las "
+                "doce correcciones que lo bajaron salieron de mirar qué "
+                "rechazaba: `[0,∞)`, `\\mathbb{R^+}`, el espaciado `\\;`, el "
+                "guion de «Cauchy-Schwarz». El instrumento estaba mal, no los "
+                "datos.")
+    except Exception:
+        st.info("Corre `scripts/sintaxis_falsos_positivos.py` para ver las cifras.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# PESTANA 11 · MEDICIONES — lo que corre, con su numero y su nulo
+# ═══════════════════════════════════════════════════════════════════════════
+with tab11:
+    st.markdown("### Qué corre para una consulta, y por qué")
+    st.caption(
+        "Una capacidad se ejecuta si (1) su guarda aplica **y** (2) su "
+        "evidencia gana a su **modelo nulo**. La (2) no se negocia. El "
+        "veredicto se **lee** del fichero de medición en cada llamada —se "
+        "guarda la ruta, no el número— así que volver a medir cambia la "
+        "decisión sola."
+    )
+
+    try:
+        from nucleo.decisor import (COMPILADO, Contexto, LLAMADA, LOCAL,
+                                    decidir, decidir_todo)
+        from nucleo.sintaxis import revisar as _rev_sx
+
+        _qd = _cq or "Demuestra que (a+b)^2 = a^2 + 2ab + b^2"
+        _ctx = Contexto(consulta=_qd, es_matematica=True,
+                        rasgos=_rev_sx(_qd).rasgos)
+        _plan = decidir(_ctx)
+        _todo = decidir_todo(_ctx)
+
+        st.markdown(f"Consulta evaluada: `{_qd[:90]}`")
+
+        d1, d2, d3 = st.columns(3)
+        d1.metric("Capacidades activas", str(len(_plan.activas)))
+        d2.metric("Apagadas", str(len(_plan.apagadas)))
+        d3.metric("Compilados de Lean",
+                  str(_plan.coste[COMPILADO]),
+                  f"el nulo gasta {_todo.coste[COMPILADO]}")
+
+        def _fila(cap, corre):
+            v = _plan.veredictos.get(cap.nombre)
+            return {
+                "capacidad": cap.nombre,
+                "corre": "sí" if corre else "no",
+                "coste": cap.coste,
+                "real": ("—" if not v or v.real is None
+                         else f"{v.real:.3f}"),
+                "nulo": ("—" if not v or v.nulo is None
+                         else f"{v.nulo:.3f}"),
+                "por qué": _plan.motivos.get(cap.nombre, "")[:120],
+            }
+
+        st.markdown("#### El catálogo")
+        st.dataframe(
+            [_fila(c, True) for c in _plan.activas]
+            + [_fila(c, False) for c in _plan.apagadas],
+            width="stretch", hide_index=True)
+
+        _perd = [c for c in _plan.apagadas
+                 if (_plan.veredictos.get(c.nombre)
+                     and _plan.veredictos[c.nombre].gana is False)]
+        if _perd:
+            st.warning(
+                "**Apagadas porque se midieron peor que no hacerlas:** "
+                + ", ".join(f"`{c.nombre}`" for c in _perd)
+                + ". La más cara estaba en producción: ordenar la cascada por "
+                "área hacía falta más invocaciones de Lean que probar `simp` "
+                "y seguir por frecuencia.")
+
+    except Exception as _e:
+        st.error(f"el decisor no está disponible: {_e}")
+
+    st.divider()
+
+    # ── la fibracion ───────────────────────────────────────────────────
+    st.markdown("#### El funtor existe; la fibración no")
+    st.caption(
+        "Que π : Skills → Áreas sea funtor dice que está bien definida, no "
+        "que la base sirva: un funtor constante también cumple las dos leyes. "
+        "La condición que sí lo dice es la de **fibración**, demostrada en "
+        "`MetamathProver/CategoryFoundations/Fibracion.lean` (0 sorry)."
+    )
+    _fb = _leer_medicion("fibracion_del_grafo.json")
+    if _fb:
+        f1, f2, f3 = st.columns(3)
+        f1.metric("Pares que se levantan",
+                  f"{100 * _fb['tasa']:.1f} %",
+                  f"{_fb['levantados']} de {_fb['pares']}")
+        f2.metric("Modelo nulo", f"{100 * _fb['nulo_media']:.1f} %",
+                  "áreas barajadas")
+        f3.metric("Morfismos que cruzan de área",
+                  f"{_fb['morfismos_que_cruzan']} de "
+                  f"{_fb['morfismos_de_orden']}",
+                  f"generan {_fb['relaciones_entre_areas_por_clausura']} "
+                  "relaciones por clausura")
+        st.error(
+            "**Peor que el azar**, y la razón está medida: esos "
+            f"{_fb['morfismos_que_cruzan']} morfismos generan "
+            f"{_fb['relaciones_entre_areas_por_clausura']} relaciones entre "
+            "áreas al cerrar transitivamente. La base **afirma de más**, y el "
+            "93 % de los objetos no tiene ni un skill del área de abajo por "
+            "debajo. No falta formalización: faltan morfismos que crucen.")
+    else:
+        st.info("Corre `scripts/fibracion_del_grafo.py`.")
+
+    st.divider()
+
+    # ── el reparto sintaxis / semantica ────────────────────────────────
+    st.markdown("#### Sintaxis y semántica se reparten el trabajo")
+    _est = _leer_medicion("sintaxis_de_consulta_contra_lemas.json")
+    if _est and _est.get("estrato_sin_lexico"):
+        _c = _est.get("complementariedad", {})
+        _r = _est["estrato_sin_lexico"]["resultados"]
+        _n = _est["estrato_sin_lexico"]["n"]
+        st.caption(
+            f"En el promedio los rasgos del árbol suman +0,8 puntos sobre los "
+            f"n-gramas — poco. Pero en las **{_n} consultas donde los "
+            f"n-gramas no aciertan ni un lema**, el reparto es otro."
+        )
+        st.dataframe(
+            [{"configuración": k,
+              "cobertura": f"{v[0]:.1f} %",
+              "acierta alguno": f"{v[1]:.1f} %",
+              "precisión": f"{v[2]:.1f} %"}
+             for k, v in _r.items()],
+            width="stretch", hide_index=True)
+        if _c:
+            st.caption(
+                "Y sobre el test entero, quién acierta al menos un lema:  "
+                + " · ".join(f"**{k}** {v}" for k, v in _c.items())
+                + ".  La celda «sólo estructura» es exactamente lo que un "
+                "promedio no puede enseñar.")
+    else:
+        st.info("Corre `scripts/sintaxis_de_consulta_contra_lemas.py`.")
+
+    st.divider()
+
+    # ── el resto de mediciones con nulo ────────────────────────────────
+    st.markdown("#### Todas las mediciones con modelo nulo")
+    st.caption(
+        "Sin modelo nulo un porcentaje no dice nada: *61 % de acierto* suena "
+        "bien hasta que se sabe que responder siempre lo mismo acierta el "
+        "79 %. Todo esto se lee de `data/` al abrir la página."
+    )
+    _tabla = []
+    for _f, _et, _rr, _rn, _mej in _MEDICIONES:
+        _dd = _leer_medicion(_f)
+        if not _dd:
+            continue
+        _vr, _vn = _buscar(_dd, _rr), _buscar(_dd, _rn)
+        if _vr is None or _vn is None:
+            continue
+        _gana = _vr > _vn if _mej else _vr < _vn
+        _tabla.append({
+            "qué": _et,
+            "resultado": f"{_vr:.3f}",
+            "modelo nulo": f"{_vn:.3f}",
+            "veredicto": "aporta" if _gana else "NO bate al nulo",
+            "fichero": _f,
+        })
+    if _tabla:
+        st.dataframe(_tabla, width="stretch", hide_index=True)
+    else:
+        st.info("No se pudo leer ninguna medición de `data/`.")
