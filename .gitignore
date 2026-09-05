@@ -68,6 +68,9 @@ _nle_warmup.lean
 reporte_conectividad.txt
 docs/*.log
 data/lemas_mathlib.jsonl
+# los sustantivos se reconstruyen del fuente de Mathlib igual que los
+# hechos, y son 8,7 MB: mismo criterio, no se versiona
+data/sustantivos_mathlib.jsonl
 data/banco_lemas.jsonl
 data/grabaciones/
 data/replay.json

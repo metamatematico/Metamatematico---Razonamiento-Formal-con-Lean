@@ -49,6 +49,7 @@ DOS AVISOS QUE AFECTAN A LOS 31 COLIMITES
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from typing import Optional
 
 #: Marcas. Ver el docstring del modulo.
@@ -125,12 +126,42 @@ def nombres_de_trabajo(clave: str) -> str:
     # curados estan COMPROBADOS con `#check` uno a uno, y estos estan DEDUCIDOS
     # de la ruta del modulo. Deducir no es comprobar.
     #
-    # Asi que se quedan fuera del prompt hasta que pasen por Lean. El campo
-    # `nombres` ya esta generado y la comprobacion es una corrida; hasta
-    # entonces, estos nodos sirven para RECUPERAR —que es donde se midio que
-    # ayudan, con algebra doblando— y no para AFIRMAR.
+    # SE INTENTO CERRAR ESTO CON LOS SUSTANTIVOS LEIDOS, Y NO FUNCIONA.
+    #
+    # El hueco es real y esta medido: el grafo inyecta 169 nombres y Mathlib
+    # tiene 34 084 sustantivos —el 0,50 %— mientras la lista de hechos cubre
+    # los suyos entera. La mitad que el grafo dice aportar estaba casi vacia.
+    #
+    # `data/sustantivos_mathlib.jsonl` cierra la parte de datos y es correcta:
+    # los nombres se LEEN de la declaracion, no se deducen de la ruta, y una
+    # muestra de 200 dio 200 existentes con `#check` frente al 77,4 % de los
+    # deducidos. El dato esta bien.
+    #
+    # Lo que falla es la VIA: ofrecer aqui los sustantivos del modulo del nodo.
+    # Medido contra ProofNet A VOLUMEN IGUALADO, que es la unica comparacion
+    # que vale cuando cambia cuantos nombres se ofrecen:
+    #
+    #     volumen ~1 800-2 000   sin: 14,0 % / 17,8 %   con: 11,5 % / 16,5 %
+    #     volumen ~2 800-3 100   sin:  9,5 % / 18,9 %   con:  8,5 % / 19,1 %
+    #
+    # Pierde en precision en los dos puntos. No es dilucion: son peores
+    # nombres.
+    #
+    # Y el motivo se ve sin estadistica. El modulo de un nodo generado es un
+    # RINCON de su area, no su centro:
+    #
+    #     mathlib-analysis-real -> Hyperreal.Infinite, Real.ofDigits, ...
+    #
+    # `Real` y `Real.sqrt` viven en `Data/Real/Basic`, no en `Analysis/Real`.
+    # La clave «modulo del nodo» no lleva a los sustantivos que hacen falta.
+    #
+    # LO QUE ESTO NO ZANJA: si un indice de sustantivos consultado POR LA
+    # CONSULTA —como `premisas.py` hace con los lemas— funcionaria. Es otro
+    # mecanismo y otra medicion. La lista ya esta construida para hacerla.
     return ""
 
+
+logger = logging.getLogger(__name__)
 
 _COBERTURA: Optional[dict] = None
 
