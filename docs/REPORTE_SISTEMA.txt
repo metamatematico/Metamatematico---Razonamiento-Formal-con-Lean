@@ -1,7 +1,7 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 8694758 · 945 tests en verde
+  Estado a 2026-09-04 · commit 8694758 · 948 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
@@ -33,7 +33,7 @@ Lean no es un adorno: es la fuente de verdad. Que el modelo crea que algo es
 cierto no cuenta. Que Lean lo acepte, sí — y ni siquiera eso basta, porque Lean
 acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
 
-  Código:   32 400 líneas de Python en nucleo/ · 75 scripts · 46 suites de test
+  Código:   32 400 líneas de Python en nucleo/ · 76 scripts · 46 suites de test
   Lean:     21 archivos · 382 teoremas · 0 sorry (preguntado al compilador)
   Público:  alumnos de habla hispana
 
@@ -729,6 +729,78 @@ del traductor dejara huecos. Sobre 4 000 enunciados reales sólo expone el
 Donde la notación va entre dólares, el escudo está bien.
 
 
+--------------------------------------------------------------------------------
+8.6  DONDE LA PROSA CALLA — LO QUE EL PROMEDIO ESCONDÍA
+     scripts/sintaxis_de_consulta_contra_lemas.py (estratificado)
+     scripts/sintaxis_donde_la_prosa_calla.py
+--------------------------------------------------------------------------------
+
+§8.5 cerraba con un «+0,8 puntos, real pero pequeño». Eso es un PROMEDIO sobre
+22 117 consultas, y un promedio no puede responder a la pregunta que importa:
+en las consultas donde la prosa da poco, ¿es la NOTACIÓN la que completa el
+recorrido? Sintaxis y semántica no son dos versiones de lo mismo compitiendo
+por el mismo puesto; lo interesante está donde una calla y la otra habla.
+
+PRIMERO, ¿SE SOLAPAN O SE REPARTEN? Para cada consulta de test, ¿acertó algún
+lema el léxico? ¿y la estructura?
+
+    las dos aciertan     3 965    89,6 %
+    sólo n-gramas          196     4,4 %
+    SÓLO ESTRUCTURA         49     1,1 %   <- lo que un promedio no enseña
+    ninguna                214     4,8 %
+
+Y EL ESTRATO. Las 263 consultas (5,9 %) donde los n-gramas no aciertan NI UN
+lema — los n-gramas dan 0,0 % ahí por construcción, así se define el estrato:
+
+                       cobertura   acierta alguno   precisión
+    nulo                   3,4 %          5,3 %        0,9 %
+    ESTRUCTURA            12,9 %         18,6 %        3,4 %
+    las dos               21,1 %         31,6 %        5,6 %
+
+SEIS VECES el nulo en cobertura, y la precisión sube con ella: no es que se
+ofrezcan más nombres a ver si cuela. Ahí el complemento sintáctico SÍ completa
+el recorrido, y el +0,8 del promedio lo diluía entre el 94 % de consultas
+donde el léxico ya funciona. El decisor lo recoge como una capacidad APARTE,
+con guarda: entra sólo cuando el léxico se queda mudo.
+
+--------------------------------------------------------------------------------
+
+LA SEGUNDA MITAD, SOBRE EL GRAFO — Y AQUÍ HAY QUE MATIZAR
+
+La misma pregunta sobre el RECORRIDO: donde `_match_skills_to_query` no activa
+ni una skill, ¿da ruta la notación?
+
+    consultas mudas                    576 de 10 187      5,7 %
+    de ellas, CON notación             514                89,2 %
+    de ellas, sin notación              62                10,8 %  (nadie ayuda)
+
+En esas 514, un clasificador entrenado SÓLO con los rasgos del árbol da
+63,6 % de acierto equilibrado contra el 50 % del azar: +13,6 puntos, IC 95 %
+[+6,8, +17,9]. Pero el reparto por clase dice lo que el agregado esconde:
+
+    number-theory     17 de 18    94,4 %   <- las recupera, el léxico las perdía
+    algebra          162 de 496   32,7 %   <- manda 334 al área equivocada
+
+LA SEÑAL ES REAL: la notación distingue algo que la prosa no. EL PUNTO DE
+OPERACIÓN NO SIRVE para enrutar solo. Vale como SEGUNDA OPINIÓN donde el
+léxico calla, no como sustituto suyo, y así está cableado.
+
+DOS INSTRUMENTOS ROTOS EN EL CAMINO, los dos del mismo tipo que §12.1:
+
+  · la primera versión daba +0,0 puntos EXACTOS. Firma de degeneración: el
+    train es 93 % `algebra` y el clasificador predecía `algebra` para las 170
+    consultas mudas, sin excepción. Empatar con el nulo prediciendo lo mismo
+    que el nulo no es un resultado sobre la sintaxis. Se corrigió pesando por
+    clase e informando de acierto EQUILIBRADO.
+  · la segunda tenía 149 `algebra` contra 5 `number-theory` en el estrato: el
+    acierto equilibrado le daba a esos 5 la mitad del peso y el intervalo
+    bootstrap salía engañosamente estrecho. Se corrigió usando el test
+    entero en vez de una muestra de 3 000.
+
+Y el script imprime ahora SIEMPRE el recall por área, para que nadie vuelva a
+leer el equilibrado sin ver de cuántos casos sale.
+
+
 ================================================================================
 9. LOS DATOS
 ================================================================================
@@ -770,7 +842,7 @@ Donde la notación va entre dólares, el escudo está bien.
 11. TESTS Y GUARDIANES
 ================================================================================
 
-  945 tests en 46 suites. Los que más valen no comprueban que el código
+  948 tests en 46 suites. Los que más valen no comprueban que el código
   funcione, sino QUE NO VUELVA A MENTIR:
 
     · la dependencia del grafo tiene que ser un ORDEN (0 ciclos)
@@ -971,7 +1043,7 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
   python scripts/politica_emparejador.py --curva    a volumen igualado
   python scripts/dibujar_flujo.py                   el diagrama, desde el código
   python scripts/dibujar_grafo.py                   la figura, desde el runtime
-  python -m pytest tests/ -o "addopts="             945 tests
+  python -m pytest tests/ -o "addopts="             948 tests
 
   Repositorio:
     github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean

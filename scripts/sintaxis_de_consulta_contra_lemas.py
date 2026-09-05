@@ -167,6 +167,68 @@ def main(a) -> int:
         print("  %-26s %+6.1f  IC95 [%+.1f, %+.1f]   %s"
               % (k, obs, lo, hi, veredicto))
 
+    # ── ¿SON COMPLEMENTARIAS? El promedio no lo puede decir ────────────────
+    #
+    # «Las dos suman +0,8» es una media sobre 22 117 consultas, y una media
+    # esconde el caso que importa: aquél en que la prosa da poco y lo que
+    # cierra el recorrido es la NOTACION. Para verlo hay que partir el test
+    # por lo bien que le va al lado léxico y mirar dentro de cada mitad.
+    #
+    # Dos cortes, y los dos hacen falta:
+    #
+    #   LA TABLA 2x2 mide COMPLEMENTARIEDAD sin condicionar nada: para cada
+    #   consulta, ¿acertó algo el léxico? ¿y la estructura? La celda «sólo
+    #   estructura» es exactamente lo que un promedio no puede enseñar.
+    #
+    #   EL ESTRATO DE RESCATE mira sólo las consultas donde el léxico NO
+    #   acertó nada, y pregunta cuántas rescata la estructura y con qué
+    #   precisión. Lo primero es cobertura —lo que el léxico no alcanza—; lo
+    #   segundo es que lo que añade no sea ruido. Sin las dos mitades el
+    #   número no dice nada: rescatar mucho ofreciendo basura no es rescatar.
+    def acierta(pred):
+        return [bool(p & g) for p, g in zip(pred, oro)]
+
+    aN = acierta(guardadas["n-gramas"])
+    aE = acierta(guardadas["ESTRUCTURA"])
+
+    celdas = {
+        "las dos aciertan": sum(1 for x, y in zip(aN, aE) if x and y),
+        "solo n-gramas": sum(1 for x, y in zip(aN, aE) if x and not y),
+        "SOLO ESTRUCTURA": sum(1 for x, y in zip(aN, aE) if y and not x),
+        "ninguna": sum(1 for x, y in zip(aN, aE) if not x and not y),
+    }
+    print()
+    print("  ¿SE SOLAPAN O SE COMPLEMENTAN? (acierta al menos un lema)")
+    for k, v in celdas.items():
+        print("      %-20s %5d   %5.1f %%" % (k, v, 100 * v / n_te))
+    solo_e = celdas["SOLO ESTRUCTURA"]
+    print("      -> la estructura llega a %d consultas que el lexico no toca"
+          % solo_e)
+
+    # el estrato donde el léxico se queda corto
+    idx = [i for i in range(n_te) if not aN[i]]
+    estrato = {}
+    if idx:
+        def cob(pred):
+            num = sum(len(pred[i] & oro[i]) for i in idx)
+            den = sum(len(oro[i]) for i in idx)
+            alg = sum(1 for i in idx if pred[i] & oro[i])
+            # precisión: de los K nombres ofrecidos, cuántos hacían falta
+            prec = num / max(1, a.k * len(idx))
+            return (100 * num / max(1, den), 100 * alg / len(idx), 100 * prec)
+
+        print()
+        print("  EL ESTRATO QUE IMPORTA: las %d consultas (%.1f %%) donde los"
+              " n-gramas no aciertan NADA" % (len(idx), 100 * len(idx) / n_te))
+        print("      %-14s %10s %14s %12s" % ("", "cobertura", "acierta alguno",
+                                              "precision"))
+        for k in ("nulo", "ESTRUCTURA", "las dos"):
+            c, al, pr = cob(guardadas[k])
+            estrato[k] = [round(c, 2), round(al, 2), round(pr, 2)]
+            print("      %-14s %8.1f %% %12.1f %% %10.1f %%" % (k, c, al, pr))
+        print("      (los n-gramas dan 0,0 % por construccion:"
+              " asi se define el estrato)")
+
     pathlib.Path(a.salida).write_text(json.dumps({
         "consultas": len(filas), "lemas_aprendibles": len(aprendibles),
         "k": a.k, "minimo_ejemplos": a.minimo,
@@ -176,6 +238,8 @@ def main(a) -> int:
                        for k, v in res.items()},
         "ic95_diferencias": intervalos,
         "remuestreos": a.remuestreos,
+        "complementariedad": celdas,
+        "estrato_sin_lexico": {"n": len(idx), "resultados": estrato},
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print("\nescrito -> %s" % a.salida)
     return 0

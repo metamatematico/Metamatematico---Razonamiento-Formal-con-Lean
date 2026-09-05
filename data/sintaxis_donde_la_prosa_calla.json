@@ -1,0 +1,99 @@
+{
+  "test": 10187,
+  "train": 20000,
+  "semilla": 20260901,
+  "mudas": 576,
+  "con_ruta": 9611,
+  "mudas_con_notacion": 514,
+  "area_mas_frecuente": "algebra",
+  "resultados": {
+    "mudas": {
+      "n": 576,
+      "sintaxis": 36.63,
+      "nulo": 91.32,
+      "equilibrado": 75.18,
+      "nulo_equilibrado": 33.33,
+      "clases_predichas": 3,
+      "recall_por_area": {
+        "algebra": [
+          162,
+          526
+        ],
+        "geometry": [
+          31,
+          31
+        ],
+        "number-theory": [
+          18,
+          19
+        ]
+      },
+      "ventaja": 41.85
+    },
+    "mudas_con_notacion": {
+      "n": 514,
+      "sintaxis": 34.82,
+      "nulo": 96.5,
+      "equilibrado": 63.55,
+      "nulo_equilibrado": 50.0,
+      "clases_predichas": 3,
+      "recall_por_area": {
+        "algebra": [
+          162,
+          496
+        ],
+        "number-theory": [
+          17,
+          18
+        ]
+      },
+      "ventaja": 13.55
+    },
+    "mudas_sin_notacion": {
+      "n": 62,
+      "sintaxis": 51.61,
+      "nulo": 48.39,
+      "equilibrado": 66.67,
+      "nulo_equilibrado": 33.33,
+      "clases_predichas": 2,
+      "recall_por_area": {
+        "algebra": [
+          0,
+          30
+        ],
+        "geometry": [
+          31,
+          31
+        ],
+        "number-theory": [
+          1,
+          1
+        ]
+      },
+      "ventaja": 33.33
+    },
+    "con_ruta": {
+      "n": 9611,
+      "sintaxis": 38.63,
+      "nulo": 88.13,
+      "equilibrado": 59.8,
+      "nulo_equilibrado": 33.33,
+      "clases_predichas": 3,
+      "recall_por_area": {
+        "algebra": [
+          2876,
+          8470
+        ],
+        "geometry": [
+          339,
+          529
+        ],
+        "number-theory": [
+          498,
+          612
+        ]
+      },
+      "ventaja": 26.47
+    }
+  }
+}

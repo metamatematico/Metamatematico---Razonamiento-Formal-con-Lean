@@ -37,5 +37,31 @@
       1.33
     ]
   },
-  "remuestreos": 2000
+  "remuestreos": 2000,
+  "complementariedad": {
+    "las dos aciertan": 3965,
+    "solo n-gramas": 196,
+    "SOLO ESTRUCTURA": 49,
+    "ninguna": 214
+  },
+  "estrato_sin_lexico": {
+    "n": 263,
+    "resultados": {
+      "nulo": [
+        3.36,
+        5.32,
+        0.89
+      ],
+      "ESTRUCTURA": [
+        12.95,
+        18.63,
+        3.42
+      ],
+      "las dos": [
+        21.1,
+        31.56,
+        5.58
+      ]
+    }
+  }
 }

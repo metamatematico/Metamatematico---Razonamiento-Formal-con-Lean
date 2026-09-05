@@ -171,3 +171,22 @@ def test_core_consulta_al_decisor():
     fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
     assert "from nucleo.decisor import" in fuente
     assert '"orden_de_cascada_por_area" in _corre' in fuente
+
+
+def test_la_guarda_del_estrato_parte_el_promedio():
+    """Los rasgos del árbol suman +0,8 puntos en PROMEDIO —poco— pero en el
+    estrato donde los n-gramas no aciertan ni un lema cubren el 12,9 % contra
+    el 3,4 % del nulo. Son dos capacidades, no una: sintaxis y semántica no
+    compiten por el mismo puesto, se reparten el trabajo.
+
+    Si esta guarda desaparece, la segunda correría siempre y el número que la
+    justifica dejaría de aplicar: está medido en un estrato, no en el todo.
+    """
+    n = "rasgos_de_sintaxis_cuando_el_lexico_calla"
+    con_ruta = decidir(Contexto(rasgos={"sin_notacion": 0}, lexico_mudo=False))
+    mudo = decidir(Contexto(rasgos={"sin_notacion": 0}, lexico_mudo=True))
+    assert n not in [c.nombre for c in con_ruta.activas]
+    assert n in [c.nombre for c in mudo.activas]
+    # y sin notación no entra ni aunque el léxico calle: no habría de qué hablar
+    sin_notacion = decidir(Contexto(rasgos={"sin_notacion": 1}, lexico_mudo=True))
+    assert n not in [c.nombre for c in sin_notacion.activas]

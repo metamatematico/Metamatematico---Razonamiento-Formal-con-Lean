@@ -41,6 +41,18 @@ midió `scripts/modelo_en_la_cascada.py` justo porque la medición anterior
 —`efecto_orden_cascada.py`— comparaba dos reglas entre sí y ninguna contra el
 suelo. Comparar dos versiones de la misma idea no es una medición.
 
+UNA GUARDA NO ES UN ADORNO: PARTE EL PROMEDIO
+---------------------------------------------
+La condición 1 hace más trabajo del que parece. Los rasgos del árbol de la
+consulta suman +0,8 puntos sobre los n-gramas EN PROMEDIO — poco. Pero en el
+5,9 % de consultas donde los n-gramas no aciertan ni un lema, la estructura
+sola cubre el 12,9 % contra el 3,4 % del nulo. El promedio diluía eso entre el
+94 % de casos donde el léxico ya funciona.
+
+Por eso hay DOS capacidades de sintaxis y no una: la de siempre, justificada
+por el promedio, y la que sólo entra cuando el léxico calla, justificada por
+el estrato. Sintaxis y semántica no compiten por el mismo puesto.
+
 EL MODELO NULO DEL PROPIO DECISOR
 ---------------------------------
 Es «ejecutarlo todo», y está implementado en `decidir_todo()`. Sin él, decir
@@ -127,6 +139,13 @@ class Contexto:
     area: str = ""
     #: los rasgos de `nucleo.sintaxis.revisar`, si se calcularon
     rasgos: dict = field(default_factory=dict)
+    #: ¿el emparejador léxico no encontró NADA para esta consulta?
+    #:
+    #: Es el corte que separa las dos capacidades de sintaxis: en el promedio
+    #: los rasgos del árbol suman poco, pero en el estrato donde el léxico
+    #: calla suman mucho. Una guarda que mira este campo es lo que permite
+    #: encender la segunda sin encender la primera de más.
+    lexico_mudo: bool = False
     hay_lean: bool = True
     hay_modelo: bool = True
 
@@ -152,6 +171,10 @@ class Decision:
 # ═══════════════════════════════════════════════════════════════════════════
 def _tiene_notacion(ctx: Contexto) -> bool:
     return not ctx.rasgos.get("sin_notacion", 1)
+
+
+def _lexico_mudo_y_hay_notacion(ctx: Contexto) -> bool:
+    return ctx.lexico_mudo and _tiene_notacion(ctx)
 
 
 CAPACIDADES: list[Capacidad] = [
@@ -180,6 +203,27 @@ CAPACIDADES: list[Capacidad] = [
             ruta_real=("resultados", "las dos", 0),
             ruta_nulo=("resultados", "n-gramas", 0),
             contra="los n-gramas solos, que es lo que ya había"),
+    ),
+    Capacidad(
+        nombre="rasgos_de_sintaxis_cuando_el_lexico_calla",
+        que_hace="ofrece lemas a partir del arbol SOLO en las consultas donde"
+                 " el emparejador lexico no encuentra nada",
+        coste=LOCAL,
+        donde="nucleo/sintaxis/rasgos.py",
+        guarda=_lexico_mudo_y_hay_notacion,
+        # POR QUE ESTA CAPACIDAD EXISTE APARTE DE LA DE ARRIBA. En el
+        # PROMEDIO los rasgos del arbol suman +0,8 puntos sobre los n-gramas,
+        # que es real pero poco. Ese promedio esconde el reparto: en el 5,9 %
+        # de consultas donde los n-gramas no aciertan NI UN lema, la
+        # estructura sola cubre el 12,9 % contra el 3,4 % del nulo, y las dos
+        # juntas el 21,1 %. Sintaxis y semantica no compiten por el mismo
+        # puesto: se reparten el trabajo, y el reparto solo se ve estratificando.
+        evidencia=Evidencia(
+            fichero="sintaxis_de_consulta_contra_lemas.json",
+            metrica="cobertura donde el lexico no acierta nada (%)",
+            ruta_real=("estrato_sin_lexico", "resultados", "ESTRUCTURA", 0),
+            ruta_nulo=("estrato_sin_lexico", "resultados", "nulo", 0),
+            contra="los lemas mas frecuentes, en ese mismo estrato"),
     ),
     Capacidad(
         nombre="reconocedor_de_area",
