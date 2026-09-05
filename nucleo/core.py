@@ -1093,7 +1093,10 @@ class Nucleo:
                 "[Señala qué hace que la prueba sea correcta y completa.]\n"
             )
         )
-        llm_response = await self._llm.generate(explain_prompt, system=lean_system, context=context)
+        # Explicar, no formalizar: va el prompt del alumno.
+        llm_response = await self._llm.generate(
+            explain_prompt, system=LLMClient.EXPLICACION_SYSTEM_PROMPT,
+            context=context)
 
         # Ensamblar: explicación LLM → código limpio → estado de verificación
         content = (
@@ -1753,14 +1756,14 @@ class Nucleo:
         q_norm = self._normalize_text(input_text)
         _ref = _mathlib_ref_for(q_norm)
         extra_ref = (
-            f"\nReferencia de Mathlib para este tema:\n```lean\n{_ref}\n```\n"
+            f"\nMathlib reference for this topic:\n```lean\n{_ref}\n```\n"
             if _ref else ""
         )
 
         # Detectar si el usuario solo quiere el enunciado (no la prueba)
         _enunciar = any(w in q_norm for w in ("enuncia", "enunciar", "enunciado", "que dice", "que establece", "que afirma"))
         _solo_enunciar_hint = (
-            "- El usuario solo pide ENUNCIAR (no demostrar). Escribe ÚNICAMENTE el `theorem` con `sorry` en el cuerpo, sin intentar dar una prueba.\n"
+            "- The user only asks to STATE it, not to prove it. Write ONLY the `theorem` with `sorry` as the body; do not attempt a proof.\n"
             if _enunciar else ""
         )
 
@@ -1769,57 +1772,63 @@ class Nucleo:
             # Queries "qué es X" → Lean muestra la definición/tipo que ya existe
             # en Mathlib. El LLM NO inventa; Lean confirma que el tipo existe.
             formalize_prompt = (
-                "Tu única tarea es escribir UN SOLO bloque de código Lean 4 que "
-                "formalice la DEFINICIÓN o muestre el concepto en Mathlib.\n\n"
-                f"Consulta: {input_text}\n\n"
-                + (f"Referencias de Mathlib para este tema:\n```lean\n{extra_ref}\n```\n\n"
+                "Your only task is to write ONE Lean 4 code block that "
+                "formalizes the DEFINITION or shows the concept in Mathlib.\n\n"
+                f"Query: {input_text}\n\n"
+                + (f"Mathlib references for this topic:\n```lean\n{extra_ref}\n```\n\n"
                    if extra_ref else "")
-                + "Instrucciones OBLIGATORIAS:\n"
-                "- Si el concepto existe en Mathlib, usa `#check NombreDelConcepto`.\n"
-                "- Si es una estructura o clase, escribe la `structure`/`class` con sus campos.\n"
-                "- Incluye los imports necesarios de Mathlib.\n"
-                "- Para definiciones con propiedades universales, muestra la firma de la función\n"
-                "  evaluación o la adjunción, con los tipos correctos.\n"
-                "- NO intentes demostrar ningún teorema — solo formaliza la definición.\n"
-                "- Usa `sorry` solo si necesitas un término auxiliar desconocido.\n"
-                "- SOLO el bloque Lean 4, nada más.\n"
-                "- CRITICAL: verifica que los tipos sean consistentes. Ejemplo correcto:\n"
-                "  eval : B^A × A → B  (el exponencial es B^A, NO C^A ni ningún otro)."
+                + "MANDATORY instructions:\n"
+                "- If the concept exists in Mathlib, use `#check ConceptName`.\n"
+                "- If it is a structure or a class, write the `structure`/`class` with its fields.\n"
+                "- Include the required Mathlib imports.\n"
+                "- For definitions with universal properties, show the signature of the\n"
+                "  evaluation map or the adjunction, with the correct types.\n"
+                "- Do NOT try to prove any theorem — only formalize the definition.\n"
+                "- Use `sorry` only if you need an unknown auxiliary term.\n"
+                "- Output ONLY the Lean 4 block, nothing else.\n"
+                "- CRITICAL: check that the types are consistent. Correct example:\n"
+                "  eval : B^A × A → B  (the exponential is B^A, NOT C^A nor any other)."
             )
         else:
             # Queries de prueba → formalización estándar
             formalize_prompt = (
-                "Tu única tarea es escribir UN SOLO bloque de código Lean 4 (no varios) que formalice "
-                "el siguiente enunciado o pregunta matemática.\n\n"
-                f"Enunciado: {input_text}\n\n"
+                "Your only task is to write ONE Lean 4 code block (not several) "
+                "formalizing the following mathematical statement or question.\n\n"
+                f"Statement: {input_text}\n\n"
                 + extra_ref
                 + (
-                    f"Ejemplos de referencia en Lean 4 (LeanWorkbook, pruebas reales):\n"
+                    f"Reference examples in Lean 4 (LeanWorkbook, real proofs):\n"
                     f"{few_shot_block}\n\n"
                     if few_shot_block else ""
                 )
-                + "Instrucciones OBLIGATORIAS:\n"
-                "- Escribe SOLO UN bloque de código Lean 4. Nada más.\n"
-                "- El código debe ser autocontenido (con los imports necesarios).\n"
-                "- Si es una afirmación, escríbela como `theorem` o `lemma`.\n"
-                "- Si no sabes la prueba completa, usa `sorry` como marcador.\n"
+                + "MANDATORY instructions:\n"
+                "- Write ONLY ONE Lean 4 code block. Nothing else.\n"
+                "- The code must be self-contained (with the required imports).\n"
+                "- If it is a claim, write it as a `theorem` or `lemma`.\n"
+                "- If you do not know the full proof, use `sorry` as a placeholder.\n"
                 + _solo_enunciar_hint
-                + "- PROHIBIDO: tomar la afirmación principal como hipótesis y concluirla trivialmente.\n"
-                "  EJEMPLO PROHIBIDO: `(h : a^2+b^2=c^2) : c^2=a^2+b^2 := h.symm` — tautología.\n"
-                + (("Nombres de Mathlib VERIFICADOS para esta consulta "
-                    "(existen; comprobados con #check):\n"
+                + "- FORBIDDEN: taking the main claim as a hypothesis and concluding it trivially.\n"
+                "  FORBIDDEN EXAMPLE: `(h : a^2+b^2=c^2) : c^2=a^2+b^2 := h.symm` — a tautology.\n"
+                "- FORBIDDEN: a statement whose conclusion is `True`. It compiles and proves\n"
+                "  nothing; the pipeline rejects it as `vacuo`.\n"
+                "- Universes: do NOT write `Type _` inside the statement. The `_` becomes a\n"
+                "  fresh universe variable, fixed when the statement is elaborated, and no\n"
+                "  proof term can then match it against the ambient variables' universes.\n"
+                + (("VERIFIED Mathlib names for this query "
+                    "(they exist; checked with #check):\n"
                     + "\n".join("  %s: %s" % (k, v)
                                  for k, v in context["mathlib_verificado"].items())
-                    + "\nUsa estos cuando encajen. Si necesitas otro que no esté "
-                      "aquí, escríbelo igualmente, pero sé consciente de que no "
-                      "está comprobado.\n\n")
+                    + "\nUse these where they fit. If you need another one that is "
+                      "not listed here, write it anyway, but be aware that it has "
+                      "not been checked.\n\n")
                    if isinstance(context, dict) and context.get("mathlib_verificado")
                    else "")
-                + "- PROHIBIDO: generar múltiples versiones del mismo resultado.\n"
-                "- Si el enunciado que se te pide es FALSO, NO lo demuestres: formaliza su NEGACIÓN\n"
-                "  y abre el bloque con la línea `-- REFUTACION: <por qué el enunciado es falso>`.\n"
-                "- Usa los tipos y teoremas de Mathlib apropiados.\n"
-                "- No pongas explicaciones fuera del bloque de código."
+                + "- FORBIDDEN: producing several versions of the same result.\n"
+                "- If the statement you are given is FALSE, do NOT prove it: formalize its\n"
+                "  NEGATION and open the block with the line\n"
+                "  `-- REFUTATION: <why the statement is false>`.\n"
+                "- Use the appropriate Mathlib types and theorems.\n"
+                "- Do not put explanations outside the code block."
             )
         lean_gen = await self._llm.generate(
             formalize_prompt, system=lean_system, context=context
@@ -1872,15 +1881,22 @@ class Nucleo:
 
         # ── ¿Lean va a verificar la NEGACIÓN de lo preguntado? ────────────
         def _es_refutacion(code: str) -> bool:
-            """El formalizador marca con `-- REFUTACION:` los enunciados falsos.
+            """El formalizador marca los enunciados falsos con un comentario.
 
             Es un canal explicito para algo que el modelo ya hacia por su
             cuenta —escribir en un comentario que el enunciado propuesto era
             falso— y que el pipeline no leia: veia SUCCESS y estampaba la
             insignia de verificado sobre una respuesta a otra pregunta.
+
+            SE ACEPTAN LAS DOS GRAFIAS. El prompt pide ahora `REFUTATION` en
+            ingles —lo que va al elaborador va en ingles— pero el marcador
+            castellano tiene que seguir valiendo: hay codigo grabado con el, y
+            un detector que dejara de reconocerlo devolveria en silencio el
+            fallo que este canal existe para evitar.
             """
             import re
-            return bool(re.search(r"REFUTACI[OÓ]N\s*:", code, re.I))
+            return bool(re.search(r"REFUTATION\s*:|REFUTACI[OÓ]N\s*:",
+                                  code, re.I))
 
         # ── Detección de formalización trivial → regenerar ─────────────────
         def _is_trivial_lean(code: str) -> bool:
@@ -1937,14 +1953,14 @@ class Nucleo:
             # defecto y devolver el problema al enunciado original.
             retry_prompt = (
                 f"{formalize_prompt}\n\n"
-                "ATENCIÓN: tu respuesta anterior era una TAUTOLOGÍA — tomaba la "
-                "afirmación como hipótesis y la devolvía como prueba, así que no "
-                "demuestra nada.\n"
-                "Formaliza el enunciado ORIGINAL tal cual: el teorema debe decir "
-                "lo que la pregunta pide, sin hipótesis que ya contengan la "
-                "conclusión. No cambies de tema ni lo traduzcas a otra rama de "
-                "las matemáticas. Si no sabes la prueba, escribe el enunciado "
-                "correcto y cierra con `sorry`."
+                "WARNING: your previous answer was a TAUTOLOGY — it took the "
+                "claim as a hypothesis and returned it as the proof, so it "
+                "proves nothing.\n"
+                "Formalize the ORIGINAL statement as it stands: the theorem must "
+                "say what the question asks, with no hypothesis that already "
+                "contains the conclusion. Do not change the subject nor move it "
+                "to another branch of mathematics. If you do not know the proof, "
+                "write the correct statement and close with `sorry`."
             )
             lean_gen2 = await self._llm.generate(
                 retry_prompt, system=lean_system, context=context
@@ -2218,9 +2234,13 @@ class Nucleo:
         if isinstance(self._llm._get_client(), _DemoClientPipe):
             _translation_text = verification_note
         else:
+            # EL PROMPT DEL ALUMNO, NO EL DE LEAN. Este paso es el opuesto
+            # al de formalizar: aqui manda el idioma del usuario. Usaba el
+            # mismo `lean_system`, que ahora esta en ingles y dice «output
+            # Lean code only» — justo lo contrario de lo que toca aqui.
             translation = await self._llm.generate(
-                translate_prompt, system=lean_system, context=context
-            , sin_historial=True)
+                translate_prompt, system=LLMClient.EXPLICACION_SYSTEM_PROMPT,
+                context=context, sin_historial=True)
             _translation_text = (
                 translation.content
                 if "Modo demo activo" not in translation.content
@@ -2833,18 +2853,23 @@ class Nucleo:
             revise_prompt = (
                 f"{formalize_prompt}\n\n"
                 "─────────────────────────────────────────────\n"
-                f"INTENTO {ronda}: Lean 4 RECHAZÓ tu código anterior.\n\n"
-                "Código que enviaste:\n"
+                f"ATTEMPT {ronda}: Lean 4 REJECTED your previous code.\n\n"
+                "Code you sent:\n"
                 f"```lean\n{mejor_code}\n```\n\n"
-                "Errores exactos que devolvió Lean:\n"
+                "Exact errors Lean returned:\n"
                 f"{bloque_errores}\n\n"
-                f"Diagnóstico: {pista}\n\n"
-                "Corrígelo. Instrucciones:\n"
-                "- Arregla EXACTAMENTE los errores listados; no reescribas lo que ya funcionaba.\n"
-                "- Si un lema no existe con ese nombre, usa otro de Mathlib o deja `sorry`.\n"
-                "- `sorry` es preferible a un lema inventado: un `sorry` se detecta, "
-                "un nombre falso hace fallar todo el archivo.\n"
-                "- Devuelve SOLO el bloque Lean 4 corregido, completo y autocontenido."
+                f"Diagnosis: {pista}\n\n"
+                "Fix it. Instructions:\n"
+                "- Fix EXACTLY the listed errors; do not rewrite what already worked.\n"
+                "- If a lemma does not exist under that name, use another Mathlib one or "
+                "leave `sorry`.\n"
+                "- `sorry` is preferable to an invented lemma: a `sorry` is detected, "
+                "a false name makes the whole file fail.\n"
+                "- If the error mentions an unknown identifier, the usual cause is a missing "
+                "namespace: `Basis` is `Module.Basis`. Qualify it or `open` the namespace.\n"
+                "- If the error is a universe mismatch, do not patch the proof: fix the "
+                "STATEMENT, replacing `Type _` with the ambient universe.\n"
+                "- Return ONLY the corrected Lean 4 block, complete and self-contained."
             )
 
             try:

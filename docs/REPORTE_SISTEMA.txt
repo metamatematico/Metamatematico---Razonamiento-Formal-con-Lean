@@ -1,7 +1,7 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 8694758 · 985 tests en verde
+  Estado a 2026-09-04 · commit 8694758 · 993 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
@@ -33,7 +33,7 @@ Lean no es un adorno: es la fuente de verdad. Que el modelo crea que algo es
 cierto no cuenta. Que Lean lo acepte, sí — y ni siquiera eso basta, porque Lean
 acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
 
-  Código:   32 400 líneas de Python en nucleo/ · 76 scripts · 49 suites de test
+  Código:   32 400 líneas de Python en nucleo/ · 76 scripts · 50 suites de test
   Lean:     21 archivos · 382 teoremas · 0 sorry (preguntado al compilador)
   Público:  alumnos de habla hispana
 
@@ -858,7 +858,7 @@ leer el equilibrado sin ver de cuántos casos sale.
 11. TESTS Y GUARDIANES
 ================================================================================
 
-  985 tests en 49 suites. Los que más valen no comprueban que el código
+  993 tests en 50 suites. Los que más valen no comprueban que el código
   funcione, sino QUE NO VUELVA A MENTIR:
 
     · la dependencia del grafo tiene que ser un ORDEN (0 ciclos)
@@ -1059,7 +1059,7 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
   python scripts/politica_emparejador.py --curva    a volumen igualado
   python scripts/dibujar_flujo.py                   el diagrama, desde el código
   python scripts/dibujar_grafo.py                   la figura, desde el runtime
-  python -m pytest tests/ -o "addopts="             985 tests
+  python -m pytest tests/ -o "addopts="             993 tests
 
   Repositorio:
     github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean

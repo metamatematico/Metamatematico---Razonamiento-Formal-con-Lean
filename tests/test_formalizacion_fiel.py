@@ -124,9 +124,12 @@ class TestElReintentoNoCambiaDeTema:
             )
 
     def test_el_reintento_manda_volver_al_enunciado(self):
+        """EL PROMPT ESTA EN INGLES, y a proposito: lo que va al elaborador va
+        en el idioma que Lean y Mathlib hablan. Lo que va al ALUMNO sigue en
+        castellano, y de eso se ocupa `EXPLICACION_SYSTEM_PROMPT`."""
         retry = self._prompt_del_reintento()
         assert "ORIGINAL" in retry
-        assert "No cambies de tema" in retry
+        assert "Do not change the subject" in retry
 
 
 # ---------------------------------------------------------------------------
