@@ -1,7 +1,7 @@
 ================================================================================
   METAMATEMÁTICO / NLE v7.0 — REPORTE COMPLETO DEL SISTEMA
   Leonardo Jiménez Martínez (UNAM)
-  Estado a 2026-09-04 · commit 4e96dd3 · 859 tests en verde
+  Estado a 2026-09-04 · commit 8694758 · 863 tests en verde
 ================================================================================
 
 Este reporte describe lo que el sistema HACE, no lo que pretende hacer. Cada
@@ -33,7 +33,7 @@ Lean no es un adorno: es la fuente de verdad. Que el modelo crea que algo es
 cierto no cuenta. Que Lean lo acepte, sí — y ni siquiera eso basta, porque Lean
 acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
 
-  Código:   32 400 líneas de Python en nucleo/ · 69 scripts · 42 suites de test
+  Código:   32 400 líneas de Python en nucleo/ · 69 scripts · 43 suites de test
   Lean:     21 archivos · 382 teoremas · 0 sorry (preguntado al compilador)
   Público:  alumnos de habla hispana
 
@@ -59,6 +59,7 @@ acepta archivos que no demuestran nada, y el sistema tiene que detectarlo.
             |   si sale una tautología, se rehace una vez           |
             v                                                       |
     3 · EL GRAFO ELIGE QUÉ MÓDULOS VE LEAN      INERTE              |
+            |   REUSA el `context` del paso 1 — no consulta aparte  |
             |   descarta `import Mathlib` (742 s, más que el límite)|
             v                                                       |
     4 · LEAN VERIFICA                                               |
@@ -86,6 +87,19 @@ por otro peor.
 
 Las fronteras no llevan número a propósito: los seis pasos numerados son lo que
 el sistema hace con la consulta; las fronteras son sus bordes.
+
+Y LOS TRES PUNTOS DEL GRAFO NO SON INDEPENDIENTES. El paso 3 no consulta el
+grafo por su cuenta: reusa el `context` que produjo el paso 1 —`core.py:1858`
+pasa `_modulos_mathlib(context)`, y ese `context` sale de
+`_find_relevant_context`—. Se venían describiendo como tres actuaciones
+separadas y son dos: si el emparejamiento del paso 1 falla, el 3 hereda el
+fallo sin forma de recuperarse. El paso 5 sí es independiente: recibe el grafo
+por su propia vía.
+
+La medición del paso 3 SÍ reproduce el camino real, comprobado:
+`_modulos_mathlib` sólo mira las cuatro primeras skills, y el runtime le pasa
+cinco mientras el medidor le pasa diez — las cuatro primeras coinciden. El
+instrumento está bien; lo que estaba mal era el dibujo.
 
 
 --------------------------------------------------------------------------------
@@ -176,6 +190,8 @@ explícitamente.
     estructura          categórica: colímites,   plana, indexada
                         orden, pilares
     en el flujo         pasos 1, 3 y 5           alimenta el índice de premisas
+                        (el 3 reusa el 1)        (se alcanza por classify_query,
+                                                  NO por el grafo)
 
 POR QUÉ HACEN FALTA LAS DOS. Medido: de los nombres que el grafo inyecta hoy,
 3 son teoremas o lemas y 166 son tipos, estructuras y clases. El grafo da los
@@ -185,6 +201,25 @@ Y ahí no es donde el modelo falla. De los 28 nombres que propuso de memoria, lo
 21 inexistentes eran TODOS lemas — `tsum_geometric_two`, `Subgroup.isCyclic`,
 `isOpen_union`. El modelo acierta razonablemente los sustantivos e inventa los
 hechos. La lista existe para cubrir esa mitad.
+
+PERO LAS DOS CAPAS NO SE HABLAN, y conviene decirlo porque el dibujo sugería lo
+contrario. Medido: `nucleo/lean/premisas.py` tiene CERO menciones del grafo. Su
+único parámetro de contexto es un nombre de área, y ese nombre no sale del
+grafo: viene de `classify_query()`, un clasificador de palabras clave que vive
+en `multi_agent/` y no lo toca en ningún punto.
+
+    consulta -> classify_query() -> nombre de área -> premisas_para(...) -> lista
+
+Y TENDER ESE CABLE AL GRAFO LO EMPEORARÍA. La tentación es obvia —si el grafo
+ya sabe de áreas, que se la dé él— y está medida sobre 3 000 consultas:
+
+    área correcta
+       classify_query  (el puente de hoy)   61,2 %
+       1ª skill del grafo                   47,3 %
+
+El puente actual gana por catorce puntos. Conectar la lista al grafo no es
+trabajo pendiente: sería cambiar el clasificador bueno por el malo. Lo que
+falta no es el cable, es un motivo medido para tenderlo.
 
 
 ================================================================================
@@ -564,7 +599,7 @@ tácticas de la cascada.
 11. TESTS Y GUARDIANES
 ================================================================================
 
-  859 tests en 42 suites. Los que más valen no comprueban que el código
+  863 tests en 43 suites. Los que más valen no comprueban que el código
   funcione, sino QUE NO VUELVA A MENTIR:
 
     · la dependencia del grafo tiene que ser un ORDEN (0 ciclos)
@@ -575,6 +610,12 @@ tácticas de la cascada.
     · ningún elemento de un SVG puede depender del <style> para tener color
     · la cifra de tests publicada se compara con `request.session.items`, es
       decir con lo que pytest ACABA de recolectar
+    · el paso 3 tiene que seguir consumiendo el `context` del paso 1, y los
+      cortes de `_modulos_mathlib` y `_find_relevant_context` tienen que
+      seguir solapando: si dejan de hacerlo, el medidor del paso 3 y el
+      runtime miden cosas distintas EN SILENCIO
+    · `premisas.py` no puede empezar a mirar el grafo sin volver a medir:
+      hoy `classify_query` gana 61,2 % contra el 47,3 % de la 1ª skill
     · todo nodo del grafo tiene `sort`, y lo que no es matemática —tácticas,
       estrategias— NO puede tener área: `area=None` ahí es una respuesta
     · el codominio del funtor sobre la base de áreas no admite objetos que no
@@ -759,7 +800,7 @@ LO QUE NO SE PUEDE COMPROBAR SIN API
   python scripts/politica_emparejador.py --curva    a volumen igualado
   python scripts/dibujar_flujo.py                   el diagrama, desde el código
   python scripts/dibujar_grafo.py                   la figura, desde el runtime
-  python -m pytest tests/ -o "addopts="             859 tests
+  python -m pytest tests/ -o "addopts="             863 tests
 
   Repositorio:
     github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean

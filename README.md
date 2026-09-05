@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-859_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-863_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -114,12 +114,23 @@ que él escribió.
 | **cómo se hizo** | 173 a mano + 125 generados | extraída del fuente, entera |
 | **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
 | **estructura** | categórica: colímites, orden, pilares | plana, indexada |
-| **en el flujo** | pasos 1, 3 y 5 | alimenta el índice de premisas |
+| **en el flujo** | pasos 1, 3 y 5 — *el 3 reusa el emparejamiento del 1* | alimenta el índice de premisas, y se alcanza por `classify_query`, **no** por el grafo |
 
-**El puente ya existía.** Cada hecho de la lista lleva su `concepto`
-—`Algebra.Order`, `Data.Set`— y ésos son exactamente los identificadores de los
-125 nodos generados. No hubo que inventar la correspondencia: estaba en la ruta
-del módulo.
+**El puente existe en los datos, pero no está tendido en el código.** Cada
+hecho de la lista lleva su `concepto` —`Algebra.Order`, `Data.Set`— y ésos son
+exactamente los identificadores de los 125 nodos generados. La correspondencia
+no hay que inventarla: está en la ruta del módulo.
+
+Pero en el runtime **las dos capas no se hablan**. Medido: `nucleo/lean/premisas.py`
+tiene *cero* menciones del grafo. Su único parámetro de contexto es un nombre de
+área, y ese nombre sale de `classify_query()` — un clasificador de palabras clave
+que no toca el grafo en ningún punto.
+
+Y **tenderlo al grafo lo empeoraría**, que es la parte que no era obvia. Medido
+sobre 3 000 consultas: `classify_query` acierta el área en el **61,2 %** de los
+casos y la primera skill del grafo en el **47,3 %**. Conectar la lista al grafo
+no es trabajo pendiente — sería cambiar el clasificador bueno por el malo. Lo
+que falta no es el cable, es un motivo medido para tenderlo.
 
 ### Por qué hacen falta las dos
 
@@ -454,7 +465,7 @@ que tienen al menos 30 ejemplos.
 
 ## 7. Tests y guardianes
 
-**859 tests en 42 suites.** Los que más valen no comprueban que el código
+**863 tests en 43 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -574,7 +585,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    859 tests en 42 suites
+tests/                    863 tests en 43 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 
@@ -590,8 +601,13 @@ efecto techo, no concluyente.
 
 **Identificado y sin arreglar.**
 
-- El emparejamiento consulta→concepto. **15 de 24 consultas reales no activan
-  ninguna skill**, y los tres puntos donde el grafo actúa dependen de él.
+- ~~El emparejamiento consulta→concepto: 15 de 24 consultas reales no activan
+  ninguna skill.~~ **Arreglado** — el silencio pasó del 27,1 % al 5,8 % sobre
+  3 000 consultas. Lo que queda: no hay lematización, así que `primos` sigue sin
+  casar con `primo`.
+- **Los pasos 1 y 3 no son independientes.** El 3 reusa el `context` del 1
+  (`core.py:1858`), así que si el emparejamiento falla, el 3 hereda el fallo. Se
+  venían describiendo como tres actuaciones separadas y son dos más una.
 - Las tácticas como nodos: 453 aristas entrando en 9 sumideros.
 - Los nombres de los 125 nodos generados están *deducidos* de la ruta del
   módulo, no comprobados con `#check`. Por eso no se inyectan: al activarlos la
