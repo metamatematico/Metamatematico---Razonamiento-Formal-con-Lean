@@ -1584,11 +1584,43 @@ class Nucleo:
         # El join-envoltorio del área detectada provee la táctica de entrada
         # al SolverCascade (paper §3.5, Principio 3.1).
         _area = classify_query(input_text)
-        # El ORDEN medido del area (ver CATEGORY_TACTIC_ORDER), no un nombre:
-        # la cascada consume una secuencia, y `simp` gana en las once areas
-        # medidas, asi que lo que distingue un area de otra esta en la cola.
-        _domain_order = domain_tactic_order(_area)
-        _domain_tactic = domain_default_tactic(_area)
+
+        # ── EL DECISOR: qué capacidades corren para esta consulta ────────────
+        #
+        # No es una preferencia: lee el veredicto de los ficheros de medición
+        # y apaga lo que NO bate a su modelo nulo. Ver `nucleo/decisor.py`.
+        #
+        # Lo que apaga aquí es el ORDEN DE CASCADA POR ÁREA, y con su número:
+        #
+        #     la regla que había     posición media de la táctica que cierra  1,262
+        #     el nulo (simp primero)                                          1,091
+        #
+        # O sea que ordenar por área hacía falta MÁS invocaciones de Lean que
+        # probar `simp` y seguir por frecuencia. Lo midió
+        # `scripts/modelo_en_la_cascada.py`, que existe justamente porque la
+        # medición anterior —`efecto_orden_cascada.py`, con su «2,4× de
+        # mejora»— comparaba dos reglas entre sí y ninguna contra el suelo.
+        #
+        # Quien manda entonces son los patrones del objetivo y el TacticRanker
+        # (0,598 de acierto contra 0,318 de la mayoritaria), que sí batieron al
+        # suyo. El código de `domain_tactic_order` se queda donde está: si
+        # alguien vuelve a medirlo y gana, el decisor lo enciende solo.
+        from nucleo.decisor import Contexto as _Ctx, decidir as _decidir
+        try:
+            _plan = _decidir(_Ctx(
+                consulta=input_text, es_matematica=True, area=_area,
+                rasgos=(_revision.rasgos if _revision is not None else {})))
+            _corre = {c.nombre for c in _plan.activas}
+        except Exception as e:                                  # noqa: BLE001
+            logger.debug(f"decisor no disponible, se ejecuta todo: {e}")
+            _plan, _corre = None, {"orden_de_cascada_por_area"}
+
+        if "orden_de_cascada_por_area" in _corre:
+            _domain_order = domain_tactic_order(_area)
+            _domain_tactic = domain_default_tactic(_area)
+        else:
+            _domain_order = []
+            _domain_tactic = ""
         # Vacia mientras no haya experiencia real. Se rellena abajo solo si el
         # agente especializado recuerda una tactica que YA funciono aqui; solo
         # entonces adelanta al orden medido.

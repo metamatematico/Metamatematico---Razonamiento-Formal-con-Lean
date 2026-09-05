@@ -1,0 +1,109 @@
+{
+  "consulta": "Demuestra que (a+b)^2 = a^2 + 2ab + b^2",
+  "activas": [
+    "revision_de_sintaxis",
+    "rasgos_de_sintaxis_para_lemas",
+    "reconocedor_de_area",
+    "nombres_de_mathlib_en_el_prompt",
+    "premisas_hibridas",
+    "modelo_de_orden_de_cascada",
+    "verificacion_con_lean"
+  ],
+  "apagadas": [
+    "orden_de_cascada_por_area",
+    "dos_etapas_localizar_y_elegir",
+    "recuperacion_lexica_de_lemas",
+    "emparejador_semantico"
+  ],
+  "motivos": {
+    "revision_de_sintaxis": "caza de roturas (%) 0.608 contra 0.036 (una moneda que rechaza a la misma tasa)",
+    "rasgos_de_sintaxis_para_lemas": "cobertura de lemas (%) 79.190 contra 78.410 (los n-gramas solos, que es lo que ya había)",
+    "reconocedor_de_area": "acierto de área 0.759 contra 0.238 (siempre el área más frecuente)",
+    "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 17.100 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)",
+    "premisas_hibridas": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)",
+    "orden_de_cascada_por_area": "NO bate a su nulo: posición de la táctica que cierra 1.262 contra 1.091 (`simp` primero y el resto por frecuencia)",
+    "modelo_de_orden_de_cascada": "acierto de la tactica 0.598 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))",
+    "dos_etapas_localizar_y_elegir": "NO bate a su nulo: precisión de premisas 0.419 contra 0.930 (las premisas más frecuentes, sin localizar nada)",
+    "recuperacion_lexica_de_lemas": "NO bate a su nulo: precisión de lemas 0.065 contra 7.780 (los lemas más frecuentes)",
+    "emparejador_semantico": "evaluado y descartado, nunca se adopto: en emparejador_semantico.json acierta el area en el 12 % (285 de 2385) contra el 61 % del emparejador lexico (emparejamiento.json). El fichero no guarda un nulo en forma comparable, asi que aqui cuenta como sin evidencia; y ademas cuesta una llamada",
+    "verificacion_con_lean": "es el proposito del sistema, no un extra"
+  },
+  "veredictos": {
+    "revision_de_sintaxis": {
+      "real": 0.6084699571743738,
+      "nulo": 0.03592479456180355,
+      "gana": true,
+      "motivo": "caza de roturas (%) 0.608 contra 0.036 (una moneda que rechaza a la misma tasa)"
+    },
+    "rasgos_de_sintaxis_para_lemas": {
+      "real": 79.19,
+      "nulo": 78.41,
+      "gana": true,
+      "motivo": "cobertura de lemas (%) 79.190 contra 78.410 (los n-gramas solos, que es lo que ya había)"
+    },
+    "reconocedor_de_area": {
+      "real": 0.7587,
+      "nulo": 0.2377,
+      "gana": true,
+      "motivo": "acierto de área 0.759 contra 0.238 (siempre el área más frecuente)"
+    },
+    "nombres_de_mathlib_en_el_prompt": {
+      "real": 17.10007880220646,
+      "nulo": 1.6335227272727273,
+      "gana": true,
+      "motivo": "precisión de los nombres (%) 17.100 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)"
+    },
+    "premisas_hibridas": {
+      "real": 1.2433747791593053,
+      "nulo": 1.04,
+      "gana": true,
+      "motivo": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)"
+    },
+    "orden_de_cascada_por_area": {
+      "real": 1.262,
+      "nulo": 1.091,
+      "gana": false,
+      "motivo": "posición de la táctica que cierra 1.262 contra 1.091 (`simp` primero y el resto por frecuencia)"
+    },
+    "modelo_de_orden_de_cascada": {
+      "real": 0.5975,
+      "nulo": 0.3181,
+      "gana": true,
+      "motivo": "acierto de la tactica 0.598 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))"
+    },
+    "dos_etapas_localizar_y_elegir": {
+      "real": 0.4193512552766052,
+      "nulo": 0.93,
+      "gana": false,
+      "motivo": "precisión de premisas 0.419 contra 0.930 (las premisas más frecuentes, sin localizar nada)"
+    },
+    "recuperacion_lexica_de_lemas": {
+      "real": 0.06500812601575197,
+      "nulo": 7.78,
+      "gana": false,
+      "motivo": "precisión de lemas 0.065 contra 7.780 (los lemas más frecuentes)"
+    },
+    "emparejador_semantico": {
+      "real": null,
+      "nulo": null,
+      "gana": null,
+      "motivo": "sin evidencia con modelo nulo"
+    },
+    "verificacion_con_lean": {
+      "real": null,
+      "nulo": null,
+      "gana": null,
+      "motivo": "sin evidencia con modelo nulo"
+    }
+  },
+  "coste_decisor": {
+    "llamada al modelo": 0,
+    "compilado de Lean": 1,
+    "local": 6
+  },
+  "coste_nulo": {
+    "llamada al modelo": 1,
+    "compilado de Lean": 2,
+    "local": 8
+  }
+}
