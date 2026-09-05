@@ -50,6 +50,63 @@ from nucleo.eval.math_evaluator import MathEvaluator, EvaluationResult
 logger = logging.getLogger(__name__)
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# LA POLITICA DE RANKING DEL EMPAREJADOR
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# El top-10 de `_match_skills_to_query` alimenta DOS consumidores con
+# necesidades distintas: la inyeccion de nombres en el prompt —que quiere
+# nodos precisos y CON nombres— y el recorrido del cono en
+# `_find_relevant_context` —al que le sirve la estructura—. Quien gana las
+# plazas no es una constante fisica: es una decision, y por eso tiene nombre.
+#
+#   "plano"      nadie tiene preferencia; gana el solapamiento lexico a secas.
+#   "puerta"     el AREA va detras. Declara 389 keywords a +2 cada una, asi
+#                que gana casi siempre y no aporta ningun identificador.
+#   "concepto"   solo el CONCEPTO —lo que lleva veredicto categorico— compite
+#                de tu a tu. MODULO y AREA son estructura y van detras.
+#
+# Medido, y ninguna domina a las otras: ver `scripts/politica_emparejador.py`,
+# que barre las tres sobre los dos bancos e imprime sus modelos nulos.
+POLITICA_RANKING = "concepto"
+
+#: CUANTAS skills aportan nombres al prompt de formalizacion.
+#:
+#: Era 6, escrito a mano. Es el mando que gobierna el compromiso
+#: precision/cobertura, y estaba confundido con la politica de ranking: `plano`
+#: parecia mas preciso que `concepto` —16,2 % frente a 9,5 %— y no era que
+#: acertara mas, es que OFRECIA UN TERCIO DE LOS NOMBRES. Solo 2,02 CONCEPTOs
+#: sobrevivian a su corte de top-10 frente a 5,87, y los MODULO no tienen ni un
+#: nombre. A volumen igualado `concepto` gana en las dos.
+#:
+#: El valor se eligio en MEDIA ProofNet y se comprobo en la otra media, que no
+#: se uso para elegir (`scripts/politica_emparejador.py --curva` da la curva):
+#:
+#:     mitad de reporte      precision   cobertura
+#:     plano   k=6 (antes)      16,2 %      12,3 %
+#:     concepto k=2 (hoy)       16,5 %      14,4 %
+#:     modelo nulo               2,2 %       3,2 %
+#:
+#: La precision EMPATA —+0,3 es ruido— y la cobertura sube 2,1 puntos. Se elige
+#: por la cobertura: un nombre que falta hace que el modelo se lo invente, y
+#: §4 midio que de los 28 que propuso de memoria los 21 inexistentes eran TODOS
+#: lemas. Un nombre de mas solo ocupa sitio en el prompt. Los dos errores no
+#: cuestan igual.
+PLAZAS_CON_NOMBRES = 2
+
+#: rango por sort para cada politica. Menor = compite antes.
+_RANGOS = {
+    "plano":    {},
+    "puerta":   {"AREA": 1},
+    "concepto": {"AREA": 2, "MODULO": 1},
+}
+
+
+def _rango_de_sort(sort: Optional[str]) -> int:
+    """Que tan atras va un nodo de este sort, bajo la politica vigente."""
+    return _RANGOS.get(POLITICA_RANKING, {}).get(sort or "CONCEPTO", 0)
+
+
 class NucleoMode(Enum):
     """Modos de operacion del Nucleo."""
     INTERACTIVE = auto()   # Interaccion con usuario
@@ -604,6 +661,25 @@ class Nucleo:
             description="Kernel de verificacion de Lean 4",
             pillar=PillarType.TYPE, level=0,
         ))
+
+        # ── LOS DIEZ L0, TIPADOS ──────────────────────────────────────────
+        #
+        # Se sellan aqui en bloque y no en cada `Skill(...)` de arriba para que
+        # un skill L0 nuevo no pueda quedarse sin `sort`: el bucle recorre lo
+        # que haya, no una lista repetida a mano.
+        #
+        # Son CONCEPTO —llevan veredicto categorico— y su area sale del pilar.
+        # `cic` y `lean-kernel` se quedan sin area a proposito: ver
+        # `AREA_DE_PILAR` en nucleo/pillars/areas.py.
+        from nucleo.pillars import areas as _areas
+        for _sid in list(self._graph.skill_ids):
+            _sk = self._graph.get_skill(_sid)
+            if not _sk or (_sk.metadata or {}).get("sort"):
+                continue
+            _sk.metadata = dict(_sk.metadata or {})
+            _sk.metadata["sort"] = _areas.CONCEPTO
+            _sk.metadata["area"] = _areas.AREA_DE_PILAR.get(
+                _sk.pillar.name if _sk.pillar else "SET")
 
         # Morfismos internos
         self._graph.add_morphism("zfc-axioms", "ordinals", MorphismType.DEPENDENCY)
@@ -3536,7 +3612,7 @@ class Nucleo:
         #
         # Ahora se recorren en orden y se llenan seis plazas CON NOMBRES.
         for s in skills:
-            if len(fuera) >= 6:
+            if len(fuera) >= PLAZAS_CON_NOMBRES:
                 break
             # LA TEORIA, NO LA CATEGORIA.
             #
@@ -3593,14 +3669,22 @@ class Nucleo:
         Tokenizes the query and compares against skill IDs and names.
         Returns skill IDs sorted by match relevance (most tokens matched first).
         """
-        import re as _re_kw
+        from nucleo.texto import tokens as _tok, normalizar as _norm,             contiene_frase as _frase
 
-        # Tokenize query: lowercase, split on whitespace and punctuation
-        query_lower = query.lower()
-        query_tokens = set(
-            t for t in query_lower.replace("-", " ").replace("_", " ").split()
-            if len(t) > 2  # Skip very short tokens
-        )
+        # LOS DOS LADOS SE NORMALIZAN CON LA MISMA FUNCION.
+        #
+        # Antes se partia por espacios sobre el texto en crudo, y eso fallaba
+        # en dos sitios a la vez:
+        #   · la PUNTUACION — `primo?` no es `primo`, asi que «¿Es 17 un
+        #     numero primo?» no casaba con ninguna skill que declarase `primo`;
+        #   · los ACENTOS — las keywords se escribieron sin acentuar y el
+        #     alumno escribe con ellos: `teoría` no era `teoria`.
+        #
+        # Normalizar SOLO la consulta empeoraria las cosas, porque entonces una
+        # keyword acentuada dejaria de casar. Por eso `nucleo.texto` se aplica
+        # tambien a los ids, los nombres y las keywords.
+        query_norm = _norm(query)
+        query_tokens = _tok(query)
 
         if not query_tokens:
             return []
@@ -3611,11 +3695,8 @@ class Nucleo:
             if not skill:
                 continue
 
-            # Tokens from skill ID and name
-            skill_tokens = set(
-                skill_id.lower().replace("-", " ").split()
-                + skill.name.lower().replace("-", " ").split()
-            )
+            # Tokens del id y del nombre, por la misma via
+            skill_tokens = _tok(skill_id) | _tok(skill.name)
 
             overlap = len(query_tokens & skill_tokens)
 
@@ -3625,20 +3706,55 @@ class Nucleo:
             # Se comparan como frase completa delimitada por limites de
             # palabra, para no repetir el fallo de "prime" dentro de "primer".
             for kw in (skill.metadata or {}).get("keywords", []) or []:
-                kw = kw.lower().strip()
-                if not kw:
+                if not (kw or "").strip():
                     continue
-                if " " in kw:
-                    if _re_kw.search(rf"\b{_re_kw.escape(kw)}\b", query_lower):
+                if " " in kw.strip():
+                    if _frase(query_norm, kw):
                         overlap += 2   # una frase acierta mas que un token
-                elif kw in query_tokens:
+                elif _norm(kw).strip() in query_tokens:
                     overlap += 2
 
             if overlap > 0:
                 scored.append((skill_id, overlap))
 
-        # Sort by overlap descending
-        scored.sort(key=lambda x: x[1], reverse=True)
+        # EL AREA ES UNA PUERTA, NO UNA FUENTE DE NOMBRES.
+        #
+        # Los 22 nodos de area declaran 389 keywords entre todos, y cada una
+        # vale +2. Con eso ganan casi siempre el ranking — y no aportan ningun
+        # identificador de Mathlib, asi que desplazaban del top-10 justo a los
+        # nodos concretos que si los traen. Medido contra ProofNet: la
+        # cobertura de nombres caia de 13,6 % a 13,3 % mientras el emparejador
+        # mejoraba (0 consultas perdidas, 25 ganadas).
+        #
+        # El motivo no es la cifra, es el criterio: un match de area es MAS
+        # GRUESO que uno de concepto. `topology` casando con «topological» dice
+        # bastante menos que `compactness` casando con «compact», y rankear lo
+        # general por encima de lo preciso es incorrecto aunque sume mas
+        # puntos.
+        #
+        # Asi que el area SE DEVUELVE —sigue siendo la puerta, y
+        # `_find_relevant_context` la usa para abrir el cono del area— pero
+        # detras: solo ocupa plazas que ningun nodo concreto reclamaba.
+        # Y LO MISMO VALE PARA LOS GENERADOS, POR EL MISMO MOTIVO.
+        #
+        # Los 125 nodos `interpretado=False` dicen DONDE VIVE algo, no que es,
+        # y §7.7 ya midio que no inyectan vocabulario util: la precision caia
+        # de 13,5 % a 3,2 % con un nulo de 2,9 %. Al normalizar el emparejador
+        # empezaron a ganar el ranking —`mathlib-analysis-boxintegral` paso a
+        # ser el nodo mas activado de las 3 000 consultas del banco— y con
+        # ellos delante la 1a skill acertaba el area en 39,5 % frente al 48,2 %
+        # de antes. Es el fallo de §7.2 otra vez: arreglar el silencio y
+        # estropear la punteria.
+        #
+        # El criterio, no la cifra: solo el CONCEPTO lleva veredicto
+        # categorico. El MODULO y el AREA son estructura, y la estructura no
+        # gana un ranking lexico a lo que si esta interpretado. Se devuelven
+        # igual —abren el cono— pero detras.
+        def _rango(sid: str) -> int:
+            return _rango_de_sort(
+                (graph.get_skill(sid).metadata or {}).get("sort"))
+
+        scored.sort(key=lambda x: (_rango(x[0]), -x[1]))
         return [sid for sid, _ in scored[:10]]
 
     def _dominant_pillar(

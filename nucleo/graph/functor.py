@@ -33,6 +33,24 @@ matematicamente correcto, y es justo el morfismo que produce el colimite
 que la categoria de agentes es DISCRETA —14 nombres en una lista— y no tiene
 donde recibirlos.
 
+DOS PROYECCIONES, Y NO SON LA MISMA
+-----------------------------------
+Sobre el mismo grafo hay dos bases legitimas, y confundirlas es lo que produjo
+que `lean-tactics` acabara siendo un objeto al mismo nivel que `topology`:
+
+    base="area"      las 22 AREAS de Mathlib. Es la base de la fibracion:
+                     responde «¿de que rama habla este nodo?». Un nodo cuya
+                     respuesta es «de ninguna» —una tactica, una estrategia—
+                     va al objeto base. Es la de por defecto.
+
+    base="category"  las 14 CATEGORIAS DE AGENTE de `specialized_agent`.
+                     Responde «¿que agente se ocupa de esto?», que es otra
+                     pregunta y tiene otro codominio. `lean-tactics` SI es un
+                     objeto legitimo aqui: hay un agente de tacticas.
+
+El parametro existe para que las dos se puedan pedir por su nombre en vez de
+que una tape a la otra. `verificar_functorialidad` vale para las dos.
+
 LA CONSTRUCCION
 ---------------
 Se define Agentes como la IMAGEN de pi, con los morfismos INDUCIDOS:
@@ -117,7 +135,8 @@ class Funtor:
         return self.en_objetos[skill_id]
 
 
-def construir_funtor(graph, solo_jerarquia: bool = True) -> Funtor:
+def construir_funtor(graph, solo_jerarquia: bool = True,
+                     base: str = "area") -> Funtor:
     """
     Construye pi y su codominio a partir del grafo de skills.
 
@@ -132,10 +151,23 @@ def construir_funtor(graph, solo_jerarquia: bool = True) -> Funtor:
     """
     from nucleo.graph.category import SkillCategory
 
+    if base not in ("area", "category"):
+        raise ValueError("base desconocida: %r (usa 'area' o 'category')" % base)
+
     en_objetos = {}
     for s in graph.skills:
-        cat = (s.metadata or {}).get("category")
-        en_objetos[s.id] = cat if cat else OBJETO_BASE
+        md = s.metadata or {}
+        if base == "category":
+            en_objetos[s.id] = md.get("category") or OBJETO_BASE
+        elif md.get("sort"):
+            # Un nodo YA TIPADO con `area=None` esta FUERA de la base a
+            # proposito —una tactica no es de ningun area— asi que va al
+            # objeto base, no a una etiqueta inventada.
+            en_objetos[s.id] = md.get("area") or OBJETO_BASE
+        else:
+            # Sin tipar: los grafos sinteticos de los tests, que solo declaran
+            # `category`. Se cae a ella para no dejarlos todos en un punto.
+            en_objetos[s.id] = md.get("category") or OBJETO_BASE
 
     cod = CategoriaAgentes(objetos=set(en_objetos.values()))
 

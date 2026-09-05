@@ -1,0 +1,46 @@
+{
+  "k": 6,
+  "filas": [
+    {
+      "politica": "plano",
+      "precision": 16.157205240174672,
+      "cobertura": 13.25214899713467,
+      "ofrece_algo": 246,
+      "n_casos": 352,
+      "silencio": 5.766666666666667,
+      "no_silencio": 94.23333333333333,
+      "punteria": 37.4830852503383,
+      "nulo_precision": 1.3099747474747474,
+      "nulo_cobertura": 5.945558739255015
+    },
+    {
+      "politica": "puerta",
+      "precision": 15.780730897009967,
+      "cobertura": 13.61031518624642,
+      "ofrece_algo": 249,
+      "n_casos": 352,
+      "silencio": 5.766666666666667,
+      "no_silencio": 94.23333333333333,
+      "punteria": 39.46774921064502,
+      "nulo_precision": 1.3099747474747474,
+      "nulo_cobertura": 5.945558739255015
+    },
+    {
+      "politica": "concepto",
+      "precision": 9.534127843987,
+      "cobertura": 18.911174785100286,
+      "ofrece_algo": 310,
+      "n_casos": 352,
+      "silencio": 5.766666666666667,
+      "no_silencio": 94.23333333333333,
+      "punteria": 46.92028985507246,
+      "nulo_precision": 1.3099747474747474,
+      "nulo_cobertura": 5.945558739255015
+    }
+  ],
+  "frontera": [
+    "plano",
+    "puerta",
+    "concepto"
+  ]
+}

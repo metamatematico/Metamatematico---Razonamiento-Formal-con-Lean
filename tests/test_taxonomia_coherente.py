@@ -124,17 +124,65 @@ class TestCoherenciaConElFuntor:
     """La taxonomia es el codominio de pi; deben cuadrar."""
 
     def test_la_imagen_de_pi_son_las_categorias_mas_el_objeto_base(self, canonica):
+        """
+        La proyeccion sobre AGENTES. Se pide por su nombre.
+
+        `construir_funtor` sirve DOS bases distintas sobre el mismo grafo, y
+        antes las confundia en una sola: la de agentes —esta— y la de AREAS,
+        que es la base de la fibracion. Este test guarda la de agentes, que es
+        de la que trata este fichero; la de areas tiene la suya debajo.
+        """
         import sys
         sys.argv = ["x"]
         from scripts.train_gnn_ppo import build_skill_graph
         from nucleo.graph.functor import construir_funtor, OBJETO_BASE
 
         g = build_skill_graph()
-        imagen = set(construir_funtor(g).codominio.objetos)
+        imagen = set(construir_funtor(g, base="category").codominio.objetos)
         assert imagen == canonica | {OBJETO_BASE}, (
             f"el codominio de pi no es la taxonomia + el objeto base: "
             f"diferencia={sorted(imagen ^ (canonica | {OBJETO_BASE}))}"
         )
+
+    def test_la_base_de_areas_no_admite_lo_que_no_es_un_area(self):
+        """
+        La proyeccion sobre AREAS, que es la base de la fibracion.
+
+        El fallo que este test impide repetir: `construir_funtor` proyectaba
+        sobre `category`, que mezcla once ramas matematicas con tres etiquetas
+        que no lo son. El codominio tenia `lean-tactics` como objeto al mismo
+        nivel que `topology`, y `solo_jerarquia` existia para tapar el sintoma
+        por el otro lado.
+
+        Una tactica no pertenece a ninguna rama: va al objeto base, y eso es
+        una respuesta, no un hueco.
+        """
+        import sys
+        sys.argv = ["x"]
+        from scripts.train_gnn_ppo import build_skill_graph
+        from nucleo.graph.functor import construir_funtor, OBJETO_BASE
+        from nucleo.pillars.areas import AREAS_CANONICAS
+
+        g = build_skill_graph()
+        imagen = set(construir_funtor(g, base="area").codominio.objetos)
+        intrusos = imagen - AREAS_CANONICAS - {OBJETO_BASE}
+        assert not intrusos, (
+            f"objetos en la base que no son areas: {sorted(intrusos)}"
+        )
+
+    def test_pi_sigue_siendo_funtor_sobre_la_base_de_areas(self):
+        """Cambiar de base no puede romper las leyes de funtor."""
+        import sys
+        sys.argv = ["x"]
+        from scripts.train_gnn_ppo import build_skill_graph
+        from nucleo.graph.functor import (
+            construir_funtor, verificar_functorialidad)
+
+        g = build_skill_graph()
+        r = verificar_functorialidad(construir_funtor(g, base="area"), g)
+        assert r["objetos_sin_imagen"] == 0
+        assert r["F2_fallos"] == 0
+        assert r["es_funtor"], f"pi no es funtor sobre la base de areas: {r}"
 
     def test_todo_agente_tiene_al_menos_una_habilidad(self, canonica):
         """

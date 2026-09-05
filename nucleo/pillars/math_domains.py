@@ -26,6 +26,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from nucleo.types import Skill, MorphismType, PillarType
+from nucleo.pillars import areas as _areas
 from nucleo.graph.category import SkillCategory
 
 
@@ -1543,7 +1544,16 @@ def load_math_domains(graph: SkillCategory) -> dict[str, int]:
             pillar=sdef.pillar,
             level=sdef.level,
             metadata={
+                # HEREDADO. Se conserva porque hay tests y vistas que lo leen;
+                # nada nuevo deberia decidir un area con este campo. La base
+                # canonica es `area` y la clase de objeto es `sort`.
                 "category": sdef.category,
+                # LA BASE. None cuando la etiqueta no nombra un area: una
+                # tactica no es de topologia ni de algebra, y eso es una
+                # respuesta, no un hueco.
+                "area": _areas.area_de_categoria(sdef.category),
+                "sort": (_areas.sort_de_categoria(sdef.category)
+                         or _areas.CONCEPTO),
                 # Los keywords propios mandan; EXTRA_KEYWORDS solo rellena las
                 # definiciones antiguas que se escribieron sin ellos.
                 "keywords": sdef.keywords or EXTRA_KEYWORDS.get(sdef.id, []),
@@ -1662,6 +1672,12 @@ def load_mathlib_coverage(graph) -> dict:
             level=nodo.level,
             metadata={
                 "category": nodo.category,
+                # EL AREA SE DERIVA DEL MODULO, no de la etiqueta curada: es
+                # la ruta de Mathlib la que dice donde vive este nodo, y es la
+                # unica de las dos fuentes que no se escribio a mano.
+                "area": (_area_de(nodo.modulo)
+                         if _areas.es_area(_area_de(nodo.modulo)) else None),
+                "sort": _areas.MODULO,
                 "keywords": nodo.keywords,
                 # La marca. Sin esto no se distingue de un nodo interpretado.
                 "origen": "mathlib",
@@ -1873,6 +1889,15 @@ def load_jerarquia_areas(graph) -> dict:
             level=1,
             metadata={
                 "category": "area",
+                # UN NODO DE AREA ES SU PROPIA AREA. Es un objeto de la BASE,
+                # no de una fibra, y por eso `sort` lo separa de los otros.
+                "area": a,
+                "sort": _areas.AREA,
+                # LA PUERTA ESTABA CERRADA. Los 22 nodos de area tenian cero
+                # keywords —medido, `0 de 22`— asi que el emparejador lexico
+                # no podia entrar por ellos: el id `area-numbertheory` no casa
+                # con «numeros primos» ni con «number theory».
+                "keywords": _areas.keywords_de_area(a),
                 "origen": "jerarquia-mathlib",
                 # No lleva veredicto categorico: es un nodo de ESTRUCTURA,
                 # leido del anidamiento de modulos y no interpretado a mano.
