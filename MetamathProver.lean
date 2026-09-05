@@ -32,6 +32,8 @@ import MetamathProver.CategoryFoundations.IsColimitBridge
 -- preserva co-conos (18/18 medido) y que NO preserva la minimalidad, con
 -- contraejemplo finito (12/18 medido).
 import MetamathProver.CategoryFoundations.QuotientFunctor
+-- La fibracion: la condicion que hace utilizable la base de areas
+import MetamathProver.CategoryFoundations.Fibracion
 -- Enlaces simples/complejos y principio de multiplicidad. Resultado principal
 -- NEGATIVO: en una categoria delgada los simples son cerrados por composicion,
 -- de modo que la emergencia de Ehresmann no puede darse en este modelo.

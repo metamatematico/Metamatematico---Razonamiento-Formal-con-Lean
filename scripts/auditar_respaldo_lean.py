@@ -173,6 +173,26 @@ MAPEO: list[tuple[str, str, str | None, str]] = [
     ("functor.py", "CategoriaAgentes.alcanzables_desde", "refleja_no_alcanzabilidad",
      "pi refleja la no-alcanzabilidad"),
 
+    # La FIBRACION: una condicion ADEMAS de la funtorialidad. Que pi sea
+    # funtor dice que esta bien definida; que sea fibracion dice que la base
+    # SIRVE. Medido sobre el grafo real: NO lo es (0,3 % de los pares), y el
+    # cuello de botella son los 29 morfismos que cruzan de area de 230.
+    ("fibracion.py", "levantar", "cartesiano_unico",
+     "el levantamiento cartesiano es unico salvo equivalencia"),
+    ("fibracion.py", "verificar_fibracion", "EsFibracion",
+     "todo b' <= pi(e) se levanta cartesianamente a e"),
+    ("fibracion.py", "verificar_fibracion (para que sirve)", "reindexado_monotono",
+     "en una fibracion cada flecha de la base induce una aplicacion MONOTONA"
+     " fibra(b) -> fibra(b'): la manera de trasladar una pregunta de un area"
+     " a otra"),
+    ("fibracion.py", "verificar_fibracion (encadenar areas)",
+     "reindexado_compuesto",
+     "restringir por b' y luego por b'' es lo mismo que restringir por b''"),
+    ("fibracion.py", "verificar_fibracion (no es vacuo)",
+     "no_toda_monotona_es_fibracion",
+     "hay monotonas que NO son fibracion: contraejemplo finito, sin el"
+     " comprobar la condicion no distinguiria nada"),
+
     # Los nombres reales. El mapeo decia `complexify`, `transition_functor` y
     # `detect_emergence`, que NO EXISTEN; la auditoria no lo detectaba porque
     # solo validaba el lado de Lean.

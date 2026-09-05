@@ -1,6 +1,6 @@
 {
-  "declaraciones_lean": 284,
-  "auditadas": 58,
+  "declaraciones_lean": 293,
+  "auditadas": 63,
   "respaldadas": [
     {
       "modulo": "category.py",
@@ -358,6 +358,41 @@
       "teorema": "refleja_no_alcanzabilidad",
       "fichero": "QuotientFunctor.lean",
       "afirma": "pi refleja la no-alcanzabilidad"
+    },
+    {
+      "modulo": "fibracion.py",
+      "operacion": "levantar",
+      "teorema": "cartesiano_unico",
+      "fichero": "Fibracion.lean",
+      "afirma": "el levantamiento cartesiano es unico salvo equivalencia"
+    },
+    {
+      "modulo": "fibracion.py",
+      "operacion": "verificar_fibracion",
+      "teorema": "EsFibracion",
+      "fichero": "Fibracion.lean",
+      "afirma": "todo b' <= pi(e) se levanta cartesianamente a e"
+    },
+    {
+      "modulo": "fibracion.py",
+      "operacion": "verificar_fibracion (para que sirve)",
+      "teorema": "reindexado_monotono",
+      "fichero": "Fibracion.lean",
+      "afirma": "en una fibracion cada flecha de la base induce una aplicacion MONOTONA fibra(b) -> fibra(b'): la manera de trasladar una pregunta de un area a otra"
+    },
+    {
+      "modulo": "fibracion.py",
+      "operacion": "verificar_fibracion (encadenar areas)",
+      "teorema": "reindexado_compuesto",
+      "fichero": "Fibracion.lean",
+      "afirma": "restringir por b' y luego por b'' es lo mismo que restringir por b''"
+    },
+    {
+      "modulo": "fibracion.py",
+      "operacion": "verificar_fibracion (no es vacuo)",
+      "teorema": "no_toda_monotona_es_fibracion",
+      "fichero": "Fibracion.lean",
+      "afirma": "hay monotonas que NO son fibracion: contraejemplo finito, sin el comprobar la condicion no distinguiria nada"
     },
     {
       "modulo": "evolution.py",
