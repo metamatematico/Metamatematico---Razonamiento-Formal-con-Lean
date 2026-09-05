@@ -60,6 +60,78 @@ SOLVER_CASCADE = [
     ("aesop", 8),
 ]
 
+#: LA CASCADA EN UN SOLO COMPILADO.
+#:
+#: Cada intento costaba un `check_code`, o sea un proceso de Lean entero. Y el
+#: coste NO esta en la tactica: esta en arrancar Lean y elaborar los imports.
+#: Medido sobre un objetivo que ninguna de las doce cierra —el caso agotado,
+#: que es el que produce el veredicto `parcial` y donde el alumno espera:
+#:
+#:     un compilado por tactica   185,5 s   (12 x ~15,5 s)
+#:     `first |` en un compilado    15,5 s
+#:     ------------------------------------
+#:     12,0x, 170 segundos menos
+#:
+#: `first |` NO ES EQUIVALENTE AL BUCLE POR SI SOLO, y creerlo costaba el
+#: resultado. `first` se queda con la primera rama que NO LANZA EXCEPCION; el
+#: bucle se quedaba con la primera que hace COMPILAR EL FICHERO. No es lo
+#: mismo: una tactica puede "progresar" sin cerrar el objetivo.
+#:
+#:     first | (rfl ; ...) | (simp ; ...) | (norm_num ; ...) | (ring ; ...)
+#:     sobre  a + b = b + a
+#:
+#:       sin `done`   norm_num progresa, first la acepta -> UNSOLVED GOALS
+#:       con `done`   norm_num no cierra, se descarta    -> gana ring
+#:
+#: Sin `done` la cascada declaraba agotados casos que el bucle cerraba, y lo
+#: hacia en silencio: mismo tiempo, mismo formato de resultado, veredicto
+#: distinto. `done` falla si quedan objetivos, y con el la equivalencia si se
+#: sostiene.
+#:
+#: Y `trace "ELEGIDA:t"` en cada rama es lo que hace que Lean diga cual gano;
+#: sin eso la ganancia costaria saber que tactica fue, que es justo lo que la
+#: cascada tiene que devolver.
+#:
+#: DONDE NO GANA: si la primera tactica cierra, hoy tambien es un compilado.
+#: La ganancia esta entera en la cola, y la cola es donde duele.
+#:
+#: Se deja en False para volver al bucle sin tocar codigo.
+CASCADA_EN_UN_COMPILADO = True
+
+#: Marca que Lean imprime desde la rama que gano. Distintiva a proposito: se
+#: busca en la salida cruda y no puede colisionar con nada de Mathlib.
+_MARCA = "ELEGIDA:"
+
+
+def _bloque_first(solvers) -> str:
+    """`first | (t1; trace ...) | (t2; trace ...) | ...`, en UNA linea.
+
+    En una sola linea a proposito: el `sorry` que se sustituye esta dentro de
+    un bloque `by` con su indentacion, y Lean es sensible al espaciado. Un
+    reemplazo de una linea por otra no puede romper la estructura; uno
+    multilinea si.
+
+    EL ESPACIO ANTES DEL `;` NO ES ESTILO. `LeanClient._normalize_code` lleva
+    una tabla de reescrituras para arreglar salidas del modelo, y una de ellas
+    es literal:
+
+        ("ring_nf;", "ring_nf
+  ")
+
+    Con `(ring_nf; trace ...)` esa regla mete un salto de linea EN MEDIO del
+    bloque y lo parte en dos, y Lean responde «unexpected identifier». El
+    sintoma aparecia solo con la cascada entera —`ring_nf` es la quinta— asi
+    que probar tactica a tactica no lo delataba.
+
+    `ring_nf ; trace` no casa con el patron. Y hay un test que comprueba que
+    el bloque sobrevive a `_normalize_code`, para que la proxima regla de esa
+    tabla no lo vuelva a romper sin avisar.
+    """
+    ramas = " | ".join(
+        '(%s ; done ; trace "%s%s")' % (t, _MARCA, t) for t, _ in solvers)
+    return "first | " + ramas
+
+
 # Error types that won't benefit from the cascade
 SKIP_ERROR_TYPES = frozenset([
     "unknown_ident",
@@ -514,6 +586,9 @@ class SolverCascade:
         if "sorry" not in target_line:
             return CascadeResult(success=False, solvers_tried=0)
 
+        if CASCADA_EN_UN_COMPILADO:
+            return await self._cascada_de_un_tiro(lines, sorry_line - 1, imports)
+
         solvers_tried = 0
         statuses: list[str] = []
         for solver, _timeout in self._solvers:
@@ -554,6 +629,58 @@ class SolverCascade:
             f"(statuses: {summary})"
         )
         return CascadeResult(success=False, solvers_tried=solvers_tried)
+
+    async def _cascada_de_un_tiro(
+        self,
+        lines: list[str],
+        idx: int,
+        imports: Optional[list[str]] = None,
+    ) -> CascadeResult:
+        """Las doce tacticas en un `first |`, un solo proceso de Lean.
+
+        Devuelve lo mismo que el bucle: si cerro, cual cerro y cuantas se
+        probaron hasta ella. `solvers_tried` se deduce de la posicion de la
+        ganadora en el orden vigente, que es la cuenta que el bucle daba.
+        """
+        modified_code = self._replace_sorry(
+            lines, idx, _bloque_first(self._solvers))
+        if imports:
+            cab = "\n".join(f"import {imp}" for imp in imports)
+            modified_code = cab + "\n\n" + modified_code
+
+        result = await self._lean.check_code(modified_code)
+        orden = [t for t, _ in self._solvers]
+
+        if result.is_success:
+            # DE LOS MENSAJES, no de `output`. `output` son lineas JSON, y
+            # partirlas por la marca devolvia `rfl","endPos":{...` como
+            # nombre de tactica. El mensaje ya viene con el texto limpio en
+            # `data`.
+            ganadora = None
+            for m in result.messages:
+                txt = str(m.get("data") or m.get("message") or "")
+                if txt.startswith(_MARCA):
+                    ganadora = txt[len(_MARCA):].strip()
+                    break
+            # Cerro pero sin marca: pasa si el objetivo ya estaba cerrado o si
+            # el trace no llego a la salida. Se dice cual es el caso en vez de
+            # inventar una tactica.
+            if ganadora is None:
+                logger.debug("cascada de un tiro: cerro sin marca ELEGIDA")
+                return CascadeResult(
+                    success=True, solver="first|", replacement_code="first|",
+                    solvers_tried=len(orden), lean_result=result)
+            pos = orden.index(ganadora) + 1 if ganadora in orden else len(orden)
+            logger.info("Solver cascade (un compilado): %s cerro", ganadora)
+            return CascadeResult(
+                success=True, solver=ganadora, replacement_code=ganadora,
+                solvers_tried=pos, lean_result=result)
+
+        err = " ".join((result.get_first_error() or "").split())[:200]
+        logger.debug(
+            "cascada de un tiro agotada: %d tacticas, status=%s%s",
+            len(orden), result.status.name, (" | " + err) if err else "")
+        return CascadeResult(success=False, solvers_tried=len(orden))
 
     async def try_fill_sorry_smart(
         self,

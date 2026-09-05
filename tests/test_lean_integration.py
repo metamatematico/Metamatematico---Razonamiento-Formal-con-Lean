@@ -55,7 +55,16 @@ class TestSolverCascade:
 
         async def mock_check(code):
             if success_on and success_on in code:
-                return LeanResult(status=LeanResultStatus.SUCCESS)
+                # LA MARCA ES PARTE DEL CONTRATO. La cascada corre las doce
+                # tacticas en un solo `first |`, asi que todos los nombres
+                # aparecen en el codigo: «esta `rfl` en el fuente» ya no
+                # distingue cual cerro. Lean lo dice con `trace`, y el falso
+                # tiene que decirlo igual o modela un Lean que no existe.
+                return LeanResult(
+                    status=LeanResultStatus.SUCCESS,
+                    messages=[{"severity": "information",
+                               "data": "ELEGIDA:" + success_on}],
+                )
             return LeanResult(
                 status=LeanResultStatus.ERROR,
                 messages=[{"severity": "error", "message": "fail"}],

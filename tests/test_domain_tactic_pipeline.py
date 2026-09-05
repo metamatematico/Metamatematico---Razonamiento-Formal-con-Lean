@@ -234,8 +234,13 @@ class TestSolverCascadeSmartDomainTactic:
             tried.append(code)
             # Éxito si el código contiene el solver esperado (reemplazó sorry)
             success = succeeds_on in code
+            # Y LA MARCA que Lean imprime desde la rama ganadora: con las doce
+            # tacticas en un solo `first |`, todos los nombres estan en el
+            # codigo y «contiene `ring`» ya no identifica a la ganadora.
             return LeanResult(
                 status=LeanResultStatus.SUCCESS if success else LeanResultStatus.ERROR,
+                messages=([{"severity": "information",
+                            "data": "ELEGIDA:" + succeeds_on}] if success else []),
                 output="",
             )
 
