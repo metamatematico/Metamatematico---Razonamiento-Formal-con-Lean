@@ -3,7 +3,7 @@
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
 [![Tests](https://img.shields.io/badge/Tests-1036_passing-brightgreen.svg)](#7-tests-y-guardianes)
-[![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
+[![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -355,14 +355,14 @@ lo mismo acierta el 79 %.
 |---|---|---|---|
 | Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,0 % precisión<br>14,8 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
 | Dependencias contra el DAG real<br><sub>21 446 aristas oficiales</sub> | 78,1 % confirmadas | 32,6 % | **2,4× · aporta** |
-| Orden de tácticas<br><sub>1 600 pruebas de Mathlib</sub> | 1,29 intentos | **1,07** | **no bate al nulo** |
+| Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
-| Elección de imports<br><sub>40 enunciados, Lean como juez</sub> | 90 % elabora | 90 % | **inerte** |
-| Banco de fidelidad<br><sub>24 consultas, juez ciego al veredicto</sub> | 21/24 | — | **0 infieles** |
+| Elección de imports<br><sub>20 enunciados, Lean como juez · azar 14/20</sub> | 18/20 elabora | 18/20 fijo | **inerte** |
+| Banco de fidelidad<br><sub>banco de 24 · corrida registrada: muestra rápida de 8</sub> | 8/8 medidos | — | **0 infieles** |
 | Nombres de los nodos generados<br><sub>447 identificadores con `#check`</sub> | 346 existen | — | **95 no existen** |
 | Poda por área antes de elegir<br><sub>con localización perfecta — el techo</sub> | 6,8 % | 9,8 % | **no llega al nulo** |
 | Revisión de sintaxis de la consulta<br><sub>23 243 enunciados de LeanWorkbook, todos correctos</sub> | 3,6 % falsos positivos<br>60,8 % de caza | 3,6 % (moneda) | **+57,3 puntos · aporta** |
-| Rasgos del árbol de la consulta<br><sub>22 117 consultas, bootstrap emparejado</sub> | 79,2 % cobertura | 78,4 % (n-gramas) | **+0,8 · real pero pequeño** |
+| Rasgos del árbol → premisas<br><sub>22 117 enunciados, 68 rasgos frente a 40 000 n-gramas</sub> | 80,9 % cobertura | 56,6 % (los 6 más citados) | **+24,3 · aporta** |
 | Fibración π : Skills → Áreas<br><sub>860 pares (objeto, área debajo)</sub> | 0,3 % se levanta | 6,1 % (áreas al azar) | **peor que el azar** |
 
 ```bash
@@ -379,9 +379,9 @@ Todas sin API salvo la última.
 ### Respaldo formal
 
 ```
-57/58  operaciones del Python con teorema Lean que las respalda
+62/63  operaciones del Python con teorema Lean que las respalda
     0  sorry en todo el corpus (preguntado al compilador, no con grep)
-  385  teoremas en 21 archivos Lean
+  387  teoremas en 22 archivos Lean
 ```
 
 `collectAxioms` confirma que ninguna constante depende de `sorryAx`.
@@ -684,7 +684,7 @@ nucleo/
     mathlib_taxonomy.py   los 125 generados (GENERADO — no editar a mano)
 
 scripts/                  cada medición, con su método en el docstring
-MetamathProver/           385 teoremas Lean · 21 archivos
+MetamathProver/           387 teoremas Lean · 22 archivos
 tests/                    1036 tests en 51 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
