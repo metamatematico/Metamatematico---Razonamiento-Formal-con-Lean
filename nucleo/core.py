@@ -4090,7 +4090,45 @@ class Nucleo:
     _MODULOS_CACHE = None
 
     def _modulos_mathlib(self, context) -> list:
-        """Modulos de Mathlib para las skills activadas en esta consulta."""
+        """Modulos de Mathlib para las skills activadas en esta consulta.
+
+        EL VEREDICTO SIGUE SIENDO «INERTE», Y AHORA ESTA MEJOR SOSTENIDO.
+
+        Durante mucho tiempo el mapa que se lee aqui conocia 76 de los 320
+        nodos: se construye resolviendo los NOMBRES verificados de cada skill
+        al fichero donde se declaran, y los 125 MODULO y los 22 AREA no tienen
+        nombres. O sea que esta funcion devolvia vacio en cuanto las primeras
+        skills eran generadas, y la medicion del paso 3 lo registro sin
+        nombrarlo: en 14 de 20 casos las dos ramas eran LA MISMA EJECUCION.
+        Un banco asi no puede detectar un beneficio aunque exista.
+
+        Arreglado el mapa —223 skills, y los 147 derivados resueltos a un
+        fichero .lean real desde su `metadata["modulo"]`— se repitio la
+        medicion con Lean de juez sobre los mismos 20 enunciados:
+
+                        elabora   segundos   modulos   casos donde
+                                              /caso     difiere del fijo
+            grafo        90,0 %     17,6       4,7          10
+            fijo         90,0 %     15,9       3,0           —
+            azar         60,0 %     12,4       3,2           —
+
+        Los casos discriminantes pasan de 6 a 10, los modulos extra de 20 a
+        33, y NO CAMBIA NI UN VEREDICTO: los mismos 18 de 20, y ninguno de los
+        dos fallos es de imports. Contra el azar si gana —18 frente a 12—, o
+        sea que hace trabajo real, redundante con una constante.
+
+        LO QUE SI CAMBIA ES EL COSTE: +1,7 s por consulta, un 11 % mas. Con
+        n=20 y una sola pasada eso puede ser ruido, pero va en la direccion
+        que se espera de mas imports.
+
+        Y LO QUE ESTE BANCO SIGUE SIN PODER DECIR. El «conjunto fijo» no es
+        pequeño: `Mathlib.Tactic` arrastra 2 972 modulos por transitividad y
+        los tres juntos cubren el 38,4 % de Mathlib. La medicion es aditiva
+        —añadir imports nunca rompe una elaboracion— asi que la unica forma de
+        ganar era rescatar un fallo, y los dos fallos no son de imports.
+        «Inerte» sigue significando NO SE MIDIO BENEFICIO, no se demostro que
+        no lo haya.
+        """
         if not isinstance(context, dict):
             return []
         skills = context.get("relevant_skills") or []
