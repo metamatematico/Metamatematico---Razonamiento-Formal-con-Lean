@@ -162,6 +162,7 @@ canvas.arrastrando{cursor:grabbing}
       <select id="sel-color">
         <option value="s">por sort</option>
         <option value="a">por área</option>
+        <option value="o">quién lo hizo</option>
         <option value="m">tiene nombres de Mathlib</option>
         <option value="k">tiene palabras clave</option>
       </select>
@@ -253,6 +254,8 @@ var COLOR_AREA = {};
 
 function colorNodo(n){
   if (estado.color === "a") return COLOR_AREA[n.ar] || P["--muted"];
+  if (estado.color === "o")
+    return (n.s === "MODULO" || n.s === "AREA") ? P["--area"] : P["--concepto"];
   if (estado.color === "m") return n.m.length ? P["--area"] : P["--muted"];
   if (estado.color === "k") return n.k.length ? P["--concepto"] : P["--tactica"];
   var m = {CONCEPTO:"--concepto",MODULO:"--modulo",AREA:"--area",
