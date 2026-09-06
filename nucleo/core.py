@@ -4210,6 +4210,42 @@ class Nucleo:
             # todo acaba cayendo al mapa de palabras clave de get_viz_data().
             # Se comparan como frase completa delimitada por limites de
             # palabra, para no repetir el fallo de "prime" dentro de "primer".
+            #
+            # LAS KEYWORDS ESQUIVAN `_GENERICAS`, Y VALEN EL DOBLE. Esta
+            # asimetria es real y esta comprobada: `point` esta en la lista y
+            # se rechaza arriba como token del nombre, pero
+            # `mathlib-geometry-euclidean` lo declara como keyword y entonces
+            # suma +2. Ante «prove the fixed point theorem» eso activa ese
+            # nodo y `mathlib-algebraicgeometry-ellipticcurve` por `point`, y
+            # `mathlib-grouptheory-groupaction` por `fixed`.
+            #
+            # Y NO ES LO MISMO UNA KEYWORD QUE OTRA. Las de math_domains.py
+            # las eligio una persona —autovalor, eigenvalue— y son evidencia.
+            # Las de los 125 nodos generados salen de CONTAR PALABRAS en los
+            # nombres de declaracion (`cnt.most_common` en
+            # generar_nodos_mathlib.py), que ademas avisa de que «son
+            # fragmentos en minuscula, no identificadores»: `excenter`,
+            # `dist`, `vsub`, `touchpoint`.
+            #
+            # SE MIDIO NEGAR LAS GENERICAS SOLO EN LOS GENERADOS, y NO SE
+            # APLICA porque no mejora nada:
+            #
+            #     ProofNet (k=2)   precision 21,0 %  cobertura 17,7 %  981 nombres
+            #     con el cambio    precision 21,0 %  cobertura 17,7 %  981 nombres
+            #     MATH equilibrada    40,9 %  ->  40,9 %   (cruda 34,3 -> 35,8)
+            #     consultas mudas        232  ->     246
+            #
+            # Identico donde importa y 14 consultas mas mudas. El motivo es el
+            # de §7.7: esos nodos NO APORTAN NOMBRES, asi que sacarlos del
+            # top-10 no cambia lo que entra en el prompt. Un cambio sin mejora
+            # medida y con coste medido no entra — es la misma regla con la
+            # que el decisor apaga capacidades.
+            #
+            # Queda escrito para que nadie lo intente otra vez sin medirlo, y
+            # por si algun dia se mide lo que esto SI podria estar tocando y
+            # ningun banco cubre: que `relevant_skills` mete los nombres de
+            # esos nodos en el prompt como contexto, y decirle al modelo
+            # «geometria euclidea» ante un teorema de punto fijo no es inocuo.
             for kw in (skill.metadata or {}).get("keywords", []) or []:
                 if not (kw or "").strip():
                     continue
