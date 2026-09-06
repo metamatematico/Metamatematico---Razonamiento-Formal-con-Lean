@@ -13,20 +13,20 @@
       "con_algo": 364
     },
     "INDICE_sustantivos": {
-      "precision": 1.67,
-      "cobertura": 0.86,
-      "tp": 12,
-      "fp": 707,
-      "fn": 1384,
+      "precision": 1.53,
+      "cobertura": 0.79,
+      "tp": 11,
+      "fp": 708,
+      "fn": 1385,
       "con_algo": 360
     },
     "lexico_grafo": {
-      "precision": 17.10007880220646,
-      "cobertura": 15.544412607449857,
-      "con_algo": 310,
-      "tp": 217,
-      "fp": 1052,
-      "fn": 1179
+      "precision": 20.998980632008156,
+      "cobertura": 14.756446991404012,
+      "con_algo": 283,
+      "tp": 206,
+      "fp": 775,
+      "fn": 1190
     },
     "nulo_del_banco": {
       "precision": 1.6335227272727273,

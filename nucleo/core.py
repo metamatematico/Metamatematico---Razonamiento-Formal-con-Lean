@@ -210,6 +210,51 @@ _GENERICAS = frozenset({
     "espacio", "group", "grupo", "problem", "problema", "result", "resultado",
     "property", "propiedad", "general", "basic", "basico", "mathlib", "math",
     "matematica", "matematicas", "formula", "ecuacion", "equation",
+
+    # `and` — LA CONJUNCION INGLESA, y el token que mas puertas abria.
+    #
+    # `tokens(minimo=3)` descarta los de una y dos letras, asi que `of`, `to`,
+    # `la` y `de` nunca llegaron aqui. `and` tiene exactamente tres y se
+    # colaba. El emparejador tokeniza el NOMBRE de la skill —una cadena
+    # escrita para que la lea una persona— como si fuera vocabulario, y en 15
+    # nombres del grafo hay una `and`.
+    #
+    # Medido sobre las 3 000 consultas etiquetadas, entradas al top-3:
+    #
+    #   eigen-theory     «Eigenvalues AND Eigenvectors»  1452, las 1452 por `and`
+    #   bilinear-forms   «Bilinear AND Quadratic Forms»  1266, 1253 por `and`
+    #   subgroups-cosets «Subgroups AND Cosets»           830,  829 por `and`
+    #
+    # Tres skills copaban la mitad del banco sin que una sola de sus keywords
+    # —autovalor, eigenvalue, forma bilineal— apareciese en la consulta. Es el
+    # fallo de `the` del §12.1 otra vez: contar una coincidencia en una palabra
+    # que sale en media biblioteca y presentarla como señal.
+    #
+    # QUITARLO, CONTRA PROOFNET Y CON EL VOLUMEN IGUALADO (283 ejercicios
+    # donde las dos versiones ofrecen algo, K=2):
+    #
+    #     precision  18,8 % -> 21,0 %     cobertura  17,8 % -> 17,7 %
+    #     nombres ofrecidos  1102 -> 981
+    #
+    # Misma cobertura, 121 nombres erroneos menos en el prompt. En los 22
+    # ejercicios que pasan a no ofrecer nada la version anterior acertaba 3
+    # nombres y fallaba 129: callar ahi es lo correcto.
+    #
+    # LO QUE EMPEORA, Y POR QUE NO MANDA. En el banco MATH la «1a skill es del
+    # area buena» cae del 52,1 % al 34,3 % (equilibrada 46,0 % -> 40,9 %),
+    # porque las tres skills basura son TODAS de area algebra y ese banco es
+    # 89 % algebra: acertaban por el sesgo de clase, no por punteria. Esa
+    # medida es un proxy sin consumidor —el orden de la cascada lo fija
+    # `classify_query`, que esto no toca— y pierde contra el nulo de responder
+    # siempre «algebra» por 37 puntos. ProofNet mide con formalizaciones de oro
+    # lo que si esta en produccion: los nombres que entran en el prompt.
+    #
+    # SE PROBARON TAMBIEN los plurales de las que ya estaban —`numbers`,
+    # `functions`, `groups`— y una lista de 50 palabras funcion en los dos
+    # idiomas. Las dos miden EXACTAMENTE lo mismo que `and` sola en ProofNet
+    # (21,2 % contra 21,0 %, tres nombres de diferencia) y cuestan medio punto
+    # en MATH. No entran: una lista que no mueve nada es decoracion.
+    "and",
 })
 
 

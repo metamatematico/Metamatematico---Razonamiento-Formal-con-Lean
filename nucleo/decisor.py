@@ -330,9 +330,14 @@ CAPACIDADES: list[Capacidad] = [
             "evaluado y descartado, nunca se adopto: en"
             " emparejador_semantico.json acierta el area en el 12 % (285 de"
             " 2385) contra el 61 % del emparejador lexico"
-            " (emparejamiento.json). El fichero no guarda un nulo en forma"
-            " comparable, asi que aqui cuenta como sin evidencia; y ademas"
-            " cuesta una llamada"),
+            " (emparejamiento.json). Las dos cifras son CRUDAS sobre un banco"
+            " 89 % algebra, donde responder siempre «algebra» acierta el"
+            " 88,6 %: ninguna de las dos bate a esa constante, asi que la"
+            " comparacion vale para ordenarlas entre si y para nada mas. El"
+            " fichero no guarda un nulo en forma comparable, asi que aqui"
+            " cuenta como sin evidencia; y ademas cuesta una llamada. Contra"
+            " ProofNet, que si tiene oro, el semantico da 13,1 % de precision"
+            " y 2,4 % de cobertura frente a 21,0 % y 14,8 % del lexico"),
     ),
     Capacidad(
         nombre="verificacion_con_lean",

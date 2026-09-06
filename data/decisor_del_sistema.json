@@ -21,7 +21,7 @@
     "rasgos_de_sintaxis_para_lemas": "cobertura de lemas (%) 79.190 contra 78.410 (los n-gramas solos, que es lo que ya había)",
     "rasgos_de_sintaxis_cuando_el_lexico_calla": "su guarda no aplica a esta consulta",
     "reconocedor_de_area": "acierto de área 0.759 contra 0.238 (siempre el área más frecuente)",
-    "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 17.100 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)",
+    "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 20.999 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)",
     "premisas_hibridas": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)",
     "orden_de_cascada_por_area": "NO bate a su nulo: posición de la táctica que cierra 1.262 contra 1.091 (`simp` primero y el resto por frecuencia)",
     "modelo_de_orden_de_cascada": "acierto de la tactica 0.598 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))",
@@ -56,10 +56,10 @@
       "motivo": "acierto de área 0.759 contra 0.238 (siempre el área más frecuente)"
     },
     "nombres_de_mathlib_en_el_prompt": {
-      "real": 17.10007880220646,
+      "real": 20.998980632008156,
       "nulo": 1.6335227272727273,
       "gana": true,
-      "motivo": "precisión de los nombres (%) 17.100 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)"
+      "motivo": "precisión de los nombres (%) 20.999 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)"
     },
     "premisas_hibridas": {
       "real": 1.2433747791593053,

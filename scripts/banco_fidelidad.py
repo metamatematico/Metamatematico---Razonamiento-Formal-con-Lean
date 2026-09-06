@@ -78,6 +78,46 @@ CASOS = [
     ("no-math", "¿Qué tiempo hace hoy en Ciudad de México?", "no-math"),
 ]
 
+#: Cuantos casos de cada grupo entran en `--rapido`.
+#:
+#: ERA `CASOS[::3]`, y una rebanada uniforme sobre una lista ordenada por
+#: temas no muestrea: recorta. Daba 6 «verifica», 1 «rechaza» y 1 «no-math»,
+#: o sea que la parte que DE VERDAD discrimina —los enunciados falsos, donde
+#: se caza el fallo de sellar como verificado algo que nadie pregunto— se
+#: probaba con un solo caso, y los controles con otro.
+#:
+#: Y esa es justamente la desproporcion contra la que avisa la cabecera de
+#: este fichero: «un sistema que solo acierta con lo cierto no sirve de nada».
+#: La version rapida existe para iterar, no para dar una nota; pero si de sus
+#: ocho casos siete son del grupo facil, ni siquiera sirve para iterar.
+#:
+#: No es proporcional a propósito: `rechaza` y `no-math` son 4 de 24 cada uno
+#: y una muestra proporcional les daria uno. Se les da dos.
+RAPIDO_POR_GRUPO = {"verifica": 4, "rechaza": 2, "no-math": 2}
+
+
+def muestra_rapida(casos=None):
+    """Ocho casos con los TRES grupos representados, repartidos por el banco.
+
+    Dentro de cada grupo se cogen a distancias regulares en vez de los
+    primeros, para no quedarse siempre con el mismo tema: `verifica` empieza
+    con tres de aritmetica seguidos.
+    """
+    casos = CASOS if casos is None else casos
+    fuera = []
+    for grupo, cuantos in RAPIDO_POR_GRUPO.items():
+        delgrupo = [c for c in casos if c[2] == grupo]
+        if not delgrupo or cuantos <= 0:
+            continue
+        if cuantos >= len(delgrupo):
+            fuera.extend(delgrupo)
+            continue
+        paso = len(delgrupo) / float(cuantos)
+        fuera.extend(delgrupo[int(i * paso)] for i in range(cuantos))
+    # se devuelven en el orden del banco, que agrupa por tema y se lee mejor
+    return [c for c in casos if c in fuera]
+
+
 JUEZ = """Eres un revisor de formalizaciones matemáticas. Se te da una PREGUNTA en \
 lenguaje natural y un CÓDIGO Lean 4 que pretende formalizarla.
 
@@ -162,7 +202,7 @@ async def main(rapido=False, desde=0):
     from nucleo.core import Nucleo
     from nucleo.config import NucleoConfig
 
-    casos = CASOS[::3] if rapido else CASOS[desde:]
+    casos = muestra_rapida() if rapido else CASOS[desde:]
     if desde:
         print("(reanudando desde el caso %d de %d)" % (desde + 1, len(CASOS)))
     n = Nucleo(NucleoConfig())

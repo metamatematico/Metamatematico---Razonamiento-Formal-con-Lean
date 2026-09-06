@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1031_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1034_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-21%2F24-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -54,7 +54,7 @@ idioma.
 
 | paso | quién | qué hace | ¿aporta? |
 |---|---|---|---|
-| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 10,7× sobre el azar** |
+| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 13,1× sobre el azar** |
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
 | 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
@@ -127,10 +127,24 @@ tiene *cero* menciones del grafo. Su único parámetro de contexto es un nombre 
 que no toca el grafo en ningún punto.
 
 Y **tenderlo al grafo lo empeoraría**, que es la parte que no era obvia. Medido
-sobre 3 000 consultas: `classify_query` acierta el área en el **61,2 %** de los
-casos y la primera skill del grafo en el **52,1 %**. Conectar la lista al grafo
-no es trabajo pendiente — sería cambiar el clasificador bueno por el malo. Lo
-que falta no es el cable, es un motivo medido para tenderlo.
+sobre 3 000 consultas etiquetadas, con su modelo nulo al lado:
+
+| | exactitud cruda | exactitud equilibrada |
+|---|---|---|
+| `classify_query` | 61,2 % | **58,7 %** |
+| área de la 1ª skill del grafo | 34,3 % | 40,9 % |
+| *nulo: responder siempre «algebra», sin leer el enunciado* | *88,6 %* | *33,3 %* |
+
+El nulo es la fila que hay que mirar primero, y durante meses no estuvo puesta:
+**el banco es 89 % `algebra`**, así que una constante gana a las dos medidas en
+crudo. La cifra que dice algo es la equilibrada —la media de los aciertos
+dentro de cada área—, donde el nulo se hunde al 33,3 % y `classify_query` se
+pone veinticinco puntos por encima.
+
+La conclusión no cambia, se refuerza: conectar la lista al grafo sería cambiar
+el clasificador bueno por el malo, y con la medida honesta la distancia entre
+los dos es *mayor* (58,7 contra 40,9), no menor. Lo que falta no es el cable,
+es un motivo medido para tenderlo.
 
 ### Por qué hacen falta las dos
 
@@ -339,7 +353,7 @@ lo mismo acierta el 79 %.
 
 | qué | resultado | modelo nulo | veredicto |
 |---|---|---|---|
-| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 17,1 % precisión<br>15,5 % cobertura | 1,6 %<br>3,3 % | **10,7× · aporta** |
+| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,0 % precisión<br>14,8 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
 | Dependencias contra el DAG real<br><sub>21 446 aristas oficiales</sub> | 78,1 % confirmadas | 32,6 % | **2,4× · aporta** |
 | Orden de tácticas<br><sub>1 600 pruebas de Mathlib</sub> | 1,29 intentos | **1,07** | **no bate al nulo** |
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
@@ -492,7 +506,15 @@ Qué apaga hoy:
 | orden de cascada por área — *estaba en producción* | 1,262 | 1,091 |
 | dos etapas: localizar y elegir | 0,42 | 0,93 |
 | recuperación léxica de lemas | 0,065 | 7,78 |
-| emparejador semántico — *nunca se adoptó* | 12 % | 61 % |
+| emparejador semántico — *nunca se adoptó* | 13,1 % precisión | 1,6 % |
+
+La última fila decía «12 % contra 61 %», y ese 61 % **no era un nulo**: era el
+emparejador léxico. Comparar un candidato contra la versión que ya tienes no es
+medirlo, y encima las dos cifras eran crudas sobre el banco 89 % `algebra`,
+donde una constante le gana a las dos. La fila de ahora es la de ProofNet, que
+sí trae formalizaciones de oro y por tanto un nulo de verdad: el semántico da
+13,1 % de precisión y **2,4 % de cobertura**, frente a 21,0 % y 14,8 % del
+léxico. Se apaga por eso, y además cuesta una llamada al modelo.
 
 Su propio modelo nulo es «ejecutarlo todo», y está implementado. Coste por
 consulta: el decisor 0 llamadas al modelo y 1 compilado de Lean; el nulo 1 y 2.
@@ -543,7 +565,7 @@ No falta formalización: faltan morfismos que crucen de área.
 
 ## 7. Tests y guardianes
 
-**1031 tests en 51 suites.** Los que más valen no comprueban que el código
+**1034 tests en 51 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -663,7 +685,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           385 teoremas Lean · 21 archivos
-tests/                    1031 tests en 51 suites
+tests/                    1034 tests en 51 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

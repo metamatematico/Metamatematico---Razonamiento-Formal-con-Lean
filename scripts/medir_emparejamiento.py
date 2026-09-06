@@ -98,6 +98,12 @@ def main():
     n_skills = []
     activadas = collections.Counter()
 
+    #: (area esperada, area predicha), uno por consulta medida. Hace falta
+    #: guardarlos y no solo el recuento: la exactitud EQUILIBRADA se calcula
+    #: por area, y es la unica que sobrevive al desequilibrio de este banco.
+    pares_area = []
+    pares_skill = []
+
     for texto, cat in muestra:
         esperada = MAPA.get(cat, "")
         pred = classify_query(texto)
@@ -105,9 +111,11 @@ def main():
             excl += 1
         elif pred == esperada:
             ok += 1
+            pares_area.append((esperada, pred))
         else:
             mal += 1
             confus[(esperada, pred)] += 1
+            pares_area.append((esperada, pred))
 
         skills = Nucleo._match_skills_to_query(n, texto, g)
         n_skills.append(len(skills))
@@ -123,8 +131,10 @@ def main():
             skill_sin_area += 1
         elif a == esperada:
             skill_ok += 1
+            pares_skill.append((esperada, a))
         else:
             skill_mal += 1
+            pares_skill.append((esperada, a))
 
     N = len(muestra)
     med = ok + mal
@@ -148,10 +158,73 @@ def main():
     for s, c in activadas.most_common(10):
         print("     %-28s %5d  (%s)" % (s, c, area_de_skill.get(s)))
 
+    # ── C · EL NULO, QUE FALTABA, Y SIN EL LAS DOS CIFRAS DE ARRIBA MIENTEN ─
+    #
+    # Las medidas A y B se publicaron como 61,2 % y 52,1 % durante meses sin
+    # nadie calcular contra que. El banco esta 89 % dominado por `algebra`, o
+    # sea que RESPONDER SIEMPRE «algebra», sin leer el enunciado, acierta el
+    # 89,0 %. Las dos medidas pierden contra esa constante por 28 y 37 puntos.
+    #
+    # No significa que el emparejador no valga: significa que la exactitud
+    # CRUDA sobre un banco asi no dice nada de el. La que si dice algo es la
+    # EQUILIBRADA —la media de los aciertos dentro de cada area—, donde el
+    # nulo de mayoria se hunde al 33,3 % (acierta un area de tres y falla las
+    # otras dos) y el sistema se pone por encima.
+    #
+    # Es §12.2 aplicado a este medidor: comparar dos versiones de tu propia
+    # idea no es una medicion. La cifra cruda se sigue imprimiendo, pero nunca
+    # mas sola.
+    dist = collections.Counter(e for e, _p in pares_skill)
+    tot_d = sum(dist.values())
+    may, cmay = (dist.most_common(1) or [("", 0)])[0]
+    nulo_crudo = 100.0 * cmay / max(1, tot_d)
+    nulo_eq = 100.0 / max(1, len(dist))
+
+    def equilibrada(pares):
+        """Media de los aciertos DENTRO de cada area. Inmune al desequilibrio."""
+        por = collections.defaultdict(lambda: [0, 0])
+        for esp, pr in pares:
+            por[esp][1] += 1
+            if esp == pr:
+                por[esp][0] += 1
+        if not por:
+            return 0.0
+        return sum(100.0 * a / t for a, t in por.values()) / len(por)
+
+    eq_area = equilibrada(pares_area)
+    eq_skill = equilibrada(pares_skill)
+
+    print("\n=== C · EL NULO. Sin esto, A y B no dicen nada ===\n")
+    print("  el banco esta desequilibrado:")
+    for a, c in dist.most_common():
+        print("     %-16s %5d  %5.1f %%" % (a, c, 100.0 * c / max(1, tot_d)))
+    print("\n  NULO DE MAYORIA — responder siempre «%s», sin leer:" % may)
+    print("     cruda %5.1f %%      equilibrada %5.1f %%" % (nulo_crudo, nulo_eq))
+    print("\n  %-34s %8s %12s" % ("", "cruda", "equilibrada"))
+    print("  %-34s %7.1f %% %11.1f %%"
+          % ("A · classify_query", 100.0 * ok / max(1, med), eq_area))
+    print("  %-34s %7.1f %% %11.1f %%"
+          % ("B · area de la 1a skill", 100.0 * skill_ok / max(1, smed), eq_skill))
+    print("  %-34s %7.1f %% %11.1f %%"
+          % ("nulo de mayoria", nulo_crudo, nulo_eq))
+    print("\n  EN CRUDA LAS DOS PIERDEN CONTRA LA CONSTANTE (%+.1f y %+.1f)."
+          % (100.0 * ok / max(1, med) - nulo_crudo,
+             100.0 * skill_ok / max(1, smed) - nulo_crudo))
+    print("  En equilibrada ganan (%+.1f y %+.1f). Es la cifra que hay que citar."
+          % (eq_area - nulo_eq, eq_skill - nulo_eq))
+
     json.dump({"muestra": N, "semilla": SEMILLA,
                "area_acierta": ok, "area_falla": mal, "area_excluidas": excl,
                "sin_skill": sin_skill, "skills_por_consulta": sum(n_skills) / N,
                "skill_area_ok": skill_ok, "skill_area_mal": skill_mal,
+               # El nulo va EN EL FICHERO, no solo en la pantalla: quien lea
+               # el json para citar una cifra tiene que tropezarse con el.
+               "nulo_mayoria_area": may,
+               "nulo_mayoria_cruda": round(nulo_crudo, 2),
+               "nulo_mayoria_equilibrada": round(nulo_eq, 2),
+               "area_equilibrada": round(eq_area, 2),
+               "skill_area_equilibrada": round(eq_skill, 2),
+               "distribucion_areas": dict(dist.most_common()),
                "confusiones": {"%s->%s" % k: v for k, v in confus.most_common(20)},
                "mas_activadas": dict(activadas.most_common(20))},
               io.open(SALIDA, "w", encoding="utf-8"), indent=1, ensure_ascii=False)

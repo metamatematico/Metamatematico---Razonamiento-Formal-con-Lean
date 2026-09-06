@@ -340,8 +340,17 @@ def test_una_palabra_generica_no_activa_una_skill():
     señal.
 
     MEDIDO con `scripts/medir_emparejamiento.py` sobre las mismas 3000
-    consultas etiquetadas: la primera skill acierta el area el 52,1 % frente al
-    47,3 % de antes, sin ofrecer menos (8,40 -> 8,31 skills por consulta).
+    consultas etiquetadas: la primera skill acertaba el area el 52,1 % frente
+    al 47,3 % de antes, sin ofrecer menos (8,40 -> 8,31 skills por consulta).
+
+    AQUELLA CIFRA NO TENIA NULO, y con el puesto se lee al reves: el banco es
+    89 % `algebra`, o sea que responder siempre «algebra» sin leer el enunciado
+    acierta el 88,6 %. El 52,1 % perdia contra una constante por 36 puntos. La
+    medida que si vale es la EQUILIBRADA —media de los aciertos dentro de cada
+    area—, donde el nulo se hunde al 33,3 %. Ver el bloque C del medidor.
+
+    Lo que este test comprueba no depende de eso: una palabra generica no abre
+    la puerta ella sola. Eso es correcto lo diga el banco que lo diga.
     """
     from nucleo.core import Nucleo
     from nucleo.graph.category import SkillCategory
@@ -367,3 +376,93 @@ def test_pero_la_frase_entera_sigue_casando():
     Nucleo._load_foundational_skills(n)
     sk = Nucleo._match_skills_to_query(n, "prove the prime number theorem", n._graph)
     assert "prime-number-theorem" in sk
+
+
+def test_la_conjuncion_and_no_es_evidencia(sistema):
+    """`and` abria mas puertas que ningun otro token del grafo.
+
+    `tokens(minimo=3)` corta los de una y dos letras, asi que `of`, `to`, `de`
+    y `la` nunca llegaron al emparejador. `and` tiene exactamente tres y se
+    colaba — y el emparejador tokeniza el NOMBRE de la skill, que es una cadena
+    escrita para que la lea una persona, no vocabulario.
+
+    Medido sobre las 3000 consultas etiquetadas, entradas al top-3:
+
+        eigen-theory     «Eigenvalues AND Eigenvectors»  1452, las 1452 por `and`
+        bilinear-forms   «Bilinear AND Quadratic Forms»  1266, 1253 por `and`
+        subgroups-cosets «Subgroups AND Cosets»           830,  829 por `and`
+
+    Tres skills copaban la mitad del banco sin que ninguna de sus keywords
+    apareciese en la consulta. La consulta de abajo no habla de autovalores ni
+    de formas bilineales ni de subgrupos: solo trae una `and`.
+    """
+    n, g = sistema
+    from nucleo.core import Nucleo, _GENERICAS
+
+    assert "and" in _GENERICAS, (
+        "`and` tiene que seguir siendo generica: es la conjuncion inglesa y "
+        "sale en 15 nombres de skill, asi que no distingue entre ellos")
+
+    sk = Nucleo._match_skills_to_query(
+        n, "compute the area of a circle and its perimeter", g)
+    for espurio in ("eigen-theory", "bilinear-forms", "subgroups-cosets"):
+        assert espurio not in sk, (
+            "«%s» entra por la palabra «and» de su propio nombre" % espurio)
+
+
+def test_las_genericas_no_pueden_ser_de_una_o_dos_letras():
+    """Un guardian del guardian: si alguien mete `of`, `de` o `la` en la lista
+    creyendo que asi las filtra, no filtra nada.
+
+    `nucleo.texto.tokens` descarta por longitud ANTES de que el emparejador
+    mire la lista, asi que una entrada de dos letras es codigo muerto que
+    aparenta hacer algo. Es la misma familia que un `except` mudo: no falla,
+    solo miente sobre lo que cubre.
+    """
+    from nucleo.core import _GENERICAS
+    from nucleo.texto import tokens
+
+    cortas = sorted(p for p in _GENERICAS if len(p) < 3)
+    assert not cortas, (
+        "%s nunca llegan al emparejador: `tokens(minimo=3)` ya las corta. "
+        "Quitarlas de la lista o subir el minimo, pero no las dos cosas a "
+        "medias" % cortas)
+
+    # y que la lista este de verdad en el alfabeto que compara el emparejador
+    for p in _GENERICAS:
+        assert tokens(p) == {p}, (
+            "«%s» no sobrevive a la normalizacion, asi que nunca casara" % p)
+
+
+def test_la_muestra_rapida_representa_los_tres_grupos():
+    """`--rapido` tiene que seguir probando lo que discrimina.
+
+    Era `CASOS[::3]`, y una rebanada uniforme sobre una lista ordenada por
+    temas no muestrea: recorta. Daba 6 «verifica», 1 «rechaza» y 1 «no-math»,
+    o sea que la parte donde se caza el fallo grave —sellar como verificado un
+    enunciado que nadie pregunto— se probaba con un caso.
+
+    La cabecera del propio banco lo dice: «un sistema que solo acierta con lo
+    cierto no sirve de nada».
+    """
+    import collections
+    from scripts.banco_fidelidad import muestra_rapida, CASOS, RAPIDO_POR_GRUPO
+
+    m = muestra_rapida()
+    reparto = collections.Counter(c[2] for c in m)
+    for grupo, cuantos in RAPIDO_POR_GRUPO.items():
+        assert reparto[grupo] == cuantos, (
+            "`--rapido` deja %d casos de «%s», se esperaban %d"
+            % (reparto[grupo], grupo, cuantos))
+
+    assert len(m) == sum(RAPIDO_POR_GRUPO.values())
+    # y son casos del banco, no inventados aqui
+    for c in m:
+        assert c in CASOS
+
+    # los `verifica` no pueden salir todos del mismo tema: el banco empieza
+    # con tres de aritmetica seguidos y la rebanada vieja se quedaba con ellos
+    areas = {c[0] for c in m if c[2] == "verifica"}
+    assert len(areas) >= 3, (
+        "los casos «verifica» de la muestra rapida salen de %s: muy poco "
+        "variado para iterar" % sorted(areas))

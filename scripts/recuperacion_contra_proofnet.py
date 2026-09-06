@@ -237,8 +237,26 @@ def main(k):
 
 
 if __name__ == "__main__":
+    # EL DEFECTO SE LEE DE PRODUCCION, NO SE ESCRIBE A MANO.
+    #
+    # Estaba puesto a 6 mientras el sistema servia con PLAZAS_CON_NOMBRES = 2,
+    # asi que `python -m scripts.recuperacion_contra_proofnet` sin argumentos
+    # medía una configuracion que nadie ejecuta, y sobrescribia el fichero con
+    # ella. El json guardado decia `"k": 2` porque hubo que acordarse de pasar
+    # `--k 2`; en cuanto alguien lo corrio sin el argumento, la fila `lexico`
+    # paso a ser de otro volumen — y `scripts/recuperacion_por_indice.py` LEE
+    # ESA FILA como referencia de sus propias columnas a k=2.
+    #
+    # Comparar precision entre configuraciones que ofrecen distinto numero de
+    # nombres no mide nada (§12.2), y aqui el desajuste no lo introducia una
+    # decision sino un valor por defecto olvidado. Ahora no puede separarse:
+    # si cambia PLAZAS_CON_NOMBRES, cambia esto.
+    from nucleo.core import PLAZAS_CON_NOMBRES
+
     ap = argparse.ArgumentParser()
-    ap.add_argument("--k", type=int, default=6,
-                    help="cuantas skills se consultan por enunciado")
+    ap.add_argument("--k", type=int, default=PLAZAS_CON_NOMBRES,
+                    help="cuantas skills se consultan por enunciado "
+                         "(por defecto %d, el valor con el que sirve el "
+                         "sistema)" % PLAZAS_CON_NOMBRES)
     a = ap.parse_args()
     sys.exit(main(a.k))
