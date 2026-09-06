@@ -55,10 +55,21 @@ class TestElAcoplamiento:
             "propósito, actualiza el diagrama, el README y el reporte")
 
     def test_modulos_mathlib_solo_mira_las_primeras(self):
-        """El corte que hace que medidor y runtime coincidan."""
+        """El corte que hace que medidor y runtime coincidan.
+
+        LA VENTANA SE DELIMITA POR EL CUERPO DE LA FUNCIÓN, no por un número
+        de caracteres. La primera versión miraba los 2 000 siguientes al
+        `def`, y al crecer la docstring —al anotar la remedición del paso 3—
+        la línea del corte quedó fuera de la ventana: el guardián falló
+        diciendo «cambió la forma de recortar» cuando no había cambiado nada.
+        Un guardián que se dispara por su propia ventana enseña a ignorarlo.
+        """
         s = _fuente("nucleo/core.py")
         i = s.index("def _modulos_mathlib")
-        m = re.search(r"for s in skills\[:(\d+)\]", s[i:i + 2000])
+        # hasta el siguiente método del mismo nivel de indentación
+        sig = re.search(r"\n    def ", s[i:])
+        cuerpo = s[i:i + sig.start()] if sig else s[i:]
+        m = re.search(r"for s in skills\[:(\d+)\]", cuerpo)
         assert m, "cambió la forma de recortar en _modulos_mathlib"
         assert int(m.group(1)) <= 5, (
             "_modulos_mathlib mira %s skills, pero el runtime sólo le pasa 5. "
