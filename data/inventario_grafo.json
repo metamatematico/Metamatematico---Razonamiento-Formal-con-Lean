@@ -1262,8 +1262,8 @@
   {
    "s": "CONCEPTO",
    "nodos": 158,
-   "kw": 839,
-   "media": 5.3
+   "kw": 913,
+   "media": 5.8
   },
   {
    "s": "AREA",
@@ -1284,9 +1284,9 @@
    "media": 0.0
   }
  ],
- "kw_total": 4228,
- "kw_distintas": 1846,
- "kw_frases": 319,
+ "kw_total": 4302,
+ "kw_distintas": 1889,
+ "kw_frases": 347,
  "kw_con_acento": 66,
  "kw_repetidas": [
   [
@@ -1331,15 +1331,6 @@
   ]
  ],
  "sin_kw": [
-  "cat-basics",
-  "cic",
-  "fol-deduction",
-  "fol-metatheory",
-  "functors",
-  "lean-kernel",
-  "limits",
-  "nat-trans",
-  "ordinals",
   "strategy-backward",
   "strategy-cases",
   "strategy-construction",
@@ -1354,8 +1345,7 @@
   "tactic-omega",
   "tactic-rewrite",
   "tactic-ring",
-  "tactic-simp",
-  "zfc-axioms"
+  "tactic-simp"
  ],
  "nodos_con_nombres": 112,
  "plazas_nombres": 190,
@@ -1559,19 +1549,11 @@
    3
   ],
   [
-   "ContinuousLinearMap",
-   2
-  ],
-  [
    "FDRep",
    2
   ],
   [
-   "Turing",
-   2
-  ],
-  [
-   "SimpleGraph",
+   "ProbabilityTheory",
    2
   ],
   [
@@ -1579,7 +1561,15 @@
    2
   ],
   [
-   "Filter",
+   "Sylow",
+   2
+  ],
+  [
+   "ContinuousLinearMap",
+   2
+  ],
+  [
+   "LinearMap",
    2
   ]
  ],
@@ -1879,9 +1869,9 @@
   "taxonomia": {
    "nivel": 2,
    "conceptos": 1139,
-   "conceptos_cubiertos": 80,
+   "conceptos_cubiertos": 210,
    "teoremas": 173636,
-   "teoremas_cubiertos": 56780
+   "teoremas_cubiertos": 137342
   }
  }
 }

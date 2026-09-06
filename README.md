@@ -69,7 +69,7 @@ negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
 ### La frontera del idioma
 
 Los seis pasos no llevan idioma propio: **lo llevan sus datos, y son todos
-ingleses** — las 4 228 palabras clave del grafo, los 183 433 hechos de Mathlib,
+ingleses** — las 4 302 palabras clave del grafo, los 183 433 hechos de Mathlib,
 los ejemplos few-shot de miniF2F y el propio Lean. Un alumno que escribe
 «¿Es 17 un número primo?» no toca ninguna de esas palabras.
 
