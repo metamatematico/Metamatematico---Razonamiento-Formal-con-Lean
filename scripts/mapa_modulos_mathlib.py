@@ -86,6 +86,114 @@ def construir():
     return mapa, ficheros
 
 
+def _lean_existe(mod):
+    """¿`Mathlib.Data.Set.Basic` es un fichero de verdad, o solo una carpeta?"""
+    return os.path.exists(os.path.join(
+        os.path.dirname(MATHLIB), mod.replace(".", os.sep) + ".lean"))
+
+
+def _hijos_lean(mod):
+    """Los modulos importables que cuelgan de este, si es un directorio."""
+    d = os.path.join(os.path.dirname(MATHLIB), mod.replace(".", os.sep))
+    if not os.path.isdir(d):
+        return []
+    fuera = []
+    for r, _s, fs in os.walk(d):
+        for f in fs:
+            if f.endswith(".lean"):
+                rel = os.path.relpath(os.path.join(r, f),
+                                      os.path.dirname(MATHLIB))
+                fuera.append(rel[:-5].replace(os.sep, ".").replace("/", "."))
+    return fuera
+
+
+def _hechos_por_modulo():
+    """modulo -> cuantos hechos declara, segun el indice de lemas."""
+    cnt = {}
+    ruta = RAIZ + "/data/lemas_mathlib.jsonl"
+    if not os.path.exists(ruta):
+        return cnt
+    for linea in io.open(ruta, encoding="utf-8"):
+        try:
+            d = json.loads(linea)
+        except ValueError:
+            continue
+        m = d.get("modulo") or d.get("module")
+        if m:
+            cnt[m] = cnt.get(m, 0) + 1
+    return cnt
+
+
+def modulos_de_los_derivados(hechos):
+    """Los nodos que saben su modulo, resueltos a algo IMPORTABLE.
+
+    POR QUE HACE FALTA ESTA SEGUNDA FUENTE. El mapa de arriba se construye
+    resolviendo los NOMBRES verificados de cada skill al fichero donde se
+    declaran, y los 125 nodos MODULO y los 22 AREA no tienen nombres. Se
+    quedaban fuera los 147: el mapa conocia 76 de 320 nodos, y
+    `_modulos_mathlib` —que es quien elige los imports— devolvia vacio en
+    cuanto las primeras skills eran de esas.
+
+    Pero esos nodos SI saben su modulo: lo llevan en `metadata["modulo"]`,
+    puesto por el generador desde la ruta real del fichero.
+
+    Y NO SE PUEDE USAR TAL CUAL. `Mathlib.Data.Set` es un DIRECTORIO:
+    `import Mathlib.Data.Set` NO COMPILA. Medido sobre los 147, solo 8 son
+    importables directamente. Asi que se resuelve al fichero de verdad:
+
+        1. `<modulo>.Basic`  — la convencion de Mathlib     96 de 147
+        2. `<modulo>.Defs`   — cuando no hay Basic           7
+        3. el hijo con MAS HECHOS, del indice de lemas      41
+        4. si no hay ningun hijo utilizable, se queda fuera  3
+
+    El paso 3 no es una convencion, es un dato. Y todo lo que sale de aqui se
+    comprueba contra el disco antes de escribirse: un import inventado no
+    ralentiza la compilacion, la rompe.
+    """
+    from nucleo.core import Nucleo
+    from nucleo.graph.category import SkillCategory
+
+    n = Nucleo.__new__(Nucleo)
+    n._graph = SkillCategory()
+    Nucleo._load_foundational_skills(n)
+
+    #: Nombres de area que NO son un directorio de Mathlib.
+    #:
+    #: `areas.py` toma los nombres de la presentacion de Mathlib, y 21 de los
+    #: 22 son directorios reales. `OrderTheory` es la excepcion: la rama se
+    #: llama `Mathlib/Order`. Va como tabla explicita y no como heuristica
+    #: —quitar el sufijo «Theory»— porque `RingTheory`, `MeasureTheory`,
+    #: `ModelTheory`, `NumberTheory`, `SetTheory` y `RepresentationTheory` SI
+    #: son directorios, y la heuristica los romperia todos.
+    ALIAS = {"Mathlib.OrderTheory": "Mathlib.Order"}
+
+    fuera, motivos, sin_resolver = {}, {}, []
+    for s in n._graph.skills:
+        mod = (s.metadata or {}).get("modulo")
+        if not mod:
+            continue
+        mod = ALIAS.get(mod, mod)
+        if _lean_existe(mod):
+            fuera[s.id], motivos[s.id] = [mod], "directo"
+            continue
+        hijos = _hijos_lean(mod)
+        if not hijos:
+            sin_resolver.append((s.id, mod))
+            continue
+        if mod + ".Basic" in hijos:
+            elegido, por = mod + ".Basic", "Basic"
+        elif mod + ".Defs" in hijos:
+            elegido, por = mod + ".Defs", "Defs"
+        else:
+            elegido = max(hijos, key=lambda h: (hechos.get(h, 0), -len(h)))
+            por = "mas-hechos"
+            if hechos.get(elegido, 0) == 0:
+                sin_resolver.append((s.id, mod))
+                continue
+        fuera[s.id], motivos[s.id] = [elegido], por
+    return fuera, motivos, sin_resolver
+
+
 def main():
     print("recorriendo el fuente de Mathlib...")
     mapa, ficheros = construir()
@@ -131,11 +239,50 @@ def main():
     for k in list(por_skill)[:6]:
         print("     %-26s -> %s" % (k, ", ".join(por_skill[k])))
 
+    # ── SEGUNDA FUENTE: los nodos que saben su propio modulo ──────────────
+    print("\n=== NODOS QUE SABEN SU MODULO (los generados) ===")
+    hechos = _hechos_por_modulo()
+    print("  indice de lemas: %d modulos con hechos" % len(hechos))
+    derivados, motivos, sin_resolver = modulos_de_los_derivados(hechos)
+    cuenta = {}
+    for v in motivos.values():
+        cuenta[v] = cuenta.get(v, 0) + 1
+    print("  resueltos: %d   (%s)"
+          % (len(derivados),
+             " · ".join("%s %d" % kv for kv in sorted(cuenta.items()))))
+    if sin_resolver:
+        print("  sin resolver: %d" % len(sin_resolver))
+        for k, m in sin_resolver[:5]:
+            print("     %-30s %s" % (k, m))
+
+    nuevos = {k: v for k, v in derivados.items() if k not in por_skill}
+    por_skill.update(nuevos)
+    print("  se anaden %d skills que el mapa no conocia" % len(nuevos))
+
+    # ── LA GUARDA: nada que no sea un fichero real llega al disco ─────────
+    #
+    # Un import inventado no ralentiza la compilacion: la rompe, y lo haria en
+    # TODAS las consultas a la vez. Se comprueba contra el disco.
+    malos = []
+    for sid, mods in por_skill.items():
+        for m in mods:
+            if not _lean_existe(m):
+                malos.append((sid, m))
+    if malos:
+        print("\n  ABORTADO: %d modulos que no existen como fichero" % len(malos))
+        for sid, m in malos[:10]:
+            print("     %-30s %s" % (sid, m))
+        return 1
+    print("  comprobado contra el disco: los %d modulos existen"
+          % sum(len(v) for v in por_skill.values()))
+
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
     io.open(SALIDA, "w", encoding="utf-8").write(json.dumps(
         {"por_skill": por_skill, "nombres": len(mapa)},
         ensure_ascii=False, indent=2))
-    print("\n  -> %s" % SALIDA)
+    print("\n  skills en el mapa: %d  (%d por nombre verificado + %d por modulo propio)"
+          % (len(por_skill), len(por_skill) - len(nuevos), len(nuevos)))
+    print("  -> %s" % SALIDA)
     return 0
 
 

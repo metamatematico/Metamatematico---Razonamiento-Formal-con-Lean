@@ -579,3 +579,96 @@ def test_no_hay_secuencias_de_escape_invalidas():
                                      % (py.name, a.lineno, a.message))
 
     assert not malos, "\n".join(malos)
+
+
+def test_el_mapa_de_modulos_conoce_a_los_nodos_que_saben_el_suyo():
+    """El mapa se construia resolviendo NOMBRES verificados a su fichero, y
+    los 125 nodos MODULO y los 22 AREA no tienen nombres: se quedaban fuera
+    los 147.
+
+    Consecuencia real, no cosmetica: `_modulos_mathlib` —quien elige que
+    importa Lean— hace `_MODULOS_CACHE.get(skill, [])` sobre las cuatro
+    primeras skills, asi que devolvia VACIO en cuanto esas skills eran
+    generadas. La medicion del paso 3 registro que en 14 de 20 casos el grafo
+    no añadia ni un modulo.
+
+    Esos nodos si saben su modulo: lo llevan en `metadata["modulo"]`.
+    """
+    import json
+    from nucleo.rutas import dato
+    from nucleo.core import Nucleo
+    from nucleo.graph.category import SkillCategory
+
+    mapa = json.loads(dato("mathlib_modulos.json").read_text(encoding="utf-8"))
+    por_skill = mapa.get("por_skill") or {}
+
+    n = Nucleo.__new__(Nucleo)
+    n._graph = SkillCategory()
+    Nucleo._load_foundational_skills(n)
+
+    saben = {s.id for s in n._graph.skills if (s.metadata or {}).get("modulo")}
+    fuera = sorted(saben - set(por_skill))
+    assert not fuera, (
+        "%d nodos saben su modulo y el mapa no los conoce, asi que el paso 3 "
+        "no puede usarlos: %s. Regenerar con "
+        "python -m scripts.mapa_modulos_mathlib" % (len(fuera), fuera[:6]))
+
+
+def test_todos_los_modulos_del_mapa_existen_en_disco():
+    """Un import inventado no ralentiza la compilacion: la rompe, y en TODAS
+    las consultas a la vez.
+
+    `Mathlib.Data.Set` es un DIRECTORIO, no un fichero — de los 147 modulos
+    que declaran los nodos generados solo 8 son importables tal cual. El
+    generador del mapa los resuelve a un fichero real (Basic, Defs, o el hijo
+    con mas hechos) y comprueba el resultado contra el disco; esto vuelve a
+    comprobarlo por si alguien edita el json a mano.
+    """
+    import json
+    import os
+    from nucleo.rutas import RAIZ, dato
+
+    mathlib = RAIZ / ".lake" / "packages" / "mathlib"
+    if not mathlib.is_dir():
+        import pytest
+        pytest.skip("Mathlib no esta descargado en esta maquina")
+
+    mapa = json.loads(dato("mathlib_modulos.json").read_text(encoding="utf-8"))
+    malos = []
+    for sid, mods in (mapa.get("por_skill") or {}).items():
+        for m in mods:
+            p = mathlib / (m.replace(".", os.sep) + ".lean")
+            if not p.exists():
+                malos.append("%s -> %s" % (sid, m))
+    assert not malos, (
+        "%d modulos del mapa no existen como fichero .lean: %s"
+        % (len(malos), malos[:6]))
+
+
+def test_los_diez_fundacionales_son_alcanzables_por_texto(sistema):
+    """Eran los unicos conceptos sin ninguna palabra clave.
+
+    Ninguna consulta podia activarlos por via lexica: solo se llegaba a ellos
+    recorriendo flechas desde otro nodo. El suelo del grafo era inalcanzable
+    desde el texto de una pregunta, que es justo por donde entra el alumno.
+    """
+    from nucleo.core import Nucleo
+    n, g = sistema
+
+    pilares = [s for s in g.skills if (getattr(s, "level", None) == 0)]
+    assert len(pilares) == 10, "eran diez fundacionales, ahora %d" % len(pilares)
+
+    sin = sorted(s.id for s in pilares
+                 if not [k for k in ((s.metadata or {}).get("keywords") or [])
+                         if k.strip()])
+    assert not sin, "fundacionales sin palabras clave: %s" % sin
+
+    # y que de verdad se alcancen, no solo que declaren keywords
+    for consulta, esperado in (
+        ("demuestra que los colimites conmutan", "limits"),
+        ("que es un funtor adjunto", "functors"),
+        ("demuestra el teorema de completitud", "fol-metatheory"),
+    ):
+        sk = Nucleo._match_skills_to_query(n, consulta, g)
+        assert esperado in sk, (
+            "«%s» deberia alcanzar %s y activa %s" % (consulta, esperado, sk[:4]))

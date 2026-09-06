@@ -712,17 +712,53 @@ class Nucleo:
         return pasos
 
     def _load_foundational_skills(self) -> None:
-        """Cargar skills fundamentales de los 4 pilares (nivel 0)."""
+        """Cargar skills fundamentales de los 4 pilares (nivel 0).
+
+        LOS DIEZ LLEVAN PALABRAS CLAVE, Y SE APLICARON SIN MEDICION POSITIVA.
+        Hace falta explicar por que, porque este repositorio no suele hacerlo.
+
+        Eran los unicos conceptos del grafo sin ninguna: ninguna consulta podia
+        activarlos por via lexica y solo se llegaba a ellos recorriendo flechas
+        desde otro nodo que si hubiese casado. El suelo del grafo era
+        inalcanzable desde el texto de una pregunta.
+
+        MEDIDO EN LOS DOS BANCOS, el cambio sale IDENTICO en todas las
+        columnas: ProofNet 21,0 % / 17,7 % y MATH 40,9 % equilibrada, con las
+        mismas 232 consultas mudas y los mismos 7,00 conceptos por consulta.
+
+        Y la causa de que salga identico no es que sea neutro: es que los
+        bancos NO PUEDEN MEDIRLO. De las 3 000 consultas de MATH solo UNA
+        contiene alguna de estas palabras, y de los 371 ejercicios de ProofNet
+        NINGUNO — son matematica de concurso y de licenciatura, y esto son
+        fundamentos. Sobre las consultas para las que el sistema existe
+        —«demuestra que los colimites conmutan», «que es un funtor adjunto»,
+        «que dice el axioma de eleccion»— si disparan.
+
+        Asi que se aplica con riesgo de regresion medido en cero y beneficio
+        NO medido, y queda pendiente el banco que podria medirlo: consultas
+        de fundamentos con premisas de oro.
+
+        Las palabras son deliberadamente ESTRECHAS. `zfc-axioms` no lleva
+        `conjunto` —saldria en media consulta de teoria de conjuntos y ese
+        nodo emite 142 aristas, o sea que abre un cono enorme—; lleva `zfc`,
+        `zermelo`, `axioma de eleccion`.
+        """
         # F_Set: Teoria de Conjuntos
         self._graph.add_skill(Skill(
             id="zfc-axioms", name="ZFC Axioms",
             description="Axiomas de Zermelo-Fraenkel con Eleccion",
             pillar=PillarType.SET, level=0,
+            metadata={"keywords": [
+                "zfc", "zermelo", "fraenkel", "axioma de eleccion",
+                "axiom of choice", "teoria de conjuntos axiomatica"]},
         ))
         self._graph.add_skill(Skill(
             id="ordinals", name="Ordinals",
             description="Numeros ordinales y aritmetica ordinal",
             pillar=PillarType.SET, level=0,
+            metadata={"keywords": [
+                "ordinal", "ordinales", "ordinals", "aritmetica ordinal",
+                "induccion transfinita", "transfinite induction"]},
         ))
 
         # F_Cat: Teoria de Categorias
@@ -730,21 +766,35 @@ class Nucleo:
             id="cat-basics", name="Category Basics",
             description="Objetos, morfismos, composicion",
             pillar=PillarType.CAT, level=0,
+            metadata={"keywords": [
+                "categoria", "categorias", "category", "categories",
+                "morfismo", "morfismos", "morphism", "morphisms"]},
         ))
         self._graph.add_skill(Skill(
             id="functors", name="Functors",
             description="Funtores covariantes y contravariantes",
             pillar=PillarType.CAT, level=0,
+            metadata={"keywords": [
+                "funtor", "funtores", "functor", "functors",
+                "covariante", "contravariante", "covariant", "contravariant"]},
         ))
         self._graph.add_skill(Skill(
             id="nat-trans", name="Natural Transformations",
             description="Transformaciones naturales entre funtores",
             pillar=PillarType.CAT, level=0,
+            metadata={"keywords": [
+                "transformacion natural", "transformaciones naturales",
+                "natural transformation", "natural transformations",
+                "naturalidad", "naturality"]},
         ))
         self._graph.add_skill(Skill(
             id="limits", name="Limits & Colimits",
             description="Limites y colimites categoricos",
             pillar=PillarType.CAT, level=0,
+            metadata={"keywords": [
+                "colimite", "colimites", "colimit", "colimits",
+                "limite categorico", "cono", "cocono", "cocone",
+                "producto fibrado", "pullback", "pushout"]},
         ))
 
         # F_Log: Logica
@@ -752,11 +802,19 @@ class Nucleo:
             id="fol-deduction", name="FOL Deduction",
             description="Deduccion natural en logica de primer orden",
             pillar=PillarType.LOG, level=0,
+            metadata={"keywords": [
+                "logica de primer orden", "primer orden", "first order logic",
+                "deduccion natural", "natural deduction",
+                "cuantificador", "cuantificadores", "quantifier"]},
         ))
         self._graph.add_skill(Skill(
             id="fol-metatheory", name="FOL Metatheory",
             description="Completitud, compacidad, Lowenheim-Skolem",
             pillar=PillarType.LOG, level=0,
+            metadata={"keywords": [
+                "completitud", "completeness", "compacidad",
+                "lowenheim", "skolem", "teorema de completitud",
+                "incompletitud", "godel"]},
         ))
 
         # F_Type: Teoria de Tipos
@@ -764,11 +822,18 @@ class Nucleo:
             id="cic", name="CIC",
             description="Calculo de Construcciones Inductivas",
             pillar=PillarType.TYPE, level=0,
+            metadata={"keywords": [
+                "teoria de tipos", "type theory", "tipo dependiente",
+                "dependent type", "calculo de construcciones",
+                "tipos inductivos", "inductive type"]},
         ))
         self._graph.add_skill(Skill(
             id="lean-kernel", name="Lean 4 Kernel",
             description="Kernel de verificacion de Lean 4",
             pillar=PillarType.TYPE, level=0,
+            metadata={"keywords": [
+                "lean", "kernel", "asistente de pruebas", "proof assistant",
+                "verificador de pruebas", "mathlib"]},
         ))
 
         # ── LOS DIEZ L0, TIPADOS ──────────────────────────────────────────

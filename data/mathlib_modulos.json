@@ -277,6 +277,447 @@
     ],
     "graded-objects": [
       "Mathlib.CategoryTheory.GradedObject"
+    ],
+    "mathlib-algebra-order": [
+      "Mathlib.Algebra.Order.GroupWithZero.Unbundled.Basic"
+    ],
+    "mathlib-analysis-specialfunctions": [
+      "Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"
+    ],
+    "mathlib-data-set": [
+      "Mathlib.Data.Set.Basic"
+    ],
+    "mathlib-categorytheory-limits": [
+      "Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts"
+    ],
+    "mathlib-algebra-polynomial": [
+      "Mathlib.Algebra.Polynomial.Basic"
+    ],
+    "mathlib-data-finset": [
+      "Mathlib.Data.Finset.Basic"
+    ],
+    "mathlib-order-filter": [
+      "Mathlib.Order.Filter.Basic"
+    ],
+    "mathlib-data-nat": [
+      "Mathlib.Data.Nat.Basic"
+    ],
+    "mathlib-order-interval": [
+      "Mathlib.Order.Interval.Basic"
+    ],
+    "mathlib-measuretheory-integral": [
+      "Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"
+    ],
+    "mathlib-data-list": [
+      "Mathlib.Data.List.Basic"
+    ],
+    "mathlib-analysis-convex": [
+      "Mathlib.Analysis.Convex.Basic"
+    ],
+    "mathlib-topology-order": [
+      "Mathlib.Topology.Order"
+    ],
+    "mathlib-analysis-complex": [
+      "Mathlib.Analysis.Complex.Basic"
+    ],
+    "mathlib-categorytheory-monoidal": [
+      "Mathlib.CategoryTheory.Monoidal.Category"
+    ],
+    "mathlib-geometry-euclidean": [
+      "Mathlib.Geometry.Euclidean.Basic"
+    ],
+    "mathlib-algebra-lie": [
+      "Mathlib.Algebra.Lie.Basic"
+    ],
+    "mathlib-combinatorics-matroid": [
+      "Mathlib.Combinatorics.Matroid.Basic"
+    ],
+    "mathlib-algebra-bigoperators": [
+      "Mathlib.Algebra.BigOperators.Finprod"
+    ],
+    "mathlib-algebraicgeometry-ellipticcurve": [
+      "Mathlib.AlgebraicGeometry.EllipticCurve.Projective.Formula"
+    ],
+    "mathlib-algebra-category": [
+      "Mathlib.Algebra.Category.Ring.Basic"
+    ],
+    "mathlib-ringtheory-polynomial": [
+      "Mathlib.RingTheory.Polynomial.Basic"
+    ],
+    "mathlib-data-multiset": [
+      "Mathlib.Data.Multiset.Basic"
+    ],
+    "mathlib-analysis-asymptotics": [
+      "Mathlib.Analysis.Asymptotics.Defs"
+    ],
+    "mathlib-algebra-mvpolynomial": [
+      "Mathlib.Algebra.MvPolynomial.Basic"
+    ],
+    "mathlib-algebra-star": [
+      "Mathlib.Algebra.Star.Basic"
+    ],
+    "mathlib-grouptheory-perm": [
+      "Mathlib.GroupTheory.Perm.Basic"
+    ],
+    "mathlib-data-matrix": [
+      "Mathlib.Data.Matrix.Basic"
+    ],
+    "mathlib-data-fin": [
+      "Mathlib.Data.Fin.Basic"
+    ],
+    "mathlib-logic-equiv": [
+      "Mathlib.Logic.Equiv.Basic"
+    ],
+    "mathlib-data-ennreal": [
+      "Mathlib.Data.ENNReal.Basic"
+    ],
+    "mathlib-data-finsupp": [
+      "Mathlib.Data.Finsupp.Basic"
+    ],
+    "mathlib-linearalgebra-rootsystem": [
+      "Mathlib.LinearAlgebra.RootSystem.Basic"
+    ],
+    "mathlib-grouptheory-groupaction": [
+      "Mathlib.GroupTheory.GroupAction.Basic"
+    ],
+    "mathlib-order-hom": [
+      "Mathlib.Order.Hom.Basic"
+    ],
+    "mathlib-ringtheory-powerseries": [
+      "Mathlib.RingTheory.PowerSeries.Basic"
+    ],
+    "mathlib-topology-instances": [
+      "Mathlib.Topology.Instances.ENNReal.Lemmas"
+    ],
+    "mathlib-ringtheory-localization": [
+      "Mathlib.RingTheory.Localization.Basic"
+    ],
+    "mathlib-linearalgebra-tensorproduct": [
+      "Mathlib.LinearAlgebra.TensorProduct.Basic"
+    ],
+    "mathlib-topology-continuousmap": [
+      "Mathlib.Topology.ContinuousMap.Basic"
+    ],
+    "mathlib-algebraictopology-simplicialset": [
+      "Mathlib.AlgebraicTopology.SimplicialSet.Basic"
+    ],
+    "mathlib-numbertheory-modularforms": [
+      "Mathlib.NumberTheory.ModularForms.Basic"
+    ],
+    "mathlib-data-int": [
+      "Mathlib.Data.Int.Basic"
+    ],
+    "mathlib-probability-independence": [
+      "Mathlib.Probability.Independence.Basic"
+    ],
+    "mathlib-numbertheory-lseries": [
+      "Mathlib.NumberTheory.LSeries.Basic"
+    ],
+    "mathlib-order-completelattice": [
+      "Mathlib.Order.CompleteLattice.Basic"
+    ],
+    "mathlib-analysis-boxintegral": [
+      "Mathlib.Analysis.BoxIntegral.Basic"
+    ],
+    "mathlib-ringtheory-mvpolynomial": [
+      "Mathlib.RingTheory.MvPolynomial"
+    ],
+    "mathlib-ringtheory-mvpowerseries": [
+      "Mathlib.RingTheory.MvPowerSeries.Basic"
+    ],
+    "mathlib-categorytheory-triangulated": [
+      "Mathlib.CategoryTheory.Triangulated.Basic"
+    ],
+    "mathlib-data-real": [
+      "Mathlib.Data.Real.Basic"
+    ],
+    "mathlib-probability-moments": [
+      "Mathlib.Probability.Moments.Basic"
+    ],
+    "mathlib-topology-constructions": [
+      "Mathlib.Topology.Constructions"
+    ],
+    "mathlib-order-succpred": [
+      "Mathlib.Order.SuccPred.Basic"
+    ],
+    "mathlib-topology-category": [
+      "Mathlib.Topology.Category.TopCat.Opens"
+    ],
+    "mathlib-algebraicgeometry-morphisms": [
+      "Mathlib.AlgebraicGeometry.Morphisms.Basic"
+    ],
+    "mathlib-measuretheory-group": [
+      "Mathlib.MeasureTheory.Group.Defs"
+    ],
+    "mathlib-ringtheory-hahnseries": [
+      "Mathlib.RingTheory.HahnSeries.Basic"
+    ],
+    "mathlib-linearalgebra-dimension": [
+      "Mathlib.LinearAlgebra.Dimension.Basic"
+    ],
+    "mathlib-data-ereal": [
+      "Mathlib.Data.EReal.Basic"
+    ],
+    "mathlib-combinatorics-additive": [
+      "Mathlib.Combinatorics.Additive.VerySmallDoubling"
+    ],
+    "mathlib-topology-compactness": [
+      "Mathlib.Topology.Compactness.Compact"
+    ],
+    "mathlib-analysis-locallyconvex": [
+      "Mathlib.Analysis.LocallyConvex.Basic"
+    ],
+    "mathlib-order-upperlower": [
+      "Mathlib.Order.UpperLower.Basic"
+    ],
+    "mathlib-categorytheory-localization": [
+      "Mathlib.CategoryTheory.Localization.CalculusOfFractions"
+    ],
+    "mathlib-categorytheory-morphismproperty": [
+      "Mathlib.CategoryTheory.MorphismProperty.Basic"
+    ],
+    "mathlib-ringtheory-spectrum": [
+      "Mathlib.RingTheory.Spectrum.Prime.Topology"
+    ],
+    "mathlib-topology-emetricspace": [
+      "Mathlib.Topology.EMetricSpace.Basic"
+    ],
+    "mathlib-representationtheory-homological": [
+      "Mathlib.RepresentationTheory.Homological.GroupHomology.LowDegree"
+    ],
+    "mathlib-ringtheory-dedekinddomain": [
+      "Mathlib.RingTheory.DedekindDomain.Basic"
+    ],
+    "mathlib-probability-distributions": [
+      "Mathlib.Probability.Distributions.Gaussian.Real"
+    ],
+    "mathlib-data-dfinsupp": [
+      "Mathlib.Data.DFinsupp.Defs"
+    ],
+    "mathlib-data-seq": [
+      "Mathlib.Data.Seq.Basic"
+    ],
+    "mathlib-settheory-zfc": [
+      "Mathlib.SetTheory.ZFC.Basic"
+    ],
+    "mathlib-analysis-distribution": [
+      "Mathlib.Analysis.Distribution.SchwartzSpace.Basic"
+    ],
+    "mathlib-order-monotone": [
+      "Mathlib.Order.Monotone.Basic"
+    ],
+    "mathlib-analysis-rclike": [
+      "Mathlib.Analysis.RCLike.Basic"
+    ],
+    "mathlib-topology-semicontinuity": [
+      "Mathlib.Topology.Semicontinuity.Basic"
+    ],
+    "mathlib-data-rat": [
+      "Mathlib.Data.Rat.Defs"
+    ],
+    "mathlib-logic-function": [
+      "Mathlib.Logic.Function.Basic"
+    ],
+    "mathlib-algebra-monoidalgebra": [
+      "Mathlib.Algebra.MonoidAlgebra.Basic"
+    ],
+    "mathlib-ringtheory-gradedalgebra": [
+      "Mathlib.RingTheory.GradedAlgebra.Basic"
+    ],
+    "mathlib-ringtheory-wittvector": [
+      "Mathlib.RingTheory.WittVector.Basic"
+    ],
+    "mathlib-topology-sets": [
+      "Mathlib.Topology.Sets.Compacts"
+    ],
+    "mathlib-analysis-real": [
+      "Mathlib.Analysis.Real.Hyperreal"
+    ],
+    "mathlib-order-heyting": [
+      "Mathlib.Order.Heyting.Basic"
+    ],
+    "mathlib-analysis-fourier": [
+      "Mathlib.Analysis.Fourier.AddCircle"
+    ],
+    "mathlib-order-category": [
+      "Mathlib.Order.Category.BddLat"
+    ],
+    "mathlib-linearalgebra-cliffordalgebra": [
+      "Mathlib.LinearAlgebra.CliffordAlgebra.Basic"
+    ],
+    "mathlib-measuretheory-vectormeasure": [
+      "Mathlib.MeasureTheory.VectorMeasure.Basic"
+    ],
+    "mathlib-measuretheory-outermeasure": [
+      "Mathlib.MeasureTheory.OuterMeasure.Basic"
+    ],
+    "mathlib-order-booleanalgebra": [
+      "Mathlib.Order.BooleanAlgebra.Basic"
+    ],
+    "mathlib-ringtheory-tensorproduct": [
+      "Mathlib.RingTheory.TensorProduct.Basic"
+    ],
+    "mathlib-order-conditionallycompletelattice": [
+      "Mathlib.Order.ConditionallyCompleteLattice.Basic"
+    ],
+    "mathlib-analysis-meromorphic": [
+      "Mathlib.Analysis.Meromorphic.Basic"
+    ],
+    "mathlib-algebra-quaternion": [
+      "Mathlib.Algebra.Quaternion"
+    ],
+    "mathlib-algebra-charp": [
+      "Mathlib.Algebra.CharP.Basic"
+    ],
+    "mathlib-data-pnat": [
+      "Mathlib.Data.PNat.Basic"
+    ],
+    "mathlib-ringtheory-fractionalideal": [
+      "Mathlib.RingTheory.FractionalIdeal.Basic"
+    ],
+    "mathlib-categorytheory-shift": [
+      "Mathlib.CategoryTheory.Shift.Basic"
+    ],
+    "mathlib-combinatorics-setfamily": [
+      "Mathlib.Combinatorics.SetFamily.AhlswedeZhang"
+    ],
+    "mathlib-categorytheory-adjunction": [
+      "Mathlib.CategoryTheory.Adjunction.Basic"
+    ],
+    "mathlib-categorytheory-subobject": [
+      "Mathlib.CategoryTheory.Subobject.Basic"
+    ],
+    "mathlib-grouptheory-specificgroups": [
+      "Mathlib.GroupTheory.SpecificGroups.Cyclic"
+    ],
+    "mathlib-ringtheory-extension": [
+      "Mathlib.RingTheory.Extension.Basic"
+    ],
+    "mathlib-data-sym": [
+      "Mathlib.Data.Sym.Basic"
+    ],
+    "mathlib-algebra-directsum": [
+      "Mathlib.Algebra.DirectSum.Basic"
+    ],
+    "mathlib-computability-primrec": [
+      "Mathlib.Computability.Primrec"
+    ],
+    "mathlib-fieldtheory-ratfunc": [
+      "Mathlib.FieldTheory.RatFunc.Basic"
+    ],
+    "mathlib-linearalgebra-linearindependent": [
+      "Mathlib.LinearAlgebra.LinearIndependent.Basic"
+    ],
+    "mathlib-data-enat": [
+      "Mathlib.Data.ENat.Basic"
+    ],
+    "mathlib-data-num": [
+      "Mathlib.Data.Num.Basic"
+    ],
+    "mathlib-linearalgebra-span": [
+      "Mathlib.LinearAlgebra.Span.Basic"
+    ],
+    "mathlib-order-bounds": [
+      "Mathlib.Order.Bounds.Basic"
+    ],
+    "mathlib-topology-openpartialhomeomorph": [
+      "Mathlib.Topology.OpenPartialHomeomorph"
+    ],
+    "mathlib-logic-basic": [
+      "Mathlib.Logic.Basic"
+    ],
+    "mathlib-ringtheory-integralclosure": [
+      "Mathlib.RingTheory.IntegralClosure.IsIntegralClosure.Basic"
+    ],
+    "mathlib-linearalgebra-basis": [
+      "Mathlib.LinearAlgebra.Basis.Basic"
+    ],
+    "mathlib-categorytheory-objectproperty": [
+      "Mathlib.CategoryTheory.ObjectProperty.Basic"
+    ],
+    "mathlib-data-nnreal": [
+      "Mathlib.Data.NNReal.Basic"
+    ],
+    "mathlib-geometry-ringedspace": [
+      "Mathlib.Geometry.RingedSpace.Basic"
+    ],
+    "mathlib-linearalgebra-finsupp": [
+      "Mathlib.LinearAlgebra.Finsupp.Defs"
+    ],
+    "mathlib-linearalgebra-dual": [
+      "Mathlib.LinearAlgebra.Dual.Defs"
+    ],
+    "mathlib-data-sum": [
+      "Mathlib.Data.Sum.Basic"
+    ],
+    "mathlib-numbertheory-arithmeticfunction": [
+      "Mathlib.NumberTheory.ArithmeticFunction"
+    ],
+    "area-algebra": [
+      "Mathlib.Algebra.Order.GroupWithZero.Unbundled.Basic"
+    ],
+    "area-algebraicgeometry": [
+      "Mathlib.AlgebraicGeometry.Scheme"
+    ],
+    "area-algebraictopology": [
+      "Mathlib.AlgebraicTopology.SimplexCategory.Basic"
+    ],
+    "area-analysis": [
+      "Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"
+    ],
+    "area-categorytheory": [
+      "Mathlib.CategoryTheory.Sites.Sieves"
+    ],
+    "area-combinatorics": [
+      "Mathlib.Combinatorics.SimpleGraph.Subgraph"
+    ],
+    "area-computability": [
+      "Mathlib.Computability.Primrec.Basic"
+    ],
+    "area-dynamics": [
+      "Mathlib.Dynamics.Circle.RotationNumber.TranslationNumber"
+    ],
+    "area-fieldtheory": [
+      "Mathlib.FieldTheory.IntermediateField.Basic"
+    ],
+    "area-geometry": [
+      "Mathlib.Geometry.Manifold.MFDeriv.Basic"
+    ],
+    "area-grouptheory": [
+      "Mathlib.GroupTheory.OrderOfElement"
+    ],
+    "area-linearalgebra": [
+      "Mathlib.LinearAlgebra.Matrix.ToLin"
+    ],
+    "area-logic": [
+      "Mathlib.Logic.Basic"
+    ],
+    "area-measuretheory": [
+      "Mathlib.MeasureTheory.Measure.MeasureSpace"
+    ],
+    "area-modeltheory": [
+      "Mathlib.ModelTheory.Basic"
+    ],
+    "area-numbertheory": [
+      "Mathlib.NumberTheory.Basic"
+    ],
+    "area-ordertheory": [
+      "Mathlib.Order.Basic"
+    ],
+    "area-probability": [
+      "Mathlib.Probability.Independence.Basic"
+    ],
+    "area-representationtheory": [
+      "Mathlib.RepresentationTheory.Basic"
+    ],
+    "area-ringtheory": [
+      "Mathlib.RingTheory.Ideal.Operations"
+    ],
+    "area-settheory": [
+      "Mathlib.SetTheory.Ordinal.Basic"
+    ],
+    "area-topology": [
+      "Mathlib.Topology.Basic"
     ]
   },
   "nombres": 34723
