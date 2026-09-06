@@ -258,3 +258,55 @@ class TestRefutacion:
         bloque = fuente[i:i + 400]
         assert "confidence    = 0.30" in bloque
         assert "success_value = 0.0" in bloque
+
+
+class TestDeclararLaLectura:
+    """Una consulta ambigua no se resuelve en silencio.
+
+    «Demuestra el teorema de punto fijo» tiene al menos CUATRO lecturas sin
+    relacion en Mathlib —Banach (31 nombres), puntos fijos de acciones (41),
+    Knaster-Tarski (4), punto fijo general (13)— y el sistema elegia Banach sin
+    decir que elegia. Quien pregunta recibe la respuesta a otra cosa y no tiene
+    forma de saber por que.
+
+    Se pide por el mismo canal legible por maquina que la refutacion, para que
+    el pipeline pueda sacarlo a la primera linea en vez de dejarlo enterrado en
+    un comentario de un bloque que ademas puede haber fallado.
+    """
+
+    @staticmethod
+    def _fuente():
+        import pathlib
+        raiz = pathlib.Path(__file__).resolve().parent.parent
+        return (raiz / "nucleo" / "core.py").read_text(encoding="utf-8")
+
+    def test_el_prompt_pide_declarar_la_lectura(self):
+        fuente = self._fuente()
+        assert "-- READING:" in fuente
+        assert "SEVERAL classical readings" in fuente
+        assert "Do not resolve an ambiguity in" in fuente
+
+    def test_el_pipeline_la_saca_a_la_primera_linea(self):
+        fuente = self._fuente()
+        assert "READING" in fuente and "_lectura" in fuente
+        i_ext = fuente.index("_lectura = ")
+        i_uso = fuente.index("La pregunta admitía varias lecturas")
+        assert i_ext < i_uso
+        assert '"lectura": _lectura' in fuente, (
+            "sin rastro en los metadatos no se puede medir cuantas veces pasa")
+
+    def test_se_extrae_de_un_bloque_real(self):
+        import re
+        codigo = (
+            "-- READING: Banach fixed-point theorem for contractions "
+            "| also: Knaster-Tarski, Brouwer\n"
+            "import Mathlib\n"
+            "theorem t : True := trivial")
+        m = re.search(r"^\s*--\s*READING\s*:\s*(.+)$", codigo, re.M | re.I)
+        assert m and m.group(1).startswith("Banach fixed-point theorem")
+
+    def test_sin_marca_no_se_inventa_una(self):
+        import re
+        assert not re.search(r"^\s*--\s*READING\s*:\s*(.+)$",
+                             "import Mathlib\ntheorem t : True := trivial",
+                             re.M | re.I)

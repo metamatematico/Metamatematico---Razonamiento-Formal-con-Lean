@@ -10,6 +10,7 @@
     "verificacion_con_lean"
   ],
   "apagadas": [
+    "rasgos_de_sintaxis_cuando_el_lexico_calla",
     "orden_de_cascada_por_area",
     "dos_etapas_localizar_y_elegir",
     "recuperacion_lexica_de_lemas",
@@ -18,6 +19,7 @@
   "motivos": {
     "revision_de_sintaxis": "caza de roturas (%) 0.608 contra 0.036 (una moneda que rechaza a la misma tasa)",
     "rasgos_de_sintaxis_para_lemas": "cobertura de lemas (%) 79.190 contra 78.410 (los n-gramas solos, que es lo que ya había)",
+    "rasgos_de_sintaxis_cuando_el_lexico_calla": "su guarda no aplica a esta consulta",
     "reconocedor_de_area": "acierto de área 0.759 contra 0.238 (siempre el área más frecuente)",
     "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 17.100 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)",
     "premisas_hibridas": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)",
@@ -40,6 +42,12 @@
       "nulo": 78.41,
       "gana": true,
       "motivo": "cobertura de lemas (%) 79.190 contra 78.410 (los n-gramas solos, que es lo que ya había)"
+    },
+    "rasgos_de_sintaxis_cuando_el_lexico_calla": {
+      "real": 12.95,
+      "nulo": 3.36,
+      "gana": true,
+      "motivo": "cobertura donde el lexico no acierta nada (%) 12.950 contra 3.360 (los lemas mas frecuentes, en ese mismo estrato)"
     },
     "reconocedor_de_area": {
       "real": 0.7587,
@@ -104,6 +112,6 @@
   "coste_nulo": {
     "llamada al modelo": 1,
     "compilado de Lean": 2,
-    "local": 8
+    "local": 9
   }
 }

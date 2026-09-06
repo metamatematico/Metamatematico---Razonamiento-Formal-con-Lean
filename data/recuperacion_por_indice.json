@@ -1,0 +1,40 @@
+{
+  "n": 371,
+  "k": 2,
+  "nombres_indice": 217419,
+  "tokens": 4020,
+  "resultados": {
+    "INDICE_todo": {
+      "precision": 0.0,
+      "cobertura": 0.0,
+      "tp": 0,
+      "fp": 721,
+      "fn": 1396,
+      "con_algo": 364
+    },
+    "INDICE_sustantivos": {
+      "precision": 1.67,
+      "cobertura": 0.86,
+      "tp": 12,
+      "fp": 707,
+      "fn": 1384,
+      "con_algo": 360
+    },
+    "lexico_grafo": {
+      "precision": 17.10007880220646,
+      "cobertura": 15.544412607449857,
+      "con_algo": 310,
+      "tp": 217,
+      "fp": 1052,
+      "fn": 1179
+    },
+    "nulo_del_banco": {
+      "precision": 1.6335227272727273,
+      "cobertura": 3.2951289398280803,
+      "con_algo": 352,
+      "tp": 46,
+      "fp": 2770,
+      "fn": 1350
+    }
+  }
+}

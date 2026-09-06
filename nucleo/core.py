@@ -1846,6 +1846,23 @@ class Nucleo:
                 "- If the statement you are given is FALSE, do NOT prove it: formalize its\n"
                 "  NEGATION and open the block with the line\n"
                 "  `-- REFUTATION: <why the statement is false>`.\n"
+                # AMBIGÜEDAD: DECIRLA, NO RESOLVERLA EN SILENCIO.
+                #
+                # «Demuestra el teorema de punto fijo» tiene al menos cuatro
+                # lecturas sin relación en Mathlib —Banach, Knaster-Tarski,
+                # puntos fijos de acciones, punto fijo general— y el sistema
+                # elegía Banach sin decir que elegía. Quien pregunta se
+                # encuentra con la respuesta a otra cosa y no sabe por qué.
+                #
+                # Se pide por el mismo canal legible por máquina que la
+                # refutación, para que el pipeline pueda leerlo y ponerlo
+                # delante en vez de dejarlo enterrado en la prosa.
+                "- If the request admits SEVERAL classical readings — there are four\n"
+                "  unrelated fixed-point theorems in Mathlib, several completeness\n"
+                "  theorems, and so on — pick the most likely one AND SAY WHICH, with\n"
+                "  `-- READING: <the statement you chose> | also: <the other readings>`\n"
+                "  as the FIRST line of the block. Do not resolve an ambiguity in\n"
+                "  silence: the reader has to know which question is being answered.\n"
                 "- Use the appropriate Mathlib types and theorems.\n"
                 "- Do not put explanations outside the code block."
             )
@@ -2448,6 +2465,30 @@ class Nucleo:
         if _revision is not None and _revision.aviso:
             content = f"{_revision.aviso}\n\n---\n\n{content}"
 
+        # ── ¿Qué lectura tomó, si la pregunta admitía varias? ────────────────
+        #
+        # «Demuestra el teorema de punto fijo» tiene al menos cuatro lecturas
+        # sin relación en Mathlib —Banach (31 nombres), Knaster-Tarski,
+        # puntos fijos de acciones (41), punto fijo general (13)— y el sistema
+        # elegía Banach EN SILENCIO. Quien pregunta recibe la respuesta a otra
+        # cosa y no tiene forma de saber por qué.
+        #
+        # El formalizador lo declara en un comentario `-- READING:` y aquí se
+        # saca a la primera línea de la respuesta. Enterrado en el código no
+        # sirve: nadie lee los comentarios de un bloque que además falló.
+        _lectura = ""
+        try:
+            _m_lect = re.search(r"^\s*--\s*READING\s*:\s*(.+)$",
+                                lean_code or "", re.M | re.I)
+            if _m_lect:
+                _lectura = _m_lect.group(1).strip()
+        except Exception:                                       # noqa: BLE001
+            pass
+        if _lectura:
+            logger.info("lectura declarada: %s", _lectura[:120])
+            content = ("ℹ️ **La pregunta admitía varias lecturas.** Se ha "
+                       "tomado ésta: %s\n\n---\n\n%s" % (_lectura, content))
+
         # ── ¿La explicación contradice a Mathlib? ────────────────────────────
         #
         # Un caso real: ante «todo espacio vectorial tiene una base» el
@@ -2487,6 +2528,9 @@ class Nucleo:
                 # guarda siempre, se enseña casi nunca (ver nucleo/sintaxis).
                 "sintaxis": (_revision.resumen() if _revision is not None
                              else {}),
+                # La lectura que el formalizador declaro, si la consulta
+                # admitia varias. Vacio es lo normal.
+                "lectura": _lectura,
                 # Los nombres que la explicación negaba y sí existen. Vacío es
                 # lo normal; que deje de estarlo es la señal de que el
                 # traductor está inventando diagnósticos.
