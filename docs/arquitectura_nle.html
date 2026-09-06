@@ -1755,6 +1755,21 @@ svg .sLine{stroke:var(--muted); fill:none}
       estructura.</figcaption>
     </figure>
 
+    <div class="nota g">
+      <b>El grafo entero, nodo a nodo</b>
+      <p>Un dibujo estático no puede mostrar 320 nodos con sus nombres ni
+      1 349 flechas a la vez. <strong><a href="https://claude.ai/code/artifact/eeb735d8-9854-490b-91e1-53c2ff9bad09">El
+      explorador interactivo</a></strong> sí: lleva el grafo completo dentro,
+      con filtro por sort y por área, búsqueda por identificador, nombre o
+      palabra clave, y la ficha de cada nodo — qué vocabulario lo alcanza desde
+      una consulta, qué identificadores de Mathlib aporta al prompt, de qué
+      depende y qué le apunta.</p>
+      <p>Se regenera desde el grafo del runtime con
+      <code>scripts/exportar_grafo_web.py</code> y
+      <code>scripts/incrustar_grafo_web.py</code>, así que no puede quedarse
+      desfasado en silencio.</p>
+    </div>
+
     <figure>
       <div class="marco">
 <svg role="img" aria-label="Anatomía del grafo. Arriba, los 320 nodos repartidos en cinco sorts, dibujados como barras proporcionales: 158 conceptos curados que llevan veredicto categórico y son los únicos que aportan nombres de Mathlib al prompt; 125 módulos leídos de la taxonomía de Mathlib marcados como no interpretados; 22 nodos de área que son la puerta de entrada; 9 tácticas y 6 estrategias. Abajo, los 1349 morfismos en cuatro tipos: 583 dependencias que son prerrequisitos y son acíclicas entre los curados, 439 traducciones entre pilares como Curry-Howard, 320 identidades una por objeto como exige la definición de categoría, y 7 analogías marcadas explícitamente como correspondencias débiles. A la derecha, la nota de que las nueve tácticas reciben 453 aristas y no emiten ninguna, por lo que son sumideros y están identificadas como una categoría-error pendiente." viewBox="0 0 1000 452" style="min-width:660px">
