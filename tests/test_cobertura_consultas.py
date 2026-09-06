@@ -466,3 +466,116 @@ def test_la_muestra_rapida_representa_los_tres_grupos():
     assert len(areas) >= 3, (
         "los casos «verifica» de la muestra rapida salen de %s: muy poco "
         "variado para iterar" % sorted(areas))
+
+
+def test_ningun_medidor_fija_k_a_mano():
+    """Un valor por defecto que no sigue a produccion mide otra cosa.
+
+    Aparecio dos veces, y las dos en scripts que deciden algo:
+
+      · `recuperacion_contra_proofnet.py` tenia `--k` a 6 mientras el sistema
+        sirve con PLAZAS_CON_NOMBRES = 2. Correrlo sin argumentos sobrescribia
+        el fichero con una configuracion que nadie ejecuta — y
+        `recuperacion_por_indice.py` LEE esa fila como referencia de sus
+        propias columnas a k=2. Comparar precision entre configuraciones que
+        ofrecen distinto numero de nombres no mide nada (§12.2), y aqui el
+        desajuste no lo metia una decision sino un descuido.
+
+      · `politica_emparejador.py` —el script que ELIGIO PLAZAS_CON_NOMBRES=2—
+        tambien lo tenia a 6, con la ayuda diciendo «plazas con nombres».
+
+    No falla nunca, no avisa de nada y da un numero con aspecto de bueno. Este
+    guardian mira la clase, no los dos casos: `k` se importa o no se pone.
+
+    ALCANCE, y es a proposito. Solo mira los medidores del `k` DEL GRAFO —las
+    plazas con nombres—, reconocidos porque usan `nombres_de_trabajo`. Hay otro
+    `k` en el repositorio, el de premisas, y los cuatro bancos que lo miden
+    van a 20 mientras `premisas_para` sirve a 8. NO se tocan aqui, por dos
+    motivos: es otra constante, y esa capacidad esta APAGADA por el decisor
+    (0,065 contra un nulo de 7,78), asi que cambiarles el k solo invalidaria
+    los ficheros que el decisor lee para apagarla. Queda anotado, no corregido.
+
+    La primera version de este guardian no distinguia los dos `k` y señalaba
+    esos cuatro bancos como rotos. Un guardian que se dispara con codigo
+    correcto entrena a la gente a ignorarlo.
+    """
+    import ast
+    import pathlib
+
+    RAIZ = pathlib.Path(__file__).resolve().parent.parent
+    malos = []
+    for py in sorted((RAIZ / "scripts").glob("*.py")):
+        try:
+            fuente = py.read_text(encoding="utf-8")
+            arbol = ast.parse(fuente)
+        except (SyntaxError, OSError):
+            continue
+        # ¿mide el k del GRAFO? Los que inyectan nombres de skill lo hacen
+        # todos por `nombres_de_trabajo`.
+        if "nombres_de_trabajo" not in fuente:
+            continue
+        for nodo in ast.walk(arbol):
+            if not (isinstance(nodo, ast.Call)
+                    and isinstance(nodo.func, ast.Attribute)
+                    and nodo.func.attr == "add_argument"):
+                continue
+            nombres = [a.value for a in nodo.args
+                       if isinstance(a, ast.Constant)
+                       and isinstance(a.value, str)]
+            if not any(n.lstrip("-") == "k" for n in nombres):
+                continue
+            for kw in nodo.keywords:
+                if kw.arg != "default":
+                    continue
+                if isinstance(kw.value, ast.Constant) and \
+                        isinstance(kw.value.value, int):
+                    malos.append("%s: k=%d escrito a mano"
+                                 % (py.name, kw.value.value))
+
+    assert not malos, (
+        "estos medidores del grafo fijan `k` a un literal en vez de importar "
+        "PLAZAS_CON_NOMBRES, asi que sin argumentos miden una configuracion "
+        "que el sistema no sirve, y sus filas dejan de ser comparables entre "
+        "si: %s" % "; ".join(malos))
+
+
+def test_no_hay_secuencias_de_escape_invalidas():
+    r"""Una barra invertida suelta en un literal no es cosmetica.
+
+    Encontrado en `scripts/train_multiagent.py`: una docstring decia
+    «E:\Metamatematico\training\» sin `r`, y `\t` es un TABULADOR — la linea
+    se leia «E:\Metamatematico<tab>raining». `\M` ademas emite un
+    DeprecationWarning que en alguna version futura de Python sera SyntaxError,
+    o sea que el fichero dejara de importarse.
+
+    Y este test se caza a si mismo si se escribe mal: la primera version de
+    esta docstring perdio las barras al pasar por un heredoc y el guardian
+    señalo su propio fichero. Por eso lleva `r`.
+
+    En este repositorio las rutas de Windows y el codigo Lean estan llenos de
+    barras, asi que la clase entera merece guardian y no un arreglo puntual.
+    """
+    import pathlib
+    import warnings
+
+    RAIZ = pathlib.Path(__file__).resolve().parent.parent
+    malos = []
+    for carpeta in ("nucleo", "scripts", "tests", "pages"):
+        for py in sorted((RAIZ / carpeta).rglob("*.py")):
+            try:
+                src = py.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            with warnings.catch_warnings(record=True) as avisos:
+                warnings.simplefilter("always")
+                try:
+                    compile(src, str(py), "exec")
+                except SyntaxError as e:
+                    malos.append("%s: no compila (%s)" % (py.name, e))
+                    continue
+                for a in avisos:
+                    if "escape" in str(a.message):
+                        malos.append("%s:%s: %s"
+                                     % (py.name, a.lineno, a.message))
+
+    assert not malos, "\n".join(malos)

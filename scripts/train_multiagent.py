@@ -97,7 +97,12 @@ logger = logging.getLogger("train_multiagent")
 # ──────────────────────────────────────────────────────────────────────────────
 
 def _find_data_dir() -> Path:
-    """Busca el directorio de splits en E:\Metamatematico\training\ o el antiguo."""
+    r"""Busca el directorio de splits en E:\Metamatematico\training\ o el antiguo.
+
+    La `r` no es cosmetica: sin ella `\t` es un TABULADOR y la linea se leia
+    «E:\Metamatematico<tab>raining», y `\M` es un DeprecationWarning que en
+    alguna version futura de Python sera SyntaxError.
+    """
     if DATA_DIR.exists() and any(DATA_DIR.iterdir()):
         return DATA_DIR
     if ALT_DATA_DIR.exists() and any(ALT_DATA_DIR.iterdir()):

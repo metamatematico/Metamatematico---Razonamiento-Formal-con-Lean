@@ -68,8 +68,16 @@ def _proofnet():
     return recs
 
 
-def medir_proofnet(n, g, k=6):
-    """precision y cobertura de los nombres inyectados, y su nulo."""
+def medir_proofnet(n, g, k=None):
+    """precision y cobertura de los nombres inyectados, y su nulo.
+
+    `k` a None significa «el valor con el que sirve el sistema». Estaba escrito
+    a 6 mientras produccion servia con PLAZAS_CON_NOMBRES = 2 — ver la nota del
+    `__main__`.
+    """
+    if k is None:
+        from nucleo.core import PLAZAS_CON_NOMBRES
+        k = PLAZAS_CON_NOMBRES
     from scripts.recuperacion_contra_proofnet import (
         nombres_de_oro, _norm, IDENT)          # reutiliza el instrumento
     from nucleo.core import Nucleo
@@ -303,8 +311,23 @@ def main_curva(k_max):
 
 
 if __name__ == "__main__":
+    # EL DEFECTO ES EL DE PRODUCCION, NO UN 6 ESCRITO A MANO.
+    #
+    # Este script es el que ELIGIO `PLAZAS_CON_NOMBRES = 2` —core.py lo cita
+    # como fuente de esa decision— y sin embargo su propio `-k` venia puesto a
+    # 6, con la ayuda diciendo «plazas con nombres». O sea que correrlo sin
+    # argumentos para revisar la decision medía una configuracion distinta de
+    # la que se decidio y de la que sirve.
+    #
+    # Es el mismo defecto que tenia `recuperacion_contra_proofnet.py`, y sale
+    # del mismo sitio: un valor por defecto que se quedo escrito cuando la
+    # constante cambio. `--curva` no lo sufre porque barre k de 1 a 14.
+    from nucleo.core import PLAZAS_CON_NOMBRES
+
     ap = argparse.ArgumentParser()
-    ap.add_argument("-k", type=int, default=6, help="plazas con nombres")
+    ap.add_argument("-k", type=int, default=PLAZAS_CON_NOMBRES,
+                    help="plazas con nombres (por defecto %d, el valor con el "
+                         "que sirve el sistema)" % PLAZAS_CON_NOMBRES)
     ap.add_argument("--curva", action="store_true",
                     help="barre k y compara a volumen igualado")
     a = ap.parse_args()

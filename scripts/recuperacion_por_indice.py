@@ -226,6 +226,13 @@ def main(a) -> int:
 
 
 if __name__ == "__main__":
+    # El 2 era correcto, pero estaba suelto. Este script COMPARA sus columnas
+    # con la fila `lexico` de recuperacion_proofnet.json, asi que los dos
+    # tienen que ofrecer el mismo numero de nombres o la comparacion no dice
+    # nada. Atarlo a la constante es lo que garantiza que sigan igualados
+    # cuando alguien cambie PLAZAS_CON_NOMBRES.
+    from nucleo.core import PLAZAS_CON_NOMBRES
+
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--k", type=int, default=2)
+    ap.add_argument("--k", type=int, default=PLAZAS_CON_NOMBRES)
     raise SystemExit(main(ap.parse_args()))
