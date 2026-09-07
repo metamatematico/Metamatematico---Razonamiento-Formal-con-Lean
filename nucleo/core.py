@@ -4215,9 +4215,25 @@ class Nucleo:
         un nombre no existe en la version instalada, callarse es mejor que
         ofrecerlo — el modelo ya inventa suficientes por su cuenta.
         """
+        # AVISO RUIDOSO: esto apaga la mejor capacidad medida del sistema.
+        #
+        # Devolver `{}` aqui deja el prompt SIN un solo nombre de Mathlib, que
+        # es la unica de las tres actuaciones del grafo que bate a su nulo
+        # —21,0 % de precision contra 1,6 %, 13 veces—. Si el import falla, el
+        # sistema sigue respondiendo y pierde eso en silencio: exactamente la
+        # familia de fallo contra la que este repositorio tiene una suite.
+        #
+        # No se convierte en excepcion porque una respuesta sin vocabulario es
+        # peor que ninguna respuesta sólo para la medicion, no para el alumno.
+        # Pero tiene que quedar en el log, y en `error`, no en `debug`.
         try:
             from nucleo.graph.interpretacion import nombres_de_trabajo
-        except Exception:
+        except Exception as exc:                                # noqa: BLE001
+            logger.error(
+                "SIN VOCABULARIO DE MATHLIB: no se pudo importar "
+                "`nombres_de_trabajo` (%s). El prompt sale sin nombres "
+                "verificados y el grafo pierde su unica aportacion medida.",
+                exc)
             return {}
         fuera: dict[str, str] = {}
         # LOS QUE NO APORTAN NOMBRES NO GASTAN CUPO.

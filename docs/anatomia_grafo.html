@@ -256,16 +256,17 @@ svg .ln{stroke:var(--muted);fill:none}
     <div class="nota v">
       <b>Lo que NO es</b>
       <p><strong>No es el grafo de Mathlib.</strong> Mathlib son 7 747 módulos y
-      21 446 aristas de import; aquí hay 320 objetos. Los 125 nodos de módulo
+      21 378 aristas de import; aquí hay 320 objetos. Los 125 nodos de módulo
       que sí vienen de Mathlib son una selección por umbral de teoremas, no una
       copia reducida.</p>
       <p><strong>No contiene los hechos.</strong> Los 183 433 teoremas y lemas
       de Mathlib viven en una lista plana aparte, que se alcanza por otra vía.
       El grafo dice <em>de qué habla</em> algo; la lista dice <em>qué es
       cierto</em>.</p>
-      <p><strong>No es una ontología completa.</strong> Cubre 56 780 de los
-      173 636 teoremas de Mathlib por concepto — el 32,7 % — y la cobertura es
-      muy desigual por rama.</p>
+      <p><strong>No es una ontología completa.</strong> Cubre 137 342 de los
+      173 636 teoremas de Mathlib por concepto — el 79,1 % — y la cobertura
+      es muy desigual por rama: Análisis 20 178 de 21 240, pero
+      <code>Condensed</code> 0 de 75 y <code>Control</code> 0 de 189.</p>
     </div>
 
     <div class="nota">
@@ -938,9 +939,10 @@ tactic-omega         7                real-analysis     16</pre>
         <thead><tr><th>qué se mide del grafo</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
           <tr><td><strong>El vocabulario que inyecta</strong><span class="sub">371 ejercicios de ProofNet con formalización de oro, k=2</span></td><td class="mono">21,0 % precisión<br>14,8 % cobertura</td><td class="mono">1,6 %<br>3,3 %</td><td><span class="pill v">13,1× · aporta</span></td></tr>
-          <tr><td><strong>Sus dependencias</strong><span class="sub">73 aristas medibles contra el DAG oficial de 21 446</span></td><td class="mono">57 confirmadas<br>78,1 %</td><td class="mono">32,6 %</td><td><span class="pill v">2,4× · aporta</span></td></tr>
+          <tr><td><strong>Sus dependencias <em>curadas</em></strong><span class="sub">73 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">57 confirmadas<br>78,1 %</td><td class="mono">40,1 %</td><td><span class="pill v">1,95× · aporta</span></td></tr>
+          <tr><td><strong>Su costura de <em>cobertura</em></strong><span class="sub">9 aristas <code>skill→módulo</code> medibles contra el mismo DAG</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
           <tr><td><strong>El área que acierta</strong><span class="sub">3 000 consultas etiquetadas · exactitud equilibrada</span></td><td class="mono">40,9 %</td><td class="mono">33,3 %</td><td><span class="pill">+7,6 · por encima del azar</span></td></tr>
-          <tr><td><strong>Su cobertura de Mathlib</strong><span class="sub">teoremas alcanzados por concepto</span></td><td class="mono">56 780<br>de 173 636</td><td class="mono">—</td><td><span class="pill">32,7 %</span></td></tr>
+          <tr><td><strong>Su cobertura de Mathlib</strong><span class="sub">teoremas alcanzados por concepto</span></td><td class="mono">137 342<br>de 173 636</td><td class="mono">—</td><td><span class="pill">79,1 %</span></td></tr>
           <tr><td><strong>La fibración</strong><span class="sub">860 pares (objeto, área por debajo)</span></td><td class="mono">3 se levantan<br>0,3 %</td><td class="mono">6,1 %</td><td><span class="pill a">peor que el azar</span></td></tr>
         </tbody>
       </table>
@@ -1044,8 +1046,9 @@ python scripts/auditar_respaldo_lean.py   # comprueba el mapeo Python ↔ teorem
     flechas, vocabulario y forma se leen del grafo que construye
     <code>Nucleo._load_foundational_skills</code>, el mismo que usa el sistema
     al responder. El vocabulario contra ProofNet: 371 ejercicios con
-    formalización de oro escrita por matemáticos. Las dependencias: contra el
-    DAG oficial de 21 446 aristas que produce <code>lake exe graph</code>. El
+    formalización de oro escrita por matemáticos. Las dependencias curadas: contra el
+    DAG de imports escaneado de los 7 746 ficheros <code>.lean</code>, 24 209
+    aristas. El
     área: 3 000 consultas etiquetadas de MATH y GSM8K. La fibración: 860 pares
     (objeto, área por debajo), con las áreas barajadas como modelo nulo. El
     respaldo formal: auditoría del mapeo operación ↔ teorema sobre 63

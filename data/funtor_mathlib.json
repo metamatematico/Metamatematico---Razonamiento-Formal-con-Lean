@@ -1,22 +1,233 @@
 {
- "medibles": 73,
- "confirmadas": 57,
- "invertidas": 6,
- "independientes": 10,
- "azar_pct": 32.578947368421055,
+ "medibles": 282,
+ "confirmadas": 173,
+ "invertidas": 50,
+ "por_clase": {
+  "curada": {
+   "medibles": 73,
+   "confirmadas": 57,
+   "invertidas": 6,
+   "independientes": 10,
+   "tasa_pct": 78.08219178082192,
+   "nulo_pct": 40.0999375390381,
+   "factor": 1.9471898604532072,
+   "pares_del_nulo": 1601
+  },
+  "jerarquia": {
+   "medibles": 200,
+   "confirmadas": 107,
+   "invertidas": 44,
+   "independientes": 49,
+   "tasa_pct": 53.5,
+   "nulo_pct": 24.440095672972383,
+   "factor": 2.189025800711744,
+   "pares_del_nulo": 4599
+  },
+  "cobertura": {
+   "medibles": 9,
+   "confirmadas": 9,
+   "invertidas": 0,
+   "independientes": 0,
+   "tasa_pct": 100.0,
+   "nulo_pct": 100.0,
+   "factor": 1.0,
+   "pares_del_nulo": 9
+  }
+ },
+ "independientes": 59,
+ "azar_pct": 34.07667757443542,
  "skills_envoltorio_categorico": [
-  "cat-basics"
+  "cat-basics",
+  "mathlib-algebra-category",
+  "mathlib-order-category",
+  "mathlib-topology-category"
  ],
  "sin_envoltorio": {
-  "medibles": 72,
-  "confirmadas": 56,
-  "invertidas": 6,
-  "azar_pct": 32.792792792792795
+  "medibles": 268,
+  "confirmadas": 159,
+  "invertidas": 50,
+  "azar_pct": 34.667588287042854
  },
  "lista_invertidas": [
   [
    "algebraic-number-theory",
    "arithmetic-geometry"
+  ],
+  [
+   "area-analysis",
+   "banach-spaces"
+  ],
+  [
+   "area-analysis",
+   "mathlib-analysis-asymptotics"
+  ],
+  [
+   "area-analysis",
+   "mathlib-analysis-complex"
+  ],
+  [
+   "area-analysis",
+   "mathlib-analysis-rclike"
+  ],
+  [
+   "area-analysis",
+   "mathlib-data-ennreal"
+  ],
+  [
+   "area-analysis",
+   "mathlib-data-ereal"
+  ],
+  [
+   "area-analysis",
+   "mathlib-data-nnreal"
+  ],
+  [
+   "area-analysis",
+   "mathlib-data-real"
+  ],
+  [
+   "area-analysis",
+   "operator-theory"
+  ],
+  [
+   "area-categorytheory",
+   "functors"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-adjunction"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-limits"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-morphismproperty"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-objectproperty"
+  ],
+  [
+   "area-combinatorics",
+   "graph-theory"
+  ],
+  [
+   "area-combinatorics",
+   "mathlib-data-finset"
+  ],
+  [
+   "area-combinatorics",
+   "mathlib-data-list"
+  ],
+  [
+   "area-combinatorics",
+   "mathlib-data-multiset"
+  ],
+  [
+   "area-combinatorics",
+   "mathlib-data-sym"
+  ],
+  [
+   "area-geometry",
+   "differential-geometry"
+  ],
+  [
+   "area-geometry",
+   "differential-topology"
+  ],
+  [
+   "area-geometry",
+   "smooth-manifolds"
+  ],
+  [
+   "area-grouptheory",
+   "mathlib-grouptheory-groupaction"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-data-dfinsupp"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-data-finsupp"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-data-matrix"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-linearalgebra-basis"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-linearalgebra-dual"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-linearalgebra-finsupp"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-linearalgebra-linearindependent"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-linearalgebra-span"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-linearalgebra-tensorproduct"
+  ],
+  [
+   "area-measuretheory",
+   "mathlib-measuretheory-outermeasure"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-data-enat"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-data-int"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-data-nat"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-data-pnat"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-data-rat"
+  ],
+  [
+   "area-probability",
+   "markov-chains"
+  ],
+  [
+   "area-probability",
+   "probability-theory"
+  ],
+  [
+   "area-ringtheory",
+   "ideals-quotient-rings"
+  ],
+  [
+   "area-settheory",
+   "mathlib-data-fin"
+  ],
+  [
+   "area-settheory",
+   "mathlib-data-set"
+  ],
+  [
+   "area-settheory",
+   "mathlib-data-sum"
   ],
   [
    "derived-category",
@@ -47,6 +258,202 @@
   [
    "algebraic-topology",
    "derived-category"
+  ],
+  [
+   "area-algebraicgeometry",
+   "mathlib-algebraicgeometry-ellipticcurve"
+  ],
+  [
+   "area-algebraictopology",
+   "algebraic-topology"
+  ],
+  [
+   "area-analysis",
+   "complex-analysis"
+  ],
+  [
+   "area-analysis",
+   "inner-product-spaces"
+  ],
+  [
+   "area-analysis",
+   "mathlib-analysis-convex"
+  ],
+  [
+   "area-analysis",
+   "mathlib-analysis-locallyconvex"
+  ],
+  [
+   "area-analysis",
+   "mathlib-analysis-meromorphic"
+  ],
+  [
+   "area-analysis",
+   "mathlib-analysis-real"
+  ],
+  [
+   "area-analysis",
+   "mathlib-data-seq"
+  ],
+  [
+   "area-categorytheory",
+   "abelian-categories"
+  ],
+  [
+   "area-categorytheory",
+   "graded-objects"
+  ],
+  [
+   "area-categorytheory",
+   "homological-algebra-cat"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-localization"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-monoidal"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-shift"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-subobject"
+  ],
+  [
+   "area-categorytheory",
+   "mathlib-categorytheory-triangulated"
+  ],
+  [
+   "area-categorytheory",
+   "monads"
+  ],
+  [
+   "area-combinatorics",
+   "mathlib-combinatorics-additive"
+  ],
+  [
+   "area-combinatorics",
+   "mathlib-combinatorics-matroid"
+  ],
+  [
+   "area-combinatorics",
+   "mathlib-combinatorics-setfamily"
+  ],
+  [
+   "area-combinatorics",
+   "partitions"
+  ],
+  [
+   "area-dynamics",
+   "ergodic-theory"
+  ],
+  [
+   "area-fieldtheory",
+   "mathlib-fieldtheory-ratfunc"
+  ],
+  [
+   "area-geometry",
+   "mathlib-geometry-euclidean"
+  ],
+  [
+   "area-geometry",
+   "mathlib-geometry-ringedspace"
+  ],
+  [
+   "area-grouptheory",
+   "free-groups"
+  ],
+  [
+   "area-grouptheory",
+   "mathlib-grouptheory-perm"
+  ],
+  [
+   "area-grouptheory",
+   "solvable-groups"
+  ],
+  [
+   "area-linearalgebra",
+   "mathlib-linearalgebra-dimension"
+  ],
+  [
+   "area-linearalgebra",
+   "triangle-geometry"
+  ],
+  [
+   "area-numbertheory",
+   "algebraic-number-theory"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-data-num"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-numbertheory-arithmeticfunction"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-numbertheory-lseries"
+  ],
+  [
+   "area-numbertheory",
+   "mathlib-numbertheory-modularforms"
+  ],
+  [
+   "area-numbertheory",
+   "number-fields"
+  ],
+  [
+   "area-numbertheory",
+   "p-adic-valuations"
+  ],
+  [
+   "area-probability",
+   "martingale-theory"
+  ],
+  [
+   "area-probability",
+   "stochastic-processes"
+  ],
+  [
+   "area-ringtheory",
+   "mathlib-ringtheory-gradedalgebra"
+  ],
+  [
+   "area-ringtheory",
+   "mathlib-ringtheory-hahnseries"
+  ],
+  [
+   "area-ringtheory",
+   "mathlib-ringtheory-localization"
+  ],
+  [
+   "area-ringtheory",
+   "mathlib-ringtheory-mvpowerseries"
+  ],
+  [
+   "area-ringtheory",
+   "mathlib-ringtheory-powerseries"
+  ],
+  [
+   "area-ringtheory",
+   "mathlib-ringtheory-tensorproduct"
+  ],
+  [
+   "area-ringtheory",
+   "noetherian-rings"
+  ],
+  [
+   "area-ringtheory",
+   "unique-factorization"
+  ],
+  [
+   "area-settheory",
+   "mathlib-settheory-zfc"
   ],
   [
    "euclidean-geometry",

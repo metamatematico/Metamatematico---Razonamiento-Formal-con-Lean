@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
 """Genera los nodos de COBERTURA que faltan, leyendo la taxonomía de Mathlib.
 
-POR QUE. El grafo cubre el 32,7 % de los teoremas de Mathlib. Lo que falta no
-esta repartido al azar: `Order` esta a cero con 12 128 teoremas y `Data` al
-3,4 % con 19 303 — o sea, orden, desigualdades, y la matematica elemental
-(Nat, Set, Finset, List). Medido: ante `(a+b)^2 = a^2+2ab+b^2` NO HAY NODO que
+POR QUE (situacion ANTES de correr esto, no la de ahora). El grafo cubria el
+32,7 % de los teoremas de Mathlib, y lo que faltaba no estaba repartido al
+azar: `Order` estaba a cero con 12 128 teoremas y `Data` al 3,4 % con 19 303
+— o sea, orden, desigualdades, y la matematica elemental (Nat, Set, Finset,
+List).
+
+DESPUES. Con los nodos que genera esto, la cobertura es del 79,1 % (137 342 de
+173 636): `Order` 61,4 %, `Data` 85,7 %, `Algebra` 92,2 %. Sigue habiendo
+ramas a cero —`Condensed` 0 de 75, `Control` 0 de 189—. La cifra viva esta en
+`data/cobertura_taxonomia.json`; si se lee el 32,7 % de aqui como si fuera la
+actual, se subestima el grafo a la mitad. Medido: ante `(a+b)^2 = a^2+2ab+b^2` NO HAY NODO que
 recuperar, y por eso tres emparejadores distintos fallaron en algebra (7 %)
 mientras acertaban en geometria (53-66 %), donde el nodo si existe.
 

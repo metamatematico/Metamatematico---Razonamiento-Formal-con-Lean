@@ -256,7 +256,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1050 tests · 51 suites
+    1055 tests · 51 suites
   </p>
 </nav>
 
@@ -276,7 +276,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1050</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1055</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -1804,7 +1804,7 @@ svg .sLine{stroke:var(--muted); fill:none}
   <rect x="16" y="254" width="404" height="32" rx="6" fill="var(--grafo)" opacity=".82"/>
   <text x="30" y="275" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">DEPENDENCY · 583</text>
   <text class="sTxt sDim" x="432" y="268" font-size="11">prerrequisitos. Acíclicas entre los 173 curados;</text>
-  <text class="sTxt sDim" x="432" y="282" font-size="11">78,1 % confirmadas por el DAG oficial de imports</text>
+  <text class="sTxt sDim" x="432" y="282" font-size="11">de las curadas, 78,1 % confirmadas por el DAG de imports</text>
 
   <rect x="16" y="294" width="305" height="32" rx="6" fill="var(--lean)" opacity=".78"/>
   <text x="30" y="315" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">TRANSLATION · 439</text>
@@ -2026,7 +2026,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
         <h4 class="l">El DAG oficial de imports</h4>
         <p>No hubo que reconstruirlo: Mathlib trae la herramienta hecha en
         <code>.lake/packages/importGraph</code>.</p>
-        <span class="kv">21 446 aristas · 7 747 módulos · 0 ciclos</span>
+        <span class="kv">21 378 aristas · 7 747 módulos · 0 ciclos</span>
       </div>
     </div>
 
@@ -2063,11 +2063,12 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
     <h3>Cobertura de la taxonomía</h3>
 
     <p>Los conceptos de nivel 2 que el grafo cubre alcanzan
-    <strong>56&nbsp;780 de los 173&nbsp;636 teoremas</strong> de Mathlib
-    (32,7&nbsp;%) con 80 conceptos de 1&nbsp;139. La cobertura es muy desigual
-    por rama —Álgebra 12&nbsp;062 de 27&nbsp;560, Análisis 10&nbsp;219 de
-    21&nbsp;240, Geometría algebraica 234 de 2&nbsp;906—, y esa desigualdad es
-    informativa: marca dónde el grafo curado tiene huecos reales.</p>
+    <strong>137&nbsp;342 de los 173&nbsp;636 teoremas</strong> de Mathlib
+    (79,1&nbsp;%) con 210 conceptos de 1&nbsp;139. La cobertura es muy desigual
+    por rama —Álgebra 25&nbsp;410 de 27&nbsp;560, Análisis 20&nbsp;178 de
+    21&nbsp;240, Geometría algebraica 1&nbsp;643 de 2&nbsp;906, y <code>Condensed</code>
+    0 de 75—, y esa desigualdad es informativa: marca dónde el grafo
+    curado tiene huecos reales.</p>
   </section>
 
   <section id="lean">
@@ -2552,27 +2553,27 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="medido">
     <div class="head"><span class="num">14</span><h2>Lo que está <span class="v">medido</span></h2></div>
 
-    <p>Trece mediciones, cada una con su modelo nulo. La figura las pone todas
+    <p>Catorce mediciones, cada una con su modelo nulo. La figura las pone todas
     en la misma escala —<strong>cuántas veces bate a su nulo</strong>— para que
     se puedan comparar componentes que miden cosas distintas.</p>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Gráfico comparativo de las trece mediciones del sistema frente a sus modelos nulos, en escala logarítmica de razón. La línea vertical de una vez marca la frontera: a la derecha, el componente bate a su nulo; a la izquierda, no. Los que baten: la revisión de sintaxis de la consulta con 16,9 veces, el vocabulario de Mathlib en precisión con 13,1 veces, el mismo en cobertura con 4,5 veces, el reconocedor de área por la forma del enunciado con 3,2 veces, las dependencias del grafo contra el DAG oficial de imports con 2,4 veces, la clasificación de área en exactitud equilibrada con 1,76 veces, los rasgos sintácticos prediciendo premisas con 1,43 veces, el área de la primera skill con 1,23 veces y la selección de premisas sin los lemas marcados simp con 1,20 veces. En la frontera exacta, la elección de módulos que importa Lean, que empata con un conjunto fijo. Y los que no baten: el orden de tácticas de la cascada con 0,87, la poda por área antes de elegir premisas con 0,69 incluso suponiendo localización perfecta, y la fibración del grafo con 0,05, muy por debajo del azar." viewBox="0 0 1000 470" style="min-width:700px">
+<svg role="img" aria-label="Gráfico comparativo de las catorce mediciones del sistema frente a sus modelos nulos, en escala logarítmica de razón. La línea vertical de una vez marca la frontera: a la derecha, el componente bate a su nulo; a la izquierda, no. Los que baten: la revisión de sintaxis de la consulta con 16,9 veces, el vocabulario de Mathlib en precisión con 13,1 veces, el mismo en cobertura con 4,5 veces, el reconocedor de área por la forma del enunciado con 3,2 veces, las dependencias curadas del grafo contra el DAG de imports con 1,95 veces, la clasificación de área en exactitud equilibrada con 1,76 veces, los rasgos sintácticos prediciendo premisas con 1,43 veces, el área de la primera skill con 1,23 veces y la selección de premisas sin los lemas marcados simp con 1,20 veces. En la frontera exacta, dos: la elección de módulos que importa Lean, que empata con un conjunto fijo, y la costura de cobertura del grafo contra el DAG, cuyo nulo emparejado también acierta el cien por cien y por tanto no distingue nada. Y los que no baten: el orden de tácticas de la cascada con 0,87, la poda por área antes de elegir premisas con 0,69 incluso suponiendo localización perfecta, y la fibración del grafo con 0,05, muy por debajo del azar." viewBox="0 0 1000 496" style="min-width:700px">
   <text class="sMono sDim" x="16" y="16" font-size="10.5" letter-spacing="1.3">CUÁNTAS VECES BATE A SU MODELO NULO — ESCALA LOGARÍTMICA</text>
 
-  <line x1="340" y1="34" x2="340" y2="404" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
-  <line x1="480" y1="34" x2="480" y2="404" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
-  <line x1="600" y1="34" x2="600" y2="404" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
-  <line x1="680" y1="34" x2="680" y2="404" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
-  <line x1="740" y1="34" x2="740" y2="404" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
-  <line x1="540" y1="30" x2="540" y2="410" stroke="var(--alerta)" stroke-width="1.8"/>
+  <line x1="340" y1="34" x2="340" y2="430" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
+  <line x1="480" y1="34" x2="480" y2="430" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
+  <line x1="600" y1="34" x2="600" y2="430" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
+  <line x1="680" y1="34" x2="680" y2="430" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
+  <line x1="740" y1="34" x2="740" y2="430" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
+  <line x1="540" y1="30" x2="540" y2="436" stroke="var(--alerta)" stroke-width="1.8"/>
   <text class="sMono" x="540" y="26" font-size="11" font-weight="600" fill="var(--alerta)" text-anchor="middle">1× · el nulo</text>
-  <text class="sMono sDim" x="340" y="424" font-size="10" text-anchor="middle">0,1×</text>
-  <text class="sMono sDim" x="480" y="424" font-size="10" text-anchor="middle">0,5×</text>
-  <text class="sMono sDim" x="600" y="424" font-size="10" text-anchor="middle">2×</text>
-  <text class="sMono sDim" x="680" y="424" font-size="10" text-anchor="middle">5×</text>
-  <text class="sMono sDim" x="740" y="424" font-size="10" text-anchor="middle">10×</text>
+  <text class="sMono sDim" x="340" y="450" font-size="10" text-anchor="middle">0,1×</text>
+  <text class="sMono sDim" x="480" y="450" font-size="10" text-anchor="middle">0,5×</text>
+  <text class="sMono sDim" x="600" y="450" font-size="10" text-anchor="middle">2×</text>
+  <text class="sMono sDim" x="680" y="450" font-size="10" text-anchor="middle">5×</text>
+  <text class="sMono sDim" x="740" y="450" font-size="10" text-anchor="middle">10×</text>
 
   <text class="sTxt" x="16" y="50" font-size="11.5">Revisión de sintaxis · caza de roturas</text>
   <rect x="540" y="40" width="246" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
@@ -2594,10 +2595,10 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <text class="sMono" x="820" y="129" font-size="11" fill="var(--lean)">3,2×</text>
   <text class="sMono sDim" x="880" y="129" font-size="10">75,4 % vs 23,8 %</text>
 
-  <text class="sTxt" x="16" y="154" font-size="11.5">Dependencias vs el DAG oficial</text>
-  <rect x="540" y="144" width="76" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
-  <text class="sMono" x="820" y="155" font-size="11" fill="var(--lean)">2,4×</text>
-  <text class="sMono sDim" x="880" y="155" font-size="10">78,1 % vs 32,6 %</text>
+  <text class="sTxt" x="16" y="154" font-size="11.5">Dependencias curadas vs el DAG</text>
+  <rect x="540" y="144" width="58" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
+  <text class="sMono" x="820" y="155" font-size="11" fill="var(--lean)">1,95×</text>
+  <text class="sMono sDim" x="880" y="155" font-size="10">78,1 % vs 40,1 %</text>
 
   <text class="sTxt" x="16" y="180" font-size="11.5">Área de la consulta · equilibrada</text>
   <rect x="540" y="170" width="49" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
@@ -2624,29 +2625,34 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <text class="sMono" x="820" y="285" font-size="11" fill="var(--nulo)">1,00×</text>
   <text class="sMono sDim" x="880" y="285" font-size="10">18/20 vs 18/20</text>
 
-  <line x1="16" y1="300" x2="984" y2="300" stroke="var(--border)" stroke-width="1"/>
-  <text class="sMono" x="16" y="320" font-size="10" fill="var(--alerta)" letter-spacing="1.2">NO BATEN A SU NULO</text>
+  <text class="sTxt" x="16" y="310" font-size="11.5">Costura de cobertura vs el DAG</text>
+  <circle cx="540" cy="305" r="5" fill="var(--nulo)"/>
+  <text class="sMono" x="820" y="311" font-size="11" fill="var(--nulo)">1,00×</text>
+  <text class="sMono sDim" x="880" y="311" font-size="10">9/9 vs 9/9</text>
 
-  <text class="sTxt" x="16" y="344" font-size="11.5">Orden de tácticas de la cascada</text>
-  <rect x="528" y="334" width="12" height="14" rx="3" fill="var(--alerta)" opacity=".85"/>
-  <text class="sMono" x="820" y="345" font-size="11" fill="var(--alerta)">0,87×</text>
-  <text class="sMono sDim" x="880" y="345" font-size="10">1,26 vs 1,09</text>
+  <line x1="16" y1="326" x2="984" y2="326" stroke="var(--border)" stroke-width="1"/>
+  <text class="sMono" x="16" y="346" font-size="10" fill="var(--alerta)" letter-spacing="1.2">NO BATEN A SU NULO</text>
 
-  <text class="sTxt" x="16" y="370" font-size="11.5">Poda por área antes de elegir</text>
-  <rect x="508" y="360" width="32" height="14" rx="3" fill="var(--alerta)" opacity=".85"/>
-  <text class="sMono" x="820" y="371" font-size="11" fill="var(--alerta)">0,69×</text>
-  <text class="sMono sDim" x="880" y="371" font-size="10">6,8 % vs 9,8 %</text>
+  <text class="sTxt" x="16" y="370" font-size="11.5">Orden de tácticas de la cascada</text>
+  <rect x="528" y="360" width="12" height="14" rx="3" fill="var(--alerta)" opacity=".85"/>
+  <text class="sMono" x="820" y="371" font-size="11" fill="var(--alerta)">0,87×</text>
+  <text class="sMono sDim" x="880" y="371" font-size="10">1,26 vs 1,09</text>
 
-  <text class="sTxt" x="16" y="396" font-size="11.5">Fibración π : Skills → Áreas</text>
-  <rect x="291" y="386" width="249" height="14" rx="3" fill="var(--alerta)" opacity=".85"/>
-  <text class="sMono" x="820" y="397" font-size="11" fill="var(--alerta)">0,06×</text>
-  <text class="sMono sDim" x="880" y="397" font-size="10">0,3 % vs 6,1 %</text>
+  <text class="sTxt" x="16" y="396" font-size="11.5">Poda por área antes de elegir</text>
+  <rect x="508" y="386" width="32" height="14" rx="3" fill="var(--alerta)" opacity=".85"/>
+  <text class="sMono" x="820" y="397" font-size="11" fill="var(--alerta)">0,69×</text>
+  <text class="sMono sDim" x="880" y="397" font-size="10">6,8 % vs 9,8 %</text>
 
-  <text class="sTxt sDim" x="16" y="450" font-size="10.5">Menos es mejor en «orden de tácticas» (posición de la táctica que cierra): la razón está invertida para que la lectura sea la misma en todas las filas.</text>
-  <text class="sTxt sDim" x="16" y="464" font-size="10.5">La escala es logarítmica, así que las distancias son razones y no diferencias. El nulo de cada fila está en la columna de la derecha.</text>
+  <text class="sTxt" x="16" y="422" font-size="11.5">Fibración π : Skills → Áreas</text>
+  <rect x="291" y="412" width="249" height="14" rx="3" fill="var(--alerta)" opacity=".85"/>
+  <text class="sMono" x="820" y="423" font-size="11" fill="var(--alerta)">0,06×</text>
+  <text class="sMono sDim" x="880" y="423" font-size="10">0,3 % vs 6,1 %</text>
+
+  <text class="sTxt sDim" x="16" y="476" font-size="10.5">Menos es mejor en «orden de tácticas» (posición de la táctica que cierra): la razón está invertida para que la lectura sea la misma en todas las filas.</text>
+  <text class="sTxt sDim" x="16" y="490" font-size="10.5">La escala es logarítmica, así que las distancias son razones y no diferencias. El nulo de cada fila está en la columna de la derecha.</text>
 </svg>
       </div>
-      <figcaption><b>Fig. 11 —</b> Las trece mediciones contra sus nulos, en una
+      <figcaption><b>Fig. 11 —</b> Las catorce mediciones contra sus nulos, en una
       escala común. Todo lo que queda a la izquierda de la línea roja está
       <strong>apagado o marcado como no concluyente</strong> — no hay ningún
       componente activo en producción que pierda contra su nulo sin que este
@@ -2658,7 +2664,8 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
         <thead><tr><th>qué se mide</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
           <tr><td><strong>Vocabulario contra ProofNet</strong><span class="sub">371 ejercicios con formalización de oro · k=2, el valor de producción</span></td><td class="mono">21,0 % precisión<br>14,8 % cobertura</td><td class="mono">1,6 %<br>3,3 %</td><td><span class="pill v">13,1× · aporta</span></td></tr>
-          <tr><td><strong>Dependencias contra el DAG real</strong><span class="sub">73 aristas medibles contra 21 446 oficiales</span></td><td class="mono">57 confirmadas<br>78,1 %</td><td class="mono">32,6 %</td><td><span class="pill v">2,4× · aporta</span></td></tr>
+          <tr><td><strong>Dependencias <em>curadas</em> contra el DAG real</strong><span class="sub">73 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">57 confirmadas<br>78,1 %</td><td class="mono">40,1 %</td><td><span class="pill v">1,95× · aporta</span></td></tr>
+          <tr><td><strong>Costura de <em>cobertura</em> contra el DAG</strong><span class="sub">9 aristas <code>skill→módulo</code> medibles</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
           <tr><td><strong>Revisión de sintaxis de la consulta</strong><span class="sub">23 243 enunciados de LeanWorkbook, todos correctos</span></td><td class="mono">3,6 % falsos pos.<br>60,8 % de caza</td><td class="mono">3,6 %<br>(moneda)</td><td><span class="pill v">+57,2 puntos</span></td></tr>
           <tr><td><strong>Rasgos del árbol → premisas</strong><span class="sub">22 117 pares, bootstrap emparejado, 68 rasgos</span></td><td class="mono">80,9 % cobertura</td><td class="mono">56,6 %</td><td><span class="pill v">+24,3 · aporta</span></td></tr>
           <tr><td><strong>Reconocedor de área por la forma</strong><span class="sub">5 750 de test sobre 7 temas de MATH</span></td><td class="mono">75,4 %<br>techo 84,1 %</td><td class="mono">23,8 %</td><td><span class="pill v">3,2× · aporta</span></td></tr>
@@ -2870,8 +2877,8 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
   <footer>
     <p><strong>De dónde sale cada cifra.</strong> Vocabulario y dependencias:
-    comprobados contra Mathlib con <code>#check</code> y contra el DAG oficial
-    de 21 446 aristas. Tácticas: 1 600 pruebas de una línea de Mathlib.
+    comprobados contra Mathlib con <code>#check</code> y contra el DAG de
+    imports escaneado de los 7 746 ficheros <code>.lean</code>, 24 209 aristas. Tácticas: 1 600 pruebas de una línea de Mathlib.
     Premisas y sintaxis: 22 117–23 243 pruebas Lean 4 reales de LeanWorkbook.
     Imports: 20 enunciados de oro con Lean como juez. Área: 3 000 consultas
     etiquetadas de MATH y GSM8K. Fidelidad: banco propio de 24 casos con juez

@@ -161,7 +161,87 @@ print("\n  invertidas que quedan (candidatas de verdad a flecha mal puesta):")
 for a, b in inv2:
     print("    %-24s -> %s" % (a, b))
 
+# ── 6 · POR CLASE DE ARISTA, que es lo unico comparable ────────────────────
+#
+# Al arreglar el mapa de modulos —de 76 a 223 skills— las dependencias
+# medibles pasaron de 73 a 282 y la tasa de confirmadas "cayo" del 78,1 % al
+# 61,3 %. Leerlo como un empeoramiento es un ERROR DE CATEGORIA, y es mio: las
+# 209 aristas nuevas no son de la misma clase que las 73 viejas.
+#
+#   curada     237 aristas, TODAS skill -> skill     AFIRMA PRERREQUISITO
+#   jerarquia  221: area->mathlib 125, area->skill 74, skill->area 22
+#   cobertura  125, todas skill -> mathlib-*          AFIRMA COBERTURA
+#
+# Solo `curada` afirma un prerrequisito, y es la unica comparable con el 78,1 %
+# publicado.
+#
+# En `jerarquia` el juez es dudoso, y la razon esta MEDIDA (no supuesta):
+# `area-analysis` apunta a UN fichero, y no a la raiz de la rama sino a un
+# teorema representativo de dentro —Analysis.SpecialFunctions.Trigonometric
+# .Basic—, que importa* 1625 de los 7746 modulos. Entre ellos, Normed.Module
+# .Basic, que es justo el de `banach-spaces`: de ahi que la arista salga
+# "invertida". No lo esta. La flecha afirma PERTENENCIA A LA RAMA y el DAG
+# responde a otra pregunta —cual de los dos ficheros va antes—, y el fichero
+# elegido para el area ya esta por encima de casi toda su propia rama.
+#
+# Y ojo con la explicacion facil: los punteros de area NO son mas profundos
+# que los de un skill (mediana 1342 frente a 1352 modulos importados). Lo que
+# falla no es la profundidad sino CUAL fichero representa al area.
+# Las 44 invertidas de esa fila no son, por tanto, 44 flechas mal puestas.
+#
+# Y cada clase lleva SU PROPIO nulo, sobre pares de la misma forma
+# (fuentes de la clase x destinos de la clase). Un nulo global compararia las
+# aristas de cobertura contra un azar que no tiene su misma composicion.
+clase_de = {}
+for m in G.morphisms:
+    if m.morphism_type != MorphismType.DEPENDENCY:
+        continue
+    md = getattr(m, "metadata", None) or {}
+    c = md.get("construccion") or "curada"
+    # las 14 con nombre propio (grupo-unidades, H_*, colapso...) son curadas
+    # a mano igual que las sin marca: se agrupan con ellas, no aparte.
+    if c not in ("jerarquia", "cobertura"):
+        c = "curada"
+    clase_de[(m.source_id, m.target_id)] = c
+
+por_clase = {}
+for a, b in aristas:
+    por_clase.setdefault(clase_de.get((a, b), "curada"), []).append((a, b))
+
+print("\n=== POR CLASE DE ARISTA (cada una con su nulo) ===\n")
+print("  %-10s %8s %7s %7s %7s %8s %7s"
+      % ("clase", "medibles", "ok", "inv", "indep", "nulo", "factor"))
+print("  " + "-" * 60)
+resumen_clases = {}
+for c in ("curada", "jerarquia", "cobertura"):
+    ar_c = por_clase.get(c, [])
+    if not ar_c:
+        continue
+    okc = sum(1 for a, b in ar_c if importa(b, a))
+    invc = sum(1 for a, b in ar_c if not importa(b, a) and importa(a, b))
+    indc = len(ar_c) - okc - invc
+    # nulo de la MISMA forma: fuentes de esta clase x destinos de esta clase
+    fu = {a for a, _b in ar_c}
+    de = {b for _a, b in ar_c}
+    pc = [(a, b) for a in fu for b in de if a != b]
+    nulo = sum(1 for a, b in pc if importa(b, a)) / max(1, len(pc))
+    tasa = okc / len(ar_c)
+    print("  %-10s %8d %7d %7d %7d %7.1f %% %6.2fx"
+          % (c, len(ar_c), okc, invc, indc, 100 * nulo,
+             tasa / nulo if nulo else float("inf")))
+    resumen_clases[c] = {"medibles": len(ar_c), "confirmadas": okc,
+                         "invertidas": invc, "independientes": indc,
+                         "tasa_pct": 100 * tasa, "nulo_pct": 100 * nulo,
+                         "factor": (tasa / nulo) if nulo else None,
+                         "pares_del_nulo": len(pc)}
+print("""
+LECTURA: solo `curada` afirma un prerrequisito y por tanto solo esa fila es
+comparable con la cifra publicada del 78,1 %. `jerarquia` y `cobertura` son
+costuras de etiquetado —pertenencia a una rama, cobertura de un modulo— y el
+DAG de imports no es el juez de ninguna de las dos.""")
+
 json.dump({"medibles": len(aristas), "confirmadas": len(ok), "invertidas": len(inv),
+           "por_clase": resumen_clases,
            "independientes": len(nada), "azar_pct": 100.0 * base / len(pares),
            "skills_envoltorio_categorico": sorted(cat_skills),
            "sin_envoltorio": {"medibles": len(lim), "confirmadas": len(ok2),
