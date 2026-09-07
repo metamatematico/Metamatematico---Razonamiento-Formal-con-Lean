@@ -469,6 +469,19 @@ class Colimit:
     universal_morphisms: dict[str, str] = field(default_factory=dict)  # target_id → mediating_morphism_id
     cocone_verified: bool = False
     universal_property_verified: bool = False
+    #: veredicto del KERNEL de Lean sobre la propiedad universal, si se pidio.
+    #:
+    #: Tres valores, y los tres distintos:
+    #:   True   el kernel la comprobo
+    #:   False  el kernel la REFUTO — hay un co-cono sin mediador
+    #:   None   no se pidio, no hay Lean, o Lean no pudo terminar
+    #:
+    #: `None` no es "no cumple": es "no se sabe". Distinguirlo de `False` es
+    #: lo unico que impide que un fallo del verificador pase por un resultado
+    #: sobre el grafo.
+    lean_verified: Optional[bool] = None
+    #: el enunciado exacto que se le dio a Lean, para poder citarlo
+    lean_claim: str = ""
     created_at: datetime = field(default_factory=datetime.now)
 
 

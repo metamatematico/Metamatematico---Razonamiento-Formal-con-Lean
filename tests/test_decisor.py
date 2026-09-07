@@ -288,17 +288,36 @@ class TestNadieSeAcreditaLoQueNoCorre:
             "Dejarlo asi acredita a lo que corre la medicion de lo que no."
             % malas)
 
-    def test_la_que_de_verdad_clasifica_no_presume_de_nada(self):
-        """`classify_query` corre, es gratis, y no esta medida. Las tres."""
+    def test_la_que_de_verdad_clasifica_se_mide_por_el_equilibrado(self):
+        """`classify_query` corre, y SI esta medida — con su propia cifra.
+
+        Tiene evidencia distinta de la del reconocedor por la forma: 58,72 %
+        contra un nulo de 33,33 % en `emparejamiento.json`, sobre las 3 000
+        consultas etiquetadas. (Este test nacio afirmando que NADIE la habia
+        medido, y era falso: la cifra llevaba tiempo publicada en el
+        artefacto como «Area de la consulta · equilibrada · 1,76x».)
+
+        Y la metrica no es negociable. Si ninguna palabra clave aparece, esta
+        funcion devuelve «algebra», o sea que su desempate ES el modelo nulo;
+        y el banco es 89 % algebra, asi que EN CRUDO el nulo saca 88,57 % y le
+        gana por 27 puntos. Solo el acierto equilibrado —la media dentro de
+        cada area— separa el trabajo del sesgo de clase. Este test existe para
+        que nadie cambie la ruta a la cruda y publique un numero mas bonito.
+        """
         cap = next((c for c in CAPACIDADES
                     if c.nombre == "clasificacion_por_palabras_clave"), None)
         assert cap is not None, (
             "se ha quitado del catalogo la clasificacion que de verdad corre. "
             "Si dejo de correr, quitarla esta bien; si sigue corriendo, tiene "
-            "que estar listada aunque no haya nadie que la haya medido.")
-        assert cap.evidencia is None, (
-            "ahora tiene evidencia: comprobar que la mide A ELLA y no al "
-            "reconocedor de graph/reconocedor.py, que es otro modulo")
-        assert "algebra" in cap.sin_evidencia_porque, (
-            "el motivo tiene que seguir diciendo que su desempate es la clase "
-            "mayoritaria, porque es lo que hace sospechoso su acierto")
+            "que estar listada con SU medicion, no con la de otro modulo.")
+        assert cap.evidencia is not None, (
+            "se ha quedado sin evidencia, y la tiene: emparejamiento.json")
+        assert cap.evidencia.fichero == "emparejamiento.json"
+        assert "equilibrad" in cap.evidencia.ruta_real[0], (
+            "la ruta apunta a %r. En crudo el nulo de esta capacidad le GANA "
+            "por 27 puntos, porque el banco es 89 %% algebra y su desempate "
+            "es responder algebra. La cifra que dice algo es la equilibrada."
+            % (cap.evidencia.ruta_real,))
+        assert "mayoria" in cap.evidencia.ruta_nulo[0], (
+            "el nulo tiene que ser la clase mayoritaria, que es justo lo que "
+            "esta funcion hace cuando no encuentra ninguna palabra clave")

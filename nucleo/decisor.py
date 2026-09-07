@@ -267,22 +267,26 @@ CAPACIDADES: list[Capacidad] = [
         nombre="clasificacion_por_palabras_clave",
         que_hace="asigna un area contando palabras clave, para elegir agente",
         coste=LOCAL,
-        # ESTO ES LO QUE CORRE DE VERDAD, y no estaba en el catalogo. Corre
-        # gratis y por eso sale activa, pero que salga activa no dice que
-        # aporte: dice que no cuesta nada.
+        # ESTO ES LO QUE CORRE DE VERDAD, y no estaba en el catalogo. Antes
+        # estaba en el sitio de `reconocedor_de_area`, que apuntaba aqui con
+        # `donde` pero citaba la medicion de OTRO modulo —el de
+        # graph/reconocedor.py, que no esta cableado—. Cada una con la suya.
         donde="nucleo/multi_agent/specialized_agent.py::classify_query",
-        evidencia=None,
-        sin_evidencia_porque=(
-            "NADIE la ha medido. Cuenta cuantas palabras clave de cada una de"
-            " 14 categorias aparecen en el texto y devuelve la que mas saca;"
-            " si ninguna saca nada, devuelve «algebra». Ese desempate es"
-            " exactamente la clase mayoritaria, que es el modelo nulo de"
-            " cualquier clasificador de area, asi que la sospecha razonable es"
-            " que buena parte de sus aciertos sean el nulo disfrazado. No se"
-            " apaga porque es gratis y algo tiene que elegir agente, pero no"
-            " puede citarse como aportacion del sistema hasta medirla contra"
-            " «responder siempre algebra» sobre las 3 000 consultas"
-            " etiquetadas de MATH y GSM8K que ya estan en el repositorio"),
+        evidencia=Evidencia(
+            fichero="emparejamiento.json",
+            metrica="acierto de area, equilibrado",
+            ruta_real=("area_equilibrada",),
+            ruta_nulo=("nulo_mayoria_equilibrada",),
+            contra="responder siempre «algebra», que es la clase mayoritaria"),
+        # POR QUE EL NULO ES EL EQUILIBRADO Y NO EL CRUDO. Esta funcion, si
+        # ninguna palabra clave aparece, devuelve "algebra" — o sea que su
+        # desempate ES el modelo nulo. Y el banco de 3 000 consultas es 89 %
+        # algebra, asi que en crudo el nulo saca 88,57 % y le gana por 27
+        # puntos: en esa metrica no se puede distinguir el trabajo del sesgo.
+        # El acierto equilibrado —la media de los aciertos DENTRO de cada
+        # area— es el que separa las dos cosas, y ahi el nulo se hunde al
+        # 33,33 % y esto queda 25 puntos por encima. La misma cifra sale en
+        # el artefacto como «Area de la consulta · equilibrada · 1,76x».
     ),
     Capacidad(
         nombre="nombres_de_mathlib_en_el_prompt",

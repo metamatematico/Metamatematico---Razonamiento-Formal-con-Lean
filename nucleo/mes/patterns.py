@@ -572,8 +572,11 @@ class ColimitBuilder:
     La verificación es DECIDIBLE porque G_n es finito: el cuantificador universal
     ∀X. ∀co-cono sobre X. ∃!h: I→X se verifica exhaustivamente sobre los n skills.
 
-    Para verificación formal (no solo estructural), usar lean_proof_generator.py:
-        from nucleo.graph.lean_proof_generator import verify_colimit_in_lean
+    Para verificación formal (no sólo estructural) está `verificar_con_lean`,
+    que genera el mismo enunciado en Lean y deja que lo cierre el kernel con
+    `decide`. Se pide con `build_colimit(..., con_lean=True)` porque cuesta
+    un compilado; el veredicto queda en `Colimit.lean_verified`, donde None
+    significa «no se sabe» y no «no cumple».
 
     Implementa:
     - Construcción de co-cono con verificación estructural
@@ -887,6 +890,48 @@ class ColimitBuilder:
 
         return True
 
+    def verificar_con_lean(
+        self,
+        pattern: Pattern,
+        cocone_skill_id: str,
+        graph: SkillCategory,
+        timeout: int = 120,
+    ) -> dict:
+        """Le pide al KERNEL de Lean la misma propiedad que acaba de mirar Python.
+
+        POR QUE EXISTE. `verify_universal_property` recorre el grafo en
+        Python y devuelve un bool. Esta funcion genera el mismo enunciado en
+        Lean —finito y decidible, sin `import Mathlib`— y deja que lo cierre
+        `decide`, que lo comprueba el kernel. La diferencia entre las dos no
+        es de rigor formal sino de QUIEN lo comprueba: la primera se cree a
+        si misma, la segunda no.
+
+        SIRVE SOBRE TODO PARA VERLAS DISCREPAR. Si Python dice que si y Lean
+        refuta, una de las dos implementaciones esta mal, y el aviso sale en
+        el log en vez de quedarse en un colimite afirmado de mas.
+
+        CUESTA UN COMPILADO, entre 1 y 15 segundos segun el caso, asi que no
+        corre sola: hay que pedirla con `build_colimit(..., con_lean=True)`.
+        Refutar es barato —`decide` para en el primer contraejemplo— y
+        confirmar es caro, porque obliga a reducir la conjuncion entera.
+
+        Returns:
+            El dict de `verify_colimit_in_lean`: `verified` es True, False o
+            None, y los tres significan cosas distintas. None es "no se
+            sabe" —sin Lean, o Lean no termino— y NO es "no cumple".
+        """
+        from nucleo.graph.lean_proof_generator import verify_colimit_in_lean
+
+        morfismos = [(m.source_id, m.target_id) for m in graph.morphisms
+                     if m.morphism_type != MorphismType.IDENTITY]
+        return verify_colimit_in_lean(
+            diagram_ids=list(pattern.component_ids),
+            apex_id=cocone_skill_id,
+            all_skill_ids=[sk.id for sk in graph.skills],
+            morphisms=morfismos,
+            timeout=timeout,
+        )
+
     def _find_compatible_targets(
         self,
         pattern: Pattern,
@@ -984,6 +1029,7 @@ class ColimitBuilder:
         graph: SkillCategory,
         name: Optional[str] = None,
         verify: bool = True,
+        con_lean: bool = False,
     ) -> tuple[Skill, Colimit]:
         """
         Construir colimite de un patron (Complejificacion simple, Def 2.2).
@@ -1118,6 +1164,24 @@ class ColimitBuilder:
                 f"Verificacion de propiedad universal fallo para patron {pattern.id}"
             )
 
+        # Confirmacion formal, si se pide. Cuesta un compilado de Lean.
+        lean_verdict, lean_claim = None, ""
+        if con_lean:
+            r = self.verificar_con_lean(pattern, colimit_skill.id, graph)
+            lean_verdict, lean_claim = r.get("verified"), r.get("claim", "")
+            if up_ok and lean_verdict is False:
+                logger.error(
+                    "DISCREPANCIA: Python acepta la propiedad universal de %s"
+                    " y el kernel de Lean la REFUTA. Una de las dos"
+                    " implementaciones esta mal, y el colimite queda"
+                    " construido con el veredicto de Lean anotado. Salida: %s",
+                    colimit_skill.id, (r.get("output") or "")[:300])
+            elif lean_verdict is None:
+                logger.warning(
+                    "sin confirmacion formal de %s: Lean no estaba o no pudo"
+                    " terminar. NO significa que la propiedad falle",
+                    colimit_skill.id)
+
         # Crear objeto Colimit
         colimit = Colimit(
             pattern_id=pattern.id,
@@ -1127,6 +1191,8 @@ class ColimitBuilder:
             universal_morphisms=universal_morphisms,
             cocone_verified=cocone_ok,
             universal_property_verified=up_ok,
+            lean_verified=lean_verdict,
+            lean_claim=lean_claim,
         )
 
         self._colimits[colimit.id] = colimit

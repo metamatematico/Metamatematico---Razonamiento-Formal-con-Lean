@@ -23,7 +23,7 @@
     "rasgos_de_sintaxis_para_lemas": "cobertura de lemas (%) 79.190 contra 78.410 (los n-gramas solos, que es lo que ya había)",
     "rasgos_de_sintaxis_cuando_el_lexico_calla": "su guarda no aplica a esta consulta",
     "reconocedor_de_area": "NO esta cableada: gana a su nulo en MATH (75,9 % contra 23,8 %) pero medida por el camino real contra ProofNet no paga: el brazo `lexico+puerta` de scripts/recuperacion_contra_proofnet.py ofrece nombres en 11 casos mas y no se usa ni uno —cobertura igual, precision 0,7 puntos por debajo—. El motivo esta en nucleo/core.py, donde se decidio dejarla fuera: en ProofNet el lexico solo calla en 31 de 371, asi que el margen era del 4 % desde el principio. Se construyo para las consultas en español, donde el lexico calla en el 27 %, y para esas NO HAY BANCO con premisas de oro. Lo que falta no es cablearla: es medirla donde se supone que sirve",
-    "clasificacion_por_palabras_clave": "gratis y sin contraindicación",
+    "clasificacion_por_palabras_clave": "acierto de area, equilibrado 58.720 contra 33.330 (responder siempre «algebra», que es la clase mayoritaria)",
     "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 20.999 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)",
     "premisas_hibridas": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)",
     "eleccion_de_imports": "NO bate a su nulo: enunciados que elaboran, de 20 18.000 contra 18.000 (un conjunto fijo de tres módulos)",
@@ -60,10 +60,10 @@
       "motivo": "acierto de área 0.759 contra 0.238 (siempre el área más frecuente)"
     },
     "clasificacion_por_palabras_clave": {
-      "real": null,
-      "nulo": null,
-      "gana": null,
-      "motivo": "sin evidencia con modelo nulo"
+      "real": 58.72,
+      "nulo": 33.33,
+      "gana": true,
+      "motivo": "acierto de area, equilibrado 58.720 contra 33.330 (responder siempre «algebra», que es la clase mayoritaria)"
     },
     "nombres_de_mathlib_en_el_prompt": {
       "real": 20.998980632008156,
