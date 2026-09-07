@@ -1,9 +1,9 @@
 {
  "nivel": 2,
  "conceptos": 1139,
- "conceptos_cubiertos": 210,
+ "conceptos_cubiertos": 211,
  "teoremas": 173636,
- "teoremas_cubiertos": 137342,
+ "teoremas_cubiertos": 137476,
  "por_area": {
   "Algebra": {
    "cubiertos": 25410,
@@ -86,7 +86,7 @@
    "totales": 4906
   },
   "Order": {
-   "cubiertos": 7448,
+   "cubiertos": 7582,
    "totales": 12128
   },
   "Probability": {
@@ -159,7 +159,6 @@
   "Order.Atoms": 136,
   "Order.KrullDimension": 136,
   "RingTheory.NonUnitalSubring": 135,
-  "Order.Basic": 134,
   "ModelTheory.Substructures": 133,
   "AlgebraicTopology.DoldKan": 131,
   "GroupTheory.Coxeter": 130,
@@ -230,6 +229,7 @@
   "RingTheory.Kaehler": 91,
   "Data.QPF": 90,
   "GroupTheory.Complement": 90,
-  "Algebra.CubicDiscriminant": 89
+  "Algebra.CubicDiscriminant": 89,
+  "Algebra.Regular": 89
  }
 }

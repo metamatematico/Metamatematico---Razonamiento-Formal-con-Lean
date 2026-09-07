@@ -363,7 +363,7 @@ lo mismo acierta el 79 %.
 | Nombres de los nodos generados<br><sub>447 identificadores con `#check`</sub> | 346 existen | — | **95 no existen** |
 | Poda por área antes de elegir<br><sub>con localización perfecta — el techo</sub> | 6,8 % | 9,8 % | **no llega al nulo** |
 | Revisión de sintaxis de la consulta<br><sub>23 243 enunciados de LeanWorkbook, todos correctos</sub> | 3,6 % falsos positivos<br>60,8 % de caza | 3,6 % (moneda) | **+57,3 puntos · aporta** |
-| Rasgos del árbol → premisas<br><sub>22 117 enunciados, 68 rasgos frente a 40 000 n-gramas</sub> | 80,9 % cobertura | 56,6 % (los 6 más citados) | **+24,3 · aporta** |
+| N-gramas **+** rasgos del árbol → premisas<br><sub>22 117 enunciados · el 80,9 % es de LAS DOS juntas: los 68 rasgos añaden +4,1 puntos sobre los n-gramas solos (76,8 %)</sub> | 80,9 % cobertura | 56,6 % (los 6 más citados) | **1,43× · aporta** |
 | Fibración π : Skills → Áreas<br><sub>860 pares (objeto, área debajo)</sub> | 0,3 % se levanta | 6,1 % (áreas al azar) | **peor que el azar** |
 
 ```bash

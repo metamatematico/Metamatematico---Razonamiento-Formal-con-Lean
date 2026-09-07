@@ -1,19 +1,19 @@
 {
  "modelo": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
  "evaluables": 2643,
- "skills_con_texto_mathlib": 76,
+ "skills_con_texto_mathlib": 223,
  "resultados": {
   "A_a_mano": {
-   "crudo": 16.799091940976165,
-   "equilibrado": 21.14716796710153
+   "crudo": 24.06356413166856,
+   "equilibrado": 23.250743358303716
   },
   "B_mathlib": {
-   "crudo": 14.94513810064321,
-   "equilibrado": 23.23037324808986
+   "crudo": 15.777525539160045,
+   "equilibrado": 20.685632712899945
   },
   "C_ambas": {
-   "crudo": 16.496405599697315,
-   "equilibrado": 27.031172489968732
+   "crudo": 21.982595535376465,
+   "equilibrado": 26.621593909810183
   }
  }
 }

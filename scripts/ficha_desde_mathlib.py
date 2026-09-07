@@ -21,8 +21,28 @@ METRICA: acierto EQUILIBRADO por area, que es el que vale con clases tan
 desbalanceadas (el conjunto es 79 % algebra, y ahi «di siempre algebra» saca
 79,4 % crudo sin informar nada; su equilibrado es 20 %).
 
-AVISO: solo 76 de las 173 skills tienen modulo asignado, asi que solo esas
-cambian de texto. Es lo realista, no una comparacion idealizada.
+AVISO: solo las skills con modulo asignado cambian de texto. Es lo realista,
+no una comparacion idealizada.
+
+RESULTADO, Y LA VUELTA QUE DIO. La primera vez se corrio con un mapa que solo
+conocia el modulo de 76 skills, y salio que el texto de Mathlib GANABA a la
+ficha a mano (B 23,2 % contra A 21,1 % equilibrado). Al arreglar el mapa
+—223 skills con modulo— la conclusion se INVIERTE:
+
+                        con mapa de 76      con mapa de 223
+    A · ficha a mano         21,1 %              23,3 %
+    B · texto de Mathlib     23,2 %              20,7 %   <- se cae al nulo
+    C · las dos juntas       27,0 %              26,6 %
+    modelo nulo              20,0 %              20,0 %
+
+O sea que B no ganaba por ser mejor texto: ganaba en la submuestra de 76
+skills que casualmente tenian modulo. Con las 223, el texto de Mathlib solo
+queda en 20,7 % contra un nulo de 20,0 % — no informa. La ficha escrita a mano
+gana, y juntar las dos sigue siendo lo mejor (26,6 %, 1,33x sobre el nulo),
+que es el unico resultado de los tres que aguanta el cambio de mapa.
+
+LECCION: una comparacion A/B medida sobre el subconjunto que tiene el dato
+mide el subconjunto, no el tratamiento.
 
 No gasta API.
 """

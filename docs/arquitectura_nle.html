@@ -2063,8 +2063,8 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
     <h3>Cobertura de la taxonomía</h3>
 
     <p>Los conceptos de nivel 2 que el grafo cubre alcanzan
-    <strong>137&nbsp;342 de los 173&nbsp;636 teoremas</strong> de Mathlib
-    (79,1&nbsp;%) con 210 conceptos de 1&nbsp;139. La cobertura es muy desigual
+    <strong>137&nbsp;476 de los 173&nbsp;636 teoremas</strong> de Mathlib
+    (79,2&nbsp;%) con 211 conceptos de 1&nbsp;139. La cobertura es muy desigual
     por rama —Álgebra 25&nbsp;410 de 27&nbsp;560, Análisis 20&nbsp;178 de
     21&nbsp;240, Geometría algebraica 1&nbsp;643 de 2&nbsp;906, y <code>Condensed</code>
     0 de 75—, y esa desigualdad es informativa: marca dónde el grafo
@@ -2559,7 +2559,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Gráfico comparativo de las catorce mediciones del sistema frente a sus modelos nulos, en escala logarítmica de razón. La línea vertical de una vez marca la frontera: a la derecha, el componente bate a su nulo; a la izquierda, no. Los que baten: la revisión de sintaxis de la consulta con 16,9 veces, el vocabulario de Mathlib en precisión con 13,1 veces, el mismo en cobertura con 4,5 veces, el reconocedor de área por la forma del enunciado con 3,2 veces, las dependencias curadas del grafo contra el DAG de imports con 1,95 veces, la clasificación de área en exactitud equilibrada con 1,76 veces, los rasgos sintácticos prediciendo premisas con 1,43 veces, el área de la primera skill con 1,23 veces y la selección de premisas sin los lemas marcados simp con 1,20 veces. En la frontera exacta, dos: la elección de módulos que importa Lean, que empata con un conjunto fijo, y la costura de cobertura del grafo contra el DAG, cuyo nulo emparejado también acierta el cien por cien y por tanto no distingue nada. Y los que no baten: el orden de tácticas de la cascada con 0,87, la poda por área antes de elegir premisas con 0,69 incluso suponiendo localización perfecta, y la fibración del grafo con 0,05, muy por debajo del azar." viewBox="0 0 1000 496" style="min-width:700px">
+<svg role="img" aria-label="Gráfico comparativo de las catorce mediciones del sistema frente a sus modelos nulos, en escala logarítmica de razón. La línea vertical de una vez marca la frontera: a la derecha, el componente bate a su nulo; a la izquierda, no. Los que baten: la revisión de sintaxis de la consulta con 16,9 veces, el vocabulario de Mathlib en precisión con 13,1 veces, el mismo en cobertura con 4,5 veces, el reconocedor de área por la forma del enunciado con 3,2 veces, las dependencias curadas del grafo contra el DAG de imports con 1,95 veces, la clasificación de área en exactitud equilibrada con 1,76 veces, los n-gramas junto con los rasgos del árbol prediciendo premisas con 1,43 veces, de las cuales los rasgos del árbol aportan cuatro coma un puntos sobre los n-gramas solos, el área de la primera skill con 1,23 veces y la selección de premisas sin los lemas marcados simp con 1,20 veces. En la frontera exacta, dos: la elección de módulos que importa Lean, que empata con un conjunto fijo, y la costura de cobertura del grafo contra el DAG, cuyo nulo emparejado también acierta el cien por cien y por tanto no distingue nada. Y los que no baten: el orden de tácticas de la cascada con 0,87, la poda por área antes de elegir premisas con 0,69 incluso suponiendo localización perfecta, y la fibración del grafo con 0,05, muy por debajo del azar." viewBox="0 0 1000 496" style="min-width:700px">
   <text class="sMono sDim" x="16" y="16" font-size="10.5" letter-spacing="1.3">CUÁNTAS VECES BATE A SU MODELO NULO — ESCALA LOGARÍTMICA</text>
 
   <line x1="340" y1="34" x2="340" y2="430" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
@@ -2605,7 +2605,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <text class="sMono" x="820" y="181" font-size="11" fill="var(--lean)">1,76×</text>
   <text class="sMono sDim" x="880" y="181" font-size="10">58,7 % vs 33,3 %</text>
 
-  <text class="sTxt" x="16" y="206" font-size="11.5">Rasgos sintácticos → premisas</text>
+  <text class="sTxt" x="16" y="206" font-size="11.5">N-gramas + rasgos → premisas</text>
   <rect x="540" y="196" width="31" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
   <text class="sMono" x="820" y="207" font-size="11" fill="var(--lean)">1,43×</text>
   <text class="sMono sDim" x="880" y="207" font-size="10">80,9 % vs 56,6 %</text>

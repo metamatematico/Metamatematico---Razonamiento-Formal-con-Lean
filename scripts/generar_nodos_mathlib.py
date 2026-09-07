@@ -7,8 +7,8 @@ azar: `Order` estaba a cero con 12 128 teoremas y `Data` al 3,4 % con 19 303
 — o sea, orden, desigualdades, y la matematica elemental (Nat, Set, Finset,
 List).
 
-DESPUES. Con los nodos que genera esto, la cobertura es del 79,1 % (137 342 de
-173 636): `Order` 61,4 %, `Data` 85,7 %, `Algebra` 92,2 %. Sigue habiendo
+DESPUES. Con los nodos que genera esto, la cobertura es del 79,2 % (137 476 de
+173 636): `Order` 62,5 %, `Data` 85,7 %, `Algebra` 92,2 %. Sigue habiendo
 ramas a cero —`Condensed` 0 de 75, `Control` 0 de 189—. La cifra viva esta en
 `data/cobertura_taxonomia.json`; si se lee el 32,7 % de aqui como si fuera la
 actual, se subestima el grafo a la mitad. Medido: ante `(a+b)^2 = a^2+2ab+b^2` NO HAY NODO que
