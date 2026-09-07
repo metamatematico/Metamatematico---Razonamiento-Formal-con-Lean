@@ -1,0 +1,22 @@
+{
+ "areas": 23,
+ "relaciones_directas": 63,
+ "relaciones_tras_clausura": 462,
+ "relaciones_posibles": 506,
+ "mayor_componente_fuerte": 21,
+ "areas_fuera_de_la_componente": [
+  "Computability",
+  "OrderTheory"
+ ],
+ "ciclos_de_ida_y_vuelta": [
+  "Algebra <-> Analysis",
+  "Algebra <-> CategoryTheory",
+  "Algebra <-> Topology",
+  "CategoryTheory <-> Geometry",
+  "Geometry <-> Topology",
+  "Logic <-> ModelTheory",
+  "Logic <-> fundacional",
+  "MeasureTheory <-> SetTheory",
+  "SetTheory <-> Topology"
+ ]
+}

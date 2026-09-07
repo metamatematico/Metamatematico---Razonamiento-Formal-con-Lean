@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1048_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1050_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -553,19 +553,48 @@ que la base *sirve* es la de fibración, demostrada en
 `MetamathProver/CategoryFoundations/Fibracion.lean` (0 sorry).
 
 Sobre el grafo real **no se cumple**: 3 de 860 pares (0,3 %), contra el 6,1 %
-de barajar las áreas al azar. Y la razón está medida: sólo **29 de 230**
-morfismos de orden cruzan de área, y esos 29 generan **74** relaciones entre
-áreas al cerrar transitivamente. La base afirma de más, y el 93 % de los
-objetos no tiene ni un skill del área de abajo por debajo.
+de barajar las áreas al azar. Y la causa no es la que parecía.
 
-El «supergrafo unificado por un funtor» tiene el funtor y no tiene la
-fibración, que es la parte que serviría para mover una pregunta entre áreas.
-No falta formalización: faltan morfismos que crucen de área.
+**La base no es un orden.** Se construye como la imagen de las flechas del
+grafo y luego se cierra transitivamente, y las flechas directas entre áreas
+forman una **componente fuertemente conexa de 21 de las 23 áreas** — sólo
+`Computability` y `OrderTheory` quedan fuera. Al cerrar, 63 relaciones directas
+se convierten en **462 de las 506 posibles: el 91 %**.
+
+Y los ciclos son matemática correcta, no errores de curación:
+
+```
+Algebra ↔ Analysis        área-algebra → spectral-theory
+                          área-analysis → inner-product-spaces
+Algebra ↔ CategoryTheory  exact-sequences → abelian-categories
+                          functors → homological-algebra
+Geometry ↔ Topology       differential-geometry → differential-topology
+                          point-set-topology → differential-geometry
+```
+
+Sobre un preorden con una clase de equivalencia de 21 áreas, la fibración
+exige que *todo* objeto de cualquiera de ellas se levante a cualquier otra — y
+eso es falso: no todo concepto de álgebra depende de uno de probabilidad.
+
+**Añadir morfismos que crucen de área no puede arreglarlo**, y está
+comprobado: la clausura transitiva es monótona, así que una arista nueva sólo
+puede añadir relaciones. Con 60 aristas cruzadas más, la clausura llega al
+100 % y la componente se traga las 23 áreas.
+
+Es el mismo hallazgo que dio `areas_por_estructura.py` sobre la taxonomía de
+Mathlib —una mega-área con 918 de 1 358 conceptos— con otro disfraz: **la
+descomposición en ramas no es recuperable de las dependencias**. El
+«supergrafo unificado por un funtor» tiene el funtor; la fibración pide una
+base que ordene la matemática, y el área no la ordena.
+
+```bash
+python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
+```
 
 
 ## 7. Tests y guardianes
 
-**1048 tests en 51 suites.** Los que más valen no comprueban que el código
+**1050 tests en 51 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -685,7 +714,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
-tests/                    1048 tests en 51 suites
+tests/                    1050 tests en 51 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

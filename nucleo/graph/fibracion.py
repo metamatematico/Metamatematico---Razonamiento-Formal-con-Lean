@@ -113,8 +113,21 @@ def levantar(pi: Funtor, graph, e: str, base: str, tipos=None) -> Levantamiento:
                       soporte=len(soporte))
     # SIN SOPORTE es el caso importante y hay que nombrarlo aparte: no es que
     # el levantamiento salga mal, es que la base afirma `b' ≼ b` y ni un solo
-    # skill de `b'` está por debajo de `e`. Eso no se arregla con teoría; se
-    # arregla añadiendo morfismos que crucen de área.
+    # skill de `b'` está por debajo de `e`. Ocurre en 801 de los 860 pares.
+    #
+    # Y NO SE ARREGLA AÑADIENDO MORFISMOS QUE CRUCEN DE ÁREA, aunque lo
+    # parezca. La base se construye como la imagen de las flechas y se cierra
+    # transitivamente, y las flechas directas entre áreas forman una
+    # COMPONENTE FUERTEMENTE CONEXA DE 21 DE LAS 23: la base no es un orden,
+    # es un preorden con una clase de equivalencia gigante. Y la clausura es
+    # monótona, así que una arista nueva sólo puede AÑADIR relaciones —
+    # comprobado: con 60 aristas cruzadas más la clausura pasa del 91 % al
+    # 100 % y la componente se traga las 23 áreas.
+    #
+    # Los ciclos son matemática correcta: Algebra→Analysis por teoría
+    # espectral y Analysis→Algebra por espacios con producto interior.
+    #
+    # Ver `scripts/base_no_es_un_orden.py`, que lo mide y lo demuestra.
     if not soporte:
         r.motivo = "no hay ningun skill de %s por debajo de %s" % (base, e)
         return r

@@ -12,10 +12,21 @@ proyecto —primero Lean, después Python— se siguió: los teoremas se
 demostraron antes de escribir `nucleo/graph/fibracion.py`.
 
 EL ÚLTIMO TEST ES EL QUE IMPORTA. Fija el diagnóstico medido sobre el grafo
-real: sólo 29 de 230 morfismos de orden cruzan de área, y por eso el 93 % de
-los pares no tiene ni un skill del área de abajo por debajo. Está escrito para
-FALLAR si alguien añade morfismos que crucen —que es la mejora que hace falta—
-y obligar así a volver a medir en vez de dejar la conclusión vieja en pie.
+real: sólo 29 de 230 morfismos de orden cruzan de área, y el 93 % de los pares
+no tiene ni un skill del área de abajo por debajo. Está escrito para FALLAR si
+alguien añade morfismos que crucen, y obligar así a volver a medir.
+
+Y CUIDADO CON LA LECTURA, porque durante un tiempo fue la contraria. De ese
+93 % se concluyó que «faltan morfismos que crucen de área», y es FALSO:
+`scripts/base_no_es_un_orden.py` mide que las flechas directas entre áreas
+forman una componente fuertemente conexa de 21 de las 23 —la base no es un
+orden, es un preorden con una clase de equivalencia gigante— y que la clausura
+transitiva es monótona, así que añadir aristas sólo puede empeorarlo: con 60
+más, la clausura pasa del 91 % al 100 % de las relaciones posibles.
+
+O sea que si este test falla porque alguien añadió morfismos cruzados, lo
+primero que hay que mirar es si la base sigue siendo un orden, no si la tasa
+de levantamiento subió.
 """
 from __future__ import annotations
 
@@ -195,3 +206,76 @@ class TestElGrafoReal:
             "12,6 %%). Vuelve a correr scripts/fibracion_del_grafo.py: la "
             "conclusión sobre la fibración puede haber cambiado."
             % (100 * cruzan / total))
+
+
+class TestLaBaseNoEsUnOrden:
+    """El diagnóstico que corrige la lectura anterior.
+
+    De «3 de 860 pares se levantan» se concluyó que faltaban morfismos que
+    cruzaran de área. Es falso, y lo importante es que se puede demostrar en
+    vez de discutirlo: la clausura transitiva es monótona.
+    """
+
+    def test_la_componente_fuerte_se_come_casi_todas_las_areas(self):
+        import collections
+        from nucleo.core import Nucleo
+        from nucleo.graph.category import SkillCategory
+        from nucleo.graph.functor import construir_funtor
+        from nucleo.types import MorphismType as MT
+
+        n = Nucleo.__new__(Nucleo)
+        n._graph = SkillCategory()
+        Nucleo._load_foundational_skills(n)
+        pi = construir_funtor(n._graph)
+
+        ady = collections.defaultdict(set)
+        for m in n._graph.morphisms:
+            if m.morphism_type is not MT.DEPENDENCY:
+                continue
+            x = pi.en_objetos.get(m.source_id)
+            y = pi.en_objetos.get(m.target_id)
+            if x and y and x != y:
+                ady[x].add(y)
+        nodos = sorted(set(ady) | {y for v in ady.values() for y in v})
+
+        # ¿hay un ciclo? basta con encontrar un par de ida y vuelta
+        mutuos = [(x, y) for x in ady for y in ady[x]
+                  if x < y and x in ady.get(y, ())]
+        assert mutuos, (
+            "ya no hay ciclos entre áreas: la base podría ser un orden y "
+            "habría que volver a medir la fibración desde cero")
+        assert len(nodos) >= 12
+
+    def test_anadir_aristas_cruzadas_solo_empeora(self):
+        """La clausura transitiva es monótona — esto lo comprueba, no lo supone.
+
+        Es el argumento que descarta «faltan morfismos que crucen de área»:
+        una arista nueva no puede quitar relaciones de la base, así que no
+        puede reducir lo que la base afirma de más.
+        """
+        import collections
+
+        def clausura(nodos, ady):
+            fuera = set()
+            for x in nodos:
+                pila, vis = list(ady[x]), set()
+                while pila:
+                    u = pila.pop()
+                    if u in vis:
+                        continue
+                    vis.add(u)
+                    pila.extend(ady[u])
+                fuera |= {(x, y) for y in vis if y != x}
+            return fuera
+
+        nodos = list("abcdef")
+        ady = collections.defaultdict(set)
+        ady["a"].add("b")
+        ady["c"].add("d")
+        antes = clausura(nodos, ady)
+        ady["b"].add("c")                    # una arista mas
+        despues = clausura(nodos, ady)
+        assert antes <= despues, (
+            "una arista nueva ha QUITADO relaciones de la clausura: la "
+            "monotonía es lo que sostiene el argumento entero")
+        assert len(despues) > len(antes)
