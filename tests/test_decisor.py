@@ -207,3 +207,98 @@ def test_apagar_el_orden_no_vacia_la_etiqueta_de_la_memoria():
         "la etiqueta que va a la memoria no puede quedarse vacia")
     # y el orden sí depende del decisor
     assert '"orden_de_cascada_por_area" in _corre else []' in fuente
+
+
+class TestNadieSeAcreditaLoQueNoCorre:
+    """El peor error que puede tener este catalogo, y ya lo tuvo.
+
+    `reconocedor_de_area` declaraba `donde` = specialized_agent.py::
+    classify_query y citaba como evidencia `reconocedor_area.json`. Pero ese
+    fichero lo produce `scripts/entrenar_reconocedor.py` midiendo OTRO modulo,
+    `nucleo/graph/reconocedor.py` —simbolos mas palabras, peso elegido en
+    validacion, 7 temas de MATH, 75,9 % contra un nulo de 23,8 %—, y ese
+    modulo `core.py` lo deja fuera del camino a proposito y lo explica.
+
+    Lo que si corria era `classify_query`: cuenta palabras clave de 14
+    categorias y, si ninguna aparece, responde «algebra». Es decir, el codigo
+    cableado se estaba llevando el 3,2 veces del codigo no cableado, y su
+    desempate es la clase mayoritaria, que es precisamente el modelo nulo de
+    un clasificador de area.
+
+    La regla que lo evita: si una capacidad presume de evidencia y su `donde`
+    apunta dentro de `nucleo/`, ese modulo tiene que ser ALCANZABLE desde el
+    arranque; si no lo es, tiene que decir por que con `fuera_del_camino`.
+    """
+
+    @staticmethod
+    def _alcanzables():
+        """Los modulos de `nucleo/` que se alcanzan desde el arranque.
+
+        Reusa el analizador de `scripts/modulos_huerfanos.py`, que ya lleva
+        resueltos los tres casos en los que una version ingenua se equivoca
+        (`from paquete import submodulo`, los imports relativos, y que el
+        `__init__.py` se ejecuta al tocar cualquier submodulo).
+        """
+        import os
+        import runpy
+        p = RAIZ / "scripts" / "modulos_huerfanos.py"
+        if not p.exists():
+            pytest.skip("falta scripts/modulos_huerfanos.py")
+        g = runpy.run_path(str(p), run_name="__no_main__")
+        mods = g["todos_los_modulos"]()
+        mods["__app__"] = str(RAIZ / "app.py")
+        pila = [g["modulo_de"](str(RAIZ / e)) for e in
+                ("nucleo/core.py", "nucleo/__init__.py")
+                if (RAIZ / e).exists()]
+        pila.append("__app__")
+        visto = set()
+        while pila:
+            m = pila.pop()
+            if m in visto or m not in mods:
+                continue
+            visto.add(m)
+            for x in g["importa"](mods[m], m, mods):
+                pila.append(x)
+                partes = x.split(".")
+                for i in range(1, len(partes)):
+                    pila.append(".".join(partes[:i]))
+        return visto, set(mods)
+
+    def test_lo_medido_o_corre_o_dice_por_que_no(self):
+        import os
+        alcanzables, todos = self._alcanzables()
+        malas = []
+        for cap in CAPACIDADES:
+            if cap.evidencia is None or not cap.donde:
+                continue
+            fichero = cap.donde.split("::")[0]
+            if not fichero.startswith("nucleo/") or not fichero.endswith(".py"):
+                continue
+            mod = fichero[:-3].replace("/", ".")
+            if mod.endswith(".__init__"):
+                mod = mod[:-9]
+            if mod not in todos:
+                continue
+            if mod not in alcanzables and not cap.fuera_del_camino:
+                malas.append((cap.nombre, mod))
+        assert not malas, (
+            "estas capacidades presumen de evidencia pero su codigo NO se "
+            "alcanza desde el arranque, y no dicen por que: %s. O se cablean, "
+            "o declaran `fuera_del_camino` con donde esta medido que no paga. "
+            "Dejarlo asi acredita a lo que corre la medicion de lo que no."
+            % malas)
+
+    def test_la_que_de_verdad_clasifica_no_presume_de_nada(self):
+        """`classify_query` corre, es gratis, y no esta medida. Las tres."""
+        cap = next((c for c in CAPACIDADES
+                    if c.nombre == "clasificacion_por_palabras_clave"), None)
+        assert cap is not None, (
+            "se ha quitado del catalogo la clasificacion que de verdad corre. "
+            "Si dejo de correr, quitarla esta bien; si sigue corriendo, tiene "
+            "que estar listada aunque no haya nadie que la haya medido.")
+        assert cap.evidencia is None, (
+            "ahora tiene evidencia: comprobar que la mide A ELLA y no al "
+            "reconocedor de graph/reconocedor.py, que es otro modulo")
+        assert "algebra" in cap.sin_evidencia_porque, (
+            "el motivo tiene que seguir diciendo que su desempate es la clase "
+            "mayoritaria, porque es lo que hace sospechoso su acierto")

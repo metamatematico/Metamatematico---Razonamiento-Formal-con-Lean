@@ -129,6 +129,14 @@ class Capacidad:
     nucleo: bool = False
     #: por que no hay evidencia comparable, cuando la hay pero no encaja
     sin_evidencia_porque: str = ""
+    #: medida, gana a su nulo, y AUN ASI no esta cableada. Por que.
+    #:
+    #: Hace falta porque «bate a su nulo» y «corre» son cosas distintas, y
+    #: confundirlas es como se cuela el peor error de este catalogo: acreditar
+    #: a lo que corre la medicion de lo que no corre. Si esto lleva texto, la
+    #: capacidad sale APAGADA por mucho que su evidencia gane, y el texto dice
+    #: donde esta medido que no paga.
+    fuera_del_camino: str = ""
 
 
 @dataclass
@@ -227,14 +235,54 @@ CAPACIDADES: list[Capacidad] = [
     ),
     Capacidad(
         nombre="reconocedor_de_area",
-        que_hace="clasifica el área de la consulta para elegir el contexto",
+        que_hace="lee el área del enunciado por su FORMA (símbolos + palabras)",
         coste=LOCAL,
-        donde="nucleo/multi_agent/specialized_agent.py::classify_query",
+        # OJO CON EL `donde`: esta entrada apuntaba a
+        # `multi_agent/specialized_agent.py::classify_query`, que es OTRO
+        # codigo. La evidencia de abajo la produce
+        # `scripts/entrenar_reconocedor.py` sobre `graph/reconocedor.py`
+        # —símbolos y palabras, peso elegido en validación, 7 temas de MATH—
+        # mientras que `classify_query` cuenta palabras clave sobre 14
+        # categorías y en caso de empate responde «algebra». Son cosas
+        # distintas, y la que corría se estaba llevando el 3,2× de la que no.
+        donde="nucleo/graph/reconocedor.py",
         evidencia=Evidencia(
             fichero="reconocedor_area.json",
             metrica="acierto de área",
             ruta_real=("combinado_equilibrado",), ruta_nulo=("nulo",),
             contra="siempre el área más frecuente"),
+        fuera_del_camino=(
+            "gana a su nulo en MATH (75,9 % contra 23,8 %) pero medida por el"
+            " camino real contra ProofNet no paga: el brazo `lexico+puerta` de"
+            " scripts/recuperacion_contra_proofnet.py ofrece nombres en 11"
+            " casos mas y no se usa ni uno —cobertura igual, precision 0,7"
+            " puntos por debajo—. El motivo esta en nucleo/core.py, donde se"
+            " decidio dejarla fuera: en ProofNet el lexico solo calla en 31 de"
+            " 371, asi que el margen era del 4 % desde el principio. Se"
+            " construyo para las consultas en español, donde el lexico calla"
+            " en el 27 %, y para esas NO HAY BANCO con premisas de oro. Lo que"
+            " falta no es cablearla: es medirla donde se supone que sirve"),
+    ),
+    Capacidad(
+        nombre="clasificacion_por_palabras_clave",
+        que_hace="asigna un area contando palabras clave, para elegir agente",
+        coste=LOCAL,
+        # ESTO ES LO QUE CORRE DE VERDAD, y no estaba en el catalogo. Corre
+        # gratis y por eso sale activa, pero que salga activa no dice que
+        # aporte: dice que no cuesta nada.
+        donde="nucleo/multi_agent/specialized_agent.py::classify_query",
+        evidencia=None,
+        sin_evidencia_porque=(
+            "NADIE la ha medido. Cuenta cuantas palabras clave de cada una de"
+            " 14 categorias aparecen en el texto y devuelve la que mas saca;"
+            " si ninguna saca nada, devuelve «algebra». Ese desempate es"
+            " exactamente la clase mayoritaria, que es el modelo nulo de"
+            " cualquier clasificador de area, asi que la sospecha razonable es"
+            " que buena parte de sus aciertos sean el nulo disfrazado. No se"
+            " apaga porque es gratis y algo tiene que elegir agente, pero no"
+            " puede citarse como aportacion del sistema hasta medirla contra"
+            " «responder siempre algebra» sobre las 3 000 consultas"
+            " etiquetadas de MATH y GSM8K que ya estan en el repositorio"),
     ),
     Capacidad(
         nombre="nombres_de_mathlib_en_el_prompt",
@@ -431,6 +479,11 @@ def decidir(ctx: Contexto, capacidades: Optional[list] = None,
         if v.gana is False:
             d.apagadas.append(cap)
             d.motivos[cap.nombre] = "NO bate a su nulo: " + v.motivo
+            continue
+        if cap.fuera_del_camino:
+            d.apagadas.append(cap)
+            d.motivos[cap.nombre] = ("NO esta cableada: "
+                                     + cap.fuera_del_camino)
             continue
         if v.gana is None and cap.coste != LOCAL and not cap.nucleo:
             d.apagadas.append(cap)
