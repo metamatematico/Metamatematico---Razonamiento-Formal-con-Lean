@@ -189,9 +189,23 @@ fichero para citar una cifra tropiece con él.
 
 <h2><span class="n">02</span>Lo que aporta</h2>
 <p>
-Seis capacidades baten a su modelo nulo. El decisor las enciende leyendo estos
-mismos ficheros en cada consulta, no un número escrito a mano.
+Seis capacidades baten a su modelo nulo, y el decisor las enciende leyendo estos
+mismos ficheros en cada consulta, no un número escrito a mano. <strong>Cinco de
+las seis.</strong> El reconocedor de área gana a su nulo y aun así no corre.
 </p>
+<div class="nota ambar">
+<p>
+<strong>Batir a su nulo y estar cableada son cosas distintas.</strong> El
+reconocedor de área lee la forma del enunciado y acierta el 75,9 % contra un
+nulo del 23,8 %, pero eso está medido sobre los 7 temas de MATH; por el camino
+real, contra ProofNet, ofrece nombres en once casos más y no se usa ni uno, así
+que <code>core.py</code> lo deja fuera a propósito. Lo que sí corre en su lugar
+es <code>classify_query</code>, que cuenta palabras clave de catorce categorías
+y, si ninguna aparece, responde <code>algebra</code> — que es exactamente la
+clase mayoritaria, o sea el modelo nulo de un clasificador de área. Nadie lo ha
+medido. Durante un tiempo el catálogo le acreditaba a él el 3,2× del otro.
+</p>
+</div>
 
 <div class="tabla">
 <table>
@@ -199,7 +213,7 @@ mismos ficheros en cada consulta, no un número escrito a mano.
 <tbody>
 <tr><td>Revisión de sintaxis <span class="m">(caza de roturas)</span></td><td class="num">60,8 %</td><td class="num nulo">3,6 %</td><td>una moneda que rechaza igual</td></tr>
 <tr><td>Nombres de Mathlib en el prompt <span class="m">(precisión)</span></td><td class="num">21,0 %</td><td class="num nulo">1,6 %</td><td>los nombres más frecuentes</td></tr>
-<tr><td>Reconocedor de área <span class="m">(acierto equilibrado)</span></td><td class="num">0,759</td><td class="num nulo">0,238</td><td>siempre el área mayoritaria</td></tr>
+<tr><td>Reconocedor de área <span class="m">(acierto equilibrado) · MEDIDO, NO CABLEADO</span></td><td class="num">0,759</td><td class="num nulo">0,238</td><td>siempre el área mayoritaria</td></tr>
 <tr><td>TacticRanker <span class="m">(acierto de táctica)</span></td><td class="num">0,598</td><td class="num nulo">0,318</td><td>siempre <code>nlinarith</code></td></tr>
 <tr><td>Premisas híbridas <span class="m">(precisión)</span></td><td class="num">1,243</td><td class="num nulo">1,040</td><td>las premisas más frecuentes</td></tr>
 <tr><td>Rasgos del árbol <span class="m">donde el léxico calla</span></td><td class="num">12,9 %</td><td class="num nulo">3,4 %</td><td>los lemas más frecuentes, mismo estrato</td></tr>
