@@ -1,0 +1,501 @@
+<title>Diagnóstico del Metamatemático</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,800;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --papel:#f7f5f0; --tinta:#1a1c19; --suave:#6b6f68; --tenue:#8f938b;
+  --linea:#ddd9cf; --caja:#efece4;
+  --verde:#2d6a4f; --rojo:#9b2c2c; --ambar:#8a6d1f; --azul:#2c5578;
+  --verde-f:#e6efe9; --rojo-f:#f6e8e8; --ambar-f:#f6f0e0;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --papel:#12140f; --tinta:#e6e4dc; --suave:#9a9e95; --tenue:#7b7f76;
+    --linea:#2b2e27; --caja:#1a1d16;
+    --verde:#7fc0a0; --rojo:#e08a8a; --ambar:#d6b95e; --azul:#8fb8dd;
+    --verde-f:#182219; --rojo-f:#241717; --ambar-f:#231f12;
+  }
+}
+:root[data-theme="dark"]{
+  --papel:#12140f; --tinta:#e6e4dc; --suave:#9a9e95; --tenue:#7b7f76;
+  --linea:#2b2e27; --caja:#1a1d16;
+  --verde:#7fc0a0; --rojo:#e08a8a; --ambar:#d6b95e; --azul:#8fb8dd;
+  --verde-f:#182219; --rojo-f:#241717; --ambar-f:#231f12;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--papel); color:var(--tinta);
+  font-family:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;
+  font-size:17px; line-height:1.62; margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.hoja{max-width:820px; margin:0 auto; padding:64px 28px 96px}
+@media(max-width:640px){.hoja{padding:40px 20px 64px}}
+
+h1{
+  font-family:Spectral,Georgia,serif; font-weight:800; font-size:clamp(2rem,5vw,2.9rem);
+  line-height:1.1; letter-spacing:-.02em; margin:0 0 .3em; text-wrap:balance;
+}
+h2{
+  font-family:Spectral,Georgia,serif; font-weight:600; font-size:1.5rem;
+  line-height:1.25; margin:3.2em 0 .2em; text-wrap:balance;
+  padding-top:1.1em; border-top:1px solid var(--linea);
+}
+h2 .n{
+  font-family:"JetBrains Mono",ui-monospace,monospace; font-size:.62em;
+  font-weight:600; color:var(--tenue); margin-right:.7em; letter-spacing:0;
+}
+h3{font-family:Spectral,Georgia,serif; font-weight:600; font-size:1.13rem; margin:2.2em 0 .3em}
+p{margin:.85em 0}
+.entrada{font-size:1.12rem; color:var(--suave); margin:0 0 2.4em; max-width:62ch}
+.sub{color:var(--suave); font-size:.94rem; margin:.1em 0 1.6em}
+code,.m{font-family:"JetBrains Mono",ui-monospace,monospace; font-size:.87em}
+code{background:var(--caja); padding:.1em .35em; border-radius:3px}
+strong{font-weight:600}
+em{font-style:italic; color:var(--suave)}
+a{color:var(--azul)}
+
+.ficha{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr));
+  gap:1px; background:var(--linea); border:1px solid var(--linea);
+  margin:2em 0 .6em;
+}
+.ficha div{background:var(--papel); padding:14px 16px}
+.ficha .v{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:1.42rem; font-weight:600; line-height:1.1; font-variant-numeric:tabular-nums;
+}
+.ficha .e{font-size:.78rem; color:var(--suave); margin-top:.35em; line-height:1.3}
+
+.tabla{overflow-x:auto; margin:1.3em 0}
+table{border-collapse:collapse; width:100%; font-size:.93rem}
+th{
+  text-align:left; font-weight:600; font-size:.74rem; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--tenue);
+  padding:0 12px 7px 0; border-bottom:1px solid var(--linea); white-space:nowrap;
+}
+td{padding:9px 12px 9px 0; border-bottom:1px solid var(--linea); vertical-align:top}
+td.num{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+td.nulo{color:var(--suave)}
+tr:last-child td{border-bottom:none}
+.eti{
+  display:inline-block; font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:.72rem; font-weight:600; padding:.15em .5em; border-radius:3px;
+  white-space:nowrap;
+}
+.ok{background:var(--verde-f); color:var(--verde)}
+.no{background:var(--rojo-f); color:var(--rojo)}
+.sin{background:var(--ambar-f); color:var(--ambar)}
+
+.nota{
+  border-left:3px solid var(--linea); padding:.1em 0 .1em 1.15em;
+  margin:1.5em 0; color:var(--suave); font-size:.96rem;
+}
+.nota.rojo{border-color:var(--rojo)}
+.nota.verde{border-color:var(--verde)}
+.nota.ambar{border-color:var(--ambar)}
+.nota.azul{border-color:var(--azul)}
+.nota strong{color:var(--tinta)}
+
+ul{padding-left:1.15em; margin:.8em 0}
+li{margin:.45em 0}
+li::marker{color:var(--tenue)}
+ol{padding-left:1.3em}
+
+.fallo{margin:1.1em 0; padding-left:1.15em; border-left:2px solid var(--linea)}
+.fallo .t{font-weight:600}
+.fallo .d{color:var(--suave); font-size:.95rem}
+
+pre{
+  font-family:"JetBrains Mono",ui-monospace,monospace; font-size:.82rem;
+  line-height:1.75; background:var(--caja); border:1px solid var(--linea);
+  border-radius:4px; padding:12px 15px; overflow-x:auto;
+  font-variant-numeric:tabular-nums; color:var(--suave); margin:1.1em 0;
+}
+pre b{color:var(--tinta); font-weight:600}
+
+.pie{
+  margin-top:4em; padding-top:1.4em; border-top:1px solid var(--linea);
+  color:var(--tenue); font-size:.85rem;
+}
+</style>
+
+<div class="hoja">
+
+<h1>Diagnóstico del Metamatemático</h1>
+<p class="entrada">
+Estado del sistema a 7 de septiembre de 2026. Cada cifra va con su modelo nulo;
+donde no lo hay, se dice. Y donde una conclusión anterior resultó falsa, se
+dice también — esta semana hubo tres.
+</p>
+
+<div class="ficha">
+  <div><div class="v">1050</div><div class="e">tests en verde, 51 suites, en los dos intérpretes</div></div>
+  <div><div class="v">62/63</div><div class="e">operaciones con respaldo formal en Lean</div></div>
+  <div><div class="v">387</div><div class="e">teoremas Lean en 22 archivos, 0 <code>sorry</code></div></div>
+  <div><div class="v">35 815</div><div class="e">líneas de Python en <code>nucleo/</code></div></div>
+  <div><div class="v">217 419</div><div class="e">nombres de Mathlib indexados</div></div>
+  <div><div class="v">79,1 %</div><div class="e">de los teoremas de Mathlib bajo algún concepto</div></div>
+</div>
+<p class="sub">
+320 nodos · 1 349 morfismos · 22 áreas en la base · 82 scripts de medición ·
+54 mediciones guardadas en <code>data/</code>
+</p>
+
+
+<h2><span class="n">01</span>El hallazgo de la semana: faltaban los nulos</h2>
+<p>
+Este proyecto exige un modelo nulo junto a cada cifra. Al auditarlo se
+encontró que <strong>las dos medidas del área no lo tenían</strong>, y con él
+puesto se leen al revés.
+</p>
+
+<div class="tabla">
+<table>
+<thead><tr><th>medida sobre 3 000 consultas</th><th>cruda</th><th>equilibrada</th></tr></thead>
+<tbody>
+<tr><td><code>classify_query</code></td><td class="num">61,2 %</td><td class="num">58,7 %</td></tr>
+<tr><td>área de la 1.ª skill del grafo</td><td class="num">34,3 %</td><td class="num">40,9 %</td></tr>
+<tr><td><em>nulo: responder siempre «algebra», sin leer</em></td><td class="num nulo">88,6 %</td><td class="num nulo">33,3 %</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>
+<strong>El banco es 89 % álgebra.</strong> Una constante gana a las dos medidas
+en crudo por 27 y 54 puntos. La cifra que dice algo es la equilibrada —la media
+de los aciertos dentro de cada área— donde el nulo se hunde al 33,3 % y
+<code>classify_query</code> se pone veinticinco puntos por encima.
+</p>
+
+<div class="nota rojo">
+<strong>Y el 52,1 % que este documento publicaba era además un artefacto.</strong>
+Tres skills copaban la mitad del banco —<code>eigen-theory</code>,
+<code>bilinear-forms</code>, <code>subgroups-cosets</code>— y entraban al top‑3
+por la palabra <code>and</code> de su propio nombre: «Eigenvalues <em>and</em>
+Eigenvectors». Las tres son de área <code>algebra</code>, así que acertaban por
+el sesgo de clase. Con <code>and</code> fuera del vocabulario, la precisión
+contra ProofNet sube de 18,8 % a 21,0 % con la cobertura plana y 121 nombres
+erróneos menos en el prompt.
+</div>
+
+<p>
+El medidor calcula ahora su nulo y lo escribe en el JSON, para que quien lea el
+fichero para citar una cifra tropiece con él.
+</p>
+
+
+<h2><span class="n">02</span>Lo que aporta</h2>
+<p>
+Seis capacidades baten a su modelo nulo. El decisor las enciende leyendo estos
+mismos ficheros en cada consulta, no un número escrito a mano.
+</p>
+
+<div class="tabla">
+<table>
+<thead><tr><th>capacidad</th><th>real</th><th>nulo</th><th>contra qué</th></tr></thead>
+<tbody>
+<tr><td>Revisión de sintaxis <span class="m">(caza de roturas)</span></td><td class="num">60,8 %</td><td class="num nulo">3,6 %</td><td>una moneda que rechaza igual</td></tr>
+<tr><td>Nombres de Mathlib en el prompt <span class="m">(precisión)</span></td><td class="num">21,0 %</td><td class="num nulo">1,6 %</td><td>los nombres más frecuentes</td></tr>
+<tr><td>Reconocedor de área <span class="m">(acierto equilibrado)</span></td><td class="num">0,759</td><td class="num nulo">0,238</td><td>siempre el área mayoritaria</td></tr>
+<tr><td>TacticRanker <span class="m">(acierto de táctica)</span></td><td class="num">0,598</td><td class="num nulo">0,318</td><td>siempre <code>nlinarith</code></td></tr>
+<tr><td>Premisas híbridas <span class="m">(precisión)</span></td><td class="num">1,243</td><td class="num nulo">1,040</td><td>las premisas más frecuentes</td></tr>
+<tr><td>Rasgos del árbol <span class="m">donde el léxico calla</span></td><td class="num">12,9 %</td><td class="num nulo">3,4 %</td><td>los lemas más frecuentes, mismo estrato</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="nota verde">
+<strong>La última fila es la más interesante.</strong> En promedio, los rasgos del
+árbol de la consulta suman sólo <span class="m">+0,8</span> puntos sobre los
+n‑gramas. Pero en el 5,9 % de consultas donde los n‑gramas no aciertan
+<em>ni un lema</em>, la estructura cubre el 12,9 % frente al 3,4 % del nulo —
+seis veces— y la precisión sube con ella. Sintaxis y semántica no compiten por
+el mismo puesto: se reparten el trabajo, y el reparto sólo se ve estratificando.
+</div>
+
+<div class="nota ambar">
+<strong>Y una capacidad medida bien no significa una capacidad conectada.</strong>
+Los 68 rasgos del árbol miden 1,43× sobre su nulo prediciendo qué lemas hará
+falta citar, y en el código llegan al <em>decisor como guarda</em>, no al
+selector de premisas — que es donde su evidencia dice que sirven.
+<code>premisas_para(objetivo, área, k)</code> sigue sin recibirlos.
+</div>
+
+
+<h2><span class="n">03</span>Lo que no bate a su nulo</h2>
+<p>
+Cinco capacidades miden peor —o igual— que no hacerlas. Cuatro estaban en
+producción. El decisor las apaga leyendo la medición, no una opinión.
+</p>
+
+<div class="tabla">
+<table>
+<thead><tr><th>capacidad</th><th>real</th><th>nulo</th><th></th></tr></thead>
+<tbody>
+<tr><td>Elección de imports <span class="m">(elabora, de 20)</span></td><td class="num">18</td><td class="num nulo">18</td><td><span class="eti no">apagada</span></td></tr>
+<tr><td>Orden de cascada por área <span class="m">(posición, menos es mejor)</span></td><td class="num">1,262</td><td class="num nulo">1,091</td><td><span class="eti no">apagada</span></td></tr>
+<tr><td>Dos etapas: localizar y elegir <span class="m">(precisión)</span></td><td class="num">0,42</td><td class="num nulo">0,93</td><td><span class="eti no">apagada</span></td></tr>
+<tr><td>Recuperación léxica de lemas <span class="m">(precisión)</span></td><td class="num">0,065</td><td class="num nulo">7,78</td><td><span class="eti no">apagada</span></td></tr>
+<tr><td>Emparejador semántico <span class="m">(precisión ProofNet)</span></td><td class="num">13,1 %</td><td class="num nulo">1,6 %</td><td><span class="eti sin">nunca se adoptó</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<p>
+La segunda era la afirmación de portada del proyecto — «2,4× menos intentos» —
+y lo era porque comparaba dos reglas entre sí sin preguntar contra qué suelo.
+La última decía «12 % contra 61 %», y ese 61 % <strong>no era un nulo</strong>:
+era el emparejador léxico. Comparar un candidato con la versión que ya tienes
+no es medirlo. Ahora va contra ProofNet, que sí tiene formalizaciones de oro —
+el semántico da 13,1 % de precisión y <strong>2,4 % de cobertura</strong>,
+frente a 21,0 % y 14,8 % del léxico.
+</p>
+
+<div class="nota azul">
+<strong>Y el decisor sólo gobernaba una de sus doce capacidades.</strong>
+<code>_corre</code> se consultaba una vez en todo <code>core.py</code>; las
+otras once corrían o no por razones ajenas a él, de modo que el catálogo era
+documentación honesta con efecto de un <code>if</code>. Ahora gobierna dos, y
+un test exige que la lista de gobernadas coincida exactamente con los
+<code>in _corre</code> del código. Su respaldo también mentía: decía «se
+ejecuta todo» y traía un solo nombre, así que cualquier capacidad cableada
+después quedaba apagada <em>justo</em> cuando el decisor fallaba.
+</div>
+
+
+<h2><span class="n">04</span>La fibración: no faltan datos, la base no es un orden</h2>
+<p>
+Que π : Skills → Áreas sea funtor está verificado, y no basta: un funtor
+constante también cumple las dos leyes. La condición que dice que la base
+<em>sirve</em> es la de fibración, demostrada en Lean sin <code>sorry</code>.
+Sobre el grafo real no se cumple: <strong>3 de 860 pares se levantan, un 0,3 %
+contra el 6,1 % de barajar las áreas al azar</strong>.
+</p>
+
+<p>
+Este documento concluía de ahí que «faltan morfismos que crucen de área».
+<strong>Es falso, y se puede demostrar.</strong>
+</p>
+
+<pre>relaciones DIRECTAS entre áreas         63
+relaciones tras la CLAUSURA        <b>462</b>  de 506 posibles = <b>91 %</b>
+mayor componente fuertemente conexa <b>21</b>  de 23 áreas</pre>
+
+<p>
+La base se construye como la imagen de las flechas del grafo y se cierra
+transitivamente, y esas flechas forman <strong>una componente fuertemente
+conexa de 21 de las 23 áreas</strong> — sólo <code>Computability</code> y
+<code>OrderTheory</code> quedan fuera. La base no es un orden: es un preorden
+con una clase de equivalencia gigante. Y los ciclos son matemática correcta, no
+errores de curación:
+</p>
+
+<pre>Algebra ↔ Analysis        área-algebra → spectral-theory
+                          área-analysis → inner-product-spaces
+Algebra ↔ CategoryTheory  exact-sequences → abelian-categories
+                          functors → homological-algebra
+Geometry ↔ Topology       differential-geometry → differential-topology
+                          point-set-topology → differential-geometry</pre>
+
+<div class="nota rojo">
+<strong>Y añadir morfismos no puede ayudar.</strong> La clausura transitiva es
+monótona: una arista nueva sólo puede <em>añadir</em> relaciones, nunca
+quitarlas. Comprobado, no supuesto —
+<pre>+10 aristas cruzadas  →  clausura  96 %  ·  mayor componente 22 áreas
++60 aristas cruzadas  →  clausura 100 %  ·  mayor componente 23 áreas</pre>
+Sobre un preorden con 21 áreas mutuamente equivalentes, la fibración exigiría
+que <em>todo</em> concepto de álgebra dependa de uno de probabilidad. Eso es
+falso, y ninguna curación lo va a arreglar.
+</div>
+
+<p>
+Es el mismo hallazgo que <code>areas_por_estructura.py</code> dio sobre la
+taxonomía de Mathlib —una mega-área con 918 de 1 358 conceptos— con otro
+disfraz: <strong>la descomposición en ramas no es recuperable de las
+dependencias</strong>, porque el orden en que se construye la matemática no
+respeta la frontera entre álgebra, topología y análisis. Lo que queda abierto
+no es una tarea: es qué base <em>sí</em> ordenaría la matemática.
+</p>
+
+
+<h2><span class="n">05</span>Los huecos de conexión, y lo que costaron</h2>
+
+<h3>El mapa de módulos conocía 76 de los 320 nodos</h3>
+<p>
+Se construye resolviendo los <em>nombres verificados</em> de cada skill al
+fichero donde se declaran, y los 125 nodos <code>MODULO</code> y los 22
+<code>AREA</code> no tienen nombres: los 147 se quedaban fuera. No era
+cosmético — <code>_modulos_mathlib</code>, quien elige qué importa Lean,
+devolvía vacío en cuanto las primeras skills eran generadas.
+</p>
+
+<pre>skills en el mapa          76  →  <b>223</b>
+cobertura de Mathlib     32,7 % →  <b>79,1 %</b> de los teoremas
+conceptos cubiertos        80  →  <b>210</b> de 1 139</pre>
+
+<p>
+Esos nodos sí saben su módulo, pero no se puede usar tal cual:
+<code>Mathlib.Data.Set</code> es un <em>directorio</em> y sólo 8 de los 147 son
+importables directos. Se resuelven a un fichero real y todo se comprueba contra
+el disco antes de escribirse — un import inventado no ralentiza la compilación,
+la rompe, y lo haría en todas las consultas a la vez.
+</p>
+
+<div class="nota ambar">
+<strong>Y aun así el paso 3 sigue inerte.</strong> Remedido con Lean de juez: el
+grafo ofrece ahora 4,7 módulos por caso frente a 3,0, y los casos donde difiere
+del conjunto fijo pasan de 6 a 10 — <em>sin mover un solo veredicto</em>. Lo
+que cambia es que antes el banco no podía decidir; ahora sí puede, y dice lo
+mismo. Contra el azar sí gana, 18 frente a 12: hace trabajo real, redundante
+con una constante.
+</div>
+
+<h3>Los diez fundacionales eran inalcanzables por texto</h3>
+<p>
+<code>zfc-axioms</code>, <code>cat-basics</code>, <code>functors</code>,
+<code>limits</code>, <code>lean-kernel</code>… eran los únicos conceptos sin
+ninguna palabra clave. El suelo del grafo no se podía activar desde el texto de
+una pregunta, que es por donde entra el alumno. Ya se alcanza — pero el
+beneficio <strong>no es medible con los bancos que hay</strong>: de 3 000
+consultas de MATH sólo una contiene alguna de esas palabras, y de 371 de
+ProofNet ninguna. Riesgo de regresión medido en cero, beneficio no medido.
+</p>
+
+<h3>Cero E‑conceptos con 133 registros y 1 000 procedimientos</h3>
+<p>
+La maquinaria de emergencia lleva corriendo desde el principio y no había
+producido ninguno. <code>try_form_econcept</code> cogía todos los registros de
+un patrón y preguntaba <em>«¿es este saco entero una sola clase de
+equivalencia?»</em>. Un E‑concepto <strong>es</strong> una clase; preguntar si
+el conjunto entero lo es, es la pregunta contraria.
+</p>
+<pre>lean-tactics    53 registros · éxito [0,2 … 1,0]   rango 0,8
+query-tactical  79 registros · éxito [0,1 … 0,5]   rango 0,4</pre>
+<p>
+Un registro con éxito 1,0 entre 78 con 0,5 tumbaba el grupo completo. Y como el
+sistema aprende justamente de casos que salen distinto, <strong>cuanto más
+aprendía más imposible se volvía</strong>. Particionando, esa misma memoria da
+tres E‑conceptos sin correr nada nuevo.
+</p>
+<div class="nota">
+Hubo que separar dos nociones que estaban mezcladas: la tolerancia
+<code>|a−b| ≤ 0,1</code> <strong>no es una relación de equivalencia</strong>
+—0,0 ~ 0,1 ~ 0,2 pero 0,0 ≁ 0,2— así que no podía definir clases. La
+comparación pareada se queda; la partición usa la resolución del observador,
+que sí es transitiva.
+</div>
+
+
+<h2><span class="n">06</span>Los ocho veredictos</h2>
+<p>
+La respuesta nunca sale sin uno. Tres de los ocho existen porque los tres se
+dieron: el sistema llegó a estampar «verificado» sobre un archivo de
+<code>#check</code> sin teoremas, sobre la negación de lo que se pidió, y sobre
+<code>theorem t : True := trivial</code>.
+</p>
+<div class="tabla">
+<table>
+<thead><tr><th>veredicto</th><th>qué significa</th></tr></thead>
+<tbody>
+<tr><td><span class="eti ok">verificado</span></td><td>hay teorema, lo prueba, y es el que se preguntó</td></tr>
+<tr><td><span class="eti sin">parcial</span></td><td>la estructura compila; queda un <code>sorry</code></td></tr>
+<tr><td><span class="eti ok">refutado</span></td><td>Lean verificó la <em>negación</em> del enunciado</td></tr>
+<tr><td><span class="eti no">sin_teorema</span></td><td>Lean aceptó el archivo y no contiene ningún teorema</td></tr>
+<tr><td><span class="eti no">vacuo</span></td><td>compila, pero su conclusión es <code>True</code>: no dice nada</td></tr>
+<tr><td><span class="eti no">no_verificado</span></td><td>Lean rechazó y los reintentos no lo arreglaron</td></tr>
+<tr><td><span class="eti sin">timeout</span></td><td>Lean no terminó dentro del límite</td></tr>
+<tr><td><span class="eti sin">sin_entorno</span></td><td>no hay <code>lake</code> — no es un fallo de lógica</td></tr>
+</tbody>
+</table>
+</div>
+
+
+<h2><span class="n">07</span>La clase de fallo que domina</h2>
+<p>
+Ninguno de estos lo encontraron los tests; todos salieron de correr el sistema
+o de auditar los instrumentos. Y casi todos son <strong>el mismo fallo</strong>:
+algo que convierte un error en <em>ausencia de información</em>, y la ausencia
+se lee como otra cosa.
+</p>
+
+<div class="fallo">
+  <div class="t">Un secreto vacío borraba la clave buena</div>
+  <div class="d">Streamlit no lee <code>secrets.toml</code>: lo <em>inyecta</em> en <code>os.environ</code>. Un <code>KEY = ""</code> machacaba los 108 caracteres que el <code>.env</code> acababa de cargar. Medido: 108 → 0.</div>
+</div>
+<div class="fallo">
+  <div class="t">Se compilaba un código y se enseñaba otro</div>
+  <div class="d"><code>check_code</code> normaliza antes de compilar y borra <code>import Mathlib</code> — cargarlo entero tarda 742 s. Se mostraba el original, así que se leía <code>import Mathlib</code> junto a «este lema no existe», cuando con ese import sí existe.</div>
+</div>
+<div class="fallo">
+  <div class="t">Una conjunción inglesa como evidencia</div>
+  <div class="d"><code>tokens(mínimo=3)</code> corta las palabras de una y dos letras, pero <code>and</code> tiene tres justas. Tres skills copaban la mitad del banco por la <code>and</code> de su propio nombre, sin que ninguna de sus keywords apareciera en la consulta.</div>
+</div>
+<div class="fallo">
+  <div class="t">Dos medidores midiendo una configuración que nadie ejecuta</div>
+  <div class="d"><code>--k</code> por defecto 6 mientras el sistema sirve con <code>PLAZAS_CON_NOMBRES = 2</code>. Uno de ellos es <em>el script que eligió esa constante</em>. Y otro medidor lee su fila como referencia de sus propias columnas a k=2: volumen desigual, que es justo lo que §12.2 prohíbe.</div>
+</div>
+<div class="fallo">
+  <div class="t">Un guardián que se disparaba por su propia ventana</div>
+  <div class="d">Buscaba el corte en los 2 000 caracteres siguientes al <code>def</code>. Al crecer la docstring, la línea quedó fuera y el test falló diciendo «cambió la forma de recortar» cuando no había cambiado nada. Un guardián que se dispara con código correcto enseña a ignorarlo.</div>
+</div>
+<div class="fallo">
+  <div class="t">Y un analizador que dio tres respuestas falsas seguidas</div>
+  <div class="d">La auditoría de conectividad perdía los <code>from paquete import submódulo</code>, los <code>from . import x</code> y los <code>__init__.py</code>, y llegó a marcar como huérfano el índice de nombres, que tiene dos llamadas en <code>core.py</code>. El instrumento presentaba su propia laguna como un hallazgo sobre el sistema.</div>
+</div>
+
+<div class="nota rojo">
+<strong>El patrón, dicho en corto:</strong> un <code>except</code> mudo, un valor
+vacío que gana, una configuración con dos formas, un índice de índices que sólo
+leía uno, un valor por defecto que se quedó escrito cuando la constante cambió.
+Ninguno da error. Todos hacen que el sistema —o su medición— afirme con más
+autoridad de la que tiene.
+</div>
+
+
+<h2><span class="n">08</span>Lo que no está medido</h2>
+<ul>
+<li><strong>La calidad extremo a extremo del decisor</strong> contra «ejecútalo todo». Se mide el coste, no la calidad.</li>
+<li><strong>El banco de fidelidad completo.</strong> Los 24 casos están escritos y la corrida registrada es la muestra rápida: <strong>8 medidos, 8 correctos, 0 infieles</strong>. Es la única medida de si la respuesta responde a la pregunta, y necesita presupuesto de API y de Lean.</li>
+<li><strong>El efecto de los prompts en inglés.</strong> La instrucción se cumple y hay guardián; que mejore la calidad no está medido.</li>
+<li><strong>El GNN no tiene estudio ablativo.</strong> Está cableado —<code>set_neural_agent</code> lo enchufa al ranker de la cascada— pero un guardián propio lo detecta degenerado si la red devuelve siempre la misma acción, y hoy lo detecta.</li>
+<li><strong>Las palabras clave de los diez fundacionales.</strong> Riesgo cero medido, beneficio no medible: ningún banco disponible contiene consultas de fundamentos.</li>
+<li><strong>Los co-reguladores</strong> siguen siendo analogías en Python, no formalismo MES categórico — a diferencia de la E‑equivalencia, que ahora sí implementa una relación de equivalencia de verdad.</li>
+</ul>
+
+<div class="nota ambar">
+<strong>Riesgo de entorno.</strong> Los tests corren con Python 3.13 y sklearn
+1.7.2; la aplicación con anaconda 3.10 y sklearn 1.6.1. Los 1050 pasan en los
+dos, y se comprueba en los dos antes de cada commit — pero el modelo del
+TacticRanker está encurtido con 1.6.1 y sklearn avisa al cargarlo con 1.7.2.
+</div>
+
+
+<h2><span class="n">09</span>Lo siguiente, por orden de valor</h2>
+<ol>
+<li><strong>Rehacer el banco de fidelidad, los 24 casos.</strong> Es la única afirmación que de verdad importa —que la respuesta responde a lo que se preguntó— y la única pendiente que necesita gastar. La muestra rápida ya reparte 4/2/2 entre los tres grupos, así que iterar es barato.</li>
+<li><strong>Pasar los rasgos del árbol a <code>premisas_para</code>.</strong> Miden 1,43× sobre su nulo prediciendo qué lemas harán falta, y hoy llegan al decisor como guarda en vez de al selector de premisas. Cambio de firma pequeño; la medición ya está escrita.</li>
+<li><strong>Un banco de consultas de fundamentos.</strong> Sin él, todo lo que se construya para la mitad categórica del sistema —que es su razón de ser— se mide con matemática de concurso o no se mide.</li>
+<li><strong>Qué base ordenaría la matemática.</strong> El área no lo hace, y está demostrado. Es una pregunta de investigación, no una tarea de curación.</li>
+</ol>
+
+<div class="nota verde">
+<strong>Tres conclusiones anteriores cayeron esta semana</strong>, y las tres por
+la misma disciplina que las había producido: pedirle un nulo a cada cifra. El
+52,1 % del emparejador era un artefacto de clase; el «faltan morfismos que
+crucen de área» era falso y demostrablemente contraproducente; y el «inerte»
+del paso 3 descansaba sobre un banco que no podía decidir. Ninguna de las tres
+se cayó revisando el código: se cayeron midiendo.
+</div>
+
+<div class="pie">
+Metamatemático · NLE v7.0 — Leonardo Jiménez Martínez, BIOMAT, Centro de
+Biomatemáticas.<br>
+Cifras verificadas el 7 de septiembre de 2026 contra el repositorio en
+<code>E:\Metamatematico</code>. Cada una es reproducible con su script en
+<code>scripts/</code>; los ficheros de medición viven en <code>data/</code>.
+</div>
+
+</div>
