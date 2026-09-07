@@ -11,19 +11,19 @@
    "fn": 1190
   },
   "lexico+puerta": {
-   "precision": 20.53838484546361,
+   "precision": 20.41625371655104,
    "cobertura": 14.756446991404012,
    "con_algo": 289,
    "tp": 206,
-   "fp": 797,
+   "fp": 803,
    "fn": 1190
   },
   "semantico": {
-   "precision": 13.147410358565738,
+   "precision": 13.807531380753138,
    "cobertura": 2.3638968481375358,
-   "con_algo": 103,
+   "con_algo": 98,
    "tp": 33,
-   "fp": 218,
+   "fp": 206,
    "fn": 1363
   },
   "nulo": {

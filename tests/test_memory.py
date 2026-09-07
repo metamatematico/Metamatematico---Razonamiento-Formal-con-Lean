@@ -291,3 +291,98 @@ class TestMESMemoryStats:
         stats = mem.stats
         assert stats["total_records"] == 2
         assert stats["procedural"]["num_procedures"] == 1
+
+
+class TestFormacionDeEConceptosParticiona:
+    """Un E-concepto ES una clase de equivalencia, no «el saco entero».
+
+    La version anterior cogia todos los registros de un patron y preguntaba si
+    el conjunto ENTERO era una sola clase. Con datos reales eso no puede salir
+    que si: sobre la memoria en disco —133 registros de uso real— `lean-tactics`
+    tenia exitos entre 0,2 y 1,0 y `query-tactical` entre 0,1 y 0,5, asi que un
+    solo registro discrepante tumbaba el grupo completo.
+
+    Y como el sistema aprende justamente de casos que salen distinto, CUANTO MAS
+    APRENDIA MAS IMPOSIBLE SE VOLVIA: 133 registros, 1 000 procedimientos y CERO
+    E-conceptos.
+    """
+
+    def test_particiona_en_vez_de_exigir_homogeneidad(self):
+        from nucleo.mes.memory import MESMemory
+        from nucleo.types import CoRegulatorType, ExperienceRecord
+
+        mem = MESMemory()
+        # 6 con exito 0,5 y 6 con exito 1,0: dos clases, no una mezcla mala
+        for i in range(6):
+            mem.add_record(ExperienceRecord(
+                id="a%d" % i, pattern_id="p", success_value=0.5))
+        for i in range(6):
+            mem.add_record(ExperienceRecord(
+                id="b%d" % i, pattern_id="p", success_value=1.0))
+
+        mem.try_form_concept("p", CoRegulatorType.TACTICAL)
+        formados = mem.semantic._econcepts
+        assert len(formados) == 2, (
+            "deberian formarse DOS E-conceptos, uno por clase de exito; "
+            "se formaron %d" % len(formados))
+        tam = sorted(len(e.representative_records) for e in formados.values())
+        assert tam == [6, 6], "las clases deberian tener 6 y 6, tienen %s" % tam
+
+    def test_no_forma_clases_por_debajo_del_minimo(self):
+        """El minimo sigue aplicando POR CLASE, no al conjunto."""
+        from nucleo.mes.memory import MESMemory
+        from nucleo.types import CoRegulatorType, ExperienceRecord
+
+        mem = MESMemory()
+        for i in range(6):
+            mem.add_record(ExperienceRecord(
+                id="a%d" % i, pattern_id="p", success_value=0.5))
+        for i in range(2):                       # clase demasiado pequena
+            mem.add_record(ExperienceRecord(
+                id="b%d" % i, pattern_id="p", success_value=1.0))
+
+        mem.try_form_concept("p", CoRegulatorType.TACTICAL)
+        assert len(mem.semantic._econcepts) == 1
+        e = list(mem.semantic._econcepts.values())[0]
+        assert len(e.representative_records) == 6
+
+    def test_la_clase_se_redondea_y_no_se_trunca(self):
+        """`0.5 // 0.1` vale 4.0 en coma flotante, no 5.
+
+        Truncar dejaba las clases consistentes —el error es igual para todos—
+        pero etiquetadas con el cubo equivocado, y valores en el borde podian
+        separarse segun de donde viniera el float.
+        """
+        from nucleo.mes.memory import SemanticMemory
+        from nucleo.types import ExperienceRecord
+
+        sem = SemanticMemory()
+        for v, cubo in ((0.5, 5), (1.0, 10), (0.1, 1), (0.0, 0)):
+            r = ExperienceRecord(id="x", pattern_id="p", success_value=v)
+            assert sem._clase_e(r) == ("p", cubo), (
+                "success %.1f deberia caer en el cubo %d y cae en %s"
+                % (v, cubo, sem._clase_e(r)))
+
+    def test_la_particion_si_es_una_relacion_de_equivalencia(self):
+        """La tolerancia pareada NO lo es, y por eso hay dos nociones.
+
+        0,0 ~ 0,1 y 0,1 ~ 0,2 con tolerancia 0,1, pero 0,0 y 0,2 no: sin
+        transitividad «clase de equivalencia» no significa nada. `_clase_e` si
+        la da, y es lo que usa la particion.
+        """
+        from nucleo.mes.memory import SemanticMemory
+        from nucleo.types import ExperienceRecord
+
+        sem = SemanticMemory()
+        r = lambda v: ExperienceRecord(id="x", pattern_id="p", success_value=v)
+
+        # la relacion pareada NO es transitiva — se documenta aqui, no se arregla
+        assert sem._is_e_equivalent(r(0.0), r(0.1))
+        assert sem._is_e_equivalent(r(0.1), r(0.2))
+        assert not sem._is_e_equivalent(r(0.0), r(0.2))
+
+        # la clase SI: reflexiva, simetrica y transitiva por construccion
+        for v in (0.0, 0.33, 0.5, 1.0):
+            assert sem._clase_e(r(v)) == sem._clase_e(r(v))
+        a, b, c = sem._clase_e(r(0.50)), sem._clase_e(r(0.52)), sem._clase_e(r(0.54))
+        assert a == b and b == c and a == c

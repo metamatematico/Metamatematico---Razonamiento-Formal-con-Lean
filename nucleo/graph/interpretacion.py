@@ -108,6 +108,52 @@ def nombres_de_trabajo(clave: str) -> str:
     `teoria` si la hay, y si no `lean`. Es lo que deben consultar el prompt de
     formalizacion y el selector de modulos; `Etiqueta.lean` a secas sigue
     siendo la identidad categorica y no debe usarse para importar.
+
+    ─────────────────────────────────────────────────────────────────────────
+    SE PROBO DAR `teoria` A 12 CONCEPTOS QUE NO INYECTAN NOMBRES, Y NO ENTRA.
+
+    46 conceptos curados no aportan ningun nombre. En su mayoria eso es
+    CORRECTO —estan marcados T, F u O, y un teorema no es un objeto de la
+    categoria—, pero 12 tenian en su NOTA el objeto adyacente, escrito a mano
+    por quien interpreto el nodo: «un lema; el funtor y si es objeto:
+    CategoryTheory.yoneda».
+
+    Los nombres son BUENOS: 14 de 15 los acepta `#check` con Mathlib entero
+    importado, y el unico rechazado —`CategoryTheory.Functor.Representable`—
+    ya lo daba por inexistente el indice de 217 419 nombres. Verificados, no
+    deducidos. Ver `scripts/verificar_teoria_faltante.py` y
+    `data/teoria_faltante_verificada.json`.
+
+    Y AUN ASI EMPEORAN, contra ProofNet:
+
+                          precision   cobertura   aciertos   nombres
+        sin los 12          21,0 %      14,8 %       206       981
+        con los 12          20,1 %      13,9 %       194       967
+        con los 12, pero
+        rankeando T detras  20,2 %      14,8 %       207      1024
+
+    LA CAUSA ES MECANICA, y esta contada nodo a nodo: `PLAZAS_CON_NOMBRES` es
+    2. Un nodo sin nombres se SALTABA y la plaza pasaba al siguiente; con
+    nombres la ocupa. En 50 de los 352 ejercicios uno de los 12 entra en
+    plaza, y el balance es GANA 0 · PIERDE 12. Lo que desplaza son justo los
+    buenos:
+
+        group-theory        7 veces   ofrecia Group, Subgroup, MonoidHom
+        modular-arithmetic  5 veces   ofrecia ZMod, ZMod.castHom
+        subgroups-cosets    5 veces   ofrecia Subgroup, QuotientGroup
+
+    O sea que el hallazgo NO es sobre los nombres: es que el emparejador
+    rankea `zfc-axioms` o `prime-factorization` por encima de `group-theory`
+    en ejercicios de grupos. Los nombres solo hicieron VISIBLE ese fallo de
+    ranking, al ocupar una plaza que antes se saltaban.
+
+    Rankear los T detras recupera la cobertura y gana un acierto, pero ofrece
+    43 nombres mas y la precision sigue por debajo: por el criterio declarado
+    en `PLAZAS_CON_NOMBRES` —se elige por cobertura— es un empate que no
+    justifica la maquinaria.
+
+    Queda escrito para que nadie lo repita, y con la pista de por donde va lo
+    que si arreglaria algo: el ranking, no el vocabulario.
     """
     e = VEREDICTO.get(clave)
     if e:

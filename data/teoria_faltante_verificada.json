@@ -1,0 +1,86 @@
+{
+ "propuestos": {
+  "cardinal-arithmetic": [
+   "Cardinal"
+  ],
+  "circle-geometry": [
+   "EuclideanGeometry.Sphere"
+  ],
+  "compactness-theorem": [
+   "FirstOrder.Language.Theory.isSatisfiable_iff_isFinitelySatisfiable"
+  ],
+  "computability-theory": [
+   "TuringDegree"
+  ],
+  "enumerative-combinatorics": [
+   "FintypeCat"
+  ],
+  "homotopy-theory": [
+   "CategoryTheory.MorphismProperty",
+   "SSet",
+   "TopCat"
+  ],
+  "inclusion-exclusion": [
+   "IncidenceAlgebra"
+  ],
+  "matching-theory": [
+   "SimpleGraph.Subgraph.IsMatching"
+  ],
+  "prime-factorization": [
+   "UniqueFactorizationMonoid"
+  ],
+  "universal-properties": [
+   "CategoryTheory.Limits.IsInitial",
+   "CategoryTheory.Functor.Representable"
+  ],
+  "yoneda-lemma": [
+   "CategoryTheory.yoneda"
+  ],
+  "zfc-axioms": [
+   "ZFSet"
+  ]
+ },
+ "aceptados": {
+  "cardinal-arithmetic": [
+   "Cardinal"
+  ],
+  "circle-geometry": [
+   "EuclideanGeometry.Sphere"
+  ],
+  "compactness-theorem": [
+   "FirstOrder.Language.Theory.isSatisfiable_iff_isFinitelySatisfiable"
+  ],
+  "computability-theory": [
+   "TuringDegree"
+  ],
+  "enumerative-combinatorics": [
+   "FintypeCat"
+  ],
+  "homotopy-theory": [
+   "CategoryTheory.MorphismProperty",
+   "SSet",
+   "TopCat"
+  ],
+  "inclusion-exclusion": [
+   "IncidenceAlgebra"
+  ],
+  "matching-theory": [
+   "SimpleGraph.Subgraph.IsMatching"
+  ],
+  "prime-factorization": [
+   "UniqueFactorizationMonoid"
+  ],
+  "universal-properties": [
+   "CategoryTheory.Limits.IsInitial"
+  ],
+  "yoneda-lemma": [
+   "CategoryTheory.yoneda"
+  ],
+  "zfc-axioms": [
+   "ZFSet"
+  ]
+ },
+ "rechazados": [
+  "CategoryTheory.Functor.Representable"
+ ]
+}

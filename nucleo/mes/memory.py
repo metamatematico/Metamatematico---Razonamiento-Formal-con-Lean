@@ -299,6 +299,41 @@ class SemanticMemory:
             for rid in econcept.representative_records
         ] if self._record_store else record.success_value > 0.5
 
+    #: Resolucion con que el co-regulador observa el exito.
+    #:
+    #: Def 5.3 dice que dos registros son E-equivalentes cuando CRk NO LOS
+    #: DISTINGUE. Un observador con resolucion finita no distingue dentro de
+    #: su paso, y eso es exactamente lo que hace un cubo.
+    _RESOLUCION_E = 0.1
+
+    def _clase_e(self, r: ExperienceRecord) -> tuple:
+        """La clase en que cae un registro, para PARTICIONAR.
+
+        DOS NOCIONES QUE NO SON LA MISMA, Y CONVIENE NO MEZCLARLAS.
+
+        `_is_e_equivalent` compara DOS registros con una tolerancia, que es
+        una lectura razonable de «CRk no los distingue» y es la que esta
+        documentada y probada. Pero una tolerancia NO ES UNA RELACION DE
+        EQUIVALENCIA: 0,0 ~ 0,1 y 0,1 ~ 0,2, y sin embargo 0,0 y 0,2 no. Sin
+        transitividad, «clase de equivalencia» no esta bien definida y no hay
+        particion que hacer.
+
+        Para particionar hace falta una relacion que si lo sea, y la mas
+        natural es la resolucion del observador: mismo cubo = misma clase.
+        Eso si es reflexivo, simetrico y transitivo, y coincide con la
+        tolerancia siempre que los datos no caigan a caballo de un borde.
+
+        Y EL CUBO SE REDONDEA, NO SE TRUNCA. `0.5 // 0.1` vale 4.0 en coma
+        flotante, no 5, porque 0,1 no es representable: la division da
+        4,999... y el suelo se la come. Truncar dejaba las clases consistentes
+        —el error es igual para todos— pero etiquetadas con el cubo
+        equivocado.
+        """
+        paso = self._RESOLUCION_E
+        if not paso:
+            return (r.pattern_id, 0)
+        return (r.pattern_id, int(round(r.success_value / paso)))
+
     def _is_e_equivalent(
         self, r1: ExperienceRecord, r2: ExperienceRecord
     ) -> bool:
@@ -306,7 +341,9 @@ class SemanticMemory:
         Def 5.3 v7.0: Dos registros son E-equivalentes si producen
         la misma respuesta funcional (CRk no los distingue).
 
-        Implementacion: mismo pattern_id + success similar + misma categoria.
+        Implementacion: mismo pattern_id + success similar + mismo signo.
+        Es la comparacion PAREADA; para agrupar en clases hay que usar
+        `_clase_e`, porque esta relacion no es transitiva.
         """
         if r1.pattern_id != r2.pattern_id:
             return False
@@ -322,34 +359,69 @@ class SemanticMemory:
         cr_type: CoRegulatorType
     ) -> Optional[EConcept]:
         """
-        Intentar formar E-concepto desde registros similares.
+        Formar E-conceptos PARTICIONANDO los registros en clases.
 
         Teorema 5.4: El funtor E-concepto preserva colimites.
+
+        QUE ESTABA MAL, Y POR QUE NUNCA SE FORMO NINGUNO. La version anterior
+        cogia todos los registros de un patron y preguntaba «¿es este saco
+        ENTERO una sola clase?». Un E-concepto ES una clase de equivalencia;
+        preguntar si el conjunto entero es una clase es la pregunta contraria,
+        y con datos reales no puede salir que si.
+
+        Medido sobre la memoria en disco —133 registros de uso real:
+
+            lean-tactics     53 registros · success [0,2 … 1,0]  rango 0,8
+            query-tactical   79 registros · success [0,1 … 0,5]  rango 0,4
+
+        Un solo registro con exito 1,0 entre 78 con 0,5 tumbaba el saco entero.
+        Y como el sistema aprende precisamente de casos que salen distinto,
+        CUANTO MAS APRENDIA MAS IMPOSIBLE SE VOLVIA. Resultado: 133 registros,
+        1 000 procedimientos y CERO E-conceptos.
+
+        Particionando, esa misma memoria da tres:
+
+            lean-tactics    success 1,0 -> 51 registros
+            query-tactical  success 0,5 -> 74 registros
+            query-tactical  success 0,1 ->  5 registros
+
+        Se devuelve el mayor para no romper el contrato de los llamadores, y
+        se registran todos.
         """
         if len(records) < self._min_records:
             return None
 
-        # Verificar que sean funcionalmente equivalentes
-        if not self._are_equivalent(records, cr_type):
-            return None
+        clases: dict[tuple, list[ExperienceRecord]] = {}
+        for r in records:
+            clases.setdefault(self._clase_e(r), []).append(r)
 
-        econcept = EConcept(
-            representative_records=[r.id for r in records],
-            co_regulator_type=cr_type,
-        )
-        self.add_econcept(econcept)
-        logger.info(f"Formado E-concepto {econcept.id} con {len(records)} registros")
-        return econcept
+        formados = []
+        for clave, grupo in sorted(clases.items(), key=lambda kv: -len(kv[1])):
+            if len(grupo) < self._min_records:
+                continue
+            econcept = EConcept(
+                representative_records=[r.id for r in grupo],
+                co_regulator_type=cr_type,
+            )
+            self.add_econcept(econcept)
+            formados.append(econcept)
+            logger.info(
+                "Formado E-concepto %s: %d registros, patron %s, exito ~%.1f",
+                econcept.id, len(grupo), clave[0],
+                clave[1] * self._RESOLUCION_E)
+        return formados[0] if formados else None
 
     def _are_equivalent(
         self,
         records: list[ExperienceRecord],
         cr_type: CoRegulatorType
     ) -> bool:
-        """
-        Verificar equivalencia funcional de registros (Def 5.3 v7.0).
+        """¿Son TODOS pairwise E-equivalentes? (Def 5.3 v7.0)
 
-        Todos los registros deben ser pairwise E-equivalentes.
+        Sigue siendo la pregunta correcta cuando lo que se quiere saber es si
+        un conjunto YA DADO es homogeneo. Lo que no es correcto es usarla para
+        decidir si se forma un E-concepto: para eso hay que PARTICIONAR, no
+        filtrar, y de eso se encarga `try_form_econcept` con `_clase_e`.
         """
         if len(records) < 2:
             return False
