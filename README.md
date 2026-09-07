@@ -387,6 +387,37 @@ Todas sin API salvo la última.
 
 `collectAxioms` confirma que ninguna constante depende de `sorryAx`.
 
+Esos 387 teoremas son los **generales**: valen para cualquier grafo y se
+prueban una vez. No dicen si *este* nodo es colímite de *este* patrón en el
+grafo de hoy, que es una afirmación sobre una instancia finita — y por finita,
+**decidible**. Para eso está la confirmación con el kernel:
+
+```python
+skill, col = builder.build_colimit(patron, grafo, con_lean=True)
+col.lean_verified   # True | False | None
+```
+
+Genera el enunciado en Lean sin `import Mathlib` —para que compile en
+segundos, no en minutos— y lo cierra con `decide`, que lo comprueba el
+**kernel** y no el compilador; `native_decide` metería a este último en la
+base de confianza sin necesidad.
+
+**`None` no es `False`.** `True` es «el kernel lo comprobó», `False` es «lo
+**refutó**: hay un co-cono sin mediador», y `None` es «no se sabe» — no había
+Lean, o no pudo terminar. La distinción no es teórica: a escala real el kernel
+agotaba la profundidad de recursión, y sin separarlas eso se leía como que el
+grafo incumplía la propiedad.
+
+Va apagado por defecto porque cuesta un compilado, y el coste es asimétrico:
+refutar es barato —`decide` se para en el primer contraejemplo— y confirmar
+obliga a reducir la conjunción entera. Medido sobre tres colímites reales del
+grafo de 320 nodos: 2,6 s, 3,4 s y 15,3 s, los tres confirmados.
+
+El verificador se comprueba a sí mismo en `tests/test_colimite_en_lean.py`:
+con `a→i`, `b→i`, `i→x` confirma, y quitando sólo `i→x` —con lo que `x` pasa a
+ser co-cono sin mediador— refuta. Un verificador que no separe esos dos casos
+no está verificando nada.
+
 ---
 
 ### El orden de tácticas no batía a su modelo nulo, y nadie lo había preguntado

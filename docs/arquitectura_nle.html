@@ -1999,6 +1999,44 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
     mediador y el puente con <code>CategoryTheory.Limits.IsColimit</code> de
     Mathlib están demostrados, y el Python que los implementa está auditado
     contra ellos (<a href="#formal">§12</a>).</p>
+
+    <h3>Dos cosas distintas que Lean comprueba aquí</h3>
+
+    <p>Los archivos de <code>CategoryFoundations/</code> demuestran los
+    <strong>teoremas generales</strong>: que ser colímite equivale a ser join
+    en un preorden delgado, que el mediador es único, que la construcción
+    encaja con <code>IsColimit</code> de Mathlib. Son enunciados sobre
+    cualquier grafo, y se prueban una vez.</p>
+
+    <p>Lo que <em>no</em> dicen es si <strong>este</strong> nodo concreto es
+    colímite de <strong>este</strong> patrón en el grafo de hoy. Eso es una
+    afirmación sobre una instancia finita, y es <strong>decidible</strong>:
+    hay 320 objetos, así que el ∀ del enunciado se recorre entero.
+    <code>build_colimit(…, con_lean=True)</code> genera ese enunciado en Lean
+    —sin <code>import Mathlib</code>, para que compile en segundos— y lo
+    cierra con <code>decide</code>, que lo comprueba <strong>el kernel</strong>
+    y no el compilador. El veredicto queda en <code>Colimit.lean_verified</code>.</p>
+
+    <div class="nota">
+      <p><strong>Tres valores, no dos.</strong> <code>True</code> es «el kernel
+      lo comprobó»; <code>False</code> es «el kernel lo <em>refutó</em>, hay un
+      co-cono sin mediador»; y <code>None</code> es «no se sabe» — no había
+      Lean, o no pudo terminar. Distinguir el tercero del segundo es lo único
+      que impide que un fallo del verificador se lea como un resultado sobre
+      el grafo, y no es hipotético: a escala real el kernel agotaba la
+      profundidad de recursión y eso salía indistinguible de una refutación.</p>
+      <p>Va apagado por defecto, porque cuesta un compilado. Y cuesta asimétrico:
+      <em>refutar</em> es barato —<code>decide</code> se para en el primer
+      contraejemplo— mientras que <em>confirmar</em> obliga a reducir la
+      conjunción entera. Medido sobre tres colímites reales del grafo: 2,6 s,
+      3,4 s y 15,3 s.</p>
+    </div>
+
+    <p class="sub">Al enunciado sólo viajan los morfismos que consulta —los que
+    salen del diagrama y los que salen del ápice—, que no es una poda sino el
+    conjunto exacto que la propiedad mira; el universo del cuantificador sigue
+    siendo los 320 nodos. Sin ese recorte, los casos verdaderos agotaban el
+    presupuesto del kernel a los 25 segundos.</p>
   </section>
 
   <section id="lista">
