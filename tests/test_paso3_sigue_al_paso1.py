@@ -88,9 +88,10 @@ class TestElAcoplamiento:
 class TestLasDosCapasNoSeHablan:
     """Y es una decisión medida, no una deuda.
 
-    `classify_query` acierta el área en el 61,2 % de 3 000 consultas; la
-    primera skill del grafo, en el 47,3 %. Conectar el índice de premisas al
-    grafo sería cambiar el clasificador bueno por el malo.
+    Con exactitud equilibrada —la única que sobrevive a un banco 89 % álgebra—
+    `classify_query` acierta el 58,7 % y la primera skill del grafo el 40,9 %,
+    sobre un azar del 33,3 %. Conectar el índice de premisas al grafo sería
+    cambiar el clasificador bueno por el malo.
     """
 
     def test_premisas_no_conoce_el_grafo(self):
@@ -98,5 +99,55 @@ class TestLasDosCapasNoSeHablan:
         for marca in ("SkillCategory", "self._graph", "skill_ids"):
             assert marca not in s, (
                 "premisas.py ha empezado a mirar el grafo (%s). Si es a "
-                "propósito, mide antes: hoy classify_query gana 61,2 %% "
-                "contra 47,3 %%." % marca)
+                "propósito, mide antes: en exactitud equilibrada hoy "
+                "classify_query gana 58,7 %% contra 40,9 %%." % marca)
+
+
+class TestElDecisorGobiernaLoQueDice:
+    """El respaldo del decisor decia «se ejecuta todo» y traia un solo nombre.
+
+    Cualquier capacidad cableada despues quedaba apagada JUSTO cuando el
+    decisor fallaba. Un respaldo que apaga cosas en silencio es peor que no
+    tenerlo: el sistema degrada y nadie se entera.
+    """
+
+    def test_el_respaldo_cubre_todas_las_gobernadas(self):
+        import re
+        from nucleo.core import _TODAS_LAS_GOBERNADAS
+        s = _fuente("nucleo/core.py")
+        # los `"nombre" in _corre` que hay de verdad en el codigo
+        usados = set(re.findall(r'"([a-z_]+)" in _corre', s))
+        assert usados, "ya no hay ninguna capacidad gobernada por el decisor"
+        faltan = usados - set(_TODAS_LAS_GOBERNADAS)
+        assert not faltan, (
+            "estas capacidades miran a _corre y NO estan en "
+            "_TODAS_LAS_GOBERNADAS, asi que el respaldo las apagaria: %s"
+            % sorted(faltan))
+        sobran = set(_TODAS_LAS_GOBERNADAS) - usados
+        assert not sobran, (
+            "_TODAS_LAS_GOBERNADAS nombra capacidades que ya nadie consulta: "
+            "%s" % sorted(sobran))
+
+    def test_las_gobernadas_existen_en_el_catalogo(self):
+        from nucleo.core import _TODAS_LAS_GOBERNADAS
+        from nucleo.decisor import CAPACIDADES
+        catalogo = {c.nombre for c in CAPACIDADES}
+        fuera = set(_TODAS_LAS_GOBERNADAS) - catalogo
+        assert not fuera, (
+            "el codigo consulta capacidades que el decisor no conoce, asi que "
+            "nunca estarian activas: %s" % sorted(fuera))
+
+    def test_el_decisor_apaga_los_imports_por_empate(self):
+        """18 de 20 el grafo y 18 de 20 el conjunto fijo: un empate no gana.
+
+        Y ademas cuesta un 11 % mas de tiempo por consulta. Si alguien vuelve
+        a medirlo y gana, este test falla y hay que actualizarlo — que es
+        justo lo que se quiere.
+        """
+        from nucleo.decisor import Contexto, decidir
+        plan = decidir(Contexto(consulta="demuestra que 2+2=4",
+                                es_matematica=True, area="algebra", rasgos={}))
+        activas = {c.nombre for c in plan.activas}
+        assert "eleccion_de_imports" not in activas, (
+            "el decisor deja correr la eleccion de imports; su medicion decia "
+            "empate contra el conjunto fijo. ¿Se volvio a medir?")

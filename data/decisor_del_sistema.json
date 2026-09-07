@@ -11,6 +11,7 @@
   ],
   "apagadas": [
     "rasgos_de_sintaxis_cuando_el_lexico_calla",
+    "eleccion_de_imports",
     "orden_de_cascada_por_area",
     "dos_etapas_localizar_y_elegir",
     "recuperacion_lexica_de_lemas",
@@ -23,11 +24,12 @@
     "reconocedor_de_area": "acierto de área 0.759 contra 0.238 (siempre el área más frecuente)",
     "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 20.999 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)",
     "premisas_hibridas": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)",
+    "eleccion_de_imports": "NO bate a su nulo: enunciados que elaboran, de 20 18.000 contra 18.000 (un conjunto fijo de tres módulos)",
     "orden_de_cascada_por_area": "NO bate a su nulo: posición de la táctica que cierra 1.262 contra 1.091 (`simp` primero y el resto por frecuencia)",
     "modelo_de_orden_de_cascada": "acierto de la tactica 0.598 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))",
     "dos_etapas_localizar_y_elegir": "NO bate a su nulo: precisión de premisas 0.419 contra 0.930 (las premisas más frecuentes, sin localizar nada)",
     "recuperacion_lexica_de_lemas": "NO bate a su nulo: precisión de lemas 0.065 contra 7.780 (los lemas más frecuentes)",
-    "emparejador_semantico": "evaluado y descartado, nunca se adopto: en emparejador_semantico.json acierta el area en el 12 % (285 de 2385) contra el 61 % del emparejador lexico (emparejamiento.json). El fichero no guarda un nulo en forma comparable, asi que aqui cuenta como sin evidencia; y ademas cuesta una llamada",
+    "emparejador_semantico": "evaluado y descartado, nunca se adopto: en emparejador_semantico.json acierta el area en el 12 % (285 de 2385) contra el 61 % del emparejador lexico (emparejamiento.json). Las dos cifras son CRUDAS sobre un banco 89 % algebra, donde responder siempre «algebra» acierta el 88,6 %: ninguna de las dos bate a esa constante, asi que la comparacion vale para ordenarlas entre si y para nada mas. El fichero no guarda un nulo en forma comparable, asi que aqui cuenta como sin evidencia; y ademas cuesta una llamada. Contra ProofNet, que si tiene oro, el semantico da 13,1 % de precision y 2,4 % de cobertura frente a 21,0 % y 14,8 % del lexico",
     "verificacion_con_lean": "es el proposito del sistema, no un extra"
   },
   "veredictos": {
@@ -66,6 +68,12 @@
       "nulo": 1.04,
       "gana": true,
       "motivo": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)"
+    },
+    "eleccion_de_imports": {
+      "real": 18.0,
+      "nulo": 18.0,
+      "gana": false,
+      "motivo": "enunciados que elaboran, de 20 18.000 contra 18.000 (un conjunto fijo de tres módulos)"
     },
     "orden_de_cascada_por_area": {
       "real": 1.262,
@@ -112,6 +120,6 @@
   "coste_nulo": {
     "llamada al modelo": 1,
     "compilado de Lean": 2,
-    "local": 9
+    "local": 10
   }
 }

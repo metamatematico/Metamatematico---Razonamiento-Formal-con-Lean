@@ -263,6 +263,37 @@ CAPACIDADES: list[Capacidad] = [
             contra="las premisas más frecuentes"),
     ),
     Capacidad(
+        nombre="eleccion_de_imports",
+        que_hace="añade a la cabecera los módulos de Mathlib de las skills"
+                 " activadas, sobre un conjunto fijo de tres",
+        coste=LOCAL,
+        donde="nucleo/core.py::_modulos_mathlib",
+        evidencia=Evidencia(
+            fichero="imports_contra_lean.json",
+            metrica="enunciados que elaboran, de 20",
+            ruta_real=("resumen", "grafo", "ok"),
+            ruta_nulo=("resumen", "fijo", "ok"),
+            contra="un conjunto fijo de tres módulos"),
+        # POR QUE ENTRA AHORA AL CATALOGO Y NO ANTES.
+        #
+        # Su medicion decia «inerte» desde hacia tiempo, pero descansaba sobre
+        # un banco que NO PODIA DECIDIR: el mapa de modulos conocia 76 de los
+        # 320 nodos, asi que en 14 de 20 casos las dos ramas eran la MISMA
+        # ejecucion. Arreglado el mapa —223 skills— los casos discriminantes
+        # pasan a 10 de 20 y el grafo ofrece 4,7 modulos por caso frente a
+        # 3,0, y el veredicto no se mueve: 18 de 20 los dos, sin una sola
+        # diferencia caso a caso.
+        #
+        # Con un test que ya discrimina y un empate limpio, la regla del
+        # decisor aplica sin asteriscos. Y ademas cuesta: 17,6 s por consulta
+        # frente a 15,9 s, un 11 % mas.
+        #
+        # Contra el azar si gana —18 frente a 12—, o sea que hace trabajo
+        # real: redundante con una constante, no inutil. Si alguien vuelve a
+        # medirlo con un banco donde el conjunto fijo no cubra el 38,4 % de
+        # Mathlib por transitividad, el decisor lo enciende solo.
+    ),
+    Capacidad(
         nombre="orden_de_cascada_por_area",
         que_hace="ordena las tácticas de la cascada según el área detectada",
         coste=COMPILADO,

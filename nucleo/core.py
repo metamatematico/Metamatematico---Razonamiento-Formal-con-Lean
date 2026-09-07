@@ -203,6 +203,19 @@ def enunciado_vacuo(code: str) -> bool:
 #:
 #: No se eliminan del texto —«prime number theorem» tiene que seguir casando
 #: entero—, solo se les niega el poder de abrir la puerta ellas solas.
+#: Las capacidades cuyo `if` mira de verdad al decisor.
+#:
+#: Existe para que el respaldo —cuando el decisor no esta disponible— pueda
+#: decir «se ejecuta todo» de verdad, en vez de un conjunto escrito a mano que
+#: se queda corto en cuanto se cablea una capacidad mas. El test
+#: `test_decisor_gobierna_lo_que_dice` comprueba que esta lista coincide con
+#: los `in _corre` que hay en el codigo.
+_TODAS_LAS_GOBERNADAS = frozenset({
+    "orden_de_cascada_por_area",
+    "eleccion_de_imports",
+})
+
+
 _GENERICAS = frozenset({
     "theorem", "teorema", "lemma", "lema", "proof", "prueba", "demostracion",
     "prove", "demuestra", "demostrar", "show", "muestra", "point", "punto",
@@ -1793,8 +1806,20 @@ class Nucleo:
                 rasgos=(_revision.rasgos if _revision is not None else {})))
             _corre = {c.nombre for c in _plan.activas}
         except Exception as e:                                  # noqa: BLE001
-            logger.debug(f"decisor no disponible, se ejecuta todo: {e}")
-            _plan, _corre = None, {"orden_de_cascada_por_area"}
+            # SI EL DECISOR NO ESTA, SE EJECUTA TODO — y hay que escribirlo
+            # entero, no de memoria.
+            #
+            # El respaldo decia «se ejecuta todo» y traia UN solo nombre, asi
+            # que cualquier capacidad que se cableara despues quedaba apagada
+            # justo cuando el decisor fallaba. Un respaldo que apaga cosas en
+            # silencio es peor que no tenerlo: el sistema degrada y nadie se
+            # entera, que es la familia de fallo contra la que este repositorio
+            # tiene una suite entera.
+            #
+            # La regla correcta es la conservadora: sin veredicto, se hace lo
+            # que se hacia antes de que existiera el decisor.
+            logger.warning("decisor no disponible, se ejecuta todo: %s", e)
+            _plan, _corre = None, _TODAS_LAS_GOBERNADAS
 
         # SOLO SE APAGA EL ORDEN, NO LA ETIQUETA. `_domain_tactic` NO llega a
         # la cascada —ahí va `_tactica_aprendida`, ver la llamada a
@@ -2116,17 +2141,32 @@ class Nucleo:
                 lean_code = lean_code2
 
         # ── Paso 2: Lean verifier ─────────────────────────────────────────
-        # EL GRAFO ELIGE LOS IMPORTS.
+        # EL GRAFO ELIGE LOS IMPORTS — SI EL DECISOR LO DEJA.
         #
         # Las skills activadas se traducen a modulos de Mathlib mediante
         # `data/mathlib_modulos.json`, que se construye leyendo DONDE se
         # declara cada nombre en el fuente. Es el sitio donde el grafo influye
         # sobre lo que Lean ve, que era la idea original de ponerlo entre el
         # LLM y el verificador.
-        try:
-            self._lean.sugerir_imports(self._modulos_mathlib(context))
-        except Exception:
-            logger.debug("no se pudieron sugerir imports", exc_info=True)
+        #
+        # Y HOY ESTA APAGADO, por su propia medicion. Con Lean de juez sobre
+        # 20 enunciados: el grafo elabora 18 y un conjunto fijo de tres
+        # modulos tambien 18, sin una sola diferencia caso a caso — y cuesta
+        # 17,6 s por consulta frente a 15,9 s, un 11 % mas.
+        #
+        # El empate esta bien sostenido desde que se arreglo el mapa de
+        # modulos: antes conocia 76 de los 320 nodos y en 14 de 20 casos las
+        # dos ramas eran la MISMA ejecucion, o sea que el banco no podia
+        # decidir. Ahora los casos discriminantes son 10 y el grafo ofrece
+        # 4,7 modulos por caso frente a 3,0.
+        #
+        # No se borra nada: si alguien vuelve a medirlo y gana, el decisor lo
+        # enciende solo, porque lee la RUTA al numero y no una copia.
+        if "eleccion_de_imports" in _corre:
+            try:
+                self._lean.sugerir_imports(self._modulos_mathlib(context))
+            except Exception:
+                logger.debug("no se pudieron sugerir imports", exc_info=True)
 
         # LA FRONTERA: aqui el codigo del LLM esta terminado y Lean aun no lo
         # ha visto. Todo lo de abajo —imports, reparaciones, cascada,
