@@ -1,0 +1,43 @@
+{
+ "objetivo": "estrategia",
+ "banco": "proofnet",
+ "n": 369,
+ "clases": {
+  "directa": 173,
+  "cases": 44,
+  "inductive": 15,
+  "contradiction": 49,
+  "construction": 88
+ },
+ "dimensiones_rasgos": 52,
+ "resultados": [
+  {
+   "variante": "nulo: clase mayoritaria",
+   "acierto": 0.46883468834688347,
+   "equilibrado": 0.2
+  },
+  {
+   "variante": "nulo: n-gramas de la prosa",
+   "acierto": 0.47696476964769646,
+   "equilibrado": 0.22356805044666314
+  },
+  {
+   "variante": "RASGOS DEL ÁRBOL",
+   "acierto": 0.46070460704607047,
+   "equilibrado": 0.23884763048677166
+  },
+  {
+   "variante": "rasgos + n-gramas",
+   "acierto": 0.46070460704607047,
+   "equilibrado": 0.23746313554323467
+  }
+ ],
+ "permutacion": {
+  "n": 200,
+  "media": 0.19894908933620742,
+  "desv": 0.01339381468994249,
+  "max": 0.2401613456733193,
+  "p": 0.009950248756218905
+ },
+ "veredicto": "señal real pero DEMASIADO DÉBIL para desplegar: gana al azar (p=0.010) y pierde en acierto crudo contra la clase mayoritaria (46.1 % contra 46.9 %)"
+}

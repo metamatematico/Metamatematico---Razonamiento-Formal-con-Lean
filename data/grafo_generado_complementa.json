@@ -1,0 +1,55 @@
+{
+ "k_curado": 2,
+ "resultados": {
+  "base": {
+   "precision": 21.639898562975485,
+   "cobertura": 18.33810888252149,
+   "con_algo": 288
+  },
+  "sin_criba": {
+   "precision": 17.446524064171122,
+   "cobertura": 18.696275071633238,
+   "con_algo": 339
+  },
+  "criba_200": {
+   "precision": 18.956649522409993,
+   "cobertura": 18.48137535816619,
+   "con_algo": 322
+  },
+  "criba_500": {
+   "precision": 19.634703196347033,
+   "cobertura": 18.48137535816619,
+   "con_algo": 320
+  },
+  "criba_1000": {
+   "precision": 20.10827532869296,
+   "cobertura": 18.624641833810887,
+   "con_algo": 314
+  },
+  "criba_2000": {
+   "precision": 20.766773162939298,
+   "cobertura": 18.624641833810887,
+   "con_algo": 311
+  },
+  "cuota_1_1000": {
+   "precision": 18.290119131044147,
+   "cobertura": 18.696275071633238,
+   "con_algo": 314
+  },
+  "cuota_2_1000": {
+   "precision": 17.32899022801303,
+   "cobertura": 19.054441260744987,
+   "con_algo": 314
+  },
+  "cuota_1_2000": {
+   "precision": 20.184190330007674,
+   "cobertura": 18.839541547277936,
+   "con_algo": 311
+  },
+  "cuota_2_2000": {
+   "precision": 19.175108538350216,
+   "cobertura": 18.982808022922637,
+   "con_algo": 311
+  }
+ }
+}
