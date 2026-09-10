@@ -42,9 +42,15 @@ import collections
 import json
 import pickle
 import re
+import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
+# El extractor de rasgos vive en `nucleo/`, asi que la raiz tiene que estar en
+# la ruta de importacion. Este guion se lanza como `python scripts/...`, que
+# NO la anade sola (a diferencia de `python -m scripts...`).
+if str(RAIZ) not in sys.path:
+    sys.path.insert(0, str(RAIZ))
 ORIGEN = Path(r"E:\MetamatematicoDataSet\LeanWorkbook")
 SALIDA = RAIZ / "data" / "tactic_ranker.pkl"
 INFORME = RAIZ / "data" / "tactic_ranker_report.json"
@@ -134,14 +140,41 @@ def main() -> int:
     )
     print(f"\ntrain={len(Xtr):,}  test={len(Xte):,}")
 
+    from sklearn.pipeline import FeatureUnion
+    from sklearn.feature_extraction import DictVectorizer
+    from nucleo.lean.rasgos_estado import RasgosEstado
+
+    # LOS N-GRAMAS SOLOS DEJABAN 6,6 PUNTOS EN LA MESA, Y ESTABA MEDIDO.
+    #
+    # Este pipeline usaba unicamente TF-IDF de caracteres.
+    # `estado_contra_tactica.py` midio sobre 13 059 transiciones que cierran
+    # objetivo que la ESTRUCTURA y los n-gramas NO son redundantes:
+    #
+    #                     acierto   equilibrado
+    #     n-gramas         60,53 %     34,14 %   <- lo que habia aqui
+    #     estructura       61,14 %     36,26 %
+    #     las dos juntas   67,11 %     47,65 %   <- esto
+    #
+    # Son dos vistas del mismo estado: los n-gramas ven los simbolos y los
+    # rasgos ven la FORMA —que relacion gobierna el objetivo, cuantas
+    # hipotesis hay, si es simetrico—. Unirlas es lo que sube.
     modelo = Pipeline([
-        # N-gramas de caracteres: los estados de prueba son mitad simbolos
-        # (⊢ ℝ ≤ ∑) y mitad identificadores. Partir por palabras pierde
-        # justamente los simbolos, que son la senal mas discriminativa.
-        ("tfidf", TfidfVectorizer(
-            analyzer="char_wb", ngram_range=(2, 5),
-            min_df=3, max_features=60000, sublinear_tf=True,
-        )),
+        ("rasgos", FeatureUnion([
+            # N-gramas de caracteres: los estados de prueba son mitad simbolos
+            # (⊢ ℝ ≤ ∑) y mitad identificadores. Partir por palabras pierde
+            # justamente los simbolos, que son la senal mas discriminativa.
+            ("tfidf", TfidfVectorizer(
+                analyzer="char_wb", ngram_range=(2, 5),
+                min_df=3, max_features=60000, sublinear_tf=True,
+            )),
+            # La estructura. Vive en `nucleo/` y no aqui porque el modelo se
+            # deserializa en produccion y el pickle guarda la REFERENCIA a la
+            # clase: desde `scripts/` no se podria cargar.
+            ("estructura", Pipeline([
+                ("extrae", RasgosEstado()),
+                ("vect", DictVectorizer(sparse=True)),
+            ])),
+        ])),
         ("clf", LogisticRegression(
             max_iter=2000, C=4.0, class_weight="balanced", n_jobs=-1,
         )),
@@ -165,6 +198,27 @@ def main() -> int:
     if acc <= mayoritaria:
         print("AVISO: el modelo no supera a la clase mayoritaria. NO se guarda.")
         return 2
+
+    # NO BASTA CON BATIR A LA MAYORITARIA: HAY QUE BATIR AL QUE YA CORRE.
+    #
+    # Este guion sobrescribe el `.pkl` que la cascada carga en caliente. Si el
+    # modelo nuevo es PEOR que el que hay, guardarlo es una regresion silenciosa
+    # —la cascada seguiria funcionando, solo que peor, y nadie se enteraria—.
+    # El nulo correcto para un reemplazo es el titular, no la clase mayoritaria.
+    anterior = None
+    if INFORME.exists():
+        try:
+            anterior = json.loads(INFORME.read_text(encoding="utf-8"))
+        except Exception:                                      # noqa: BLE001
+            anterior = None
+    if anterior and "accuracy" in anterior:
+        prev = float(anterior["accuracy"])
+        print(f"\n  modelo que ya corre   : {prev:.1%}")
+        print(f"  modelo nuevo          : {acc:.1%}   ({acc - prev:+.1%})")
+        if acc <= prev:
+            print("\nAVISO: el modelo nuevo NO mejora al que ya corre. NO se "
+                  "guarda; el `.pkl` en produccion se queda como esta.")
+            return 3
 
     SALIDA.parent.mkdir(parents=True, exist_ok=True)
     with open(SALIDA, "wb") as f:
