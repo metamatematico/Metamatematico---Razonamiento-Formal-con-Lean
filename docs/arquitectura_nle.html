@@ -256,7 +256,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1070 tests · 52 suites
+    1071 tests · 52 suites
   </p>
 </nav>
 
@@ -276,7 +276,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1070</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1071</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -2591,6 +2591,43 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="medido">
     <div class="head"><span class="num">14</span><h2>Lo que está <span class="v">medido</span></h2></div>
 
+    <div class="destacado">
+      <h3>El resultado que ordena a los demás: ¿aporta el sistema?</h3>
+
+      <p>Durante mucho tiempo la comparación fue «el sistema con el grafo»
+      contra «el sistema sin el grafo». Esa pareja contesta si aporta el
+      <em>grafo</em>, no si aporta el <em>sistema</em>: la rama sin grafo sigue
+      llevando reparación, premisas, cascada y ejemplos. Faltaba el suelo — el
+      mismo modelo, una llamada, sin nada.</p>
+
+      <table>
+        <thead><tr><th>Configuración</th><th>Verifica</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>modelo solo</td><td class="mono">4 de 20 · 20 %</td><td>una llamada, sin sistema</td></tr>
+          <tr><td>sin vocabulario</td><td class="mono">11 de 20 · 55 %</td><td>el sistema menos el grafo</td></tr>
+          <tr><td><strong>sistema completo</strong></td><td class="mono"><strong>12 de 20 · 60 %</strong></td><td>configuración servida</td></tr>
+        </tbody>
+      </table>
+
+      <table>
+        <thead><tr><th>Comparación pareada</th><th>Rescata</th><th>Rompe</th><th>p (McNemar exacto)</th></tr></thead>
+        <tbody>
+          <tr><td>sistema frente a modelo solo</td><td class="mono">8</td><td class="mono">0</td><td class="mono"><strong>0,0078</strong></td></tr>
+          <tr><td>con frente a sin vocabulario</td><td class="mono">3</td><td class="mono">2</td><td class="mono">1,0000</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>El aparato triplica al modelo aislado y es significativo. El
+      grafo, dentro de él, no se distingue del ruido.</strong> Las dos cosas son
+      verdad a la vez. El vocabulario cambió lo que el modelo escribió en 19 de
+      los 20 casos, pero no movió el veredicto en una dirección consistente.</p>
+
+      <p>La afirmación sostenible es, por tanto: el grafo <em>ofrece los
+      identificadores correctos</em> —catorce veces mejor que su nulo— y eso es
+      <em>puntería</em>, no <em>resultado</em>. Que haga verificar más a Lean se
+      midió y no se ve a n=20.</p>
+    </div>
+
     <p>Catorce mediciones, cada una con su modelo nulo. La figura las pone todas
     en la misma escala —<strong>cuántas veces bate a su nulo</strong>— para que
     se puedan comparar componentes que miden cosas distintas.</p>
@@ -2701,7 +2738,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <table>
         <thead><tr><th>qué se mide</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
-          <tr><td><strong>Vocabulario contra ProofNet</strong><span class="sub">371 ejercicios con formalización de oro · k=2, el valor de producción</span></td><td class="mono">21,0 % precisión<br>14,8 % cobertura</td><td class="mono">1,6 %<br>3,3 %</td><td><span class="pill v">13,1× · aporta</span></td></tr>
+          <tr><td><strong>Vocabulario contra ProofNet</strong><span class="sub">371 ejercicios con formalización de oro · k=2, el valor de producción</span></td><td class="mono">21,6 % precisión<br>18,3 % cobertura</td><td class="mono">1,6 %<br>3,3 %</td><td><span class="pill v">13,1× · aporta</span></td></tr>
           <tr><td><strong>Dependencias <em>curadas</em> contra el DAG real</strong><span class="sub">73 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">57 confirmadas<br>78,1 %</td><td class="mono">40,1 %</td><td><span class="pill v">1,95× · aporta</span></td></tr>
           <tr><td><strong>Costura de <em>cobertura</em> contra el DAG</strong><span class="sub">9 aristas <code>skill→módulo</code> medibles</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
           <tr><td><strong>Revisión de sintaxis de la consulta</strong><span class="sub">23 243 enunciados de LeanWorkbook, todos correctos</span></td><td class="mono">3,6 % falsos pos.<br>60,8 % de caza</td><td class="mono">3,6 %<br>(moneda)</td><td><span class="pill v">+57,2 puntos</span></td></tr>
@@ -2799,7 +2836,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     <div class="ficha">
       <header><h3>Buscar en los 217 419 nombres no bate al vocabulario curado</h3></header>
       <div class="paso"><div class="et">la idea</div><p>El índice de nombres se usa para comprobar y cualificar, nunca para buscar. ¿Y si se usara como buscador, con índice invertido e idf?</p></div>
-      <div class="paso"><div class="et">medido</div><p>Contra ProofNet, mismo K y mismo nulo: el índice completo da <strong>0,0 %</strong> de precisión y el de sólo sustantivos <strong>1,5 %</strong>, frente al <strong>21,0 %</strong> del vocabulario curado y al 1,6 % del nulo. El mejor índice <em>empata con el azar</em>.</p></div>
+      <div class="paso"><div class="et">medido</div><p>Contra ProofNet, mismo K y mismo nulo: el índice completo da <strong>0,0 %</strong> de precisión y el de sólo sustantivos <strong>1,5 %</strong>, frente al <strong>21,6 %</strong> del vocabulario curado y al 1,6 % del nulo. El mejor índice <em>empata con el azar</em>.</p></div>
       <div class="paso"><div class="et">la lección</div><p>Más candidatos no es más información. Las colisiones de palabra dominan: «Banach» lleva a los espacios de Banach, no al teorema del punto fijo.</p></div>
     </div>
 

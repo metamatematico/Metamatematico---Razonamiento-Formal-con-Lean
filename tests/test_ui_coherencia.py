@@ -266,6 +266,99 @@ class TestCifrasDelGrafo:
         assert suma <= r["morfismos"], (
             "el desglose (%d) supera el total (%d)" % (suma, r["morfismos"]))
 
+    #: Cifras MEDIDAS que la documentacion publica, con la ruta al numero
+    #: dentro de su fichero de medicion.
+    #:
+    #: POR QUE HACIA FALTA ESTE GUARDIAN. El resto de esta suite vigila lo que
+    #: el sistema ES —cuantos nodos, cuantos morfismos, cuantos tests— y eso se
+    #: recalcula solo. Pero la documentacion tambien publica lo que el sistema
+    #: MIDE, y esas cifras no las vigilaba nadie: se escriben a mano tras una
+    #: medicion y se quedan ahi cuando se vuelve a medir.
+    #:
+    #: Paso de verdad: tras reapuntar el vocabulario, la precision del lexico
+    #: subio de 21,0 % a 21,6 % y el artefacto siguio diciendo 21,0 % en cuatro
+    #: sitios. El decisor no se entera porque el lee la RUTA al numero; la
+    #: documentacion llevaba una COPIA.
+    #:
+    #: Se comprueba con una decima de tolerancia: la documentacion redondea.
+    #:
+    #: EL ANCLA VA DESPUES DEL NUMERO, NO ANTES, Y ESO NO ES CAPRICHO. La
+    #: primera version anclaba en la palabra «lexico» y buscaba la cifra a
+    #: continuacion; con las cifras envueltas en `<strong>` y repartidas por
+    #: celdas de tabla, el ancla no las alcanzaba y el test PASABA teniendo
+    #: cuatro cifras viejas delante. Un guardian que no salta cuando debe es
+    #: peor que ninguno, porque da confianza falsa.
+    #:
+    #: Se quitan las etiquetas antes de buscar y se ancla en lo que sigue al
+    #: numero, que es lo que sobrevive al maquetado.
+    #: EL ANCLA ES EL PAR, NO LA CIFRA SUELTA. «13,1 % precision» tambien
+    #: existe en el README y es del emparejador SEMANTICO, que nunca se
+    #: adopto: anclar solo en «precision» lo marcaba como desactualizado.
+    #: La cifra del lexico va seguida de SU COBERTURA en la misma celda, y esa
+    #: firma no la tiene ninguna otra.
+    CIFRAS_MEDIDAS = (
+        ("vocabulario contra ProofNet", "recuperacion_proofnet.json",
+         r"(\d{1,2},\d)\s*%\s*precisi[oó]n[^0-9]{0,20}(\d{1,2},\d)\s*%\s*cobertura",
+         (("precision", ("resultados", "lexico", "precision")),
+          ("cobertura", ("resultados", "lexico", "cobertura")))),
+        ("vocabulario curado", "recuperacion_proofnet.json",
+         r"(\d{1,2},\d)\s*%\s*del vocabulario curado",
+         (("precision", ("resultados", "lexico", "precision")),)),
+    )
+
+    @staticmethod
+    def _sin_etiquetas(html: str) -> str:
+        import re
+        html = re.sub(r"<svg[\s\S]*?</svg>", " ", html)
+        html = re.sub(r"<[^>]+>", " ", html)
+        return re.sub(r"\s+", " ", html)
+
+    def test_las_cifras_MEDIDAS_publicadas_siguen_siendo_las_medidas(self):
+        """Lo que la documentacion dice haber MEDIDO, contra lo medido.
+
+        El resto de esta suite vigila lo que el sistema ES —cuantos nodos,
+        cuantos tests— y eso se recalcula solo. Pero la documentacion tambien
+        publica lo que el sistema MIDE, y esas cifras no las vigilaba nadie:
+        se escriben a mano tras una medicion y se quedan cuando se vuelve a
+        medir.
+
+        Paso de verdad: tras reapuntar el vocabulario la precision subio de
+        21,0 % a 21,6 % y el artefacto siguio diciendo 21,0 % en dos sitios.
+        El decisor no se entera porque el lee la RUTA al numero; la
+        documentacion llevaba una COPIA.
+        """
+        import io
+        import json
+        import re
+        from nucleo.rutas import RAIZ
+
+        malas = []
+        for etiqueta, fichero, patron, campos in self.CIFRAS_MEDIDAS:
+            p = RAIZ / "data" / fichero
+            if not p.exists():
+                continue
+            crudo = json.load(io.open(p, encoding="utf-8"))
+            reales = []
+            for _nombre_campo, ruta in campos:
+                dato = crudo
+                for clave in ruta:
+                    dato = dato[clave]
+                v = float(dato)
+                reales.append(v * 100.0 if v <= 1.0 else v)
+            for nombre, doc in self._docs().items():
+                for m in re.finditer(patron, self._sin_etiquetas(doc),
+                                     re.IGNORECASE):
+                    for i, (campo, _ruta) in enumerate(campos, start=1):
+                        dicho = float(m.group(i).replace(",", "."))
+                        if abs(dicho - reales[i - 1]) > 0.1:
+                            malas.append(
+                                "%s · %s/%s dice %s %% y %s da %.1f %%"
+                                % (nombre, etiqueta, campo, m.group(i),
+                                   fichero, reales[i - 1]))
+        assert not malas, (
+            "cifras MEDIDAS desactualizadas en la documentacion: "
+            + "; ".join(sorted(set(malas))))
+
     def test_las_cifras_documentadas_son_las_reales(self):
         import re
         r = self._real()
