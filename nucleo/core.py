@@ -213,6 +213,7 @@ def enunciado_vacuo(code: str) -> bool:
 _TODAS_LAS_GOBERNADAS = frozenset({
     "orden_de_cascada_por_area",
     "eleccion_de_imports",
+    "contexto_estructural_en_el_prompt",
 })
 
 
@@ -597,6 +598,7 @@ class Nucleo:
             # reducible a un colimite de objetos de base. Se publican las dos.
             emergentes = objetos_emergentes(self._graph, self._colimit_builder)
             self._emergentes = emergentes
+            self._marcar_emergentes(emergentes)
             logger.info(
                 f"Jerarquia emergente: max_cn={self._graph.stats['max_cn']}, "
                 f"colimites={self._graph.stats['num_joins']}, "
@@ -676,6 +678,146 @@ class Nucleo:
 
         self._initialized = True
         logger.info("Nucleo inicializado correctamente (PPO activo)")
+
+    @staticmethod
+    def _bloque_estructural(context) -> str:
+        """Lo que el grafo sabe por sus ARISTAS, en el prompt. En ingles.
+
+        HASTA AQUI NO LLEGABA NADA. `_find_relevant_context` recorre el grafo
+        para producir `prerequisites`, `suggested_tactics`, `proof_strategies`
+        y —desde que la emergencia se marca en los nodos— `competencia_
+        emergente` y `skills_que_suelen_acompanar`. Ninguno se leia: eran el
+        UNICO uso de los 1029 morfismos no triviales del grafo, y morian en el
+        dict.
+
+        Va en INGLES porque el prompt de formalizacion lo esta: mezclar
+        idiomas dentro de un mismo prompt es una via conocida de degradacion.
+
+        Y va APAGADO. Lo gobierna `contexto_estructural_en_el_prompt`, que el
+        decisor deja fuera porque su efecto solo se ve en lo que el modelo
+        escribe y eso cuesta una llamada. Este repositorio ya ha medido DOS
+        veces que anadir contenido correcto al prompt puede empeorar —los 12
+        nodos de `interpretacion.py` y los nodos de cobertura—, asi que
+        cablearlo encendido seria justo el error contra el que existe el
+        decisor.
+        """
+        if not isinstance(context, dict):
+            return ""
+        def _limpia(ids, prefijo):
+            return [s[len(prefijo):] if s.startswith(prefijo) else s
+                    for s in (ids or [])]
+        lineas = []
+        prereq = context.get("prerequisites") or []
+        if prereq:
+            lineas.append("  Prerequisite concepts (graph dependencies): "
+                          + ", ".join(prereq[:5]))
+        tact = _limpia(context.get("suggested_tactics"), "tactic-")
+        if tact:
+            lineas.append("  Lean tactics linked to these concepts: "
+                          + ", ".join(tact[:5]))
+        # `proof_strategies` NO ENTRA, Y ESTA MEDIDO POR QUE.
+        #
+        # Sobre los 371 enunciados de ProofNet da TRES conjuntos distintos, y
+        # uno solo —{cases, forward, inductive}— sale en 304, el 82 %. Los
+        # otros 65 son el conjunto vacio. O sea que el campo dice lo mismo
+        # casi siempre o no dice nada: es una constante disfrazada de senal,
+        # y meterla en el prompt es gastar tokens en tres palabras fijas.
+        #
+        # Se sigue calculando en `_find_relevant_context` —lo usa el camino
+        # demo y cuesta un recorrido que ya se hace— pero no se le paga sitio
+        # en el prompt hasta que alguien lo haga discriminar.
+        #
+        # Para comparar, en el mismo banco:
+        #     prerequisites        221 conjuntos distintos, el mayor 3 %
+        #     suggested_tactics      9 conjuntos, el mayor 52 %  (flojo)
+        #     proof_strategies       3 conjuntos, el mayor 82 %  (constante)
+        #     competencia emergente dispara en 83 de 371, el 22,4 %
+        comp = context.get("competencia_emergente") or []
+        herm = context.get("skills_que_suelen_acompanar") or []
+        if comp:
+            # La competencia emergente es el objeto por el que factoriza toda
+            # accion colectiva del patron (Def. 2.2): decir sus componentes es
+            # decirle al modelo que conceptos suelen hacer falta JUNTOS aunque
+            # el enunciado solo nombre uno.
+            lineas.append("  This statement sits under the emergent "
+                          "competence: " + ", ".join(comp[:2]))
+            if herm:
+                lineas.append("  Concepts that usually come with it: "
+                              + ", ".join(herm[:5]))
+        if not lineas:
+            return ""
+        return ("Structural context from the skill graph "
+                "(guidance, not verified names):\n"
+                + "\n".join(lineas) + "\n\n")
+
+    def _marcar_emergentes(self, emergentes: dict) -> None:
+        """Escribe la emergencia EN EL GRAFO, que es donde se lee.
+
+        EL CABLE QUE FALTABA, Y LLEVABA TIEMPO CORTADO.
+
+        `objetos_emergentes` encuentra los objetos de orden irreducible >= 2 y
+        el resultado se guardaba SOLO en `self._emergentes`. Pero quien
+        pregunta por la emergencia es `_find_relevant_context`, y pregunta por
+        otro sitio: recorre los vecinos de las skills emparejadas y mira
+        `metadata["emergent"]`.
+
+        Nadie escribia esa clave durante el arranque —solo la escriben
+        `patterns.build_colimit` y `mes_bridge`, que no corren aqui— asi que
+        la comprobacion se hacia sobre 0 nodos SIEMPRE. La rama de
+        «competencia emergente» y la de «skills que suelen acompañar» eran
+        inalcanzables: codigo muerto que parecia vivo.
+
+        Es el fallo mas caro de los baratos: la parte del sistema que sostiene
+        la tesis —que el grafo RECUERDA que unos skills resuelven problemas
+        juntos— estaba calculada, probada en Lean y desconectada del prompt
+        por una clave que nadie ponia.
+
+        Se escriben las tres cosas que el lector necesita:
+          emergent           el booleano que abre la rama
+          orden_irreducible  por que es emergente y no un colimite simple
+          components         los objetos de los que es colimite, que es lo que
+                             permite recuperar los hermanos que la consulta
+                             no nombro
+        """
+        if not emergentes:
+            return
+        cb = getattr(self, "_colimit_builder", None)
+        pm = getattr(cb, "_pattern_manager", None) if cb else None
+        # Componentes por objeto: la union de las descomposiciones que lo
+        # tienen por colimite. Se unen porque el Principio de Multiplicidad
+        # admite VARIAS —un objeto puede ser colimite de patrones distintos— y
+        # quedarse con una sola perderia hermanos legitimos.
+        componentes: dict[str, list[str]] = {}
+        if cb is not None and pm is not None:
+            try:
+                for col in cb.all_colimits:
+                    if col.skill_id not in emergentes or not col.pattern_id:
+                        continue
+                    pat = pm.get_pattern(col.pattern_id)
+                    if pat is None or not pat.component_ids:
+                        continue
+                    vistos = componentes.setdefault(col.skill_id, [])
+                    for c in pat.component_ids:
+                        if c not in vistos:
+                            vistos.append(c)
+            except Exception as exc:                            # noqa: BLE001
+                logger.debug("componentes del colimite no disponibles: %s", exc)
+
+        marcados = 0
+        for sid, orden in emergentes.items():
+            skill = self._graph.get_skill(sid)
+            if skill is None:
+                continue
+            if skill.metadata is None:
+                skill.metadata = {}
+            skill.metadata["emergent"] = True
+            skill.metadata["orden_irreducible"] = orden
+            if componentes.get(sid):
+                skill.metadata["components"] = componentes[sid]
+            marcados += 1
+        logger.info(
+            "emergencia marcada en el grafo: %d objetos, %d con componentes",
+            marcados, sum(1 for s in emergentes if componentes.get(s)))
 
     def _complexificar_hasta_punto_fijo(self, max_pasos: int = 5) -> list:
         """
@@ -1981,6 +2123,8 @@ class Nucleo:
                       "not been checked.\n\n")
                    if isinstance(context, dict) and context.get("mathlib_verificado")
                    else "")
+                + (self._bloque_estructural(context)
+                   if "contexto_estructural_en_el_prompt" in _corre else "")
                 + "- FORBIDDEN: producing several versions of the same result.\n"
                 "- If the statement you are given is FALSE, do NOT prove it: formalize its\n"
                 "  NEGATION and open the block with the line\n"

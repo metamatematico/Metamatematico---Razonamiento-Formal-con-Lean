@@ -288,6 +288,38 @@ CAPACIDADES: list[Capacidad] = [
         # 33,33 % y esto queda 25 puntos por encima. La misma cifra sale en
         # el artefacto como «Area de la consulta · equilibrada · 1,76x».
     ),
+    # SIGUE ENCENDIDA, Y AHORA SE SABE LO QUE NO SE SABE.
+    #
+    # La evidencia que la enciende mide PUNTERÍA: de los nombres que ofrece,
+    # cuántos usa la formalización de oro. 21,6 % contra un nulo de 1,5 %.
+    # Eso está bien medido y no ha cambiado.
+    #
+    # Lo que no medía —y era la pregunta abierta del repositorio— es si eso
+    # hace que LEAN ACEPTE MÁS. Ya está medido, y la respuesta es NO SE VE:
+    #
+    #     `scripts/campana_de_grabacion.py`, 20 consultas en español donde el
+    #     grafo sí habla, las mismas dos veces, Lean de juez, $3,42:
+    #
+    #         completo          12 de 20 verifican  (60 %)
+    #         sin-vocabulario   11 de 20 verifican  (55 %)
+    #
+    #         rescata 3 · rompe 2 · empatan 15
+    #
+    # Cinco pares discordantes repartidos 3-2 es lo que da una moneda. El
+    # vocabulario CAMBIÓ lo que el modelo escribió en 19 de los 20 —sólo un
+    # par salió con código idéntico— pero no movió el veredicto en una
+    # dirección consistente.
+    #
+    # NO SE APAGA, y el motivo es el criterio, no el apego: la regla de este
+    # módulo es apagar lo que MIDE PEOR QUE SU NULO, y esto no mide peor —mide
+    # IGUAL dentro del ruido de n=20, sobre un banco que además le favorece
+    # porque las consultas se eligieron entre las que el grafo sabe contestar.
+    # Un empate no es una derrota, y su evidencia de puntería sigue en pie.
+    #
+    # LO QUE HARÍA FALTA para zanjarlo: del orden de 200 pares para ver un
+    # efecto de 10 puntos, que a $0,088 por ejecución son unos $35. Hasta
+    # entonces, la afirmación honesta es «ofrece los nombres correctos» y NO
+    # «hace que Lean verifique más».
     Capacidad(
         nombre="nombres_de_mathlib_en_el_prompt",
         que_hace="inyecta nombres de Mathlib verificados en el prompt de"
@@ -300,6 +332,25 @@ CAPACIDADES: list[Capacidad] = [
             ruta_real=("resultados", "lexico", "precision"),
             ruta_nulo=("resultados", "nulo", "precision"),
             contra="ofrecer los nombres más frecuentes de Mathlib"),
+    ),
+    Capacidad(
+        nombre="contexto_estructural_en_el_prompt",
+        que_hace="añade al prompt de formalización lo que el grafo sabe por sus"
+                 " ARISTAS: prerrequisitos, tácticas y estrategias conectadas,"
+                 " y la competencia emergente con los skills que la acompañan",
+        coste=LLAMADA,
+        donde="nucleo/core.py::_find_relevant_context",
+        sin_evidencia_porque=(
+            "Estos campos se calculaban en `_find_relevant_context` y NO LOS"
+            " LEÍA NADIE: se escribían en el dict y morían ahí. O sea que el"
+            " único uso que el sistema hacía de sus 1029 aristas no llegaba a"
+            " ningún sitio. Ya están cableados, y apagados, porque su efecto"
+            " sólo se ve en lo que el modelo escribe y eso cuesta una llamada:"
+            " añadir texto correcto al prompt puede empeorar, y en este"
+            " repositorio está medido dos veces (los 12 nodos de"
+            " interpretacion.py, y los nodos de cobertura). La medición está"
+            " preparada: `scripts/campana_de_grabacion.py` graba con y sin"
+            " este bloque, y a partir de ahí `replay.py` la repite gratis"),
     ),
     Capacidad(
         nombre="premisas_hibridas",
