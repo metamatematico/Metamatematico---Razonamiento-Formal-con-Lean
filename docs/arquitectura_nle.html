@@ -257,7 +257,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1071 tests · 52 suites
+    1080 tests · 53 suites
   </p>
 </nav>
 
@@ -277,7 +277,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1071</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1080</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -803,8 +803,59 @@ svg .sLine{stroke:var(--muted); fill:none}
                        │
              <b>ENUNCIADO FORMAL</b>   ←── la frontera
                        │
+                  <b>LEAN VERIFICA</b>
+                       │
   <b>L3  EVIDENCIA</b>    forma del objetivo → qué cierra     DESPUÉS
-  <b>L4  EMERGENCIA</b>   colímites sobre teoremas aceptados</pre>
+  <b>L4  EMERGENCIA</b>   colímites sobre teoremas aceptados
+                       │
+                  <b>LA RESPUESTA</b>   veredicto delante del texto</pre>
+
+    <div class="nota a">
+      <b>Describir, medir y cablear son tres cosas distintas</b>
+      <p>Hasta el 10 de septiembre de 2026 <strong>L3 y L4 estaban descritas y
+      medidas, y no estaban enchufadas</strong>. El rankeador estaba entrenado,
+      guardado en disco y con su cifra publicada, y
+      <code>set_tactic_ranker</code> no lo llamaba nadie: el
+      <code>getattr</code> de la cascada devolvía <code>None</code> en todas
+      las consultas y se ordenaba solo con la heurística. L4 igual —
+      <code>cargar_coocurrencia_verificada</code> existía en CR_org y en la
+      fachada, y el paisaje se seguía sembrando con lo que el emparejador
+      léxico adivinaba.</p>
+      <p>Ninguna de las dos cosas daba error. Los tests pasaban, las mediciones
+      eran ciertas, y el sistema que corría no era el que este documento
+      describía. Es la misma familia de fallo que la §16 persigue: afirmar con
+      más autoridad de la que se tiene. Ahora las dos corren, y hay un
+      guardián —<code>tests/test_capas_cableadas.py</code>— que falla si
+      alguna vuelve a quedarse desconectada.</p>
+    </div>
+
+    <h3>Qué está cableado hoy</h3>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>capa</th><th>en el camino</th><th>quién la gobierna</th><th>evidencia</th></tr></thead>
+        <tbody>
+          <tr><td><strong>L0</strong> lengua</td><td><span class="pill v">sí</span></td><td><code>clasificacion_por_palabras_clave</code></td><td class="mono">58,7 % vs 33,3 %</td></tr>
+          <tr><td><strong>L1</strong> concepto</td><td><span class="pill v">sí</span></td><td><code>nombres_de_mathlib_en_el_prompt</code></td><td class="mono">21,6 % vs 1,45 %</td></tr>
+          <tr><td><strong>L2</strong> territorio</td><td><span class="pill">alcance, sin nombres</span></td><td>— por diseño</td><td>no transfiere</td></tr>
+          <tr><td><strong>Lean</strong></td><td><span class="pill v">sí</span></td><td><code>verificacion_con_lean</code><span class="sub">la excepción declarada: no pasa por la regla</span></td><td>el veredicto</td></tr>
+          <tr><td><strong>L3</strong> evidencia</td><td><span class="pill v">sí · desde hoy</span></td><td><code>modelo_de_orden_de_cascada</code></td><td class="mono">0,621 vs 0,318<br>1,57 vs 2,44 posiciones</td></tr>
+          <tr><td><strong>L4</strong> emergencia</td><td><span class="pill v">sí · desde hoy</span></td><td>siembra al arrancar<span class="sub">28 pares con exceso ≥ 1,5</span></td><td class="mono">exceso hasta +6,74</td></tr>
+          <tr><td>bloque estructural<span class="sub">la explicabilidad en el prompt</span></td><td><span class="pill a">no</span></td><td><code>contexto_estructural_en_el_prompt</code></td><td>sin evidencia — el decisor lo deja fuera</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="nota">
+      <b>Lo único que sigue fuera, y por qué</b>
+      <p>El bloque estructural —prerrequisitos, tácticas sugeridas, competencia
+      emergente y skills que suelen acompañar, que es lo que el grafo sabe por
+      sus <em>aristas</em>— está escrito y <strong>apagado</strong>. Su efecto
+      sólo se ve en lo que el modelo escribe, y eso cuesta una llamada. Este
+      repositorio ya ha medido <strong>dos veces</strong> que añadir contenido
+      correcto al prompt puede empeorar el resultado, así que encenderlo sin
+      medirlo sería justo el error contra el que existe el decisor.</p>
+    </div>
 
     <h4>L0 — Lengua</h4>
     <p><strong>Por qué.</strong> Es lo único que Lean no puede hacer: leer una
@@ -3069,7 +3120,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="tests">
     <div class="head"><span class="num">17</span><h2>Tests y <span class="g">guardianes</span></h2></div>
 
-    <p><strong>1 071 tests en 52 suites</strong>, verdes en los dos intérpretes
+    <p><strong>1 080 tests en 53 suites</strong>, verdes en los dos intérpretes
     con los que se trabaja. Los que más valen no comprueban que el código
     funcione: comprueban que el sistema <strong>no pueda volver a afirmar más de
     lo que sabe</strong>.</p>

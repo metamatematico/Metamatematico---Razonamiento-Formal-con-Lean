@@ -425,12 +425,17 @@ class SolverCascade:
         self._graph = graph
         self._goal_analyzer = GoalAnalyzer()
 
-    def set_tactic_ranker(self, ranker: "TacticRanker") -> None:
+    def set_tactic_ranker(self, ranker: "Optional[TacticRanker]") -> None:
         """
         Conecta el rankeador entrenado. Tiene PRIORIDAD sobre el del GNN:
         aquel se entreno con etiqueta constante y sus embeddings no discriminan
-        (cosenos 0,01-0,09), mientras este mide 88,1% de top-3 sobre datos
+        (cosenos 0,01-0,09), mientras este mide 90,5% de top-3 sobre datos
         reales de LeanWorkbook.
+
+        ACEPTA None, y hay que llamarlo con None cuando no deba correr. La
+        cascada VIVE ENTRE CONSULTAS: si quien lo apaga se limita a no
+        llamar, el rankeador se queda puesto desde la primera consulta que lo
+        encendio y la puerta del decisor deja de significar nada.
         """
         self._tactic_ranker = ranker
 

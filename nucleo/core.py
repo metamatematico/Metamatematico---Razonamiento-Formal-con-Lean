@@ -214,6 +214,7 @@ _TODAS_LAS_GOBERNADAS = frozenset({
     "orden_de_cascada_por_area",
     "eleccion_de_imports",
     "contexto_estructural_en_el_prompt",
+    "modelo_de_orden_de_cascada",
 })
 
 
@@ -517,6 +518,39 @@ class Nucleo:
         self._solver_cascade = SolverCascade(self._lean, graph=self._graph)
         self._sorry_filler = SorryFiller(solver_cascade=self._solver_cascade)
 
+        # L3 — EVIDENCIA. El rankeador del estado de prueba.
+        #
+        # ESTABA MEDIDO Y NO ESTABA CABLEADO, que es la familia de fallo que
+        # este repositorio persigue: `set_tactic_ranker` existia, el modelo
+        # entrenado estaba en disco y NADIE lo llamaba, asi que el `getattr`
+        # de `_orden_inteligente` devolvia None en todas las consultas y la
+        # cascada corria solo con la heuristica.
+        #
+        # Lo que se pierde por no cablearlo, medido sobre 1 530 casos que el
+        # modelo no vio (scripts/ranker_en_la_cascada.py):
+        #
+        #     orden fijo SOLVER_CASCADE   5,79 posiciones
+        #     NULO: por frecuencia        2,44
+        #     el rankeador                1,57   <- 3,7x menos compilados
+        #
+        # Cada posicion es una invocacion de Lean de 12 a 30 s.
+        #
+        # SOUNDNESS: `rank` devuelve una PERMUTACION de la lista que recibe.
+        # Es la hipotesis de `gnnRankTactics_perm` y del teorema
+        # `cascade_gnn_iff_exists` (CoRegulatorNetwork.lean): reordenar no
+        # puede hacer demostrable lo que no lo es, asi que el orden es libre
+        # para optimizar y esto no puede cambiar ningun veredicto.
+        #
+        # Se construye aqui y se ENCIENDE POR CONSULTA en `_math_via_lean`,
+        # segun lo que diga el decisor de `modelo_de_orden_de_cascada`. El
+        # pickle se carga solo la primera vez que se usa.
+        try:
+            from nucleo.lean.solver_cascade import TacticRanker
+            self._tactic_ranker = TacticRanker()
+        except Exception as e:                                  # noqa: BLE001
+            logger.warning("TacticRanker no disponible: %s", e)
+            self._tactic_ranker = None
+
         # Cargar banco de ejemplos Lean few-shot (miniF2F, seeded por seed_from_datasets.py)
         lean_ex_path = self.config.data_dir / "lean_examples.json"
         if lean_ex_path.exists():
@@ -551,6 +585,33 @@ class Nucleo:
             cr_str_frequency=self.config.mes.cr_str_frequency,
             cr_int_frequency=self.config.mes.cr_int_period,
         )
+
+        # L4 — EMERGENCIA. El paisaje de CR_org, sembrado con TEOREMAS QUE
+        # LEAN ACEPTO en vez de con lo que el emparejador lexico adivino.
+        #
+        # ESTE ERA EL PUNTO CIEGO. Los colimites se ligan sobre los patrones
+        # del paisaje, y el paisaje se alimentaba de las skills que el
+        # emparejador activaba en cada consulta — es decir, el grafo llevaba
+        # la cuenta de sus PROPIAS CONJETURAS y luego declaraba emergente lo
+        # que el mismo habia supuesto. `cargar_coocurrencia_verificada`
+        # existia en la fachada y en CR_org, y no la llamaba nadie.
+        #
+        # Ahora dos conceptos coocurren si un teorema real habla de los dos:
+        # 40 025 teoremas de Mathlib, con el exceso corregido por frecuencia
+        # (data/l4_coocurrencia_verificada.json). La correccion es lo que lo
+        # hace fiable — en crudo el cuarto par mas frecuente es
+        # `cic + linear-algebra`, con exceso +0,11: azar puro, porque `cic`
+        # declara `Type` y eso sale en todos los enunciados.
+        #
+        # No bloquea el arranque: si el fichero no esta, se sigue sin sembrar.
+        try:
+            _sembrados = self._cr_network.cargar_coocurrencia_verificada()
+            if _sembrados:
+                logger.info(
+                    "L4: paisaje sembrado con %d pares de conceptos que "
+                    "coocurren en teoremas verificados por Lean", _sembrados)
+        except Exception as e:                                  # noqa: BLE001
+            logger.info("L4 sin sembrar (%s: %s)", type(e).__name__, e)
 
         # Cargar memoria persistente si existe
         memory_path = self.config.data_dir / "memory.json"
@@ -1943,6 +2004,23 @@ class Nucleo:
             # que se hacia antes de que existiera el decisor.
             logger.warning("decisor no disponible, se ejecuta todo: %s", e)
             _plan, _corre = None, _TODAS_LAS_GOBERNADAS
+
+        # L3 EN EL CAMINO. Se conecta o se desconecta por consulta, segun el
+        # veredicto de `modelo_de_orden_de_cascada` (0,621 de acierto contra
+        # 0,318 de responder siempre `nlinarith`).
+        #
+        # Se pasa None explicitamente cuando no corre, en vez de dejarlo sin
+        # tocar: la cascada vive entre consultas, asi que no reponerlo lo
+        # dejaria encendido para siempre desde la primera consulta que lo
+        # encendiera — un estado pegajoso que ninguna medicion cubre.
+        try:
+            self._solver_cascade.set_tactic_ranker(
+                self._tactic_ranker
+                if ("modelo_de_orden_de_cascada" in _corre
+                    and self._tactic_ranker is not None)
+                else None)
+        except Exception as e:                                  # noqa: BLE001
+            logger.debug("no se pudo fijar el rankeador (%s)", type(e).__name__)
 
         # SOLO SE APAGA EL ORDEN, NO LA ETIQUETA. `_domain_tactic` NO llega a
         # la cascada —ahí va `_tactica_aprendida`, ver la llamada a
