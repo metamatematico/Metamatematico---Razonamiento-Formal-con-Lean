@@ -1,0 +1,318 @@
+{
+ "por_rama": {
+  "modelo-solo": {
+   "verifica": 4,
+   "n": 20
+  },
+  "sin-vocabulario": {
+   "verifica": 11,
+   "n": 20
+  },
+  "completo": {
+   "verifica": 12,
+   "n": 20
+  }
+ },
+ "completo_vs_modelo_solo": {
+  "pares": 20,
+  "rescata": 8,
+  "rompe": 0,
+  "empata_verificando": 4,
+  "empata_fallando": 8,
+  "codigo_identico": 0,
+  "p_mcnemar": 0.0078125,
+  "detalle": [
+   {
+    "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que un grupo de orden primo es cíclico",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la raíz de 2 es irracional",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que los números racionales son numerables",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la serie armónica diverge",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la derivada de una constante es cero",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que toda función derivable es continua",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que un espacio métrico compacto es completo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la unión de dos conjuntos abierto es abierto",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que todo espacio vectorial tiene una base",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que los polinomios irreducibles generan ideales maximales",
+    "completo": "LeanResultStatus.ERROR",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "modelo-solo": "LeanResultStatus.ERROR",
+    "marca": "el SISTEMA rescata",
+    "codigo_identico": false
+   }
+  ]
+ },
+ "completo_vs_sin_vocabulario": {
+  "pares": 20,
+  "rescata": 3,
+  "rompe": 2,
+  "empata_verificando": 9,
+  "empata_fallando": 6,
+  "codigo_identico": 1,
+  "p_mcnemar": 1.0,
+  "detalle": [
+   {
+    "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que un grupo de orden primo es cíclico",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "GANA con vocabulario",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la raíz de 2 es irracional",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": true
+   },
+   {
+    "consulta": "Demuestra que los números racionales son numerables",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "GANA con vocabulario",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la serie armónica diverge",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la derivada de una constante es cero",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que toda función derivable es continua",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que un espacio métrico compacto es completo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "GANA con vocabulario",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que la unión de dos conjuntos abierto es abierto",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que todo espacio vectorial tiene una base",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "PIERDE con vocabulario",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "PIERDE con vocabulario",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que los polinomios irreducibles generan ideales maximales",
+    "completo": "LeanResultStatus.ERROR",
+    "sin-vocabulario": "LeanResultStatus.ERROR",
+    "marca": "empatan fallando",
+    "codigo_identico": false
+   },
+   {
+    "consulta": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+    "completo": "LeanResultStatus.SUCCESS",
+    "sin-vocabulario": "LeanResultStatus.SUCCESS",
+    "marca": "empatan verificando",
+    "codigo_identico": false
+   }
+  ]
+ }
+}

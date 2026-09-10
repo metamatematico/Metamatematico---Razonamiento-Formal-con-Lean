@@ -1,16 +1,16 @@
 {
   "por_modelo": {
     "claude-opus-5": {
-      "llamadas": 117,
-      "entrada": 746935,
-      "salida": 63527,
-      "dolares": 5.322850000000001
+      "llamadas": 120,
+      "entrada": 754333,
+      "salida": 65185,
+      "dolares": 5.401290000000001
     },
     "claude-sonnet-5": {
-      "llamadas": 45,
-      "entrada": 94046,
-      "salida": 24627,
-      "dolares": 0.43436199999999997
+      "llamadas": 170,
+      "entrada": 1470355,
+      "salida": 96327,
+      "dolares": 3.9039800000000016
     }
   }
 }

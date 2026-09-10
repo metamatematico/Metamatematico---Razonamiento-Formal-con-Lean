@@ -1,0 +1,168 @@
+{
+ "modelo": "claude-sonnet-5",
+ "n": 20,
+ "verifica": 4,
+ "gastado": 0.0297,
+ "filas": [
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 14.6,
+   "nchars": 157,
+   "error": null,
+   "gastado": 0.0014
+  },
+  {
+   "consulta": "Demuestra que un grupo de orden primo es cíclico",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 12.5,
+   "nchars": 214,
+   "error": null,
+   "gastado": 0.0031
+  },
+  {
+   "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 12.1,
+   "nchars": 170,
+   "error": null,
+   "gastado": 0.0046
+  },
+  {
+   "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 12.4,
+   "nchars": 137,
+   "error": null,
+   "gastado": 0.0058
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 13.7,
+   "nchars": 315,
+   "error": null,
+   "gastado": 0.0083
+  },
+  {
+   "consulta": "Demuestra que la raíz de 2 es irracional",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 13.7,
+   "nchars": 95,
+   "error": null,
+   "gastado": 0.0092
+  },
+  {
+   "consulta": "Demuestra que los números racionales son numerables",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 11.3,
+   "nchars": 78,
+   "error": null,
+   "gastado": 0.0099
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 12.2,
+   "nchars": 224,
+   "error": null,
+   "gastado": 0.0117
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 12.0,
+   "nchars": 202,
+   "error": null,
+   "gastado": 0.0133
+  },
+  {
+   "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 11.8,
+   "nchars": 172,
+   "error": null,
+   "gastado": 0.0148
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 11.8,
+   "nchars": 153,
+   "error": null,
+   "gastado": 0.0161
+  },
+  {
+   "consulta": "Demuestra que la derivada de una constante es cero",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 13.4,
+   "nchars": 103,
+   "error": null,
+   "gastado": 0.0172
+  },
+  {
+   "consulta": "Demuestra que toda función derivable es continua",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 13.4,
+   "nchars": 133,
+   "error": null,
+   "gastado": 0.0183
+  },
+  {
+   "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 14.1,
+   "nchars": 299,
+   "error": null,
+   "gastado": 0.0206
+  },
+  {
+   "consulta": "Demuestra que un espacio métrico compacto es completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 12.0,
+   "nchars": 160,
+   "error": null,
+   "gastado": 0.0218
+  },
+  {
+   "consulta": "Demuestra que la unión de dos conjuntos abierto es abierto",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 12.2,
+   "nchars": 162,
+   "error": null,
+   "gastado": 0.0232
+  },
+  {
+   "consulta": "Demuestra que todo espacio vectorial tiene una base",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 12.2,
+   "nchars": 204,
+   "error": null,
+   "gastado": 0.0248
+  },
+  {
+   "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 13.4,
+   "nchars": 304,
+   "error": null,
+   "gastado": 0.027
+  },
+  {
+   "consulta": "Demuestra que los polinomios irreducibles generan ideales maximales",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 13.1,
+   "nchars": 210,
+   "error": null,
+   "gastado": 0.0286
+  },
+  {
+   "consulta": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 13.2,
+   "nchars": 139,
+   "error": null,
+   "gastado": 0.0297
+  }
+ ]
+}

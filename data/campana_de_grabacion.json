@@ -1,0 +1,370 @@
+{
+ "modelo": "claude-sonnet-5",
+ "ramas": [
+  "completo",
+  "sin-vocabulario"
+ ],
+ "gastado_total": 3.415,
+ "filas": [
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 34.5,
+   "error": null,
+   "gastado": 0.0219,
+   "nchars": 480
+  },
+  {
+   "consulta": "Demuestra que un grupo de orden primo es cíclico",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 37.1,
+   "error": null,
+   "gastado": 0.0574,
+   "nchars": 512
+  },
+  {
+   "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 24.2,
+   "error": null,
+   "gastado": 0.0772,
+   "nchars": 484
+  },
+  {
+   "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 23.4,
+   "error": null,
+   "gastado": 0.0969,
+   "nchars": 491
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 67.2,
+   "error": null,
+   "gastado": 0.2248,
+   "nchars": 1067
+  },
+  {
+   "consulta": "Demuestra que la raíz de 2 es irracional",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 39.4,
+   "error": null,
+   "gastado": 0.2437,
+   "nchars": 412
+  },
+  {
+   "consulta": "Demuestra que los números racionales son numerables",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 39.6,
+   "error": null,
+   "gastado": 0.2658,
+   "nchars": 261
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 30.7,
+   "error": null,
+   "gastado": 0.2923,
+   "nchars": 971
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 38.1,
+   "error": null,
+   "gastado": 0.3123,
+   "nchars": 440
+  },
+  {
+   "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 69.7,
+   "error": null,
+   "gastado": 0.5235,
+   "nchars": 473
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 29.7,
+   "error": null,
+   "gastado": 0.5458,
+   "nchars": 354
+  },
+  {
+   "consulta": "Demuestra que la derivada de una constante es cero",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 25.2,
+   "error": null,
+   "gastado": 0.5634,
+   "nchars": 345
+  },
+  {
+   "consulta": "Demuestra que toda función derivable es continua",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 28.0,
+   "error": null,
+   "gastado": 0.5848,
+   "nchars": 490
+  },
+  {
+   "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 55.9,
+   "error": null,
+   "gastado": 0.8661,
+   "nchars": 788
+  },
+  {
+   "consulta": "Demuestra que un espacio métrico compacto es completo",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 41.5,
+   "error": null,
+   "gastado": 1.03,
+   "nchars": 554
+  },
+  {
+   "consulta": "Demuestra que la unión de dos conjuntos abierto es abierto",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 24.8,
+   "error": null,
+   "gastado": 1.0497,
+   "nchars": 378
+  },
+  {
+   "consulta": "Demuestra que todo espacio vectorial tiene una base",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 42.7,
+   "error": null,
+   "gastado": 1.2306,
+   "nchars": 544
+  },
+  {
+   "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 60.6,
+   "error": null,
+   "gastado": 1.4277,
+   "nchars": 791
+  },
+  {
+   "consulta": "Demuestra que los polinomios irreducibles generan ideales maximales",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 41.1,
+   "error": null,
+   "gastado": 1.448,
+   "nchars": 757
+  },
+  {
+   "consulta": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+   "config": "sin-vocabulario",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 47.6,
+   "error": null,
+   "gastado": 1.6615,
+   "nchars": 784
+  },
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 36.5,
+   "error": null,
+   "gastado": 0.0219,
+   "nchars": 482
+  },
+  {
+   "consulta": "Demuestra que un grupo de orden primo es cíclico",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 40.8,
+   "error": null,
+   "gastado": 0.061,
+   "nchars": 614
+  },
+  {
+   "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 26.4,
+   "error": null,
+   "gastado": 0.0809,
+   "nchars": 700
+  },
+  {
+   "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 26.1,
+   "error": null,
+   "gastado": 0.1027,
+   "nchars": 483
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 65.6,
+   "error": null,
+   "gastado": 0.2359,
+   "nchars": 961
+  },
+  {
+   "consulta": "Demuestra que la raíz de 2 es irracional",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 39.5,
+   "error": null,
+   "gastado": 0.2548,
+   "nchars": 412
+  },
+  {
+   "consulta": "Demuestra que los números racionales son numerables",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 42.5,
+   "error": null,
+   "gastado": 0.2791,
+   "nchars": 255
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 29.2,
+   "error": null,
+   "gastado": 0.3051,
+   "nchars": 993
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 30.6,
+   "error": null,
+   "gastado": 0.3317,
+   "nchars": 426
+  },
+  {
+   "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 67.3,
+   "error": null,
+   "gastado": 0.549,
+   "nchars": 569
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 42.4,
+   "error": null,
+   "gastado": 0.5751,
+   "nchars": 683
+  },
+  {
+   "consulta": "Demuestra que la derivada de una constante es cero",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 24.1,
+   "error": null,
+   "gastado": 0.5922,
+   "nchars": 335
+  },
+  {
+   "consulta": "Demuestra que toda función derivable es continua",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 26.4,
+   "error": null,
+   "gastado": 0.6128,
+   "nchars": 395
+  },
+  {
+   "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 43.1,
+   "error": null,
+   "gastado": 0.7705,
+   "nchars": 784
+  },
+  {
+   "consulta": "Demuestra que un espacio métrico compacto es completo",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 55.0,
+   "error": null,
+   "gastado": 1.0843,
+   "nchars": 603
+  },
+  {
+   "consulta": "Demuestra que la unión de dos conjuntos abierto es abierto",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 23.4,
+   "error": null,
+   "gastado": 1.1035,
+   "nchars": 379
+  },
+  {
+   "consulta": "Demuestra que todo espacio vectorial tiene una base",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 42.5,
+   "error": null,
+   "gastado": 1.2904,
+   "nchars": 606
+  },
+  {
+   "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 71.0,
+   "error": null,
+   "gastado": 1.5031,
+   "nchars": 681
+  },
+  {
+   "consulta": "Demuestra que los polinomios irreducibles generan ideales maximales",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.ERROR",
+   "seg": 47.1,
+   "error": null,
+   "gastado": 1.5293,
+   "nchars": 462
+  },
+  {
+   "consulta": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+   "config": "completo",
+   "veredicto": "LeanResultStatus.SUCCESS",
+   "seg": 47.4,
+   "error": null,
+   "gastado": 1.7537,
+   "nchars": 404
+  }
+ ]
+}
