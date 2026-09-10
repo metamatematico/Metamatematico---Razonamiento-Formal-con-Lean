@@ -122,7 +122,7 @@ def main() -> int:
 
     print("\nVERIFICAN, POR RAMA")
     tot = {}
-    orden = ["modelo-solo", "sin-vocabulario", "completo"]
+    orden = ["modelo-solo", "sin-reparacion", "sin-vocabulario", "completo"]
     secuencia = ([x for x in orden if x in configs]
                  + [x for x in configs if x not in orden])
     for c in secuencia:
@@ -191,6 +191,10 @@ def main() -> int:
         salida["completo_vs_sin_vocabulario"] = parear(
             "completo", "sin-vocabulario",
             "GANA con vocabulario", "PIERDE con vocabulario")
+    if "sin-reparacion" in configs and "completo" in configs:
+        salida["completo_vs_sin_reparacion"] = parear(
+            "completo", "sin-reparacion",
+            "la REPARACION rescata", "la REPARACION rompe")
 
     print("\nLECTURA")
     v = salida.get("completo_vs_modelo_solo")

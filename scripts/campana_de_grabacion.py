@@ -176,6 +176,28 @@ def _apagar(n, config):
         _d.decidir = con_extra
         return lambda: setattr(_d, "decidir", orig)
 
+    if config == "sin-reparacion":
+        # LA PIEZA QUE LA EVIDENCIA SEÑALA COMO LA QUE CARGA EL PESO.
+        #
+        # `replay.py` reproduce las formalizaciones ya escritas contra todo lo
+        # que viene después —imports, premisas, cascada— y da 42 %. En vivo el
+        # sistema llega al 60 %. La diferencia entre esas dos cifras es, casi
+        # toda, el bucle de reparación: devolverle al modelo el error de Lean
+        # y dejarle una segunda oportunidad.
+        #
+        # «Casi toda» no es una medición. Esta rama la convierte en una:
+        # apaga SÓLO la reparación —los imports, las premisas, la cascada y el
+        # vocabulario siguen— y se parea contra `completo`.
+        orig = n._revisar_con_lean
+
+        async def sin_revisar(lean_code, result, *a, **k):
+            # Devuelve lo que ya había, con cero rondas: la firma que espera
+            # el llamante es (codigo, resultado, rondas_usadas).
+            return lean_code, result, 0
+
+        n._revisar_con_lean = sin_revisar
+        return lambda: setattr(n, "_revisar_con_lean", orig)
+
     raise ValueError(config)
 
 
@@ -196,11 +218,30 @@ def _apagar(n, config):
 #: y llamarlo medición. Aquí costó que la rama de control no llegara a correr.
 TOKENS_POR_CASO = (18000, 3900)
 
+#: Y TAMPOCO SON LOS MISMOS TOKENS EN TODAS LAS RAMAS. Los 18 000 de arriba
+#: incluyen las rondas de reparacion, que arrastran el error de Lean y el
+#: codigo anterior. `sin-reparacion` no las tiene: una formalizacion y una
+#: traduccion. Medido en la prueba de humo: $0,025 el caso.
+TOKENS_POR_CASO_POR_RAMA = {
+    "sin-reparacion": (7000, 1500),
+}
+
 #: El caso más caro observado. El tope se comprueba ANTES de empezar cada
 #: caso reservando esto: si no cabe el peor caso, se para. Comprobarlo sólo
 #: después es cerrar la puerta con el gasto ya hecho — la tanda de 20 se pasó
 #: $0,054 del tope justo así.
 PEOR_CASO = 0.32
+
+#: El peor caso NO es el mismo en todas las ramas, y usar el de la mas cara
+#: para todas deja dinero sin gastar por prudencia mal calibrada.
+#:
+#: Los $0,32 son de `completo`, donde una consulta dificil encadena dos rondas
+#: de reparacion. En `sin-reparacion` esa cola no existe por construccion: la
+#: rama hace una formalizacion y una traduccion y se acabo. Medido en la
+#: prueba de humo: $0,025.
+PEOR_CASO_POR_RAMA = {
+    "sin-reparacion": 0.08,
+}
 
 #: Y EL MODELO NO SE DEDUCE DEL YAML.
 #:
@@ -217,6 +258,9 @@ def presupuesto(n_casos: int, configs, modelo: str) -> tuple:
     from nucleo.llm.contador import precio_de
     pe, ps = precio_de(modelo)
     entrada, salida = TOKENS_POR_CASO
+    if len(configs) == 1:
+        entrada, salida = TOKENS_POR_CASO_POR_RAMA.get(
+            configs[0], TOKENS_POR_CASO)
     por_caso = entrada / 1e6 * pe + salida / 1e6 * ps
     n = n_casos * len(configs)
     return modelo, n, n * por_caso, por_caso
@@ -292,10 +336,11 @@ async def main(n_casos: int, configs, ejecutar: bool, tope: float,
                 # SE RESERVA EL PEOR CASO. Comprobar `gastado() >= tope`
                 # deja pasar un caso que puede costar $0,31, y así la tanda
                 # anterior acabó $0,054 por encima del tope.
-                if gastado() + PEOR_CASO > tope:
+                reserva = PEOR_CASO_POR_RAMA.get(config, PEOR_CASO)
+                if gastado() + reserva > tope:
                     print("\n  TOPE DE $%.2f: quedan $%.3f y el peor caso "
                           "cuesta $%.2f. Se para ($%.3f gastados)."
-                          % (tope, tope - gastado(), PEOR_CASO, gastado()))
+                          % (tope, tope - gastado(), reserva, gastado()))
                     break
                 t0 = time.time()
                 codigo = ""
