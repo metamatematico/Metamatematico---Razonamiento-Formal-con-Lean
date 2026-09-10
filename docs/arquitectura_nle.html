@@ -237,6 +237,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     <li><a href="#flujo">El flujo, de entrada a salida</a></li>
     <li><a href="#idioma">La frontera del idioma</a></li>
     <li><a href="#sintaxis">La sintaxis de la consulta</a></li>
+    <li><a href="#arquitectura">La arquitectura por capas</a></li>
     <li><a href="#capas">Las dos capas de conocimiento</a></li>
     <li><a href="#grafo">El grafo: anatomía</a></li>
     <li><a href="#fibra">La base y las fibras</a></li>
@@ -721,6 +722,172 @@ svg .sLine{stroke:var(--muted); fill:none}
       de los 809 que aparecen — los que tienen al menos 30 ejemplos. Los rasgos
       corren sobre enunciados de Lean, que sólo existen después del paso 2.</p>
     </div>
+  </section>
+
+  <section id="arquitectura">
+    <div class="head"><span class="num">05</span><h2>La arquitectura: cinco <span class="v">capas</span> y una frontera</h2></div>
+
+    <p class="lede">El sistema y Lean hacen busquedas distintas, y durante mucho
+    tiempo compitieron sin saberlo. La diferencia no es de calidad: es de
+    <strong>tipo de entrada</strong>. Eso lo parte en dos mitades con duenos
+    distintos, y la frontera es el momento en que existe un enunciado formal.</p>
+
+    <table>
+      <thead><tr><th></th><th>Indexa por</th><th>Necesita</th></tr></thead>
+      <tbody>
+        <tr><td>el grafo</td><td>palabras humanas, ES/EN</td><td>prosa</td></tr>
+        <tr><td>Lean <span class="mono">exact? apply? aesop</span></td>
+            <td>estructura del tipo, sobre ~200 000 declaraciones</td>
+            <td>un objetivo formal</td></tr>
+      </tbody>
+    </table>
+
+    <h3>La evidencia del reparto</h3>
+
+    <p><strong>Antes de formalizar</strong>, con la consulta en prosa, buscar en
+    la estructura de resolucion completa <em>no supera al azar</em>; el grafo
+    curado la bate trece veces:</p>
+
+    <table>
+      <tbody>
+        <tr><td>grafo curado (320 nodos)</td><td class="mono">21,6 % precision</td></tr>
+        <tr><td>indice completo de Mathlib (217 419 nombres)</td><td class="mono">1,53 %</td></tr>
+        <tr><td>modelo nulo</td><td class="mono">1,5 %</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Despues de formalizar</strong>, con un objetivo formal, la
+    busqueda del grafo pierde por dos ordenes de magnitud:</p>
+
+    <table>
+      <tbody>
+        <tr><td>recuperacion de lemas, metodo lexico</td><td class="mono">0,64 % cobertura</td></tr>
+        <tr><td>recuperacion de lemas, metodo semantico</td><td class="mono">0,37 %</td></tr>
+        <tr><td>modelo nulo (los lemas mas citados)</td><td class="mono">77,05 %</td></tr>
+      </tbody>
+    </table>
+
+    <p>El decisor habia descubierto esta frontera capacidad por capacidad, antes
+    de que nadie la nombrara: <strong>toda capacidad del grafo que actua antes de
+    formalizar gana, y toda la que actua despues pierde o empata</strong>.</p>
+
+    <h3>Las cinco capas</h3>
+
+    <div class="destacado">
+      <p class="mono" style="white-space:pre; font-size:13px; line-height:1.5">
+                     consulta (ES/EN)
+                           |
+  L0  LENGUA        keywords ES/EN -&gt; concepto      ANTES
+  L1  CONCEPTO      158 curados - vocabulario #check   DE
+  L2  TERRITORIO    147 generados - donde vive     FORMALIZAR
+                           |
+                  ENUNCIADO FORMAL      &lt;-- la frontera
+                           |
+  L3  EVIDENCIA     forma del objetivo -&gt; que cierra  DESPUES
+  L4  EMERGENCIA    colimites sobre teoremas reales
+      </p>
+    </div>
+
+    <h4>L0 — Lengua</h4>
+    <p><strong>Por que.</strong> Es lo unico que Lean no puede hacer: leer una
+    frase. Un indice de 217 419 nombres formales no contiene la correspondencia
+    «grupo → <span class="mono">Group, Subgroup, MonoidHom</span>»; esa la
+    escribio una persona.
+    <strong>Que muestra.</strong> 58,7 % de acierto de area equilibrado contra
+    33,3 % de responder siempre la clase mayoritaria.</p>
+
+    <h4>L1 — Concepto</h4>
+    <p><strong>Por que.</strong> El modelo inventa <strong>21 de cada 28</strong>
+    identificadores cuando tira de memoria.
+    <strong>Que muestra.</strong> 180 de 186 nombres existen; los seis restantes
+    son espacios de nombres y estan filtrados antes del prompt, asi que la
+    etiqueta «verificado» es cierta para todo lo que se ofrece.
+    <strong>Lo que NO muestra:</strong> que eso haga verificar mas a Lean. Se
+    midio — rescata 3, rompe 2, <em>p</em> = 1,0. Es punteria, no resultado.</p>
+
+    <h4>L2 — Territorio</h4>
+    <p><strong>Por que.</strong> El curado nombra 158 conceptos; la taxonomia de
+    Mathlib tiene 1 139. Los generados dan alcance para reconocer temas.
+    <strong>Que muestra.</strong> Que su vocabulario no transfiere, por tres vias
+    medidas (sin criba 17,45 %, criba por uso 20,77 %, cuota separada 20,18 %,
+    frente a 21,64 % de base). El modulo de un objeto generado es un
+    <em>rincon</em> de su area, no su centro.</p>
+
+    <h4>L3 — Evidencia</h4>
+    <p><strong>Por que.</strong> Tras la frontera la pregunta ya no es «de que
+    trata» sino «que cierra esto», y eso lo decide la forma del objetivo. Cada
+    intento fallido cuesta una compilacion de 12 a 30 segundos.
+    <strong>Que hace.</strong> Un clasificador ordena la cascada combinando
+    n-gramas —que ven los simbolos— con 74 rasgos estructurales, que ven la
+    forma. No son redundantes: 60,53 % y 61,14 % por separado, <strong>67,11 %
+    juntos</strong>.
+    <strong>Que muestra.</strong> Medido con el modelo de produccion contra el
+    orden fijo real, sobre 1 530 casos que no vio:</p>
+
+    <table>
+      <thead><tr><th>Orden</th><th>Posicion media</th><th>1er intento</th><th>En los 3</th></tr></thead>
+      <tbody>
+        <tr><td>fijo <span class="mono">SOLVER_CASCADE</span></td><td class="mono">5,79</td><td class="mono">0,0 %</td><td class="mono">36,0 %</td></tr>
+        <tr><td>NULO: por frecuencia</td><td class="mono">2,44</td><td class="mono">42,5 %</td><td class="mono">78,5 %</td></tr>
+        <tr><td><strong>rankeador</strong></td><td class="mono"><strong>1,57</strong></td><td class="mono"><strong>71,0 %</strong></td><td class="mono"><strong>93,5 %</strong></td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>3,7 veces menos invocaciones de Lean</strong> que el orden fijo, y
+    bate al nulo fuerte por 0,87 posiciones.</p>
+
+    <h4>L4 — Emergencia</h4>
+    <p><strong>Por que.</strong> El paisaje de CR_org, de donde salen los
+    patrones que se ligan en colimites, se alimentaba de lo que el emparejador
+    lexico <em>adivino</em>: el grafo llevaba la cuenta de sus propias conjeturas.
+    <strong>Que hace.</strong> Dos conceptos coocurren si un teorema que Lean
+    <em>acepto</em> habla de los dos — 40 025 teoremas de Mathlib, corregido por
+    frecuencia.
+    <strong>Que muestra.</strong> Los pares que emergen son relaciones genuinas,
+    medidas por el exceso sobre lo esperado:</p>
+
+    <table>
+      <thead><tr><th>Exceso</th><th>Par</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">+6,74</td><td>derived-category + homological-algebra</td></tr>
+        <tr><td class="mono">+6,23</td><td>measure-theory + random-variables</td></tr>
+        <tr><td class="mono">+5,03</td><td>hilbert-spaces + inner-product-spaces</td></tr>
+        <tr><td class="mono">+4,32</td><td>group-theory + subgroups-cosets</td></tr>
+        <tr><td class="mono">+3,13</td><td>compactness + separation-axioms</td></tr>
+      </tbody>
+    </table>
+
+    <p>La correccion por frecuencia es lo que lo hace fiable: en crudo, el cuarto
+    par mas frecuente es <span class="mono">cic + linear-algebra</span> con 134
+    coocurrencias, y su exceso es <strong>+0,11</strong> — azar puro, porque
+    <span class="mono">cic</span> declara <span class="mono">Type</span> y eso
+    sale en todos los enunciados.</p>
+
+    <h3>Que parte busca y que parte explica</h3>
+
+    <p>Las capas no hacen todas lo mismo, y confundirlo lleva a pedirle a una lo
+    que solo puede dar otra.</p>
+
+    <table>
+      <thead><tr><th>Pieza</th><th>Busca</th><th>Explica</th><th>Evidencia</th></tr></thead>
+      <tbody>
+        <tr><td>L0 lengua</td><td>si</td><td>poco</td><td class="mono">58,7 % vs 33,3 %</td></tr>
+        <tr><td>L1 vocabulario</td><td>si, y no llega al final</td><td><strong>mucho</strong></td><td class="mono">21,6 % vs 1,5 %; p = 1,0 en verificacion</td></tr>
+        <tr><td>L2 territorio</td><td>reconoce temas</td><td>poco</td><td>no transfiere</td></tr>
+        <tr><td><strong>L3 rankeador</strong></td><td><strong>la mas efectiva</strong></td><td>poco</td><td class="mono">3,7x menos compilaciones</td></tr>
+        <tr><td>L4 coocurrencia</td><td>no</td><td><strong>mucho</strong></td><td class="mono">exceso hasta +6,74</td></tr>
+        <tr><td>reparacion</td><td><strong>si</strong></td><td>no</td><td class="mono">rescata 4, rompe 0</td></tr>
+        <tr><td>387 teoremas Lean</td><td>no</td><td><strong>el fundamento</strong></td><td class="mono">62 de 63 operaciones</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>L3 es la pieza que mas mejora la busqueda</strong>, y no es el
+    grafo de conceptos: es el rankeador del estado de prueba.
+    <strong>L1 busca bien y no llega al resultado.</strong>
+    <strong>L4 no busca nada y es de lo mas valioso para explicar</strong>: no
+    entra en el prompt ni ordena tacticas; lo que aporta es poder decir «estos
+    dos conceptos aparecen juntos en 206 teoremas que Lean acepto, veinte veces
+    mas de lo esperado por azar».</p>
   </section>
 
   <section id="capas">
@@ -2604,6 +2771,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
         <thead><tr><th>Configuración</th><th>Verifica</th><th>Descripción</th></tr></thead>
         <tbody>
           <tr><td>modelo solo</td><td class="mono">4 de 20 · 20 %</td><td>una llamada, sin sistema</td></tr>
+          <tr><td>sin reparación</td><td class="mono">6 de 15 · 40 %</td><td>el sistema menos el bucle de reparación</td></tr>
           <tr><td>sin vocabulario</td><td class="mono">11 de 20 · 55 %</td><td>el sistema menos el grafo</td></tr>
           <tr><td><strong>sistema completo</strong></td><td class="mono"><strong>12 de 20 · 60 %</strong></td><td>configuración servida</td></tr>
         </tbody>
@@ -2613,6 +2781,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
         <thead><tr><th>Comparación pareada</th><th>Rescata</th><th>Rompe</th><th>p (McNemar exacto)</th></tr></thead>
         <tbody>
           <tr><td>sistema frente a modelo solo</td><td class="mono">8</td><td class="mono">0</td><td class="mono"><strong>0,0078</strong></td></tr>
+          <tr><td><strong>la reparación</strong> (completo frente a sin reparación)</td><td class="mono"><strong>4</strong></td><td class="mono"><strong>0</strong></td><td class="mono">0,1250</td></tr>
           <tr><td>con frente a sin vocabulario</td><td class="mono">3</td><td class="mono">2</td><td class="mono">1,0000</td></tr>
         </tbody>
       </table>
@@ -2621,6 +2790,12 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       grafo, dentro de él, no se distingue del ruido.</strong> Las dos cosas son
       verdad a la vez. El vocabulario cambió lo que el modelo escribió en 19 de
       los 20 casos, pero no movió el veredicto en una dirección consistente.</p>
+
+      <p>Y hay una tercera pieza medida contra el mismo suelo: la
+      <strong>reparación</strong> —devolverle al modelo el error de Lean— rescata
+      cuatro casos y no rompe ninguno. Con 15 pares no llega a significancia,
+      pero es, junto al aparato entero, la única pieza que <em>nunca</em>
+      estropea un caso; el vocabulario rescata tres y rompe dos.</p>
 
       <p>La afirmación sostenible es, por tanto: el grafo <em>ofrece los
       identificadores correctos</em> —catorce veces mejor que su nulo— y eso es
