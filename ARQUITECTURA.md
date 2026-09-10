@@ -232,7 +232,117 @@ algo de `Nat.` activaba tres conceptos a la vez.
 
 ---
 
-## 3. Lo que está conectado, y lo que no
+## 3. Qué parte busca y qué parte explica
+
+Las capas no hacen todas lo mismo, y confundirlo lleva a pedirle a una lo que
+sólo puede dar otra. Hay **dos funciones distintas** y una capa puede servir a
+las dos, a una o —esto importa— a ninguna de forma medible.
+
+- **Buscar** = encontrar antes, más rápido o mejor lo que hace falta para que
+  Lean acepte. Se mide en aciertos y en compilaciones ahorradas.
+- **Explicar** = poder decir, con recibo, por qué el sistema hizo lo que hizo y
+  qué relación matemática lo sostiene. Se mide en si la afirmación es
+  comprobable, no en si acelera.
+
+### El reparto, con su evidencia
+
+| capa / pieza | busca | explica | evidencia |
+|---|---|---|---|
+| **L0** lengua | **sí** | poco | 58.7 % vs 33.3 % de acierto de área |
+| **L1** vocabulario | **sí, y no llega al final** | **sí, mucho** | 21.6 % vs 1.5 % en recuperación; **p = 1.0** sobre la verificación |
+| **L2** territorio | reconoce temas | poco | su vocabulario no transfiere (3 vías medidas) |
+| **L3** rankeador | **sí, es la más efectiva** | poco | **3.7×** menos compilaciones de Lean |
+| **L4** coocurrencia | no | **sí, mucho** | pares con exceso hasta +6.74 sobre azar |
+| cualificación de nombres | **sí** | sí | evita compilaciones gastadas en nombres que no existen |
+| reparación con el modelo | **sí (lo más fuerte)** | no | 42 % → 60 % (no aislado) |
+| 387 teoremas Lean | no | **sí, es el fundamento** | 62 de 63 operaciones con teorema que las respalda |
+| decisor | ahorra coste | **sí, se explica a sí mismo** | 2 llamadas → 0, 2 compilados → 1 |
+| complejificación | no | sí, estructura del dominio | 2 pasos a punto fijo, 22 colímites preservados |
+
+**Las tres lecturas que hay que sacar de esa tabla.**
+
+**L3 es la pieza que más mejora la búsqueda.** No el grafo de conceptos: el
+rankeador del estado de prueba. Reduce las invocaciones de Lean de 5.79 a 1.57,
+y cada una cuesta entre 12 y 30 segundos.
+
+**L1 busca bien y no llega al resultado.** Recupera los identificadores
+correctos catorce veces mejor que su nulo, y su efecto sobre lo que Lean acepta
+no se distingue del ruido (3 rescates, 2 roturas, *p* = 1.0). Su valor real es
+el otro: que los nombres que el sistema afirma sean ciertos.
+
+**L4 no busca nada, y es de lo más valioso para explicar.** No entra en el
+prompt ni ordena tácticas. Lo que aporta es poder decir «estos dos conceptos
+aparecen juntos en 206 teoremas que Lean aceptó, 20 veces más de lo esperado
+por azar».
+
+### Qué se le explicaría a un alumno
+
+Traza real del sistema para *«Demuestra que todo subgrupo de un grupo cíclico
+es cíclico»*:
+
+> **Qué conceptos vi.** `group-theory` y `subgroups-cosets`, porque tu
+> enunciado dice «grupo» y «subgrupo».
+>
+> **Qué nombres de Mathlib te doy, y por qué puedes fiarte.** `Group`,
+> `Subgroup`, `MonoidHom`. Los tres existen: están comprobados uno a uno con
+> `#check` contra Mathlib completo. Esto importa porque un modelo de lenguaje
+> **inventa 21 de cada 28** nombres cuando tira de memoria.
+>
+> **Qué hace falta saber antes.** Los axiomas de ZFC y la teoría de grupos:
+> son los prerrequisitos de estos conceptos en el grafo.
+>
+> **Qué suele ir junto con esto.** Grupos y subgrupos aparecen juntos en **206
+> teoremas** de Mathlib que Lean ya aceptó. No es una impresión: es un recuento.
+>
+> **Por dónde va a intentarlo Lean, y por qué en ese orden.** `norm_num`,
+> `simp`, `ring_nf`… — ordenado según la forma de tu objetivo, no por una lista
+> fija. El orden fijo empezaría por `rfl`.
+>
+> **Y el veredicto lo da Lean, no yo.** Si no lo acepta, te digo que no lo
+> aceptó.
+
+Lo que un alumno se lleva: **qué vocabulario formal corresponde a lo que
+escribió**, que ese vocabulario es real y no inventado, qué conceptos hacen
+falta antes, y qué compañía suele tener el problema.
+
+### Qué se le explicaría a un matemático
+
+Lo mismo, más los recibos que a un alumno no le hacen falta:
+
+> **La agrupación de conceptos no es una heurística.** El grafo es una
+> categoría delgada, y en ella el colímite de un diagrama coincide con el
+> supremo de sus objetos en el preorden inducido. Está demostrado en
+> `JoinColimit.lean` y conectado con `CategoryTheory.Limits.IsColimit` de
+> Mathlib en `IsColimitBridge.lean`, sin `sorry`.
+>
+> **El orden del grafo no es arbitrario.** Coincide con el orden real de
+> *imports* de Mathlib en el **78.1 %** de los 73 pares comparables, contra un
+> **40.1 %** esperado por azar.
+>
+> **La coocurrencia está corregida por frecuencia.** `derived-category` y
+> `homological-algebra` aparecen juntos sólo 6 veces, pero **64× más** de lo
+> esperado. Mientras que `cic + linear-algebra`, con 134 coocurrencias, tiene
+> exceso **+0.11**: azar puro, porque `cic` declara `Type`.
+>
+> **Y hay emergencia en sentido técnico, no metafórico.** Cuatro objetos tienen
+> orden irreducible ≥ 2 — el *mínimo* sobre sus descomposiciones, no el máximo.
+> La distinción decide: de los objetos con altura 2, uno resulta tener orden
+> irreducible 1 y por tanto **no** es emergente.
+
+### Lo que NO se explica, y conviene decirlo
+
+- **Por qué el modelo escribió *ese* enunciado.** La formalización la hace un
+  modelo de lenguaje y no es auditable paso a paso. Lo auditable es el
+  resultado: Lean lo acepta o no.
+- **Por qué el rankeador propone ese orden.** Es una regresión logística sobre
+  74 rasgos y n-gramas; se pueden inspeccionar los pesos, pero no da una razón
+  matemática.
+- **Que los conceptos ofrecidos sean los que la prueba necesita.** Se mide y la
+  cobertura es del 18.3 %.
+
+---
+
+## 4. Lo que está conectado, y lo que no
 
 | pieza | estado | nota |
 |---|---|---|
@@ -252,7 +362,7 @@ algo de `Nat.` activaba tres conceptos a la vez.
 
 ---
 
-## 4. El resultado de punta a punta
+## 5. El resultado de punta a punta
 
 Sobre veinte enunciados en español con Lean como único juez:
 
@@ -274,7 +384,7 @@ sistema aporta.
 
 ---
 
-## 5. El método
+## 6. El método
 
 Cuatro reglas que no se negocian, y las cuatro nacieron de un error concreto.
 
@@ -309,7 +419,7 @@ clase mayoritaria.
 
 ---
 
-## 6. Reproducir
+## 7. Reproducir
 
 Ninguno de estos guiones gasta servicios de pago salvo donde se indica.
 
@@ -329,7 +439,7 @@ Ninguno de estos guiones gasta servicios de pago salvo donde se indica.
 
 ---
 
-## 7. Lo que falta
+## 8. Lo que falta
 
 - **Aislar las rondas de reparación.** El replay sin ellas da 42 % y en vivo se
   llega al 60 %: esos 18 puntos son la pieza que la evidencia señala como
