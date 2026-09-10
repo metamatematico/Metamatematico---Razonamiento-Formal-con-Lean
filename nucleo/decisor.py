@@ -473,6 +473,38 @@ CAPACIDADES: list[Capacidad] = [
             " ProofNet, que si tiene oro, el semantico da 13,1 % de precision"
             " y 2,4 % de cobertura frente a 21,6 % y 18,3 % del lexico"),
     ),
+    # LA RED NEURONAL, APAGADA POR SU PROPIA CIFRA Y NO POR UN COMENTARIO.
+    #
+    # El GNN+PPO se entreno hasta el «100 % de precision» sobre este objetivo:
+    #
+    #     todo problema matematico  ->  accion ASSIST
+    #
+    # que SE SATISFACE CON UNA CONSTANTE. La red aprendio la constante, y el
+    # 100 % era un modelo nulo con otro nombre.
+    #
+    # El runtime ya la descarta —`_neural_agent_is_degenerate` en
+    # `co_regulators.py`— pero esa comprobacion vive dentro y no dejaba cifra,
+    # asi que el catalogo no podia verla. `scripts/sonda_de_degeneracion.py`
+    # la saca fuera: cuatro entradas heterogeneas —un teorema, un saludo, un
+    # hecho no matematico y codigo Lean— y cuenta cuantas acciones distintas
+    # da. Con los pesos entrenados da UNA. La politica constante da una: la
+    # red no bate a su nulo porque ES su nulo.
+    #
+    # Registrada aqui para que el decisor la apague por la misma regla que a
+    # todo lo demas. Si alguien reentrena con un objetivo que la constante no
+    # satisfaga y la sonda da mas de una, se enciende sola.
+    Capacidad(
+        nombre="enrutado_neuronal",
+        que_hace="decide con el GNN+PPO si la consulta va a Lean o al chat",
+        coste=LOCAL,
+        donde="nucleo/rl/agent.py::NucleoAgent._select_neural",
+        evidencia=Evidencia(
+            fichero="sonda_de_degeneracion.json",
+            metrica="acciones distintas ante una sonda heterogenea",
+            ruta_real=("acciones_distintas",),
+            ruta_nulo=("nulo_constante",),
+            contra="la politica constante, que da exactamente una"),
+    ),
     Capacidad(
         nombre="verificacion_con_lean",
         que_hace="formaliza el enunciado y lo verifica con Mathlib",

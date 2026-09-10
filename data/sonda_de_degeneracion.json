@@ -1,0 +1,12 @@
+{
+ "entradas": 4,
+ "acciones_distintas": 1,
+ "nulo_constante": 1,
+ "degenerada": true,
+ "acciones": {
+  "teorema": "ActionType.ASSIST",
+  "saludo": "ActionType.ASSIST",
+  "hecho no mat": "ActionType.ASSIST",
+  "codigo Lean": "ActionType.ASSIST"
+ }
+}
