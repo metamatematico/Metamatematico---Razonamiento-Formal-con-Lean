@@ -180,6 +180,27 @@ Responde en el mismo idioma que el usuario."""
 
     def __init__(self, config: Optional[LLMConfig] = None):
         self.config = config or LLMConfig()
+        # EL ESTADO SE CREA AQUI, NO AL FINAL DE `_normalizar_config`.
+        #
+        # Estaba en la ultima linea de ese metodo, DESPUES de un `return`
+        # temprano que dispara cuando la config ya trae `provider` — que es
+        # justo el caso de `nucleo.llm.client.LLMConfig`. Resultado: con una
+        # clave valida y `Nucleo()` construido por el camino normal, el
+        # cliente se quedaba SIN el atributo `_client`, y la primera llamada
+        # moria con `AttributeError: 'LLMClient' object has no attribute
+        # '_client'`. Ni una sola llamada al modelo era posible.
+        #
+        # No saltaba en la interfaz porque Streamlit llama a
+        # `reconfigure_llm`, que reasigna `_client = None` y repara el objeto
+        # de rebote. O sea que el fallo solo aparecia por el camino directo
+        # —scripts, CLI, mediciones— que es justamente donde se comprueba si
+        # el sistema funciona.
+        #
+        # Lo encontro la prueba de humo de un caso de
+        # `scripts/campana_de_grabacion.py`, antes de gastar el presupuesto
+        # entero en una tanda que habria fallado en las 69 ejecuciones.
+        self._client = None
+        self._conversation: list[LLMMessage] = []
         self._normalizar_config()
 
     def _normalizar_config(self) -> None:
