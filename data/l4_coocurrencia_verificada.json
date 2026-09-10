@@ -1,0 +1,687 @@
+{
+ "teoremas": 40025,
+ "con_dos_o_mas": 1633,
+ "pares_distintos": 230,
+ "minimo": 5,
+ "pares": [
+  {
+   "a": "derived-category",
+   "b": "homological-algebra",
+   "juntas": 6,
+   "esperadas": 0.1,
+   "exceso": 6.74
+  },
+  {
+   "a": "measure-theory",
+   "b": "random-variables",
+   "juntas": 9,
+   "esperadas": 0.1,
+   "exceso": 6.23
+  },
+  {
+   "a": "hilbert-spaces",
+   "b": "inner-product-spaces",
+   "juntas": 22,
+   "esperadas": 0.7,
+   "exceso": 5.03
+  },
+  {
+   "a": "ideals-quotient-rings",
+   "b": "ring-theory",
+   "juntas": 49,
+   "esperadas": 1.6,
+   "exceso": 4.95
+  },
+  {
+   "a": "commutative-algebra",
+   "b": "ideals-quotient-rings",
+   "juntas": 49,
+   "esperadas": 2.0,
+   "exceso": 4.61
+  },
+  {
+   "a": "complex-analysis",
+   "b": "holomorphic-functions",
+   "juntas": 73,
+   "esperadas": 3.1,
+   "exceso": 4.56
+  },
+  {
+   "a": "group-theory",
+   "b": "subgroups-cosets",
+   "juntas": 206,
+   "esperadas": 10.3,
+   "exceso": 4.32
+  },
+  {
+   "a": "banach-spaces",
+   "b": "hilbert-spaces",
+   "juntas": 148,
+   "esperadas": 7.6,
+   "exceso": 4.29
+  },
+  {
+   "a": "field-theory",
+   "b": "finite-fields",
+   "juntas": 59,
+   "esperadas": 3.9,
+   "exceso": 3.93
+  },
+  {
+   "a": "abelian-groups",
+   "b": "linear-algebra",
+   "juntas": 74,
+   "esperadas": 7.7,
+   "exceso": 3.27
+  },
+  {
+   "a": "limits-continuity",
+   "b": "point-set-topology",
+   "juntas": 212,
+   "esperadas": 23.6,
+   "exceso": 3.17
+  },
+  {
+   "a": "compactness",
+   "b": "separation-axioms",
+   "juntas": 10,
+   "esperadas": 1.1,
+   "exceso": 3.13
+  },
+  {
+   "a": "field-extensions",
+   "b": "field-theory",
+   "juntas": 22,
+   "esperadas": 2.6,
+   "exceso": 3.05
+  },
+  {
+   "a": "commutative-algebra",
+   "b": "ring-theory",
+   "juntas": 59,
+   "esperadas": 7.2,
+   "exceso": 3.03
+  },
+  {
+   "a": "commutative-algebra",
+   "b": "field-extensions",
+   "juntas": 81,
+   "esperadas": 10.0,
+   "exceso": 3.02
+  },
+  {
+   "a": "euclidean-geometry",
+   "b": "finite-fields",
+   "juntas": 8,
+   "esperadas": 1.0,
+   "exceso": 3.02
+  },
+  {
+   "a": "field-extensions",
+   "b": "ring-theory",
+   "juntas": 45,
+   "esperadas": 7.9,
+   "exceso": 2.5
+  },
+  {
+   "a": "limits-continuity",
+   "b": "sequences-series",
+   "juntas": 15,
+   "esperadas": 2.7,
+   "exceso": 2.49
+  },
+  {
+   "a": "limits-continuity",
+   "b": "random-variables",
+   "juntas": 5,
+   "esperadas": 0.9,
+   "exceso": 2.49
+  },
+  {
+   "a": "point-set-topology",
+   "b": "random-variables",
+   "juntas": 5,
+   "esperadas": 1.2,
+   "exceso": 2.01
+  },
+  {
+   "a": "limits-continuity",
+   "b": "measure-theory",
+   "juntas": 9,
+   "esperadas": 2.3,
+   "exceso": 1.98
+  },
+  {
+   "a": "field-theory",
+   "b": "ring-theory",
+   "juntas": 7,
+   "esperadas": 1.9,
+   "exceso": 1.87
+  },
+  {
+   "a": "hilbert-spaces",
+   "b": "separation-axioms",
+   "juntas": 5,
+   "esperadas": 1.4,
+   "exceso": 1.8
+  },
+  {
+   "a": "finite-fields",
+   "b": "inner-product-spaces",
+   "juntas": 5,
+   "esperadas": 1.4,
+   "exceso": 1.79
+  },
+  {
+   "a": "abelian-groups",
+   "b": "ring-theory",
+   "juntas": 13,
+   "esperadas": 4.1,
+   "exceso": 1.68
+  },
+  {
+   "a": "measure-theory",
+   "b": "point-set-topology",
+   "juntas": 10,
+   "esperadas": 3.2,
+   "exceso": 1.65
+  },
+  {
+   "a": "field-theory",
+   "b": "linear-algebra",
+   "juntas": 11,
+   "esperadas": 3.6,
+   "exceso": 1.6
+  },
+  {
+   "a": "point-set-topology",
+   "b": "separation-axioms",
+   "juntas": 11,
+   "esperadas": 3.7,
+   "exceso": 1.59
+  },
+  {
+   "a": "ring-theory",
+   "b": "spectral-theory",
+   "juntas": 15,
+   "esperadas": 5.5,
+   "exceso": 1.44
+  },
+  {
+   "a": "cic",
+   "b": "metric-spaces",
+   "juntas": 6,
+   "esperadas": 2.2,
+   "exceso": 1.43
+  },
+  {
+   "a": "banach-spaces",
+   "b": "measure-theory",
+   "juntas": 5,
+   "esperadas": 1.9,
+   "exceso": 1.42
+  },
+  {
+   "a": "field-extensions",
+   "b": "spectral-theory",
+   "juntas": 19,
+   "esperadas": 7.7,
+   "exceso": 1.31
+  },
+  {
+   "a": "banach-spaces",
+   "b": "separation-axioms",
+   "juntas": 5,
+   "esperadas": 2.1,
+   "exceso": 1.23
+  },
+  {
+   "a": "cic",
+   "b": "inner-product-spaces",
+   "juntas": 19,
+   "esperadas": 8.2,
+   "exceso": 1.22
+  },
+  {
+   "a": "hilbert-spaces",
+   "b": "holomorphic-functions",
+   "juntas": 5,
+   "esperadas": 2.2,
+   "exceso": 1.16
+  },
+  {
+   "a": "group-actions",
+   "b": "group-theory",
+   "juntas": 6,
+   "esperadas": 2.9,
+   "exceso": 1.07
+  },
+  {
+   "a": "linear-algebra",
+   "b": "separation-axioms",
+   "juntas": 6,
+   "esperadas": 2.9,
+   "exceso": 1.06
+  },
+  {
+   "a": "complex-analysis",
+   "b": "point-set-topology",
+   "juntas": 36,
+   "esperadas": 18.0,
+   "exceso": 1.0
+  },
+  {
+   "a": "compactness",
+   "b": "point-set-topology",
+   "juntas": 18,
+   "esperadas": 10.3,
+   "exceso": 0.8
+  },
+  {
+   "a": "cic",
+   "b": "field-theory",
+   "juntas": 38,
+   "esperadas": 21.9,
+   "exceso": 0.79
+  },
+  {
+   "a": "compactness",
+   "b": "spectral-theory",
+   "juntas": 7,
+   "esperadas": 4.2,
+   "exceso": 0.75
+  },
+  {
+   "a": "finite-fields",
+   "b": "graph-theory",
+   "juntas": 18,
+   "esperadas": 10.8,
+   "exceso": 0.73
+  },
+  {
+   "a": "abelian-groups",
+   "b": "cic",
+   "juntas": 73,
+   "esperadas": 46.4,
+   "exceso": 0.65
+  },
+  {
+   "a": "differentiation",
+   "b": "measure-theory",
+   "juntas": 8,
+   "esperadas": 5.3,
+   "exceso": 0.61
+  },
+  {
+   "a": "banach-spaces",
+   "b": "holomorphic-functions",
+   "juntas": 5,
+   "esperadas": 3.3,
+   "exceso": 0.59
+  },
+  {
+   "a": "linear-algebra",
+   "b": "ring-theory",
+   "juntas": 16,
+   "esperadas": 10.9,
+   "exceso": 0.56
+  },
+  {
+   "a": "abelian-groups",
+   "b": "point-set-topology",
+   "juntas": 14,
+   "esperadas": 9.7,
+   "exceso": 0.53
+  },
+  {
+   "a": "field-extensions",
+   "b": "finite-fields",
+   "juntas": 23,
+   "esperadas": 16.1,
+   "exceso": 0.52
+  },
+  {
+   "a": "cic",
+   "b": "euclidean-geometry",
+   "juntas": 8,
+   "esperadas": 5.6,
+   "exceso": 0.52
+  },
+  {
+   "a": "cic",
+   "b": "field-extensions",
+   "juntas": 127,
+   "esperadas": 91.0,
+   "exceso": 0.48
+  },
+  {
+   "a": "field-extensions",
+   "b": "linear-algebra",
+   "juntas": 21,
+   "esperadas": 15.0,
+   "exceso": 0.48
+  },
+  {
+   "a": "cic",
+   "b": "commutative-algebra",
+   "juntas": 112,
+   "esperadas": 82.8,
+   "exceso": 0.44
+  },
+  {
+   "a": "hilbert-spaces",
+   "b": "spectral-theory",
+   "juntas": 7,
+   "esperadas": 5.2,
+   "exceso": 0.42
+  },
+  {
+   "a": "cic",
+   "b": "ring-theory",
+   "juntas": 80,
+   "esperadas": 65.7,
+   "exceso": 0.28
+  },
+  {
+   "a": "point-set-topology",
+   "b": "spectral-theory",
+   "juntas": 16,
+   "esperadas": 13.3,
+   "exceso": 0.27
+  },
+  {
+   "a": "cic",
+   "b": "group-actions",
+   "juntas": 25,
+   "esperadas": 21.2,
+   "exceso": 0.24
+  },
+  {
+   "a": "banach-spaces",
+   "b": "spectral-theory",
+   "juntas": 9,
+   "esperadas": 7.8,
+   "exceso": 0.21
+  },
+  {
+   "a": "complex-analysis",
+   "b": "hilbert-spaces",
+   "juntas": 8,
+   "esperadas": 7.1,
+   "exceso": 0.18
+  },
+  {
+   "a": "cic",
+   "b": "linear-algebra",
+   "juntas": 134,
+   "esperadas": 124.4,
+   "exceso": 0.11
+  },
+  {
+   "a": "complex-analysis",
+   "b": "differentiation",
+   "juntas": 30,
+   "esperadas": 29.6,
+   "exceso": 0.02
+  },
+  {
+   "a": "cic",
+   "b": "finite-fields",
+   "juntas": 132,
+   "esperadas": 132.9,
+   "exceso": -0.01
+  },
+  {
+   "a": "banach-spaces",
+   "b": "cic",
+   "juntas": 88,
+   "esperadas": 92.1,
+   "exceso": -0.07
+  },
+  {
+   "a": "holomorphic-functions",
+   "b": "point-set-topology",
+   "juntas": 5,
+   "esperadas": 5.7,
+   "exceso": -0.18
+  },
+  {
+   "a": "commutative-algebra",
+   "b": "linear-algebra",
+   "juntas": 12,
+   "esperadas": 13.7,
+   "exceso": -0.19
+  },
+  {
+   "a": "finite-fields",
+   "b": "linear-algebra",
+   "juntas": 19,
+   "esperadas": 22.0,
+   "exceso": -0.21
+  },
+  {
+   "a": "hilbert-spaces",
+   "b": "point-set-topology",
+   "juntas": 11,
+   "esperadas": 13.0,
+   "exceso": -0.24
+  },
+  {
+   "a": "banach-spaces",
+   "b": "point-set-topology",
+   "juntas": 15,
+   "esperadas": 19.3,
+   "exceso": -0.36
+  },
+  {
+   "a": "banach-spaces",
+   "b": "complex-analysis",
+   "juntas": 8,
+   "esperadas": 10.5,
+   "exceso": -0.39
+  },
+  {
+   "a": "cic",
+   "b": "hilbert-spaces",
+   "juntas": 45,
+   "esperadas": 62.0,
+   "exceso": -0.46
+  },
+  {
+   "a": "differentiation",
+   "b": "limits-continuity",
+   "juntas": 27,
+   "esperadas": 38.9,
+   "exceso": -0.53
+  },
+  {
+   "a": "finite-fields",
+   "b": "hilbert-spaces",
+   "juntas": 7,
+   "esperadas": 11.0,
+   "exceso": -0.65
+  },
+  {
+   "a": "limits-continuity",
+   "b": "spectral-theory",
+   "juntas": 6,
+   "esperadas": 9.5,
+   "exceso": -0.67
+  },
+  {
+   "a": "linear-algebra",
+   "b": "point-set-topology",
+   "juntas": 16,
+   "esperadas": 26.0,
+   "exceso": -0.7
+  },
+  {
+   "a": "differentiation",
+   "b": "hilbert-spaces",
+   "juntas": 13,
+   "esperadas": 21.4,
+   "exceso": -0.72
+  },
+  {
+   "a": "finite-fields",
+   "b": "ring-theory",
+   "juntas": 7,
+   "esperadas": 11.6,
+   "exceso": -0.73
+  },
+  {
+   "a": "differentiation",
+   "b": "point-set-topology",
+   "juntas": 32,
+   "esperadas": 54.3,
+   "exceso": -0.76
+  },
+  {
+   "a": "banach-spaces",
+   "b": "limits-continuity",
+   "juntas": 8,
+   "esperadas": 13.8,
+   "exceso": -0.79
+  },
+  {
+   "a": "hilbert-spaces",
+   "b": "limits-continuity",
+   "juntas": 5,
+   "esperadas": 9.3,
+   "exceso": -0.9
+  },
+  {
+   "a": "banach-spaces",
+   "b": "differentiation",
+   "juntas": 17,
+   "esperadas": 31.8,
+   "exceso": -0.9
+  },
+  {
+   "a": "cic",
+   "b": "measure-theory",
+   "juntas": 8,
+   "esperadas": 15.2,
+   "exceso": -0.93
+  },
+  {
+   "a": "cic",
+   "b": "separation-axioms",
+   "juntas": 9,
+   "esperadas": 17.5,
+   "exceso": -0.96
+  },
+  {
+   "a": "linear-algebra",
+   "b": "spectral-theory",
+   "juntas": 5,
+   "esperadas": 10.5,
+   "exceso": -1.07
+  },
+  {
+   "a": "field-extensions",
+   "b": "point-set-topology",
+   "juntas": 9,
+   "esperadas": 19.0,
+   "exceso": -1.08
+  },
+  {
+   "a": "cic",
+   "b": "point-set-topology",
+   "juntas": 74,
+   "esperadas": 157.4,
+   "exceso": -1.09
+  },
+  {
+   "a": "finite-fields",
+   "b": "subgroups-cosets",
+   "juntas": 6,
+   "esperadas": 13.5,
+   "exceso": -1.17
+  },
+  {
+   "a": "field-extensions",
+   "b": "polynomial-rings",
+   "juntas": 7,
+   "esperadas": 16.6,
+   "exceso": -1.24
+  },
+  {
+   "a": "commutative-algebra",
+   "b": "finite-fields",
+   "juntas": 6,
+   "esperadas": 14.6,
+   "exceso": -1.29
+  },
+  {
+   "a": "cic",
+   "b": "spectral-theory",
+   "juntas": 25,
+   "esperadas": 63.5,
+   "exceso": -1.34
+  },
+  {
+   "a": "banach-spaces",
+   "b": "finite-fields",
+   "juntas": 6,
+   "esperadas": 16.3,
+   "exceso": -1.44
+  },
+  {
+   "a": "cic",
+   "b": "modular-arithmetic",
+   "juntas": 6,
+   "esperadas": 16.3,
+   "exceso": -1.45
+  },
+  {
+   "a": "finite-fields",
+   "b": "group-theory",
+   "juntas": 6,
+   "esperadas": 17.9,
+   "exceso": -1.58
+  },
+  {
+   "a": "cic",
+   "b": "graph-theory",
+   "juntas": 19,
+   "esperadas": 61.3,
+   "exceso": -1.69
+  },
+  {
+   "a": "cic",
+   "b": "polynomial-rings",
+   "juntas": 42,
+   "esperadas": 137.0,
+   "exceso": -1.71
+  },
+  {
+   "a": "cic",
+   "b": "sequences-series",
+   "juntas": 5,
+   "esperadas": 17.8,
+   "exceso": -1.83
+  },
+  {
+   "a": "cic",
+   "b": "group-theory",
+   "juntas": 25,
+   "esperadas": 101.4,
+   "exceso": -2.02
+  },
+  {
+   "a": "cic",
+   "b": "limits-continuity",
+   "juntas": 20,
+   "esperadas": 112.9,
+   "exceso": -2.5
+  },
+  {
+   "a": "cic",
+   "b": "compactness",
+   "juntas": 6,
+   "esperadas": 49.4,
+   "exceso": -3.04
+  }
+ ]
+}

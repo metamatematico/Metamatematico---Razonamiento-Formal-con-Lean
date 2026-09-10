@@ -616,7 +616,18 @@ class OrganizationalCoRegulator(CoRegulator):
     _MIN_SKILLS_PATRON = 2
 
     def record_activation(self, skill_ids: list[str]) -> None:
-        """Registrar que estos skills resolvieron juntos una consulta."""
+        """Registrar que estos skills resolvieron juntos una consulta.
+
+        OJO CON LA FUENTE. Quien llama a esto desde `core.py` le pasa lo que
+        el EMPAREJADOR LEXICO adivino a partir de las palabras de la consulta,
+        no lo que resolvio nada. Con esa fuente el paisaje de CR_org acumula
+        coocurrencias de PALABRAS CLAVE, y los colimites que salen de ahi
+        agrupan conjeturas del propio sistema: un lazo cerrado sin verdad
+        dentro.
+
+        `cargar_coocurrencia_verificada` es la otra fuente, y es la que tiene
+        evidencia: teoremas que Lean ya acepto.
+        """
         if not hasattr(self, "_coactivaciones"):
             self._coactivaciones: dict[frozenset, int] = {}
         utiles = [s for s in skill_ids if s]
@@ -624,6 +635,64 @@ class OrganizationalCoRegulator(CoRegulator):
             return
         clave = frozenset(utiles[:6])       # cota: patrones manejables
         self._coactivaciones[clave] = self._coactivaciones.get(clave, 0) + 1
+
+    def cargar_coocurrencia_verificada(self, ruta=None, minimo_exceso=1.5):
+        """Sembrar el paisaje con conceptos que coocurren en TEOREMAS REALES.
+
+        DE DONDE SALE. `scripts/l4_coocurrencia_verificada.py` cruza los 40 025
+        teoremas de Mathlib con el vocabulario verificado del grafo: dos
+        conceptos coocurren si un teorema que Lean acepto habla de los dos.
+
+        POR QUE EL ENUNCIADO Y NO LAS PREMISAS. Se probo con las premisas y dio
+        CERO coincidencias exactas, y no por un fallo: el grafo nombra OBJETOS
+        (`Group`, `MonoidHom`) y las pruebas citan LEMAS SOBRE esos objetos
+        (`mul_comm`). Son conjuntos disjuntos. Los tipos viven en el enunciado.
+
+        POR QUE HACE FALTA EL EXCESO Y NO BASTA LA FRECUENCIA. `cic` declara
+        `Type`, que sale en todos los enunciados: es el cuarto par mas
+        frecuente en crudo y su exceso es +0,11, o sea azar puro. Sin corregir
+        por frecuencia, el paisaje se llenaria de hubs. Con la correccion, los
+        que quedan arriba son `derived-category + homological-algebra` (+6,74),
+        `measure-theory + random-variables` (+6,23), `hilbert-spaces +
+        inner-product-spaces` (+5,03).
+
+        `minimo_exceso` esta en 1,5 (el doble de lo esperado por azar). Bajarlo
+        mete ruido; subirlo deja fuera relaciones reales pero poco frecuentes.
+
+        Devuelve cuantos pares se sembraron. No pisa lo que ya haya: suma.
+        """
+        import json as _json
+        if ruta is None:
+            from nucleo.rutas import dato as _dato
+            ruta = _dato("l4_coocurrencia_verificada.json")
+        try:
+            with open(ruta, encoding="utf-8") as f:
+                pares = _json.load(f).get("pares") or []
+        except Exception as exc:                                # noqa: BLE001
+            logger.warning(
+                "sin coocurrencia verificada (%s): %s. El paisaje de CR_org se "
+                "queda solo con las conjeturas del emparejador lexico. "
+                "Regenerar con: python -m scripts.l4_coocurrencia_verificada",
+                type(exc).__name__, ruta)
+            return 0
+        if not hasattr(self, "_coactivaciones"):
+            self._coactivaciones: dict[frozenset, int] = {}
+        sembrados = 0
+        for p in pares:
+            if float(p.get("exceso", 0)) < minimo_exceso:
+                continue
+            a, b = p.get("a"), p.get("b")
+            if not (a and b):
+                continue
+            clave = frozenset((a, b))
+            # El peso es el numero de teoremas reales, no un contador de
+            # conjeturas: un par visto en 206 teoremas pesa lo que pesa.
+            self._coactivaciones[clave] = (
+                self._coactivaciones.get(clave, 0) + int(p.get("juntas", 1)))
+            sembrados += 1
+        logger.info("paisaje sembrado con %d pares de teoremas verificados",
+                    sembrados)
+        return sembrados
 
     def build_landscape(self, graph: SkillCategory) -> Landscape:
         """Construir paisaje organizativo: estadisticas y coherencia."""
@@ -1241,6 +1310,17 @@ class CoRegulatorNetwork:
         org = getattr(self, "organizational", None)
         if org is not None and hasattr(org, "record_activation"):
             org.record_activation(skill_ids)
+
+    def cargar_coocurrencia_verificada(self, ruta=None, minimo_exceso=1.5):
+        """Sembrar el paisaje de CR_org con teoremas que Lean ya acepto.
+
+        Es la otra fuente de `record_activation`, y la unica con evidencia:
+        ver el metodo del mismo nombre en `OrganizationalCoRegulator`.
+        """
+        org = getattr(self, "organizational", None)
+        if org is None or not hasattr(org, "cargar_coocurrencia_verificada"):
+            return 0
+        return org.cargar_coocurrencia_verificada(ruta, minimo_exceso)
 
     def decide(self, query: str, graph: SkillCategory) -> GlobalDecision:
         """
