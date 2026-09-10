@@ -315,8 +315,18 @@ VEREDICTO: dict[str, Etiqueta] = {
         "«un esquema sobre un anillo de enteros» es vacio: Spec Z es terminal "
         "en Sch, luego Sch/Spec Z = Sch y colapsaria sobre algebraic-geometry"),
     "cic": _e(
+        # El campo `lean` es una LISTA DE IDENTIFICADORES separada por comas,
+        # no una frase: `_contexto_del_grafo` la trocea y mete las piezas en
+        # el prompt con la etiqueta «verificado». Aqui decia
+        # "Type u con CategoryTheory.types", que no se trocea en nada que
+        # exista, asi que llegaba entera al prompt como si fuera un nombre de
+        # Mathlib — exactamente lo que esa etiqueta promete que no pasa.
+        # La aclaracion va en `nota`, que es el campo que existe para eso.
         C, "un contexto (equivalentemente, un tipo cerrado)", "sustituciones",
-        "Type u con CategoryTheory.types"),
+        "CategoryTheory.types",
+        nota="el universo `Type u` no es un identificador que se pueda "
+             "ofrecer; la categoria de tipos de Mathlib es "
+             "CategoryTheory.types"),
     "field-theory": _e(
         C, "un cuerpo", "homomorfismos de anillos, todos inyectivos",
         "Field", "no existe FieldCat"),
@@ -378,8 +388,14 @@ VEREDICTO: dict[str, Etiqueta] = {
         "subcategoria plena de complex-geometry (dimension 1); sus clases de "
         "isomorfia son el teorema de la aplicacion de Riemann"),
     "complex-geometry": _e(
+        # Mismo caso que `cic`: "IsManifold con modelo complejo" es prosa y
+        # se ofrecia entera como identificador. El nombre real es
+        # `IsManifold`; que el modelo sea complejo es una condicion sobre sus
+        # parametros, no parte del nombre, asi que va en `nota`.
         C, "una variedad compleja", "aplicaciones holomorfas",
-        "IsManifold con modelo complejo"),
+        "IsManifold",
+        nota="el caso complejo se fija en los parametros del modelo "
+             "(ModelWithCorners sobre C), no en el nombre"),
     "conditional-expectation": _e(
         F, "", "el operador E[.|N] : L1 -> L1", "MeasureTheory.condExp",
         "ARISTA. Con nucleos de Markov pasa a ser estructura, no añadido"),

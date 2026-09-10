@@ -1,7 +1,7 @@
 {
  "n_prueba": 1530,
  "tacticas": 27,
- "modelo": "data/tactic_ranker_ngramas.pkl.bak",
+ "modelo": "produccion",
  "resultados": {
   "fijo (SOLVER_CASCADE)": {
    "posicion_media": 5.788235294117647,
@@ -14,9 +14,9 @@
    "en_los_3": 78.49673202614379
   },
   "RANKEADOR": {
-   "posicion_media": 1.7901960784313726,
-   "primer_intento": 68.23529411764706,
-   "en_los_3": 90.91503267973856
+   "posicion_media": 1.5673202614379085,
+   "primer_intento": 70.98039215686275,
+   "en_los_3": 93.52941176470588
   }
  },
  "veredicto": "el rankeador bate al nulo de frecuencia: mira el objetivo, no solo cuenta"

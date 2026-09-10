@@ -215,8 +215,8 @@ svg .ln{stroke:var(--muted);fill:none}
   <p class="toc-f">
     320 objetos · 1349 morfismos<br>
     173 curados · 147 derivados<br>
-    4228 palabras clave<br>
-    169 nombres de Mathlib<br>
+    4315 palabras clave<br>
+    173 nombres de Mathlib<br>
     0 ciclos de dependencia
   </p>
 </nav>
@@ -234,7 +234,7 @@ svg .ln{stroke:var(--muted);fill:none}
       <div><div class="n">1 349</div><div class="l">morfismos</div></div>
       <div><div class="n">173</div><div class="l">hechos a mano</div></div>
       <div><div class="n">147</div><div class="l">leídos de Mathlib</div></div>
-      <div><div class="n">169</div><div class="l">nombres de Mathlib</div></div>
+      <div><div class="n">173</div><div class="l">nombres de Mathlib</div></div>
     </div>
   </header>
 
@@ -370,7 +370,7 @@ svg .ln{stroke:var(--muted);fill:none}
         <h4 style="color:var(--nuestro)">CONCEPTO · 158</h4>
         <p>Lleva veredicto categórico. <strong>Es el único sort que aporta
         nombres de Mathlib al prompt.</strong></p>
-        <span class="kv">112 con nombres · 46 sin<br>839 palabras clave · 5,3 de media</span>
+        <span class="kv">113 con nombres · 45 sin<br>926 palabras clave · 5,9 de media</span>
       </div>
       <div class="tarj">
         <h4 style="color:var(--mathlib)">MODULO · 125</h4>
@@ -430,7 +430,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
           <tr><td rowspan="4"><strong>categorías</strong></td><td class="mono">cat-basics</td><td>Objetos, morfismos, composición</td><td class="mono">CategoryTheory.Category<br>CategoryTheory.CategoryStruct</td><td class="mono">11</td></tr>
           <tr><td class="mono">functors</td><td>Funtores covariantes y contravariantes</td><td class="mono">CategoryTheory.Functor<br>CategoryTheory.NatTrans</td><td class="mono">11</td></tr>
           <tr><td class="mono">nat-trans</td><td>Transformaciones naturales entre funtores</td><td class="mono">CategoryTheory.NatTrans</td><td class="mono">1</td></tr>
-          <tr><td class="mono">limits</td><td>Límites y colímites categóricos</td><td class="mono">Limits.Cone · HasLimits</td><td class="mono">3</td></tr>
+          <tr><td class="mono">limits</td><td>Límites y colímites categóricos</td><td class="mono">CategoryTheory.Limits.Cone<br>CategoryTheory.Limits.HasLimits</td><td class="mono">3</td></tr>
           <tr><td rowspan="2"><strong>lógica</strong></td><td class="mono">fol-deduction</td><td>Deducción natural en lógica de primer orden</td><td class="mono">—</td><td class="mono">10</td></tr>
           <tr><td class="mono">fol-metatheory</td><td>Completitud, compacidad, Löwenheim-Skolem</td><td class="mono">FirstOrder.Language<br>…Theory · …LHom</td><td class="mono">2</td></tr>
           <tr><td rowspan="2"><strong>tipos</strong></td><td class="mono">cic</td><td>Cálculo de Construcciones Inductivas</td><td class="mono">Type u<br>CategoryTheory.types</td><td class="mono">15</td></tr>
@@ -510,13 +510,19 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
       no de un dato.</p>
     </div>
 
-    <div class="nota a">
-      <b>Y ninguno de los diez tiene palabras clave</b>
-      <p>Los diez fundacionales son exactamente los diez conceptos sin ninguna
-      palabra clave declarada. <strong>Ninguna consulta puede activarlos por
-      emparejamiento léxico</strong>: sólo se alcanzan recorriendo flechas desde
-      otro nodo que sí haya casado. El suelo del grafo es inalcanzable
-      directamente desde el texto de una pregunta.</p>
+    <div class="nota v">
+      <b>Ya se alcanzan por texto — y el beneficio no es medible</b>
+      <p>Hasta hace poco los diez fundacionales eran <em>exactamente</em> los
+      diez conceptos sin ninguna palabra clave: el suelo del grafo era
+      inalcanzable desde el texto de una pregunta, que es por donde entra el
+      alumno. Ahora los diez las tienen — <code>zfc-axioms</code> responde a
+      «axioma de elección» y a «zorn», <code>cic</code> a «teoría de tipos»,
+      <code>lean-kernel</code> a «asistente de pruebas».</p>
+      <p><strong>Y el beneficio no se puede medir con los bancos que hay</strong>,
+      lo cual conviene decir en vez de celebrarlo: de 3 000 consultas de MATH
+      sólo una contiene alguna de esas palabras, y de las 371 de ProofNet,
+      ninguna. Riesgo de regresión medido en cero; beneficio, no medido. Hace
+      falta un banco de consultas de fundamentos, y no existe.</p>
     </div>
   </section>
 
@@ -561,7 +567,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
       aquí.</p>
     </div>
 
-    <p><strong>46 de los 158 conceptos no aportan ningún nombre de
+    <p><strong>45 de los 158 conceptos no aportan ningún nombre de
     Mathlib</strong> — <code>analytic-number-theory</code>,
     <code>computability-theory</code>, <code>convex-optimization</code>,
     <code>enumerative-combinatorics</code>… Existen como concepto, se pueden
@@ -597,8 +603,8 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
       no identificadores». En <code>mathlib-geometry-euclidean</code> son
       <code>excenter</code>, <code>point</code>, <code>dist</code>,
       <code>vsub</code>, <code>touchpoint</code>.</p>
-      <p>De ahí que aporten 3 000 de las 4 228 palabras clave del grafo — 24 por
-      nodo frente a 5,3 de los curados — y ningún nombre de Mathlib.</p>
+      <p>De ahí que aporten 3 000 de las 4 315 palabras clave del grafo — 24 por
+      nodo frente a 5,9 de los curados — y ningún nombre de Mathlib.</p>
     </div>
 
     <div class="nota a">
@@ -754,18 +760,18 @@ probability    simp <b>52 %</b> · rewrite 28 % · aesop     11 %</pre>
     palabra clave que case, un nodo sólo se alcanza recorriendo flechas desde
     otro.</p>
 
-    <pre>palabras clave declaradas   <b>4 228</b>
-distintas                   <b>1 846</b>   → 2 382 son repeticiones entre nodos
-frases de varias palabras     <b>319</b>   valen más que un token suelto
+    <pre>palabras clave declaradas   <b>4 315</b>
+distintas                   <b>1 907</b>   → 2 408 son repeticiones entre nodos
+frases de varias palabras     <b>335</b>   valen más que un token suelto
 con acento                     <b>66</b>   el alumno escribe con ellos
-nodos sin ninguna              <b>25</b>   los 10 fundacionales + 9 tácticas + 6 estrategias</pre>
+nodos sin ninguna              <b>15</b>   las 9 tácticas + 6 estrategias, y nada más</pre>
 
     <div class="tabla">
       <table>
         <thead><tr><th>sort</th><th class="mono">nodos</th><th class="mono">palabras clave</th><th class="mono">media</th><th>de dónde salen</th></tr></thead>
         <tbody>
           <tr><td class="mono">MODULO</td><td class="mono">125</td><td class="mono">3 000</td><td class="mono">24,0</td><td>contadas por frecuencia en los nombres de declaración</td></tr>
-          <tr><td class="mono">CONCEPTO</td><td class="mono">158</td><td class="mono">839</td><td class="mono">5,3</td><td><strong>elegidas a mano</strong>, en castellano y en inglés</td></tr>
+          <tr><td class="mono">CONCEPTO</td><td class="mono">158</td><td class="mono">926</td><td class="mono">5,9</td><td><strong>elegidas a mano</strong>, en castellano y en inglés</td></tr>
           <tr><td class="mono">AREA</td><td class="mono">22</td><td class="mono">389</td><td class="mono">17,7</td><td>los nombres de rama y sus sinónimos</td></tr>
           <tr><td class="mono">TACTICA · ESTRATEGIA</td><td class="mono">15</td><td class="mono">0</td><td class="mono">—</td><td>ninguna</td></tr>
         </tbody>
@@ -773,8 +779,8 @@ nodos sin ninguna              <b>25</b>   los 10 fundacionales + 9 tácticas + 
     </div>
 
     <div class="nota a">
-      <b>El 71 % del vocabulario no lo eligió nadie</b>
-      <p>3 000 de las 4 228 palabras clave son frecuencias contadas
+      <b>El 70 % del vocabulario no lo eligió nadie</b>
+      <p>3 000 de las 4 315 palabras clave son frecuencias contadas
       automáticamente, y viven en los nodos que <em>no aportan ningún nombre de
       Mathlib</em>. Pueden ganar sitio en el ranking del emparejador sin llevar
       un solo identificador al prompt.</p>
@@ -798,21 +804,21 @@ exists  en 57                self    en 33</pre>
     verificados que entran en el prompt de formalización para que el modelo no
     los invente.</p>
 
-    <pre>nodos que aportan alguno     <b>112</b>   todos CONCEPTO — ningún MODULO ni AREA
-plazas ocupadas              <b>190</b>
-identificadores distintos    <b>169</b>   algunos los comparten varios nodos</pre>
+    <pre>nodos que aportan alguno     <b>113</b>   todos CONCEPTO — ningún MODULO ni AREA
+plazas ocupadas              <b>198</b>
+identificadores distintos    <b>173</b>   algunos los comparten varios nodos</pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Composición de los 169 identificadores de Mathlib que el grafo aporta al prompt. 165 empiezan por mayúscula, es decir son tipos, estructuras y clases: sustantivos del lenguaje matemático. Sólo 4 son lemas o teoremas en minúscula: intervalIntegral, mfderiv, riemannZeta y spectrum. Debajo, la consecuencia medida: de 28 nombres que el modelo de lenguaje propuso de memoria, los 21 que no existían eran todos lemas. El modelo acierta razonablemente los sustantivos e inventa los hechos, así que el grafo cubre la mitad en que el modelo acierta, y la lista plana de 183433 hechos cubre la mitad en que falla." viewBox="0 0 1000 260" style="min-width:640px">
+<svg role="img" aria-label="Composición de los 173 identificadores de Mathlib que el grafo aporta al prompt. 158 terminan en mayúscula, es decir son tipos, estructuras y clases: sustantivos del lenguaje matemático. Los otros 15 terminan en minúscula y son definiciones o funciones, como deriv, intervalIntegral o Nat.card. Ninguno de los 173 es un teorema ni un lema. Debajo, la consecuencia medida: de 28 nombres que el modelo de lenguaje propuso de memoria, los 21 que no existían eran todos lemas. El modelo acierta razonablemente los sustantivos e inventa los hechos, así que el grafo cubre la mitad en que el modelo acierta, y la lista plana de 183433 hechos cubre la mitad en que falla." viewBox="0 0 1000 260" style="min-width:640px">
   <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">LOS 169 IDENTIFICADORES DISTINTOS</text>
-  <rect x="16" y="30" width="945" height="40" rx="7" fill="var(--mathlib)" opacity=".88"/>
-  <text x="34" y="55" font-size="13" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">165 · tipos, estructuras y clases</text>
-  <text x="330" y="55" font-size="11.5" fill="#fff" opacity=".8" font-family="'IBM Plex Mono',monospace">Module.End · CategoryTheory.Functor · Ordinal · Limits.Cone</text>
-  <rect x="965" y="30" width="19" height="40" rx="5" fill="var(--tactica)" opacity=".9"/>
-  <text class="d" x="984" y="86" font-size="10.5" text-anchor="end" font-family="'IBM Plex Mono',monospace">4 lemas ↑</text>
+  <rect x="16" y="30" width="884" height="40" rx="7" fill="var(--mathlib)" opacity=".88"/>
+  <text x="34" y="55" font-size="13" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">158 · tipos, estructuras y clases</text>
+  <text x="330" y="55" font-size="11.5" fill="#fff" opacity=".8" font-family="'IBM Plex Mono',monospace">Module.End · CategoryTheory.Functor · Ordinal · CategoryTheory.Limits.Cone</text>
+  <rect x="904" y="30" width="80" height="40" rx="5" fill="var(--tactica)" opacity=".9"/>
+  <text class="d" x="984" y="86" font-size="10.5" text-anchor="end" font-family="'IBM Plex Mono',monospace">15 definiciones ↑</text>
   <text class="d" x="16" y="86" font-size="10.5" font-family="'IBM Plex Mono',monospace">SUSTANTIVOS — lo que el modelo suele acertar</text>
-  <text class="d" x="700" y="102" font-size="10.5" font-family="'IBM Plex Mono',monospace">intervalIntegral · mfderiv · riemannZeta · spectrum</text>
+  <text class="d" x="640" y="102" font-size="10.5" font-family="'IBM Plex Mono',monospace">deriv · intervalIntegral · riemannZeta · Nat.card · Filter.atTop</text>
 
   <line x1="16" y1="124" x2="984" y2="124" stroke="var(--border)" stroke-width="1"/>
   <text class="m d" x="16" y="148" font-size="10.5" letter-spacing="1.3">POR QUÉ ESE REPARTO ES EL CORRECTO</text>
@@ -830,9 +836,9 @@ identificadores distintos    <b>169</b>   algunos los comparten varios nodos</pr
     <p>Los espacios de nombres más representados dicen dónde está anclada la
     ontología:</p>
 
-    <pre>CategoryTheory  <b>17</b>      Module            5      NumberField  2
-MeasureTheory    <b>8</b>      AlgebraicGeometry 4      FDRep        2
-FirstOrder       <b>6</b>      Ideal             3</pre>
+    <pre>CategoryTheory  <b>19</b>      Module            4      Filter       3
+MeasureTheory    <b>9</b>      AlgebraicGeometry 4      ProbabilityTheory 2
+FirstOrder       <b>5</b>      Nat               3</pre>
   </section>
 
   <section id="forma">
@@ -907,13 +913,23 @@ tactic-omega         7                real-analysis     16</pre>
       falla: <strong>3 de 860 pares (0,3 %) admiten levantamiento cartesiano,
       frente al 6,1 % de barajar las áreas al azar</strong>.</p>
       <p>La causa no es la formalización, que está completa y sin
-      <code>sorry</code>. Son los datos: de los <strong>230 morfismos de
-      orden</strong>, sólo <strong>29 cruzan de área</strong> —134 se quedan
-      dentro y 67 van al fundacional— y esos 29 generan 74 relaciones entre
-      áreas al cerrar transitivamente. <strong>La base afirma más de lo que las
-      fibras sostienen</strong>, y el 93 % de los objetos no tiene ni un skill
-      del área de abajo por debajo.</p>
-      <p>Lo que falta no es teoría: faltan morfismos que crucen de área.</p>
+      <code>sorry</code>. De los <strong>230 morfismos de orden</strong> sólo
+      <strong>29 cruzan de área</strong> —134 se quedan dentro y 67 van al
+      fundacional— y el 93 % de los objetos no tiene ni un skill del área de
+      abajo por debajo.</p>
+      <p><strong>Pero añadir morfismos no puede arreglarlo, y eso está
+      demostrado.</strong> Este documento llegó a concluir «faltan morfismos que
+      crucen de área», y es falso: la base se cierra transitivamente, y la
+      clausura es <em>monótona</em> — una arista nueva sólo puede añadir
+      relaciones, nunca quitarlas. Comprobado añadiéndolas: con +10 aristas
+      cruzadas la clausura sube al 96 %, con +60 al 100 %, y la mayor
+      componente fuertemente conexa pasa de 21 a 23 de las 23 áreas.</p>
+      <p>Sobre un preorden con 21 áreas mutuamente equivalentes, la fibración
+      exigiría que <em>todo</em> concepto de álgebra dependa de uno de
+      probabilidad. Eso es falso, y ninguna curación lo va a arreglar:
+      <strong>lo que no sirve es el área como base</strong>. Qué base
+      <em>sí</em> ordenaría la matemática es una pregunta de investigación
+      abierta, no una tarea pendiente.</p>
     </div>
 
     <div class="nota">
@@ -938,7 +954,7 @@ tactic-omega         7                real-analysis     16</pre>
       <table>
         <thead><tr><th>qué se mide del grafo</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
-          <tr><td><strong>El vocabulario que inyecta</strong><span class="sub">371 ejercicios de ProofNet con formalización de oro, k=2</span></td><td class="mono">21,6 % precisión<br>18,3 % cobertura</td><td class="mono">1,6 %<br>3,3 %</td><td><span class="pill v">13,1× · aporta</span></td></tr>
+          <tr><td><strong>El vocabulario que inyecta</strong><span class="sub">371 ejercicios de ProofNet con formalización de oro, k=2</span></td><td class="mono">21,6 % precisión<br>18,3 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">14,9× · aporta</span></td></tr>
           <tr><td><strong>Sus dependencias <em>curadas</em></strong><span class="sub">73 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">57 confirmadas<br>78,1 %</td><td class="mono">40,1 %</td><td><span class="pill v">1,95× · aporta</span></td></tr>
           <tr><td><strong>Su costura de <em>cobertura</em></strong><span class="sub">9 aristas <code>skill→módulo</code> medibles contra el mismo DAG</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
           <tr><td><strong>El área que acierta</strong><span class="sub">3 000 consultas etiquetadas · exactitud equilibrada</span></td><td class="mono">40,9 %</td><td class="mono">33,3 %</td><td><span class="pill">+7,6 · por encima del azar</span></td></tr>
@@ -950,10 +966,16 @@ tactic-omega         7                real-analysis     16</pre>
 
     <div class="nota v">
       <b>El resultado que sostiene al grafo</b>
-      <p>El vocabulario es lo mejor medido de todo el sistema: <strong>13,1
+      <p>El vocabulario es lo mejor medido de todo el grafo: <strong>14,9
       veces su modelo nulo</strong>, sobre un banco de 371 ejercicios donde la
       formalización correcta —escrita por matemáticos— dice qué identificadores
       hacían falta de verdad. Es la razón de que el grafo esté en el camino.</p>
+      <p><strong>Y es puntería, no resultado.</strong> Que ofrecer los
+      identificadores correctos haga verificar más a Lean se midió aparte, con
+      20 casos pareados y Lean de juez: rescata 3, rompe 2, <em>p</em> = 1,0.
+      El sistema entero sí triplica al modelo desnudo —12 de 20 frente a 4,
+      <em>p</em> = 0,0078— pero el vocabulario, dentro de él, no se distingue
+      del ruido. Las dos cosas son verdad a la vez.</p>
     </div>
 
     <p>Además, en 3 000 consultas reales el grafo <strong>guarda silencio total
@@ -974,22 +996,27 @@ tactic-omega         7                real-analysis     16</pre>
       transiciones</strong> <code>state_before → tactic → state_after</code> en
       disco para construir esa categoría y medirla sin gastar API.</li>
 
-      <li><strong>Los diez fundacionales no tienen palabras clave.</strong> El
-      suelo del grafo es inalcanzable por vía léxica; sólo se llega a él
-      recorriendo flechas.</li>
+      <li><strike>Los diez fundacionales no tienen palabras clave.</strike>
+      <strong>Cerrado</strong> — ya las tienen los diez, y con ellas el suelo
+      del grafo se alcanza desde el texto de una pregunta. Lo que queda no es
+      un defecto del grafo sino de los bancos: <strong>ninguno contiene
+      consultas de fundamentos</strong>, así que el beneficio no se puede
+      medir. Riesgo de regresión, cero; beneficio, no medido.</li>
 
-      <li><strong>46 de los 158 conceptos no aportan ningún nombre de
+      <li><strong>45 de los 158 conceptos no aportan ningún nombre de
       Mathlib.</strong> Abren el cono de su área pero no llevan vocabulario
       verificado al prompt, que es la contribución medida del grafo.</li>
 
-      <li><strong>La fibración no se cumple</strong>, y por falta de morfismos
-      que crucen de área: 29 de 230.</li>
+      <li><strong>La fibración no se cumple</strong> — 3 de 860 pares se
+      levantan, frente al 6,1 % del azar. Y no por falta de morfismos: está
+      demostrado que añadirlos empeora la clausura. Lo que falla es el área
+      como base.</li>
 
       <li><strong>Seis dependencias están bajo sospecha de ir al revés</strong>,
       según la comparación con el DAG oficial de imports.</li>
 
       <li><strong>El vocabulario colisiona.</strong> <code>zero</code> aparece
-      en 82 nodos, <code>apply</code> en 66. El 71 % de las palabras clave no
+      en 82 nodos, <code>apply</code> en 66. El 70 % de las palabras clave no
       las eligió nadie.</li>
 
       <li><strong>La ontología está desequilibrada y sesgada a lo
@@ -1000,12 +1027,20 @@ tactic-omega         7                real-analysis     16</pre>
 
     <div class="nota l">
       <b>Y uno que no es un defecto del grafo, sino de qué se le pide</b>
-      <p>De los tres puntos donde el grafo actúa en el sistema, sólo uno aporta:
-      el vocabulario del prompt. La elección de módulos que importa Lean es
-      <em>inerte</em> —empata con un conjunto fijo de tres— y el orden de
-      tácticas <em>no bate a su modelo nulo</em> —1,26 posiciones frente a 1,09
-      de probar <code>simp</code> primero—, así que ese último está apagado en
-      producción por regla explícita.</p>
+      <p>De los tres puntos donde el grafo actúa, el vocabulario del prompt
+      aporta y la elección de módulos que importa Lean es <em>inerte</em>
+      —empata con un conjunto fijo de tres—. El tercero cambió de manos: la
+      <em>regla por área</em> con la que el grafo de conceptos ordenaba la
+      cascada <em>no bate a su nulo</em> —1,26 posiciones frente a 1,09 de
+      probar <code>simp</code> primero— y está apagada por regla explícita,
+      pero la cascada sí se ordena hoy: la ordena un clasificador sobre la
+      <strong>forma del objetivo</strong>, que no es el grafo de conceptos y
+      se mide aparte — 1,57 posiciones frente a 2,44 de su nulo, 3,7 veces
+      menos invocaciones de Lean que el orden fijo.</p>
+      <p>El patrón que ordena a los tres: <strong>lo que el grafo hace antes de
+      que exista un enunciado formal gana; lo que hace después pierde o
+      empata</strong>. Ordenar la cascada es trabajo de después, y por eso lo
+      hace algo que mira tipos y no palabras.</p>
     </div>
   </section>
 

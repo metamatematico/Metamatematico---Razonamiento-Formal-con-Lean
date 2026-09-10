@@ -338,7 +338,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     <p>La consecuencia es que este documento contiene componentes que
     <strong>no baten a su nulo</strong>, y lo dice. Tres de ellos están apagados
     en producción por esa razón, mediante una regla explícita
-    (<a href="#decisor">§11</a>), no por criterio de nadie.</p>
+    (<a href="#decisor">§12</a>), no por criterio de nadie.</p>
   </section>
 
   <section id="flujo">
@@ -395,7 +395,7 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sTxt" x="158" y="346" font-size="12.5" font-weight="600">1 · EL GRAFO PREPARA EL PROMPT</text>
   <text class="sTxt sDim" x="158" y="365" font-size="11">conceptos activados · nombres de Mathlib comprobados con #check · ejemplos few-shot</text>
   <text class="sTxt sDim" x="158" y="381" font-size="11">de miniF2F · definiciones de los pilares · declaración de la lectura elegida</text>
-  <text class="sMono" x="158" y="396" font-size="10.5" fill="var(--lean)">APORTA — 21,0 % precisión contra un nulo de 1,6 % · 13,1x</text>
+  <text class="sMono" x="158" y="396" font-size="10.5" fill="var(--lean)">APORTA — 21,6 % precisión contra un nulo de 1,45 % · 14,9x</text>
   <path class="sLine" d="M440 400 L440 414" marker-end="url(#fl)" stroke-width="1.6"/>
 
   <rect x="140" y="416" width="600" height="66" rx="9" fill="var(--llm-soft)" stroke="var(--llm)" stroke-width="1.3"/>
@@ -443,9 +443,9 @@ svg .sLine{stroke:var(--muted); fill:none}
   <path class="sLine" d="M514 714 L514 738" marker-end="url(#fl)" stroke-width="1.5"/>
 
   <rect x="140" y="740" width="510" height="66" rx="9" fill="var(--grafo-soft)" stroke="var(--grafo)" stroke-width="1.4"/>
-  <text class="sTxt" x="158" y="762" font-size="12.5" font-weight="600">5 · EL GRAFO ORDENA LAS TÁCTICAS</text>
+  <text class="sTxt" x="158" y="762" font-size="12.5" font-weight="600">5 · L3 ORDENA LAS TÁCTICAS</text>
   <text class="sTxt sDim" x="158" y="781" font-size="11">las 12 tácticas en UN SOLO compilado de Lean, con `first |` y `done`</text>
-  <text class="sMono sDim" x="158" y="797" font-size="10.5">NO BATE AL NULO — 1,26 posiciones frente a 1,09 de probar `simp` primero</text>
+  <text class="sMono" x="158" y="797" font-size="10.5" fill="var(--lean)">APORTA — 1,57 posiciones frente a 2,44 del nulo por frecuencia · 3,7x menos compilados</text>
 
   <path class="sLine" d="M395 806 L395 820" marker-end="url(#fl)" stroke-width="1.5"/>
   <path class="sLine" d="M668 714 L668 820" marker-end="url(#fl)" stroke-width="1.5"/>
@@ -513,10 +513,10 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sTxt sDim" x="788" y="734" font-size="10.5">declarar cuál toma, y esa declaración</text>
   <text class="sTxt sDim" x="788" y="749" font-size="10.5">encabeza la respuesta.</text>
 
-  <text class="sTxt sDim" x="788" y="776" font-size="10.5">El agente neuronal (GNN + PPO) puede</text>
-  <text class="sTxt sDim" x="788" y="791" font-size="10.5">enrutar y aprender de cada consulta,</text>
-  <text class="sTxt sDim" x="788" y="806" font-size="10.5">alimentando una memoria de</text>
-  <text class="sTxt sDim" x="788" y="821" font-size="10.5">procedimientos entre sesiones.</text>
+  <text class="sTxt sDim" x="788" y="776" font-size="10.5">El agente neuronal (GNN + PPO) está</text>
+  <text class="sTxt sDim" x="788" y="791" font-size="10.5">DEGENERADO: da la misma acción a las</text>
+  <text class="sTxt sDim" x="788" y="806" font-size="10.5">cuatro entradas de la sonda. El runtime</text>
+  <text class="sTxt sDim" x="788" y="821" font-size="10.5">lo detecta y lo ignora.</text>
 
   <text class="sTxt sDim" x="788" y="848" font-size="10.5">Con METAMAT_GRABAR=1, el paso 2 se</text>
   <text class="sTxt sDim" x="788" y="863" font-size="10.5">graba antes de que Lean lo vea, y todo</text>
@@ -536,21 +536,27 @@ svg .sLine{stroke:var(--muted); fill:none}
       <table>
         <thead><tr><th class="mono">paso</th><th>quién</th><th>qué hace</th><th>evidencia</th></tr></thead>
         <tbody>
-          <tr><td class="mono">1</td><td><strong>grafo</strong></td><td>inyecta nombres de Mathlib verificados en el prompt<span class="sub">_find_relevant_context</span></td><td><span class="pill v">aporta · 13,1×</span></td></tr>
+          <tr><td class="mono">1</td><td><strong>grafo</strong></td><td>inyecta nombres de Mathlib verificados en el prompt<span class="sub">_find_relevant_context</span></td><td><span class="pill v">aporta · 14,9×</span></td></tr>
           <tr><td class="mono">2</td><td>modelo</td><td>escribe Lean 4 — no juzga si es correcto<span class="sub">LEAN_SYSTEM_PROMPT</span></td><td>—</td></tr>
           <tr><td class="mono">3</td><td><strong>grafo</strong></td><td>elige qué módulos importa Lean<span class="sub">_modulos_mathlib</span></td><td><span class="pill">inerte</span></td></tr>
           <tr><td class="mono">4</td><td><strong>Lean</strong></td><td>verifica · veredicto inapelable<span class="sub">lean/client.py</span></td><td>—</td></tr>
-          <tr><td class="mono">5</td><td><strong>grafo</strong></td><td>ordena las 12 tácticas ante un <code>sorry</code><span class="sub">solver_cascade.py</span></td><td><span class="pill a">no bate al nulo</span></td></tr>
+          <tr><td class="mono">5</td><td><strong>L3</strong></td><td>ordena las 12 tácticas ante un <code>sorry</code><span class="sub">solver_cascade.py::TacticRanker</span></td><td><span class="pill v">aporta · 3,7×</span></td></tr>
           <tr><td class="mono">6</td><td>modelo</td><td>traduce el código que Lean aceptó<span class="sub">EXPLICACION_SYSTEM_PROMPT</span></td><td>—</td></tr>
         </tbody>
       </table>
     </div>
 
     <p>La última columna es el resultado de medir cada punto por separado.
-    <strong>No hay un veredicto único sobre «el núcleo»</strong>: aporta en uno
-    de sus tres puntos de actuación, es inerte en otro y en el tercero no bate
-    a su modelo nulo. Resumirlo en una sola cifra sería mentir por
-    agregación.</p>
+    <strong>No hay un veredicto único sobre «el núcleo»</strong>: aporta en el
+    paso 1 y en el paso 5 —y por razones distintas, a un lado y a otro de la
+    frontera de formalización (<a href="#arquitectura">§5</a>)— y es inerte en
+    el 3. Resumirlo en una sola cifra sería mentir por agregación.</p>
+
+    <p>Conviene separar dos cosas que el paso 5 mezcló mucho tiempo: la
+    <em>regla por área</em> que proponía el grafo de conceptos <strong>no batía
+    a su nulo</strong> (1,26 frente a 1,09) y está apagada por el decisor; lo
+    que ordena la cascada hoy es un clasificador sobre la <strong>forma del
+    objetivo</strong>, que es otra cosa y se mide aparte.</p>
   </section>
 
   <section id="idioma">
@@ -727,171 +733,198 @@ svg .sLine{stroke:var(--muted); fill:none}
   <section id="arquitectura">
     <div class="head"><span class="num">05</span><h2>La arquitectura: cinco <span class="v">capas</span> y una frontera</h2></div>
 
-    <p class="lede">El sistema y Lean hacen busquedas distintas, y durante mucho
-    tiempo compitieron sin saberlo. La diferencia no es de calidad: es de
-    <strong>tipo de entrada</strong>. Eso lo parte en dos mitades con duenos
-    distintos, y la frontera es el momento en que existe un enunciado formal.</p>
+    <p>El sistema y Lean hacen búsquedas distintas, y durante mucho tiempo
+    compitieron sin saberlo. La diferencia no es de calidad: es de
+    <strong>tipo de entrada</strong>. Eso parte el trabajo en dos mitades con
+    dueños distintos, y la frontera es el momento en que existe un enunciado
+    formal.</p>
 
-    <table>
-      <thead><tr><th></th><th>Indexa por</th><th>Necesita</th></tr></thead>
-      <tbody>
-        <tr><td>el grafo</td><td>palabras humanas, ES/EN</td><td>prosa</td></tr>
-        <tr><td>Lean <span class="mono">exact? apply? aesop</span></td>
-            <td>estructura del tipo, sobre ~200 000 declaraciones</td>
-            <td>un objetivo formal</td></tr>
-      </tbody>
-    </table>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>quién busca</th><th>indexa por</th><th>necesita</th></tr></thead>
+        <tbody>
+          <tr><td><strong>el grafo</strong></td><td>palabras humanas, ES/EN</td><td>prosa</td></tr>
+          <tr><td><strong>Lean</strong> <span class="sub">exact? · apply? · aesop</span></td>
+              <td>estructura del tipo, sobre ~200 000 declaraciones</td>
+              <td>un objetivo formal</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3>La evidencia del reparto</h3>
 
-    <p><strong>Antes de formalizar</strong>, con la consulta en prosa, buscar en
-    la estructura de resolucion completa <em>no supera al azar</em>; el grafo
-    curado la bate trece veces:</p>
+    <p><strong>Antes de formalizar</strong>, con la consulta todavía en prosa,
+    buscar sobre el índice completo <em>no supera al azar</em>; el vocabulario
+    curado lo bate trece veces:</p>
 
-    <table>
-      <tbody>
-        <tr><td>grafo curado (320 nodos)</td><td class="mono">21,6 % precision</td></tr>
-        <tr><td>indice completo de Mathlib (217 419 nombres)</td><td class="mono">1,53 %</td></tr>
-        <tr><td>modelo nulo</td><td class="mono">1,5 %</td></tr>
-      </tbody>
-    </table>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>antes de la frontera</th><th class="mono">precisión</th><th>veredicto</th></tr></thead>
+        <tbody>
+          <tr><td><strong>grafo curado</strong> <span class="sub">320 nodos</span></td><td class="mono">21,6 %</td><td><span class="pill v">14,9× · aporta</span></td></tr>
+          <tr><td>índice completo de Mathlib <span class="sub">217 419 nombres</span></td><td class="mono">1,53 %</td><td><span class="pill">empata con el azar</span></td></tr>
+          <tr><td><span class="pill n">modelo nulo</span></td><td class="mono">1,45 %</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <p><strong>Despues de formalizar</strong>, con un objetivo formal, la
-    busqueda del grafo pierde por dos ordenes de magnitud:</p>
+    <p><strong>Después de formalizar</strong>, con un objetivo formal delante,
+    la búsqueda del grafo pierde por dos órdenes de magnitud:</p>
 
-    <table>
-      <tbody>
-        <tr><td>recuperacion de lemas, metodo lexico</td><td class="mono">0,64 % cobertura</td></tr>
-        <tr><td>recuperacion de lemas, metodo semantico</td><td class="mono">0,37 %</td></tr>
-        <tr><td>modelo nulo (los lemas mas citados)</td><td class="mono">77,05 %</td></tr>
-      </tbody>
-    </table>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>después de la frontera</th><th class="mono">cobertura</th><th>veredicto</th></tr></thead>
+        <tbody>
+          <tr><td>recuperación de lemas, método léxico</td><td class="mono">0,64 %</td><td><span class="pill a">muy por debajo</span></td></tr>
+          <tr><td>recuperación de lemas, método semántico</td><td class="mono">0,37 %</td><td><span class="pill a">muy por debajo</span></td></tr>
+          <tr><td><span class="pill n">modelo nulo</span> los lemas más citados</td><td class="mono">77,05 %</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <p>El decisor habia descubierto esta frontera capacidad por capacidad, antes
-    de que nadie la nombrara: <strong>toda capacidad del grafo que actua antes de
-    formalizar gana, y toda la que actua despues pierde o empata</strong>.</p>
+    <div class="nota v">
+      <b>La frontera no se decidió: se descubrió midiendo</b>
+      <p>El decisor (<a href="#decisor">§12</a>) había separado estas
+      capacidades una a una, cada cual contra su propio nulo, antes de que nadie
+      nombrara la frontera. Al ponerlas en fila apareció la regla:
+      <strong>toda capacidad del grafo que actúa antes de formalizar gana, y
+      toda la que actúa después pierde o empata</strong>. No es una tesis previa
+      con datos buscados a posteriori; es lo que quedó cuando se apagó lo que no
+      batía a su nulo.</p>
+    </div>
 
     <h3>Las cinco capas</h3>
 
-    <div class="destacado">
-      <p class="mono" style="white-space:pre; font-size:13px; line-height:1.5">
-                     consulta (ES/EN)
-                           |
-  L0  LENGUA        keywords ES/EN -&gt; concepto      ANTES
-  L1  CONCEPTO      158 curados - vocabulario #check   DE
-  L2  TERRITORIO    147 generados - donde vive     FORMALIZAR
-                           |
-                  ENUNCIADO FORMAL      &lt;-- la frontera
-                           |
-  L3  EVIDENCIA     forma del objetivo -&gt; que cierra  DESPUES
-  L4  EMERGENCIA    colimites sobre teoremas reales
-      </p>
-    </div>
+<pre>                consulta (ES/EN)
+                       │
+  <b>L0  LENGUA</b>       palabras clave ES/EN → concepto      ANTES
+  <b>L1  CONCEPTO</b>     158 curados · vocabulario #check       DE
+  <b>L2  TERRITORIO</b>   147 generados · dónde vive        FORMALIZAR
+                       │
+             <b>ENUNCIADO FORMAL</b>   ←── la frontera
+                       │
+  <b>L3  EVIDENCIA</b>    forma del objetivo → qué cierra     DESPUÉS
+  <b>L4  EMERGENCIA</b>   colímites sobre teoremas aceptados</pre>
 
     <h4>L0 — Lengua</h4>
-    <p><strong>Por que.</strong> Es lo unico que Lean no puede hacer: leer una
-    frase. Un indice de 217 419 nombres formales no contiene la correspondencia
-    «grupo → <span class="mono">Group, Subgroup, MonoidHom</span>»; esa la
-    escribio una persona.
-    <strong>Que muestra.</strong> 58,7 % de acierto de area equilibrado contra
-    33,3 % de responder siempre la clase mayoritaria.</p>
+    <p><strong>Por qué.</strong> Es lo único que Lean no puede hacer: leer una
+    frase. Un índice de 217 419 nombres formales no contiene la correspondencia
+    «grupo → <code>Group, Subgroup, MonoidHom</code>»; ésa la escribió una
+    persona.<br>
+    <strong>Qué muestra.</strong> 58,7 % de acierto de área equilibrado, frente
+    al 33,3 % de responder siempre la clase mayoritaria.</p>
 
     <h4>L1 — Concepto</h4>
-    <p><strong>Por que.</strong> El modelo inventa <strong>21 de cada 28</strong>
-    identificadores cuando tira de memoria.
-    <strong>Que muestra.</strong> 180 de 186 nombres existen; los seis restantes
-    son espacios de nombres y estan filtrados antes del prompt, asi que la
-    etiqueta «verificado» es cierta para todo lo que se ofrece.
-    <strong>Lo que NO muestra:</strong> que eso haga verificar mas a Lean. Se
-    midio — rescata 3, rompe 2, <em>p</em> = 1,0. Es punteria, no resultado.</p>
+    <p><strong>Por qué.</strong> El modelo inventa <strong>21 de cada 28</strong>
+    identificadores cuando tira de memoria.<br>
+    <strong>Qué muestra.</strong> 180 de 186 nombres existen; los seis restantes
+    son espacios de nombres y están filtrados antes del prompt, así que la
+    etiqueta «verificado» es cierta para todo lo que se ofrece.<br>
+    <strong>Lo que NO muestra:</strong> que eso haga verificar más a Lean. Se
+    midió — rescata 3, rompe 2, <em>p</em> = 1,0. Es <em>puntería</em>, no
+    <em>resultado</em>.</p>
 
     <h4>L2 — Territorio</h4>
-    <p><strong>Por que.</strong> El curado nombra 158 conceptos; la taxonomia de
-    Mathlib tiene 1 139. Los generados dan alcance para reconocer temas.
-    <strong>Que muestra.</strong> Que su vocabulario no transfiere, por tres vias
-    medidas (sin criba 17,45 %, criba por uso 20,77 %, cuota separada 20,18 %,
-    frente a 21,64 % de base). El modulo de un objeto generado es un
-    <em>rincon</em> de su area, no su centro.</p>
+    <p><strong>Por qué.</strong> El curado nombra 158 conceptos; la taxonomía de
+    Mathlib tiene 1 139. Los generados dan alcance para reconocer temas.<br>
+    <strong>Qué muestra.</strong> Que su vocabulario <em>no transfiere</em>, por
+    tres vías medidas: sin criba 17,45 %, criba por uso 20,77 % y cuota separada
+    20,18 %, frente al 21,64 % de la base. El módulo de un objeto generado es un
+    <em>rincón</em> de su área, no su centro.</p>
 
     <h4>L3 — Evidencia</h4>
-    <p><strong>Por que.</strong> Tras la frontera la pregunta ya no es «de que
-    trata» sino «que cierra esto», y eso lo decide la forma del objetivo. Cada
-    intento fallido cuesta una compilacion de 12 a 30 segundos.
-    <strong>Que hace.</strong> Un clasificador ordena la cascada combinando
-    n-gramas —que ven los simbolos— con 74 rasgos estructurales, que ven la
-    forma. No son redundantes: 60,53 % y 61,14 % por separado, <strong>67,11 %
-    juntos</strong>.
-    <strong>Que muestra.</strong> Medido con el modelo de produccion contra el
+    <p><strong>Por qué.</strong> Pasada la frontera la pregunta ya no es «de qué
+    trata» sino «qué cierra esto», y eso lo decide la forma del objetivo. Cada
+    intento fallido cuesta una compilación de 12 a 30 segundos.<br>
+    <strong>Qué hace.</strong> Un clasificador ordena la cascada combinando
+    n-gramas —que ven los símbolos— con 74 rasgos estructurales, que ven la
+    forma. No son redundantes: 60,53 % y 61,14 % por separado,
+    <strong>67,11 % juntos</strong>, sobre un nulo de 23,77 % —responder
+    siempre <code>nlinarith</code>—.<br>
+    <strong>Qué muestra.</strong> Medido con el modelo de producción contra el
     orden fijo real, sobre 1 530 casos que no vio:</p>
 
-    <table>
-      <thead><tr><th>Orden</th><th>Posicion media</th><th>1er intento</th><th>En los 3</th></tr></thead>
-      <tbody>
-        <tr><td>fijo <span class="mono">SOLVER_CASCADE</span></td><td class="mono">5,79</td><td class="mono">0,0 %</td><td class="mono">36,0 %</td></tr>
-        <tr><td>NULO: por frecuencia</td><td class="mono">2,44</td><td class="mono">42,5 %</td><td class="mono">78,5 %</td></tr>
-        <tr><td><strong>rankeador</strong></td><td class="mono"><strong>1,57</strong></td><td class="mono"><strong>71,0 %</strong></td><td class="mono"><strong>93,5 %</strong></td></tr>
-      </tbody>
-    </table>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>orden</th><th class="mono">posición media</th><th class="mono">1er intento</th><th class="mono">en los 3</th></tr></thead>
+        <tbody>
+          <tr><td>fijo <code>SOLVER_CASCADE</code></td><td class="mono">5,79</td><td class="mono">0,0 %</td><td class="mono">36,0 %</td></tr>
+          <tr><td><span class="pill n">modelo nulo</span> por frecuencia</td><td class="mono">2,44</td><td class="mono">42,5 %</td><td class="mono">78,5 %</td></tr>
+          <tr><td><strong>el rankeador</strong></td><td class="mono"><strong>1,57</strong></td><td class="mono"><strong>71,0 %</strong></td><td class="mono"><strong>93,5 %</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <p><strong>3,7 veces menos invocaciones de Lean</strong> que el orden fijo, y
-    bate al nulo fuerte por 0,87 posiciones.</p>
+    bate al nulo fuerte por 0,87 posiciones. Es la pieza que más mejora la
+    búsqueda de todo el sistema.</p>
 
     <h4>L4 — Emergencia</h4>
-    <p><strong>Por que.</strong> El paisaje de CR_org, de donde salen los
-    patrones que se ligan en colimites, se alimentaba de lo que el emparejador
-    lexico <em>adivino</em>: el grafo llevaba la cuenta de sus propias conjeturas.
-    <strong>Que hace.</strong> Dos conceptos coocurren si un teorema que Lean
-    <em>acepto</em> habla de los dos — 40 025 teoremas de Mathlib, corregido por
-    frecuencia.
-    <strong>Que muestra.</strong> Los pares que emergen son relaciones genuinas,
-    medidas por el exceso sobre lo esperado:</p>
+    <p><strong>Por qué.</strong> El paisaje de CR_org, de donde salen los
+    patrones que se ligan en colímites, se alimentaba de lo que el emparejador
+    léxico <em>adivinaba</em>: el grafo llevaba la cuenta de sus propias
+    conjeturas.<br>
+    <strong>Qué hace.</strong> Dos conceptos coocurren si un teorema que Lean
+    <em>aceptó</em> habla de los dos — 40 025 teoremas de Mathlib, corregido por
+    frecuencia.<br>
+    <strong>Qué muestra.</strong> Que los pares que emergen son relaciones
+    genuinas, medidas por el exceso sobre lo esperado:</p>
 
-    <table>
-      <thead><tr><th>Exceso</th><th>Par</th></tr></thead>
-      <tbody>
-        <tr><td class="mono">+6,74</td><td>derived-category + homological-algebra</td></tr>
-        <tr><td class="mono">+6,23</td><td>measure-theory + random-variables</td></tr>
-        <tr><td class="mono">+5,03</td><td>hilbert-spaces + inner-product-spaces</td></tr>
-        <tr><td class="mono">+4,32</td><td>group-theory + subgroups-cosets</td></tr>
-        <tr><td class="mono">+3,13</td><td>compactness + separation-axioms</td></tr>
-      </tbody>
-    </table>
+    <div class="tabla">
+      <table>
+        <thead><tr><th class="mono">exceso</th><th>par de conceptos</th><th class="mono">juntas</th><th class="mono">esperadas</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">+6,74</td><td>derived-category + homological-algebra</td><td class="mono">6</td><td class="mono">0,1</td></tr>
+          <tr><td class="mono">+6,23</td><td>measure-theory + random-variables</td><td class="mono">9</td><td class="mono">0,1</td></tr>
+          <tr><td class="mono">+5,03</td><td>hilbert-spaces + inner-product-spaces</td><td class="mono">22</td><td class="mono">0,7</td></tr>
+          <tr><td class="mono">+4,95</td><td>ideals-quotient-rings + ring-theory</td><td class="mono">49</td><td class="mono">1,6</td></tr>
+          <tr><td class="mono">+4,61</td><td>commutative-algebra + ideals-quotient-rings</td><td class="mono">49</td><td class="mono">2,0</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <p>La correccion por frecuencia es lo que lo hace fiable: en crudo, el cuarto
-    par mas frecuente es <span class="mono">cic + linear-algebra</span> con 134
-    coocurrencias, y su exceso es <strong>+0,11</strong> — azar puro, porque
-    <span class="mono">cic</span> declara <span class="mono">Type</span> y eso
-    sale en todos los enunciados.</p>
+    <div class="nota">
+      <b>Por qué hace falta corregir por frecuencia</b>
+      <p>En crudo, el cuarto par más frecuente es <code>cic + linear-algebra</code>
+      con 134 coocurrencias, y su exceso es <strong>+0,11</strong>: azar puro,
+      porque <code>cic</code> declara <code>Type</code> y eso sale en todos los
+      enunciados. Contar coocurrencias sin corregir mide qué palabras son
+      comunes, no qué conceptos se relacionan.</p>
+    </div>
 
-    <h3>Que parte busca y que parte explica</h3>
+    <h3>Qué parte busca y qué parte explica</h3>
 
     <p>Las capas no hacen todas lo mismo, y confundirlo lleva a pedirle a una lo
-    que solo puede dar otra.</p>
+    que sólo puede dar otra.</p>
 
-    <table>
-      <thead><tr><th>Pieza</th><th>Busca</th><th>Explica</th><th>Evidencia</th></tr></thead>
-      <tbody>
-        <tr><td>L0 lengua</td><td>si</td><td>poco</td><td class="mono">58,7 % vs 33,3 %</td></tr>
-        <tr><td>L1 vocabulario</td><td>si, y no llega al final</td><td><strong>mucho</strong></td><td class="mono">21,6 % vs 1,5 %; p = 1,0 en verificacion</td></tr>
-        <tr><td>L2 territorio</td><td>reconoce temas</td><td>poco</td><td>no transfiere</td></tr>
-        <tr><td><strong>L3 rankeador</strong></td><td><strong>la mas efectiva</strong></td><td>poco</td><td class="mono">3,7x menos compilaciones</td></tr>
-        <tr><td>L4 coocurrencia</td><td>no</td><td><strong>mucho</strong></td><td class="mono">exceso hasta +6,74</td></tr>
-        <tr><td>reparacion</td><td><strong>si</strong></td><td>no</td><td class="mono">rescata 4, rompe 0</td></tr>
-        <tr><td>387 teoremas Lean</td><td>no</td><td><strong>el fundamento</strong></td><td class="mono">62 de 63 operaciones</td></tr>
-      </tbody>
-    </table>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>pieza</th><th>busca</th><th>explica</th><th>evidencia</th></tr></thead>
+        <tbody>
+          <tr><td><strong>L0</strong> lengua</td><td>sí</td><td>poco</td><td class="mono">58,7 % vs 33,3 %</td></tr>
+          <tr><td><strong>L1</strong> vocabulario</td><td>sí, y no llega al final</td><td><strong>mucho</strong></td><td class="mono">21,6 % vs 1,45 %<span class="sub">p = 1,0 en verificación</span></td></tr>
+          <tr><td><strong>L2</strong> territorio</td><td>reconoce temas</td><td>poco</td><td>no transfiere</td></tr>
+          <tr><td><strong>L3</strong> rankeador</td><td><strong>la más efectiva</strong></td><td>poco</td><td class="mono">3,7× menos compilaciones</td></tr>
+          <tr><td><strong>L4</strong> coocurrencia</td><td>no</td><td><strong>mucho</strong></td><td class="mono">exceso hasta +6,74</td></tr>
+          <tr><td>la reparación</td><td><strong>sí</strong></td><td>no</td><td class="mono">rescata 4, rompe 0</td></tr>
+          <tr><td>387 teoremas Lean</td><td>no</td><td><strong>el fundamento</strong></td><td class="mono">62 de 63 operaciones</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <p><strong>L3 es la pieza que mas mejora la busqueda</strong>, y no es el
-    grafo de conceptos: es el rankeador del estado de prueba.
-    <strong>L1 busca bien y no llega al resultado.</strong>
-    <strong>L4 no busca nada y es de lo mas valioso para explicar</strong>: no
-    entra en el prompt ni ordena tacticas; lo que aporta es poder decir «estos
-    dos conceptos aparecen juntos en 206 teoremas que Lean acepto, veinte veces
-    mas de lo esperado por azar».</p>
+    <p><strong>La pieza que más mejora la búsqueda no es el grafo de
+    conceptos</strong>: es L3, el rankeador del estado de prueba, que trabaja
+    del lado formal de la frontera. <strong>L1 busca bien y no llega al
+    resultado.</strong> Y <strong>L4 no busca nada y es de lo más valioso para
+    explicar</strong>: no entra en el prompt ni ordena tácticas; lo que aporta es
+    poder decirle a un alumno que <code>group-theory</code> y
+    <code>subgroups-cosets</code> aparecen juntos en <strong>206 teoremas que
+    Lean aceptó</strong>, veinte veces más de lo que cabría esperar por azar
+    (exceso +4,32).</p>
   </section>
 
   <section id="capas">
-    <div class="head"><span class="num">05</span><h2>Las dos <span class="g">capas</span> de conocimiento</h2></div>
+    <div class="head"><span class="num">06</span><h2>Las dos <span class="g">capas</span> de conocimiento</h2></div>
 
     <p>Hay dos almacenes con trabajos distintos, y se miden distinto. Uno dice
     <em>de qué habla</em> algo; el otro dice <em>qué es cierto</em>.</p>
@@ -964,11 +997,11 @@ svg .sLine{stroke:var(--muted); fill:none}
 
     <p><strong>El modelo acierta razonablemente los sustantivos e inventa los
     hechos.</strong> La lista existe para cubrir esa mitad, y el índice de
-    nombres (<a href="#lista">§8</a>) para desmentir la otra.</p>
+    nombres (<a href="#lista">§9</a>) para desmentir la otra.</p>
   </section>
 
   <section id="grafo">
-    <div class="head"><span class="num">06</span><h2>El <span class="g">grafo</span>: anatomía</h2></div>
+    <div class="head"><span class="num">07</span><h2>El <span class="g">grafo</span>: anatomía</h2></div>
 
     <p>Una categoría finita: 320 objetos y 1&nbsp;349 morfismos, con identidad
     en cada objeto y composición por transitividad. Cada nodo lleva un
@@ -2061,7 +2094,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
   </section>
 
   <section id="fibra">
-    <div class="head"><span class="num">07</span><h2>La base y las <span class="g">fibras</span></h2></div>
+    <div class="head"><span class="num">08</span><h2>La base y las <span class="g">fibras</span></h2></div>
 
     <p>El grafo tiene dos preguntas distintas sobre cada nodo, y separarlas es
     lo que le da estructura: <code>area</code> dice <em>de qué rama habla</em>
@@ -2165,7 +2198,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
     en una categoría arbitraria. La propiedad universal, la unicidad del
     mediador y el puente con <code>CategoryTheory.Limits.IsColimit</code> de
     Mathlib están demostrados, y el Python que los implementa está auditado
-    contra ellos (<a href="#formal">§12</a>).</p>
+    contra ellos (<a href="#formal">§13</a>).</p>
 
     <h3>Dos cosas distintas que Lean comprueba aquí</h3>
 
@@ -2207,7 +2240,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
   </section>
 
   <section id="lista">
-    <div class="head"><span class="num">08</span><h2>La <span class="v">lista</span> y los índices</h2></div>
+    <div class="head"><span class="num">09</span><h2>La <span class="v">lista</span> y los índices</h2></div>
 
     <p>Tres estructuras derivadas del fuente de Mathlib, con trabajos distintos:
     una dice qué es cierto, otra qué nombres existen, y la tercera qué
@@ -2277,7 +2310,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
   </section>
 
   <section id="lean">
-    <div class="head"><span class="num">09</span><h2><span class="v">Lean</span>: cuatro caminos, ocho veredictos</h2></div>
+    <div class="head"><span class="num">10</span><h2><span class="v">Lean</span>: cuatro caminos, ocho veredictos</h2></div>
 
     <p>Hay dos cosas que conviene no mezclar. Lo que Lean <em>dice</em> abre
     <strong>cuatro caminos</strong>, y tres de ellos siguen trabajando. El
@@ -2424,7 +2457,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
   </section>
 
   <section id="cascada">
-    <div class="head"><span class="num">10</span><h2>La <span class="g">cascada</span> de tácticas</h2></div>
+    <div class="head"><span class="num">11</span><h2>La <span class="g">cascada</span> de tácticas</h2></div>
 
     <p>Cuando Lean acepta la estructura pero queda un <code>sorry</code>, entran
     doce tácticas con su tiempo límite. El orden lo propone el grafo a partir de
@@ -2518,7 +2551,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   </section>
 
   <section id="decisor">
-    <div class="head"><span class="num">11</span><h2>El <span class="g">decisor</span></h2></div>
+    <div class="head"><span class="num">12</span><h2>El <span class="g">decisor</span></h2></div>
 
     <p>Una tabla de mediciones con filas que dicen «no bate al nulo» no sirve de
     nada si esas capacidades siguen ejecutándose. <code>nucleo/decisor.py</code>
@@ -2576,7 +2609,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
   <rect x="490" y="260" width="494" height="66" rx="9" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
   <text class="sTxt" x="508" y="282" font-size="12" font-weight="600">emparejador semántico por embeddings</text>
-  <text class="sMono" x="508" y="302" font-size="11" fill="var(--alerta)">13,1 % precisión · el léxico da 21,0 %</text>
+  <text class="sMono" x="508" y="302" font-size="11" fill="var(--alerta)">13,1 % precisión · el léxico da 21,6 %</text>
   <text class="sTxt sDim" x="508" y="319" font-size="10.5">nunca se adoptó, y además cuesta una llamada al modelo</text>
 
   <rect x="490" y="336" width="494" height="40" rx="9" fill="var(--surface-2)" stroke="var(--border)" stroke-width="1.2"/>
@@ -2602,7 +2635,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   </section>
 
   <section id="formal">
-    <div class="head"><span class="num">12</span><h2>El respaldo <span class="v">formal</span> en Lean</h2></div>
+    <div class="head"><span class="num">13</span><h2>El respaldo <span class="v">formal</span> en Lean</h2></div>
 
     <p>Las construcciones categóricas del núcleo no se implementan primero en
     Python y se justifican después: <strong>se demuestran en Lean, y el Python
@@ -2693,7 +2726,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   </section>
 
   <section id="metodo">
-    <div class="head"><span class="num">13</span><h2>El <span class="g">método</span> de medición</h2></div>
+    <div class="head"><span class="num">14</span><h2>El <span class="g">método</span> de medición</h2></div>
 
     <p>Todo lo que se afirma de este sistema se afirma con una medición detrás,
     y toda medición cumple cuatro condiciones. No son formalidades: cada una
@@ -2756,47 +2789,50 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   </section>
 
   <section id="medido">
-    <div class="head"><span class="num">14</span><h2>Lo que está <span class="v">medido</span></h2></div>
+    <div class="head"><span class="num">15</span><h2>Lo que está <span class="v">medido</span></h2></div>
 
-    <div class="destacado">
-      <h3>El resultado que ordena a los demás: ¿aporta el sistema?</h3>
+    <h3>El resultado que ordena a los demás: ¿aporta el sistema?</h3>
 
-      <p>Durante mucho tiempo la comparación fue «el sistema con el grafo»
-      contra «el sistema sin el grafo». Esa pareja contesta si aporta el
-      <em>grafo</em>, no si aporta el <em>sistema</em>: la rama sin grafo sigue
-      llevando reparación, premisas, cascada y ejemplos. Faltaba el suelo — el
-      mismo modelo, una llamada, sin nada.</p>
+    <p>Durante mucho tiempo la comparación fue «el sistema con el grafo» contra
+    «el sistema sin el grafo». Esa pareja contesta si aporta el <em>grafo</em>,
+    no si aporta el <em>sistema</em>: la rama sin grafo sigue llevando
+    reparación, premisas, cascada y ejemplos. Faltaba el suelo — el mismo
+    modelo, una llamada, sin nada.</p>
 
+    <div class="tabla">
       <table>
-        <thead><tr><th>Configuración</th><th>Verifica</th><th>Descripción</th></tr></thead>
+        <thead><tr><th>configuración</th><th class="mono">verifica</th><th>qué es</th></tr></thead>
         <tbody>
           <tr><td>modelo solo</td><td class="mono">4 de 20 · 20 %</td><td>una llamada, sin sistema</td></tr>
           <tr><td>sin reparación</td><td class="mono">6 de 15 · 40 %</td><td>el sistema menos el bucle de reparación</td></tr>
           <tr><td>sin vocabulario</td><td class="mono">11 de 20 · 55 %</td><td>el sistema menos el grafo</td></tr>
-          <tr><td><strong>sistema completo</strong></td><td class="mono"><strong>12 de 20 · 60 %</strong></td><td>configuración servida</td></tr>
+          <tr><td><strong>sistema completo</strong></td><td class="mono"><strong>12 de 20 · 60 %</strong></td><td>la configuración que se sirve</td></tr>
         </tbody>
       </table>
+    </div>
 
+    <div class="tabla">
       <table>
-        <thead><tr><th>Comparación pareada</th><th>Rescata</th><th>Rompe</th><th>p (McNemar exacto)</th></tr></thead>
+        <thead><tr><th>comparación pareada</th><th class="mono">rescata</th><th class="mono">rompe</th><th class="mono">p · McNemar exacto</th></tr></thead>
         <tbody>
-          <tr><td>sistema frente a modelo solo</td><td class="mono">8</td><td class="mono">0</td><td class="mono"><strong>0,0078</strong></td></tr>
-          <tr><td><strong>la reparación</strong> (completo frente a sin reparación)</td><td class="mono"><strong>4</strong></td><td class="mono"><strong>0</strong></td><td class="mono">0,1250</td></tr>
-          <tr><td>con frente a sin vocabulario</td><td class="mono">3</td><td class="mono">2</td><td class="mono">1,0000</td></tr>
+          <tr><td><strong>el sistema</strong> frente al modelo solo</td><td class="mono">8</td><td class="mono">0</td><td class="mono"><strong>0,0078</strong></td></tr>
+          <tr><td><strong>la reparación</strong> <span class="sub">completo frente a sin reparación</span></td><td class="mono">4</td><td class="mono">0</td><td class="mono">0,1250</td></tr>
+          <tr><td>el vocabulario <span class="sub">con frente a sin</span></td><td class="mono">3</td><td class="mono">2</td><td class="mono">1,0000</td></tr>
         </tbody>
       </table>
+    </div>
 
+    <div class="nota v">
+      <b>Las dos cosas son verdad a la vez</b>
       <p><strong>El aparato triplica al modelo aislado y es significativo. El
-      grafo, dentro de él, no se distingue del ruido.</strong> Las dos cosas son
-      verdad a la vez. El vocabulario cambió lo que el modelo escribió en 19 de
-      los 20 casos, pero no movió el veredicto en una dirección consistente.</p>
-
+      grafo, dentro de él, no se distingue del ruido.</strong> El vocabulario
+      cambió lo que el modelo escribió en 19 de los 20 casos, pero no movió el
+      veredicto en una dirección consistente.</p>
       <p>Y hay una tercera pieza medida contra el mismo suelo: la
       <strong>reparación</strong> —devolverle al modelo el error de Lean— rescata
       cuatro casos y no rompe ninguno. Con 15 pares no llega a significancia,
       pero es, junto al aparato entero, la única pieza que <em>nunca</em>
       estropea un caso; el vocabulario rescata tres y rompe dos.</p>
-
       <p>La afirmación sostenible es, por tanto: el grafo <em>ofrece los
       identificadores correctos</em> —catorce veces mejor que su nulo— y eso es
       <em>puntería</em>, no <em>resultado</em>. Que haga verificar más a Lean se
@@ -2809,7 +2845,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Gráfico comparativo de las catorce mediciones del sistema frente a sus modelos nulos, en escala logarítmica de razón. La línea vertical de una vez marca la frontera: a la derecha, el componente bate a su nulo; a la izquierda, no. Los que baten: la revisión de sintaxis de la consulta con 16,9 veces, el vocabulario de Mathlib en precisión con 13,1 veces, el mismo en cobertura con 4,5 veces, el reconocedor de área por la forma del enunciado con 3,2 veces, que está medido pero no cableado porque por el camino real no paga, las dependencias curadas del grafo contra el DAG de imports con 1,95 veces, la clasificación de área en exactitud equilibrada con 1,76 veces, los n-gramas junto con los rasgos del árbol prediciendo premisas con 1,43 veces, de las cuales los rasgos del árbol aportan cuatro coma un puntos sobre los n-gramas solos, el área de la primera skill con 1,23 veces y la selección de premisas sin los lemas marcados simp con 1,20 veces. En la frontera exacta, dos: la elección de módulos que importa Lean, que empata con un conjunto fijo, y la costura de cobertura del grafo contra el DAG, cuyo nulo emparejado también acierta el cien por cien y por tanto no distingue nada. Y los que no baten: el orden de tácticas de la cascada con 0,87, la poda por área antes de elegir premisas con 0,69 incluso suponiendo localización perfecta, y la fibración del grafo con 0,05, muy por debajo del azar." viewBox="0 0 1000 496" style="min-width:700px">
+<svg role="img" aria-label="Gráfico comparativo de las catorce mediciones del sistema frente a sus modelos nulos, en escala logarítmica de razón. La línea vertical de una vez marca la frontera: a la derecha, el componente bate a su nulo; a la izquierda, no. Los que baten: la revisión de sintaxis de la consulta con 16,9 veces, el vocabulario de Mathlib en precisión con 14,9 veces, el mismo en cobertura con 5,6 veces, el reconocedor de área por la forma del enunciado con 3,2 veces, que está medido pero no cableado porque por el camino real no paga, las dependencias curadas del grafo contra el DAG de imports con 1,95 veces, la clasificación de área en exactitud equilibrada con 1,76 veces, los n-gramas junto con los rasgos del árbol prediciendo premisas con 1,43 veces, de las cuales los rasgos del árbol aportan cuatro coma un puntos sobre los n-gramas solos, el área de la primera skill con 1,23 veces y la selección de premisas sin los lemas marcados simp con 1,20 veces. En la frontera exacta, dos: la elección de módulos que importa Lean, que empata con un conjunto fijo, y la costura de cobertura del grafo contra el DAG, cuyo nulo emparejado también acierta el cien por cien y por tanto no distingue nada. Y los que no baten: el orden de tácticas de la cascada con 0,87, la poda por área antes de elegir premisas con 0,69 incluso suponiendo localización perfecta, y la fibración del grafo con 0,05, muy por debajo del azar." viewBox="0 0 1000 496" style="min-width:700px">
   <text class="sMono sDim" x="16" y="16" font-size="10.5" letter-spacing="1.3">CUÁNTAS VECES BATE A SU MODELO NULO — ESCALA LOGARÍTMICA</text>
 
   <line x1="340" y1="34" x2="340" y2="430" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
@@ -2831,14 +2867,14 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <text class="sMono sDim" x="880" y="51" font-size="10">60,8 % vs 3,6 %</text>
 
   <text class="sTxt" x="16" y="76" font-size="11.5">Vocabulario de Mathlib · precisión</text>
-  <rect x="540" y="66" width="223" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
-  <text class="sMono" x="820" y="77" font-size="11" fill="var(--lean)">13,1×</text>
-  <text class="sMono sDim" x="880" y="77" font-size="10">21,0 % vs 1,6 %</text>
+  <rect x="540" y="66" width="235" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
+  <text class="sMono" x="820" y="77" font-size="11" fill="var(--lean)">14,9×</text>
+  <text class="sMono sDim" x="880" y="77" font-size="10">21,6 % vs 1,45 %</text>
 
   <text class="sTxt" x="16" y="102" font-size="11.5">Vocabulario de Mathlib · cobertura</text>
-  <rect x="540" y="92" width="131" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
-  <text class="sMono" x="820" y="103" font-size="11" fill="var(--lean)">4,5×</text>
-  <text class="sMono sDim" x="880" y="103" font-size="10">14,8 % vs 3,3 %</text>
+  <rect x="540" y="92" width="150" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
+  <text class="sMono" x="820" y="103" font-size="11" fill="var(--lean)">5,6×</text>
+  <text class="sMono sDim" x="880" y="103" font-size="10">18,3 % vs 3,3 %</text>
 
   <text class="sTxt" x="16" y="128" font-size="11.5">Reconocedor de área · no cableado</text>
   <rect x="540" y="118" width="101" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
@@ -2913,7 +2949,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <table>
         <thead><tr><th>qué se mide</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
-          <tr><td><strong>Vocabulario contra ProofNet</strong><span class="sub">371 ejercicios con formalización de oro · k=2, el valor de producción</span></td><td class="mono">21,6 % precisión<br>18,3 % cobertura</td><td class="mono">1,6 %<br>3,3 %</td><td><span class="pill v">13,1× · aporta</span></td></tr>
+          <tr><td><strong>Vocabulario contra ProofNet</strong><span class="sub">371 ejercicios con formalización de oro · k=2, el valor de producción</span></td><td class="mono">21,6 % precisión<br>18,3 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">14,9× · aporta</span></td></tr>
           <tr><td><strong>Dependencias <em>curadas</em> contra el DAG real</strong><span class="sub">73 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">57 confirmadas<br>78,1 %</td><td class="mono">40,1 %</td><td><span class="pill v">1,95× · aporta</span></td></tr>
           <tr><td><strong>Costura de <em>cobertura</em> contra el DAG</strong><span class="sub">9 aristas <code>skill→módulo</code> medibles</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
           <tr><td><strong>Revisión de sintaxis de la consulta</strong><span class="sub">23 243 enunciados de LeanWorkbook, todos correctos</span></td><td class="mono">3,6 % falsos pos.<br>60,8 % de caza</td><td class="mono">3,6 %<br>(moneda)</td><td><span class="pill v">+57,2 puntos</span></td></tr>
@@ -2964,7 +3000,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   </section>
 
   <section id="negativos">
-    <div class="head"><span class="num">15</span><h2>Los resultados <span class="a">negativos</span></h2></div>
+    <div class="head"><span class="num">16</span><h2>Los resultados <span class="a">negativos</span></h2></div>
 
     <p>Costaron el mismo trabajo que los positivos y valen igual. Están aquí
     para que nadie los repita, y porque un sistema que sólo publica lo que
@@ -3011,7 +3047,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     <div class="ficha">
       <header><h3>Buscar en los 217 419 nombres no bate al vocabulario curado</h3></header>
       <div class="paso"><div class="et">la idea</div><p>El índice de nombres se usa para comprobar y cualificar, nunca para buscar. ¿Y si se usara como buscador, con índice invertido e idf?</p></div>
-      <div class="paso"><div class="et">medido</div><p>Contra ProofNet, mismo K y mismo nulo: el índice completo da <strong>0,0 %</strong> de precisión y el de sólo sustantivos <strong>1,5 %</strong>, frente al <strong>21,6 %</strong> del vocabulario curado y al 1,6 % del nulo. El mejor índice <em>empata con el azar</em>.</p></div>
+      <div class="paso"><div class="et">medido</div><p>Contra ProofNet, mismo K y mismo nulo: el índice completo da <strong>0,0 %</strong> de precisión y el de sólo sustantivos <strong>1,5 %</strong>, frente al <strong>21,6 %</strong> del vocabulario curado y al 1,45 % del nulo. El mejor índice <em>empata con el azar</em>.</p></div>
       <div class="paso"><div class="et">la lección</div><p>Más candidatos no es más información. Las colisiones de palabra dominan: «Banach» lleva a los espacios de Banach, no al teorema del punto fijo.</p></div>
     </div>
 
@@ -3031,9 +3067,9 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   </section>
 
   <section id="tests">
-    <div class="head"><span class="num">16</span><h2>Tests y <span class="g">guardianes</span></h2></div>
+    <div class="head"><span class="num">17</span><h2>Tests y <span class="g">guardianes</span></h2></div>
 
-    <p><strong>1 069 tests en 52 suites</strong>, verdes en los dos intérpretes
+    <p><strong>1 071 tests en 52 suites</strong>, verdes en los dos intérpretes
     con los que se trabaja. Los que más valen no comprueban que el código
     funcione: comprueban que el sistema <strong>no pueda volver a afirmar más de
     lo que sabe</strong>.</p>
@@ -3067,7 +3103,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   </section>
 
   <section id="limites">
-    <div class="head"><span class="num">17</span><h2>Límites y trabajo <span class="a">abierto</span></h2></div>
+    <div class="head"><span class="num">18</span><h2>Límites y trabajo <span class="a">abierto</span></h2></div>
 
     <h3>Lo que el sistema no hace</h3>
     <ul>
@@ -3083,20 +3119,16 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
     <h3>Preguntas abiertas</h3>
     <ul>
-      <li><strong>Si el vocabulario del paso 1 se traduce en más
-      verificaciones.</strong> Es la pregunta que cierra el círculo y la única
-      que necesita presupuesto de modelo. Lo que hay: en 8 casos fáciles,
-      apagar el núcleo entero no cambia ningún veredicto y el sistema completo
-      tarda más — n=8 con efecto techo, no concluyente.</li>
       <li><strong>El banco de fidelidad completo</strong>, los 24 casos con
       juez ciego. Es la única medida de si la respuesta responde a la
-      pregunta.</li>
+      pregunta, y la única que sigue necesitando presupuesto de modelo.</li>
       <li><strong>Un banco en español con premisas de oro.</strong> Sin él,
       todo lo que se construye para el alumno hispanohablante se mide en inglés
       y por analogía.</li>
-      <li><strong>El estudio ablativo del agente neuronal.</strong> La GNN está
-      entrenada y enrutando, y no tiene todavía una medición que la separe de su
-      alternativa trivial.</li>
+      <li><strong>Subir el n de la campaña.</strong> Los tres contrastes
+      pareados corren sobre 20 casos (15 en la rama sin reparación). Con ese
+      tamaño, «rescata 4 y rompe 0» no llega a significancia aunque el efecto
+      sea real.</li>
     </ul>
 
     <h3>Identificado, con el camino claro</h3>
