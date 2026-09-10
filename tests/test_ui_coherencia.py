@@ -247,17 +247,30 @@ class TestCifrasDelGrafo:
         de un `<svg>`, donde cogia una COORDENADA como si fuera una cifra
         documentada: dijo «nodos generados dice 662» leyendo un `x="662"`. El
         guardian tambien es un instrumento y se rompe igual.
+
+        SE MIRAN LOS CUATRO ARTEFACTOS, NO UNO.
+
+        Esto leia el README y `arquitectura_nle.html` y nada mas, asi que los
+        otros tres publicaban cifras sin que nadie los vigilase. Encontrado:
+        `diagnostico.html` seguia diciendo «21,0 % y 14,8 % del lexico» y «1069
+        tests», y `anatomia_grafo.html` el mismo par viejo. Un guardian que
+        cubre la mitad de lo publicado deja la otra mitad envejeciendo con la
+        misma confianza de siempre.
         """
         import io
         import re
         from nucleo.rutas import RAIZ
-        art = io.open(RAIZ / "docs" / "arquitectura_nle.html",
-                      encoding="utf-8").read()
-        art = re.sub(r"<svg[\s\S]*?</svg>", " ", art)
-        return {
-            "README": io.open(RAIZ / "README.md", encoding="utf-8").read(),
-            "artefacto": art,
-        }
+
+        docs = {"README": io.open(RAIZ / "README.md", encoding="utf-8").read()}
+        for nombre, fichero in (("artefacto", "arquitectura_nle.html"),
+                                ("anatomia", "anatomia_grafo.html"),
+                                ("explorador", "explorador_grafo.html"),
+                                ("diagnostico", "diagnostico.html")):
+            p = RAIZ / "docs" / fichero
+            if p.exists():
+                docs[nombre] = re.sub(r"<svg[\s\S]*?</svg>", " ",
+                                      io.open(p, encoding="utf-8").read())
+        return docs
 
     def test_el_desglose_de_morfismos_cuadra_con_el_total(self):
         r = self._real()
@@ -360,16 +373,39 @@ class TestCifrasDelGrafo:
             + "; ".join(sorted(set(malas))))
 
     def test_las_cifras_documentadas_son_las_reales(self):
+        """Las cifras que la documentacion DECLARA, contra el grafo real.
+
+        SOLO CUENTAN LAS DECLARACIONES, NO LAS MENCIONES EN PROSA. El patron
+        de antes admitia hasta 40 caracteres cualesquiera entre la etiqueta y
+        el numero, y eso salta por encima de las palabras. En cuanto el
+        guardian empezo a mirar `anatomia_grafo.html` marco dos cifras falsas
+        leyendo esto:
+
+            «... sus dependencias, las traducciones entre pilares y las 434
+             aristas a tacticas ...»
+
+        El 434 es de las ARISTAS A TACTICAS, y lo acredito a `dependencias` y
+        a `traducciones` a la vez. Un guardian que da falsas alarmas se acaba
+        ignorando, que es la otra forma de no servir.
+
+        La firma que separa una declaracion de una mencion: en la declaracion
+        —una celda de tabla— entre la etiqueta y el numero NO HAY LETRAS; en la
+        prosa las hay. Se quitan las etiquetas HTML primero para que la celda
+        `<td>dependencias</td><td>583</td>` quede como «dependencias 583».
+        """
         import re
         r = self._real()
+        # ni letras ni digitos entre la etiqueta y la cifra
+        HUECO = r"[^0-9A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{0,12}"
         malas = []
         for nombre, doc in self._docs().items():
+            plano = self._sin_etiquetas(doc)
             for etq, val in (("nodos curados", r["curados"]),
                              ("nodos generados", r["generados"]),
                              ("dependencias", r["dependencias"]),
                              ("traducciones", r["traducciones"]),
                              ("identidades", r["identidades"])):
-                m = re.search(re.escape(etq) + r"[^0-9]{0,40}([0-9]{1,5})", doc)
+                m = re.search(re.escape(etq) + HUECO + r"([0-9]{1,5})", plano)
                 if m and int(m.group(1)) != val:
                     malas.append("%s · %s dice %s y son %d"
                                  % (nombre, etq, m.group(1), val))
