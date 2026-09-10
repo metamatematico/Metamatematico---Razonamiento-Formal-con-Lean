@@ -761,9 +761,13 @@ class Nucleo:
             id="zfc-axioms", name="ZFC Axioms",
             description="Axiomas de Zermelo-Fraenkel con Eleccion",
             pillar=PillarType.SET, level=0,
+            # `zorn` viene de descriptive-set-theory, que lo reclamaba junto
+            # con `conjunto` y `set` y contestaba `PolishSpace`. El lema de
+            # Zorn es equivalente al axioma de eleccion: su sitio es este.
             metadata={"keywords": [
                 "zfc", "zermelo", "fraenkel", "axioma de eleccion",
-                "axiom of choice", "teoria de conjuntos axiomatica"]},
+                "axiom of choice", "teoria de conjuntos axiomatica",
+                "zorn", "lema de zorn", "zorn's lemma"]},
         ))
         self._graph.add_skill(Skill(
             id="ordinals", name="Ordinals",
@@ -4007,11 +4011,12 @@ class Nucleo:
         #     lexico          precision 13,6 %  cobertura 13,6 %  ofrece 271
         #     lexico+puerta   precision 12,9 %  cobertura 13,6 %  ofrece 282
         #
-        # (medido cuando el lexico daba 13,6 %. Hoy da 17,1 % / 15,5 %,
-        #  asi que el margen para la puerta es AUN MENOR que entonces.)
+        # (medido cuando el lexico daba 13,6 %. Hoy da 21,6 % / 18,3 %, tras
+        #  reapuntar el vocabulario al nivel de generalidad que reclama cada
+        #  nodo, asi que el margen para la puerta es AUN MENOR que entonces.)
         #
-        # Ofrece nombres en 11 casos mas y NO SE USA NI UNO: la cobertura no se
-        # mueve y la precision baja 0,7 puntos. Es ruido.
+        # Ofrece nombres en 6 casos mas y NO SE USA NI UNO: la cobertura no se
+        # mueve —18,3 % las dos— y la precision baja 0,5 puntos. Es ruido.
         #
         # Por que no ayuda AQUI: en ProofNet el lexico solo calla en 31 de 371,
         # asi que el margen era del 4 % desde el principio. El reconocedor se
@@ -4219,7 +4224,7 @@ class Nucleo:
         #
         # Devolver `{}` aqui deja el prompt SIN un solo nombre de Mathlib, que
         # es la unica de las tres actuaciones del grafo que bate a su nulo
-        # —21,0 % de precision contra 1,6 %, 13 veces—. Si el import falla, el
+        # —21,6 % de precision contra 1,6 %, 13 veces—. Si el import falla, el
         # sistema sigue respondiendo y pierde eso en silencio: exactamente la
         # familia de fallo contra la que este repositorio tiene una suite.
         #

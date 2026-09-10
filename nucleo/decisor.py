@@ -420,7 +420,7 @@ CAPACIDADES: list[Capacidad] = [
             " fichero no guarda un nulo en forma comparable, asi que aqui"
             " cuenta como sin evidencia; y ademas cuesta una llamada. Contra"
             " ProofNet, que si tiene oro, el semantico da 13,1 % de precision"
-            " y 2,4 % de cobertura frente a 21,0 % y 14,8 % del lexico"),
+            " y 2,4 % de cobertura frente a 21,6 % y 18,3 % del lexico"),
     ),
     Capacidad(
         nombre="verificacion_con_lean",

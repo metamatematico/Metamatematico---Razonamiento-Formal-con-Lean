@@ -37,14 +37,37 @@ def nombres_del_grafo():
     El campo `lean` a veces trae varios separados por coma y a veces una
     expresion (`Scheme + CategoryTheory.Over`). Solo se comprueba lo que es un
     identificador cualificado; el resto se cuenta aparte, sin darlo por bueno.
+
+    SE COMPRUEBA `teoria`, NO SOLO `lean`, Y NO SOLO EN LOS VERTICES.
+
+    Este guardian nacio mirando `Etiqueta.lean` de los nodos C y S, que era
+    donde estaba todo el vocabulario. Ya no: `nombres_de_trabajo` devuelve
+    `teoria or lean`, o sea que lo que entra en el prompt es `teoria` cuando
+    la hay — y varias viven en nodos marcados T, F u O, que este bucle
+    saltaba enteros. `limits-continuity` (T) inyecta `Continuous,
+    ContinuousAt, Filter.Tendsto` y hasta ahora NADIE lo comprobaba.
+
+    Un nombre sin comprobar es exactamente el problema que el grafo viene a
+    resolver: el modelo inventa 21 de cada 28 y la respuesta del sistema es
+    «los mios estan pasados por `#check`». Si el guardian no los mira, esa
+    frase deja de ser cierta en el primer bump de Mathlib.
+
+    Se comprueba lo que SE OFRECE, que es el criterio correcto: la union de
+    `lean` y `teoria`, en todos los nodos, sea cual sea su marca.
     """
-    from nucleo.graph.interpretacion import VEREDICTO, VERTICES
+    from nucleo.graph.interpretacion import VEREDICTO
     ident = re.compile(r"^[A-Za-z_][A-Za-z0-9_.']*$")
     por_vertice, raros = {}, {}
     for k, e in VEREDICTO.items():
-        if e.marca not in VERTICES or not e.lean:
+        crudo = ", ".join(x for x in (e.lean, e.teoria) if x)
+        if not crudo:
             continue
-        piezas = [x.strip() for x in re.split(r"[,+]", e.lean) if x.strip()]
+        piezas, vistos = [], set()
+        for x in re.split(r"[,+]", crudo):
+            x = x.strip()
+            if x and x not in vistos:
+                vistos.add(x)
+                piezas.append(x)
         ok = [x for x in piezas if ident.match(x)]
         no = [x for x in piezas if not ident.match(x)]
         if ok:
