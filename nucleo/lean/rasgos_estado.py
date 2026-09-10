@@ -47,6 +47,8 @@ from __future__ import annotations
 import collections
 import re
 
+from sklearn.base import BaseEstimator, TransformerMixin
+
 #: La barra de deduccion. Encima las hipotesis, debajo el objetivo.
 BARRA = "⊢"
 
@@ -123,13 +125,25 @@ def rasgos_estado(estado: str) -> dict:
     return f
 
 
-class RasgosEstado:
+class RasgosEstado(BaseEstimator, TransformerMixin):
     """Transformador de scikit-learn: lista de estados -> lista de dicts.
 
     Se combina con `DictVectorizer` en el `Pipeline`. Es una clase y no una
     funcion con `FunctionTransformer` a proposito: `FunctionTransformer`
     serializa la referencia a la funcion y da los mismos problemas de carga
     que se explican en la cabecera del modulo.
+
+    HEREDA DE `BaseEstimator`, Y NO ES COSMETICO. Sin ese padre, scikit-learn
+    avisa en cada uso:
+
+        DeprecationWarning: 'RasgosEstado' object has no attribute
+        '__sklearn_tags__' ... This warning will be replaced by an error
+        in 1.8.
+
+    O sea que el rankeador —la pieza que ahorra 3,7 veces las invocaciones de
+    Lean— dejaria de cargar en la siguiente version mayor de la biblioteca. Un
+    aviso de deprecacion con fecha es una averia programada, no ruido.
+    `TransformerMixin` aporta ademas `fit_transform` gratis.
     """
 
     def fit(self, X, y=None):                                  # noqa: N803
@@ -137,9 +151,3 @@ class RasgosEstado:
 
     def transform(self, X):                                    # noqa: N803
         return [rasgos_estado(x) for x in X]
-
-    def get_params(self, deep=True):
-        return {}
-
-    def set_params(self, **kwargs):
-        return self

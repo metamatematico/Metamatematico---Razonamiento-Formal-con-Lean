@@ -433,7 +433,6 @@ class Nucleo:
         self._lean_examples: dict = {}
 
         # Neural agent for live PPO learning (optional)
-        self._neural_agent = None
         self._live_learning_steps = 0
 
         # Multi-agent orchestrator (14 specialized agents, one per category)
@@ -629,39 +628,17 @@ class Nucleo:
         except Exception as e:
             logger.warning(f"set_concept_gaps fallo: {e}", exc_info=True)
 
-        # ── Neural agent con PPO (use_neural=True) ─────────────────────────
-        from nucleo.rl.agent import NucleoAgent, AgentConfig
-        from nucleo.rl.mdp import ExperienceBuffer
-
-        neural_agent = NucleoAgent(
-            self._graph,
-            config=AgentConfig(),
-            use_neural=True,
-        )
-
-        # Cargar pesos entrenados si existen
-        weights_json = self.config.data_dir / "neural_agent.json"
-        if weights_json.exists():
-            try:
-                neural_agent = NucleoAgent.load(str(weights_json), self._graph)
-                logger.info("Pesos del neural agent cargados desde disco")
-            except Exception as e:
-                logger.warning(f"No se pudieron cargar pesos: {e}")
-
-        # Cargar buffer de experiencias si existe
-        buffer_path = self.config.data_dir / "experience_buffer.pkl"
-        if buffer_path.exists():
-            try:
-                neural_agent.buffer = ExperienceBuffer.load(buffer_path)
-                logger.info(
-                    f"Buffer cargado: {len(neural_agent.buffer)} transiciones"
-                )
-            except Exception as e:
-                logger.warning(f"No se pudo cargar buffer: {e}")
-
-        # Conectar: live PPO + CR_tac usa GNN para clasificar queries
-        self.set_neural_agent(neural_agent)
-        self._cr_network.set_neural_agent(neural_agent)
+        # LA RED NEURONAL SE RETIRO. Ver `ARQUITECTURA.md`.
+        #
+        # El GNN+PPO se entreno hasta el «100 % de precision» sobre el objetivo
+        # «todo problema matematico -> ASSIST», que SE SATISFACE CON UNA
+        # CONSTANTE, y eso fue lo que aprendio: daba la misma accion a un
+        # teorema, a un saludo, a una pregunta de geografia y a codigo Lean.
+        # El runtime la detectaba degenerada y la ignoraba en cada arranque.
+        #
+        # Lo que ordena la cascada hoy es `TacticRanker` (n-gramas + 74 rasgos
+        # estructurales del estado de prueba), medido en 5,79 -> 1,57
+        # invocaciones de Lean. Eso es L3 y esta en `nucleo/lean/`.
 
         # ── Sistema multi-agente (14 especialistas por categoria) ──────────
         # Antes se construia pero nunca se activaba (set_multi_agent_orchestrator
@@ -3695,48 +3672,6 @@ class Nucleo:
                 query_text=input_text,
             )
 
-        # Live PPO update: feed real interaction to neural agent
-        if self._neural_agent is not None:
-            try:
-                from nucleo.rl.mdp import Transition
-                state = State(lean_goal=input_text)
-                action = Action(action_type=decision.action_type)
-                transition = Transition(
-                    state=state,
-                    action=action,
-                    reward=success,
-                    next_state=State(),
-                )
-                self._neural_agent.update([transition])
-                self._live_learning_steps += 1
-
-                # Persistir a disco solo si se activa explicitamente
-                # (config.live_learning_autosave). Por defecto el aprendizaje
-                # online queda solo en memoria de la sesion, para no
-                # sobreescribir el checkpoint validado con drift acumulado.
-                if (
-                    self.config.live_learning_autosave
-                    and self._live_learning_steps % 10 == 0
-                ):
-                    self._save_neural_weights()
-            except Exception as e:
-                logger.warning(f"Live PPO update failed: {e}")
-
-        # Persistir memoria periodicamente (cada 20 interacciones)
-        if len(self._state.history) % 20 == 0:
-            self._save_memory()
-
-    def _save_neural_weights(self) -> None:
-        """Save neural agent weights to disk."""
-        if self._neural_agent is None or not self._neural_agent.has_network:
-            return
-        try:
-            weights_path = str(self.config.data_dir / "neural_agent.json")
-            self._neural_agent.save(weights_path)
-            logger.info(f"Neural weights saved ({self._live_learning_steps} steps)")
-        except Exception as e:
-            logger.warning(f"Failed to save neural weights: {e}")
-
     def report_lean_result(
         self,
         query: str,
@@ -3820,40 +3755,6 @@ class Nucleo:
         except Exception as e:
             logger.warning(f"Error al enrutar query: {e}")
             return None, None
-
-    def set_neural_agent(self, agent) -> None:
-        """
-        Set neural agent for live PPO learning.
-
-        When set, each interaction feeds a PPO update so the agent
-        learns from real chat rewards. Also wires the GNNTacticRanker
-        into the SolverCascade so tactic ordering uses learned embeddings
-        (CoRegulatorNetwork.lean §VI.5, cascade_gnn_iff_exists).
-        """
-        self._neural_agent = agent
-        if (
-            agent is not None
-            and getattr(agent, "has_network", False)
-            and self._solver_cascade is not None
-            and self._graph is not None
-        ):
-            try:
-                from nucleo.lean.solver_cascade import GNNTacticRanker
-                ranker = GNNTacticRanker(agent.network, self._graph)
-                self._solver_cascade.set_gnn_ranker(ranker)
-                logger.info("GNNTacticRanker wired into SolverCascade")
-                # Rankeador entrenado sobre LeanWorkbook: tiene prioridad.
-                from nucleo.lean.solver_cascade import TacticRanker
-                _tr = TacticRanker()
-                if _tr.disponible:
-                    self._solver_cascade.set_tactic_ranker(_tr)
-                    logger.info("TacticRanker entrenado conectado (top-3 88.1%)")
-            except Exception as _exc:
-                logger.warning("GNNTacticRanker setup failed: %s", _exc)
-
-    # ------------------------------------------------------------------
-    # Consultores Avanzados
-    # ------------------------------------------------------------------
 
     def set_consultores_mode(self, n_candidates: int = 3) -> None:
         """
@@ -3979,22 +3880,6 @@ class Nucleo:
             logger.info(
                 f"Feedback aplicado al registro {self._last_experience_id}: {score:+.1f}"
             )
-
-        # PPO update con recompensa real
-        if self._neural_agent is not None and self._last_action_type is not None:
-            try:
-                from nucleo.rl.mdp import Transition
-                from nucleo.types import State, Action
-                t = Transition(
-                    state=State(),
-                    action=Action(action_type=self._last_action_type),
-                    reward=score,
-                    next_state=State(),
-                )
-                self._neural_agent.update([t])
-                logger.info("PPO update con feedback del usuario")
-            except Exception as e:
-                logger.warning(f"Feedback PPO update falló: {e}")
 
     def evaluate_answer(
         self,
@@ -4875,14 +4760,6 @@ class Nucleo:
                 self._memory.save(memory_path)
             except OSError as e:
                 logger.warning(f"No se pudo guardar memoria: {e}")
-
-        # Guardar buffer del neural agent para retomar entrenamiento
-        if self._neural_agent is not None:
-            buf_path = self.config.data_dir / "experience_buffer.pkl"
-            try:
-                self._neural_agent.buffer.save(buf_path)
-            except Exception as e:
-                logger.warning(f"No se pudo guardar buffer: {e}")
 
     # =========================================================================
     # CALLBACKS

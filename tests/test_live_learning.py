@@ -271,20 +271,14 @@ class TestAgentMemoryIntegration:
         ]
 
 
-class TestLivePPOUpdate:
-    """Tests para live PPO update en core.py."""
+# La clase `TestLivePPOUpdate` se retiro con su sujeto.
+#
+# Comprobaba `Nucleo.set_neural_agent` y el contador de pasos del bucle de
+# PPO en vivo. Ese bucle alimentaba una red que daba la MISMA accion a un
+# teorema, a un saludo, a una pregunta de geografia y a codigo Lean —el
+# objetivo de entrenamiento era «todo problema matematico -> ASSIST», que se
+# satisface con una constante— y el runtime la descartaba en cada arranque.
+#
+# Quien ordena la cascada hoy es `TacticRanker`, medido en 5,79 -> 1,57
+# invocaciones de Lean. Sus tests estan en `tests/test_tactic_ranker.py`.
 
-    def test_nucleo_accepts_neural_agent(self):
-        from nucleo.core import Nucleo
-
-        nucleo = Nucleo()
-        assert nucleo._neural_agent is None
-        assert nucleo._live_learning_steps == 0
-
-    def test_set_neural_agent(self):
-        from nucleo.core import Nucleo
-
-        nucleo = Nucleo()
-        # Use a mock agent
-        nucleo.set_neural_agent("mock_agent")
-        assert nucleo._neural_agent == "mock_agent"
