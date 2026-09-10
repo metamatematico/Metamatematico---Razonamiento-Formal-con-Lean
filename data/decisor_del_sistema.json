@@ -17,7 +17,8 @@
     "orden_de_cascada_por_area",
     "dos_etapas_localizar_y_elegir",
     "recuperacion_lexica_de_lemas",
-    "emparejador_semantico"
+    "emparejador_semantico",
+    "enrutado_neuronal"
   ],
   "motivos": {
     "revision_de_sintaxis": "caza de roturas (%) 0.608 contra 0.036 (una moneda que rechaza a la misma tasa)",
@@ -34,6 +35,7 @@
     "dos_etapas_localizar_y_elegir": "NO bate a su nulo: precisión de premisas 0.419 contra 0.930 (las premisas más frecuentes, sin localizar nada)",
     "recuperacion_lexica_de_lemas": "NO bate a su nulo: precisión de lemas 0.065 contra 7.780 (los lemas más frecuentes)",
     "emparejador_semantico": "evaluado y descartado, nunca se adopto: en emparejador_semantico.json acierta el area en el 12 % (285 de 2385) contra el 61 % del emparejador lexico (emparejamiento.json). Las dos cifras son CRUDAS sobre un banco 89 % algebra, donde responder siempre «algebra» acierta el 88,6 %: ninguna de las dos bate a esa constante, asi que la comparacion vale para ordenarlas entre si y para nada mas. El fichero no guarda un nulo en forma comparable, asi que aqui cuenta como sin evidencia; y ademas cuesta una llamada. Contra ProofNet, que si tiene oro, el semantico da 13,1 % de precision y 2,4 % de cobertura frente a 21,6 % y 18,3 % del lexico",
+    "enrutado_neuronal": "NO bate a su nulo: acciones distintas ante una sonda heterogenea 1.000 contra 1.000 (la politica constante, que da exactamente una)",
     "verificacion_con_lean": "es el proposito del sistema, no un extra"
   },
   "veredictos": {
@@ -121,6 +123,12 @@
       "gana": null,
       "motivo": "sin evidencia con modelo nulo"
     },
+    "enrutado_neuronal": {
+      "real": 1.0,
+      "nulo": 1.0,
+      "gana": false,
+      "motivo": "acciones distintas ante una sonda heterogenea 1.000 contra 1.000 (la politica constante, que da exactamente una)"
+    },
     "verificacion_con_lean": {
       "real": null,
       "nulo": null,
@@ -136,6 +144,6 @@
   "coste_nulo": {
     "llamada al modelo": 2,
     "compilado de Lean": 2,
-    "local": 11
+    "local": 12
   }
 }
