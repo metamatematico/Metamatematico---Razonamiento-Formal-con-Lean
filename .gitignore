@@ -87,3 +87,10 @@ data/*.bak
 data/*.bak.json
 # Scratch de mediciones exploratorias (prefijo _).
 data/_*.json
+
+# Trazas de las campanas de medicion. No son resultados: son la salida por
+# consola que queda al correr los bancos. Se ignoran porque un `git add -A`
+# las barreria al repositorio, que es publico, y ya paso una vez con una rama
+# reconstruida: se colaron logs y un respaldo de 880 KB. (Los respaldos ya
+# estaban cubiertos arriba por `data/*.bak.json`.)
+*.log
