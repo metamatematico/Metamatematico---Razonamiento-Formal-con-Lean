@@ -617,6 +617,26 @@ SUBBRANCH_SKILLS = [
         ["algebra lineal", "lineal", "vectorial", "vector", "vectores",
          "matriz", "matrices", "determinante", "determinantes", "rango",
          "linear", "matrix", "determinant"], level=1),
+    # BASE, DIMENSION E INDEPENDENCIA FALTABAN POR COMPLETO, y son lo mas
+    # central que se pregunta de algebra lineal. Se vio en produccion: ante
+    # «todo espacio vectorial tiene una base» el unico nodo que casaba era
+    # `linear-algebra`, cuyo vocabulario es `Module, LinearMap, Matrix` — los
+    # tres correctos y ninguno sobre bases. El modelo tuvo que sacar
+    # `Module.Basis.exists_basis` de su memoria.
+    #
+    # OJO CON EL NOMBRE: `Basis` a secas NO es esto. En el indice resuelve a
+    # `Mathlib.Algebra.QuaternionBasis`, que es otra cosa. El nombre bueno
+    # desde que Mathlib lo movio de espacio de nombres es `Module.Basis`.
+    _sb("bases-and-dimension", "Bases and Dimension",
+        "Bases, linear independence, spanning sets, dimension and finrank",
+        ["linear-algebra"], "algebra",
+        ["base", "bases", "base de hamel", "hamel",
+         "dimension", "dimensiones", "finitamente generado",
+         "independencia lineal", "linealmente independiente",
+         "linealmente independientes", "dependencia lineal",
+         "generadores", "sistema generador", "genera", "generado",
+         "span", "basis", "linear independence", "linearly independent",
+         "spanning set", "dimension theorem", "finite dimensional"]),
     _sb("eigen-theory", "Eigenvalues and Eigenvectors",
         "Eigenvalues, eigenvectors, diagonalization, characteristic polynomial",
         ["linear-algebra"], "algebra",

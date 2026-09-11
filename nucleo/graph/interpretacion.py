@@ -544,6 +544,22 @@ VEREDICTO: dict[str, Etiqueta] = {
         "GCDMonoid, Associates"),
     "duality-theory": _e(F, "", "una equivalencia contravariante C = D^op",
                          "Module.Dual, Opposite"),
+    # Los tres nombres estan comprobados contra el indice de Mathlib, y el
+    # orden importa: `_contexto_del_grafo` se queda con los TRES PRIMEROS.
+    # `Module.Basis` va delante porque es el sustantivo que el modelo necesita
+    # para enunciar; el teorema de existencia —`Module.Basis.exists_basis`, en
+    # `Mathlib.LinearAlgebra.Basis.VectorSpace`— NO se ofrece aqui a
+    # proposito: de los 173 identificadores que el grafo inyecta, ninguno es
+    # un teorema, y esa frontera se sostiene por medicion (el grafo aporta los
+    # sustantivos; los hechos los cubre el indice plano). Va en la nota.
+    "bases-and-dimension": _e(
+        C, "un espacio vectorial con una base elegida",
+        "aplicaciones lineales que respetan la base",
+        "Module.Basis, LinearIndependent, Module.finrank",
+        nota="la existencia de base para todo espacio vectorial es "
+             "Module.Basis.exists_basis, por Zorn, en "
+             "Mathlib.LinearAlgebra.Basis.VectorSpace; `Basis` a secas es "
+             "otra cosa (QuaternionAlgebra.Basis)"),
     "eigen-theory": _e(C, "un par (V, T) = un modulo sobre k[X]", "entrelazadores",
                        "Module.End, Module.End.HasEigenvalue"),
     "euclidean-geometry": _e(C, "un espacio afin euclideo", "isometrias afines",
@@ -1082,7 +1098,7 @@ DEGRADADAS_A_FLECHA: frozenset[str] = frozenset({
 })
 
 #: Cuantas etiquetas publico el autor.
-LAS_DEL_AUTOR = 172
+LAS_DEL_AUTOR = 173
 
 
 APICE_FALTANTE: dict[str, dict] = {

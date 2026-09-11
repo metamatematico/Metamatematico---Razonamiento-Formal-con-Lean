@@ -29,7 +29,7 @@ momento en que existe un enunciado formal**.
 Antes de formalizar, con la consulta en prosa:
 
 ```
-grafo curado (320 nodos)                       21.0 %  precisión
+grafo curado (321 nodos)                       21.0 %  precisión
 índice completo de Mathlib (217 419 nombres)    1.53 %
 modelo nulo                                     1.63 %
 ```
@@ -105,7 +105,7 @@ responder siempre la clase mayoritaria.
 cuando tira de memoria. Sustituir recuerdo por consulta es la única aportación
 del grafo que bate a su nulo por un factor grande.
 
-**Qué hace.** 158 conceptos curados a mano; 113 llevan nombres de Mathlib
+**Qué hace.** 159 conceptos curados a mano; 113 llevan nombres de Mathlib
 comprobados uno a uno con `#check` contra la biblioteca completa. De las
 competencias emparejadas se toman las dos primeras **que aporten nombres**, y
 esos nombres entran en el prompt de formalización.

@@ -129,19 +129,19 @@ class TestCobertura:
 
     def test_el_recuento_cuadra_con_el_documento(self):
         """Las cifras del veredicto, tal como las publico el autor: sobre sus
-        172, sin contar los dos vertices que el grafo obligo a añadir."""
+        173, sin contar los dos vertices que el grafo obligo a añadir."""
         del_autor = {k: v for k, v in VEREDICTO.items()
                      if k not in VERTICES_ANADIDOS}
         assert len(del_autor) == LAS_DEL_AUTOR
         cuenta: dict = {}
         for v in del_autor.values():
             cuenta[v.marca] = cuenta.get(v.marca, 0) + 1
-        assert cuenta == {C: 73, S: 14, F: 28, O: 4, T: 53}
+        assert cuenta == {C: 74, S: 14, F: 28, O: 4, T: 53}
 
-    def test_87_vertices_28_aristas(self):
+    def test_88_vertices_28_aristas(self):
         """87 son los del autor; los dos añadidos van aparte."""
-        assert len(set(vertices()) - VERTICES_ANADIDOS) == 87
-        assert len(vertices()) == 90
+        assert len(set(vertices()) - VERTICES_ANADIDOS) == 88
+        assert len(vertices()) == 91
         assert len(aristas()) == 28
 
 
@@ -408,8 +408,8 @@ class TestFusiones:
         vertices en el propio veredicto: proof-theory y recursion-theory son T,
         nat-trans y limits son F. Nunca estuvieron en los 87.
         """
-        assert len(set(vertices()) - VERTICES_ANADIDOS) == 87
-        assert len(set(vertices_tras_fusionar()) - VERTICES_ANADIDOS) == 81
+        assert len(set(vertices()) - VERTICES_ANADIDOS) == 88
+        assert len(set(vertices_tras_fusionar()) - VERTICES_ANADIDOS) == 82
         no_eran = [k for k in list(FUSIONES) + list(DEGRADADAS)
                    if marca(k) not in VERTICES]
         assert set(no_eran) == {"proof-theory", "recursion-theory",

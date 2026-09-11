@@ -211,7 +211,7 @@ class TestLasClasesDeAristaNoSeMezclan:
     def test_la_composicion_por_clase_no_ha_cambiado(self, deps):
         import collections
         c = collections.Counter(self._clase(m) for m in deps)
-        assert dict(c) == {"curada": 237, "jerarquia": 221, "cobertura": 125}, (
+        assert dict(c) == {"curada": 238, "jerarquia": 221, "cobertura": 125}, (
             "la composicion por clase cambio a %s. Vuelve a correr "
             "scripts/funtor_dag_mathlib.py: las cifras por clase del README "
             "y de los tres artefactos pueden haber dejado de valer." % dict(c))

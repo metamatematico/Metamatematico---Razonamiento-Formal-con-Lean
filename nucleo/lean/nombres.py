@@ -465,6 +465,58 @@ def reparar_codigo(codigo: str) -> tuple:
         mod = modulo_de(bueno)
         if mod and ("import " + mod) not in nuevo and mod not in faltan:
             faltan.append(mod)
+
+    # ── regla 4 · traer tambien el modulo de lo que YA ESTABA BIEN ──────
+    #
+    # LA REGLA 3 SOLO MIRABA `cambios`, o sea los nombres que hubo que
+    # REPARAR. Un nombre que el modelo escribio CORRECTAMENTE no entra ahi, y
+    # por tanto su modulo no se importaba nunca. Ese medio arreglo dejaba
+    # pasar justo el fallo que la regla 3 dice perseguir:
+    #
+    #     import Mathlib.Tactic.Ring        (y otros seis)
+    #     obtain ... := Module.Basis.exists_basis K V
+    #
+    # El nombre es correcto, el indice sabe que vive en
+    # `Mathlib.LinearAlgebra.Basis.VectorSpace`, y esa cabecera alcanzaba 773
+    # de los 7 747 modulos de Mathlib — ninguno de ellos ese. Lean fallaba
+    # sobre un lema real.
+    #
+    # DOS CAUTELAS, y las dos importan:
+    #
+    #   a) Solo se completa un FICHERO, nunca un fragmento. Si no hay ni una
+    #      linea de `import`, esto no es un archivo que vaya a compilarse sino
+    #      un ejemplo suelto, y anadirle una cabecera seria inventarle un
+    #      fichero. Las 241 pruebas de referencia de `lean_examples.json` son
+    #      exactamente eso, y el guardian exige que no se toquen.
+    #
+    #   b) No se anade lo que la cabecera YA alcanza por transitividad. Cada
+    #      import cuesta elaboracion y la mayoria sobran: `Mathlib.Tactic`
+    #      arrastra 2 972 modulos el solo. Quien lo sabe es `alcance`, que lee
+    #      el DAG oficial de imports. Sin ese DAG no se anade nada: adivinar
+    #      es peor que no hacer nada.
+    cabecera = [l.split(None, 1)[1].strip()
+                for l in nuevo.splitlines()
+                if l.strip().startswith("import ") and len(l.split()) > 1]
+    if cabecera:
+        try:
+            from nucleo.lean import alcance as _alc
+            quiere = []
+            zonas_ok = _zonas_intocables(nuevo)
+            for m in _IDENT_CODIGO.finditer(nuevo):
+                ident = m.group(1)
+                if ("." not in ident or _dentro(m.start(), zonas_ok)
+                        or ident.split(".")[0] in _PALABRAS_LEAN):
+                    continue
+                if ident in _NOMBRES:
+                    mod = modulo_de(ident)
+                    if mod and mod not in quiere:
+                        quiere.append(mod)
+            for m in _alc.faltan_para(cabecera + faltan, quiere):
+                if m not in faltan:
+                    faltan.append(m)
+        except Exception:                                      # noqa: BLE001
+            pass
+
     if faltan:
         lineas = nuevo.splitlines()
         # detras del ultimo import que ya haya, o al principio si no hay ninguno

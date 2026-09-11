@@ -257,3 +257,79 @@ def test_core_repara_antes_de_compilar():
     i_rep = fuente.index("_nom_lean.reparar_codigo(lean_code)")
     i_check = fuente.index("result = await self._lean.check_code(lean_code)")
     assert i_rep < i_check, "se repara despues de compilar: no ahorra nada"
+
+
+class TestCompletarLaCabecera:
+    """Regla 4: traer el modulo de los nombres que YA ESTABAN BIEN.
+
+    La regla 3 solo miraba los nombres REPARADOS, asi que un nombre correcto
+    bajo una cabecera estrecha seguia dando «unknown constant». Es el fallo
+    que se vio en produccion con `Module.Basis.exists_basis`.
+    """
+
+    CABECERA_ESTRECHA = (
+        "import Mathlib.Tactic.Ring\n"
+        "import Mathlib.Tactic.Linarith\n"
+        "import Mathlib.Data.Real.Basic\n"
+    )
+
+    def test_trae_el_modulo_de_un_nombre_correcto(self):
+        from nucleo.lean.nombres import reparar_codigo, existe
+        if not existe("Module.Basis.exists_basis"):
+            pytest.skip("el indice de nombres no esta construido")
+        codigo = (self.CABECERA_ESTRECHA
+                  + "theorem t (K V : Type*) : True := by\n"
+                    "  have := Module.Basis.exists_basis K V\n"
+                    "  trivial\n")
+        nuevo, cambios = reparar_codigo(codigo)
+        assert "import Mathlib.LinearAlgebra.Basis.VectorSpace" in nuevo, (
+            "el nombre es correcto y su modulo no se importo: es exactamente "
+            "el fallo que esta regla existe para impedir. cambios=%r" % cambios)
+
+    def test_no_anade_lo_que_la_cabecera_YA_alcanza(self):
+        """Cada import cuesta elaboracion; los transitivos sobran."""
+        from nucleo.lean.nombres import reparar_codigo
+        from nucleo.lean import alcance
+        if not alcance.disponible():
+            pytest.skip("falta data/mathlib_imports.dot")
+        codigo = (self.CABECERA_ESTRECHA
+                  + "theorem t (x : Real) : x = x := rfl\n")
+        _nuevo, cambios = reparar_codigo(codigo)
+        añadidos = [m for c, m in cambios if c == "(import)"]
+        assert not añadidos, (
+            "anadio imports que la cabecera ya alcanzaba: %r" % añadidos)
+
+    def test_no_le_inventa_cabecera_a_un_fragmento(self):
+        """Sin ni una linea de `import` esto no es un fichero, es un ejemplo.
+
+        Las 241 pruebas de referencia de `lean_examples.json` son fragmentos
+        sin cabecera, y el guardian de arriba exige que no se toquen.
+        """
+        from nucleo.lean.nombres import reparar_codigo
+        codigo = ("theorem t (K V : Type*) : True := by\n"
+                  "  have := Module.Basis.exists_basis K V\n"
+                  "  trivial\n")
+        nuevo, cambios = reparar_codigo(codigo)
+        assert "import" not in nuevo
+        assert not [m for c, m in cambios if c == "(import)"]
+
+    def test_import_mathlib_entero_no_necesita_nada(self):
+        from nucleo.lean import alcance
+        assert alcance.es_amplia(["Mathlib"])
+        assert alcance.faltan_para(
+            ["Mathlib"], ["Mathlib.LinearAlgebra.Basis.VectorSpace"]) == []
+
+    def test_el_dag_conoce_el_sentido_de_las_aristas(self):
+        """`A -> B` en el .dot significa «B importa a A».
+
+        Si se leyera al reves, `alcanza` devolveria los DEPENDIENTES en vez de
+        las dependencias y la regla 4 anadiria justo lo que no hace falta.
+        """
+        from nucleo.lean import alcance
+        if not alcance.disponible():
+            pytest.skip("falta data/mathlib_imports.dot")
+        r = alcance.alcanza(["Mathlib.Data.Real.Basic"])
+        assert "Mathlib.Data.Real.Basic" in r
+        assert "Mathlib.LinearAlgebra.Basis.VectorSpace" not in r, (
+            "Real.Basic no importa la teoria de bases; si sale, el sentido "
+            "de las aristas esta invertido")

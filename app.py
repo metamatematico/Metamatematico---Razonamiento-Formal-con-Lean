@@ -1435,7 +1435,7 @@ sin tocar código.
 """)
         st.markdown(
             '<div style="font-size:0.64rem;color:#5858a0;line-height:1.7;margin-top:.5rem">'
-            '320 objetos · 1 349 morfismos · 158 conceptos curados<br>'
+            '321 objetos · 1 354 morfismos · 159 conceptos curados<br>'
             'Cinco capas · gobierno por evidencia<br>'
             'Lean 4 · FOL · ZFC · Teoría de Tipos'
             '</div>',
@@ -1530,7 +1530,7 @@ los resultados se muestran aquí.
     <div class="meta-sub">Razonamiento formal · Lean 4 · Núcleo Lógico Evolutivo · BIOMAT</div>
     <div style="margin-top:.4rem">
       <span class="meta-badge">5 capas</span>
-      <span class="meta-badge">320 objetos</span>
+      <span class="meta-badge">321 objetos</span>
       <span class="meta-badge">387 teoremas · 0 sorry</span>
       <span class="meta-badge">Lean 4</span>
     </div>

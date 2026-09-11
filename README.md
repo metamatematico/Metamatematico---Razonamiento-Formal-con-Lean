@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1080_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1085_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -110,7 +110,7 @@ que él escribió.
 |  | el grafo | la lista |
 |---|---|---|
 | **qué guarda** | conceptos — *de qué habla* | hechos — *qué es cierto* |
-| **tamaño** | 320 nodos | 183 433 entradas |
+| **tamaño** | 321 nodos | 183 433 entradas |
 | **cómo se hizo** | 173 a mano + 125 generados | extraída del fuente, entera |
 | **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
 | **estructura** | categórica: colímites, orden, pilares | plana, indexada |
@@ -173,18 +173,18 @@ de su área, y a volumen igualado pierde. Está medido en §7 del reporte.
 ## 3. El grafo: de qué consta
 
 <p align="center">
-  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado como árbol radial: 320 nodos que salen de los cuatro pilares fundacionales del centro hacia las sub-ramas de fuera, con el ángulo repartido por tamaño de subárbol para que ningún nodo tape a otro. Los 125 generados desde Mathlib y los 22 de área van en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
+  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado como árbol radial: 321 nodos que salen de los cuatro pilares fundacionales del centro hacia las sub-ramas de fuera, con el ángulo repartido por tamaño de subárbol para que ningún nodo tape a otro. Los 125 generados desde Mathlib y los 22 de área van en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
 </p>
 
 | pieza | cuántos | qué es |
 |---|---|---|
-| nodos curados | 173 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
+| nodos curados | 174 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
 | nodos de área | 22 | la **puerta de entrada**: `Algebra`, `Topology`, `OrderTheory`… Entrar por una poda a 10 nodos de mediana |
 | nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
-| dependencias | 583 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
-| traducciones | 439 | entre pilares — Curry-Howard, conjuntos↔categorías |
+| dependencias | 584 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
+| traducciones | 442 | entre pilares — Curry-Howard, conjuntos↔categorías |
 | analogías | 7 | correspondencias débiles, marcadas como tales |
-| identidades | 320 | una por objeto, como exige la definición de categoría |
+| identidades | 321 | una por objeto, como exige la definición de categoría |
 
 ```bash
 python scripts/dibujar_grafo.py     # regenera la figura desde el grafo real
@@ -203,7 +203,7 @@ es un sumidero, como flecha compondría y tendría dominio y codominio.
 
 ### Eran dos grafos, y ahora son uno
 
-Medido: **cero aristas** entre los 173 curados y los 125 generados, sin contar
+Medido: **cero aristas** entre los 174 curados y los 125 generados, sin contar
 el enganche al pilar. `mathlib-linearalgebra-basis` alcanzaba 81 nodos hacia
 arriba y **ni uno era curado** — no pasaba por `linear-algebra`, ni por
 `module-theory`, ni por `ring-theory`, que existen.
@@ -223,7 +223,7 @@ la lógica alcanza               158     278 de 320
 `124 de 125` se midió cuando el grafo tenía 4 ciclos y una componente fuerte de
 80 nodos: casi todo alcanzaba a casi todo. Los 16 que ahora no llegan a un área
 con curados están en `computability`, `logic` y `ordertheory`, que **no tienen
-ni un solo nodo hecho a mano**. Es un hueco de los 173 curados, y ahora se ve.
+ni un solo nodo hecho a mano**. Es un hueco de los 174 curados, y ahora se ve.
 
 Y faltaba **`fol-deduction → zfc-axioms`**: ZFC es una teoría de primer orden,
 sus axiomas son fórmulas de primer orden con igualdad. Sin esa arista, media
@@ -238,7 +238,7 @@ sin embargo el álgebra lineal es más general que la noción de base.
 
 ### El grafo tiene ciclos, y no son de la matemática
 
-134 ciclos, todos entre los nodos generados; entre los 173 curados hay cero. Y
+134 ciclos, todos entre los nodos generados; entre los 174 curados hay cero. Y
 la causa es la agregación: el DAG oficial de Mathlib es **acíclico** —Lean
 prohíbe imports circulares— pero al colapsar 7 747 módulos en conceptos de dos
 niveles, aparecen.
@@ -411,7 +411,7 @@ grafo incumplía la propiedad.
 Va apagado por defecto porque cuesta un compilado, y el coste es asimétrico:
 refutar es barato —`decide` se para en el primer contraejemplo— y confirmar
 obliga a reducir la conjunción entera. Medido sobre tres colímites reales del
-grafo de 320 nodos: 2,6 s, 3,4 s y 15,3 s, los tres confirmados.
+grafo de 321 nodos: 2,6 s, 3,4 s y 15,3 s, los tres confirmados.
 
 El verificador se comprueba a sí mismo en `tests/test_colimite_en_lean.py`:
 con `a→i`, `b→i`, `i→x` confirma, y quitando sólo `i→x` —con lo que `x` pasa a
@@ -626,7 +626,7 @@ python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
 
 ## 7. Tests y guardianes
 
-**1080 tests en 53 suites.** Los que más valen no comprueban que el código
+**1085 tests en 53 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -746,7 +746,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
-tests/                    1080 tests en 53 suites
+tests/                    1085 tests en 53 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 
