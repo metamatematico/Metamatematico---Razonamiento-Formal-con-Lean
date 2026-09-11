@@ -939,91 +939,183 @@ def fig_tsne(method="tsne", query=None):
 # ─── ARQUITECTURA NLE ─────────────────────────────────────────────────────────
 
 def fig_architecture():
-    fig, ax = plt.subplots(figsize=(14, 8), facecolor=BG)
+    """Las cinco capas y la frontera de formalizacion.
+
+    QUE CAMBIO, Y POR QUE. El diagrama anterior dibujaba una caja «GNN + PPO,
+    ordena DENTRO de la cascada» que era falsa dos veces: la red esta
+    degenerada —da la misma accion a las cuatro entradas de la sonda, que es
+    exactamente lo que da la politica constante— y quien ordena la cascada es
+    L3, un clasificador sobre la forma del objetivo. Tambien dibujaba una
+    flecha de «reward» de un bucle de refuerzo que ya no corre.
+
+    La linea vertical del centro es la FRONTERA DE FORMALIZACION: el momento
+    en que existe un enunciado formal. A su izquierda el problema es de
+    palabras humanas y el grafo gana; a su derecha el objeto es un tipo, y
+    sobre tipos busca mejor Lean. No se eligio: aparecio al medir capacidad
+    por capacidad contra su nulo.
+
+    Cada caja lleva su cifra CON su nulo al lado. Una cifra sola no dice nada.
+    """
+    fig, ax = plt.subplots(figsize=(14, 8.6), facecolor=BG)
     ax.set_facecolor(BG)
     ax.set_xlim(0, 14)
-    ax.set_ylim(0, 8)
+    ax.set_ylim(0, 8.6)
     ax.axis("off")
 
-    def box(x, y, w, h, label, sublabel="", color="#1f2937", textcolor="#e5e7eb", fontsize=8):
-        rect = FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.08",
-                              facecolor=color, edgecolor="#374151", linewidth=1.2, zorder=3)
-        ax.add_patch(rect)
-        ax.text(x + w/2, y + h/2 + (0.12 if sublabel else 0), label,
-                ha="center", va="center", fontsize=fontsize, color=textcolor,
-                fontweight="bold", zorder=4)
+    def box(x, y, w, h, label, sublabel="", color="#1f2937",
+            textcolor="#e5e7eb", fontsize=8.5, borde="#374151"):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.08",
+                                    facecolor=color, edgecolor=borde,
+                                    linewidth=1.3, zorder=3))
+        dy = 0.16 if sublabel else 0
+        ax.text(x + w / 2, y + h / 2 + dy, label, ha="center", va="center",
+                fontsize=fontsize, color=textcolor, fontweight="bold", zorder=4)
         if sublabel:
-            ax.text(x + w/2, y + h/2 - 0.22, sublabel,
-                    ha="center", va="center", fontsize=6, color="#9ca3af", zorder=4)
+            ax.text(x + w / 2, y + h / 2 - 0.26, sublabel, ha="center",
+                    va="center", fontsize=6.2, color="#9ca3af", zorder=4)
 
-    def arrow(x0, y0, x1, y1, label="", color="#58a6ff"):
+    def arrow(x0, y0, x1, y1, label="", color="#58a6ff", estilo="arc3,rad=0"):
         ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
                     arrowprops=dict(arrowstyle="-|>", color=color, lw=1.5,
-                                    connectionstyle="arc3,rad=0"))
+                                    connectionstyle=estilo))
         if label:
-            mx, my = (x0+x1)/2, (y0+y1)/2
-            ax.text(mx, my + 0.12, label, ha="center", va="bottom",
-                    fontsize=6.5, color=color)
+            ax.text((x0 + x1) / 2, (y0 + y1) / 2 + 0.13, label, ha="center",
+                    va="bottom", fontsize=6.3, color=color)
 
-    # Usuario
-    box(0.2, 3.5, 1.8, 1.0, "Usuario", "Consulta NL", "#0d2137", "#60a5fa")
-    # CR_tac
-    box(2.4, 3.5, 2.2, 1.0, "CoRegulatorNetwork", "4 CRs, prioridad fija\n-> ASISTIR / RESPONDER", "#1a2a1a", "#4ade80")
-    # Grafo de Skills — el numero se cuenta, no se escribe: el literal decia
-    # 172 con 173 cargados, y volveria a quedarse viejo con cada ampliacion.
+    ANTES, DESPUES = "#1a1a2e", "#0d1f1f"
+    VERDE, AMBAR, ROJO = "#4ade80", "#fbbf24", "#f87171"
+
+    # ── LA FRONTERA ─────────────────────────────────────────────────────────
+    ax.axvline(7.55, ymin=0.135, ymax=0.93, color="#f59e0b", lw=2.2,
+               linestyle=(0, (6, 3)), zorder=2)
+    ax.text(7.55, 8.15, "FRONTERA DE FORMALIZACIÓN", ha="center", fontsize=8.4,
+            color="#f59e0b", fontweight="bold")
+    ax.text(7.55, 7.88, "existe un enunciado formal", ha="center", fontsize=6.4,
+            color="#b45309")
+    ax.text(3.7, 7.88, "el problema es de PALABRAS", ha="center", fontsize=7,
+            color="#818cf8", style="italic")
+    ax.text(11.2, 7.88, "el problema es de TIPOS", ha="center", fontsize=7,
+            color="#2dd4bf", style="italic")
+
+    # ── ANTES DE LA FRONTERA ────────────────────────────────────────────────
+    box(0.2, 6.15, 1.7, 1.0, "Consulta", "castellano\no inglés",
+        "#0d2137", "#60a5fa")
+
+    box(0.2, 4.75, 1.7, 1.0, "Sintaxis", "árbol + rasgos\ndelimitadores",
+        "#0b1f22", "#2dd4bf")
+
     try:
         _n_sk = len(_skills_viz())
     except Exception:
         _n_sk = 0
-    box(5.0, 5.5, 3.5, 1.8, "Grafo Categorico",
-        f"{_n_sk or '—'} skills, 4 pilares\ndep + analogia + traduccion",
-        "#1a1a2e", "#818cf8")
-    # GoalAnalyzer
-    box(5.0, 3.2, 2.2, 1.0, "GoalAnalyzer", "regex + grafo\n→ orden tácticas", "#1a1a2e", "#818cf8")
-    # LLM
-    box(5.0, 1.5, 2.2, 1.0, "LLM (Claude/Gemini)", "contexto enriquecido\ndel grafo", "#1f1107", "#fb923c")
-    # Lean 4
-    box(8.0, 3.2, 2.2, 1.0, "Lean 4", "SolverCascade, 12 solvers\nrfl -> simp -> norm_num -> ...", "#0d1f0d", "#4ade80")
-    # MES Memory
-    box(8.0, 5.5, 2.5, 1.8, "MES Memory", "Patrones\nColimites\nEmergencia", "#1a0d2e", "#c084fc")
-    # GNN+PPO
-    box(11.0, 3.5, 2.5, 1.8, "GNN + PPO", "ActorCritic 547K params\nordena DENTRO de la cascada\nno enruta: CR_tac lo detecta degenerado", "#0d1f1f", "#2dd4bf")
-    # Respuesta
-    # 14 agentes especializados: aportan la primera tactica de la cascada
-    box(7.9, 1.5, 2.4, 1.0, "14 agentes", "uno por categoria\n-> 1a tactica de la cascada", "#0d1f1f", "#2dd4bf")
-    box(11.0, 1.0, 2.5, 1.0, "Respuesta", "explicación +\nprueba Lean", "#1a1007", "#fbbf24")
 
-    # ── Las dos piezas que faltaban ──────────────────────────────────────────
-    # Faltaban en el diagrama y estan en el codigo desde que se cableo el
-    # decisor. Las dos son LOCALES —ni llamada al modelo ni compilado de Lean—
-    # y las dos cambian lo que pasa despues, asi que dibujarlas no es adorno.
-    box(0.2, 1.9, 2.0, 1.0, "Sintaxis",
-        "árbol de la consulta\nrasgos + delimitadores", "#0b1f22", "#2dd4bf")
-    box(2.4, 1.9, 2.2, 1.0, "Decisor",
-        "qué capacidades corren\nlee el nulo de cada una", "#0b1f22", "#2dd4bf")
+    box(2.3, 6.15, 2.5, 1.0, "L0  LENGUA",
+        "4 315 palabras clave ES/EN\n58,7 % vs 33,3 % del nulo",
+        ANTES, "#818cf8")
+    box(2.3, 4.75, 2.5, 1.0, "L1  CONCEPTO",
+        f"{_n_sk or 158} curados · #check\n21,6 % vs 1,45 %  (14,9x)",
+        ANTES, "#818cf8", borde=VERDE)
+    box(2.3, 3.35, 2.5, 1.0, "L2  TERRITORIO",
+        "147 generados · alcance\nno transfiere (3 vías)",
+        ANTES, "#6b6f8f")
 
-    # Flechas
-    arrow(2.0, 4.0, 2.4, 4.0, "consulta")
-    arrow(1.1, 3.5, 1.1, 2.9, "", "#2dd4bf")
-    arrow(2.2, 2.4, 2.4, 2.4, "", "#2dd4bf")
-    arrow(4.6, 2.15, 8.0, 3.05, "apaga el orden por área", "#f59e0b")
-    arrow(4.6, 4.0, 5.0, 3.7, "ASISTIR")
-    arrow(4.6, 3.8, 5.0, 2.0, "RESPONDER")
-    arrow(6.0, 3.2, 6.0, 2.5)
-    arrow(7.2, 3.7, 8.0, 3.7)
-    arrow(9.1, 2.5, 9.1, 3.2, "sugiere táctica", "#2dd4bf")
-    arrow(6.0, 5.5, 6.0, 4.2, "skills\nrelevantes")
-    arrow(5.0, 6.4, 2.6, 4.5, "contexto", "#9ca3af")
-    arrow(8.0, 6.4, 11.0, 4.5, "memoria", "#c084fc")
-    arrow(10.2, 3.7, 11.0, 4.0)
-    arrow(13.0, 4.0, 13.5, 1.5, "reward", "#2dd4bf")
-    # La flecha 11.0 -> 8.5 nacia en el vacio: no habia ninguna caja en x=8.5,
-    # asi que se veia una punta suelta al lado de "Respuesta". La respuesta sale
-    # de Lean via el traductor, no de un punto sin origen.
-    arrow(9.0, 3.2, 11.6, 2.0, "traducido")
+    box(5.15, 4.75, 2.1, 1.0, "Prompt", "vocabulario verificado\n+ few-shot miniF2F",
+        "#1f1107", "#fb923c")
+    box(5.15, 3.35, 2.1, 1.0, "Modelo", "escribe Lean 4\nno juzga verdad",
+        "#1f1107", "#fb923c")
 
-    ax.set_title("Arquitectura del Núcleo Lógico Evolutivo  —  Σ_t = (L, CR_t, G_t, F)",
-                 color=FG, fontsize=12, pad=8, fontweight="bold")
+    # El decisor gobierna las dos mitades: va abajo y cruza la frontera.
+    box(2.3, 1.15, 4.95, 0.95, "DECISOR  —  gobierno por evidencia",
+        "corre si y sólo si su medición gana a su nulo · 4 apagadas por perder · "
+        "el veredicto se LEE del fichero en ejecución",
+        "#0b1f22", "#2dd4bf", fontsize=8)
+
+    # ── DESPUÉS DE LA FRONTERA ──────────────────────────────────────────────
+    box(7.95, 5.55, 2.3, 1.15, "LEAN 4  verifica",
+        "la decisión sale del modelo\nocho veredictos, no dos",
+        "#0d1f0d", VERDE, fontsize=9, borde=VERDE)
+
+    box(7.95, 3.9, 2.3, 1.05, "L3  EVIDENCIA",
+        "forma del objetivo → táctica\n1,57 vs 2,44 · 3,7x menos",
+        DESPUES, "#2dd4bf", borde=VERDE)
+
+    box(7.95, 2.45, 2.3, 1.0, "Cascada", "12 tácticas en UN compilado\n`first |` + `done`",
+        DESPUES, "#2dd4bf")
+
+    box(10.75, 3.9, 2.55, 1.05, "L4  EMERGENCIA",
+        "colímites sobre 40 025\nteoremas que Lean aceptó",
+        "#1a0d2e", "#c084fc")
+
+    box(10.75, 5.55, 2.55, 1.15, "Veredicto",
+        "verificado · parcial · refutado\nvacuo · sin_teorema · timeout…",
+        "#1a1007", AMBAR)
+
+    box(10.75, 1.3, 2.55, 1.0, "Respuesta",
+        "el veredicto DELANTE\ndel texto, y el código real",
+        "#1a1007", AMBAR)
+
+    # ── FLECHAS ─────────────────────────────────────────────────────────────
+    arrow(1.05, 6.15, 1.05, 5.75, "", "#2dd4bf")
+    arrow(1.9, 6.65, 2.3, 6.65)
+    arrow(1.9, 5.25, 2.3, 5.25, "", "#2dd4bf")
+    arrow(3.55, 6.15, 3.55, 5.75, "concepto")
+    arrow(3.55, 4.75, 3.55, 4.35, "área")
+    arrow(4.8, 5.25, 5.15, 5.25, "nombres")
+    arrow(6.2, 4.75, 6.2, 4.35)
+    # LA FRONTERA SE CRUZA EN LOS DOS SENTIDOS, y ensenarlo es el punto: de
+    # ida va el codigo que el modelo escribio; de vuelta, el error de Lean.
+    # La reparacion es la unica pieza medida que NUNCA estropea un caso
+    # (rescata 4, rompe 0), y no se veia en el diagrama anterior porque su
+    # flecha no unia dos cajas: nacia y moria en el vacio.
+    # Los dos sentidos comparten un corredor de 0,7 de ancho, asi que las
+    # flechas se cruzan por fuerza. Lo que NO puede pasar es que sus etiquetas
+    # se pisen entre si y sobre la raya de la frontera, que es lo que hacian.
+    # Cada una va a un extremo del corredor, con fondo opaco para que se lea
+    # por encima de la linea discontinua.
+    arrow(7.25, 4.15, 8.0, 5.58, "", "#fb923c", "arc3,rad=-0.18")
+    ax.annotate("", xy=(7.28, 3.55), xytext=(7.97, 5.62),
+                arrowprops=dict(arrowstyle="-|>", color=ROJO, lw=1.4,
+                                connectionstyle="arc3,rad=-0.30"))
+
+    def etiqueta(x, y, txt, color):
+        ax.text(x, y, txt, fontsize=6.3, color=color, ha="center", va="center",
+                zorder=6, bbox=dict(boxstyle="round,pad=0.22", facecolor=BG,
+                                    edgecolor=color, linewidth=0.6, alpha=0.95))
+
+    etiqueta(7.58, 5.98, "el código\nque escribió", "#fb923c")
+    etiqueta(7.58, 3.02, "y el error\nvuelve  ×2", ROJO)
+
+    arrow(9.1, 5.55, 9.1, 4.95, "queda `sorry`", ROJO)
+    arrow(9.1, 3.9, 9.1, 3.45)
+
+    arrow(10.25, 6.1, 10.75, 6.1, "acepta", VERDE)
+    arrow(10.25, 4.4, 10.75, 4.4, "qué cerró")
+    arrow(12.0, 3.9, 12.0, 2.3, "explica", "#c084fc")
+    arrow(12.0, 5.55, 12.0, 4.95, "", AMBAR)
+
+    # El decisor gobierna: dos flechas finas hacia arriba, una a cada lado.
+    for x in (4.0, 6.6):
+        ax.annotate("", xy=(x, 3.35), xytext=(x, 2.1),
+                    arrowprops=dict(arrowstyle="-|>", color="#2dd4bf", lw=1.0,
+                                    linestyle="dotted"))
+    ax.annotate("", xy=(8.6, 3.9), xytext=(7.27, 1.9),
+                arrowprops=dict(arrowstyle="-|>", color="#2dd4bf", lw=1.0,
+                                linestyle="dotted", connectionstyle="arc3,rad=0.2"))
+
+    # ── LO QUE SE MIDIÓ Y NO ESTÁ ───────────────────────────────────────────
+    ax.text(0.2, 0.55,
+            "Apagado por su propia cifra:  enrutado neuronal (1 acción distinta "
+            "contra un nulo constante de 1) · orden de cascada por área (1,262 vs 1,091) · "
+            "poda por área (0,42 vs 0,93) · recuperación léxica de lemas (0,065 vs 7,78)",
+            fontsize=6.4, color="#6b7280")
+    ax.text(0.2, 0.25,
+            "El sistema completo verifica 12/20 donde el modelo solo verifica 4/20  "
+            "(McNemar exacto, p = 0,0078).  El vocabulario, dentro del aparato: "
+            "rescata 3, rompe 2, p = 1,0 — puntería, no resultado.",
+            fontsize=6.6, color="#9ca3af")
+
+    ax.set_title("Metamatemático — cinco capas y una frontera",
+                 color=FG, fontsize=12.5, pad=10, fontweight="bold")
     fig.tight_layout()
     return fig
 
@@ -2146,10 +2238,10 @@ _MEDICIONES = [
  tab10, tab11) = st.tabs([
     "⬡ Grafo de Skills",
     "◎ Espacio de Embeddings",
-    "⚙ Arquitectura NLE",
+    "⚙ Arquitectura · 5 capas",
     "◈ Extensión del Grafo",
     "→ Pipeline",
-    "⊛ GNN + Estadísticas",
+    "⊛ Red neuronal (apagada)",
     "🔍 Traza de Prueba",
     "🤖 Agentes",
     "⧉ Emergencia",
@@ -2235,7 +2327,13 @@ La reducción **t-SNE / PCA** proyecta estos 320 dims a 2D manteniendo la proxim
         )
 
 with tab3:
-    st.markdown("**Diagrama de bloques completo** — cómo interactúan todos los componentes del sistema.")
+    st.markdown(
+        "**Las cinco capas y la frontera de formalización.** La línea naranja "
+        "del centro es lo que hay que mirar: a su izquierda el problema es de "
+        "**palabras** y el grafo gana; a su derecha ya es un **tipo**, y sobre "
+        "tipos busca mejor Lean. No se eligió — apareció al medir cada "
+        "capacidad contra su modelo nulo."
+    )
     try:
         with st.spinner("Generando arquitectura..."):
             fig = fig_architecture()
@@ -2341,7 +2439,22 @@ with tab5:
             st.error(f"Error al renderizar distribución: {_e}")
 
 with tab6:
-    st.markdown("**Red neuronal GNN + PPO** — arquitectura del sistema de aprendizaje por refuerzo.")
+    st.warning(
+        "**Esta pieza está apagada, y la apagó su propia medición.** La sonda "
+        "le da cuatro entradas deliberadamente heterogéneas —un teorema, un "
+        "saludo, un hecho no matemático y un fragmento de Lean— y responde "
+        "`ASSIST` a las cuatro: **1 acción distinta**, que es exactamente lo "
+        "que da la política constante. El 100 % del informe de entrenamiento "
+        "no era un logro sino un modelo nulo con otro nombre, porque el "
+        "objetivo «todo problema → ASSIST» se satisface con una constante.",
+        icon="⚠",
+    )
+    st.caption(
+        "Se conserva a propósito: un candidato evaluado y descartado es "
+        "información, y borrarlo invita a reinventarlo. La cifra vive en "
+        "`data/sonda_de_degeneracion.json` y el decisor la lee en cada consulta."
+    )
+    st.markdown("**Arquitectura de la red**, para referencia:")
     try:
         with st.spinner("Generando diagrama GNN..."):
             fig = fig_gnn()

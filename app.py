@@ -1410,21 +1410,33 @@ div[data-testid="stCaption"] { color: var(--text-3) !important; }
 
         with st.expander("¿Qué es el NLE?"):
             st.markdown("""
-El **Núcleo Lógico Evolutivo** integra cuatro pilares en un único marco:
+**Metamatemático toma una pregunta de matemáticas en castellano o en inglés,
+la traduce a un enunciado de Lean 4 y deja que el kernel decida si es cierta.**
+No responde: verifica. Y cuando no puede verificar, dice cuál de ocho cosas
+pasó — «compiló» no es «demostró lo que se preguntó».
 
-| Componente | Rol |
-|---|---|
-| **MES** (Ehresmann) | Memoria categórica |
-| **Categorías** | Grafo de 76 skills |
-| **Lean 4** | Verificación formal |
-| **GNN + PPO** | Aprendizaje continuo |
+Lo organiza una sola distinción, la **frontera de formalización**, que es el
+momento en que ese enunciado existe. No se eligió: apareció al medir cada
+capacidad contra su modelo nulo.
 
-Cada consulta alimenta el agente PPO y la memoria procedimental guarda los patrones exitosos.
+| | Capa | Qué hace | Mide |
+|---|---|---|---|
+| **antes** | L0 Lengua | palabras clave ES/EN → concepto | 58,7 % vs 33,3 % |
+| | L1 Concepto | 158 conceptos · vocabulario con `#check` | 21,6 % vs 1,45 % |
+| | L2 Territorio | 147 generados · alcance temático | no transfiere |
+| ⎯ | **Lean verifica** | la decisión sale del modelo | el veredicto |
+| **después** | L3 Evidencia | forma del objetivo → qué la cierra | 1,57 vs 2,44 posiciones |
+| | L4 Emergencia | colímites sobre teoremas aceptados | exceso hasta +6,74 |
+
+Cada capacidad corre **si y sólo si** su medición gana a un modelo nulo
+explícito. Hoy hay cuatro apagadas por perder, y el veredicto se lee del
+fichero de medición en tiempo de ejecución: volver a medir cambia la conducta
+sin tocar código.
 """)
         st.markdown(
             '<div style="font-size:0.64rem;color:#5858a0;line-height:1.7;margin-top:.5rem">'
-            '76 skills matemáticos · 14 categorías<br>'
-            'GNN + PPO · Memory Evolutive Systems<br>'
+            '320 objetos · 1 349 morfismos · 158 conceptos curados<br>'
+            'Cinco capas · gobierno por evidencia<br>'
             'Lean 4 · FOL · ZFC · Teoría de Tipos'
             '</div>',
             unsafe_allow_html=True,
@@ -1517,9 +1529,9 @@ los resultados se muestran aquí.
     <div class="meta-name">METAMATEMÁTICO</div>
     <div class="meta-sub">Razonamiento formal · Lean 4 · Núcleo Lógico Evolutivo · BIOMAT</div>
     <div style="margin-top:.4rem">
-      <span class="meta-badge">76 skills</span>
-      <span class="meta-badge">GNN + PPO</span>
-      <span class="meta-badge">MES</span>
+      <span class="meta-badge">5 capas</span>
+      <span class="meta-badge">320 objetos</span>
+      <span class="meta-badge">387 teoremas · 0 sorry</span>
       <span class="meta-badge">Lean 4</span>
     </div>
   </div>
