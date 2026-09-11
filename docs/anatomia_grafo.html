@@ -195,7 +195,7 @@ svg .ln{stroke:var(--muted);fill:none}
 <nav class="toc">
   <p class="toc-k">Metamatemático</p>
   <p class="toc-t">Anatomía del <span>grafo</span></p>
-  <p class="toc-s">Qué contiene, de dónde sale cada pieza<br>y qué está comprobado de ella.</p>
+  <p class="toc-s">Las tres capas anteriores a la frontera:<br>qué contienen y qué está comprobado.</p>
   <ol>
     <li><a href="#que">Qué es, y qué no es</a></li>
     <li><a href="#procedencia">Procedencia: 173 y 147</a></li>
@@ -225,10 +225,16 @@ svg .ln{stroke:var(--muted);fill:none}
   <header class="hero">
     <p class="hero-k"><span class="dot"></span>El grafo de conocimiento, en detalle</p>
     <h1>320 objetos, 1 349 flechas, y de dónde sale <em>cada una</em></h1>
-    <p class="lede">Es el grafo que el sistema consulta cada vez que formaliza
-    una pregunta. Este documento lo desarma pieza por pieza: qué contiene, quién
-    escribió cada parte, qué evidencia respalda cada flecha y qué se ha medido
-    de él — incluido lo que no funciona.</p>
+    <p class="lede">Es el grafo que <strong>Metamatemático</strong> consulta
+    para convertir una pregunta en castellano o en inglés en un enunciado de
+    Lean&nbsp;4 que el kernel pueda verificar. Ocupa las tres capas que actúan
+    <strong>antes</strong> de que exista ese enunciado: reconoce de qué habla la
+    pregunta y ofrece identificadores de Mathlib comprobados uno a uno. Pasada
+    esa frontera el trabajo cambia de manos, y este grafo ya no es quien
+    busca.</p>
+    <p class="lede">Este documento lo desarma pieza por pieza: qué contiene,
+    quién escribió cada parte, qué evidencia respalda cada flecha y qué se ha
+    medido de él — incluido lo que no funciona.</p>
     <div class="cifras">
       <div><div class="n">320</div><div class="l">objetos</div></div>
       <div><div class="n">1 349</div><div class="l">morfismos</div></div>
@@ -247,11 +253,13 @@ svg .ln{stroke:var(--muted);fill:none}
     explícitas porque la definición las exige, y el constructor rechaza
     morfismos mal tipados.</p>
 
-    <p>Su trabajo en el sistema es acotado y se puede decir en una frase:
-    <strong>dice de qué habla una consulta</strong>, y con eso aporta
-    vocabulario verificado de Mathlib al prompt de formalización, elige qué
-    módulos importa Lean y ordena las tácticas. <strong>En ningún punto decide
-    si algo es cierto.</strong></p>
+    <p>Su trabajo está acotado y se puede decir en una frase: <strong>dice de
+    qué habla una consulta</strong>, y con eso aporta vocabulario verificado de
+    Mathlib al prompt de formalización y elige qué módulos importa Lean.
+    <strong>En ningún punto decide si algo es cierto</strong>, y desde que la
+    arquitectura se ordenó por capas tampoco ordena las tácticas: eso pasa
+    <em>después</em> de la frontera de formalización y lo hace un clasificador
+    sobre la forma del objetivo, que no es este grafo.</p>
 
     <div class="nota v">
       <b>Lo que NO es</b>

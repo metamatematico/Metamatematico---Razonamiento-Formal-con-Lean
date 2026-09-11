@@ -231,7 +231,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 <nav class="toc">
   <p class="toc-kicker">Metamatemático</p>
   <p class="toc-title">Por <span>dentro</span></p>
-  <p class="toc-sub">Arquitectura completa, pieza por pieza,<br>con la evidencia de cada una.</p>
+  <p class="toc-sub">Cinco capas y una frontera,<br>pieza por pieza, con la evidencia de cada una.</p>
   <ol>
     <li><a href="#tesis">El planteamiento</a></li>
     <li><a href="#flujo">El flujo, de entrada a salida</a></li>
@@ -264,12 +264,26 @@ svg .sLine{stroke:var(--muted); fill:none}
 <main>
   <header class="hero">
     <p class="hero-kicker"><span class="dot"></span>Arquitectura y evidencia</p>
-    <h1>Un grafo de conceptos sobre una lista de hechos, y <em>Lean</em> decidiendo</h1>
-    <p class="lede">El sistema recibe una pregunta de matemáticas en lenguaje
-    natural, la formaliza en Lean&nbsp;4 y la verifica contra Mathlib. El modelo
-    de lenguaje escribe; el núcleo aporta vocabulario y estructura; el kernel de
-    Lean decide. Esta página describe cada pieza y la evidencia que la
-    sostiene.</p>
+    <h1>Cinco capas alrededor de una frontera: dónde termina la <em>palabra</em> y empieza el <em>tipo</em></h1>
+    <p class="lede"><strong>Metamatemático es una herramienta que toma una
+    pregunta de matemáticas escrita en castellano o en inglés, la traduce a un
+    enunciado formal de Lean&nbsp;4 y deja que el kernel decida si es
+    cierta.</strong> No responde: verifica. Y cuando no puede verificar, dice
+    exactamente qué falló — el veredicto tiene ocho estados, no dos.</p>
+    <p class="lede">Lo que la organiza es una sola distinción, y no se
+    postuló: se descubrió midiendo. <strong>Antes</strong> de que exista un
+    enunciado formal, el sistema trabaja con palabras humanas —ahí gana, y por
+    mucho—. <strong>Después</strong>, el objeto ya es un tipo, y quien busca
+    bien sobre tipos es Lean, no un grafo de palabras. Esa es la
+    <em>frontera de formalización</em>, y de ella salen las cinco capas: tres
+    antes (lengua, concepto, territorio), dos después (evidencia,
+    emergencia).</p>
+    <p class="lede">Sirve a quien <strong>estudia</strong> —un veredicto sobre
+    lo que uno mismo escribió, no sobre lo que dice el libro—, a quien
+    <strong>enseña</strong> —comprobar que un enunciado dice lo que uno cree
+    que dice— y a quien <strong>investiga</strong> —vocabulario de Mathlib
+    verificado en un área que no domina—. Esta página describe cada pieza y la
+    evidencia que la sostiene, incluida la que no la sostiene.</p>
     <p class="autor">Leonardo Jiménez Martínez · BIOMAT, Centro de
     Biomatemáticas · Licencia MIT</p>
     <div class="cifras">
@@ -284,12 +298,19 @@ svg .sLine{stroke:var(--muted); fill:none}
   <section id="tesis">
     <div class="head"><span class="num">01</span><h2>El planteamiento</h2></div>
 
-    <p>Un modelo de lenguaje que responde matemáticas produce texto plausible.
-    La plausibilidad no es una demostración, y el modelo no distingue entre las
-    dos: escribe con la misma seguridad un lema que existe y uno que ha
-    inventado. <strong>La decisión sobre qué es cierto se saca del modelo y se
-    entrega al kernel de Lean 4</strong>, que sólo acepta lo que puede
-    comprobar.</p>
+    <p><strong>Qué es.</strong> Un traductor con verificador: convierte una
+    pregunta en lenguaje natural en un enunciado de Lean&nbsp;4 y somete ese
+    enunciado al kernel. Lo que devuelve no es una respuesta sino un
+    <em>veredicto</em>, y el código que lo sostiene.</p>
+
+    <p><strong>Por qué hace falta.</strong> Un modelo de lenguaje que responde
+    matemáticas produce texto plausible. La plausibilidad no es una
+    demostración, y el modelo no distingue entre las dos: escribe con la misma
+    seguridad un lema que existe y uno que ha inventado. De 28 identificadores
+    que propuso de memoria, <strong>21 no existían</strong> —y los 21 eran
+    lemas, con la convención de nombres de Mathlib seguida al dedillo—. Por eso
+    <strong>la decisión sobre qué es cierto se saca del modelo y se entrega al
+    kernel de Lean 4</strong>, que sólo acepta lo que puede comprobar.</p>
 
     <p>Eso reparte el trabajo en tres papeles que no se solapan:</p>
 
@@ -302,10 +323,12 @@ svg .sLine{stroke:var(--muted); fill:none}
         <span class="kv">nucleo/llm/</span>
       </div>
       <div class="tarjeta">
-        <h4 class="g">El núcleo</h4>
-        <p>Un grafo de 320 conceptos y varios índices sobre Mathlib. Aporta
-        vocabulario verificado, elige qué módulos se importan y ordena las
-        tácticas. <strong>Tampoco decide qué es cierto.</strong></p>
+        <h4 class="g">El núcleo, en cinco capas</h4>
+        <p><strong>Antes de la frontera</strong> lee la pregunta y ofrece
+        vocabulario de Mathlib comprobado con <code>#check</code>.
+        <strong>Después</strong> ordena las tácticas por la forma del objetivo
+        y explica el resultado. <strong>No decide qué es cierto en ningún
+        punto.</strong></p>
         <span class="kv">nucleo/graph/ · nucleo/lean/</span>
       </div>
       <div class="tarjeta">
