@@ -1,0 +1,1092 @@
+{
+ "casos": [
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation",
+   "nombre": "comp_L",
+   "cuerpo": ": (X f).comp (𝑳 I g) = X (f.comp (𝑳 I g))",
+   "contexto": [
+    "noncomputable section",
+    "open scoped LieGroup Manifold Derivation ContDiff",
+    "variable {𝕜 : Type*} [NontriviallyNormedField 𝕜] {n : WithTop ℕ∞} {E : Type*} [NormedAddCommGroup E]",
+    "variable {I G}",
+    "namespace LeftInvariantDerivation",
+    "variable {r : 𝕜} {X Y : LeftInvariantDerivation I G} {f f' : C^∞⟮I, G; 𝕜⟯}",
+    "variable (X Y f)",
+    "variable (r)",
+    "variable (I G)",
+    "variable {I G}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Geometry.Manifold.Algebra.LieGroup",
+    "Mathlib.RingTheory.Derivation.Basic",
+    "Mathlib.Analysis.Calculus.ContDiff.Defs",
+    "Mathlib.Analysis.Normed.Field.Basic",
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation"
+   ],
+   "faltan": [
+    "Mathlib.Geometry.Manifold.Algebra.LieGroup",
+    "Mathlib.RingTheory.Derivation.Basic",
+    "Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 20.0,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `LieGroup`\nE:\\Metamatematico\\_banco_imports.lean:10:63: error: expected token\nE:\\Metamatematico\\_banco_imports.lean:16:38: error: expected token\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.8,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `LieGroup`\nE:\\Metamatematico\\_banco_imports.lean:10:63: error: expected token\nE:\\Metamatematico\\_banco_imports.lean:16:38: error: expected token\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 30.5,
+     "mods": 6,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:13:24: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  TopologicalSpace G\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:13:24: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Topologi"
+    }
+   }
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SimpleGraph.Partition",
+   "nombre": "partOfVertex_mem",
+   "cuerpo": "(v : V) : P.partOfVertex v ∈ P.parts",
+   "contexto": [
+    "universe u v",
+    "namespace SimpleGraph",
+    "variable {V : Type u} (G : SimpleGraph V)",
+    "namespace Partition",
+    "variable {G}",
+    "variable (P : G.Partition)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Combinatorics.SimpleGraph.Basic",
+    "Mathlib.Order.Partition.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Combinatorics.SimpleGraph.Basic",
+    "Mathlib.Order.Partition.Basic"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 20.6,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:7:27: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:12:34: error: typeclass instance problem is stuck\n  Membership ?m.5 ?m.6\n\nNote: Lean will not try to resolve this typeclass instance problem because the second type"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 17.5,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:7:27: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:12:34: error: typeclass instance problem is stuck\n  Membership ?m.5 ?m.6\n\nNote: Lean will not try to resolve this typeclass instance problem because the second type"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 19.4,
+     "mods": 5,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:12:16: error(lean.invalidField): Invalid field `Partition`: The environment does not contain `SimpleGraph.Partition`, so it is not possible to project the field `Partition` from an expression\n  G\nof type `SimpleGraph V`\nE:\\Metamatematico\\_banco_imports.lean:14:34: error: typeclass instance problem is stuck\n  Membership ?m.1 ?m.2\n\nNote: Lean will not try to res"
+    }
+   }
+  },
+  {
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.Skolem",
+   "nombre": "card_functions_sum_skolem₁",
+   "cuerpo": ":\n    #(Σ n, (L.sum L.skolem₁).Functions n) = #(Σ n, L.BoundedFormula Empty (n + 1))",
+   "contexto": [
+    "universe u v w w'",
+    "namespace FirstOrder",
+    "namespace Language",
+    "open Structure Cardinal",
+    "variable (L : Language.{u, v}) {M : Type w} [Nonempty M] [L.Structure M]",
+    "variable {L}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Computability.Language",
+    "Mathlib.SetTheory.Cardinal.Defs"
+   ],
+   "faltan": [
+    "Mathlib.Computability.Language"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 18.6,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:8:5: error: unknown namespace `Structure`\nE:\\Metamatematico\\_banco_imports.lean:9:14: error: invalid use of explicit universe parameters, `Language` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:12:25: error: unexpected token '#'; expected term\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.1,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:8:5: error: unknown namespace `Structure`\nE:\\Metamatematico\\_banco_imports.lean:9:14: error: invalid use of explicit universe parameters, `Language` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:12:25: error: unexpected token '#'; expected term\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 19.7,
+     "mods": 4,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:9:5: error: unknown namespace `Structure`\nE:\\Metamatematico\\_banco_imports.lean:10:14: error: too many explicit universe levels for `Language`\nE:\\Metamatematico\\_banco_imports.lean:13:25: error: unexpected token '#'; expected term\n"
+    }
+   }
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SimpleGraph.EdgeLabeling",
+   "nombre": "ext_get",
+   "cuerpo": "{C' : EdgeLabeling G K}\n    (h : ∀ x y, (h : G.Adj x y) → C.get x y h = C'.get x y h) : C = C'",
+   "contexto": [
+    "open Finset",
+    "open Fintype (card)",
+    "namespace SimpleGraph",
+    "variable {V V' : Type*} {G : SimpleGraph V} {G' : SimpleGraph V'} {K K' : Type*}",
+    "namespace EdgeLabeling",
+    "variable {C : EdgeLabeling G K}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 17.5,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:8:29: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:8:50: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V'\nE:\\"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.1,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:8:29: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:8:50: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V'\nE:\\"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 17.4,
+     "mods": 4,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:11:14: error: Function expected at\n  EdgeLabeling\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  G\nE:\\Metamatematico\\_banco_imports.lean:13:30: error: Function expected at\n  EdgeLabeling\nbut this term has type\n  x✝\n\nNote: Expected a function because this term is being applied to the argument\n  G\n"
+    }
+   }
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.Similarity",
+   "nombre": "similar_of_angle_angle",
+   "cuerpo": "(h_not_col : ¬ Collinear ℝ {a, b, c}) (h₁ : ∠ a b c = ∠ a' b' c')\n    (h₂ : ∠ b c a = ∠ b' c' a') :\n    ![a, b, c] ∼ ![a', b', c']",
+   "contexto": [
+    "open scoped Congruent EuclideanGeometry",
+    "open Similar NNReal Affine",
+    "namespace EuclideanGeometry",
+    "variable {ι V₁ V₂ P₁ P₂ : Type*}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.MetricSpace.Congruence",
+    "Mathlib.Topology.MetricSpace.Similarity",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional"
+   ],
+   "faltan": [
+    "Mathlib.Topology.MetricSpace.Congruence",
+    "Mathlib.Topology.MetricSpace.Similarity",
+    "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 24.3,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:5:12: error: unknown namespace `Congruent`\nE:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `Similar`\nE:\\Metamatematico\\_banco_imports.lean:10:68: error: expected token\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 20.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:5:12: error: unknown namespace `Congruent`\nE:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `Similar`\nE:\\Metamatematico\\_banco_imports.lean:10:68: error: expected token\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 21.1,
+     "mods": 6,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:8:22: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:13:68: error: expected token\n"
+    }
+   }
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SimpleGraph.Regularity.Lemma",
+   "nombre": "szemeredi_regularity",
+   "cuerpo": "(hε : 0 < ε) (hl : l ≤ card α) :\n    ∃ P : Finpartition univ,\n      P.IsEquipartition ∧ l ≤ #P.parts ∧ #P.parts ≤ bound ε l ∧ P.IsUniform G ε",
+   "contexto": [
+    "open Finpartition Finset Fintype Function SzemerediRegularity",
+    "variable {α : Type*} [DecidableEq α] [Fintype α] (G : SimpleGraph α) [DecidableRel G.Adj] {ε : ℝ}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Partition.Finpartition",
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Order.Partition.Finpartition",
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 18.8,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:5:5: error: unknown namespace `Finpartition`\nE:\\Metamatematico\\_banco_imports.lean:6:54: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:10:29: error: unexpected token '#'; expected term\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 22.3,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:5:5: error: unknown namespace `Finpartition`\nE:\\Metamatematico\\_banco_imports.lean:6:54: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:10:29: error: unexpected token '#'; expected term\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 23.6,
+     "mods": 5,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:7:42: error: unknown namespace `SzemerediRegularity`\nE:\\Metamatematico\\_banco_imports.lean:12:8: error(lean.invalidField): Invalid field `IsEquipartition`: The environment does not contain `Finpartition.IsEquipartition`, so it is not possible to project the field `IsEquipartition` from an expression\n  P\nof type `Finpartition univ`\nE:\\Metamatematico\\_banco_impo"
+    }
+   }
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Functor.Multivariate",
+   "nombre": "LiftR_RelLast_iff",
+   "cuerpo": "(x y : F (α ::: β)) :\n    LiftR' (RelLast' _ rr) x y ↔ LiftR (RelLast _ rr) x y",
+   "contexto": [
+    "universe u v w",
+    "open MvFunctor",
+    "variable {n : ℕ}",
+    "open Nat TypeVec",
+    "namespace MvFunctor",
+    "section LiftPLastPredIff",
+    "variable {F : TypeVec.{u} (n + 1) → Type*} [MvFunctor F] [LawfulMvFunctor F] {α : TypeVec.{u} n}",
+    "variable {β : Type u}",
+    "variable (pp : β → Prop)",
+    "variable (rr : β → β → Prop)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Control.Functor.Multivariate",
+    "Mathlib.Data.TypeVec"
+   ],
+   "faltan": [
+    "Mathlib.Control.Functor.Multivariate",
+    "Mathlib.Data.TypeVec"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 22.6,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `MvFunctor`\nE:\\Metamatematico\\_banco_imports.lean:8:9: error: unknown namespace `TypeVec`\nE:\\Metamatematico\\_banco_imports.lean:11:14: error: invalid use of explicit universe parameters, `TypeVec` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:11:44: error: invalid binder annotation, type is not a class instance\n  ?m.3\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 22.2,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `MvFunctor`\nE:\\Metamatematico\\_banco_imports.lean:8:9: error: unknown namespace `TypeVec`\nE:\\Metamatematico\\_banco_imports.lean:11:14: error: invalid use of explicit universe parameters, `TypeVec` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:11:44: error: invalid binder annotation, type is not a class instance\n  ?m.3\n"
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 22.5,
+     "mods": 5,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.DedekindDomain.Different",
+   "nombre": "trace_mem_dual_one",
+   "cuerpo": "(x : M) (hx : x ∈ dual A K (1 : FractionalIdeal C⁰ M)) :\n    Algebra.trace L M x ∈ dual A K (1 : FractionalIdeal B⁰ L)",
+   "contexto": [
+    "open Module",
+    "universe u",
+    "variable (A K : Type*) {L : Type u} {B} [CommRing A] [Field K] [CommRing B] [Field L]",
+    "variable [Algebra A K] [Algebra B L] [Algebra A B] [Algebra K L] [Algebra A L]",
+    "variable [IsScalarTower A K L] [IsScalarTower A B L]",
+    "open nonZeroDivisors IsLocalization Matrix Algebra Pointwise Polynomial Submodule",
+    "variable [IsDomain A] [IsFractionRing A K]",
+    "namespace FractionalIdeal",
+    "variable [IsFractionRing B L] [IsIntegrallyClosed A]",
+    "open Submodule",
+    "local notation:max I:max \"ᵛ\" => Submodule.traceDual A K I",
+    "variable [IsDedekindDomain B] {I J : FractionalIdeal B⁰ L}",
+    "variable (B L)",
+    "variable {A K L B}",
+    "variable (A K)",
+    "variable {A K}",
+    "variable (A K)",
+    "variable (I)",
+    "variable {I}",
+    "variable (I)",
+    "variable {I}",
+    "variable {A K}",
+    "variable (A K B L)",
+    "variable (C M : Type*) [CommRing C] [IsDedekindDomain C] [Field M] [Algebra C M]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Algebra.Defs",
+    "Mathlib.Algebra.Group.Action.Defs",
+    "Mathlib.RingTheory.Localization.Defs",
+    "Mathlib.LinearAlgebra.Matrix.Defs",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Module.Submodule.Defs",
+    "Mathlib.RingTheory.Localization.FractionRing",
+    "Mathlib.RingTheory.FractionalIdeal.Basic",
+    "Mathlib.RingTheory.IntegralClosure.IntegrallyClosed",
+    "Mathlib.RingTheory.DedekindDomain.Different",
+    "Mathlib.RingTheory.DedekindDomain.Basic",
+    "Mathlib.RingTheory.Trace.Defs"
+   ],
+   "faltan": [
+    "Mathlib.RingTheory.DedekindDomain.Different"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 19.4,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:31:4: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Algebra L M\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:30:42: error: Function expected at\n  dual\nbut this term has type\n  ?m.40\n\nNote: Expected a function be"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 19.0,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:31:4: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Algebra L M\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:30:42: error: Function expected at\n  dual\nbut this term has type\n  ?m.40\n\nNote: Expected a function be"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 21.7,
+     "mods": 4,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:31:42: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Algebra A C\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:32:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  FiniteDimension"
+    }
+   }
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Homological.GroupHomology.Functoriality",
+   "nombre": "congr",
+   "cuerpo": "{f₁ f₂ : G →* H} (h : f₁ = f₂) {φ : A ⟶ (Action.res _ f₁).obj B} {T : Type*}\n    (F : (f : G →* H) → (φ : A ⟶ (Action.res _ f).obj B) → T) :\n    F f₁ φ = F f₂ (h ▸ φ)",
+   "contexto": [
+    "universe v u",
+    "namespace groupHomology",
+    "open CategoryTheory Rep Finsupp Representation",
+    "variable {k G H : Type u} [CommRing k] [Group G] [Group H]"
+   ],
+   "mods_nombres": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.Data.Finsupp.Defs",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.CategoryTheory.Action.Basic"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.CategoryTheory.Action.Basic"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 18.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:7:20: error: unknown namespace `Rep`\nE:\\Metamatematico\\_banco_imports.lean:10:65: error(lean.unknownIdentifier): Unknown identifier `Action.res`\nE:\\Metamatematico\\_banco_imports.lean:11:34: error(lean.unknownIdentifier): Unknown identifier `Action.res`\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.6,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:7:20: error: unknown namespace `Rep`\nE:\\Metamatematico\\_banco_imports.lean:10:65: error(lean.unknownIdentifier): Unknown identifier `Action.res`\nE:\\Metamatematico\\_banco_imports.lean:11:34: error(lean.unknownIdentifier): Unknown identifier `Action.res`\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 18.2,
+     "mods": 6,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:14:34: error: typeclass instance problem is stuck\n  Category.{?u.6269, ?u.6268} ?m.36\n\nNote: Lean will not try to resolve this typeclass instance problem because the type argument to `Category` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.\n\nHint: Adding type annotations and supplying implicit arguments"
+    }
+   }
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.DFA",
+   "nombre": "evalFrom_of_pow",
+   "cuerpo": "{x y : List α} {s : σ} (hx : M.evalFrom s x = s)\n    (hy : y ∈ ({x} : Language α)∗) : M.evalFrom s y = s",
+   "contexto": [
+    "universe u v",
+    "open Computability",
+    "namespace DFA",
+    "variable {α : Type u} {σ : Type v} (M : DFA α σ)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Computability.DFA",
+    "Mathlib.Computability.Language"
+   ],
+   "faltan": [
+    "Mathlib.Computability.DFA",
+    "Mathlib.Computability.Language"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 18.6,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:8:40: error: Function expected at\n  DFA\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:11:21: error: Function expected at\n  Language\nbut this term has type\n  ?m.4\n\nNote: Expected a function because this term is being applied to the argument\n  α\n\nHint: The ide"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 17.4,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:8:40: error: Function expected at\n  DFA\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:11:21: error: Function expected at\n  Language\nbut this term has type\n  ?m.4\n\nNote: Expected a function because this term is being applied to the argument\n  α\n\nHint: The ide"
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 18.2,
+     "mods": 5,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.Kernel.Composition.KernelLemmas",
+   "nombre": "comp_eq_snd_compProd",
+   "cuerpo": "(η : Kernel Y Z) [IsSFiniteKernel η] (κ : Kernel X Y)\n    [IsSFiniteKernel κ] : η ∘ₖ κ = snd (κ ⊗ₖ prodMkLeft X η)",
+   "contexto": [
+    "open MeasureTheory ProbabilityTheory",
+    "open scoped ENNReal",
+    "variable {X Y Z T : Type*} {mX : MeasurableSpace X} {mY : MeasurableSpace Y}",
+    "namespace ProbabilityTheory.Kernel"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Probability.Kernel.Defs"
+   ],
+   "faltan": [
+    "Mathlib.Probability.Kernel.Defs"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 20.6,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:11:42: error: expected token\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:11:42: error: expected token\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 19.8,
+     "mods": 4,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:12:42: error: expected token\n"
+    }
+   }
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.Properties",
+   "nombre": "isReduced_of_isReduced_stalk",
+   "cuerpo": "[∀ x : X, _root_.IsReduced (X.presheaf.stalk x)] :\n    IsReduced X",
+   "contexto": [
+    "universe u",
+    "open TopologicalSpace Opposite CategoryTheory CategoryTheory.Limits TopCat Topology",
+    "namespace AlgebraicGeometry",
+    "variable (X : Scheme)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Data.Opposite",
+    "Mathlib.Topology.Category.TopCat.Basic",
+    "Mathlib.Algebra.GroupWithZero.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Topology.Category.TopCat.Basic"
+   ],
+   "estrato": "B",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 20.1,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:68: error: unknown namespace `TopCat`\nE:\\Metamatematico\\_banco_imports.lean:10:31: error: type expected, got\n  (X : Scheme)\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 17.7,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:68: error: unknown namespace `TopCat`\nE:\\Metamatematico\\_banco_imports.lean:10:31: error: type expected, got\n  (X : Scheme)\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 17.8,
+     "mods": 4,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:11:31: error: type expected, got\n  (X : Scheme)\n"
+    }
+   }
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Group.Measure",
+   "nombre": "forall_measure_preimage_mul_right_iff",
+   "cuerpo": "(μ : Measure G) :\n    (∀ (g : G) (A : Set G), MeasurableSet A → μ ((fun h => h * g) ⁻¹' A) = μ A) ↔\n      IsMulRightInvariant μ",
+   "contexto": [
+    "noncomputable section",
+    "open scoped NNReal ENNReal Pointwise Topology",
+    "open Inv Set Function MeasureTheory.Measure Filter",
+    "variable {G H : Type*} [MeasurableSpace G] [MeasurableSpace H]",
+    "namespace MeasureTheory",
+    "section Mul",
+    "variable [Mul G] {μ : Measure G}",
+    "section MeasurableMul",
+    "variable [MeasurableMul G]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.MeasureTheory.Group.Arithmetic"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": true,
+     "seg": 17.2,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+grafo": {
+     "ok": true,
+     "seg": 21.5,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 19.4,
+     "mods": 3,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.Angle.Oriented.RightAngle",
+   "nombre": "oangle_add_right_eq_arccos_of_oangle_eq_pi_div_two",
+   "cuerpo": "{x y : V} (h : o.oangle x y = ↑(π / 2)) :\n    o.oangle x (x + y) = Real.arccos (‖x‖ / ‖x + y‖)",
+   "contexto": [
+    "noncomputable section",
+    "open scoped EuclideanGeometry",
+    "open scoped Real",
+    "open scoped RealInnerProductSpace",
+    "namespace Orientation",
+    "open Module",
+    "variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]",
+    "variable [hd2 : Fact (finrank ℝ V = 2)] (o : Orientation ℝ V (Fin 2))"
+   ],
+   "mods_nombres": [
+    "Mathlib.LinearAlgebra.Orientation",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Analysis.InnerProductSpace.Defs",
+    "Mathlib.Logic.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 17.4,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:14:41: error(lean.invalidField): Invalid field `oangle`: The environment does not contain `Quot.oangle`, so it is not possible to project the field `oangle` from an expression\n  o\nof type\n  Quot ⇑(RayVector.Setoid ℝ (V [⋀^Fin 2]→ₗ[ℝ] ℝ))\nE:\\Metamatematico\\_banco_imports.le"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.0,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:14:41: error(lean.invalidField): Invalid field `oangle`: The environment does not contain `Quot.oangle`, so it is not possible to project the field `oangle` from an expression\n  o\nof type\n  Quot ⇑(RayVector.Setoid ℝ (V [⋀^Fin 2]→ₗ[ℝ] ℝ))\nE:\\Metamatematico\\_banco_imports.le"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 17.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:14:41: error(lean.invalidField): Invalid field `oangle`: The environment does not contain `Quot.oangle`, so it is not possible to project the field `oangle` from an expression\n  o\nof type\n  Quot ⇑(RayVector.Setoid ℝ (V [⋀^Fin 2]→ₗ[ℝ] ℝ))\nE:\\Metamatematico\\_banco_imports.le"
+    }
+   }
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Function.Iterate",
+   "nombre": "iterate_succ_apply'",
+   "cuerpo": "(n : ℕ) (x : α) : f^[n.succ] x = f (f^[n] x)",
+   "contexto": [
+    "universe u v",
+    "variable {α : Type u} {β : Type v}",
+    "notation:max f \"^[\" n \"]\" => Nat.iterate f n",
+    "namespace Function",
+    "open Function (Commute)",
+    "variable (f : α → α)",
+    "variable {f}",
+    "variable (f)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Commute.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 17.4,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:14:42: error: Ambiguous term\n  f^[n.succ]\nPossible interpretations:\n  f^[n.succ] x : α\n  \n  f^[n.succ] x : α\nE:\\Metamatematico\\_banco_imports.lean:14:60: error: Ambiguous term\n  f^[n]\nPossible interpretations:\n  f^[n] x : α\n  \n  f^[n] x : α\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 17.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:14:42: error: Ambiguous term\n  f^[n.succ]\nPossible interpretations:\n  f^[n.succ] x : α\n  \n  f^[n.succ] x : α\nE:\\Metamatematico\\_banco_imports.lean:14:60: error: Ambiguous term\n  f^[n]\nPossible interpretations:\n  f^[n] x : α\n  \n  f^[n] x : α\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 17.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:14:42: error: Ambiguous term\n  f^[n.succ]\nPossible interpretations:\n  f^[n.succ] x : α\n  \n  f^[n.succ] x : α\nE:\\Metamatematico\\_banco_imports.lean:14:60: error: Ambiguous term\n  f^[n]\nPossible interpretations:\n  f^[n] x : α\n  \n  f^[n] x : α\n"
+    }
+   }
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.BigOperators.Finprod",
+   "nombre": "finprod_eq_prod_plift_of_mulSupport_toFinset_subset",
+   "cuerpo": "{f : α → M}\n    (hf : HasFiniteMulSupport (f ∘ PLift.down)) {s : Finset (PLift α)} (hs : hf.toFinset ⊆ s) :\n    ∏ᶠ i, f i = ∏ i ∈ s, f i.down",
+   "contexto": [
+    "open Function Set",
+    "section sort",
+    "variable {G M N : Type*} {α β ι : Sort*} [CommMonoid M] [CommMonoid N]",
+    "open Batteries.ExtendedBinder"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": true,
+     "seg": 18.1,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+grafo": {
+     "ok": true,
+     "seg": 18.0,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 17.6,
+     "mods": 3,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.Finite.Basic",
+   "nombre": "prod_univ_units_id_eq_neg_one",
+   "cuerpo": "[CommRing K] [IsDomain K] [Fintype Kˣ] :\n    ∏ x : Kˣ, x = (-1 : Kˣ)",
+   "contexto": [
+    "variable {K : Type*} {R : Type*}",
+    "local notation \"q\" => Fintype.card K",
+    "open Finset",
+    "open scoped Polynomial",
+    "namespace FiniteField"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Fintype.Card",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Data.Fintype.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": true,
+     "seg": 18.0,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+grafo": {
+     "ok": true,
+     "seg": 17.3,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 18.1,
+     "mods": 3,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure",
+   "nombre": "toSplittingField_coeff",
+   "cuerpo": "{s : Finset (Monics k)} {f} (h : f ∈ s) (n) :\n    toSplittingField s ((subProdXSubC f).coeff n) = 0",
+   "contexto": [
+    "universe u v w",
+    "noncomputable section",
+    "open Polynomial",
+    "variable (k : Type u) [Field k]",
+    "namespace AlgebraicClosure",
+    "variable {k} in",
+    "variable {k}",
+    "open Classical in"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 17.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:11:10: error: redundant binder annotation update\nE:\\Metamatematico\\_banco_imports.lean:14:8: warning: declaration uses `sorry`\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 17.8,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:11:10: error: redundant binder annotation update\nE:\\Metamatematico\\_banco_imports.lean:14:8: warning: declaration uses `sorry`\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 19.3,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:11:10: error: redundant binder annotation update\nE:\\Metamatematico\\_banco_imports.lean:14:8: warning: declaration uses `sorry`\n"
+    }
+   }
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.Convex.Caratheodory",
+   "nombre": "convexHull_eq_union",
+   "cuerpo": ": convexHull 𝕜 s =\n    ⋃ (t : Finset E) (_ : ↑t ⊆ s) (_ : AffineIndependent 𝕜 ((↑) : t → E)), convexHull 𝕜 ↑t",
+   "contexto": [
+    "open Set Finset",
+    "universe u",
+    "variable {𝕜 : Type*} {E : Type u} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]",
+    "variable {s : Set E}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Order.Defs.LinearOrder",
+    "Mathlib.Algebra.Order.Ring.Defs",
+    "Mathlib.LinearAlgebra.AffineSpace.Independent"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 18.2,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:10:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddCommMonoid E\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:11:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddTorsor ?"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.4,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:10:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddCommMonoid E\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:11:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddTorsor ?"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 18.2,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:10:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddCommMonoid E\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:11:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddTorsor ?"
+    }
+   }
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.Fin.Tuple.Embedding",
+   "nombre": "snoc_castSucc",
+   "cuerpo": "{n : ℕ} {x : Fin n ↪ α} {a : α} {ha : a ∉ range x} {i : Fin n} :\n    snoc x ha i.castSucc = x i",
+   "contexto": [
+    "open Function.Embedding Fin Set Nat",
+    "namespace Fin.Embedding",
+    "variable {α : Type*}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Embedding.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": false,
+     "seg": 17.9,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:10:4: error: Type mismatch\n  snoc ?m.10 ?m.11 i.castSucc\nhas type\n  ?m.8 i.castSucc\nbut is expected to have type\n  α\n"
+    },
+    "fijo+grafo": {
+     "ok": false,
+     "seg": 18.2,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:10:4: error: Type mismatch\n  snoc ?m.10 ?m.11 i.castSucc\nhas type\n  ?m.8 i.castSucc\nbut is expected to have type\n  α\n"
+    },
+    "fijo+regla4": {
+     "ok": false,
+     "seg": 19.2,
+     "mods": 3,
+     "err": "E:\\Metamatematico\\_banco_imports.lean:10:4: error: Type mismatch\n  snoc ?m.10 ?m.11 i.castSucc\nhas type\n  ?m.8 i.castSucc\nbut is expected to have type\n  α\n"
+    }
+   }
+  },
+  {
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.AlgebraTower",
+   "nombre": "algebraMapCoeffs_repr",
+   "cuerpo": "(m : M) :\n    (b.algebraMapCoeffs A h).repr m = (b.repr m).mapRange (algebraMap R A) (map_zero _)",
+   "contexto": [
+    "open Module",
+    "open scoped Pointwise",
+    "variable (R S A B : Type*)",
+    "section AlgebraMapCoeffs",
+    "namespace Module.Basis",
+    "variable {R} {ι M : Type*} [CommSemiring R] [Semiring A] [AddCommMonoid M]",
+    "variable [Algebra R A] [Module A M] [Module R M] [IsScalarTower R A M]",
+    "variable (b : Basis ι R M) (h : Function.Bijective (algebraMap R A))"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.LinearAlgebra.Basis.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Algebra.Defs",
+    "Mathlib.Algebra.Group.Action.Defs",
+    "Mathlib.Logic.Function.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": true,
+     "seg": 19.5,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+grafo": {
+     "ok": true,
+     "seg": 19.4,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 21.9,
+     "mods": 3,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Denumerable",
+   "nombre": "encode_ofNat",
+   "cuerpo": "(n) : encode (ofNat α n) = n",
+   "contexto": [
+    "variable {α β : Type*}",
+    "open Finset Nat",
+    "namespace Denumerable",
+    "section",
+    "variable [Denumerable α] [Denumerable β]",
+    "open Encodable"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Denumerable",
+    "Mathlib.Logic.Encodable.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": true,
+     "seg": 23.6,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+grafo": {
+     "ok": true,
+     "seg": 22.7,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 24.0,
+     "mods": 3,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Skeletal",
+   "nombre": "skeleton_skeletal",
+   "cuerpo": ": Skeletal (Skeleton C)",
+   "contexto": [
+    "universe v₁ v₂ v₃ u₁ u₂ u₃",
+    "namespace CategoryTheory",
+    "open Category",
+    "variable (C : Type u₁) [Category.{v₁} C]",
+    "variable (D : Type u₂) [Category.{v₂} D]",
+    "variable {E : Type u₃} [Category.{v₃} E]",
+    "variable {C D}",
+    "variable (C D)",
+    "variable {C}",
+    "variable (C)"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": true,
+     "seg": 22.7,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+grafo": {
+     "ok": true,
+     "seg": 22.2,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 23.1,
+     "mods": 3,
+     "err": ""
+    }
+   }
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Traversable.Basic",
+   "nombre": "preserves_map'",
+   "cuerpo": "{α β} (x : α → β) : @η _ ∘ Functor.map x = Functor.map x ∘ @η _",
+   "contexto": [
+    "open Function hiding comp",
+    "universe u v w",
+    "namespace ApplicativeTransformation",
+    "variable (F : Type u → Type v) [Applicative F]",
+    "variable (G : Type u → Type w) [Applicative G]",
+    "variable {F G}",
+    "section Preserves",
+    "variable (η : ApplicativeTransformation F G)",
+    "variable [LawfulApplicative F] [LawfulApplicative G]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Control.Traversable.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A",
+   "resultado": {
+    "fijo": {
+     "ok": true,
+     "seg": 29.8,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+grafo": {
+     "ok": true,
+     "seg": 25.9,
+     "mods": 3,
+     "err": ""
+    },
+    "fijo+regla4": {
+     "ok": true,
+     "seg": 26.5,
+     "mods": 3,
+     "err": ""
+    }
+   }
+  }
+ ],
+ "resumen": {
+  "fijo": {
+   "ok": 7,
+   "n": 24,
+   "seg": 477.5879683494568,
+   "mods": 72
+  },
+  "fijo+grafo": {
+   "ok": 7,
+   "n": 24,
+   "seg": 466.94779777526855,
+   "mods": 72
+  },
+  "fijo+regla4": {
+   "ok": 9,
+   "n": 24,
+   "seg": 492.81835556030273,
+   "mods": 94
+  }
+ },
+ "estrato_A": 141,
+ "estrato_B": 62,
+ "n_muestra_al_azar": 203,
+ "prevalencia_B": 30.5,
+ "balanceado": true,
+ "fijo": [
+  "Mathlib.Tactic",
+  "Mathlib.Data.Real.Basic",
+  "Mathlib.Data.Nat.Basic"
+ ],
+ "semilla": 20260911,
+ "ejecutado": true,
+ "roto": [
+  "el NULO solo elabora 7 de 12 en el estrato A, que por construccion cubre entero: los fallos no pueden ser de imports, son del enunciado mal recortado"
+ ]
+}

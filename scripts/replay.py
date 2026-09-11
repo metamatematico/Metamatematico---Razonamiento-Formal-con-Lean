@@ -51,10 +51,18 @@ SALIDA = "E:/Metamatematico/data/replay.json"
 
 #: Qué apaga cada configuración. `completo` no apaga nada.
 CONFIGS = {
-    "completo":     {"imports": True,  "premisas": True},
-    "sin-imports":  {"imports": False, "premisas": True},
-    "sin-premisas": {"imports": True,  "premisas": False},
-    "desnudo":      {"imports": False, "premisas": False},
+    # `reparar` es el reparador de nombres COMPLETO: cualifica identificadores
+    # y trae los modulos que hagan falta, incluida la regla 4 —la que completa
+    # la cabecera con el modulo de los nombres que YA estaban bien escritos—.
+    # Produccion lo ejecuta siempre, antes de compilar.
+    "completo":     {"imports": True,  "premisas": True,  "reparar": True},
+    "sin-imports":  {"imports": False, "premisas": True,  "reparar": True},
+    "sin-premisas": {"imports": True,  "premisas": False, "reparar": True},
+    "desnudo":      {"imports": False, "premisas": False, "reparar": False},
+    # La rama que aisla al reparador. Es, ademas, lo que esta reejecucion
+    # hacia hasta ahora sin querer: llamaba a `check_code` con el codigo crudo
+    # y por tanto subestimaba al sistema en todo lo que el reparador arregla.
+    "sin-reparar":  {"imports": True,  "premisas": True,  "reparar": False},
 }
 
 
@@ -108,6 +116,24 @@ async def reproduce(nucleo, fila, cfg):
     codigo = fila["codigo"]
     area = fila.get("area") or ""
     t0 = time.time()
+    cambios = []
+
+    # PASO 2b — EL REPARADOR DE NOMBRES.
+    #
+    # FALTABA, y su falta hacia que esta reejecucion NO fuera fiel a
+    # produccion: `core.py` repara ANTES de compilar —hay un test que lo
+    # exige, `test_core_repara_antes_de_compilar`— y aqui se llamaba a
+    # `check_code` con el codigo crudo. La reejecucion subestimaba al sistema
+    # en todo lo que el reparador arregla.
+    #
+    # Se deja gobernado por la configuracion para poder AISLAR su aporte: la
+    # rama `sin-reparar` es lo que esta reejecucion hacia hasta ahora.
+    if cfg.get("reparar", True):
+        try:
+            from nucleo.lean import nombres as _nom
+            codigo, cambios = _nom.reparar_codigo(codigo)
+        except Exception:                                      # noqa: BLE001
+            cambios = []
 
     # PASO 3 — los módulos que el grafo propone
     try:
@@ -138,7 +164,14 @@ async def reproduce(nucleo, fila, cfg):
         except Exception:
             pass
 
-    return verifica, time.time() - t0, len(mods)
+    # `solo_imports` dice que el unico cambio del reparador fue traer modulos,
+    # sin tocar ningun nombre. Como la regla 3 solo puede disparar DETRAS de
+    # una correccion de nombre, un cambio de solo imports es obra de la
+    # regla 4 — la que completa la cabecera con el modulo de los nombres que
+    # ya estaban bien. Sirve para atribuir el aporte sin una rama mas.
+    solo_imports = bool(cambios) and all(v == "(import)" for v, _ in cambios)
+    return (verifica, time.time() - t0, len(mods),
+            {"cambios": len(cambios), "solo_imports": solo_imports})
 
 
 async def main(configs, limite):
@@ -174,12 +207,13 @@ async def main(configs, limite):
     for i, f in enumerate(filas, 1):
         fila = {"consulta": f["consulta"][:60]}
         for c in configs:
-            ok, seg, nm = await reproduce(nucleo, f, CONFIGS[c])
+            ok, seg, nm, extra = await reproduce(nucleo, f, CONFIGS[c])
             r = res[c]
             r["ok"] += 1 if ok else 0
             r["n"] += 1
             r["seg"] += seg
-            fila[c] = {"ok": ok, "seg": round(seg, 1), "mods": nm}
+            fila[c] = dict({"ok": ok, "seg": round(seg, 1), "mods": nm},
+                           **extra)
         detalle.append(fila)
         print("  %2d/%d  %-46s %s" % (
             i, len(filas), f["consulta"][:44],

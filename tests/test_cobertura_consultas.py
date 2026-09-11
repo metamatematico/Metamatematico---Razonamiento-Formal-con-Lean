@@ -198,10 +198,22 @@ def test_el_replay_declara_sus_configuraciones():
         "replay", RAIZ / "scripts" / "replay.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    assert mod.CONFIGS["completo"] == {"imports": True, "premisas": True}
-    assert mod.CONFIGS["desnudo"] == {"imports": False, "premisas": False}
+    # Se comprueba la INTENCION, no una lista literal de claves. La version
+    # anterior fijaba {"imports", "premisas"} y saltaba en cuanto se anadia un
+    # interruptor nuevo —`reparar`— aunque la propiedad que vigila siguiera
+    # cumpliendose. Un guardian que salta con codigo correcto ensena a
+    # ignorarlo.
+    claves = set(mod.CONFIGS["completo"])
+    assert claves, "`completo` no declara ningun interruptor"
+    assert all(mod.CONFIGS["completo"][k] is True for k in claves), (
+        "`completo` tiene que ser el sistema entero: no apaga nada")
+    assert all(mod.CONFIGS["desnudo"][k] is False for k in claves), (
+        "`desnudo` tiene que apagarlo todo, o no es el suelo de nadie")
     for nombre, cfg in mod.CONFIGS.items():
-        assert set(cfg) == {"imports", "premisas"}, nombre
+        assert set(cfg) == claves, (
+            "%s declara otras claves que `completo`: una configuracion que "
+            "calla sobre un interruptor deja esa pieza en un estado que la "
+            "medicion no registra" % nombre)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
