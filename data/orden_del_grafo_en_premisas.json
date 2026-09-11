@@ -1,0 +1,34 @@
+{
+ "consultas": 1500,
+ "k": 20,
+ "semilla": 20260901,
+ "boost": 0.15,
+ "segmentos": 3,
+ "resultados": {
+  "nulo": {
+   "cobertura": 11.461100569259962,
+   "precision": 1.0066666666666666,
+   "toca": 16.666666666666668
+  },
+  "lexico": {
+   "cobertura": 6.98292220113852,
+   "precision": 0.6133946728006134,
+   "toca": 10.933333333333334
+  },
+  "lexico+orden_grafo": {
+   "cobertura": 6.679316888045541,
+   "precision": 0.5867253392005867,
+   "toca": 10.4
+  },
+  "HIBRIDO": {
+   "cobertura": 14.079696394686907,
+   "precision": 1.2366666666666666,
+   "toca": 21.533333333333335
+  },
+  "HIBRIDO+orden_grafo": {
+   "cobertura": 13.889943074003796,
+   "precision": 1.22,
+   "toca": 21.333333333333332
+  }
+ }
+}

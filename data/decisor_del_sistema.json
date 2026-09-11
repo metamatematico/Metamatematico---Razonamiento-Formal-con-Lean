@@ -12,11 +12,13 @@
   "apagadas": [
     "rasgos_de_sintaxis_cuando_el_lexico_calla",
     "reconocedor_de_area",
+    "contexto_estructural_en_el_prompt",
     "eleccion_de_imports",
     "orden_de_cascada_por_area",
     "dos_etapas_localizar_y_elegir",
     "recuperacion_lexica_de_lemas",
-    "emparejador_semantico"
+    "emparejador_semantico",
+    "enrutado_neuronal"
   ],
   "motivos": {
     "revision_de_sintaxis": "caza de roturas (%) 0.608 contra 0.036 (una moneda que rechaza a la misma tasa)",
@@ -24,14 +26,16 @@
     "rasgos_de_sintaxis_cuando_el_lexico_calla": "su guarda no aplica a esta consulta",
     "reconocedor_de_area": "NO esta cableada: gana a su nulo en MATH (75,9 % contra 23,8 %) pero medida por el camino real contra ProofNet no paga: el brazo `lexico+puerta` de scripts/recuperacion_contra_proofnet.py ofrece nombres en 11 casos mas y no se usa ni uno —cobertura igual, precision 0,7 puntos por debajo—. El motivo esta en nucleo/core.py, donde se decidio dejarla fuera: en ProofNet el lexico solo calla en 31 de 371, asi que el margen era del 4 % desde el principio. Se construyo para las consultas en español, donde el lexico calla en el 27 %, y para esas NO HAY BANCO con premisas de oro. Lo que falta no es cablearla: es medirla donde se supone que sirve",
     "clasificacion_por_palabras_clave": "acierto de area, equilibrado 58.720 contra 33.330 (responder siempre «algebra», que es la clase mayoritaria)",
-    "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 20.999 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)",
+    "nombres_de_mathlib_en_el_prompt": "precisión de los nombres (%) 21.640 contra 1.452 (ofrecer los nombres más frecuentes de Mathlib)",
+    "contexto_estructural_en_el_prompt": "Estos campos se calculaban en `_find_relevant_context` y NO LOS LEÍA NADIE: se escribían en el dict y morían ahí. O sea que el único uso que el sistema hacía de sus 1029 aristas no llegaba a ningún sitio. Ya están cableados, y apagados, porque su efecto sólo se ve en lo que el modelo escribe y eso cuesta una llamada: añadir texto correcto al prompt puede empeorar, y en este repositorio está medido dos veces (los 12 nodos de interpretacion.py, y los nodos de cobertura). La medición está preparada: `scripts/campana_de_grabacion.py` graba con y sin este bloque, y a partir de ahí `replay.py` la repite gratis",
     "premisas_hibridas": "precisión de premisas 1.243 contra 1.040 (las premisas más frecuentes)",
     "eleccion_de_imports": "NO bate a su nulo: enunciados que elaboran, de 20 18.000 contra 18.000 (un conjunto fijo de tres módulos)",
     "orden_de_cascada_por_area": "NO bate a su nulo: posición de la táctica que cierra 1.262 contra 1.091 (`simp` primero y el resto por frecuencia)",
-    "modelo_de_orden_de_cascada": "acierto de la tactica 0.598 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))",
+    "modelo_de_orden_de_cascada": "acierto de la tactica 0.621 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))",
     "dos_etapas_localizar_y_elegir": "NO bate a su nulo: precisión de premisas 0.419 contra 0.930 (las premisas más frecuentes, sin localizar nada)",
     "recuperacion_lexica_de_lemas": "NO bate a su nulo: precisión de lemas 0.065 contra 7.780 (los lemas más frecuentes)",
-    "emparejador_semantico": "evaluado y descartado, nunca se adopto: en emparejador_semantico.json acierta el area en el 12 % (285 de 2385) contra el 61 % del emparejador lexico (emparejamiento.json). Las dos cifras son CRUDAS sobre un banco 89 % algebra, donde responder siempre «algebra» acierta el 88,6 %: ninguna de las dos bate a esa constante, asi que la comparacion vale para ordenarlas entre si y para nada mas. El fichero no guarda un nulo en forma comparable, asi que aqui cuenta como sin evidencia; y ademas cuesta una llamada. Contra ProofNet, que si tiene oro, el semantico da 13,1 % de precision y 2,4 % de cobertura frente a 21,0 % y 14,8 % del lexico",
+    "emparejador_semantico": "evaluado y descartado, nunca se adopto: en emparejador_semantico.json acierta el area en el 12 % (285 de 2385) contra el 61 % del emparejador lexico (emparejamiento.json). Las dos cifras son CRUDAS sobre un banco 89 % algebra, donde responder siempre «algebra» acierta el 88,6 %: ninguna de las dos bate a esa constante, asi que la comparacion vale para ordenarlas entre si y para nada mas. El fichero no guarda un nulo en forma comparable, asi que aqui cuenta como sin evidencia; y ademas cuesta una llamada. Contra ProofNet, que si tiene oro, el semantico da 13,1 % de precision y 2,4 % de cobertura frente a 21,6 % y 18,3 % del lexico",
+    "enrutado_neuronal": "NO bate a su nulo: acciones distintas ante una sonda heterogenea 1.000 contra 1.000 (la politica constante, que da exactamente una)",
     "verificacion_con_lean": "es el proposito del sistema, no un extra"
   },
   "veredictos": {
@@ -66,10 +70,16 @@
       "motivo": "acierto de area, equilibrado 58.720 contra 33.330 (responder siempre «algebra», que es la clase mayoritaria)"
     },
     "nombres_de_mathlib_en_el_prompt": {
-      "real": 20.998980632008156,
-      "nulo": 1.6335227272727273,
+      "real": 21.639898562975485,
+      "nulo": 1.452020202020202,
       "gana": true,
-      "motivo": "precisión de los nombres (%) 20.999 contra 1.634 (ofrecer los nombres más frecuentes de Mathlib)"
+      "motivo": "precisión de los nombres (%) 21.640 contra 1.452 (ofrecer los nombres más frecuentes de Mathlib)"
+    },
+    "contexto_estructural_en_el_prompt": {
+      "real": null,
+      "nulo": null,
+      "gana": null,
+      "motivo": "sin evidencia con modelo nulo"
     },
     "premisas_hibridas": {
       "real": 1.2433747791593053,
@@ -90,10 +100,10 @@
       "motivo": "posición de la táctica que cierra 1.262 contra 1.091 (`simp` primero y el resto por frecuencia)"
     },
     "modelo_de_orden_de_cascada": {
-      "real": 0.5975,
+      "real": 0.6207,
       "nulo": 0.3181,
       "gana": true,
-      "motivo": "acierto de la tactica 0.598 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))"
+      "motivo": "acierto de la tactica 0.621 contra 0.318 (responder siempre la tactica mayoritaria (nlinarith))"
     },
     "dos_etapas_localizar_y_elegir": {
       "real": 0.4193512552766052,
@@ -113,6 +123,12 @@
       "gana": null,
       "motivo": "sin evidencia con modelo nulo"
     },
+    "enrutado_neuronal": {
+      "real": 1.0,
+      "nulo": 1.0,
+      "gana": false,
+      "motivo": "acciones distintas ante una sonda heterogenea 1.000 contra 1.000 (la politica constante, que da exactamente una)"
+    },
     "verificacion_con_lean": {
       "real": null,
       "nulo": null,
@@ -126,8 +142,8 @@
     "local": 6
   },
   "coste_nulo": {
-    "llamada al modelo": 1,
+    "llamada al modelo": 2,
     "compilado de Lean": 2,
-    "local": 11
+    "local": 12
   }
 }

@@ -1,3 +1,7 @@
+# Documentos personales: no se versionan.
+docs/tesis/
+*.tex.local
+
 /.lake
 # Respaldo temporal del traslado de .lake al SSD (borrar tras confirmar en frio)
 /.lake_old
@@ -75,3 +79,11 @@ data/banco_lemas.jsonl
 data/grabaciones/
 data/replay.json
 data/traductor-es-en/
+
+# Registros de las tandas de medicion: se regeneran y ocupan.
+data/*.log
+# Respaldos locales de modelos: el historial de git ya guarda el anterior.
+data/*.bak
+data/*.bak.json
+# Scratch de mediciones exploratorias (prefijo _).
+data/_*.json

@@ -126,13 +126,20 @@ pre b{color:var(--tinta); font-weight:600}
 
 <h1>Diagnóstico del Metamatemático</h1>
 <p class="entrada">
-Estado del sistema a 7 de septiembre de 2026. Cada cifra va con su modelo nulo;
-donde no lo hay, se dice. Y donde una conclusión anterior resultó falsa, se
-dice también — esta semana hubo tres.
+<strong>Metamatemático</strong> traduce una pregunta de matemáticas a un
+enunciado de Lean&nbsp;4 y deja que el kernel decida si es cierta; está
+organizado en cinco capas a uno y otro lado de la <em>frontera de
+formalización</em>, que es el momento en que ese enunciado existe. Esto es su
+estado a 10 de septiembre de 2026. Cada cifra va con su modelo
+nulo; donde no lo hay, se dice. Y donde una conclusión anterior resultó falsa,
+se dice también. Desde la última revisión hay una novedad que cambia el orden
+de todo lo demás: <strong>el sistema entero ya está medido contra el modelo
+desnudo</strong>, y con él al lado varias cifras de este documento se leen
+distinto.
 </p>
 
 <div class="ficha">
-  <div><div class="v">1069</div><div class="e">tests en verde, 52 suites, en los dos intérpretes</div></div>
+  <div><div class="v">1080</div><div class="e">tests en verde, 53 suites, en los dos intérpretes</div></div>
   <div><div class="v">62/63</div><div class="e">operaciones con respaldo formal en Lean</div></div>
   <div><div class="v">387</div><div class="e">teoremas Lean en 22 archivos, 0 <code>sorry</code></div></div>
   <div><div class="v">35 815</div><div class="e">líneas de Python en <code>nucleo/</code></div></div>
@@ -145,7 +152,65 @@ dice también — esta semana hubo tres.
 </p>
 
 
-<h2><span class="n">01</span>El hallazgo de la semana: faltaban los nulos</h2>
+<h2><span class="n">01</span>El sistema entero contra el modelo desnudo</h2>
+<p>
+Durante mucho tiempo la comparación fue «el sistema con el grafo» contra «el
+sistema sin el grafo». Esa pareja contesta si aporta el <em>grafo</em>, no si
+aporta el <em>sistema</em>: la rama sin grafo sigue llevando reparación,
+premisas, cascada y ejemplos. Faltaba el suelo — el mismo modelo, una llamada,
+sin nada alrededor.
+</p>
+
+<div class="tabla">
+<table>
+<thead><tr><th>configuración</th><th>verifica</th><th>qué es</th></tr></thead>
+<tbody>
+<tr><td>modelo solo</td><td class="num">4 / 20 · 20 %</td><td>una llamada, sin sistema</td></tr>
+<tr><td>sin reparación</td><td class="num">6 / 15 · 40 %</td><td>el sistema menos el bucle de reparación</td></tr>
+<tr><td>sin vocabulario</td><td class="num">11 / 20 · 55 %</td><td>el sistema menos el grafo</td></tr>
+<tr><td><strong>sistema completo</strong></td><td class="num">12 / 20 · 60 %</td><td>la configuración que se sirve</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="tabla">
+<table>
+<thead><tr><th>comparación pareada</th><th>rescata</th><th>rompe</th><th>p · McNemar exacto</th></tr></thead>
+<tbody>
+<tr><td><strong>el sistema</strong> frente al modelo solo</td><td class="num">8</td><td class="num">0</td><td class="num"><strong>0,0078</strong></td></tr>
+<tr><td><strong>la reparación</strong> <span class="m">completo vs. sin reparación</span></td><td class="num">4</td><td class="num">0</td><td class="num">0,1250</td></tr>
+<tr><td>el vocabulario <span class="m">con vs. sin</span></td><td class="num">3</td><td class="num">2</td><td class="num">1,0000</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="nota verde">
+<strong>El aparato triplica al modelo aislado y es significativo. El grafo,
+dentro de él, no se distingue del ruido.</strong> Las dos cosas son verdad a la
+vez, y conviene no elegir una. El vocabulario cambió lo que el modelo escribió
+en 19 de los 20 casos — lo que no hizo fue mover el veredicto en una dirección
+consistente.
+</div>
+
+<div class="nota ambar">
+<strong>Lo que esto le hace al resto del documento.</strong> La sección 04
+lista capacidades apagadas por no batir a su nulo; ésta añade una que
+<em>sí</em> lo bate en su banco propio —el vocabulario, 14,9× contra
+ProofNet— y aun así no mueve el resultado final. No es una contradicción: son
+dos preguntas distintas. <em>Ofrecer los identificadores correctos</em> es
+puntería; <em>hacer que Lean verifique más</em> es resultado. La puntería está
+demostrada y el resultado no se ve a n=20.
+</div>
+
+<div class="nota">
+Coste total de la campaña: <strong>0,63 USD</strong> con
+<code>claude-sonnet-5</code>, más 0,03 de la línea base. Los tres contrastes
+corren sobre 20 casos (15 en la rama sin reparación), así que «rescata 4 y
+rompe 0» no llega a significancia aunque el efecto sea real.
+</div>
+
+
+<h2><span class="n">02</span>El hallazgo de la semana: faltaban los nulos</h2>
 <p>
 Este proyecto exige un modelo nulo junto a cada cifra. Al auditarlo se
 encontró que <strong>las dos medidas del área no lo tenían</strong>, y con él
@@ -177,7 +242,7 @@ Tres skills copaban la mitad del banco —<code>eigen-theory</code>,
 por la palabra <code>and</code> de su propio nombre: «Eigenvalues <em>and</em>
 Eigenvectors». Las tres son de área <code>algebra</code>, así que acertaban por
 el sesgo de clase. Con <code>and</code> fuera del vocabulario, la precisión
-contra ProofNet sube de 18,8 % a 21,0 % con la cobertura plana y 121 nombres
+contra ProofNet sube de 18,8 % a 21,6 % con la cobertura plana y 121 nombres
 erróneos menos en el prompt.
 </div>
 
@@ -187,7 +252,7 @@ fichero para citar una cifra tropiece con él.
 </p>
 
 
-<h2><span class="n">02</span>Lo que aporta</h2>
+<h2><span class="n">03</span>Lo que aporta</h2>
 <p>
 Ocho capacidades baten a su modelo nulo, y el decisor las enciende leyendo estos
 mismos ficheros en cada consulta, no un número escrito a mano. <strong>Siete de
@@ -216,9 +281,9 @@ su propio nulo le gana por veintisiete puntos.
 <thead><tr><th>capacidad</th><th>real</th><th>nulo</th><th>contra qué</th></tr></thead>
 <tbody>
 <tr><td>Revisión de sintaxis <span class="m">(caza de roturas)</span></td><td class="num">60,8 %</td><td class="num nulo">3,6 %</td><td>una moneda que rechaza igual</td></tr>
-<tr><td>Nombres de Mathlib en el prompt <span class="m">(precisión)</span></td><td class="num">21,0 %</td><td class="num nulo">1,6 %</td><td>los nombres más frecuentes</td></tr>
+<tr><td>Nombres de Mathlib en el prompt <span class="m">(precisión)</span></td><td class="num">21,6 %</td><td class="num nulo">1,45 %</td><td>los nombres más frecuentes</td></tr>
 <tr><td>Reconocedor de área <span class="m">(acierto equilibrado) · MEDIDO, NO CABLEADO</span></td><td class="num">0,759</td><td class="num nulo">0,238</td><td>siempre el área mayoritaria</td></tr>
-<tr><td>TacticRanker <span class="m">(acierto de táctica)</span></td><td class="num">0,598</td><td class="num nulo">0,318</td><td>siempre <code>nlinarith</code></td></tr>
+<tr><td>TacticRanker <span class="m">(acierto de táctica)</span></td><td class="num">0,621</td><td class="num nulo">0,318</td><td>siempre <code>nlinarith</code></td></tr>
 <tr><td>Premisas híbridas <span class="m">(precisión)</span></td><td class="num">1,243</td><td class="num nulo">1,040</td><td>las premisas más frecuentes</td></tr>
 <tr><td>Rasgos del árbol <span class="m">donde el léxico calla</span></td><td class="num">12,9 %</td><td class="num nulo">3,4 %</td><td>los lemas más frecuentes, mismo estrato</td></tr>
 <tr><td>Clasificación por palabras clave <span class="m">(equilibrado)</span></td><td class="num">58,7 %</td><td class="num nulo">33,3 %</td><td>responder siempre «algebra»</td></tr>
@@ -245,7 +310,7 @@ selector de premisas — que es donde su evidencia dice que sirven.
 </div>
 
 
-<h2><span class="n">03</span>Lo que no bate a su nulo</h2>
+<h2><span class="n">04</span>Lo que no bate a su nulo</h2>
 <p>
 Cinco capacidades miden peor —o igual— que no hacerlas. Cuatro estaban en
 producción. El decisor las apaga leyendo la medición, no una opinión.
@@ -259,7 +324,7 @@ producción. El decisor las apaga leyendo la medición, no una opinión.
 <tr><td>Orden de cascada por área <span class="m">(posición, menos es mejor)</span></td><td class="num">1,262</td><td class="num nulo">1,091</td><td><span class="eti no">apagada</span></td></tr>
 <tr><td>Dos etapas: localizar y elegir <span class="m">(precisión)</span></td><td class="num">0,42</td><td class="num nulo">0,93</td><td><span class="eti no">apagada</span></td></tr>
 <tr><td>Recuperación léxica de lemas <span class="m">(precisión)</span></td><td class="num">0,065</td><td class="num nulo">7,78</td><td><span class="eti no">apagada</span></td></tr>
-<tr><td>Emparejador semántico <span class="m">(precisión ProofNet)</span></td><td class="num">13,1 %</td><td class="num nulo">1,6 %</td><td><span class="eti sin">nunca se adoptó</span></td></tr>
+<tr><td>Emparejador semántico <span class="m">(precisión ProofNet)</span></td><td class="num">13,1 %</td><td class="num nulo">1,45 %</td><td><span class="eti sin">nunca se adoptó</span></td></tr>
 </tbody>
 </table>
 </div>
@@ -271,7 +336,7 @@ La última decía «12 % contra 61 %», y ese 61 % <strong>no era un nulo</stron
 era el emparejador léxico. Comparar un candidato con la versión que ya tienes
 no es medirlo. Ahora va contra ProofNet, que sí tiene formalizaciones de oro —
 el semántico da 13,1 % de precisión y <strong>2,4 % de cobertura</strong>,
-frente a 21,0 % y 14,8 % del léxico.
+frente a 21,6 % y 18,3 % del léxico.
 </p>
 
 <div class="nota azul">
@@ -286,7 +351,7 @@ después quedaba apagada <em>justo</em> cuando el decisor fallaba.
 </div>
 
 
-<h2><span class="n">04</span>La fibración: no faltan datos, la base no es un orden</h2>
+<h2><span class="n">05</span>La fibración: no faltan datos, la base no es un orden</h2>
 <p>
 Que π : Skills → Áreas sea funtor está verificado, y no basta: un funtor
 constante también cumple las dos leyes. La condición que dice que la base
@@ -341,7 +406,7 @@ no es una tarea: es qué base <em>sí</em> ordenaría la matemática.
 </p>
 
 
-<h2><span class="n">05</span>Los huecos de conexión, y lo que costaron</h2>
+<h2><span class="n">06</span>Los huecos de conexión, y lo que costaron</h2>
 
 <h3>El mapa de módulos conocía 76 de los 320 nodos</h3>
 <p>
@@ -409,7 +474,7 @@ que sí es transitiva.
 </div>
 
 
-<h2><span class="n">06</span>Los ocho veredictos</h2>
+<h2><span class="n">07</span>Los ocho veredictos</h2>
 <p>
 La respuesta nunca sale sin uno. Tres de los ocho existen porque los tres se
 dieron: el sistema llegó a estampar «verificado» sobre un archivo de
@@ -433,7 +498,7 @@ dieron: el sistema llegó a estampar «verificado» sobre un archivo de
 </div>
 
 
-<h2><span class="n">07</span>La clase de fallo que domina</h2>
+<h2><span class="n">08</span>La clase de fallo que domina</h2>
 <p>
 Ninguno de estos lo encontraron los tests; todos salieron de correr el sistema
 o de auditar los instrumentos. Y casi todos son <strong>el mismo fallo</strong>:
@@ -475,27 +540,27 @@ autoridad de la que tiene.
 </div>
 
 
-<h2><span class="n">08</span>Lo que no está medido</h2>
+<h2><span class="n">09</span>Lo que no está medido</h2>
 <ul>
 <li><strong>La calidad extremo a extremo del decisor</strong> contra «ejecútalo todo». Se mide el coste, no la calidad.</li>
 <li><strong>El banco de fidelidad completo.</strong> Los 24 casos están escritos y la corrida registrada es la muestra rápida: <strong>8 medidos, 8 correctos, 0 infieles</strong>. Es la única medida de si la respuesta responde a la pregunta, y necesita presupuesto de API y de Lean.</li>
 <li><strong>El efecto de los prompts en inglés.</strong> La instrucción se cumple y hay guardián; que mejore la calidad no está medido.</li>
-<li><strong>El GNN no tiene estudio ablativo.</strong> Está cableado —<code>set_neural_agent</code> lo enchufa al ranker de la cascada— pero un guardián propio lo detecta degenerado si la red devuelve siempre la misma acción, y hoy lo detecta.</li>
+<li><strike>El GNN no tiene estudio ablativo.</strike> <strong>Ya lo tiene, y sale degenerado.</strong> La sonda le da cuatro entradas deliberadamente heterogéneas —un teorema, un saludo, un hecho no matemático y un fragmento de Lean— y responde <code>ASSIST</code> a las cuatro: <strong>1 acción distinta, que es exactamente lo que da la política constante</strong>. El 100 % del informe de entrenamiento no era un logro sino un modelo nulo con otro nombre, porque el objetivo «todo problema → ASSIST» se satisface con una constante. El runtime ya lo detectaba y lo ignoraba; ahora la cifra está fuera, en <code>data/sonda_de_degeneracion.json</code>.</li>
 <li><strong>Las palabras clave de los diez fundacionales.</strong> Riesgo cero medido, beneficio no medible: ningún banco disponible contiene consultas de fundamentos.</li>
 <li><strong>Los co-reguladores</strong> siguen siendo analogías en Python, no formalismo MES categórico — a diferencia de la E‑equivalencia, que ahora sí implementa una relación de equivalencia de verdad.</li>
 </ul>
 
 <div class="nota ambar">
 <strong>Riesgo de entorno.</strong> Los tests corren con Python 3.13 y sklearn
-1.7.2; la aplicación con anaconda 3.10 y sklearn 1.6.1. Los 1069 pasan en los
+1.7.2; la aplicación con anaconda 3.10 y sklearn 1.6.1. Los 1080 pasan en los
 dos, y se comprueba en los dos antes de cada commit — pero el modelo del
 TacticRanker está encurtido con 1.6.1 y sklearn avisa al cargarlo con 1.7.2.
 </div>
 
 
-<h2><span class="n">09</span>Lo siguiente, por orden de valor</h2>
+<h2><span class="n">10</span>Lo siguiente, por orden de valor</h2>
 <ol>
-<li><strong>Rehacer el banco de fidelidad, los 24 casos.</strong> Es la única afirmación que de verdad importa —que la respuesta responde a lo que se preguntó— y la única pendiente que necesita gastar. La muestra rápida ya reparte 4/2/2 entre los tres grupos, así que iterar es barato.</li>
+<li><strong>Rehacer el banco de fidelidad, los 24 casos.</strong> Es la única afirmación que de verdad importa —que la respuesta responde a lo que se preguntó— y la única pendiente que necesita gastar. La muestra rápida ya reparte 4/2/2 entre los tres grupos, así que iterar es barato. La campaña de la §1 mide si Lean <em>verifica</em>; este banco mide si lo verificado es <em>lo que se preguntaba</em>, que no es lo mismo.</li>
 <li><strong>Pasar los rasgos del árbol a <code>premisas_para</code>.</strong> Miden 1,43× sobre su nulo prediciendo qué lemas harán falta, y hoy llegan al decisor como guarda en vez de al selector de premisas. Cambio de firma pequeño; la medición ya está escrita.</li>
 <li><strong>Un banco de consultas de fundamentos.</strong> Sin él, todo lo que se construya para la mitad categórica del sistema —que es su razón de ser— se mide con matemática de concurso o no se mide.</li>
 <li><strong>Qué base ordenaría la matemática.</strong> El área no lo hace, y está demostrado. Es una pregunta de investigación, no una tarea de curación.</li>

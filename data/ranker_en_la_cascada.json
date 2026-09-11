@@ -1,0 +1,23 @@
+{
+ "n_prueba": 1530,
+ "tacticas": 27,
+ "modelo": "produccion",
+ "resultados": {
+  "fijo (SOLVER_CASCADE)": {
+   "posicion_media": 5.788235294117647,
+   "primer_intento": 0.0,
+   "en_los_3": 36.01307189542484
+  },
+  "NULO: por frecuencia": {
+   "posicion_media": 2.4411764705882355,
+   "primer_intento": 42.48366013071895,
+   "en_los_3": 78.49673202614379
+  },
+  "RANKEADOR": {
+   "posicion_media": 1.5673202614379085,
+   "primer_intento": 70.98039215686275,
+   "en_los_3": 93.52941176470588
+  }
+ },
+ "veredicto": "el rankeador bate al nulo de frecuencia: mira el objetivo, no solo cuenta"
+}

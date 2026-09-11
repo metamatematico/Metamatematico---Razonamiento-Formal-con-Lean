@@ -154,6 +154,65 @@ def nombres_de_trabajo(clave: str) -> str:
 
     Queda escrito para que nadie lo repita, y con la pista de por donde va lo
     que si arreglaria algo: el ranking, no el vocabulario.
+
+    ─────────────────────────────────────────────────────────────────────────
+    LO QUE SI ENTRA, Y POR QUE AQUEL INTENTO NO ERA UNA REFUTACION DE ESTE.
+
+    Aquel experimento lleno nodos mudos con el nombre CATEGORICAMENTE correcto:
+    `prime-factorization` -> `UniqueFactorizationMonoid`, `zfc-axioms` ->
+    `ZFSet`, `cardinal-arithmetic` -> `Cardinal`. Son ciertos, y son de
+    especialista. La consulta que activa esos nodos dice «primo», «conjunto»,
+    «cardinalidad» — vocabulario de primer curso— y se le contestaba con
+    algebra abstracta.
+
+    Ese es el defecto, y tiene nombre: UN NODO CONTESTABA A UN NIVEL DE
+    GENERALIDAD DISTINTO DEL QUE RECLAMAN SUS PALABRAS CLAVE. No pasaba solo
+    en los mudos; pasaba en los que si tenian nombres:
+
+        differentiation           reclama «derivada»   contestaba mfderiv
+                                                       (derivada en variedades)
+        descriptive-set-theory    reclama «conjunto»   contestaba PolishSpace
+        real-analysis             reclama «irracional» contestaba Real, y ya
+        elementary-number-theory  reclama «entero»     contestaba Int, y ya
+
+    `descriptive-set-theory` ocupaba 33 plazas en ProofNet y FALLABA LAS 33.
+
+    LA CORRECCION, MEDIDA contra ProofNet (n=352, k=2 plazas):
+
+                                              precision   cobertura   ofrece
+        base                                    21,0 %      14,8 %     283
+        solo repartir las palabras clave        22,0 %      15,0 %     275
+        + reapuntar los 6 al nivel que piden    21,8 %      17,9 %     282
+        + cardinal-arithmetic  <- SE ADOPTA     21,7 %      18,3 %     288
+        + prime-factorization                   20,8 %      19,2 %     290
+
+    La adoptada gana en LOS DOS EJES a la vez: +0,7 de precision y +3,6 de
+    cobertura, y ofrece nombres en 5 ejercicios mas.
+
+    (El sistema sirve hoy 21,6 % / 18,3 %. La decima que falta no es de esta
+    tabla: es de reparar los 13 nombres ROTOS que el guardian de vocabulario
+    no miraba —ver `scripts/verificar_vocabulario_grafo.py`— y cualificar el
+    namespace cambia que formas casan con el oro. Se prefiere el numero mas
+    bajo con los nombres ciertos.)
+
+    Y SIGUE SIN ENTRAR `prime-factorization`, que es el nodo mudo de mas
+    trafico (51 entradas en el top-3). Se midio y baja la precision por debajo
+    de la base — la misma firma que el intento de los 12. El motivo se lee en
+    los datos: de esos 51 ejercicios, los nombres que hacian falta eran
+    `card`(17), `fintype`(17), `group`(16) y solo `natprime`(15). O sea que
+    ese nodo NO esta emparejando problemas de factorizacion: esta ganandole el
+    ranking a `group-theory` en problemas de grupos, porque el enunciado dice
+    «de orden p primo». Llenarlo de vocabulario no arregla eso, lo tapa.
+
+    LA REGLA QUE QUEDA, y con la que se decide el proximo: se llena un nodo
+    mudo cuando el TRAFICO QUE RECIBE pide su vocabulario, no cuando el nodo
+    tiene un nombre correcto disponible. `limits-continuity` entra 34 veces y
+    esos ejercicios piden `continuous`(19), `topologicalspace`(11),
+    `metricspace`(6): entra. `prime-factorization` no.
+
+    Los nombres nuevos estan comprobados uno a uno con `#check` contra Mathlib
+    4.29.0-rc4 entero, no deducidos. `Nat.factors` se propuso y Lean lo
+    rechazo —hoy es `Nat.primeFactorsList`—, asi que no esta.
     """
     e = VEREDICTO.get(clave)
     if e:
@@ -256,8 +315,18 @@ VEREDICTO: dict[str, Etiqueta] = {
         "«un esquema sobre un anillo de enteros» es vacio: Spec Z es terminal "
         "en Sch, luego Sch/Spec Z = Sch y colapsaria sobre algebraic-geometry"),
     "cic": _e(
+        # El campo `lean` es una LISTA DE IDENTIFICADORES separada por comas,
+        # no una frase: `_contexto_del_grafo` la trocea y mete las piezas en
+        # el prompt con la etiqueta «verificado». Aqui decia
+        # "Type u con CategoryTheory.types", que no se trocea en nada que
+        # exista, asi que llegaba entera al prompt como si fuera un nombre de
+        # Mathlib — exactamente lo que esa etiqueta promete que no pasa.
+        # La aclaracion va en `nota`, que es el campo que existe para eso.
         C, "un contexto (equivalentemente, un tipo cerrado)", "sustituciones",
-        "Type u con CategoryTheory.types"),
+        "CategoryTheory.types",
+        nota="el universo `Type u` no es un identificador que se pueda "
+             "ofrecer; la categoria de tipos de Mathlib es "
+             "CategoryTheory.types"),
     "field-theory": _e(
         C, "un cuerpo", "homomorfismos de anillos, todos inyectivos",
         "Field", "no existe FieldCat"),
@@ -280,7 +349,10 @@ VEREDICTO: dict[str, Etiqueta] = {
         "CategoryTheory.Abelian", "mismo objeto que abelian-categories"),
     "homology": _e(
         F, "", "el funtor H_* : D(A) -> grAb",
-        "HomologicalComplex.homology, DerivedCategory.HomologySequence",
+        # `DerivedCategory.HomologySequence` no resuelve en 4.29.0-rc4 y se
+        # ofrecia al modelo como comprobado. Fuera hasta que alguien lo
+        # localice; el otro nombre si existe y basta.
+        "HomologicalComplex.homology",
         "ARISTA, y ahora con DOMINIO PROPIO: sale de `derived-category` y llega "
         "a `graded-objects`. Esta bien definida precisamente porque el cociente "
         "ya invirtio lo que la homologia no distingue.\n"
@@ -288,7 +360,7 @@ VEREDICTO: dict[str, Etiqueta] = {
         "nombra; tomarlo como vertice borra la funtorialidad"),
     "limits": _e(
         F, "un cono sobre un diagrama fijo", "el funtor lim",
-        "Limits.Cone, HasLimits",
+        "CategoryTheory.Limits.Cone, CategoryTheory.Limits.HasLimits",
         "ARISTA, y ademas reflexiva: un vertice que nombra la operacion con la "
         "que se calculan los colimites del propio grafo es confusion de nivel"),
     "operator-theory": _e(
@@ -316,8 +388,14 @@ VEREDICTO: dict[str, Etiqueta] = {
         "subcategoria plena de complex-geometry (dimension 1); sus clases de "
         "isomorfia son el teorema de la aplicacion de Riemann"),
     "complex-geometry": _e(
+        # Mismo caso que `cic`: "IsManifold con modelo complejo" es prosa y
+        # se ofrecia entera como identificador. El nombre real es
+        # `IsManifold`; que el modelo sea complejo es una condicion sobre sus
+        # parametros, no parte del nombre, asi que va en `nota`.
         C, "una variedad compleja", "aplicaciones holomorfas",
-        "IsManifold con modelo complejo"),
+        "IsManifold",
+        nota="el caso complejo se fija en los parametros del modelo "
+             "(ModelWithCorners sobre C), no en el nombre"),
     "conditional-expectation": _e(
         F, "", "el operador E[.|N] : L1 -> L1", "MeasureTheory.condExp",
         "ARISTA. Con nucleos de Markov pasa a ser estructura, no añadido"),
@@ -330,7 +408,8 @@ VEREDICTO: dict[str, Etiqueta] = {
         "IsManifold, ContMDiff"),
     "elementary-number-theory": _e(
         O, "Z, objeto inicial de CommRing", "", "Int",
-        "nombra un OBJETO, no una clase. Como vertice es un punto"),
+        "nombra un OBJETO, no una clase. Como vertice es un punto",
+        teoria="Int, Nat, Nat.Prime"),
     "enumerative-combinatorics": _e(T, nota="ambiente: FintypeCat"),
     "ergodic-theory": _e(
         C, "(Omega, mu, T) con T que preserva mu", "factores equivariantes",
@@ -410,7 +489,8 @@ VEREDICTO: dict[str, Etiqueta] = {
         "no tiene el producto que hace falta para independencia; con nucleos es "
         "una categoria de Markov y el condicionamiento es estructura."),
     "random-variables": _e(
-        F, "", "un nucleo: es flecha", "Measurable, AEEqFun, Kernel",
+        F, "", "un nucleo: es flecha",
+        "Measurable, MeasureTheory.AEEqFun, ProbabilityTheory.Kernel",
         "ARISTA. Con la decision de nucleos vive DENTRO de measure-theory, no "
         "entre dos categorias distintas: probability-theory es subcategoria "
         "ancha, no otro mundo."),
@@ -421,7 +501,7 @@ VEREDICTO: dict[str, Etiqueta] = {
 
     # ═══ BLOQUE 3 — categorias y objetos ═════════════════════════════════
     "abelian-groups": _e(C, "un grupo abeliano", "homomorfismos", "AddCommGrpCat",
-        teoria="AddCommGroup, AddSubgroup"),
+        teoria="CommGroup, AddCommGroup"),
     "adjunctions": _e(F, "", "un par F ⊣ G con unidad y counidad",
                       "CategoryTheory.Adjunction"),
     "banach-spaces": _e(
@@ -430,9 +510,14 @@ VEREDICTO: dict[str, Etiqueta] = {
         "NormedSpace + CompleteSpace"),
     "bilinear-forms": _e(C, "un par (M, b) con b bilineal", "isometrias",
                          "LinearMap.BilinForm, QuadraticForm"),
-    "brownian-motion": _e(O, "el proceso W, o la medida de Wiener", "",
-                          "IsBrownianReal, IsPreBrownianReal"),
-    "cardinal-arithmetic": _e(T, nota="el sustrato Cardinal si es categoria delgada"),
+    # NINGUNO DE LOS DOS NOMBRES EXISTE en Mathlib 4.29.0-rc4, y no hay
+    # sustituto: no hay movimiento browniano ni medida de Wiener en el arbol
+    # instalado. `lean=None` es la respuesta honesta —callarse— en vez de
+    # ofrecerle al modelo dos nombres inventados bajo la etiqueta «verified».
+    "brownian-motion": _e(O, "el proceso W, o la medida de Wiener", "", None,
+                          "sin nombre en Mathlib 4.29.0-rc4"),
+    "cardinal-arithmetic": _e(T, nota="el sustrato Cardinal si es categoria delgada",
+        teoria="Cardinal, Set.Countable, Nat.card"),
     "cat-basics": _e(C, "una categoria pequeña", "funtores", "CategoryTheory.Cat",
         teoria="CategoryTheory.Category, CategoryTheory.CategoryStruct"),
     "character-theory": _e(F, "", "chi = tr . rho, invariante de una representacion",
@@ -451,13 +536,14 @@ VEREDICTO: dict[str, Etiqueta] = {
                              "ContinuousAlternatingMap", "sin de Rham completo"),
     "differential-topology": _e(C, "una variedad suave", "aplicaciones suaves",
                                 "IsManifold"),
-    "differentiation": _e(F, "", "el funtor tangente T, o D", "mfderiv, TangentBundle"),
+    "differentiation": _e(F, "", "el funtor tangente T, o D", "mfderiv, TangentBundle",
+                          teoria="deriv, HasDerivAt, DifferentiableAt"),
     "divisibility-gcd": _e(
         C, "un elemento de un monoide, con a | b como flecha",
         "divisibilidad: gcd es el producto, lcm el coproducto",
         "GCDMonoid, Associates"),
     "duality-theory": _e(F, "", "una equivalencia contravariante C = D^op",
-                         "Module.Dual, CategoryTheory.Opposite"),
+                         "Module.Dual, Opposite"),
     "eigen-theory": _e(C, "un par (V, T) = un modulo sobre k[X]", "entrelazadores",
                        "Module.End, Module.End.HasEigenvalue"),
     "euclidean-geometry": _e(C, "un espacio afin euclideo", "isometrias afines",
@@ -493,7 +579,7 @@ VEREDICTO: dict[str, Etiqueta] = {
     "inner-product-spaces": _e(C, "un espacio con producto interno",
                                "lineales continuas", "InnerProductSpace"),
     "kan-extensions": _e(F, "", "Lan/Ran, adjuntos de la restriccion",
-                         "Functor.IsLeftKanExtension"),
+                         "CategoryTheory.Functor.IsLeftKanExtension"),
     "lambda-calculus": _e(C, "un tipo",
                           "los terminos modulo beta-eta: cartesiana cerrada",
                           None, "es el metanivel de Lean"),
@@ -505,7 +591,7 @@ VEREDICTO: dict[str, Etiqueta] = {
                          "ModuleCat, FGModuleCat",
         teoria="Module, LinearMap, Matrix"),
     "localization": _e(F, "", "S^-1 R; y la localizacion de categorias",
-                       "IsLocalization, CategoryTheory.Localization"),
+                       "IsLocalization"),
     "markov-chains": _e(C, "un objeto con un endomorfismo en la categoria de nucleos",
                         "intertwiners", "ProbabilityTheory.Kernel, PMF"),
     "martingale-theory": _e(S, "un proceso adaptado con la propiedad de martingala",
@@ -544,12 +630,12 @@ VEREDICTO: dict[str, Etiqueta] = {
     "quotient-groups": _e(F, "", "G ↦ G/N: es el conucleo, un COLIMITE",
                           "QuotientGroup"),
     "real-analysis": _e(O, "R, terminal entre los cuerpos ordenados arquimedianos",
-                        "", "Real"),
+                        "", "Real", teoria="Real, Irrational, Rat"),
     "representation-theory": _e(C, "una representacion de G = un k[G]-modulo",
                                 "aplicaciones equivariantes",
                                 "Rep, FDRep, Representation"),
     "riemann-integration": _e(F, "", "el operador integral (Riemann/Henstock)",
-                              "BoxIntegral, intervalIntegral"),
+                              "BoxIntegral.integral, intervalIntegral"),
     "riemann-zeta": _e(O, "la funcion zeta", "", "riemannZeta, LSeries"),
     "riemannian-geometry": _e(C, "una variedad riemanniana", "isometrias, o inmersiones",
                               "IsRiemannianManifold, Bundle.RiemannianMetric"),
@@ -561,7 +647,8 @@ VEREDICTO: dict[str, Etiqueta] = {
                             "continuas; cada nivel es reflexivo", "T0Space, T2Space",
                             "es la razon por la que un colimite puede salir mal"),
     "sequences-series": _e(F, "", "una sucesion es un funtor N => X: un diagrama",
-                           "Filter.Tendsto, HasSum"),
+                           "Filter.Tendsto, HasSum",
+                           teoria="Filter.Tendsto, Filter.atTop, CauchySeq"),
     "sequent-calculus": _e(C, "un secuente", "derivaciones", None,
                            "mismo vertice que fol-deduction"),
     "smooth-manifolds": _e(C, "una variedad suave", "aplicaciones suaves", "IsManifold"),
@@ -569,7 +656,7 @@ VEREDICTO: dict[str, Etiqueta] = {
                           "entrelazadores",
                           "spectrum, ContinuousFunctionalCalculus"),
     "splitting-fields": _e(F, "", "f ↦ SplittingField f",
-                           "Polynomial.SplittingField, IsSplittingField"),
+                           "Polynomial.SplittingField, Polynomial.IsSplittingField"),
     "stochastic-processes": _e(C, "un proceso adaptado = un funtor desde el tiempo",
                                "", "MeasureTheory.Filtration, MeasureTheory.Adapted"),
     "subgroups-cosets": _e(C, "un subgrupo de G; forman un reticulo completo",
@@ -589,7 +676,7 @@ VEREDICTO: dict[str, Etiqueta] = {
     "turing-machines": _e(C, "una maquina de Turing", "simulaciones",
                           "Turing.TM0, Turing.TM1"),
     "ultraproducts": _e(F, "", "producto ultrafiltrado: colimite filtrado",
-                        "FirstOrder.Language.Ultraproduct, Filter.Germ"),
+                        "Filter.Germ"),
     "unique-factorization": _e(S, "un dominio de factorizacion unica", "homomorfismos",
                                "UniqueFactorizationMonoid"),
 
@@ -661,7 +748,8 @@ VEREDICTO: dict[str, Etiqueta] = {
     "incompleteness": _e(T, nota="dos teoremas; en Foundation (Lean 4), no en Mathlib"),
     "lean-kernel": _e(T, nota="un programa concreto"),
     "limit-theorems": _e(T, nota="teoremas (LGN, TCL)"),
-    "limits-continuity": _e(T, nota="dos nociones; continuidad = ser morfismo"),
+    "limits-continuity": _e(T, nota="dos nociones; continuidad = ser morfismo",
+        teoria="Continuous, ContinuousAt, Filter.Tendsto"),
     "linear-programming": _e(T, nota="una tecnica; la dualidad LP"),
     "matching-theory": _e(T, nota="familia de problemas; SimpleGraph.Subgraph.IsMatching"),
     "np-completeness": _e(T, nota="una clase de problemas"),

@@ -1105,11 +1105,15 @@ SUBBRANCH_SKILLS = [
         ["incompletitud", "godel", "goedel", "indecidible", "consistencia",
          "incompleteness", "undecidable"],
         pillar=PillarType.LOG),
+    # `numerable`/`countable` vienen de descriptive-set-theory, que las
+    # reclamaba y contestaba `PolishSpace`. Aqui contestan `Set.Countable`.
     _sb("cardinal-arithmetic", "Cardinal Arithmetic",
         "Cardinals, cofinality, continuum hypothesis, cardinal exponentiation",
         ["zfc-axioms"], "set-theory",
         ["cardinal", "cardinales", "cardinalidad", "cofinalidad",
-         "hipotesis del continuo", "cardinality"]),
+         "hipotesis del continuo", "cardinality",
+         "numerable", "contable", "no numerable", "numerabilidad",
+         "countable", "uncountable", "denumerable"]),
     _sb("forcing", "Forcing",
         "Forcing, generic extensions, independence results",
         ["cardinal-arithmetic"], "set-theory",
@@ -1301,9 +1305,23 @@ EXTRA_KEYWORDS: dict[str, list[str]] = {
     "proof-theory":       ["teoria de la demostracion", "demostracion",
                            "prueba", "proof theory"],
     "homotopy-type-theory": ["hott", "univalencia", "univalence"],
-    "descriptive-set-theory": ["conjunto", "conjuntos", "numerable",
-                               "contable", "no numerable", "axioma de eleccion",
-                               "eleccion", "zorn", "set", "countable"],
+    # CADA NODO RECLAMA A SU NIVEL, Y ESTE LOS RECLAMABA TODOS.
+    #
+    # Declaraba `conjunto`, `conjuntos` y `set` —las palabras mas genericas
+    # que hay— y contestaba `PolishSpace, StandardBorelSpace`, que es teoria
+    # descriptiva de verdad y no es lo que pide quien escribe «la union de dos
+    # conjuntos abiertos». Medido contra ProofNet: ocupaba 33 plazas y fallaba
+    # las 33. Repartirlas sube la precision de 21,0 % a 22,0 %.
+    #
+    # Las genericas se van al nodo que SI las nombra: `numerable`/`countable`
+    # a cardinal-arithmetic (Set.Countable), `zorn` a zfc-axioms, y `conjunto`
+    # se queda solo en el nodo de AREA, que ya lo tenia y rankea detras.
+    "descriptive-set-theory": ["espacio polaco", "espacios polacos",
+                               "boreliano", "borelianos", "conjunto proyectivo",
+                               "determinacion", "teoria descriptiva",
+                               "teoria descriptiva de conjuntos",
+                               "polish space", "borel set", "borel sets",
+                               "descriptive set theory", "determinacy"],
     # Numeros
     "elementary-number-theory": ["teoria de numeros", "entero", "enteros",
                                  "number theory", "integer"],

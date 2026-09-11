@@ -213,6 +213,8 @@ def enunciado_vacuo(code: str) -> bool:
 _TODAS_LAS_GOBERNADAS = frozenset({
     "orden_de_cascada_por_area",
     "eleccion_de_imports",
+    "contexto_estructural_en_el_prompt",
+    "modelo_de_orden_de_cascada",
 })
 
 
@@ -432,7 +434,6 @@ class Nucleo:
         self._lean_examples: dict = {}
 
         # Neural agent for live PPO learning (optional)
-        self._neural_agent = None
         self._live_learning_steps = 0
 
         # Multi-agent orchestrator (14 specialized agents, one per category)
@@ -517,6 +518,39 @@ class Nucleo:
         self._solver_cascade = SolverCascade(self._lean, graph=self._graph)
         self._sorry_filler = SorryFiller(solver_cascade=self._solver_cascade)
 
+        # L3 — EVIDENCIA. El rankeador del estado de prueba.
+        #
+        # ESTABA MEDIDO Y NO ESTABA CABLEADO, que es la familia de fallo que
+        # este repositorio persigue: `set_tactic_ranker` existia, el modelo
+        # entrenado estaba en disco y NADIE lo llamaba, asi que el `getattr`
+        # de `_orden_inteligente` devolvia None en todas las consultas y la
+        # cascada corria solo con la heuristica.
+        #
+        # Lo que se pierde por no cablearlo, medido sobre 1 530 casos que el
+        # modelo no vio (scripts/ranker_en_la_cascada.py):
+        #
+        #     orden fijo SOLVER_CASCADE   5,79 posiciones
+        #     NULO: por frecuencia        2,44
+        #     el rankeador                1,57   <- 3,7x menos compilados
+        #
+        # Cada posicion es una invocacion de Lean de 12 a 30 s.
+        #
+        # SOUNDNESS: `rank` devuelve una PERMUTACION de la lista que recibe.
+        # Es la hipotesis de `gnnRankTactics_perm` y del teorema
+        # `cascade_gnn_iff_exists` (CoRegulatorNetwork.lean): reordenar no
+        # puede hacer demostrable lo que no lo es, asi que el orden es libre
+        # para optimizar y esto no puede cambiar ningun veredicto.
+        #
+        # Se construye aqui y se ENCIENDE POR CONSULTA en `_math_via_lean`,
+        # segun lo que diga el decisor de `modelo_de_orden_de_cascada`. El
+        # pickle se carga solo la primera vez que se usa.
+        try:
+            from nucleo.lean.solver_cascade import TacticRanker
+            self._tactic_ranker = TacticRanker()
+        except Exception as e:                                  # noqa: BLE001
+            logger.warning("TacticRanker no disponible: %s", e)
+            self._tactic_ranker = None
+
         # Cargar banco de ejemplos Lean few-shot (miniF2F, seeded por seed_from_datasets.py)
         lean_ex_path = self.config.data_dir / "lean_examples.json"
         if lean_ex_path.exists():
@@ -551,6 +585,33 @@ class Nucleo:
             cr_str_frequency=self.config.mes.cr_str_frequency,
             cr_int_frequency=self.config.mes.cr_int_period,
         )
+
+        # L4 — EMERGENCIA. El paisaje de CR_org, sembrado con TEOREMAS QUE
+        # LEAN ACEPTO en vez de con lo que el emparejador lexico adivino.
+        #
+        # ESTE ERA EL PUNTO CIEGO. Los colimites se ligan sobre los patrones
+        # del paisaje, y el paisaje se alimentaba de las skills que el
+        # emparejador activaba en cada consulta — es decir, el grafo llevaba
+        # la cuenta de sus PROPIAS CONJETURAS y luego declaraba emergente lo
+        # que el mismo habia supuesto. `cargar_coocurrencia_verificada`
+        # existia en la fachada y en CR_org, y no la llamaba nadie.
+        #
+        # Ahora dos conceptos coocurren si un teorema real habla de los dos:
+        # 40 025 teoremas de Mathlib, con el exceso corregido por frecuencia
+        # (data/l4_coocurrencia_verificada.json). La correccion es lo que lo
+        # hace fiable — en crudo el cuarto par mas frecuente es
+        # `cic + linear-algebra`, con exceso +0,11: azar puro, porque `cic`
+        # declara `Type` y eso sale en todos los enunciados.
+        #
+        # No bloquea el arranque: si el fichero no esta, se sigue sin sembrar.
+        try:
+            _sembrados = self._cr_network.cargar_coocurrencia_verificada()
+            if _sembrados:
+                logger.info(
+                    "L4: paisaje sembrado con %d pares de conceptos que "
+                    "coocurren en teoremas verificados por Lean", _sembrados)
+        except Exception as e:                                  # noqa: BLE001
+            logger.info("L4 sin sembrar (%s: %s)", type(e).__name__, e)
 
         # Cargar memoria persistente si existe
         memory_path = self.config.data_dir / "memory.json"
@@ -597,6 +658,7 @@ class Nucleo:
             # reducible a un colimite de objetos de base. Se publican las dos.
             emergentes = objetos_emergentes(self._graph, self._colimit_builder)
             self._emergentes = emergentes
+            self._marcar_emergentes(emergentes)
             logger.info(
                 f"Jerarquia emergente: max_cn={self._graph.stats['max_cn']}, "
                 f"colimites={self._graph.stats['num_joins']}, "
@@ -627,39 +689,17 @@ class Nucleo:
         except Exception as e:
             logger.warning(f"set_concept_gaps fallo: {e}", exc_info=True)
 
-        # ── Neural agent con PPO (use_neural=True) ─────────────────────────
-        from nucleo.rl.agent import NucleoAgent, AgentConfig
-        from nucleo.rl.mdp import ExperienceBuffer
-
-        neural_agent = NucleoAgent(
-            self._graph,
-            config=AgentConfig(),
-            use_neural=True,
-        )
-
-        # Cargar pesos entrenados si existen
-        weights_json = self.config.data_dir / "neural_agent.json"
-        if weights_json.exists():
-            try:
-                neural_agent = NucleoAgent.load(str(weights_json), self._graph)
-                logger.info("Pesos del neural agent cargados desde disco")
-            except Exception as e:
-                logger.warning(f"No se pudieron cargar pesos: {e}")
-
-        # Cargar buffer de experiencias si existe
-        buffer_path = self.config.data_dir / "experience_buffer.pkl"
-        if buffer_path.exists():
-            try:
-                neural_agent.buffer = ExperienceBuffer.load(buffer_path)
-                logger.info(
-                    f"Buffer cargado: {len(neural_agent.buffer)} transiciones"
-                )
-            except Exception as e:
-                logger.warning(f"No se pudo cargar buffer: {e}")
-
-        # Conectar: live PPO + CR_tac usa GNN para clasificar queries
-        self.set_neural_agent(neural_agent)
-        self._cr_network.set_neural_agent(neural_agent)
+        # LA RED NEURONAL SE RETIRO. Ver `ARQUITECTURA.md`.
+        #
+        # El GNN+PPO se entreno hasta el «100 % de precision» sobre el objetivo
+        # «todo problema matematico -> ASSIST», que SE SATISFACE CON UNA
+        # CONSTANTE, y eso fue lo que aprendio: daba la misma accion a un
+        # teorema, a un saludo, a una pregunta de geografia y a codigo Lean.
+        # El runtime la detectaba degenerada y la ignoraba en cada arranque.
+        #
+        # Lo que ordena la cascada hoy es `TacticRanker` (n-gramas + 74 rasgos
+        # estructurales del estado de prueba), medido en 5,79 -> 1,57
+        # invocaciones de Lean. Eso es L3 y esta en `nucleo/lean/`.
 
         # ── Sistema multi-agente (14 especialistas por categoria) ──────────
         # Antes se construia pero nunca se activaba (set_multi_agent_orchestrator
@@ -676,6 +716,146 @@ class Nucleo:
 
         self._initialized = True
         logger.info("Nucleo inicializado correctamente (PPO activo)")
+
+    @staticmethod
+    def _bloque_estructural(context) -> str:
+        """Lo que el grafo sabe por sus ARISTAS, en el prompt. En ingles.
+
+        HASTA AQUI NO LLEGABA NADA. `_find_relevant_context` recorre el grafo
+        para producir `prerequisites`, `suggested_tactics`, `proof_strategies`
+        y —desde que la emergencia se marca en los nodos— `competencia_
+        emergente` y `skills_que_suelen_acompanar`. Ninguno se leia: eran el
+        UNICO uso de los 1029 morfismos no triviales del grafo, y morian en el
+        dict.
+
+        Va en INGLES porque el prompt de formalizacion lo esta: mezclar
+        idiomas dentro de un mismo prompt es una via conocida de degradacion.
+
+        Y va APAGADO. Lo gobierna `contexto_estructural_en_el_prompt`, que el
+        decisor deja fuera porque su efecto solo se ve en lo que el modelo
+        escribe y eso cuesta una llamada. Este repositorio ya ha medido DOS
+        veces que anadir contenido correcto al prompt puede empeorar —los 12
+        nodos de `interpretacion.py` y los nodos de cobertura—, asi que
+        cablearlo encendido seria justo el error contra el que existe el
+        decisor.
+        """
+        if not isinstance(context, dict):
+            return ""
+        def _limpia(ids, prefijo):
+            return [s[len(prefijo):] if s.startswith(prefijo) else s
+                    for s in (ids or [])]
+        lineas = []
+        prereq = context.get("prerequisites") or []
+        if prereq:
+            lineas.append("  Prerequisite concepts (graph dependencies): "
+                          + ", ".join(prereq[:5]))
+        tact = _limpia(context.get("suggested_tactics"), "tactic-")
+        if tact:
+            lineas.append("  Lean tactics linked to these concepts: "
+                          + ", ".join(tact[:5]))
+        # `proof_strategies` NO ENTRA, Y ESTA MEDIDO POR QUE.
+        #
+        # Sobre los 371 enunciados de ProofNet da TRES conjuntos distintos, y
+        # uno solo —{cases, forward, inductive}— sale en 304, el 82 %. Los
+        # otros 65 son el conjunto vacio. O sea que el campo dice lo mismo
+        # casi siempre o no dice nada: es una constante disfrazada de senal,
+        # y meterla en el prompt es gastar tokens en tres palabras fijas.
+        #
+        # Se sigue calculando en `_find_relevant_context` —lo usa el camino
+        # demo y cuesta un recorrido que ya se hace— pero no se le paga sitio
+        # en el prompt hasta que alguien lo haga discriminar.
+        #
+        # Para comparar, en el mismo banco:
+        #     prerequisites        221 conjuntos distintos, el mayor 3 %
+        #     suggested_tactics      9 conjuntos, el mayor 52 %  (flojo)
+        #     proof_strategies       3 conjuntos, el mayor 82 %  (constante)
+        #     competencia emergente dispara en 83 de 371, el 22,4 %
+        comp = context.get("competencia_emergente") or []
+        herm = context.get("skills_que_suelen_acompanar") or []
+        if comp:
+            # La competencia emergente es el objeto por el que factoriza toda
+            # accion colectiva del patron (Def. 2.2): decir sus componentes es
+            # decirle al modelo que conceptos suelen hacer falta JUNTOS aunque
+            # el enunciado solo nombre uno.
+            lineas.append("  This statement sits under the emergent "
+                          "competence: " + ", ".join(comp[:2]))
+            if herm:
+                lineas.append("  Concepts that usually come with it: "
+                              + ", ".join(herm[:5]))
+        if not lineas:
+            return ""
+        return ("Structural context from the skill graph "
+                "(guidance, not verified names):\n"
+                + "\n".join(lineas) + "\n\n")
+
+    def _marcar_emergentes(self, emergentes: dict) -> None:
+        """Escribe la emergencia EN EL GRAFO, que es donde se lee.
+
+        EL CABLE QUE FALTABA, Y LLEVABA TIEMPO CORTADO.
+
+        `objetos_emergentes` encuentra los objetos de orden irreducible >= 2 y
+        el resultado se guardaba SOLO en `self._emergentes`. Pero quien
+        pregunta por la emergencia es `_find_relevant_context`, y pregunta por
+        otro sitio: recorre los vecinos de las skills emparejadas y mira
+        `metadata["emergent"]`.
+
+        Nadie escribia esa clave durante el arranque —solo la escriben
+        `patterns.build_colimit` y `mes_bridge`, que no corren aqui— asi que
+        la comprobacion se hacia sobre 0 nodos SIEMPRE. La rama de
+        «competencia emergente» y la de «skills que suelen acompañar» eran
+        inalcanzables: codigo muerto que parecia vivo.
+
+        Es el fallo mas caro de los baratos: la parte del sistema que sostiene
+        la tesis —que el grafo RECUERDA que unos skills resuelven problemas
+        juntos— estaba calculada, probada en Lean y desconectada del prompt
+        por una clave que nadie ponia.
+
+        Se escriben las tres cosas que el lector necesita:
+          emergent           el booleano que abre la rama
+          orden_irreducible  por que es emergente y no un colimite simple
+          components         los objetos de los que es colimite, que es lo que
+                             permite recuperar los hermanos que la consulta
+                             no nombro
+        """
+        if not emergentes:
+            return
+        cb = getattr(self, "_colimit_builder", None)
+        pm = getattr(cb, "_pattern_manager", None) if cb else None
+        # Componentes por objeto: la union de las descomposiciones que lo
+        # tienen por colimite. Se unen porque el Principio de Multiplicidad
+        # admite VARIAS —un objeto puede ser colimite de patrones distintos— y
+        # quedarse con una sola perderia hermanos legitimos.
+        componentes: dict[str, list[str]] = {}
+        if cb is not None and pm is not None:
+            try:
+                for col in cb.all_colimits:
+                    if col.skill_id not in emergentes or not col.pattern_id:
+                        continue
+                    pat = pm.get_pattern(col.pattern_id)
+                    if pat is None or not pat.component_ids:
+                        continue
+                    vistos = componentes.setdefault(col.skill_id, [])
+                    for c in pat.component_ids:
+                        if c not in vistos:
+                            vistos.append(c)
+            except Exception as exc:                            # noqa: BLE001
+                logger.debug("componentes del colimite no disponibles: %s", exc)
+
+        marcados = 0
+        for sid, orden in emergentes.items():
+            skill = self._graph.get_skill(sid)
+            if skill is None:
+                continue
+            if skill.metadata is None:
+                skill.metadata = {}
+            skill.metadata["emergent"] = True
+            skill.metadata["orden_irreducible"] = orden
+            if componentes.get(sid):
+                skill.metadata["components"] = componentes[sid]
+            marcados += 1
+        logger.info(
+            "emergencia marcada en el grafo: %d objetos, %d con componentes",
+            marcados, sum(1 for s in emergentes if componentes.get(s)))
 
     def _complexificar_hasta_punto_fijo(self, max_pasos: int = 5) -> list:
         """
@@ -761,9 +941,13 @@ class Nucleo:
             id="zfc-axioms", name="ZFC Axioms",
             description="Axiomas de Zermelo-Fraenkel con Eleccion",
             pillar=PillarType.SET, level=0,
+            # `zorn` viene de descriptive-set-theory, que lo reclamaba junto
+            # con `conjunto` y `set` y contestaba `PolishSpace`. El lema de
+            # Zorn es equivalente al axioma de eleccion: su sitio es este.
             metadata={"keywords": [
                 "zfc", "zermelo", "fraenkel", "axioma de eleccion",
-                "axiom of choice", "teoria de conjuntos axiomatica"]},
+                "axiom of choice", "teoria de conjuntos axiomatica",
+                "zorn", "lema de zorn", "zorn's lemma"]},
         ))
         self._graph.add_skill(Skill(
             id="ordinals", name="Ordinals",
@@ -1821,6 +2005,23 @@ class Nucleo:
             logger.warning("decisor no disponible, se ejecuta todo: %s", e)
             _plan, _corre = None, _TODAS_LAS_GOBERNADAS
 
+        # L3 EN EL CAMINO. Se conecta o se desconecta por consulta, segun el
+        # veredicto de `modelo_de_orden_de_cascada` (0,621 de acierto contra
+        # 0,318 de responder siempre `nlinarith`).
+        #
+        # Se pasa None explicitamente cuando no corre, en vez de dejarlo sin
+        # tocar: la cascada vive entre consultas, asi que no reponerlo lo
+        # dejaria encendido para siempre desde la primera consulta que lo
+        # encendiera — un estado pegajoso que ninguna medicion cubre.
+        try:
+            self._solver_cascade.set_tactic_ranker(
+                self._tactic_ranker
+                if ("modelo_de_orden_de_cascada" in _corre
+                    and self._tactic_ranker is not None)
+                else None)
+        except Exception as e:                                  # noqa: BLE001
+            logger.debug("no se pudo fijar el rankeador (%s)", type(e).__name__)
+
         # SOLO SE APAGA EL ORDEN, NO LA ETIQUETA. `_domain_tactic` NO llega a
         # la cascada —ahí va `_tactica_aprendida`, ver la llamada a
         # `_apply_solver_cascade`—: se usa como etiqueta al reportar el
@@ -1977,6 +2178,8 @@ class Nucleo:
                       "not been checked.\n\n")
                    if isinstance(context, dict) and context.get("mathlib_verificado")
                    else "")
+                + (self._bloque_estructural(context)
+                   if "contexto_estructural_en_el_prompt" in _corre else "")
                 + "- FORBIDDEN: producing several versions of the same result.\n"
                 "- If the statement you are given is FALSE, do NOT prove it: formalize its\n"
                 "  NEGATION and open the block with the line\n"
@@ -3547,48 +3750,6 @@ class Nucleo:
                 query_text=input_text,
             )
 
-        # Live PPO update: feed real interaction to neural agent
-        if self._neural_agent is not None:
-            try:
-                from nucleo.rl.mdp import Transition
-                state = State(lean_goal=input_text)
-                action = Action(action_type=decision.action_type)
-                transition = Transition(
-                    state=state,
-                    action=action,
-                    reward=success,
-                    next_state=State(),
-                )
-                self._neural_agent.update([transition])
-                self._live_learning_steps += 1
-
-                # Persistir a disco solo si se activa explicitamente
-                # (config.live_learning_autosave). Por defecto el aprendizaje
-                # online queda solo en memoria de la sesion, para no
-                # sobreescribir el checkpoint validado con drift acumulado.
-                if (
-                    self.config.live_learning_autosave
-                    and self._live_learning_steps % 10 == 0
-                ):
-                    self._save_neural_weights()
-            except Exception as e:
-                logger.warning(f"Live PPO update failed: {e}")
-
-        # Persistir memoria periodicamente (cada 20 interacciones)
-        if len(self._state.history) % 20 == 0:
-            self._save_memory()
-
-    def _save_neural_weights(self) -> None:
-        """Save neural agent weights to disk."""
-        if self._neural_agent is None or not self._neural_agent.has_network:
-            return
-        try:
-            weights_path = str(self.config.data_dir / "neural_agent.json")
-            self._neural_agent.save(weights_path)
-            logger.info(f"Neural weights saved ({self._live_learning_steps} steps)")
-        except Exception as e:
-            logger.warning(f"Failed to save neural weights: {e}")
-
     def report_lean_result(
         self,
         query: str,
@@ -3672,40 +3833,6 @@ class Nucleo:
         except Exception as e:
             logger.warning(f"Error al enrutar query: {e}")
             return None, None
-
-    def set_neural_agent(self, agent) -> None:
-        """
-        Set neural agent for live PPO learning.
-
-        When set, each interaction feeds a PPO update so the agent
-        learns from real chat rewards. Also wires the GNNTacticRanker
-        into the SolverCascade so tactic ordering uses learned embeddings
-        (CoRegulatorNetwork.lean §VI.5, cascade_gnn_iff_exists).
-        """
-        self._neural_agent = agent
-        if (
-            agent is not None
-            and getattr(agent, "has_network", False)
-            and self._solver_cascade is not None
-            and self._graph is not None
-        ):
-            try:
-                from nucleo.lean.solver_cascade import GNNTacticRanker
-                ranker = GNNTacticRanker(agent.network, self._graph)
-                self._solver_cascade.set_gnn_ranker(ranker)
-                logger.info("GNNTacticRanker wired into SolverCascade")
-                # Rankeador entrenado sobre LeanWorkbook: tiene prioridad.
-                from nucleo.lean.solver_cascade import TacticRanker
-                _tr = TacticRanker()
-                if _tr.disponible:
-                    self._solver_cascade.set_tactic_ranker(_tr)
-                    logger.info("TacticRanker entrenado conectado (top-3 88.1%)")
-            except Exception as _exc:
-                logger.warning("GNNTacticRanker setup failed: %s", _exc)
-
-    # ------------------------------------------------------------------
-    # Consultores Avanzados
-    # ------------------------------------------------------------------
 
     def set_consultores_mode(self, n_candidates: int = 3) -> None:
         """
@@ -3831,22 +3958,6 @@ class Nucleo:
             logger.info(
                 f"Feedback aplicado al registro {self._last_experience_id}: {score:+.1f}"
             )
-
-        # PPO update con recompensa real
-        if self._neural_agent is not None and self._last_action_type is not None:
-            try:
-                from nucleo.rl.mdp import Transition
-                from nucleo.types import State, Action
-                t = Transition(
-                    state=State(),
-                    action=Action(action_type=self._last_action_type),
-                    reward=score,
-                    next_state=State(),
-                )
-                self._neural_agent.update([t])
-                logger.info("PPO update con feedback del usuario")
-            except Exception as e:
-                logger.warning(f"Feedback PPO update falló: {e}")
 
     def evaluate_answer(
         self,
@@ -4007,11 +4118,12 @@ class Nucleo:
         #     lexico          precision 13,6 %  cobertura 13,6 %  ofrece 271
         #     lexico+puerta   precision 12,9 %  cobertura 13,6 %  ofrece 282
         #
-        # (medido cuando el lexico daba 13,6 %. Hoy da 17,1 % / 15,5 %,
-        #  asi que el margen para la puerta es AUN MENOR que entonces.)
+        # (medido cuando el lexico daba 13,6 %. Hoy da 21,6 % / 18,3 %, tras
+        #  reapuntar el vocabulario al nivel de generalidad que reclama cada
+        #  nodo, asi que el margen para la puerta es AUN MENOR que entonces.)
         #
-        # Ofrece nombres en 11 casos mas y NO SE USA NI UNO: la cobertura no se
-        # mueve y la precision baja 0,7 puntos. Es ruido.
+        # Ofrece nombres en 6 casos mas y NO SE USA NI UNO: la cobertura no se
+        # mueve —18,3 % las dos— y la precision baja 0,5 puntos. Es ruido.
         #
         # Por que no ayuda AQUI: en ProofNet el lexico solo calla en 31 de 371,
         # asi que el margen era del 4 % desde el principio. El reconocedor se
@@ -4219,7 +4331,7 @@ class Nucleo:
         #
         # Devolver `{}` aqui deja el prompt SIN un solo nombre de Mathlib, que
         # es la unica de las tres actuaciones del grafo que bate a su nulo
-        # —21,0 % de precision contra 1,6 %, 13 veces—. Si el import falla, el
+        # —21,6 % de precision contra 1,6 %, 13 veces—. Si el import falla, el
         # sistema sigue respondiendo y pierde eso en silencio: exactamente la
         # familia de fallo contra la que este repositorio tiene una suite.
         #
@@ -4726,14 +4838,6 @@ class Nucleo:
                 self._memory.save(memory_path)
             except OSError as e:
                 logger.warning(f"No se pudo guardar memoria: {e}")
-
-        # Guardar buffer del neural agent para retomar entrenamiento
-        if self._neural_agent is not None:
-            buf_path = self.config.data_dir / "experience_buffer.pkl"
-            try:
-                self._neural_agent.buffer.save(buf_path)
-            except Exception as e:
-                logger.warning(f"No se pudo guardar buffer: {e}")
 
     # =========================================================================
     # CALLBACKS

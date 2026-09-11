@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1069_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1080_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -353,7 +353,7 @@ lo mismo acierta el 79 %.
 
 | qué | resultado | modelo nulo | veredicto |
 |---|---|---|---|
-| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,0 % precisión<br>14,8 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
+| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,6 % precisión<br>18,3 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
 | Dependencias **curadas** contra el DAG real<br><sub>73 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 78,1 % confirmadas<br><sub>57/73</sub> | 40,1 %<br><sub>nulo emparejado</sub> | **1,95× · aporta** |
 | Costura de **cobertura** contra el DAG<br><sub>9 aristas `skill→módulo` medibles</sub> | 100 % confirmadas<br><sub>9/9</sub> | **100 %** | **1,00× · no dice nada** |
 | Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
@@ -626,7 +626,7 @@ python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
 
 ## 7. Tests y guardianes
 
-**1069 tests en 52 suites.** Los que más valen no comprueban que el código
+**1080 tests en 53 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -746,7 +746,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
-tests/                    1069 tests en 52 suites
+tests/                    1080 tests en 53 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 
