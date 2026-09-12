@@ -373,7 +373,14 @@ PROBABILITY_SKILLS = [
         id="ergodic-theory", name="Ergodic Theory",
         description="Ergodic theorems, mixing, entropy, symbolic dynamics",
         pillar=PillarType.SET, level=2,
-        dependencies=["probability-theory", "point-set-topology"],
+        # `measure-theory` FALTABA, y es el prerrequisito de verdad: la teoria
+        # ergodica estudia transformaciones que PRESERVAN LA MEDIDA, y eso es
+        # una nocion de teoria de la medida, no de probabilidad. Salio de un
+        # enunciado real que nombraba `MeasureTheory` y no llegaba aqui.
+        # El DAG lo confirma: Dynamics.Ergodic.MeasurePreserving importa
+        # MeasureTheory.MeasurableSpace.Defs.
+        dependencies=["measure-theory", "probability-theory",
+                      "point-set-topology"],
         category="probability",
     ),
 ]
@@ -813,9 +820,13 @@ SUBBRANCH_SKILLS = [
         "Class groups, unique factorization of ideals, Dedekind domains",
         ["number-fields"], "number-theory",
         ["grupo de clases", "clase de ideales", "dedekind", "class group"]),
+    # `ring-theory` faltaba: una valuacion es una estructura sobre un ANILLO
+    # —Mathlib la define en RingTheory.Valuation.Basic— y sin esa flecha no se
+    # llegaba aqui desde ningun enunciado de anillos. El DAG lo confirma:
+    # RingTheory.Valuation.Basic importa RingTheory.Ideal.Defs.
     _sb("p-adic-valuations", "p-adic Numbers and Valuations",
         "p-adic numbers, valuations, local fields, Hensel's lemma",
-        ["number-fields"], "number-theory",
+        ["number-fields", "ring-theory"], "number-theory",
         ["p-adico", "p-adicos", "valuacion", "valuaciones", "hensel",
          "cuerpo local", "p-adic", "valuation"]),
     _sb("prime-number-theorem", "Prime Number Theorem",
@@ -1145,9 +1156,13 @@ SUBBRANCH_SKILLS = [
          "large cardinal"]),
 
     # ---- Combinatoria -----------------------------------------------------
+    # `ring-theory` faltaba: una funcion generatriz ES una serie formal de
+    # potencias, y `PowerSeries` es una construccion de anillos. Sin esa
+    # flecha, un enunciado sobre series formales no llegaba aqui. El DAG lo
+    # confirma: RingTheory.PowerSeries.Basic importa Algebra.Ring.Defs.
     _sb("generating-functions", "Generating Functions",
         "Ordinary and exponential generating functions, recurrences",
-        ["enumerative-combinatorics"], "combinatorics",
+        ["enumerative-combinatorics", "ring-theory"], "combinatorics",
         ["funcion generatriz", "funciones generatrices", "recurrencia",
          "generating function"]),
     _sb("inclusion-exclusion", "Inclusion-Exclusion",

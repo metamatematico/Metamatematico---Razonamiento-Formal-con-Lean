@@ -160,7 +160,7 @@ class TestLasClasesDeAristaNoSeMezclan:
         cobertura  125, todas skill -> mathlib-*        AFIRMA COBERTURA
 
     Separadas por clase (scripts/funtor_dag_mathlib.py, seccion 6), la fila
-    `curada` da 73 medibles / 57 confirmadas / 6 invertidas: los MISMOS
+    `curada` da 74 medibles / 58 confirmadas / 6 invertidas: los MISMOS
     numeros de antes. El 78,1 % nunca fue obsoleto; solo estaba escondido
     entre aristas de otra clase.
 
@@ -205,13 +205,13 @@ class TestLasClasesDeAristaNoSeMezclan:
                       or m.target_id.startswith(("area-", "mathlib-")))]
         assert not malas, (
             "hay %d aristas curadas que tocan un nodo de etiqueta: %s. El "
-            "DAG de imports no las puede juzgar y contaminan el 78,1 %%."
+            "DAG de imports no las puede juzgar y contaminan el 78,4 %%."
             % (len(malas), malas[:5]))
 
     def test_la_composicion_por_clase_no_ha_cambiado(self, deps):
         import collections
         c = collections.Counter(self._clase(m) for m in deps)
-        assert dict(c) == {"curada": 238, "jerarquia": 221, "cobertura": 125}, (
+        assert dict(c) == {"curada": 240, "jerarquia": 221, "cobertura": 125}, (
             "la composicion por clase cambio a %s. Vuelve a correr "
             "scripts/funtor_dag_mathlib.py: las cifras por clase del README "
             "y de los tres artefactos pueden haber dejado de valer." % dict(c))
@@ -239,8 +239,8 @@ class TestLasClasesDeAristaNoSeMezclan:
                 "el nulo de `cobertura` bajo a %.1f %%: ahora SI discrimina y "
                 "habria que publicarla como evidencia." % cob["nulo_pct"])
         cur = d["curada"]
-        assert cur["medibles"] == 73 and cur["confirmadas"] == 57, (
-            "la fila curada cambio a %d/%d; el 78,1 %% del README ya no vale"
+        assert cur["medibles"] == 74 and cur["confirmadas"] == 58, (
+            "la fila curada cambio a %d/%d; el 78,4 %% del README ya no vale"
             % (cur["confirmadas"], cur["medibles"]))
         assert 1.5 < cur["factor"] < 2.4, (
             "el factor de las curadas es %.2fx, fuera del rango medido"

@@ -2,8 +2,8 @@
  "casos": 62,
  "cuenta": {
   "sin_nodo": 43,
-  "emerge": 7,
-  "no_emerge": 11,
+  "emerge": 8,
+  "no_emerge": 10,
   "ya_estaba": 1
  },
  "detalle": [
@@ -396,7 +396,7 @@
   },
   {
    "nombre": "HasEval.zero",
-   "veredicto": "no_emerge",
+   "veredicto": "emerge",
    "desde": 4,
    "objetivo": 1
   },
@@ -436,9 +436,9 @@
    ]
   }
  ],
- "nulo_aciertos": 223,
+ "nulo_aciertos": 221,
  "nulo_intentos": 3200,
- "nulo2_aciertos": 270,
+ "nulo2_aciertos": 436,
  "nulo2_intentos": 3200,
  "semilla": 20260911
 }

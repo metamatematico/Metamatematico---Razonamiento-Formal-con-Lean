@@ -181,7 +181,7 @@ de su área, y a volumen igualado pierde. Está medido en §7 del reporte.
 | nodos curados | 174 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
 | nodos de área | 22 | la **puerta de entrada**: `Algebra`, `Topology`, `OrderTheory`… Entrar por una poda a 10 nodos de mediana |
 | nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
-| dependencias | 584 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
+| dependencias | 586 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
 | traducciones | 442 | entre pilares — Curry-Howard, conjuntos↔categorías |
 | analogías | 7 | correspondencias débiles, marcadas como tales |
 | identidades | 321 | una por objeto, como exige la definición de categoría |
@@ -354,7 +354,7 @@ lo mismo acierta el 79 %.
 | qué | resultado | modelo nulo | veredicto |
 |---|---|---|---|
 | Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,3 % precisión<br>18,4 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
-| Dependencias **curadas** contra el DAG real<br><sub>73 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 78,1 % confirmadas<br><sub>57/73</sub> | 40,1 %<br><sub>nulo emparejado</sub> | **1,95× · aporta** |
+| Dependencias **curadas** contra el DAG real<br><sub>74 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 78,4 % confirmadas<br><sub>58/74</sub> | 40,1 %<br><sub>nulo emparejado</sub> | **1,95× · aporta** |
 | Costura de **cobertura** contra el DAG<br><sub>9 aristas `skill→módulo` medibles</sub> | 100 % confirmadas<br><sub>9/9</sub> | **100 %** | **1,00× · no dice nada** |
 | Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |

@@ -1,16 +1,16 @@
 {
- "medibles": 282,
- "confirmadas": 173,
+ "medibles": 283,
+ "confirmadas": 174,
  "invertidas": 50,
  "por_clase": {
   "curada": {
-   "medibles": 73,
-   "confirmadas": 57,
+   "medibles": 74,
+   "confirmadas": 58,
    "invertidas": 6,
    "independientes": 10,
-   "tasa_pct": 78.08219178082192,
+   "tasa_pct": 78.37837837837837,
    "nulo_pct": 40.0999375390381,
-   "factor": 1.9471898604532072,
+   "factor": 1.9545760713985014,
    "pares_del_nulo": 1601
   },
   "jerarquia": {
@@ -43,8 +43,8 @@
   "mathlib-topology-category"
  ],
  "sin_envoltorio": {
-  "medibles": 268,
-  "confirmadas": 159,
+  "medibles": 269,
+  "confirmadas": 160,
   "invertidas": 50,
   "azar_pct": 34.667588287042854
  },

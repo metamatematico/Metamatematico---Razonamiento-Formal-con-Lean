@@ -127,6 +127,7 @@
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M907 384 Q734 397 760 695"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M760 695 Q660 553 350 452"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M760 695 Q660 553 753 699"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M730 106 Q645 258 753 699"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M381 527 Q470 468 349 448"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M381 527 Q470 468 349 443"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M405 557 Q482 484 348 439"/>
@@ -177,6 +178,7 @@
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M348 384 Q454 397 348 379"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M348 384 Q454 397 466 745"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M399 551 Q479 480 349 375"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M730 106 Q645 258 349 375"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M399 551 Q479 480 350 371"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M399 551 Q479 480 905 361"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M891 301 Q725 356 350 367"/>
@@ -931,6 +933,6 @@
 <text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="982" y="146">147 sin interpretar</text>
 <circle class="n g" fill="#564c9e" stroke="none" cx="972" cy="161" r="4.6"/>
 <text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="982" y="165">22 de área, que cosen</text>
-<text class="tt" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" x="966" y="196">321 nodos · 1354 morfismos</text>
-<text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="966" y="214">se dibujan 555 dependencias</text>
+<text class="tt" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" x="966" y="196">321 nodos · 1356 morfismos</text>
+<text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="966" y="214">se dibujan 557 dependencias</text>
 </svg>
