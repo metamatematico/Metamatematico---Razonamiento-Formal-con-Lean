@@ -54,6 +54,10 @@ import MetamathProver.CategoryFoundations.MorfismosGrupoAnillo
 -- Los demas pares del grafo donde la multiplicidad se puede certificar. El
 -- separador no siempre es el cardinal: group-actions se separa por puntos fijos.
 import MetamathProver.CategoryFoundations.MultiplicidadDelGrafo
+-- La marca `F` del grafo («esto es una flecha, no un vertice») es relativa al
+-- ambiente, no absoluta: las flechas de C son EXACTAMENTE los objetos de
+-- Arrow C, y los funtores son los objetos de C ⥤ D. Ambos casos son comas.
+import MetamathProver.CategoryFoundations.FlechasComoObjetos
 
 -- Ring isomorphism theorems (uses Mathlib)
 import MetamathProver.Ring.FirstIsomorphism
