@@ -195,7 +195,7 @@ consistente.
 <div class="nota ambar">
 <strong>Lo que esto le hace al resto del documento.</strong> La sección 04
 lista capacidades apagadas por no batir a su nulo; ésta añade una que
-<em>sí</em> lo bate en su banco propio —el vocabulario, 14,9× contra
+<em>sí</em> lo bate en su banco propio —el vocabulario, 14,7× contra
 ProofNet— y aun así no mueve el resultado final. No es una contradicción: son
 dos preguntas distintas. <em>Ofrecer los identificadores correctos</em> es
 puntería; <em>hacer que Lean verifique más</em> es resultado. La puntería está
@@ -242,7 +242,7 @@ Tres skills copaban la mitad del banco —<code>eigen-theory</code>,
 por la palabra <code>and</code> de su propio nombre: «Eigenvalues <em>and</em>
 Eigenvectors». Las tres son de área <code>algebra</code>, así que acertaban por
 el sesgo de clase. Con <code>and</code> fuera del vocabulario, la precisión
-contra ProofNet sube de 18,8 % a 21,6 % con la cobertura plana y 121 nombres
+contra ProofNet sube de 18,8 % a 21,3 % con la cobertura plana y 121 nombres
 erróneos menos en el prompt.
 </div>
 
@@ -281,7 +281,7 @@ su propio nulo le gana por veintisiete puntos.
 <thead><tr><th>capacidad</th><th>real</th><th>nulo</th><th>contra qué</th></tr></thead>
 <tbody>
 <tr><td>Revisión de sintaxis <span class="m">(caza de roturas)</span></td><td class="num">60,8 %</td><td class="num nulo">3,6 %</td><td>una moneda que rechaza igual</td></tr>
-<tr><td>Nombres de Mathlib en el prompt <span class="m">(precisión)</span></td><td class="num">21,6 %</td><td class="num nulo">1,45 %</td><td>los nombres más frecuentes</td></tr>
+<tr><td>Nombres de Mathlib en el prompt <span class="m">(precisión)</span></td><td class="num">21,3 %</td><td class="num nulo">1,45 %</td><td>los nombres más frecuentes</td></tr>
 <tr><td>Reconocedor de área <span class="m">(acierto equilibrado) · MEDIDO, NO CABLEADO</span></td><td class="num">0,759</td><td class="num nulo">0,238</td><td>siempre el área mayoritaria</td></tr>
 <tr><td>TacticRanker <span class="m">(acierto de táctica)</span></td><td class="num">0,621</td><td class="num nulo">0,318</td><td>siempre <code>nlinarith</code></td></tr>
 <tr><td>Premisas híbridas <span class="m">(precisión)</span></td><td class="num">1,243</td><td class="num nulo">1,040</td><td>las premisas más frecuentes</td></tr>
@@ -336,7 +336,7 @@ La última decía «12 % contra 61 %», y ese 61 % <strong>no era un nulo</stron
 era el emparejador léxico. Comparar un candidato con la versión que ya tienes
 no es medirlo. Ahora va contra ProofNet, que sí tiene formalizaciones de oro —
 el semántico da 13,1 % de precisión y <strong>2,4 % de cobertura</strong>,
-frente a 21,6 % y 18,3 % del léxico.
+frente a 21,3 % y 18,4 % del léxico.
 </p>
 
 <div class="nota azul">

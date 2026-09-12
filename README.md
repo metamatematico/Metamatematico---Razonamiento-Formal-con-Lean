@@ -353,7 +353,7 @@ lo mismo acierta el 79 %.
 
 | qué | resultado | modelo nulo | veredicto |
 |---|---|---|---|
-| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,6 % precisión<br>18,3 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
+| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,3 % precisión<br>18,4 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
 | Dependencias **curadas** contra el DAG real<br><sub>73 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 78,1 % confirmadas<br><sub>57/73</sub> | 40,1 %<br><sub>nulo emparejado</sub> | **1,95× · aporta** |
 | Costura de **cobertura** contra el DAG<br><sub>9 aristas `skill→módulo` medibles</sub> | 100 % confirmadas<br><sub>9/9</sub> | **100 %** | **1,00× · no dice nada** |
 | Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
