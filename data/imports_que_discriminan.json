@@ -1,6 +1,2049 @@
 {
  "casos": [
   {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.Module.CharacterModule",
+   "nombre": "_root_.rTensor_injective_iff_lcomp_surjective",
+   "cuerpo": "{f : A →ₗ[R] A'} :\n    Function.Injective (f.rTensor B) ↔ Function.Surjective (f.lcomp R <| CharacterModule B)",
+   "contexto": [
+    "open CategoryTheory",
+    "universe uR uA uB",
+    "variable (R : Type uR) [CommRing R]",
+    "variable (A : Type uA) [AddCommGroup A]",
+    "variable (A' : Type*) [AddCommGroup A']",
+    "variable (B : Type uB) [AddCommGroup B]",
+    "namespace CharacterModule",
+    "variable {A}",
+    "variable [Module R A] [Module R A'] [Module R B] {R A' B}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.CharacterModule",
+    "Mathlib.Algebra.Module.Defs"
+   ],
+   "faltan": [
+    "Mathlib.Algebra.Module.CharacterModule"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.Module.Submodule.Equiv",
+   "nombre": "apply_ofBijective_symm_apply",
+   "cuerpo": "[RingHomInvPair σ₁₂ σ₂₁] [RingHomInvPair σ₂₁ σ₁₂] {h}\n    (x : M₂) : f ((ofBijective f h).symm x) = x",
+   "contexto": [
+    "open Function",
+    "variable {R : Type*} {R₁ : Type*} {R₂ : Type*} {R₃ : Type*}",
+    "variable {M : Type*} {M₁ : Type*} {M₂ : Type*} {M₃ : Type*}",
+    "variable {N : Type*}",
+    "namespace LinearEquiv",
+    "section AddCommMonoid",
+    "section",
+    "variable [Semiring R] [Semiring R₂] [Semiring R₃]",
+    "variable [AddCommMonoid M] [AddCommMonoid M₂] [AddCommMonoid M₃]",
+    "variable {module_M : Module R M} {module_M₂ : Module R₂ M₂} {module_M₃ : Module R₃ M₃}",
+    "variable {σ₁₂ : R →+* R₂} {σ₂₁ : R₂ →+* R}",
+    "variable {σ₂₃ : R₂ →+* R₃} {σ₁₃ : R →+* R₃} [RingHomCompTriple σ₁₂ σ₂₃ σ₁₃]",
+    "variable {σ₃₂ : R₃ →+* R₂}",
+    "variable {re₁₂ : RingHomInvPair σ₁₂ σ₂₁} {re₂₁ : RingHomInvPair σ₂₁ σ₁₂}",
+    "variable {re₂₃ : RingHomInvPair σ₂₃ σ₃₂} {re₃₂ : RingHomInvPair σ₃₂ σ₂₃}",
+    "variable (f : M →ₛₗ[σ₁₂] M₂) (g : M₂ →ₛₗ[σ₂₁] M) (e : M ≃ₛₗ[σ₁₂] M₂) (h : M₂ →ₛₗ[σ₂₃] M₃)",
+    "variable (p q : Submodule R M)",
+    "variable {p q}",
+    "variable (p)",
+    "variable {f g}",
+    "variable (f)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.Equiv.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Algebra.Ring.CompTypeclasses",
+    "Mathlib.Algebra.Module.Submodule.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.Ring.Periodic",
+   "nombre": "Periodic.sub_eq'",
+   "cuerpo": "[SubtractionCommMonoid α] (h : Periodic f c) : f (c - x) = f (-x)",
+   "contexto": [
+    "variable {α β γ : Type*} {f g : α → β} {c c₁ c₂ x : α}",
+    "open Set",
+    "namespace Function"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.Polynomial.Monic",
+   "nombre": "monic_mul_C_of_leadingCoeff_mul_eq_one",
+   "cuerpo": "{b : R} (hp : p.leadingCoeff * b = 1) :\n    Monic (p * C b)",
+   "contexto": [
+    "noncomputable section",
+    "open Finset",
+    "open Polynomial",
+    "namespace Polynomial",
+    "universe u v y",
+    "variable {R : Type u} {S : Type v} {a b : R} {m n : ℕ} {ι : Type y}",
+    "section Semiring",
+    "variable [Semiring R] {p q r : R[X]}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Ring.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.Ring.Units",
+   "nombre": "val_eq_neg_one",
+   "cuerpo": "{a : αˣ} : (a : α) = -1 ↔ a = -1",
+   "contexto": [
+    "universe u v w x",
+    "variable {α : Type u} {β : Type v} {R : Type x}",
+    "open Function",
+    "namespace Units",
+    "section HasDistribNeg",
+    "variable [Monoid α] [HasDistribNeg α]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Units.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.BigOperators.Finprod",
+   "nombre": "finprod_eq_prod_plift_of_mulSupport_toFinset_subset",
+   "cuerpo": "{f : α → M}\n    (hf : HasFiniteMulSupport (f ∘ PLift.down)) {s : Finset (PLift α)} (hs : hf.toFinset ⊆ s) :\n    ∏ᶠ i, f i = ∏ i ∈ s, f i.down",
+   "contexto": [
+    "open Function Set",
+    "section sort",
+    "variable {G M N : Type*} {α β ι : Sort*} [CommMonoid M] [CommMonoid N]",
+    "open Batteries.ExtendedBinder"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.Group.Submonoid.MulOpposite",
+   "nombre": "unop_closure",
+   "cuerpo": "(s : Set Mᵐᵒᵖ) : (closure s).unop = closure (MulOpposite.op ⁻¹' s)",
+   "contexto": [
+    "variable {ι : Sort*} {M : Type*} [MulOneClass M]",
+    "namespace Submonoid"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Group.Submonoid.Defs",
+    "Mathlib.Algebra.Opposites"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Algebra",
+   "modulo": "Mathlib.Algebra.Module.Injective",
+   "nombre": "ExtensionOfMaxAdjoin.extendIdealTo_wd",
+   "cuerpo": "(h : Module.Baer R Q) {y : N} (r r' : R)\n    (eq1 : r • y = r' • y) : ExtensionOfMaxAdjoin.extendIdealTo i f h y r =\n    ExtensionOfMaxAdjoin.extendIdealTo i f h y r'",
+   "contexto": [
+    "noncomputable section",
+    "universe u v v'",
+    "variable (R : Type u) [Ring R] (Q : Type v) [AddCommGroup Q] [Module R Q]",
+    "namespace Module.Baer",
+    "variable {R Q} {M N : Type*} [AddCommGroup M] [AddCommGroup N]",
+    "variable [Module R M] [Module R N] (i : M →ₗ[R] N) (f : M →ₗ[R] Q)",
+    "variable {i f}",
+    "variable (i f) [Fact <| Function.Injective i]",
+    "variable {f}",
+    "variable (f)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Algebra.Module.Injective",
+    "Mathlib.Logic.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Algebra.Module.Injective"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Functor",
+   "nombre": "map_comp",
+   "cuerpo": ": map (g.comp f) (irrelevant_le_map_comp hf hg) = map g hg ≫ map f hf",
+   "contexto": [
+    "universe u",
+    "open HomogeneousIdeal HomogeneousLocalization TopologicalSpace CategoryTheory Graded",
+    "open AlgebraicGeometry ProjectiveSpectrum Proj",
+    "namespace AlgebraicGeometry",
+    "section universe_monomorphic",
+    "namespace Proj",
+    "variable {A B C σ τ ψ : Type u} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]"
+   ],
+   "mods_nombres": [
+    "Mathlib.RingTheory.GradedAlgebra.Homogeneous.Ideal",
+    "Mathlib.RingTheory.GradedAlgebra.HomogeneousLocalization",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Topology",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Data.SetLike.Basic",
+    "Mathlib.Algebra.Group.Subgroup.Defs"
+   ],
+   "faltan": [
+    "Mathlib.RingTheory.GradedAlgebra.Homogeneous.Ideal",
+    "Mathlib.RingTheory.GradedAlgebra.HomogeneousLocalization",
+    "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Topology"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.Morphisms.Proper",
+   "nombre": "isIntegral_appTop_of_universallyClosed",
+   "cuerpo": "(f : X ⟶ Y) [UniversallyClosed f] [IsAffine Y] :\n    f.appTop.hom.IsIntegral",
+   "contexto": [
+    "noncomputable section",
+    "open CategoryTheory",
+    "universe u",
+    "namespace AlgebraicGeometry",
+    "variable {X Y Z S : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)",
+    "variable {f} in",
+    "section GlobalSection",
+    "variable (K : Type u) [Field K]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.Stalk",
+   "nombre": "IsAffineOpen.fromSpecStalk_eq",
+   "cuerpo": "(x : X) (hxU : x ∈ U) (hxV : x ∈ V) :\n    hU.fromSpecStalk hxU = hV.fromSpecStalk hxV",
+   "contexto": [
+    "namespace AlgebraicGeometry",
+    "open CategoryTheory Opposite TopologicalSpace IsLocalRing",
+    "universe u",
+    "variable {X Y : Scheme.{u}} (f : X ⟶ Y) {U V : X.Opens} (hU : IsAffineOpen U) (hV : IsAffineOpen V)",
+    "section fromSpecStalk",
+    "open neighborhood of `x` we choose."
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Opposite",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.RingTheory.LocalRing.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.Morphisms.UniversallyOpen",
+   "nombre": "eq",
+   "cuerpo": ": @UniversallyOpen = universally (topologically @IsOpenMap)",
+   "contexto": [
+    "noncomputable section",
+    "open CategoryTheory CategoryTheory.Limits Opposite TopologicalSpace",
+    "universe v u",
+    "namespace AlgebraicGeometry",
+    "variable {X Y : Scheme.{u}} (f : X ⟶ Y)",
+    "open CategoryTheory.MorphismProperty",
+    "namespace UniversallyOpen"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Opposite",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.CategoryTheory.MorphismProperty.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.FunctionField",
+   "nombre": "germ_injective_of_isIntegral",
+   "cuerpo": "[IsIntegral X] {U : X.Opens} (x : X) (hx : x ∈ U) :\n    Function.Injective (X.presheaf.germ U x hx)",
+   "contexto": [
+    "universe u v",
+    "open TopologicalSpace Opposite CategoryTheory CategoryTheory.Limits TopCat",
+    "namespace AlgebraicGeometry",
+    "variable (X : Scheme)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Data.Opposite",
+    "Mathlib.Topology.Category.TopCat.Basic",
+    "Mathlib.RingTheory.IntegralClosure.IsIntegral.Defs"
+   ],
+   "faltan": [
+    "Mathlib.Topology.Category.TopCat.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.Morphisms.WeaklyEtale",
+   "nombre": "weaklyEtale_eq_flat_inf_diagonal_flat",
+   "cuerpo": ":\n    @WeaklyEtale = (@Flat ⊓ MorphismProperty.diagonal @Flat : MorphismProperty Scheme.{u})",
+   "contexto": [
+    "noncomputable section",
+    "open CategoryTheory Limits Opposite TopologicalSpace",
+    "universe u",
+    "namespace AlgebraicGeometry",
+    "variable {W X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)",
+    "namespace WeaklyEtale"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Opposite",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.Pullbacks",
+   "nombre": "t_fst_fst",
+   "cuerpo": "(i j : 𝒰.I₀) : t 𝒰 f g i j ≫ pullback.fst _ _ ≫ pullback.fst _ _ =\n    pullback.snd _ _",
+   "contexto": [
+    "universe u v w",
+    "noncomputable section",
+    "open CategoryTheory Functor CartesianMonoidalCategory Limits AlgebraicGeometry",
+    "namespace AlgebraicGeometry.Scheme",
+    "namespace Pullback",
+    "variable {X Y Z : Scheme.{u}} (𝒰 : OpenCover.{u} X) (f : X ⟶ Z) (g : Y ⟶ Z)",
+    "variable [∀ i, HasPullback (𝒰.f i ≫ f) g]"
+   ],
+   "mods_nombres": [
+    "Mathlib.AlgebraicGeometry.Scheme"
+   ],
+   "faltan": [
+    "Mathlib.AlgebraicGeometry.Scheme"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicGeometry",
+   "modulo": "Mathlib.AlgebraicGeometry.Properties",
+   "nombre": "isReduced_of_isReduced_stalk",
+   "cuerpo": "[∀ x : X, _root_.IsReduced (X.presheaf.stalk x)] :\n    IsReduced X",
+   "contexto": [
+    "universe u",
+    "open TopologicalSpace Opposite CategoryTheory CategoryTheory.Limits TopCat Topology",
+    "namespace AlgebraicGeometry",
+    "variable (X : Scheme)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Data.Opposite",
+    "Mathlib.Topology.Category.TopCat.Basic",
+    "Mathlib.Algebra.GroupWithZero.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Topology.Category.TopCat.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.NormalForms",
+   "nombre": "isAdmissible_iff_isChain_and_le",
+   "cuerpo": ": IsAdmissible m L ↔\n    L.IsChain (· < ·) ∧ ∀ k, (h : k < L.length) → L[k] ≤ m + k",
+   "contexto": [
+    "namespace SimplexCategoryGenRel",
+    "open CategoryTheory",
+    "section AdmissibleLists",
+    "variable (m : ℕ)",
+    "section IsAdmissible",
+    "variable {m a b : ℕ} {L : List ℕ}"
+   ],
+   "mods_nombres": [
+    "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic"
+   ],
+   "faltan": [
+    "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.SimplicialObject.Coskeletal",
+   "nombre": "isCoskeletal_iff_isIso",
+   "cuerpo": ": X.IsCoskeletal n ↔ IsIso ((coskAdj n).unit.app X)",
+   "contexto": [
+    "open Opposite",
+    "open CategoryTheory",
+    "open CategoryTheory.Limits CategoryTheory.Functor SimplexCategory",
+    "universe v u v' u'",
+    "namespace CategoryTheory",
+    "namespace SimplicialObject",
+    "variable {C : Type u} [Category.{v} C]",
+    "variable (X : SimplicialObject C) (n : ℕ)",
+    "open Truncated",
+    "section",
+    "variable [∀ (F : (SimplexCategory.Truncated n)ᵒᵖ ⥤ C),"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Opposite",
+    "Mathlib.CategoryTheory.Functor.Basic",
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "faltan": [
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.SimplicialObject.Split",
+   "nombre": "eqId_iff_eq",
+   "cuerpo": ": A.EqId ↔ A.1 = Δ",
+   "contexto": [
+    "noncomputable section",
+    "open CategoryTheory CategoryTheory.Category CategoryTheory.Limits Opposite SimplexCategory",
+    "open Simplicial",
+    "universe u",
+    "variable {C : Type*} [Category* C]",
+    "namespace SimplicialObject",
+    "namespace Splitting",
+    "namespace IndexSet",
+    "variable {Δ : SimplexCategoryᵒᵖ} (A : IndexSet Δ)",
+    "variable (Δ)",
+    "variable {Δ}"
+   ],
+   "mods_nombres": [
+    "Mathlib.CategoryTheory.Category.Basic",
+    "Mathlib.Data.Opposite",
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "faltan": [
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected",
+   "nombre": "simply_connected_iff_unique_homotopic",
+   "cuerpo": "(X : Type*) [TopologicalSpace X] :\n    SimplyConnectedSpace X ↔\n      Nonempty X ∧ ∀ x y : X, Nonempty (Unique (Path.Homotopic.Quotient x y))",
+   "contexto": [
+    "noncomputable section",
+    "open CategoryTheory",
+    "open scoped ContinuousMap",
+    "variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.ContinuousMap.Defs",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected",
+    "Mathlib.Logic.Unique",
+    "Mathlib.Topology.Homotopy.Path"
+   ],
+   "faltan": [
+    "Mathlib.AlgebraicTopology.FundamentalGroupoid.SimplyConnected",
+    "Mathlib.Topology.Homotopy.Path"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.DoldKan.PInfty",
+   "nombre": "P_is_eventually_constant",
+   "cuerpo": "{q n : ℕ} (hqn : n ≤ q) :\n    ((P (q + 1)).f n : X _⦋n⦌ ⟶ _) = (P q).f n",
+   "contexto": [
+    "open CategoryTheory CategoryTheory.Category CategoryTheory.Preadditive",
+    "namespace AlgebraicTopology",
+    "namespace DoldKan",
+    "variable {C : Type*} [Category* C] [Preadditive C] {X : SimplicialObject C}"
+   ],
+   "mods_nombres": [
+    "Mathlib.CategoryTheory.Category.Basic",
+    "Mathlib.CategoryTheory.Preadditive.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.SimplicialObject.Basic",
+   "nombre": "eqToIso_refl",
+   "cuerpo": "{n : ℕ} (h : n = n) : X.eqToIso h = Iso.refl _",
+   "contexto": [
+    "open Opposite",
+    "open CategoryTheory",
+    "open CategoryTheory.Limits CategoryTheory.Functor",
+    "universe v u v' u'",
+    "namespace CategoryTheory",
+    "variable (C : Type u) [Category.{v} C]",
+    "namespace SimplicialObject",
+    "open Simplicial",
+    "variable {C}",
+    "variable (X : SimplicialObject C)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Opposite",
+    "Mathlib.CategoryTheory.Functor.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.DoldKan.Degeneracies",
+   "nombre": "degeneracy_comp_PInfty",
+   "cuerpo": "(X : SimplicialObject C) (n : ℕ) {Δ' : SimplexCategory}\n    (θ : ⦋n⦌ ⟶ Δ') (hθ : ¬Mono θ) : X.map θ.op ≫ PInfty.f n = 0",
+   "contexto": [
+    "open CategoryTheory CategoryTheory.Category CategoryTheory.Limits",
+    "namespace AlgebraicTopology",
+    "namespace DoldKan",
+    "variable {C : Type*} [Category* C] [Preadditive C]"
+   ],
+   "mods_nombres": [
+    "Mathlib.CategoryTheory.Category.Basic",
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "faltan": [
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "AlgebraicTopology",
+   "modulo": "Mathlib.AlgebraicTopology.DoldKan.NCompGamma",
+   "nombre": "PInfty_comp_map_mono_eq_zero",
+   "cuerpo": "(X : SimplicialObject C) {n : ℕ} {Δ' : SimplexCategory}\n    (i : Δ' ⟶ ⦋n⦌) [hi : Mono i] (h₁ : Δ'.len ≠ n) (h₂ : ¬Isδ₀ i) :\n    PInfty.f n ≫ X.map i.op = 0",
+   "contexto": [
+    "noncomputable section",
+    "open CategoryTheory CategoryTheory.Category CategoryTheory.Limits CategoryTheory.Idempotents",
+    "namespace AlgebraicTopology",
+    "namespace DoldKan",
+    "variable {C : Type*} [Category* C] [Preadditive C]"
+   ],
+   "mods_nombres": [
+    "Mathlib.CategoryTheory.Category.Basic",
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "faltan": [
+    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.Convex.Caratheodory",
+   "nombre": "convexHull_eq_union",
+   "cuerpo": ": convexHull 𝕜 s =\n    ⋃ (t : Finset E) (_ : ↑t ⊆ s) (_ : AffineIndependent 𝕜 ((↑) : t → E)), convexHull 𝕜 ↑t",
+   "contexto": [
+    "open Set Finset",
+    "universe u",
+    "variable {𝕜 : Type*} {E : Type u} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]",
+    "variable {s : Set E}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Order.Defs.LinearOrder",
+    "Mathlib.Algebra.Order.Ring.Defs",
+    "Mathlib.LinearAlgebra.AffineSpace.Independent"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.Complex.Order",
+   "nombre": "sq_nonpos_iff",
+   "cuerpo": "{z : ℂ} : z ^ 2 ≤ 0 ↔ z.re = 0",
+   "contexto": [
+    "namespace Complex",
+    "open ComplexOrder"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Complex.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.SpecialFunctions.Log.Monotone",
+   "nombre": "log_mul_self_monotoneOn",
+   "cuerpo": ": MonotoneOn (fun x : ℝ => log x * x) { x | 1 ≤ x }",
+   "contexto": [
+    "open Set Filter Function",
+    "open Topology",
+    "noncomputable section",
+    "namespace Real"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Order.Monotone.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.Complex.MeanValue",
+   "nombre": "circleAverage_sub_sub_inv_smul_of_differentiable_on_off_countable",
+   "cuerpo": "(hs : s.Countable)\n    (h₁f : ContinuousOn f (closedBall c |R|)) (h₂f : ∀ z ∈ ball c |R| \\ s, DifferentiableAt ℂ f z)\n    (hw : w ∈ ball c |R|) :\n    circleAverage (fun z ↦ ((z - c) / (z - w)) • f z) c R = f w",
+   "contexto": [
+    "open Complex Filter Function Metric Real Set Topology",
+    "variable"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Complex.Basic",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Filter",
+    "Mathlib.Analysis.Calculus.FDeriv.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.InnerProductSpace.EuclideanDist",
+   "nombre": "nhds_basis_closedBall",
+   "cuerpo": "{x : E} : (𝓝 x).HasBasis (fun r : ℝ => 0 < r) (closedBall x)",
+   "contexto": [
+    "open scoped Topology",
+    "open Set",
+    "variable {E : Type*} [AddCommGroup E] [TopologicalSpace E] [IsTopologicalAddGroup E] [T2Space E]",
+    "noncomputable section",
+    "open Module",
+    "namespace Euclidean"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Topology.Algebra.Group.Defs",
+    "Mathlib.Topology.Separation.Hausdorff",
+    "Mathlib.Algebra.Module.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.Analytic.IteratedFDeriv",
+   "nombre": "HasFPowerSeriesWithinOnBall.iteratedFDerivWithin_eq_sum",
+   "cuerpo": "(h : HasFPowerSeriesWithinOnBall f p s x r) (h' : AnalyticOn 𝕜 f s)\n    (hs : UniqueDiffOn 𝕜 s) (hx : x ∈ s) {n : ℕ} (v : Fin n → E) :\n    iteratedFDerivWithin 𝕜 n f s x v = ∑ σ : Perm (Fin n), p n (fun i ↦ v (σ i))",
+   "contexto": [
+    "open scoped ENNReal Topology ContDiff",
+    "open Equiv Set",
+    "variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Analysis.Calculus.ContDiff.Defs",
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Analysis.Normed.Field.Basic",
+    "Mathlib.Analysis.Analytic.Basic",
+    "Mathlib.Analysis.Calculus.TangentCone.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.Asymptotics.AsymptoticEquivalent",
+   "nombre": "isEquivalent_zero_iff_isBigO_zero",
+   "cuerpo": ": u ~[l] 0 ↔ u =O[l] (0 : α → β)",
+   "contexto": [
+    "namespace Asymptotics",
+    "open Filter Function",
+    "open Topology",
+    "section NormedAddCommGroup",
+    "variable {α β : Type*} [NormedAddCommGroup β]",
+    "variable {u v w : α → β} {l : Filter α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Analysis.Normed.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Analysis",
+   "modulo": "Mathlib.Analysis.Complex.Isometry",
+   "nombre": "rotation_ne_conjLIE",
+   "cuerpo": "(a : Circle) : rotation a ≠ conjLIE",
+   "contexto": [
+    "noncomputable section",
+    "open Complex",
+    "open CharZero",
+    "open ComplexConjugate",
+    "local notation \"|\" x \"|\" => Complex.abs x"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Complex.Basic",
+    "Mathlib.Algebra.CharZero.Defs",
+    "Mathlib.Analysis.Complex.Circle"
+   ],
+   "faltan": [
+    "Mathlib.Analysis.Complex.Circle"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Monoidal.Closed.Functor",
+   "nombre": "expComparison_ev",
+   "cuerpo": "(A B : C) :\n    F.obj A ◁ ((expComparison F A).natTrans.app B) ≫ (ihom.ev (F.obj A)).app (F.obj B) =\n      inv (prodComparison F _ _) ≫ F.map ((ihom.ev _).app _)",
+   "contexto": [
+    "noncomputable section",
+    "namespace CategoryTheory",
+    "open Category MonoidalClosed MonoidalCategory CartesianMonoidalCategory TwoSquare",
+    "universe v u u'",
+    "variable {C : Type u} [Category.{v} C]",
+    "variable {D : Type u'} [Category.{v} D]",
+    "variable [CartesianMonoidalCategory C] [CartesianMonoidalCategory D]",
+    "variable (F : C ⥤ D) {L : D ⥤ C}",
+    "variable [MonoidalClosed C] [MonoidalClosed D]",
+    "variable [Limits.PreservesLimitsOfShape (Discrete Limits.WalkingPair) F]"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Limits.Shapes.Pullback.Assoc",
+   "nombre": "pullbackAssoc_hom_fst",
+   "cuerpo": "[HasPullback ((pullback.snd _ _ : Z₁ ⟶ X₂) ≫ f₃) f₄]\n    [HasPullback f₁ ((pullback.fst _ _ : Z₂ ⟶ X₂) ≫ f₂)] :\n    (pullbackAssoc f₁ f₂ f₃ f₄).hom ≫ pullback.fst _ _ = pullback.fst _ _ ≫ pullback.fst _ _",
+   "contexto": [
+    "noncomputable section",
+    "open CategoryTheory",
+    "universe w v₁ v₂ v u u₂",
+    "namespace CategoryTheory.Limits",
+    "variable {C : Type u} [Category.{v} C]",
+    "section PullbackAssoc",
+    "variable {X₁ X₂ X₃ Y₁ Y₂ : C} (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₁) (f₃ : X₂ ⟶ Y₂)",
+    "variable (f₄ : X₃ ⟶ Y₂) [HasPullback f₁ f₂] [HasPullback f₃ f₄]",
+    "local notation \"Z₁\" => pullback f₁ f₂",
+    "local notation \"Z₂\" => pullback f₃ f₄",
+    "local notation \"g₁\" => (pullback.fst _ _ : Z₁ ⟶ X₁)",
+    "local notation \"g₂\" => (pullback.snd _ _ : Z₁ ⟶ X₂)",
+    "local notation \"g₃\" => (pullback.fst _ _ : Z₂ ⟶ X₂)",
+    "local notation \"g₄\" => (pullback.snd _ _ : Z₂ ⟶ X₃)",
+    "local notation \"W\" => pullback (g₂ ≫ f₃) f₄",
+    "local notation \"W'\" => pullback f₁ (g₃ ≫ f₂)",
+    "local notation \"l₁\" => (pullback.fst _ _ : W ⟶ Z₁)",
+    "local notation \"l₂\" =>",
+    "local notation \"l₁'\" =>",
+    "local notation \"l₂'\" => (pullback.snd f₁ (g₃ ≫ f₂))"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Sites.Over",
+   "nombre": "coverPreserving_over_star",
+   "cuerpo": "(X : C) :\n    CoverPreserving J (J.over X) (Over.star X) where\n  cover_preserve {U} S hs",
+   "contexto": [
+    "universe v' v u' u",
+    "namespace CategoryTheory",
+    "open Category",
+    "variable {C : Type u} [Category.{v} C]",
+    "variable (J : GrothendieckTopology C)",
+    "namespace GrothendieckTopology",
+    "section",
+    "open CategoryTheory Limits",
+    "variable {C : Type u'} [Category* C] [HasBinaryProducts C] {J : GrothendieckTopology C}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Monoidal.Bimon_",
+   "nombre": "one_comul",
+   "cuerpo": "(M : C) [BimonObj M] :\n    η[M] ≫ Δ[M] = (λ_ _).inv ≫ (η[M] ⊗ₘ η[M])",
+   "contexto": [
+    "noncomputable section",
+    "universe v₁ v₂ u₁ u₂ u",
+    "open CategoryTheory MonoidalCategory",
+    "namespace CategoryTheory",
+    "variable {C : Type u₁} [Category.{v₁} C] [MonoidalCategory.{v₁} C] [BraidedCategory C]",
+    "open scoped MonObj ComonObj",
+    "variable (C) in",
+    "namespace Bimon",
+    "variable (C)",
+    "variable {C} in",
+    "variable {C}",
+    "variable (C) in",
+    "variable (C) in"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Monoidal.Cartesian.Basic",
+   "nombre": "braiding_hom_fst",
+   "cuerpo": "(X Y : C) : (β_ X Y).hom ≫ fst _ _ = snd _ _",
+   "contexto": [
+    "namespace CategoryTheory",
+    "universe v v₁ v₂ v₃ u u₁ u₂ u₃",
+    "open MonoidalCategory Limits",
+    "variable (C) in",
+    "namespace CartesianMonoidalCategory",
+    "variable {C : Type u} [Category.{v} C]",
+    "variable {C : Type u} [Category.{v} C] [CartesianMonoidalCategory C]",
+    "open MonoidalCategory",
+    "section BraidedCategory",
+    "variable [BraidedCategory C]"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Skeletal",
+   "nombre": "skeleton_skeletal",
+   "cuerpo": ": Skeletal (Skeleton C)",
+   "contexto": [
+    "universe v₁ v₂ v₃ u₁ u₂ u₃",
+    "namespace CategoryTheory",
+    "open Category",
+    "variable (C : Type u₁) [Category.{v₁} C]",
+    "variable (D : Type u₂) [Category.{v₂} D]",
+    "variable {E : Type u₃} [Category.{v₃} E]",
+    "variable {C D}",
+    "variable (C D)",
+    "variable {C}",
+    "variable (C)"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Sites.Coherent.RegularSheaves",
+   "nombre": "EqualizerCondition.bijective_mapToEqualizer_pullback'",
+   "cuerpo": "{P : Cᵒᵖ ⥤ Type*}\n    (hP : EqualizerCondition P) {X B : C} {π : X ⟶ B} [EffectiveEpi π]\n    (c : PullbackCone π π) (hc : IsLimit c) :\n    Function.Bijective (mapToEqualizer P π c.fst c.snd c.condition)",
+   "contexto": [
+    "namespace CategoryTheory",
+    "open Limits",
+    "variable {C D E : Type*} [Category* C] [Category* D] [Category* E]",
+    "open Opposite Presieve Functor",
+    "namespace regularTopology"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Opposite",
+    "Mathlib.Logic.Function.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "CategoryTheory",
+   "modulo": "Mathlib.CategoryTheory.Limits.Shapes.Opposites.Products",
+   "nombre": "desc_op_comp_opCoproductIsoProduct_hom",
+   "cuerpo": "[HasCoproduct Z] {X : C} (π : (a : α) → Z a ⟶ X) :\n    (Sigma.desc π).op ≫ (opCoproductIsoProduct Z).hom = Pi.lift (fun a ↦ (π a).op)",
+   "contexto": [
+    "universe v₁ v₂ u₁ u₂",
+    "noncomputable section",
+    "open CategoryTheory",
+    "open CategoryTheory.Functor",
+    "open Opposite",
+    "namespace CategoryTheory.Limits",
+    "variable {C : Type u₁} [Category.{v₁} C]",
+    "variable {J : Type u₂} [Category.{v₂} J]",
+    "variable (X : Type v₂)",
+    "section OppositeCoproducts",
+    "variable {α : Type*} {Z : α → C}",
+    "variable (Z) in"
+   ],
+   "mods_nombres": [
+    "Mathlib.CategoryTheory.Functor.Basic",
+    "Mathlib.Data.Opposite"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SimpleGraph.Partition",
+   "nombre": "partOfVertex_mem",
+   "cuerpo": "(v : V) : P.partOfVertex v ∈ P.parts",
+   "contexto": [
+    "universe u v",
+    "namespace SimpleGraph",
+    "variable {V : Type u} (G : SimpleGraph V)",
+    "namespace Partition",
+    "variable {G}",
+    "variable (P : G.Partition)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Combinatorics.SimpleGraph.Basic",
+    "Mathlib.Order.Partition.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Combinatorics.SimpleGraph.Basic",
+    "Mathlib.Order.Partition.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SimpleGraph.Regularity.Lemma",
+   "nombre": "szemeredi_regularity",
+   "cuerpo": "(hε : 0 < ε) (hl : l ≤ card α) :\n    ∃ P : Finpartition univ,\n      P.IsEquipartition ∧ l ≤ #P.parts ∧ #P.parts ≤ bound ε l ∧ P.IsUniform G ε",
+   "contexto": [
+    "open Finpartition Finset Fintype Function SzemerediRegularity",
+    "variable {α : Type*} [DecidableEq α] [Fintype α] (G : SimpleGraph α) [DecidableRel G.Adj] {ε : ℝ}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Partition.Finpartition",
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Order.Partition.Finpartition",
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.HalesJewett",
+   "nombre": "map_apply",
+   "cuerpo": "{α α' ι} (f : α → α') (l : Line α ι) (x : α) : l.map f (f x) = f ∘ l x",
+   "contexto": [
+    "open Function",
+    "open scoped Finset",
+    "universe u v",
+    "variable {η α ι κ : Type*}",
+    "namespace Combinatorics",
+    "namespace Line",
+    "variable {l : Line α ι} {i : ι} {a x : α}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.Enumerative.Schroder",
+   "nombre": "largeSchroder_succ",
+   "cuerpo": "(n : ℕ) :\n    largeSchroder (n + 1) = largeSchroder n + ∑ i ≤ n, largeSchroder i * largeSchroder (n - i)",
+   "contexto": [
+    "open Finset",
+    "namespace Nat",
+    "variable {n : ℕ}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SimpleGraph.Density",
+   "nombre": "mem_interedges_iff",
+   "cuerpo": "{x : α × β} : x ∈ interedges r s t ↔ x.1 ∈ s ∧ x.2 ∈ t ∧ r x.1 x.2",
+   "contexto": [
+    "open Finset",
+    "variable {𝕜 ι κ α β : Type*}",
+    "namespace Rel",
+    "section Asymmetric",
+    "variable [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]",
+    "variable {r}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Rel",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Order.Defs.LinearOrder",
+    "Mathlib.Algebra.Order.Ring.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.Quiver.Path.Vertices",
+   "nombre": "exists_eq_comp_of_le_length",
+   "cuerpo": "{n : ℕ} (hn : n ≤ p.length) :\n    ∃ (v : V) (p₁ : Path a v) (p₂ : Path v b),\n      p = p₁.comp p₂ ∧ p₁.length = n",
+   "contexto": [
+    "namespace Quiver.Path",
+    "open List",
+    "variable {V : Type*} [Quiver V]",
+    "section",
+    "variable {a b : V} (p : Path a b)",
+    "open List"
+   ],
+   "mods_nombres": [
+    "Mathlib.Combinatorics.Quiver.Path",
+    "Mathlib.Combinatorics.Quiver.Basic",
+    "Mathlib.Topology.Path"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SimpleGraph.EdgeLabeling",
+   "nombre": "ext_get",
+   "cuerpo": "{C' : EdgeLabeling G K}\n    (h : ∀ x y, (h : G.Adj x y) → C.get x y h = C'.get x y h) : C = C'",
+   "contexto": [
+    "open Finset",
+    "open Fintype (card)",
+    "namespace SimpleGraph",
+    "variable {V V' : Type*} {G : SimpleGraph V} {G' : SimpleGraph V'} {K K' : Type*}",
+    "namespace EdgeLabeling",
+    "variable {C : EdgeLabeling G K}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Combinatorics.SimpleGraph.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Combinatorics",
+   "modulo": "Mathlib.Combinatorics.SetFamily.HarrisKleitman",
+   "nombre": "IsLowerSet.card_inter_le_finset",
+   "cuerpo": "(h𝒜 : IsLowerSet (𝒜 : Set (Finset α)))\n    (hℬ : IsUpperSet (ℬ : Set (Finset α))) :\n    2 ^ Fintype.card α * #(𝒜 ∩ ℬ) ≤ #𝒜 * #ℬ",
+   "contexto": [
+    "open Finset",
+    "variable {α : Type*} [DecidableEq α] {𝒜 ℬ : Finset (Finset α)} {s : Finset α} {a : α}",
+    "variable [Fintype α]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Order.Defs.Unbundled",
+    "Mathlib.Data.Fintype.Card"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.Tape",
+   "nombre": "BlankExtends.below_of_le",
+   "cuerpo": "{Γ} [Inhabited Γ] {l l₁ l₂ : List Γ} :\n    BlankExtends l l₁ → BlankExtends l l₂ → l₁.length ≤ l₂.length → BlankExtends l₁ l₂",
+   "contexto": [
+    "open Function (iterate_succ iterate_succ_apply iterate_zero_apply)",
+    "namespace Turing",
+    "section ListBlank"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.TMConfig",
+   "nombre": "fix_eval",
+   "cuerpo": "(f) : (fix f).eval =\n    PFun.fix fun v => (f.eval v).map fun v =>\n      if v.headI = 0 then Sum.inl v.tail else Sum.inr v.tail",
+   "contexto": [
+    "open List (Vector)",
+    "open Function (update)",
+    "open Relation",
+    "namespace Turing",
+    "namespace ToPartrec",
+    "namespace Code"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.PFun"
+   ],
+   "faltan": [
+    "Mathlib.Data.PFun"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.Language",
+   "nombre": "kstar_def_nonempty",
+   "cuerpo": "(l : Language α) :\n    l∗ = { x | ∃ S : List (List α), x = S.flatten ∧ ∀ y ∈ S, y ∈ l ∧ y ≠ [] }",
+   "contexto": [
+    "open List Set Computability",
+    "universe v",
+    "variable {α β γ : Type*}",
+    "namespace Language",
+    "variable {l m : Language α} {a b x : List α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Computability.Language"
+   ],
+   "faltan": [
+    "Mathlib.Computability.Language"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.PartrecCode",
+   "nombre": "encode_lt_comp",
+   "cuerpo": "(cf cg) :\n    encode cf < encode (comp cf cg) ∧ encode cg < encode (comp cf cg)",
+   "contexto": [
+    "open Encodable Denumerable",
+    "namespace Nat.Partrec.Code"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Encodable.Basic",
+    "Mathlib.Logic.Denumerable"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.DFA",
+   "nombre": "evalFrom_of_pow",
+   "cuerpo": "{x y : List α} {s : σ} (hx : M.evalFrom s x = s)\n    (hy : y ∈ ({x} : Language α)∗) : M.evalFrom s y = s",
+   "contexto": [
+    "universe u v",
+    "open Computability",
+    "namespace DFA",
+    "variable {α : Type u} {σ : Type v} (M : DFA α σ)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Computability.DFA",
+    "Mathlib.Computability.Language"
+   ],
+   "faltan": [
+    "Mathlib.Computability.DFA",
+    "Mathlib.Computability.Language"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.AkraBazzi.AkraBazzi",
+   "nombre": "isBigO_asympBound",
+   "cuerpo": ": T =O[atTop] asympBound g a b",
+   "contexto": [
+    "open Finset Real Filter Asymptotics",
+    "open scoped Topology",
+    "namespace AkraBazziRecurrence",
+    "variable {α : Type*} [Fintype α] {T : ℕ → ℝ} {g : ℝ → ℝ} {a b : α → ℝ} {r : α → ℕ → ℕ}",
+    "variable [Nonempty α] (R : AkraBazziRecurrence T g a b r)",
+    "local notation \"ε\" => smoothingFn"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Computability.AkraBazzi.SumTransform",
+    "Mathlib.Data.Fintype.Defs"
+   ],
+   "faltan": [
+    "Mathlib.Computability.AkraBazzi.SumTransform"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.TMToPartrec",
+   "nombre": "K'.elim_update_rev",
+   "cuerpo": "{a b c d b'} : update (K'.elim a b c d) rev b' = K'.elim a b' c d",
+   "contexto": [
+    "open List (Vector)",
+    "open Function (update)",
+    "open Relation StateTransition",
+    "namespace Turing",
+    "namespace PartrecToTM2",
+    "section",
+    "open ToPartrec",
+    "open K'",
+    "open TM2.Stmt"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Computability",
+   "modulo": "Mathlib.Computability.Partrec",
+   "nombre": "fix",
+   "cuerpo": "{f : α →. σ ⊕ α} (hf : Partrec f) : Partrec (PFun.fix f)",
+   "contexto": [
+    "open List (Vector)",
+    "open Encodable Denumerable Part",
+    "namespace Partrec",
+    "variable {α : Type*} {β : Type*} {γ : Type*} {σ : Type*}",
+    "variable [Primcodable α] [Primcodable β] [Primcodable γ] [Primcodable σ]",
+    "open Computable"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Encodable.Basic",
+    "Mathlib.Logic.Denumerable",
+    "Mathlib.Computability.Partrec",
+    "Mathlib.Computability.Primrec.Basic",
+    "Mathlib.Data.PFun"
+   ],
+   "faltan": [
+    "Mathlib.Computability.Partrec",
+    "Mathlib.Computability.Primrec.Basic",
+    "Mathlib.Data.PFun"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Condensed",
+   "modulo": "Mathlib.Condensed.TopComparison",
+   "nombre": "equalizerCondition_yonedaPresheaf",
+   "cuerpo": "[∀ (Z B : C) (π : Z ⟶ B) [EffectiveEpi π], PreservesLimit (cospan π π) G]\n    (hq : ∀ (Z B : C) (π : Z ⟶ B) [EffectiveEpi π], IsQuotientMap (G.map π)) :\n      EqualizerCondition (yonedaPresheaf G X)",
+   "contexto": [
+    "universe w w' v u",
+    "open CategoryTheory Opposite Limits regularTopology ContinuousMap Topology",
+    "variable {C : Type u} [Category.{v} C] (G : C ⥤ TopCat.{w})"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Opposite",
+    "Mathlib.Topology.ContinuousMap.Defs",
+    "Mathlib.Topology.Category.TopCat.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Topology.Category.TopCat.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Monad.Cont",
+   "nombre": "monadLift_bind",
+   "cuerpo": "[Monad m] [LawfulMonad m] {α β} (x : m α) (f : α → m β) :\n    (monadLift (x >>= f) : ContT r m β) = monadLift x >>= monadLift ∘ f",
+   "contexto": [
+    "universe u v w u₀ u₁ v₀ v₁",
+    "open MonadCont",
+    "namespace ContT",
+    "variable {r : Type u} {m : Type u → Type v} {α β : Type w}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Control.Monad.Cont"
+   ],
+   "faltan": [
+    "Mathlib.Control.Monad.Cont"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.LawfulFix",
+   "nombre": "approx_mono'",
+   "cuerpo": "{i : ℕ} : Fix.approx f i ≤ Fix.approx f (succ i)",
+   "contexto": [
+    "universe u v",
+    "variable {α : Type*} {β : α → Type*}",
+    "open OmegaCompletePartialOrder",
+    "namespace Part",
+    "open Nat Nat.Upto",
+    "namespace Fix",
+    "variable (f : ((a : _) → Part <| β a) →o (a : _) → Part <| β a)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.OmegaCompletePartialOrder",
+    "Mathlib.Control.Fix"
+   ],
+   "faltan": [
+    "Mathlib.Control.Fix"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Basic",
+   "nombre": "map_seq",
+   "cuerpo": "(f : β → γ) (x : F (α → β)) (y : F α) :\n    f <$> (x <*> y) = (f ∘ ·) <$> x <*> y",
+   "contexto": [
+    "universe u v w",
+    "variable {α β γ : Type u}",
+    "section Applicative",
+    "variable {F : Type u → Type v} [Applicative F]",
+    "variable [LawfulApplicative F]"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Traversable.Basic",
+   "nombre": "preserves_map'",
+   "cuerpo": "{α β} (x : α → β) : @η _ ∘ Functor.map x = Functor.map x ∘ @η _",
+   "contexto": [
+    "open Function hiding comp",
+    "universe u v w",
+    "namespace ApplicativeTransformation",
+    "variable (F : Type u → Type v) [Applicative F]",
+    "variable (G : Type u → Type w) [Applicative G]",
+    "variable {F G}",
+    "section Preserves",
+    "variable (η : ApplicativeTransformation F G)",
+    "variable [LawfulApplicative F] [LawfulApplicative G]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Control.Traversable.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Functor.Multivariate",
+   "nombre": "LiftR_RelLast_iff",
+   "cuerpo": "(x y : F (α ::: β)) :\n    LiftR' (RelLast' _ rr) x y ↔ LiftR (RelLast _ rr) x y",
+   "contexto": [
+    "universe u v w",
+    "open MvFunctor",
+    "variable {n : ℕ}",
+    "open Nat TypeVec",
+    "namespace MvFunctor",
+    "section LiftPLastPredIff",
+    "variable {F : TypeVec.{u} (n + 1) → Type*} [MvFunctor F] [LawfulMvFunctor F] {α : TypeVec.{u} n}",
+    "variable {β : Type u}",
+    "variable (pp : β → Prop)",
+    "variable (rr : β → β → Prop)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Control.Functor.Multivariate",
+    "Mathlib.Data.TypeVec"
+   ],
+   "faltan": [
+    "Mathlib.Control.Functor.Multivariate",
+    "Mathlib.Data.TypeVec"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Traversable.Lemmas",
+   "nombre": "traverse_map",
+   "cuerpo": "(f : β → F γ) (g : α → β) (x : t α) :\n    traverse f (g <$> x) = traverse (f ∘ g) x",
+   "contexto": [
+    "universe u",
+    "open LawfulTraversable",
+    "open Function hiding comp",
+    "open Functor",
+    "namespace Traversable",
+    "variable {t : Type u → Type u}",
+    "variable [Traversable t] [LawfulTraversable t]",
+    "variable (F G : Type u → Type u)",
+    "variable [Applicative F] [LawfulApplicative F]",
+    "variable [Applicative G] [LawfulApplicative G]",
+    "variable {α β γ : Type u}",
+    "variable (g : α → F β)",
+    "variable (f : β → γ)",
+    "variable {F G}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Control.Traversable.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Applicative",
+   "nombre": "Applicative.map_seq_map",
+   "cuerpo": "(f : α → β → γ) (g : σ → β) (x : F α) (y : F σ) :\n    f <$> x <*> g <$> y = ((· ∘ g) ∘ f) <$> x <*> y",
+   "contexto": [
+    "universe u v w",
+    "section Lemmas",
+    "open Function",
+    "variable {F : Type u → Type v}",
+    "variable [Applicative F] [LawfulApplicative F]",
+    "variable {α β γ σ : Type u}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Control",
+   "modulo": "Mathlib.Control.Bitraversable.Lemmas",
+   "nombre": "tfst_tsnd",
+   "cuerpo": "{α₀ α₁ β₀ β₁} (f : α₀ → F α₁) (f' : β₀ → G β₁) (x : t α₀ β₀) :\n    Comp.mk (tfst f <$> tsnd f' x)\n      = bitraverse (Comp.mk ∘ pure ∘ f) (Comp.mk ∘ map pure ∘ f') x",
+   "contexto": [
+    "universe u",
+    "variable {t : Type u → Type u → Type u} [Bitraversable t]",
+    "variable {β : Type u}",
+    "namespace Bitraversable",
+    "open Functor LawfulApplicative",
+    "variable {F G : Type u → Type u} [Applicative F] [Applicative G]",
+    "variable [LawfulBitraversable t] [LawfulApplicative F] [LawfulApplicative G]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Control.Bitraversable.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Control.Bitraversable.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.Fin.Tuple.Embedding",
+   "nombre": "snoc_castSucc",
+   "cuerpo": "{n : ℕ} {x : Fin n ↪ α} {a : α} {ha : a ∉ range x} {i : Fin n} :\n    snoc x ha i.castSucc = x i",
+   "contexto": [
+    "open Function.Embedding Fin Set Nat",
+    "namespace Fin.Embedding",
+    "variable {α : Type*}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Embedding.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.Fintype.Basic",
+   "nombre": "Fin.univ_image_def",
+   "cuerpo": "{n : ℕ} [DecidableEq α] (f : Fin n → α) :\n    Finset.univ.image f = (List.ofFn f).toFinset",
+   "contexto": [
+    "open Function",
+    "open Nat",
+    "universe u v",
+    "variable {α β γ : Type*}",
+    "open Finset"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.Set.Pointwise.Support",
+   "nombre": "mulSupport_comp_inv_smul",
+   "cuerpo": "[One γ] (c : α) (f : β → γ) :\n    (mulSupport fun x ↦ f (c⁻¹ • x)) = c • mulSupport f",
+   "contexto": [
+    "open Pointwise",
+    "open Function Set",
+    "section Group",
+    "variable {α β γ : Type*} [Group α] [MulAction α β]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Group.Action.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.Finset.Fold",
+   "nombre": "fold_insert",
+   "cuerpo": "[DecidableEq α] (h : a ∉ s) :\n    (insert a s).fold op b f = f a * s.fold op b f",
+   "contexto": [
+    "namespace Finset",
+    "open Multiset",
+    "variable {α β γ : Type*}",
+    "section Fold",
+    "variable (op : β → β → β) [hc : Std.Commutative op] [ha : Std.Associative op]",
+    "local notation a \" * \" b => op a b",
+    "variable {op} {f : α → β} {b : β} {s : Finset α} {a : α}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.List.Perm.Basic",
+   "nombre": "getElem_cons_eraseIdx_perm",
+   "cuerpo": "{n : ℕ} (h : n < l.length) :\n    l[n] :: l.eraseIdx n ~ l",
+   "contexto": [
+    "open Nat",
+    "namespace List",
+    "variable {α β : Type*} {l : List α}",
+    "open Perm (swap)"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.Nat.Totient",
+   "nombre": "Ico_filter_coprime_le",
+   "cuerpo": "{a : ℕ} (k n : ℕ) (a_ne_zero : a ≠ 0) :\n    #{x ∈ Ico k (k + n) | a.Coprime x} ≤ totient a * (n / a + 1)",
+   "contexto": [
+    "open Finset",
+    "namespace Nat",
+    "scoped notation \"φ\" => Nat.totient"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.List.InsertIdx",
+   "nombre": "sublist_insertIdx",
+   "cuerpo": "(l : List α) (n : ℕ) (a : α) : l <+ (l.insertIdx n a)",
+   "contexto": [
+    "open Function",
+    "open Nat hiding one_pos",
+    "namespace List",
+    "universe u v",
+    "variable {α : Type u} {β : Type v}",
+    "section InsertIdx",
+    "variable {a : α}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Data",
+   "modulo": "Mathlib.Data.Multiset.Lattice",
+   "nombre": "sup_union",
+   "cuerpo": "(s₁ s₂ : Multiset α) : (s₁ ∪ s₂).sup = s₁.sup ⊔ s₂.sup",
+   "contexto": [
+    "namespace Multiset",
+    "variable {α : Type*}",
+    "variable [SemilatticeSup α] [OrderBot α]",
+    "variable [DecidableEq α]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Lattice",
+    "Mathlib.Order.BoundedOrder.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.Flow",
+   "nombre": "isInvariant_iff_image",
+   "cuerpo": ": IsInvariant ϕ s ↔ ∀ t, ϕ t '' s ⊆ s",
+   "contexto": [
+    "notation for the monoids, though the definition does not require",
+    "open Set Function Filter",
+    "section Invariant",
+    "variable {τ : Type*} {α : Type*}",
+    "variable (ϕ : τ → α → α) (s : Set α)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Dynamics.Flow"
+   ],
+   "faltan": [
+    "Mathlib.Dynamics.Flow"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.Circle.RotationNumber.TranslationNumber",
+   "nombre": "commute_nat_add",
+   "cuerpo": "(n : ℕ) : Function.Commute f (n + ·)",
+   "contexto": [
+    "open Filter Set Int Topology",
+    "open Function hiding Commute",
+    "namespace CircleDeg1Lift",
+    "variable (f g : CircleDeg1Lift)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Algebra.Group.Commute.Defs",
+    "Mathlib.Dynamics.Circle.RotationNumber.TranslationNumber",
+    "Mathlib.Logic.Function.Conjugate"
+   ],
+   "faltan": [
+    "Mathlib.Dynamics.Circle.RotationNumber.TranslationNumber"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.FixedPoints.Topology",
+   "nombre": "isFixedPt_of_tendsto_iterate",
+   "cuerpo": "{x y : α} (hy : Tendsto (fun n => f^[n] x) atTop (𝓝 y))\n    (hf : ContinuousAt f y) : IsFixedPt f y",
+   "contexto": [
+    "variable {α : Type*} [TopologicalSpace α] [T2Space α] {f : α → α}",
+    "open Function Filter",
+    "open Topology"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Topology.Separation.Hausdorff",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Filter"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.OmegaLimit",
+   "nombre": "mem_omegaLimit_iff_frequently₂",
+   "cuerpo": "(y : β) :\n    y ∈ ω f ϕ s ↔ ∀ n ∈ 𝓝 y, ∃ᶠ t in f, (ϕ t '' s ∩ n).Nonempty",
+   "contexto": [
+    "open Set Function Filter Topology",
+    "section omegaLimit",
+    "variable {τ : Type*} {α : Type*} {β : Type*} {ι : Type*}",
+    "variable [TopologicalSpace β]",
+    "variable (f : Filter τ) (ϕ : τ → α → β) (s s₁ s₂ : Set α)",
+    "open omegaLimit"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.TopologicalEntropy.Subset",
+   "nombre": "coverEntropy_closure",
+   "cuerpo": "(h : Continuous T) :\n    coverEntropy T (closure F) = coverEntropy T F",
+   "contexto": [
+    "namespace Dynamics",
+    "open ExpGrowth Set UniformSpace",
+    "open scoped SetRel Uniformity",
+    "variable {X : Type*} {T : X → X} {F G s t : Set X} {U V : SetRel X X} {n : ℕ}",
+    "section Closure",
+    "variable [UniformSpace X]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.UniformSpace.Defs",
+    "Mathlib.Data.Rel",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.Ergodic.Action.OfMinimal",
+   "nombre": "aeconst_of_dense_setOf_preimage_smul_ae",
+   "cuerpo": "(hsm : NullMeasurableSet s μ)\n    (hd : Dense {g : M | (g • ·) ⁻¹' s =ᵐ[μ] s}) : EventuallyConst s (ae μ)",
+   "contexto": [
+    "open MeasureTheory Filter Set Function",
+    "open scoped Pointwise Topology",
+    "section SMul",
+    "variable {M : Type*} [TopologicalSpace M]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.BirkhoffSum.Average",
+   "nombre": "Function.IsFixedPt.birkhoffAverage_eq",
+   "cuerpo": "{f : α → α} {x : α} (h : IsFixedPt f x)\n    (g : α → M) {n : ℕ} (hn : (n : R) ≠ 0) : birkhoffAverage R f g n x = g x",
+   "contexto": [
+    "open Finset",
+    "section birkhoffAverage",
+    "variable (R : Type*) {α M : Type*} [DivisionSemiring R] [AddCommMonoid M] [Module R M]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Dynamics",
+   "modulo": "Mathlib.Dynamics.Ergodic.Ergodic",
+   "nombre": "ae_empty_or_univ",
+   "cuerpo": "(hf : PreErgodic f μ) (hs : MeasurableSet s) (hfs : f ⁻¹' s = s) :\n    s =ᵐ[μ] (∅ : Set α) ∨ s =ᵐ[μ] univ",
+   "contexto": [
+    "open Set Function Filter MeasureTheory MeasureTheory.Measure",
+    "open ENNReal",
+    "variable {α : Type*} {m : MeasurableSpace α} {s : Set α}",
+    "variable {f : α → α} {μ : Measure α}",
+    "namespace PreErgodic"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Dynamics.Ergodic.Ergodic"
+   ],
+   "faltan": [
+    "Mathlib.Dynamics.Ergodic.Ergodic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.Isaacs",
+   "nombre": "nonempty_algHom_of_exists_root",
+   "cuerpo": "(h : ∀ x : E, ∃ y : K, aeval y (minpoly F x) = 0) :\n    Nonempty (E →ₐ[F] K)",
+   "contexto": [
+    "namespace Field",
+    "open Polynomial IntermediateField",
+    "variable {F E K : Type*} [Field F] [Field E] [Field K] [Algebra F E] [Algebra F K]",
+    "variable [alg : Algebra.IsAlgebraic F E]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.FieldTheory.IntermediateField.Basic",
+    "Mathlib.Algebra.Algebra.Defs",
+    "Mathlib.RingTheory.Algebraic.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.RatFunc.Luroth",
+   "nombre": "C_minpolyX",
+   "cuerpo": "(x : K) : (C x).minpolyX K⟮C x⟯ = 0",
+   "contexto": [
+    "variable {K : Type*} [Field K]",
+    "namespace RatFunc",
+    "open IntermediateField algebraAdjoinAdjoin Polynomial",
+    "variable (f : K⟮X⟯)",
+    "local notation \"K[f]\" => Algebra.adjoin K {(f : K⟮X⟯)}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.FieldTheory.RatFunc.Defs",
+    "Mathlib.FieldTheory.IntermediateField.Basic",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Algebra.Subalgebra.Lattice"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.PrimitiveElement",
+   "nombre": "exists_primitive_element_of_finite_top",
+   "cuerpo": "[Finite E] : ∃ α : E, F⟮α⟯ = ⊤",
+   "contexto": [
+    "noncomputable section",
+    "open Module Polynomial IntermediateField",
+    "namespace Field",
+    "section PrimitiveElementFinite",
+    "variable (F : Type*) [Field F] (E : Type*) [Field E] [Algebra F E]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.FieldTheory.IntermediateField.Basic",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Algebra.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.KrullTopology",
+   "nombre": "IntermediateField.fixingSubgroup_isOpen",
+   "cuerpo": "{K L : Type*} [Field K] [Field L] [Algebra K L]\n    (E : IntermediateField K L) [FiniteDimensional K E] :\n    IsOpen (E.fixingSubgroup : Set Gal(L/K))",
+   "contexto": [
+    "open scoped Pointwise",
+    "open scoped Topology in",
+    "open scoped Topology in",
+    "section KrullT2",
+    "open scoped Topology Filter"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Algebra.Defs",
+    "Mathlib.FieldTheory.IntermediateField.Basic",
+    "Mathlib.LinearAlgebra.FiniteDimensional.Defs",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure",
+   "nombre": "toSplittingField_coeff",
+   "cuerpo": "{s : Finset (Monics k)} {f} (h : f ∈ s) (n) :\n    toSplittingField s ((subProdXSubC f).coeff n) = 0",
+   "contexto": [
+    "universe u v w",
+    "noncomputable section",
+    "open Polynomial",
+    "variable (k : Type u) [Field k]",
+    "namespace AlgebraicClosure",
+    "variable {k} in",
+    "variable {k}",
+    "open Classical in"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.Finite.Basic",
+   "nombre": "prod_univ_units_id_eq_neg_one",
+   "cuerpo": "[CommRing K] [IsDomain K] [Fintype Kˣ] :\n    ∏ x : Kˣ, x = (-1 : Kˣ)",
+   "contexto": [
+    "variable {K : Type*} {R : Type*}",
+    "local notation \"q\" => Fintype.card K",
+    "open Finset",
+    "open scoped Polynomial",
+    "namespace FiniteField"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Fintype.Card",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Data.Fintype.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.Extension",
+   "nombre": "le_iff",
+   "cuerpo": ": L₁ ≤ L₂ ↔\n    ∃ h : L₁.carrier ≤ L₂.carrier, L₂.emb.comp (inclusion h) = L₁.emb",
+   "contexto": [
+    "open Polynomial",
+    "namespace IntermediateField",
+    "variable (F E K : Type*) [Field F] [Field E] [Field K] [Algebra F E] [Algebra F K] {S : Set E}",
+    "variable {F E K}",
+    "namespace Lifts",
+    "variable {L₁ L₂ : Lifts F E K}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.FieldTheory.IntermediateField.Basic",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Algebra.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "FieldTheory",
+   "modulo": "Mathlib.FieldTheory.JacobsonNoether",
+   "nombre": "exists_separable_and_not_isCentral",
+   "cuerpo": "(H : k ≠ (⊤ : Subring D)) :\n    ∃ x : D, x ∉ k ∧ IsSeparable k x",
+   "contexto": [
+    "namespace JacobsonNoether",
+    "variable {D : Type*} [DivisionRing D] [Algebra.IsAlgebraic (Subring.center D) D]",
+    "open Polynomial LinearMap LieAlgebra",
+    "variable (D) in"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.RingTheory.Algebraic.Defs",
+    "Mathlib.Algebra.Ring.Subring.Basic",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Module.LinearMap.Defs",
+    "Mathlib.Algebra.Lie.Basic",
+    "Mathlib.Algebra.Ring.Subring.Defs",
+    "Mathlib.FieldTheory.Separable"
+   ],
+   "faltan": [
+    "Mathlib.Algebra.Lie.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.Angle.Unoriented.Conformal",
+   "nombre": "IsConformalMap.preserves_angle",
+   "cuerpo": "{f' : E →L[ℝ] F} (h : IsConformalMap f') (u v : E) :\n    angle (f' u) (f' v) = angle u v",
+   "contexto": [
+    "namespace InnerProductGeometry",
+    "variable {E F : Type*}",
+    "variable [NormedAddCommGroup E] [NormedAddCommGroup F]",
+    "variable [InnerProductSpace ℝ E] [InnerProductSpace ℝ F]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Analysis.InnerProductSpace.Defs",
+    "Mathlib.Analysis.Normed.Operator.Conformal"
+   ],
+   "faltan": [
+    "Mathlib.Analysis.Normed.Operator.Conformal"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.Angle.Oriented.RightAngle",
+   "nombre": "oangle_add_right_eq_arccos_of_oangle_eq_pi_div_two",
+   "cuerpo": "{x y : V} (h : o.oangle x y = ↑(π / 2)) :\n    o.oangle x (x + y) = Real.arccos (‖x‖ / ‖x + y‖)",
+   "contexto": [
+    "noncomputable section",
+    "open scoped EuclideanGeometry",
+    "open scoped Real",
+    "open scoped RealInnerProductSpace",
+    "namespace Orientation",
+    "open Module",
+    "variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]",
+    "variable [hd2 : Fact (finrank ℝ V = 2)] (o : Orientation ℝ V (Fin 2))"
+   ],
+   "mods_nombres": [
+    "Mathlib.LinearAlgebra.Orientation",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Analysis.InnerProductSpace.Defs",
+    "Mathlib.Logic.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.Angle.Unoriented.Basic",
+   "nombre": "continuousAt_angle",
+   "cuerpo": "{x : V × V} (hx1 : x.1 ≠ 0) (hx2 : x.2 ≠ 0) :\n    ContinuousAt (fun y : V × V => angle y.1 y.2) x",
+   "contexto": [
+    "noncomputable section",
+    "open Real Set",
+    "open RealInnerProductSpace",
+    "namespace InnerProductGeometry",
+    "variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] {x y : V}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Analysis.InnerProductSpace.Defs",
+    "Mathlib.Topology.Defs.Filter"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Manifold.GroupLieAlgebra",
+   "nombre": "contMDiff_mulInvariantVectorField",
+   "cuerpo": "(v : GroupLieAlgebra I G) :\n    CMDiff (minSmoothness 𝕜 2)\n      (fun (g : G) ↦ (mulInvariantVectorField v g : TangentBundle I G))",
+   "contexto": [
+    "noncomputable section",
+    "section LieGroup",
+    "open Bundle Filter Function Set",
+    "open scoped Manifold",
+    "variable {𝕜 : Type*} [NontriviallyNormedField 𝕜]",
+    "variable (I G) in",
+    "open VectorField",
+    "variable [LieGroup I (minSmoothness 𝕜 3) G]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Geometry.Manifold.Algebra.LieGroup",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Analysis.Normed.Field.Basic",
+    "Mathlib.Geometry.Manifold.GroupLieAlgebra",
+    "Mathlib.Geometry.Manifold.IsManifold.Basic"
+   ],
+   "faltan": [
+    "Mathlib.Geometry.Manifold.Algebra.LieGroup",
+    "Mathlib.Geometry.Manifold.GroupLieAlgebra",
+    "Mathlib.Geometry.Manifold.IsManifold.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.Circumcenter",
+   "nombre": "_root_.AffineIndependent.existsUnique_dist_eq",
+   "cuerpo": "{ι : Type*} [hne : Nonempty ι] [Finite ι]\n    {p : ι → P} (ha : AffineIndependent ℝ p) :\n    ∃! cs : Sphere P, cs.center ∈ affineSpan ℝ (Set.range p) ∧ Set.range p ⊆ (cs : Set P)",
+   "contexto": [
+    "noncomputable section",
+    "open RealInnerProductSpace",
+    "namespace EuclideanGeometry",
+    "variable {V : Type*} {P : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P]",
+    "open AffineSubspace"
+   ],
+   "mods_nombres": [
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Analysis.InnerProductSpace.Defs",
+    "Mathlib.Topology.MetricSpace.Defs",
+    "Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Defs",
+    "Mathlib.LinearAlgebra.AffineSpace.Independent"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.Similarity",
+   "nombre": "similar_of_angle_angle",
+   "cuerpo": "(h_not_col : ¬ Collinear ℝ {a, b, c}) (h₁ : ∠ a b c = ∠ a' b' c')\n    (h₂ : ∠ b c a = ∠ b' c' a') :\n    ![a, b, c] ∼ ![a', b', c']",
+   "contexto": [
+    "open scoped Congruent EuclideanGeometry",
+    "open Similar NNReal Affine",
+    "namespace EuclideanGeometry",
+    "variable {ι V₁ V₂ P₁ P₂ : Type*}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.MetricSpace.Congruence",
+    "Mathlib.Topology.MetricSpace.Similarity",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional"
+   ],
+   "faltan": [
+    "Mathlib.Topology.MetricSpace.Congruence",
+    "Mathlib.Topology.MetricSpace.Similarity",
+    "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Geometry",
+   "modulo": "Mathlib.Geometry.Euclidean.NinePointCircle",
+   "nombre": "faceOppositeCentroid_mem_ninePointCircle",
+   "cuerpo": "{n : ℕ} [NeZero n] (s : Simplex ℝ P n)\n    (i : Fin (n + 1)) : s.faceOppositeCentroid i ∈ s.ninePointCircle",
+   "contexto": [
+    "noncomputable section",
+    "open AffineSubspace EuclideanGeometry",
+    "variable {V P : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P]",
+    "namespace Affine.Simplex"
+   ],
+   "mods_nombres": [
+    "Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Defs",
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Analysis.InnerProductSpace.Defs",
+    "Mathlib.Topology.MetricSpace.Defs",
+    "Mathlib.LinearAlgebra.AffineSpace.Simplex.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
    "area": "Geometry",
    "modulo": "Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation",
    "nombre": "comp_L",
@@ -30,70 +2073,843 @@
     "Mathlib.RingTheory.Derivation.Basic",
     "Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation"
    ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 20.0,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `LieGroup`\nE:\\Metamatematico\\_banco_imports.lean:10:63: error: expected token\nE:\\Metamatematico\\_banco_imports.lean:16:38: error: expected token\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.8,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `LieGroup`\nE:\\Metamatematico\\_banco_imports.lean:10:63: error: expected token\nE:\\Metamatematico\\_banco_imports.lean:16:38: error: expected token\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 30.5,
-     "mods": 6,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:13:24: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  TopologicalSpace G\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:13:24: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Topologi"
-    }
-   }
+   "estrato": "B"
   },
   {
-   "area": "Combinatorics",
-   "modulo": "Mathlib.Combinatorics.SimpleGraph.Partition",
-   "nombre": "partOfVertex_mem",
-   "cuerpo": "(v : V) : P.partOfVertex v ∈ P.parts",
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.FreeGroup.Orbit",
+   "nombre": "startsWith_mk_mul",
+   "cuerpo": "{w : α × Bool} (g : FreeGroup α)\n    (h : ¬ g ∈ startsWith (w.1, !w.2)) : mk [w] * g ∈ startsWith w",
    "contexto": [
-    "universe u v",
-    "namespace SimpleGraph",
-    "variable {V : Type u} (G : SimpleGraph V)",
-    "namespace Partition",
-    "variable {G}",
-    "variable (P : G.Partition)"
+    "variable {α X : Type*} [DecidableEq α]",
+    "namespace FreeGroup"
    ],
    "mods_nombres": [
-    "Mathlib.Combinatorics.SimpleGraph.Basic",
-    "Mathlib.Order.Partition.Basic"
+    "Mathlib.GroupTheory.FreeGroup.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.Subgroup.Center",
+   "nombre": "_root_.CommGroup.center_eq_top",
+   "cuerpo": "{G : Type*} [CommGroup G] : center G = ⊤",
+   "contexto": [
+    "variable {G : Type*} [Group G]",
+    "namespace Subgroup",
+    "variable (G)",
+    "variable {G} in",
+    "variable {G}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Group.Subgroup.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.GroupAction.SubMulAction.Combination",
+   "nombre": "addAction_faithful",
+   "cuerpo": "{G : Type*} [AddGroup G] [AddAction G α] {n : ℕ}\n    (hn : 1 ≤ n) (hα : n < ENat.card α) {g : G} :\n    AddAction.toPerm g = (1 : Perm (powersetCard α n)) ↔ AddAction.toPerm g = (1 : Perm α)",
+   "contexto": [
+    "namespace Set.powersetCard",
+    "open scoped Pointwise",
+    "open MulAction Finset Set Equiv Equiv.Perm",
+    "variable (G : Type*) [Group G] {α : Type*} [MulAction G α]",
+    "section",
+    "variable [DecidableEq α]",
+    "variable (α n) in",
+    "variable {G}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Action.Defs",
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.SetTheory.Cardinal.Finite"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.Perm.Cycle.Concrete",
+   "nombre": "formPerm_disjoint_iff",
+   "cuerpo": "(hl : Nodup l) (hl' : Nodup l') (hn : 2 ≤ l.length)\n    (hn' : 2 ≤ l'.length) : Perm.Disjoint (formPerm l) (formPerm l') ↔ l.Disjoint l'",
+   "contexto": [
+    "open Equiv Equiv.Perm List",
+    "variable {α : Type*}",
+    "namespace List",
+    "variable [DecidableEq α] {l l' : List α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Equiv.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.Perm.Cycle.Type",
+   "nombre": "cycleType_eq",
+   "cuerpo": "{σ : Perm α} (l : List (Perm α)) (h0 : l.prod = σ)\n    (h1 : ∀ σ : Perm α, σ ∈ l → σ.IsCycle) (h2 : l.Pairwise Disjoint) :\n    σ.cycleType = l.map (Finset.card ∘ support)",
+   "contexto": [
+    "open scoped Finset",
+    "namespace Equiv.Perm",
+    "open List (Vector)",
+    "open Equiv List Multiset",
+    "variable {α : Type*} [Fintype α]",
+    "section CycleType",
+    "variable [DecidableEq α]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Order.Disjoint"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.DoubleCoset",
+   "nombre": "mem_doubleCoset",
+   "cuerpo": "{s t : Set α} {a b : α} :\n    b ∈ doubleCoset a s t ↔ ∃ x ∈ s, ∃ y ∈ t, b = x * a * y",
+   "contexto": [
+    "variable {G : Type*} [Group G] {α : Type*} [Mul α]",
+    "open MulOpposite",
+    "open scoped Pointwise",
+    "namespace DoubleCoset"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Opposites"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.NoncommPiCoprod",
+   "nombre": "eq_one_of_noncommProd_eq_one_of_iSupIndep",
+   "cuerpo": "{ι : Type*} (s : Finset ι) (f : ι → G) (comm)\n    (K : ι → Subgroup G) (hind : iSupIndep K) (hmem : ∀ x ∈ s, f x ∈ K x)\n    (heq1 : s.noncommProd f comm = 1) : ∀ i ∈ s, f i = 1",
+   "contexto": [
+    "namespace Subgroup",
+    "variable {G : Type*} [Group G]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Subgroup.Defs",
+    "Mathlib.Algebra.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "GroupTheory",
+   "modulo": "Mathlib.GroupTheory.Perm.ClosureSwap",
+   "nombre": "SubmonoidClass.swap_mem_trans",
+   "cuerpo": "{a b c : α} {C} [SetLike C (Perm α)]\n    [SubmonoidClass C (Perm α)] (M : C) (hab : swap a b ∈ M) (hbc : swap b c ∈ M) :\n    swap a c ∈ M",
+   "contexto": [
+    "open Equiv List MulAction Pointwise Set Subgroup",
+    "variable {G α : Type*} [Group G] [MulAction G α]",
+    "variable [DecidableEq α]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Algebra.Group.Action.Defs",
+    "Mathlib.Algebra.Group.Subgroup.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Data.SetLike.Basic",
+    "Mathlib.Algebra.Group.Submonoid.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "InformationTheory",
+   "modulo": "Mathlib.InformationTheory.Hamming",
+   "nombre": "hammingDist_self",
+   "cuerpo": "(x : ∀ i, β i) : hammingDist x x = 0",
+   "contexto": [
+    "section HammingDistNorm",
+    "open Finset Function",
+    "variable {α ι : Type*} {β : ι → Type*} [Fintype ι] [∀ i, DecidableEq (β i)]",
+    "variable {γ : ι → Type*} [∀ i, DecidableEq (γ i)]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Fintype.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.Prod",
+   "nombre": "coprod_inr",
+   "cuerpo": "(f : M →ₗ[R] M₃) (g : M₂ →ₗ[R] M₃) : (coprod f g).comp (inr R M M₂) = g",
+   "contexto": [
+    "universe u v w x y z u' v' w' y'",
+    "variable {R : Type u} {K : Type u'} {M : Type v} {V : Type v'} {M₂ : Type w} {V₂ : Type w'}",
+    "variable {M₃ : Type y} {V₃ : Type y'} {M₄ : Type z} {ι : Type x}",
+    "variable {M₅ M₆ : Type*}",
+    "section Prod",
+    "namespace LinearMap",
+    "variable (S : Type*) [Semiring R] [Semiring S]",
+    "variable [AddCommMonoid M] [AddCommMonoid M₂] [AddCommMonoid M₃] [AddCommMonoid M₄]",
+    "variable [AddCommMonoid M₅] [AddCommMonoid M₆]",
+    "variable [Module R M] [Module R M₂] [Module R M₃] [Module R M₄]",
+    "variable [Module R M₅] [Module R M₆]",
+    "variable (f : M →ₗ[R] M₂)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.LinearMap.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.TensorProduct.Tower",
+   "nombre": "map_add_right",
+   "cuerpo": "(f : M →ₗ[A] P) (g₁ g₂ : N →ₗ[R] Q) :\n    map f (g₁ + g₂) = map f g₁ + map f g₂",
+   "contexto": [
+    "namespace TensorProduct",
+    "namespace AlgebraTensorModule",
+    "universe uR uS uA uB uM uN uP uQ uP' uQ'",
+    "variable {R : Type uR} {S : Type uS} {A : Type uA} {B : Type uB}",
+    "variable {M : Type uM} {N : Type uN} {P : Type uP} {Q : Type uQ} {P' : Type uP'} {Q' : Type uQ'}",
+    "open LinearMap",
+    "open Algebra (lsmul)",
+    "section Semiring",
+    "variable [CommSemiring R] [Semiring A] [Semiring B] [Algebra R A] [Algebra R B]",
+    "variable [AddCommMonoid M] [Module R M] [Module A M]",
+    "variable [IsScalarTower R A M]",
+    "variable [AddCommMonoid N] [Module R N]",
+    "variable [AddCommMonoid P] [Module R P] [Module A P]",
+    "variable [IsScalarTower R A P]",
+    "variable [AddCommMonoid Q] [Module R Q]",
+    "variable [AddCommMonoid P'] [Module R P'] [Module A P'] [Module B P']",
+    "variable [IsScalarTower R A P'] [IsScalarTower R B P'] [SMulCommClass A B P']",
+    "variable [AddCommMonoid Q'] [Module R Q']",
+    "variable (R A B M N P Q)",
+    "section",
+    "variable [Module B P] [IsScalarTower R B P] [SMulCommClass A B P]",
+    "variable {R A B M N P Q}"
+   ],
+   "mods_nombres": [
+    "Mathlib.LinearAlgebra.TensorProduct.Defs",
+    "Mathlib.Algebra.Module.LinearMap.Defs",
+    "Mathlib.Algebra.Algebra.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Algebra.Group.Action.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.Basis.Fin",
+   "nombre": "finTwoProd_one",
+   "cuerpo": "(R : Type*) [Semiring R] : Basis.finTwoProd R 1 = (0, 1)",
+   "contexto": [
+    "noncomputable section",
+    "universe u",
+    "open Function Set Submodule Finsupp",
+    "variable {ι : Type*} {ι' : Type*} {R : Type*} {R₂ : Type*} {M : Type*} {M' : Type*}",
+    "namespace Module",
+    "open LinearMap",
+    "variable {v : ι → M}",
+    "variable [Ring R] [CommRing R₂] [AddCommGroup M]",
+    "variable [Module R M] [Module R₂ M]",
+    "variable {x y : M}",
+    "variable (b : Basis ι R M)",
+    "namespace Basis",
+    "section Fin"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.Submodule.Defs",
+    "Mathlib.Data.Finsupp.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Algebra.Module.LinearMap.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.LinearIndependent.Basic",
+   "nombre": "LinearIndependent.restrict_scalars",
+   "cuerpo": "[Semiring K] [SMulWithZero R K] [Module K M]\n    [IsScalarTower R K M] (hinj : Injective fun r : R ↦ r • (1 : K))\n    (li : LinearIndependent K v) : LinearIndependent R v",
+   "contexto": [
+    "noncomputable section",
+    "open Function Set Submodule",
+    "universe u' u",
+    "variable {ι : Type u'} {ι' : Type*} {R : Type*} {K : Type*} {s : Set ι}",
+    "variable {M : Type*} {M' : Type*} {V : Type u}",
+    "section Semiring",
+    "variable {v : ι → M}",
+    "variable [Semiring R] [AddCommMonoid M] [AddCommMonoid M']",
+    "variable [Module R M] [Module R M']",
+    "variable (R) (v)",
+    "variable {R v}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.Submodule.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Algebra.GroupWithZero.Action.Defs",
+    "Mathlib.Algebra.Group.Action.Defs",
+    "Mathlib.LinearAlgebra.LinearIndependent.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.Finsupp.Pi",
+   "nombre": "fst_prodOfFinsuppNat",
+   "cuerpo": "(x : ℕ →₀ P) : (prodOfFinsuppNat f x).1 = x 0",
+   "contexto": [
+    "noncomputable section",
+    "open Set LinearMap Submodule",
+    "variable {R M N P : Type*}",
+    "variable [Semiring R] [AddCommMonoid M] [Module R M] [AddCommMonoid N] [Module R N]",
+    "variable [AddCommMonoid P] [Module R P]",
+    "open Finsupp",
+    "namespace LinearMap",
+    "section prodOfFinsuppNat",
+    "open Function",
+    "variable (f : P × M →ₗ[R] M)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.LinearMap.Defs",
+    "Mathlib.Algebra.Module.Submodule.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Data.Finsupp.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.Finsupp.LSum",
+   "nombre": "lcongr_symm",
+   "cuerpo": "{ι κ : Sort _} (e₁ : ι ≃ κ) (e₂ : M ≃ₛₗ[σ] N) :\n    (lcongr e₁ e₂).symm = lcongr e₁.symm e₂.symm",
+   "contexto": [
+    "noncomputable section",
+    "open Set LinearMap Submodule",
+    "namespace Finsupp",
+    "variable {α : Type*} {M N P : Type*} {R R₂ R₃ : Type*} {S : Type*}",
+    "variable [Semiring R] [Semiring R₂] [Semiring R₃] [Semiring S]",
+    "variable [AddCommMonoid M] [Module R M]",
+    "variable [AddCommMonoid N] [Module R₂ N]",
+    "variable [AddCommMonoid P] [Module R₃ P]",
+    "variable {σ : R →+* R₂} {σ_inv : R₂ →+* R}",
+    "section Equiv",
+    "variable [RingHomInvPair σ σ_inv] [RingHomInvPair σ_inv σ]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.LinearMap.Defs",
+    "Mathlib.Algebra.Module.Submodule.Defs",
+    "Mathlib.Data.Finsupp.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Algebra.Ring.CompTypeclasses"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.Dimension.Basic",
+   "nombre": "cardinal_le_rank",
+   "cuerpo": "{ι : Type v} {v : ι → M}\n    (hv : LinearIndependent R v) : #ι ≤ Module.rank R M",
+   "contexto": [
+    "noncomputable section",
+    "universe w w' u u' v v'",
+    "variable {R : Type u} {R' : Type u'} {M M₁ : Type v} {M' : Type v'}",
+    "open Cardinal Submodule Function Set",
+    "section Module",
+    "namespace LinearIndependent",
+    "variable [Semiring R] [AddCommMonoid M] [Module R M]",
+    "variable [Nontrivial R]"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Cardinal.Defs",
+    "Mathlib.Algebra.Module.Submodule.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.LinearAlgebra.LinearIndependent.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Logic.Nontrivial.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "LinearAlgebra",
+   "modulo": "Mathlib.LinearAlgebra.Matrix.Charpoly.LinearMap",
+   "nombre": "PiToModule.fromEnd_injective",
+   "cuerpo": "(hb : Submodule.span R (Set.range b) = ⊤) :\n    Function.Injective (PiToModule.fromEnd R b)",
+   "contexto": [
+    "variable {ι : Type*} [Fintype ι]",
+    "variable {M : Type*} [AddCommGroup M] (R : Type*) [CommRing R] [Module R M] (I : Ideal R)",
+    "variable (b : ι → M)",
+    "open Polynomial Matrix"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.RingTheory.Ideal.Defs",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.LinearAlgebra.Matrix.Defs",
+    "Mathlib.LinearAlgebra.Span.Defs",
+    "Mathlib.LinearAlgebra.Matrix.Charpoly.LinearMap"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Equiv.Option",
+   "nombre": "removeNone_aux_none",
+   "cuerpo": "{x : α} (h : e (some x) = none) :\n    some (removeNone_aux e x) = e none",
+   "contexto": [
+    "universe u",
+    "namespace Equiv",
+    "open Option",
+    "variable {α β γ : Type*}",
+    "section RemoveNone",
+    "variable (e : Option α ≃ Option β)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Equiv.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Function.Iterate",
+   "nombre": "iterate_succ_apply'",
+   "cuerpo": "(n : ℕ) (x : α) : f^[n.succ] x = f (f^[n] x)",
+   "contexto": [
+    "universe u v",
+    "variable {α : Type u} {β : Type v}",
+    "notation:max f \"^[\" n \"]\" => Nat.iterate f n",
+    "namespace Function",
+    "open Function (Commute)",
+    "variable (f : α → α)",
+    "variable {f}",
+    "variable (f)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Commute.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Equiv.Sum",
+   "nombre": "sumCongr_trans",
+   "cuerpo": "{α₁ α₂ β₁ β₂ γ₁ γ₂} (e : α₁ ≃ β₁) (f : α₂ ≃ β₂) (g : β₁ ≃ γ₁) (h : β₂ ≃ γ₂) :\n    (Equiv.sumCongr e f).trans (Equiv.sumCongr g h) = Equiv.sumCongr (e.trans g) (f.trans h)",
+   "contexto": [
+    "universe u v w z",
+    "open Function",
+    "variable {α α₁ α₂ β β₁ β₂ γ δ : Sort*}",
+    "namespace Equiv",
+    "section",
+    "open Sum"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Logic.Equiv.Sum"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Hydra",
+   "nombre": "cutExpand_le_invImage_lex",
+   "cuerpo": "[DecidableEq α] [Std.Irrefl r] :\n    CutExpand r ≤ InvImage (Finsupp.Lex (rᶜ ⊓ (· ≠ ·)) (· < ·)) toFinsupp",
+   "contexto": [
+    "namespace Relation",
+    "open Multiset Prod",
+    "variable {α : Type*}",
+    "variable {r : α → α → Prop}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.Finsupp.Lex"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Denumerable",
+   "nombre": "encode_ofNat",
+   "cuerpo": "(n) : encode (ofNat α n) = n",
+   "contexto": [
+    "variable {α β : Type*}",
+    "open Finset Nat",
+    "namespace Denumerable",
+    "section",
+    "variable [Denumerable α] [Denumerable β]",
+    "open Encodable"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Denumerable",
+    "Mathlib.Logic.Encodable.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Encodable.Basic",
+   "nombre": "decode₂_ne_none_iff",
+   "cuerpo": "[Encodable α] {n : ℕ} :\n    decode₂ α n ≠ none ↔ n ∈ Set.range (encode : α → ℕ)",
+   "contexto": [
+    "open Option List Nat Function",
+    "namespace Encodable",
+    "variable {α : Type*} {β : Type*}",
+    "universe u"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Encodable.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Equiv.Set",
+   "nombre": "prod_assoc_preimage",
+   "cuerpo": "{α β γ} {s : Set α} {t : Set β} {u : Set γ} :\n    Equiv.prodAssoc α β γ ⁻¹' s ×ˢ t ×ˢ u = (s ×ˢ t) ×ˢ u",
+   "contexto": [
+    "open Function Set",
+    "universe u v w z",
+    "variable {α : Sort u} {β : Sort v} {γ : Sort w}",
+    "namespace Equiv",
+    "variable {α β : Type*}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Logic.Equiv.Prod"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Logic",
+   "modulo": "Mathlib.Logic.Equiv.Defs",
+   "nombre": "trans_cancel_right",
+   "cuerpo": "(e : α ≃ β) (f : β ≃ γ) (g : α ≃ γ) :\n    e.trans f = g ↔ e = g.trans f.symm",
+   "contexto": [
+    "open Function",
+    "universe u v w z",
+    "variable {α : Sort u} {β : Sort v} {γ : Sort w}",
+    "namespace Equiv"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Equiv.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Group.Convolution",
+   "nombre": "lintegral_mconv_eq_lintegral_prod",
+   "cuerpo": "[MeasurableMul₂ M] {μ ν : Measure M}\n    {f : M → ℝ≥0∞} (hf : Measurable f) :\n    ∫⁻ z, f z ∂(μ ∗ₘ ν) = ∫⁻ z, f (z.1 * z.2) ∂(μ.prod ν)",
+   "contexto": [
+    "namespace MeasureTheory",
+    "namespace Measure",
+    "open scoped ENNReal",
+    "variable {M : Type*} [Monoid M] [MeasurableSpace M]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.MeasureTheory.Group.Arithmetic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Function.Egorov",
+   "nombre": "mem_notConvergentSeq_iff",
+   "cuerpo": "[Preorder ι] {x : α} :\n    x ∈ notConvergentSeq f g n j ↔ ∃ k ≥ j, (n : ℝ≥0∞)⁻¹ < edist (f k x) (g x)",
+   "contexto": [
+    "noncomputable section",
+    "open MeasureTheory NNReal ENNReal Topology",
+    "namespace MeasureTheory",
+    "open Set Filter TopologicalSpace",
+    "variable {α β ι : Type*} {m : MeasurableSpace α} [PseudoEMetricSpace β] {μ : Measure α}",
+    "namespace Egorov",
+    "variable {n : ℕ} {j : ι} {s : Set α} {ε : ℝ} {f : ι → α → β} {g : α → β}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Topology.EMetricSpace.Defs",
+    "Mathlib.Order.Defs.PartialOrder"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Constructions.BorelSpace.Real",
+   "nombre": "borel_eq_generateFrom_Ioi_rat",
+   "cuerpo": ": borel ℝ = .generateFrom (⋃ a : ℚ, {Ioi (a : ℝ)})",
+   "contexto": [
+    "open Set Filter MeasureTheory MeasurableSpace",
+    "open scoped Topology NNReal ENNReal",
+    "universe u v w x y",
+    "variable {α β γ δ : Type*} {ι : Sort y} {s t u : Set α}",
+    "namespace Real"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.OuterMeasure.OfFunction",
+   "nombre": "comap_ofFunction",
+   "cuerpo": "{β} (f : β → α) (h : Monotone m ∨ Surjective f) :\n    comap f (OuterMeasure.ofFunction m m_empty) =\n      OuterMeasure.ofFunction (fun s => m (f '' s)) (by simp; simp [m_empty])",
+   "contexto": [
+    "noncomputable section",
+    "open Set Function Filter",
+    "open scoped NNReal Topology ENNReal",
+    "namespace MeasureTheory",
+    "namespace OuterMeasure",
+    "section OfFunction",
+    "variable {α : Type*}",
+    "variable (m : Set α → ℝ≥0∞) (m_empty : m ∅ = 0)",
+    "variable {m m_empty}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Order.Monotone.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Function.L2Space",
+   "nombre": "MemLp.integrable_sq",
+   "cuerpo": "{f : α → ℝ} (h : MemLp f 2 μ) : Integrable (fun x => f x ^ 2) μ",
+   "contexto": [
+    "noncomputable section",
+    "open TopologicalSpace MeasureTheory MeasureTheory.Lp Filter",
+    "open scoped NNReal ENNReal MeasureTheory InnerProductSpace",
+    "namespace MeasureTheory",
+    "section",
+    "variable {α F : Type*} {m : MeasurableSpace α} {μ : Measure α} [NormedAddCommGroup F]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.MeasureTheory.Function.LpSpace.Basic",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Analysis.InnerProductSpace.Defs",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Analysis.Normed.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Covering.OneDim",
+   "nombre": "Icc_mem_vitaliFamily_at_right",
+   "cuerpo": "{x y : ℝ} (hxy : x < y) :\n    Icc x y ∈ (vitaliFamily (volume : Measure ℝ) 1).setsAt x",
+   "contexto": [
+    "open Set MeasureTheory IsUnifLocDoublingMeasure Filter",
+    "open scoped Topology",
+    "namespace Real"
+   ],
+   "mods_nombres": [
+    "Mathlib.MeasureTheory.Measure.Doubling",
+    "Mathlib.Order.Filter.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Function.ConvergenceInMeasure",
+   "nombre": "tendstoInMeasure_iff_enorm",
+   "cuerpo": "[SeminormedAddCommGroup E] {l : Filter ι} {f : ι → α → E}\n    {g : α → E} :\n    TendstoInMeasure μ f l g ↔\n      ∀ ε, 0 < ε → ε ≠ ∞ → Tendsto (fun i => μ { x | ε ≤ ‖f i x - g x‖ₑ }) l (𝓝 0)",
+   "contexto": [
+    "open TopologicalSpace Filter",
+    "open scoped NNReal ENNReal MeasureTheory Topology",
+    "namespace MeasureTheory",
+    "variable {α ι κ E : Type*} {m : MeasurableSpace α} {μ : Measure α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Analysis.Normed.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "MeasureTheory",
+   "modulo": "Mathlib.MeasureTheory.Group.Measure",
+   "nombre": "forall_measure_preimage_mul_right_iff",
+   "cuerpo": "(μ : Measure G) :\n    (∀ (g : G) (A : Set G), MeasurableSet A → μ ((fun h => h * g) ⁻¹' A) = μ A) ↔\n      IsMulRightInvariant μ",
+   "contexto": [
+    "noncomputable section",
+    "open scoped NNReal ENNReal Pointwise Topology",
+    "open Inv Set Function MeasureTheory.Measure Filter",
+    "variable {G H : Type*} [MeasurableSpace G] [MeasurableSpace H]",
+    "namespace MeasureTheory",
+    "section Mul",
+    "variable [Mul G] {μ : Measure G}",
+    "section MeasurableMul",
+    "variable [MeasurableMul G]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.MeasureTheory.Group.Arithmetic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.Semantics",
+   "nombre": "realize_relabel",
+   "cuerpo": "{t : L.Term α} {g : α → β} {v : β → M} :\n    (t.relabel g).realize v = t.realize (v ∘ g)",
+   "contexto": [
+    "universe u v w u' v'",
+    "namespace FirstOrder",
+    "namespace Language",
+    "variable {L : Language.{u, v}} {L' : Language}",
+    "variable {M : Type w} {N P : Type*} [L.Structure M] [L.Structure N] [L.Structure P]",
+    "variable {α : Type u'} {β : Type v'} {γ : Type*}",
+    "open FirstOrder Cardinal",
+    "open Structure Fin",
+    "namespace Term"
+   ],
+   "mods_nombres": [
+    "Mathlib.Computability.Language",
+    "Mathlib.SetTheory.Cardinal.Defs"
    ],
    "faltan": [
-    "Mathlib.Combinatorics.SimpleGraph.Basic",
-    "Mathlib.Order.Partition.Basic"
+    "Mathlib.Computability.Language"
    ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 20.6,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:7:27: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:12:34: error: typeclass instance problem is stuck\n  Membership ?m.5 ?m.6\n\nNote: Lean will not try to resolve this typeclass instance problem because the second type"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 17.5,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:7:27: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:12:34: error: typeclass instance problem is stuck\n  Membership ?m.5 ?m.6\n\nNote: Lean will not try to resolve this typeclass instance problem because the second type"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 19.4,
-     "mods": 5,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:12:16: error(lean.invalidField): Invalid field `Partition`: The environment does not contain `SimpleGraph.Partition`, so it is not possible to project the field `Partition` from an expression\n  G\nof type `SimpleGraph V`\nE:\\Metamatematico\\_banco_imports.lean:14:34: error: typeclass instance problem is stuck\n  Membership ?m.1 ?m.2\n\nNote: Lean will not try to res"
-    }
-   }
+   "estrato": "B"
+  },
+  {
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.PartialEquiv",
+   "nombre": "subtype_toEquiv_inclusion",
+   "cuerpo": "{f g : M ≃ₚ[L] N} (h : f ≤ g) :\n    (subtype _).comp (g.toEquiv.toEmbedding.comp (Substructure.inclusion (dom_le_dom h))) =\n      (subtype _).comp f.toEquiv.toEmbedding",
+   "contexto": [
+    "universe u v w w'",
+    "namespace FirstOrder",
+    "namespace Language",
+    "variable (L : Language.{u, v}) (M : Type w) (N : Type w')",
+    "variable [L.Structure M] [L.Structure N]",
+    "open FirstOrder Structure Substructure",
+    "variable {L M N}",
+    "namespace PartialEquiv"
+   ],
+   "mods_nombres": [
+    "Mathlib.Computability.Language",
+    "Mathlib.Logic.Equiv.PartialEquiv"
+   ],
+   "faltan": [
+    "Mathlib.Computability.Language"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.Basic",
+   "nombre": "card_eq_card_functions_add_card_relations",
+   "cuerpo": ":\n    L.card =\n      (Cardinal.sum fun l => Cardinal.lift.{v} #(L.Functions l)) +\n        Cardinal.sum fun l => Cardinal.lift.{u} #(L.Relations l)",
+   "contexto": [
+    "universe u v u' v' w w'",
+    "open Cardinal",
+    "namespace FirstOrder",
+    "namespace Language",
+    "variable (L : Language.{u, v})",
+    "variable {L} {L' : Language.{u', v'}}"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Cardinal.Defs",
+    "Mathlib.Computability.Language"
+   ],
+   "faltan": [
+    "Mathlib.Computability.Language"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.FinitelyGenerated",
+   "nombre": "cg_iff_empty_or_exists_nat_generating_family",
+   "cuerpo": "{N : L.Substructure M} :\n    N.CG ↔ N = (∅ : Set M) ∨ ∃ s : ℕ → M, closure L (range s) = N",
+   "contexto": [
+    "open FirstOrder Set",
+    "namespace FirstOrder",
+    "namespace Language",
+    "open Structure",
+    "variable {L : Language} {M : Type*} [L.Structure M]",
+    "namespace Substructure"
+   ],
+   "mods_nombres": [
+    "Mathlib.Computability.Language"
+   ],
+   "faltan": [
+    "Mathlib.Computability.Language"
+   ],
+   "estrato": "B"
   },
   {
    "area": "ModelTheory",
@@ -115,200 +2931,819 @@
    "faltan": [
     "Mathlib.Computability.Language"
    ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 18.6,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:8:5: error: unknown namespace `Structure`\nE:\\Metamatematico\\_banco_imports.lean:9:14: error: invalid use of explicit universe parameters, `Language` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:12:25: error: unexpected token '#'; expected term\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.1,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:8:5: error: unknown namespace `Structure`\nE:\\Metamatematico\\_banco_imports.lean:9:14: error: invalid use of explicit universe parameters, `Language` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:12:25: error: unexpected token '#'; expected term\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 19.7,
-     "mods": 4,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:9:5: error: unknown namespace `Structure`\nE:\\Metamatematico\\_banco_imports.lean:10:14: error: too many explicit universe levels for `Language`\nE:\\Metamatematico\\_banco_imports.lean:13:25: error: unexpected token '#'; expected term\n"
-    }
-   }
+   "estrato": "B"
   },
   {
-   "area": "Combinatorics",
-   "modulo": "Mathlib.Combinatorics.SimpleGraph.EdgeLabeling",
-   "nombre": "ext_get",
-   "cuerpo": "{C' : EdgeLabeling G K}\n    (h : ∀ x y, (h : G.Adj x y) → C.get x y h = C'.get x y h) : C = C'",
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.Ultraproducts",
+   "nombre": "funMap_cast",
+   "cuerpo": "{n : ℕ} (f : L.Functions n) (x : Fin n → ∀ a, M a) :\n    (funMap f fun i => (x i : (u : Filter α).Product M)) =\n      (fun a => funMap f fun i => x i a : (u : Filter α).Product M)",
    "contexto": [
-    "open Finset",
-    "open Fintype (card)",
-    "namespace SimpleGraph",
-    "variable {V V' : Type*} {G : SimpleGraph V} {G' : SimpleGraph V'} {K K' : Type*}",
-    "namespace EdgeLabeling",
-    "variable {C : EdgeLabeling G K}"
+    "universe u v",
+    "variable {α : Type*} (M : α → Type*) (u : Ultrafilter α)",
+    "open FirstOrder Filter",
+    "namespace FirstOrder",
+    "namespace Language",
+    "open Structure",
+    "variable {L : Language.{u, v}} [∀ a, L.Structure (M a)]",
+    "namespace Ultraproduct",
+    "variable {M} {u}"
    ],
    "mods_nombres": [
-    "Mathlib.Data.Fintype.Defs",
-    "Mathlib.Combinatorics.SimpleGraph.Basic"
+    "Mathlib.Order.Filter.Ultrafilter.Defs",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Computability.Language"
    ],
    "faltan": [
-    "Mathlib.Combinatorics.SimpleGraph.Basic"
+    "Mathlib.Computability.Language"
    ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 17.5,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:8:29: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:8:50: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V'\nE:\\"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.1,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:8:29: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V\nE:\\Metamatematico\\_banco_imports.lean:8:50: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  V'\nE:\\"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 17.4,
-     "mods": 4,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:11:14: error: Function expected at\n  EdgeLabeling\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  G\nE:\\Metamatematico\\_banco_imports.lean:13:30: error: Function expected at\n  EdgeLabeling\nbut this term has type\n  x✝\n\nNote: Expected a function because this term is being applied to the argument\n  G\n"
-    }
-   }
+   "estrato": "B"
   },
   {
-   "area": "Geometry",
-   "modulo": "Mathlib.Geometry.Euclidean.Similarity",
-   "nombre": "similar_of_angle_angle",
-   "cuerpo": "(h_not_col : ¬ Collinear ℝ {a, b, c}) (h₁ : ∠ a b c = ∠ a' b' c')\n    (h₂ : ∠ b c a = ∠ b' c' a') :\n    ![a, b, c] ∼ ![a', b', c']",
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.Arithmetic.Presburger.Semilinear.Defs",
+   "nombre": "isLinearSet_iff",
+   "cuerpo": ":\n    IsLinearSet s ↔ ∃ (a : M) (t : Finset M), s = a +ᵥ (closure (t : Set M) : Set M)",
    "contexto": [
-    "open scoped Congruent EuclideanGeometry",
-    "open Similar NNReal Affine",
-    "namespace EuclideanGeometry",
-    "variable {ι V₁ V₂ P₁ P₂ : Type*}"
+    "variable {M N ι κ F : Type*} [AddCommMonoid M] [AddCommMonoid N]",
+    "open Set Pointwise AddSubmonoid"
    ],
    "mods_nombres": [
-    "Mathlib.Topology.MetricSpace.Congruence",
-    "Mathlib.Topology.MetricSpace.Similarity",
-    "Mathlib.Data.NNReal.Defs",
-    "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional"
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Group.Submonoid.Defs",
+    "Mathlib.ModelTheory.Arithmetic.Presburger.Semilinear.Defs"
    ],
    "faltan": [
-    "Mathlib.Topology.MetricSpace.Congruence",
-    "Mathlib.Topology.MetricSpace.Similarity",
-    "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional"
+    "Mathlib.ModelTheory.Arithmetic.Presburger.Semilinear.Defs"
    ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 24.3,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:5:12: error: unknown namespace `Congruent`\nE:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `Similar`\nE:\\Metamatematico\\_banco_imports.lean:10:68: error: expected token\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 20.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:5:12: error: unknown namespace `Congruent`\nE:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `Similar`\nE:\\Metamatematico\\_banco_imports.lean:10:68: error: expected token\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 21.1,
-     "mods": 6,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:8:22: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:13:68: error: expected token\n"
-    }
-   }
+   "estrato": "B"
   },
   {
-   "area": "Combinatorics",
-   "modulo": "Mathlib.Combinatorics.SimpleGraph.Regularity.Lemma",
-   "nombre": "szemeredi_regularity",
-   "cuerpo": "(hε : 0 < ε) (hl : l ≤ card α) :\n    ∃ P : Finpartition univ,\n      P.IsEquipartition ∧ l ≤ #P.parts ∧ #P.parts ≤ bound ε l ∧ P.IsUniform G ε",
-   "contexto": [
-    "open Finpartition Finset Fintype Function SzemerediRegularity",
-    "variable {α : Type*} [DecidableEq α] [Fintype α] (G : SimpleGraph α) [DecidableRel G.Adj] {ε : ℝ}"
-   ],
-   "mods_nombres": [
-    "Mathlib.Order.Partition.Finpartition",
-    "Mathlib.Data.Fintype.Defs",
-    "Mathlib.Combinatorics.SimpleGraph.Basic"
-   ],
-   "faltan": [
-    "Mathlib.Order.Partition.Finpartition",
-    "Mathlib.Combinatorics.SimpleGraph.Basic"
-   ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 18.8,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:5:5: error: unknown namespace `Finpartition`\nE:\\Metamatematico\\_banco_imports.lean:6:54: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:10:29: error: unexpected token '#'; expected term\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 22.3,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:5:5: error: unknown namespace `Finpartition`\nE:\\Metamatematico\\_banco_imports.lean:6:54: error: Function expected at\n  SimpleGraph\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:10:29: error: unexpected token '#'; expected term\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 23.6,
-     "mods": 5,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:7:42: error: unknown namespace `SzemerediRegularity`\nE:\\Metamatematico\\_banco_imports.lean:12:8: error(lean.invalidField): Invalid field `IsEquipartition`: The environment does not contain `Finpartition.IsEquipartition`, so it is not possible to project the field `IsEquipartition` from an expression\n  P\nof type `Finpartition univ`\nE:\\Metamatematico\\_banco_impo"
-    }
-   }
-  },
-  {
-   "area": "Control",
-   "modulo": "Mathlib.Control.Functor.Multivariate",
-   "nombre": "LiftR_RelLast_iff",
-   "cuerpo": "(x y : F (α ::: β)) :\n    LiftR' (RelLast' _ rr) x y ↔ LiftR (RelLast _ rr) x y",
+   "area": "ModelTheory",
+   "modulo": "Mathlib.ModelTheory.Substructures",
+   "nombre": "mem_closure_iff_exists_term",
+   "cuerpo": "{x : M} :\n    x ∈ closure L s ↔ ∃ t : L.Term s, t.realize ((↑) : s → M) = x",
    "contexto": [
     "universe u v w",
-    "open MvFunctor",
-    "variable {n : ℕ}",
-    "open Nat TypeVec",
-    "namespace MvFunctor",
-    "section LiftPLastPredIff",
-    "variable {F : TypeVec.{u} (n + 1) → Type*} [MvFunctor F] [LawfulMvFunctor F] {α : TypeVec.{u} n}",
-    "variable {β : Type u}",
-    "variable (pp : β → Prop)",
-    "variable (rr : β → β → Prop)"
+    "namespace FirstOrder",
+    "namespace Language",
+    "variable {L : Language.{u, v}} {M : Type w} {N P : Type*}",
+    "variable [L.Structure M] [L.Structure N] [L.Structure P]",
+    "open FirstOrder Cardinal",
+    "open Structure",
+    "variable (L) (M)",
+    "variable {L} {M}",
+    "variable {S : L.Substructure M}",
+    "namespace Substructure",
+    "variable (L)",
+    "variable {L} {s : Set M}",
+    "open Set"
    ],
    "mods_nombres": [
-    "Mathlib.Control.Functor.Multivariate",
-    "Mathlib.Data.TypeVec"
+    "Mathlib.Computability.Language",
+    "Mathlib.SetTheory.Cardinal.Defs"
    ],
    "faltan": [
-    "Mathlib.Control.Functor.Multivariate",
-    "Mathlib.Data.TypeVec"
+    "Mathlib.Computability.Language"
    ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 22.6,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `MvFunctor`\nE:\\Metamatematico\\_banco_imports.lean:8:9: error: unknown namespace `TypeVec`\nE:\\Metamatematico\\_banco_imports.lean:11:14: error: invalid use of explicit universe parameters, `TypeVec` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:11:44: error: invalid binder annotation, type is not a class instance\n  ?m.3\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 22.2,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:5: error: unknown namespace `MvFunctor`\nE:\\Metamatematico\\_banco_imports.lean:8:9: error: unknown namespace `TypeVec`\nE:\\Metamatematico\\_banco_imports.lean:11:14: error: invalid use of explicit universe parameters, `TypeVec` is a local variable\nE:\\Metamatematico\\_banco_imports.lean:11:44: error: invalid binder annotation, type is not a class instance\n  ?m.3\n"
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 22.5,
-     "mods": 5,
-     "err": ""
-    }
-   }
+   "estrato": "B"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.Real.GoldenRatio",
+   "nombre": "inv_goldenRatio",
+   "cuerpo": ": φ⁻¹ = -ψ",
+   "contexto": [
+    "noncomputable section",
+    "open Polynomial",
+    "namespace Real",
+    "open goldenRatio"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Polynomial.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.BernoulliPolynomials",
+   "nombre": "bernoulli_def",
+   "cuerpo": "(n : ℕ) : bernoulli n =\n    ∑ i ∈ range (n + 1), Polynomial.monomial i (_root_.bernoulli (n - i) * choose n i)",
+   "contexto": [
+    "noncomputable section",
+    "open Nat Polynomial",
+    "open Nat Finset",
+    "namespace Polynomial"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Polynomial.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.NumberField.Cyclotomic.Three",
+   "nombre": "Units.mem",
+   "cuerpo": "[NumberField K] [IsCyclotomicExtension {3} ℚ K] :\n    u ∈ [1, -1, η, -η, η ^ 2, -η ^ 2]",
+   "contexto": [
+    "open NumberField Units InfinitePlace nonZeroDivisors Polynomial",
+    "namespace IsCyclotomicExtension.Rat.Three",
+    "variable {K : Type*} [Field K]",
+    "variable {ζ : K} (hζ : IsPrimitiveRoot ζ 3) (u : (𝓞 K)ˣ)"
+   ],
+   "mods_nombres": [
+    "Mathlib.NumberTheory.NumberField.Basic",
+    "Mathlib.Algebra.Group.Units.Defs",
+    "Mathlib.Algebra.Polynomial.Basic",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots",
+    "Mathlib.NumberTheory.Cyclotomic.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.Padics.ProperSpace",
+   "nombre": "totallyBounded_univ",
+   "cuerpo": ": TotallyBounded (Set.univ : Set ℤ_[p])",
+   "contexto": [
+    "open Metric Topology",
+    "variable (p : ℕ) [Fact (Nat.Prime p)]",
+    "namespace PadicInt"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Basic",
+    "Mathlib.NumberTheory.Padics.PadicIntegers",
+    "Mathlib.Topology.UniformSpace.Cauchy"
+   ],
+   "faltan": [
+    "Mathlib.NumberTheory.Padics.PadicIntegers"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.NumberField.Units.DirichletTheorem",
+   "nombre": "mult_log_place_eq_zero",
+   "cuerpo": "{x : (𝓞 K)ˣ} {w : InfinitePlace K} :\n    mult w * Real.log (w x) = 0 ↔ w x = 1",
+   "contexto": [
+    "noncomputable section",
+    "open Module NumberField NumberField.InfinitePlace NumberField.Units",
+    "variable (K : Type*) [Field K]",
+    "namespace NumberField.Units.dirichletUnitTheorem",
+    "open Finset",
+    "variable {K}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.NumberTheory.NumberField.Basic",
+    "Mathlib.NumberTheory.NumberField.InfinitePlace.Basic",
+    "Mathlib.Algebra.Field.Defs"
+   ],
+   "faltan": [
+    "Mathlib.NumberTheory.NumberField.InfinitePlace.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.ModularForms.Identities",
+   "nombre": "vAdd_apply_of_mem_strictPeriods",
+   "cuerpo": "{Γ : Subgroup (GL (Fin 2) ℝ)} {k : ℤ}\n    {F : Type*} [FunLike F ℍ ℂ] [SlashInvariantFormClass F Γ k]\n    (f : F) (τ : ℍ) {h : ℝ} (hH : h ∈ Γ.strictPeriods) :\n    f (h +ᵥ τ) = f τ",
+   "contexto": [
+    "noncomputable section",
+    "open ModularForm UpperHalfPlane Matrix CongruenceSubgroup Matrix.SpecialLinearGroup",
+    "namespace SlashInvariantForm"
+   ],
+   "mods_nombres": [
+    "Mathlib.NumberTheory.ModularForms.Basic",
+    "Mathlib.Analysis.Complex.UpperHalfPlane.Basic",
+    "Mathlib.LinearAlgebra.Matrix.Defs",
+    "Mathlib.LinearAlgebra.Matrix.SpecialLinearGroup",
+    "Mathlib.NumberTheory.ModularForms.SlashInvariantForms",
+    "Mathlib.Algebra.Group.Subgroup.Defs",
+    "Mathlib.Data.FunLike.Basic"
+   ],
+   "faltan": [
+    "Mathlib.NumberTheory.ModularForms.Basic",
+    "Mathlib.Analysis.Complex.UpperHalfPlane.Basic",
+    "Mathlib.NumberTheory.ModularForms.SlashInvariantForms"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.NumberField.Ideal.Basic",
+   "nombre": "IsPrimitiveRoot.not_coprime_norm_of_mk_eq_one",
+   "cuerpo": "[NumberField K] (hI : absNorm I ≠ 1) {n : ℕ}\n    {ζ : K} (hn : 2 ≤ n) (hζ : IsPrimitiveRoot ζ n)\n    (h : letI _ : NeZero n := NeZero.of_gt hn; Ideal.Quotient.mk I hζ.toInteger = 1) :\n    ¬ (absNorm I).Coprime n",
+   "contexto": [
+    "open Ideal NumberField Units",
+    "variable {K : Type*} [Field K] {I : Ideal (𝓞 K)}",
+    "section torsionMapQuot"
+   ],
+   "mods_nombres": [
+    "Mathlib.RingTheory.Ideal.Defs",
+    "Mathlib.NumberTheory.NumberField.Basic",
+    "Mathlib.Algebra.Group.Units.Defs",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots",
+    "Mathlib.Algebra.Order.Monoid.Canonical.Defs",
+    "Mathlib.RingTheory.Ideal.Quotient.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "NumberTheory",
+   "modulo": "Mathlib.NumberTheory.Padics.PadicNumbers",
+   "nombre": "Rat.surjective_padicValuation",
+   "cuerpo": "(p : ℕ) [hp : Fact (p.Prime)] :\n    Function.Surjective (Rat.padicValuation p)",
+   "contexto": [
+    "open WithZero"
+   ],
+   "mods_nombres": [
+    "Mathlib.Logic.Basic",
+    "Mathlib.NumberTheory.Padics.PadicNumbers"
+   ],
+   "faltan": [
+    "Mathlib.NumberTheory.Padics.PadicNumbers"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.Interval.Set.Basic",
+   "nombre": "Ico_eq_empty_iff",
+   "cuerpo": ": Ico a b = ∅ ↔ ¬a < b",
+   "contexto": [
+    "open Function",
+    "open OrderDual (toDual ofDual)",
+    "variable {α : Type*}",
+    "namespace Set",
+    "section Preorder",
+    "variable [Preorder α] {a a₁ a₂ b b₁ b₂ c x : α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.OrderDual",
+    "Mathlib.Order.Defs.PartialOrder"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.PrimeIdeal",
+   "nombre": "IsPrime.mem_or_mem",
+   "cuerpo": "(hI : IsPrime I) {x y : P} : x ⊓ y ∈ I → x ∈ I ∨ y ∈ I",
+   "contexto": [
+    "open Order.PFilter",
+    "namespace Order",
+    "variable {P : Type*}",
+    "namespace Ideal",
+    "section SemilatticeInf",
+    "variable [SemilatticeInf P] {I : Ideal P}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.PFilter",
+    "Mathlib.RingTheory.Ideal.Defs",
+    "Mathlib.Order.Lattice"
+   ],
+   "faltan": [
+    "Mathlib.Order.PFilter"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.Monotone.Extension",
+   "nombre": "MonotoneOn.exists_monotone_extension",
+   "cuerpo": "(h : MonotoneOn f s) (hl : BddBelow (f '' s))\n    (hu : BddAbove (f '' s)) : ∃ g : α → β, Monotone g ∧ EqOn f g s",
+   "contexto": [
+    "open Set",
+    "variable {α β : Type*} [LinearOrder α] [ConditionallyCompleteLinearOrder β] {f : α → β} {s : Set α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Defs.LinearOrder",
+    "Mathlib.Order.ConditionallyCompleteLattice.Defs",
+    "Mathlib.Order.Monotone.Defs",
+    "Mathlib.Order.Bounds.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.ConditionallyCompleteLattice.Basic",
+   "nombre": "WithTop.coe_sSup'",
+   "cuerpo": "[SupSet α] {s : Set α} (hs : BddAbove s) :\n    ↑(sSup s) = (sSup ((fun (a : α) ↦ ↑a) '' s) : WithTop α)",
+   "contexto": [
+    "open Function OrderDual Set",
+    "variable {α β γ : Type*} {ι : Sort*}",
+    "section",
+    "variable [Preorder α]",
+    "open Classical in",
+    "open Classical in"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.OrderDual",
+    "Mathlib.Order.Defs.PartialOrder",
+    "Mathlib.Order.SetNotation",
+    "Mathlib.Order.Bounds.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.ConditionallyCompleteLattice.Finset",
+   "nombre": "Finset.ciInf_eq_min'_image",
+   "cuerpo": "{s : Finset ι} (h : ∃ x ∈ s, f x ≤ sInf ∅)\n    (h' : (s.image f).Nonempty := by classical exact image_nonempty.mpr (h.imp fun _ ↦ And.left)) :\n    ⨅ i ∈ s, f i = (s.image f).min' h'",
+   "contexto": [
+    "open Set",
+    "variable {ι α β γ : Type*}",
+    "section ConditionallyCompleteLinearOrder",
+    "variable [ConditionallyCompleteLinearOrder α] {s t : Set α} {a b : α}",
+    "variable (f : ι → α)"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.ConditionallyCompleteLattice.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.GameAdd",
+   "nombre": "gameAdd_iff",
+   "cuerpo": "{rα rβ} {x y : α × β} :\n    GameAdd rα rβ x y ↔ rα x.1 y.1 ∧ x.2 = y.2 ∨ rβ x.2 y.2 ∧ x.1 = y.1",
+   "contexto": [
+    "variable {α β : Type*} {rα : α → α → Prop} {rβ : β → β → Prop} {a : α} {b : β}",
+    "namespace Prod",
+    "variable (rα rβ)"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.Interval.Set.LinearOrder",
+   "nombre": "Iio_diff_Iic",
+   "cuerpo": ": Iio b \\ Iic a = Ioo a b",
+   "contexto": [
+    "open Function",
+    "namespace Set",
+    "variable {α : Type*} [LinearOrder α] {a a₁ a₂ b b₁ b₂ c d : α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Defs.LinearOrder"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Order",
+   "modulo": "Mathlib.Order.Monotone.Basic",
+   "nombre": "antitone_dual_iff",
+   "cuerpo": ": Antitone (toDual ∘ f ∘ ofDual : αᵒᵈ → βᵒᵈ) ↔ Antitone f",
+   "contexto": [
+    "open Function OrderDual",
+    "universe u v",
+    "variable {ι : Type*} {α : Type u} {β : Type v}",
+    "section OrderDual",
+    "variable [Preorder α] [Preorder β] {f : α → β} {s : Set α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.OrderDual",
+    "Mathlib.Order.Defs.PartialOrder",
+    "Mathlib.Order.Monotone.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.Martingale.Basic",
+   "nombre": "add",
+   "cuerpo": "(hf : Martingale f ℱ μ) (hg : Martingale g ℱ μ) : Martingale (f + g) ℱ μ",
+   "contexto": [
+    "open TopologicalSpace Filter",
+    "open scoped NNReal ENNReal MeasureTheory ProbabilityTheory",
+    "namespace MeasureTheory",
+    "variable {Ω E ι : Type*} [Preorder ι] {m0 : MeasurableSpace Ω} {μ : Measure Ω}",
+    "variable (E) in",
+    "namespace Martingale"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Order.Defs.PartialOrder",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.StrongLaw",
+   "nombre": "_root_.MeasureTheory.AEStronglyMeasurable.truncation",
+   "cuerpo": "(hf : AEStronglyMeasurable f μ)\n    {A : ℝ} : AEStronglyMeasurable (truncation f A) μ",
+   "contexto": [
+    "noncomputable section",
+    "open MeasureTheory Filter Finset Asymptotics",
+    "open Set (indicator)",
+    "open scoped Topology MeasureTheory ProbabilityTheory ENNReal NNReal",
+    "open scoped Function -- required for scoped `on` notation",
+    "namespace ProbabilityTheory",
+    "section Truncation",
+    "variable {α : Type*}",
+    "variable {m : MeasurableSpace α} {μ : Measure α} {f : α → ℝ}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.ConditionalProbability",
+   "nombre": "cond_toMeasurable_eq",
+   "cuerpo": ":\n    μ[|(toMeasurable μ s)] = μ[|s]",
+   "contexto": [
+    "noncomputable section",
+    "open ENNReal MeasureTheory MeasureTheory.Measure MeasurableSpace Set",
+    "variable {Ω Ω' α : Type*} {m : MeasurableSpace Ω} {m' : MeasurableSpace Ω'} {μ : Measure Ω}",
+    "namespace ProbabilityTheory",
+    "variable (μ) in",
+    "variable (μ) in"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.ConditionalExpectation",
+   "nombre": "condExp_indep_eq",
+   "cuerpo": "(hle₁ : m₁ ≤ m) (hle₂ : m₂ ≤ m) [SigmaFinite (μ.trim hle₂)]\n    (hf : StronglyMeasurable[m₁] f) (hindp : Indep m₁ m₂ μ) : μ[f | m₂] =ᵐ[μ] fun _ => μ[f]",
+   "contexto": [
+    "open TopologicalSpace Filter",
+    "open scoped NNReal ENNReal MeasureTheory ProbabilityTheory",
+    "namespace MeasureTheory",
+    "open ProbabilityTheory",
+    "variable {Ω E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [CompleteSpace E]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Analysis.Normed.Group.Defs",
+    "Mathlib.Analysis.Normed.Module.Basic",
+    "Mathlib.Topology.UniformSpace.Cauchy"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.IdentDistrib",
+   "nombre": "measure_mem_eq",
+   "cuerpo": "(h : IdentDistrib f g μ ν) {s : Set γ} (hs : MeasurableSet s) :\n    μ (f ⁻¹' s) = ν (g ⁻¹' s)",
+   "contexto": [
+    "open MeasureTheory Filter Finset",
+    "noncomputable section",
+    "open scoped Topology MeasureTheory ENNReal NNReal",
+    "variable {α β γ δ : Type*} [MeasurableSpace α] [MeasurableSpace β] [MeasurableSpace γ]",
+    "namespace ProbabilityTheory",
+    "namespace IdentDistrib",
+    "open TopologicalSpace",
+    "variable {μ : Measure α} {ν : Measure β} {f : α → γ} {g : β → γ}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.Kernel.Composition.CompMap",
+   "nombre": "deterministic_comp_eq_map",
+   "cuerpo": "(hf : Measurable f) (κ : Kernel α β) :\n    deterministic f hf ∘ₖ κ = map κ f",
+   "contexto": [
+    "open MeasureTheory",
+    "open scoped ENNReal",
+    "namespace ProbabilityTheory",
+    "namespace Kernel",
+    "variable {α β γ : Type*} {mα : MeasurableSpace α} {mβ : MeasurableSpace β} {mγ : MeasurableSpace γ}",
+    "variable {γ δ : Type*} {mγ : MeasurableSpace γ} {mδ : MeasurableSpace δ} {f : β → γ} {g : γ → α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.Kernel.Condexp",
+   "nombre": "_root_.MeasureTheory.AEStronglyMeasurable.comp_snd_map_prod_id",
+   "cuerpo": "[TopologicalSpace F]\n    (hm : m ≤ mΩ) (hf : AEStronglyMeasurable f μ) :\n    AEStronglyMeasurable[m.prod mΩ] (fun x : Ω × Ω => f x.2)\n      (@Measure.map Ω (Ω × Ω) mΩ (m.prod mΩ) (fun ω => (id ω, id ω)) μ)",
+   "contexto": [
+    "open MeasureTheory Set Filter TopologicalSpace",
+    "open scoped ENNReal MeasureTheory ProbabilityTheory",
+    "namespace ProbabilityTheory",
+    "section AuxLemmas",
+    "variable {Ω F : Type*} {m mΩ : MeasurableSpace Ω} {μ : Measure Ω} {f : Ω → F}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Probability",
+   "modulo": "Mathlib.Probability.Kernel.Composition.KernelLemmas",
+   "nombre": "comp_eq_snd_compProd",
+   "cuerpo": "(η : Kernel Y Z) [IsSFiniteKernel η] (κ : Kernel X Y)\n    [IsSFiniteKernel κ] : η ∘ₖ κ = snd (κ ⊗ₖ prodMkLeft X η)",
+   "contexto": [
+    "open MeasureTheory ProbabilityTheory",
+    "open scoped ENNReal",
+    "variable {X Y Z T : Type*} {mX : MeasurableSpace X} {mY : MeasurableSpace Y}",
+    "namespace ProbabilityTheory.Kernel"
+   ],
+   "mods_nombres": [
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+    "Mathlib.Probability.Kernel.Defs"
+   ],
+   "faltan": [
+    "Mathlib.Probability.Kernel.Defs"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Homological.GroupCohomology.Hilbert90",
+   "nombre": "norm_ofAlgebraAutOnUnits_eq",
+   "cuerpo": "(x : Lˣ) :\n    (toMul <| toAdditive ((Rep.ofAlgebraAutOnUnits K L).norm.hom\n      (toAdditive.symm <| ofMul x))).1 = algebraMap K L (Algebra.norm K (x : L))",
+   "contexto": [
+    "namespace groupCohomology",
+    "variable (K L : Type) [Field K] [Field L] [Algebra K L] [FiniteDimensional K L]",
+    "variable {K L} [IsGalois K L]",
+    "open Additive Rep"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Algebra.Defs",
+    "Mathlib.LinearAlgebra.FiniteDimensional.Defs",
+    "Mathlib.FieldTheory.Galois.Basic",
+    "Mathlib.Algebra.Group.TypeTags.Basic",
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.RingTheory.Norm.Defs"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Rep"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Homological.GroupCohomology.Functoriality",
+   "nombre": "congr",
+   "cuerpo": "{f₁ f₂ : G →* H} (h : f₁ = f₂) {φ : (Action.res _ f₁).obj A ⟶ B} {T : Type*}\n    (F : (f : G →* H) → (φ : (Action.res _ f).obj A ⟶ B) → T) :\n    F f₁ φ = F f₂ (h ▸ φ)",
+   "contexto": [
+    "universe v u",
+    "namespace groupCohomology",
+    "open Rep CategoryTheory Representation",
+    "variable {k G H : Type u} [CommRing k] [Group G] [Group H]",
+    "section"
+   ],
+   "mods_nombres": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.CategoryTheory.Action.Basic"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.CategoryTheory.Action.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Homological.GroupCohomology.Basic",
+   "nombre": "inhomogeneousCochains.d_comp_d",
+   "cuerpo": ":\n    d A n ≫ d A (n + 1) = 0",
+   "contexto": [
+    "noncomputable section",
+    "universe u",
+    "variable {k G : Type u} [CommRing k] {n : ℕ}",
+    "open CategoryTheory",
+    "namespace groupCohomology",
+    "variable [Group G] (n) (A : Rep k G)",
+    "open inhomogeneousCochains Rep",
+    "variable {A n} in"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.RepresentationTheory.Rep"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Rep"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Coinvariants",
+   "nombre": "coinvariantsAdjunction_homEquiv_apply_hom",
+   "cuerpo": "{X : Rep k G} {Y : ModuleCat k}\n    (f : (coinvariantsFunctor k G).obj X ⟶ Y) :\n    ((coinvariantsAdjunction k G).homEquiv X Y f).hom = (coinvariantsMk k G).app X ≫ f",
+   "contexto": [
+    "universe u v",
+    "namespace Rep",
+    "open CategoryTheory Representation",
+    "variable {k G : Type u} [CommRing k]",
+    "variable (k G) [Monoid G] (A B : Rep k G)",
+    "variable {k G A B}",
+    "variable (k G)"
+   ],
+   "mods_nombres": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Category.ModuleCat.Basic"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.Algebra.Category.ModuleCat.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Homological.GroupCohomology.LowDegree",
+   "nombre": "d₀₁_ker_eq_invariants",
+   "cuerpo": ": LinearMap.ker (d₀₁ A).hom = invariants A.ρ",
+   "contexto": [
+    "universe v u",
+    "noncomputable section",
+    "open CategoryTheory Limits Representation",
+    "variable {k G : Type u} [CommRing k] [Group G] (A : Rep k G)",
+    "namespace groupCohomology",
+    "section Differentials"
+   ],
+   "mods_nombres": [
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.Algebra.Module.Submodule.Ker"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.RepresentationTheory.Rep"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Homological.GroupHomology.Functoriality",
+   "nombre": "congr",
+   "cuerpo": "{f₁ f₂ : G →* H} (h : f₁ = f₂) {φ : A ⟶ (Action.res _ f₁).obj B} {T : Type*}\n    (F : (f : G →* H) → (φ : A ⟶ (Action.res _ f).obj B) → T) :\n    F f₁ φ = F f₂ (h ▸ φ)",
+   "contexto": [
+    "universe v u",
+    "namespace groupHomology",
+    "open CategoryTheory Rep Finsupp Representation",
+    "variable {k G H : Type u} [CommRing k] [Group G] [Group H]"
+   ],
+   "mods_nombres": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.Data.Finsupp.Defs",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.CategoryTheory.Action.Basic"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Rep",
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.CategoryTheory.Action.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Semisimple",
+   "nombre": "isSemisimpleRepresentation_iff_isSemisimpleModule_asModule",
+   "cuerpo": ":\n    IsSemisimpleRepresentation ρ ↔ IsSemisimpleModule k[G] ρ.asModule",
+   "contexto": [
+    "namespace Representation",
+    "variable {k G V : Type*}",
+    "open scoped MonoidAlgebra",
+    "variable [Monoid G] [Field k] [AddCommGroup V] [Module k V]"
+   ],
+   "mods_nombres": [
+    "Mathlib.RepresentationTheory.Basic",
+    "Mathlib.Algebra.MonoidAlgebra.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Field.Defs",
+    "Mathlib.Algebra.Module.Defs",
+    "Mathlib.RingTheory.SimpleModule.Basic"
+   ],
+   "faltan": [
+    "Mathlib.RepresentationTheory.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "RepresentationTheory",
+   "modulo": "Mathlib.RepresentationTheory.Homological.GroupCohomology.LongExactSequence",
+   "nombre": "mem_cocycles₁_of_comp_eq_d₀₁",
+   "cuerpo": "{y : X.X₂} {x : G → X.X₁} (hx : X.f.hom ∘ x = d₀₁ X.X₂ y) :\n    x ∈ cocycles₁ X.X₁",
+   "contexto": [
+    "universe u v",
+    "namespace groupCohomology",
+    "open CategoryTheory ShortComplex",
+    "variable {k G : Type u} [CommRing k] [Group G]",
+    "open HomologicalComplex.HomologySequence",
+    "variable (X) in",
+    "open Limits"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.Ideal.Prime",
+   "nombre": "not_isPrime_iff",
+   "cuerpo": "{I : Ideal α} :\n    ¬I.IsPrime ↔ I = ⊤ ∨ ∃ (x : α) (_hx : x ∉ I) (y : α) (_hy : y ∉ I), x * y ∈ I",
+   "contexto": [
+    "universe u v w",
+    "variable {α : Type u} {β : Type v} {F : Type w}",
+    "open Set Function",
+    "open Pointwise",
+    "section Semiring",
+    "namespace Ideal",
+    "variable [Semiring α] (I : Ideal α) {a b : α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.RingTheory.Ideal.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.MvPolynomial.Ideal",
+   "nombre": "mem_ideal_span_monomial_image",
+   "cuerpo": "{x : MvPolynomial σ R} {s : Set (σ →₀ ℕ)} :\n    x ∈ Ideal.span ((fun s => monomial s (1 : R)) '' s) ↔ ∀ xi ∈ x.support, ∃ si ∈ s, si ≤ xi",
+   "contexto": [
+    "variable {σ R : Type*}",
+    "namespace MvPolynomial",
+    "variable [CommSemiring R]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.MvPolynomial.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.RingTheory.Ideal.Span"
+   ],
+   "faltan": [],
+   "estrato": "A"
   },
   {
    "area": "RingTheory",
@@ -361,527 +3796,51 @@
    "faltan": [
     "Mathlib.RingTheory.DedekindDomain.Different"
    ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 19.4,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:31:4: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Algebra L M\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:30:42: error: Function expected at\n  dual\nbut this term has type\n  ?m.40\n\nNote: Expected a function be"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 19.0,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:31:4: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Algebra L M\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:30:42: error: Function expected at\n  dual\nbut this term has type\n  ?m.40\n\nNote: Expected a function be"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 21.7,
-     "mods": 4,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:31:42: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  Algebra A C\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:32:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  FiniteDimension"
-    }
-   }
+   "estrato": "B"
   },
   {
-   "area": "RepresentationTheory",
-   "modulo": "Mathlib.RepresentationTheory.Homological.GroupHomology.Functoriality",
-   "nombre": "congr",
-   "cuerpo": "{f₁ f₂ : G →* H} (h : f₁ = f₂) {φ : A ⟶ (Action.res _ f₁).obj B} {T : Type*}\n    (F : (f : G →* H) → (φ : A ⟶ (Action.res _ f).obj B) → T) :\n    F f₁ φ = F f₂ (h ▸ φ)",
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.Ideal.Norm.AbsNorm",
+   "nombre": "cardQuot_apply",
+   "cuerpo": "(S : Submodule R M) : cardQuot S = Nat.card (M ⧸ S)",
    "contexto": [
-    "universe v u",
-    "namespace groupHomology",
-    "open CategoryTheory Rep Finsupp Representation",
-    "variable {k G H : Type u} [CommRing k] [Group G] [Group H]"
-   ],
-   "mods_nombres": [
-    "Mathlib.RepresentationTheory.Rep",
-    "Mathlib.Data.Finsupp.Defs",
-    "Mathlib.RepresentationTheory.Basic",
-    "Mathlib.Algebra.Ring.Defs",
-    "Mathlib.Algebra.Group.Defs",
-    "Mathlib.CategoryTheory.Action.Basic"
-   ],
-   "faltan": [
-    "Mathlib.RepresentationTheory.Rep",
-    "Mathlib.RepresentationTheory.Basic",
-    "Mathlib.CategoryTheory.Action.Basic"
-   ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 18.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:7:20: error: unknown namespace `Rep`\nE:\\Metamatematico\\_banco_imports.lean:10:65: error(lean.unknownIdentifier): Unknown identifier `Action.res`\nE:\\Metamatematico\\_banco_imports.lean:11:34: error(lean.unknownIdentifier): Unknown identifier `Action.res`\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.6,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:7:20: error: unknown namespace `Rep`\nE:\\Metamatematico\\_banco_imports.lean:10:65: error(lean.unknownIdentifier): Unknown identifier `Action.res`\nE:\\Metamatematico\\_banco_imports.lean:11:34: error(lean.unknownIdentifier): Unknown identifier `Action.res`\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 18.2,
-     "mods": 6,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:14:34: error: typeclass instance problem is stuck\n  Category.{?u.6269, ?u.6268} ?m.36\n\nNote: Lean will not try to resolve this typeclass instance problem because the type argument to `Category` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.\n\nHint: Adding type annotations and supplying implicit arguments"
-    }
-   }
-  },
-  {
-   "area": "Computability",
-   "modulo": "Mathlib.Computability.DFA",
-   "nombre": "evalFrom_of_pow",
-   "cuerpo": "{x y : List α} {s : σ} (hx : M.evalFrom s x = s)\n    (hy : y ∈ ({x} : Language α)∗) : M.evalFrom s y = s",
-   "contexto": [
-    "universe u v",
-    "open Computability",
-    "namespace DFA",
-    "variable {α : Type u} {σ : Type v} (M : DFA α σ)"
-   ],
-   "mods_nombres": [
-    "Mathlib.Computability.DFA",
-    "Mathlib.Computability.Language"
-   ],
-   "faltan": [
-    "Mathlib.Computability.DFA",
-    "Mathlib.Computability.Language"
-   ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 18.6,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:8:40: error: Function expected at\n  DFA\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:11:21: error: Function expected at\n  Language\nbut this term has type\n  ?m.4\n\nNote: Expected a function because this term is being applied to the argument\n  α\n\nHint: The ide"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 17.4,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:8:40: error: Function expected at\n  DFA\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  α\nE:\\Metamatematico\\_banco_imports.lean:11:21: error: Function expected at\n  Language\nbut this term has type\n  ?m.4\n\nNote: Expected a function because this term is being applied to the argument\n  α\n\nHint: The ide"
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 18.2,
-     "mods": 5,
-     "err": ""
-    }
-   }
-  },
-  {
-   "area": "Probability",
-   "modulo": "Mathlib.Probability.Kernel.Composition.KernelLemmas",
-   "nombre": "comp_eq_snd_compProd",
-   "cuerpo": "(η : Kernel Y Z) [IsSFiniteKernel η] (κ : Kernel X Y)\n    [IsSFiniteKernel κ] : η ∘ₖ κ = snd (κ ⊗ₖ prodMkLeft X η)",
-   "contexto": [
-    "open MeasureTheory ProbabilityTheory",
-    "open scoped ENNReal",
-    "variable {X Y Z T : Type*} {mX : MeasurableSpace X} {mY : MeasurableSpace Y}",
-    "namespace ProbabilityTheory.Kernel"
-   ],
-   "mods_nombres": [
-    "Mathlib.Data.ENNReal.Basic",
-    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
-    "Mathlib.Probability.Kernel.Defs"
-   ],
-   "faltan": [
-    "Mathlib.Probability.Kernel.Defs"
-   ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 20.6,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:11:42: error: expected token\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:11:42: error: expected token\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 19.8,
-     "mods": 4,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:12:42: error: expected token\n"
-    }
-   }
-  },
-  {
-   "area": "AlgebraicGeometry",
-   "modulo": "Mathlib.AlgebraicGeometry.Properties",
-   "nombre": "isReduced_of_isReduced_stalk",
-   "cuerpo": "[∀ x : X, _root_.IsReduced (X.presheaf.stalk x)] :\n    IsReduced X",
-   "contexto": [
-    "universe u",
-    "open TopologicalSpace Opposite CategoryTheory CategoryTheory.Limits TopCat Topology",
-    "namespace AlgebraicGeometry",
-    "variable (X : Scheme)"
-   ],
-   "mods_nombres": [
-    "Mathlib.Topology.Defs.Basic",
-    "Mathlib.Data.Opposite",
-    "Mathlib.Topology.Category.TopCat.Basic",
-    "Mathlib.Algebra.GroupWithZero.Basic"
-   ],
-   "faltan": [
-    "Mathlib.Topology.Category.TopCat.Basic"
-   ],
-   "estrato": "B",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 20.1,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:68: error: unknown namespace `TopCat`\nE:\\Metamatematico\\_banco_imports.lean:10:31: error: type expected, got\n  (X : Scheme)\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 17.7,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:68: error: unknown namespace `TopCat`\nE:\\Metamatematico\\_banco_imports.lean:10:31: error: type expected, got\n  (X : Scheme)\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 17.8,
-     "mods": 4,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:11:31: error: type expected, got\n  (X : Scheme)\n"
-    }
-   }
-  },
-  {
-   "area": "MeasureTheory",
-   "modulo": "Mathlib.MeasureTheory.Group.Measure",
-   "nombre": "forall_measure_preimage_mul_right_iff",
-   "cuerpo": "(μ : Measure G) :\n    (∀ (g : G) (A : Set G), MeasurableSet A → μ ((fun h => h * g) ⁻¹' A) = μ A) ↔\n      IsMulRightInvariant μ",
-   "contexto": [
-    "noncomputable section",
-    "open scoped NNReal ENNReal Pointwise Topology",
-    "open Inv Set Function MeasureTheory.Measure Filter",
-    "variable {G H : Type*} [MeasurableSpace G] [MeasurableSpace H]",
-    "namespace MeasureTheory",
-    "section Mul",
-    "variable [Mul G] {μ : Measure G}",
-    "section MeasurableMul",
-    "variable [MeasurableMul G]"
-   ],
-   "mods_nombres": [
-    "Mathlib.Data.NNReal.Defs",
-    "Mathlib.Data.ENNReal.Basic",
-    "Mathlib.MeasureTheory.Measure.MeasureSpaceDef",
-    "Mathlib.Order.Filter.Defs",
-    "Mathlib.MeasureTheory.MeasurableSpace.Defs",
-    "Mathlib.MeasureTheory.Group.Arithmetic"
-   ],
-   "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": true,
-     "seg": 17.2,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+grafo": {
-     "ok": true,
-     "seg": 21.5,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 19.4,
-     "mods": 3,
-     "err": ""
-    }
-   }
-  },
-  {
-   "area": "Geometry",
-   "modulo": "Mathlib.Geometry.Euclidean.Angle.Oriented.RightAngle",
-   "nombre": "oangle_add_right_eq_arccos_of_oangle_eq_pi_div_two",
-   "cuerpo": "{x y : V} (h : o.oangle x y = ↑(π / 2)) :\n    o.oangle x (x + y) = Real.arccos (‖x‖ / ‖x + y‖)",
-   "contexto": [
-    "noncomputable section",
-    "open scoped EuclideanGeometry",
-    "open scoped Real",
-    "open scoped RealInnerProductSpace",
-    "namespace Orientation",
     "open Module",
-    "variable {V : Type*} [NormedAddCommGroup V] [InnerProductSpace ℝ V]",
-    "variable [hd2 : Fact (finrank ℝ V = 2)] (o : Orientation ℝ V (Fin 2))"
+    "open scoped nonZeroDivisors",
+    "section abs_norm",
+    "namespace Submodule",
+    "variable {R M : Type*} [Ring R] [AddCommGroup M] [Module R M]",
+    "section"
    ],
    "mods_nombres": [
-    "Mathlib.LinearAlgebra.Orientation",
     "Mathlib.Algebra.Module.Defs",
-    "Mathlib.Analysis.Normed.Group.Defs",
-    "Mathlib.Analysis.InnerProductSpace.Defs",
-    "Mathlib.Logic.Basic"
-   ],
-   "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 17.4,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:14:41: error(lean.invalidField): Invalid field `oangle`: The environment does not contain `Quot.oangle`, so it is not possible to project the field `oangle` from an expression\n  o\nof type\n  Quot ⇑(RayVector.Setoid ℝ (V [⋀^Fin 2]→ₗ[ℝ] ℝ))\nE:\\Metamatematico\\_banco_imports.le"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.0,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:14:41: error(lean.invalidField): Invalid field `oangle`: The environment does not contain `Quot.oangle`, so it is not possible to project the field `oangle` from an expression\n  o\nof type\n  Quot ⇑(RayVector.Setoid ℝ (V [⋀^Fin 2]→ₗ[ℝ] ℝ))\nE:\\Metamatematico\\_banco_imports.le"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 17.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:6:12: error: unknown namespace `EuclideanGeometry`\nE:\\Metamatematico\\_banco_imports.lean:14:41: error(lean.invalidField): Invalid field `oangle`: The environment does not contain `Quot.oangle`, so it is not possible to project the field `oangle` from an expression\n  o\nof type\n  Quot ⇑(RayVector.Setoid ℝ (V [⋀^Fin 2]→ₗ[ℝ] ℝ))\nE:\\Metamatematico\\_banco_imports.le"
-    }
-   }
-  },
-  {
-   "area": "Logic",
-   "modulo": "Mathlib.Logic.Function.Iterate",
-   "nombre": "iterate_succ_apply'",
-   "cuerpo": "(n : ℕ) (x : α) : f^[n.succ] x = f (f^[n] x)",
-   "contexto": [
-    "universe u v",
-    "variable {α : Type u} {β : Type v}",
-    "notation:max f \"^[\" n \"]\" => Nat.iterate f n",
-    "namespace Function",
-    "open Function (Commute)",
-    "variable (f : α → α)",
-    "variable {f}",
-    "variable (f)"
-   ],
-   "mods_nombres": [
-    "Mathlib.Algebra.Group.Commute.Defs"
-   ],
-   "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 17.4,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:14:42: error: Ambiguous term\n  f^[n.succ]\nPossible interpretations:\n  f^[n.succ] x : α\n  \n  f^[n.succ] x : α\nE:\\Metamatematico\\_banco_imports.lean:14:60: error: Ambiguous term\n  f^[n]\nPossible interpretations:\n  f^[n] x : α\n  \n  f^[n] x : α\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 17.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:14:42: error: Ambiguous term\n  f^[n.succ]\nPossible interpretations:\n  f^[n.succ] x : α\n  \n  f^[n.succ] x : α\nE:\\Metamatematico\\_banco_imports.lean:14:60: error: Ambiguous term\n  f^[n]\nPossible interpretations:\n  f^[n] x : α\n  \n  f^[n] x : α\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 17.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:14:42: error: Ambiguous term\n  f^[n.succ]\nPossible interpretations:\n  f^[n.succ] x : α\n  \n  f^[n.succ] x : α\nE:\\Metamatematico\\_banco_imports.lean:14:60: error: Ambiguous term\n  f^[n]\nPossible interpretations:\n  f^[n] x : α\n  \n  f^[n] x : α\n"
-    }
-   }
-  },
-  {
-   "area": "Algebra",
-   "modulo": "Mathlib.Algebra.BigOperators.Finprod",
-   "nombre": "finprod_eq_prod_plift_of_mulSupport_toFinset_subset",
-   "cuerpo": "{f : α → M}\n    (hf : HasFiniteMulSupport (f ∘ PLift.down)) {s : Finset (PLift α)} (hs : hf.toFinset ⊆ s) :\n    ∏ᶠ i, f i = ∏ i ∈ s, f i.down",
-   "contexto": [
-    "open Function Set",
-    "section sort",
-    "variable {G M N : Type*} {α β ι : Sort*} [CommMonoid M] [CommMonoid N]",
-    "open Batteries.ExtendedBinder"
-   ],
-   "mods_nombres": [
+    "Mathlib.Algebra.Module.Submodule.Defs",
+    "Mathlib.Algebra.Ring.Defs",
     "Mathlib.Algebra.Group.Defs"
    ],
    "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": true,
-     "seg": 18.1,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+grafo": {
-     "ok": true,
-     "seg": 18.0,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 17.6,
-     "mods": 3,
-     "err": ""
-    }
-   }
+   "estrato": "A"
   },
   {
-   "area": "FieldTheory",
-   "modulo": "Mathlib.FieldTheory.Finite.Basic",
-   "nombre": "prod_univ_units_id_eq_neg_one",
-   "cuerpo": "[CommRing K] [IsDomain K] [Fintype Kˣ] :\n    ∏ x : Kˣ, x = (-1 : Kˣ)",
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.MvPolynomial.Symmetric.NewtonIdentities",
+   "nombre": "mul_esymm_eq_sum",
+   "cuerpo": "(k : ℕ) :\n    k * esymm σ R k = (-1) ^ (k + 1) *\n      ∑ a ∈ antidiagonal k with a.1 < k, (-1) ^ a.1 * esymm σ R a.1 * psum σ R a.2",
    "contexto": [
-    "variable {K : Type*} {R : Type*}",
-    "local notation \"q\" => Fintype.card K",
-    "open Finset",
-    "open scoped Polynomial",
-    "namespace FiniteField"
-   ],
-   "mods_nombres": [
-    "Mathlib.Data.Fintype.Card",
-    "Mathlib.Algebra.Polynomial.Basic",
-    "Mathlib.Algebra.Ring.Defs",
-    "Mathlib.Data.Fintype.Defs"
-   ],
-   "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": true,
-     "seg": 18.0,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+grafo": {
-     "ok": true,
-     "seg": 17.3,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 18.1,
-     "mods": 3,
-     "err": ""
-    }
-   }
-  },
-  {
-   "area": "FieldTheory",
-   "modulo": "Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure",
-   "nombre": "toSplittingField_coeff",
-   "cuerpo": "{s : Finset (Monics k)} {f} (h : f ∈ s) (n) :\n    toSplittingField s ((subProdXSubC f).coeff n) = 0",
-   "contexto": [
-    "universe u v w",
+    "open Equiv (Perm)",
+    "open MvPolynomial",
     "noncomputable section",
-    "open Polynomial",
-    "variable (k : Type u) [Field k]",
-    "namespace AlgebraicClosure",
-    "variable {k} in",
-    "variable {k}",
-    "open Classical in"
+    "namespace MvPolynomial",
+    "open Finset Nat",
+    "variable (σ : Type*) [Fintype σ] (R : Type*) [CommRing R]"
    ],
    "mods_nombres": [
-    "Mathlib.Algebra.Polynomial.Basic",
-    "Mathlib.Algebra.Field.Defs",
-    "Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure"
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Algebra.MvPolynomial.Basic",
+    "Mathlib.Data.Fintype.Defs",
+    "Mathlib.Algebra.Ring.Defs"
    ],
    "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 17.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:11:10: error: redundant binder annotation update\nE:\\Metamatematico\\_banco_imports.lean:14:8: warning: declaration uses `sorry`\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 17.8,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:11:10: error: redundant binder annotation update\nE:\\Metamatematico\\_banco_imports.lean:14:8: warning: declaration uses `sorry`\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 19.3,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:11:10: error: redundant binder annotation update\nE:\\Metamatematico\\_banco_imports.lean:14:8: warning: declaration uses `sorry`\n"
-    }
-   }
-  },
-  {
-   "area": "Analysis",
-   "modulo": "Mathlib.Analysis.Convex.Caratheodory",
-   "nombre": "convexHull_eq_union",
-   "cuerpo": ": convexHull 𝕜 s =\n    ⋃ (t : Finset E) (_ : ↑t ⊆ s) (_ : AffineIndependent 𝕜 ((↑) : t → E)), convexHull 𝕜 ↑t",
-   "contexto": [
-    "open Set Finset",
-    "universe u",
-    "variable {𝕜 : Type*} {E : Type u} [Field 𝕜] [LinearOrder 𝕜] [IsStrictOrderedRing 𝕜]",
-    "variable {s : Set E}"
-   ],
-   "mods_nombres": [
-    "Mathlib.Algebra.Field.Defs",
-    "Mathlib.Order.Defs.LinearOrder",
-    "Mathlib.Algebra.Order.Ring.Defs",
-    "Mathlib.LinearAlgebra.AffineSpace.Independent"
-   ],
-   "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 18.2,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:10:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddCommMonoid E\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:11:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddTorsor ?"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.4,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:10:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddCommMonoid E\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:11:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddTorsor ?"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 18.2,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:10:26: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddCommMonoid E\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.\nE:\\Metamatematico\\_banco_imports.lean:11:39: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  AddTorsor ?"
-    }
-   }
-  },
-  {
-   "area": "Data",
-   "modulo": "Mathlib.Data.Fin.Tuple.Embedding",
-   "nombre": "snoc_castSucc",
-   "cuerpo": "{n : ℕ} {x : Fin n ↪ α} {a : α} {ha : a ∉ range x} {i : Fin n} :\n    snoc x ha i.castSucc = x i",
-   "contexto": [
-    "open Function.Embedding Fin Set Nat",
-    "namespace Fin.Embedding",
-    "variable {α : Type*}"
-   ],
-   "mods_nombres": [
-    "Mathlib.Logic.Embedding.Basic"
-   ],
-   "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": false,
-     "seg": 17.9,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:10:4: error: Type mismatch\n  snoc ?m.10 ?m.11 i.castSucc\nhas type\n  ?m.8 i.castSucc\nbut is expected to have type\n  α\n"
-    },
-    "fijo+grafo": {
-     "ok": false,
-     "seg": 18.2,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:10:4: error: Type mismatch\n  snoc ?m.10 ?m.11 i.castSucc\nhas type\n  ?m.8 i.castSucc\nbut is expected to have type\n  α\n"
-    },
-    "fijo+regla4": {
-     "ok": false,
-     "seg": 19.2,
-     "mods": 3,
-     "err": "E:\\Metamatematico\\_banco_imports.lean:10:4: error: Type mismatch\n  snoc ?m.10 ?m.11 i.castSucc\nhas type\n  ?m.8 i.castSucc\nbut is expected to have type\n  α\n"
-    }
-   }
+   "estrato": "A"
   },
   {
    "area": "RingTheory",
@@ -908,185 +3867,532 @@
     "Mathlib.Logic.Function.Defs"
    ],
    "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": true,
-     "seg": 19.5,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+grafo": {
-     "ok": true,
-     "seg": 19.4,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 21.9,
-     "mods": 3,
-     "err": ""
-    }
-   }
+   "estrato": "A"
   },
   {
-   "area": "Logic",
-   "modulo": "Mathlib.Logic.Denumerable",
-   "nombre": "encode_ofNat",
-   "cuerpo": "(n) : encode (ofNat α n) = n",
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.LocalRing.RingHom.Basic",
+   "nombre": "surjective_units_map_of_local_ringHom",
+   "cuerpo": "[Semiring R] [Semiring S] (f : R →+* S)\n    (hf : Function.Surjective f) (h : IsLocalHom f) :\n    Function.Surjective (Units.map <| f.toMonoidHom)",
    "contexto": [
-    "variable {α β : Type*}",
-    "open Finset Nat",
-    "namespace Denumerable",
-    "section",
-    "variable [Denumerable α] [Denumerable β]",
-    "open Encodable"
+    "variable {R S T : Type*}",
+    "namespace IsLocalRing"
    ],
    "mods_nombres": [
-    "Mathlib.Logic.Denumerable",
-    "Mathlib.Logic.Encodable.Basic"
+    "Mathlib.RingTheory.LocalRing.Defs",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Units.Hom"
    ],
    "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": true,
-     "seg": 23.6,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+grafo": {
-     "ok": true,
-     "seg": 22.7,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 24.0,
-     "mods": 3,
-     "err": ""
-    }
-   }
+   "estrato": "A"
   },
   {
-   "area": "CategoryTheory",
-   "modulo": "Mathlib.CategoryTheory.Skeletal",
-   "nombre": "skeleton_skeletal",
-   "cuerpo": ": Skeletal (Skeleton C)",
+   "area": "RingTheory",
+   "modulo": "Mathlib.RingTheory.PowerSeries.Evaluation",
+   "nombre": "HasEval.zero",
+   "cuerpo": ": HasEval (0 : S)",
    "contexto": [
-    "universe v₁ v₂ v₃ u₁ u₂ u₃",
-    "namespace CategoryTheory",
-    "open Category",
-    "variable (C : Type u₁) [Category.{v₁} C]",
-    "variable (D : Type u₂) [Category.{v₂} D]",
-    "variable {E : Type u₃} [Category.{v₃} E]",
-    "variable {C D}",
-    "variable (C D)",
-    "variable {C}",
-    "variable (C)"
+    "namespace PowerSeries",
+    "open WithPiTopology",
+    "variable {R : Type*} [CommRing R]",
+    "variable {S : Type*} [CommRing S]",
+    "variable {φ : R →+* S}",
+    "section",
+    "variable [TopologicalSpace R] [TopologicalSpace S]"
+   ],
+   "mods_nombres": [
+    "Mathlib.RingTheory.PowerSeries.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [
+    "Mathlib.RingTheory.PowerSeries.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.ZFC.Cardinal",
+   "nombre": "cardinalMk_coe_sort",
+   "cuerpo": ": #x = lift.{u + 1, u} (card x)",
+   "contexto": [
+    "universe u v",
+    "open Cardinal",
+    "namespace ZFSet",
+    "variable {x y : ZFSet.{u}}"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Cardinal.Defs",
+    "Mathlib.SetTheory.ZFC.Basic"
+   ],
+   "faltan": [
+    "Mathlib.SetTheory.ZFC.Basic"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.Cardinal.Arithmetic",
+   "nombre": "mul_eq_self",
+   "cuerpo": "{c : Cardinal} (h : ℵ₀ ≤ c) : c * c = c",
+   "contexto": [
+    "noncomputable section",
+    "open Function Set Cardinal Equiv Order Ordinal",
+    "universe u v w",
+    "namespace Cardinal",
+    "section mul"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Cardinal.Defs",
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.SetTheory.Ordinal.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.ZFC.Class",
+   "nombre": "classToCong_empty",
+   "cuerpo": ": classToCong ∅ = ∅",
+   "contexto": [
+    "universe u",
+    "namespace Class"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.ZFC.Class"
+   ],
+   "faltan": [
+    "Mathlib.SetTheory.ZFC.Class"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.Ordinal.Notation",
+   "nombre": "NFBelow.repr_lt",
+   "cuerpo": "{o b} (h : NFBelow o b) : repr o < ω ^ b",
+   "contexto": [
+    "open Ordinal Order",
+    "namespace ONote",
+    "open Lean in"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Ordinal.Basic",
+    "Mathlib.SetTheory.Ordinal.Notation"
+   ],
+   "faltan": [
+    "Mathlib.SetTheory.Ordinal.Notation"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.Lists",
+   "nombre": "cons_subset",
+   "cuerpo": "{a} {l₁ l₂ : Lists' α true} : Lists'.cons a l₁ ⊆ l₂ ↔ a ∈ l₂ ∧ l₁ ⊆ l₂",
+   "contexto": [
+    "variable {α : Type*}",
+    "namespace Lists'"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Lists"
+   ],
+   "faltan": [
+    "Mathlib.SetTheory.Lists"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.Ordinal.Basic",
+   "nombre": "nonempty_toType_iff",
+   "cuerpo": "{o : Ordinal} : Nonempty o.ToType ↔ o ≠ 0",
+   "contexto": [
+    "noncomputable section",
+    "open Function Cardinal Set Equiv Order",
+    "open scoped Cardinal InitialSeg",
+    "universe u v w",
+    "variable {α : Type u} {β : Type v} {γ : Type w}",
+    "namespace Ordinal",
+    "scoped notation \"typeLT \" α:70 => @Ordinal.type α (· < ·) inferInstance"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Cardinal.Defs",
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.Order.InitialSeg",
+    "Mathlib.SetTheory.Ordinal.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.Cardinal.ENat",
+   "nombre": "toENatAux_le_nat",
+   "cuerpo": "{x : Cardinal} {n : ℕ} : toENatAux x ≤ n ↔ x ≤ n",
+   "contexto": [
+    "open Function Set",
+    "universe u v",
+    "namespace Cardinal"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Cardinal.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "SetTheory",
+   "modulo": "Mathlib.SetTheory.Ordinal.Arithmetic",
+   "nombre": "boundedLimitRec_zero",
+   "cuerpo": "{l} (lLim : IsSuccLimit l) {motive} (H₁ H₂ H₃) :\n    @boundedLimitRecOn l lLim motive ⟨0, lLim.bot_lt⟩ H₁ H₂ H₃ = H₁",
+   "contexto": [
+    "noncomputable section",
+    "open Function Cardinal Set Equiv Order",
+    "open scoped Ordinal",
+    "universe u v w",
+    "namespace Ordinal",
+    "variable {α β γ : Type*} {r : α → α → Prop} {s : β → β → Prop} {t : γ → γ → Prop}"
+   ],
+   "mods_nombres": [
+    "Mathlib.SetTheory.Cardinal.Defs",
+    "Mathlib.Logic.Equiv.Defs",
+    "Mathlib.SetTheory.Ordinal.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.Ring.Common",
+   "nombre": "add_pf_add_overlap_zero",
+   "cuerpo": "(h : IsNat (a₁ + b₁) (nat_lit 0)) (h₄ : a₂ + b₂ = c) : (a₁ + a₂ : R) + (b₁ + b₂) = c",
+   "contexto": [
+    "variable {u : Lean.Level} {α : Q(Type u)} {sα : Q(CommSemiring $α)}",
+    "variable (sα)",
+    "variable {R : Type*} [CommSemiring R]",
+    "variable {a a' a₁ a₂ a₃ b b' b₁ b₂ b₃ c c₁ c₂ : R}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Ring.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.CategoryTheory.Monoidal.Normalize",
+   "nombre": "evalComp_nil_nil",
+   "cuerpo": "{f g h : C} (α : f ≅ g) (β : g ≅ h) :\n    (α ≪≫ β).hom = (α ≪≫ β).hom",
+   "contexto": [
+    "open Lean Meta Elab Qq",
+    "open CategoryTheory Mathlib.Tactic.BicategoryLike MonoidalCategory",
+    "namespace Mathlib.Tactic.Monoidal",
+    "section",
+    "universe v u",
+    "variable {C : Type u} [Category.{v} C]",
+    "variable {f f' g g' h h' i i' j : C}"
    ],
    "mods_nombres": [],
    "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": true,
-     "seg": 22.7,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+grafo": {
-     "ok": true,
-     "seg": 22.2,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 23.1,
-     "mods": 3,
-     "err": ""
-    }
-   }
+   "estrato": "A"
   },
   {
-   "area": "Control",
-   "modulo": "Mathlib.Control.Traversable.Basic",
-   "nombre": "preserves_map'",
-   "cuerpo": "{α β} (x : α → β) : @η _ ∘ Functor.map x = Functor.map x ∘ @η _",
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.CategoryTheory.Bicategory.PureCoherence",
+   "nombre": "naturality_inv",
+   "cuerpo": "{p : a ⟶ b} {f g : b ⟶ c} {pf : a ⟶ c}\n    {η : f ≅ g} (η_f : p ≫ f ≅ pf) (η_g : p ≫ g ≅ pf) (ih : p ◁ η ≪≫ η_g = η_f) :\n    p ◁ η.symm ≪≫ η_f = η_g",
    "contexto": [
-    "open Function hiding comp",
-    "universe u v w",
-    "namespace ApplicativeTransformation",
-    "variable (F : Type u → Type v) [Applicative F]",
-    "variable (G : Type u → Type w) [Applicative G]",
-    "variable {F G}",
-    "section Preserves",
-    "variable (η : ApplicativeTransformation F G)",
-    "variable [LawfulApplicative F] [LawfulApplicative G]"
+    "open Lean Meta Elab Qq",
+    "open CategoryTheory Mathlib.Tactic.BicategoryLike Bicategory",
+    "namespace Mathlib.Tactic.Bicategory",
+    "section",
+    "universe w v u",
+    "variable {B : Type u} [Bicategory.{w, v} B] {a b c d e : B}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.NormNum.Pow",
+   "nombre": "intPow_negOfNat_bit1",
+   "cuerpo": "{b' c' : ℕ} (h1 : Nat.pow a b' = c')\n    (hb : nat_lit 2 * b' + nat_lit 1 = b) (hc : c' * (c' * a) = c) :\n    Int.pow (Int.negOfNat a) b = Int.negOfNat c",
+   "contexto": [
+    "namespace Mathlib",
+    "open Lean",
+    "open Meta",
+    "namespace Meta.NormNum",
+    "open Qq",
+    "variable {a b c : ℕ}"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.Linarith.Preprocessing",
+   "nombre": "without_one_mul",
+   "cuerpo": "{M : Type*} [MulOneClass M] {a b : M} (h : 1 * a = b) : a = b",
+   "contexto": [
+    "namespace Mathlib.Tactic.Linarith",
+    "open Lean",
+    "open Elab Tactic Meta",
+    "open Qq",
+    "open Std (TreeSet)",
+    "section cancelDenoms"
    ],
    "mods_nombres": [
-    "Mathlib.Control.Traversable.Basic"
+    "Mathlib.Algebra.Group.Defs"
    ],
    "faltan": [],
-   "estrato": "A",
-   "resultado": {
-    "fijo": {
-     "ok": true,
-     "seg": 29.8,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+grafo": {
-     "ok": true,
-     "seg": 25.9,
-     "mods": 3,
-     "err": ""
-    },
-    "fijo+regla4": {
-     "ok": true,
-     "seg": 26.5,
-     "mods": 3,
-     "err": ""
-    }
-   }
+   "estrato": "A"
+  },
+  {
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.LinearCombination.Lemmas",
+   "nombre": "le_of_le",
+   "cuerpo": "[AddCommMonoid α] [PartialOrder α] [IsOrderedCancelAddMonoid α]\n    (p : (a : α) ≤ b) (H : a' + b ≤ b' + a) :\n    a' ≤ b'",
+   "contexto": [
+    "open Lean",
+    "namespace Mathlib.Tactic.LinearCombination",
+    "variable {α : Type*} {a a' a₁ a₂ b b' b₁ b₂ c : α}",
+    "variable {K : Type*} {t s : K}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Order.Defs.PartialOrder",
+    "Mathlib.Algebra.Order.Monoid.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.NormNum.Prime",
+   "nombre": "minFacHelper_0",
+   "cuerpo": "(n : ℕ)\n    (h1 : Nat.ble (nat_lit 2) n = true) (h2 : nat_lit 1 = n % (nat_lit 2)) :\n    MinFacHelper n (nat_lit 3)",
+   "contexto": [
+    "open Nat Qq Lean Meta",
+    "namespace Mathlib.Meta.NormNum"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Tactic",
+   "modulo": "Mathlib.Tactic.FieldSimp.Lemmas",
+   "nombre": "zpow'_add",
+   "cuerpo": "(a : α) (m n : ℤ) :\n    zpow' a (m + n) = zpow' a m * zpow' a n",
+   "contexto": [
+    "open List",
+    "namespace Mathlib.Tactic.FieldSimp",
+    "section zpow'",
+    "variable {α : Type*}",
+    "section",
+    "variable [GroupWithZero α]",
+    "open Classical in"
+   ],
+   "mods_nombres": [
+    "Mathlib.Algebra.GroupWithZero.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Testing",
+   "modulo": "Mathlib.Testing.Plausible.Functions",
+   "nombre": "List.applyId_cons",
+   "cuerpo": "[DecidableEq α] (xs : List (α × α)) (x y z : α) :\n    List.applyId ((y, z)::xs) x = if y = x then z else List.applyId xs x",
+   "contexto": [
+    "universe u v",
+    "variable {α : Type u} {β : Type v}",
+    "namespace Plausible",
+    "open _root_.List",
+    "namespace InjectiveFunction"
+   ],
+   "mods_nombres": [],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.Algebra.Module.ModuleTopology",
+   "nombre": "continuous_of_distribMulActionHomₑ",
+   "cuerpo": "{σ : R →* S} (hσ : Continuous σ) (φ : A →ₑ+[σ] B') :\n    Continuous φ",
+   "contexto": [
+    "namespace IsModuleTopology",
+    "section function",
+    "variable {R S : Type*} [τR : TopologicalSpace R] [τS : TopologicalSpace S] [Semiring R] [Semiring S]",
+    "variable {A : Type*} [AddCommMonoid A] [Module R A] [aA : TopologicalSpace A] [IsModuleTopology R A]",
+    "variable {B : Type*} [AddCommMonoid B] [Module R B] [aB : TopologicalSpace B]",
+    "variable {B' : Type*} [AddCommMonoid B'] [Module S B'] [aB' : TopologicalSpace B']"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Algebra.Module.ModuleTopology",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Algebra.Ring.Defs",
+    "Mathlib.Algebra.Group.Defs",
+    "Mathlib.Algebra.Module.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.Order.Rolle",
+   "nombre": "exists_Ioo_extr_on_Icc",
+   "cuerpo": "(hab : a < b) (hfc : ContinuousOn f (Icc a b)) (hfI : f a = f b) :\n    ∃ c ∈ Ioo a b, IsExtrOn f (Icc a b) c",
+   "contexto": [
+    "open Filter Set Topology",
+    "variable {X Y : Type*}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Filter",
+    "Mathlib.Order.Filter.Extr"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.GDelta.Basic",
+   "nombre": "IsGδ.biInter",
+   "cuerpo": "{s : Set ι} (hs : s.Countable) {t : ∀ i ∈ s, Set X}\n    (ht : ∀ (i) (hi : i ∈ s), IsGδ (t i hi)) : IsGδ (⋂ i ∈ s, t i ‹_›)",
+   "contexto": [
+    "noncomputable section",
+    "open Topology TopologicalSpace Filter Encodable Set",
+    "variable {X Y ι : Type*} {ι' : Sort*}",
+    "section IsGδ",
+    "variable [TopologicalSpace X]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Logic.Encodable.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.Path",
+   "nombre": "extend_trans_of_le_half",
+   "cuerpo": "(γ₁ : Path x y) (γ₂ : Path y z) {t : ℝ} (ht : t ≤ 1 / 2) :\n    (γ₁.trans γ₂).extend t = γ₁.extend (2 * t)",
+   "contexto": [
+    "noncomputable section",
+    "open Topology Filter unitInterval Set Function",
+    "variable {X Y : Type*} [TopologicalSpace X] [TopologicalSpace Y] {x y z : X} {ι : Type*}",
+    "namespace Path",
+    "variable (γ : Path x y)",
+    "open ContinuousMap"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.Defs.Basic",
+    "Mathlib.Topology.Path",
+    "Mathlib.Topology.ContinuousMap.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.DenseEmbedding",
+   "nombre": "dense_image",
+   "cuerpo": "(di : IsDenseInducing i) {s : Set α} : Dense (i '' s) ↔ Dense s",
+   "contexto": [
+    "noncomputable section",
+    "open Filter Set Topology",
+    "variable {α : Type*} {β : Type*} {γ : Type*} {δ : Type*}",
+    "namespace IsDenseInducing",
+    "variable [TopologicalSpace α] [TopologicalSpace β]",
+    "variable {i : α → β}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.DenseEmbedding",
+    "Mathlib.Topology.Defs.Basic"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.Algebra.Module.Cardinality",
+   "nombre": "continuum_le_cardinal_of_nontriviallyNormedField",
+   "cuerpo": "(𝕜 : Type*) [NontriviallyNormedField 𝕜] [CompleteSpace 𝕜] : 𝔠 ≤ #𝕜",
+   "contexto": [
+    "universe u v",
+    "open Filter Pointwise Set Function Cardinal",
+    "open scoped Cardinal Topology"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.SetTheory.Cardinal.Defs",
+    "Mathlib.Analysis.Normed.Field.Basic",
+    "Mathlib.Topology.UniformSpace.Cauchy"
+   ],
+   "faltan": [],
+   "estrato": "A"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.MetricSpace.Holder",
+   "nombre": "holderOnWith_one",
+   "cuerpo": "{C : ℝ≥0} {f : X → Y} {s : Set X} :\n    HolderOnWith C 1 f s ↔ LipschitzOnWith C f s",
+   "contexto": [
+    "variable {X Y Z : Type*}",
+    "open Filter Set Metric",
+    "open scoped NNReal ENNReal Topology",
+    "section EMetric",
+    "variable [PseudoEMetricSpace X] [PseudoEMetricSpace Y] [PseudoEMetricSpace Z]"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Data.NNReal.Defs",
+    "Mathlib.Data.ENNReal.Basic",
+    "Mathlib.Topology.EMetricSpace.Defs",
+    "Mathlib.Topology.MetricSpace.Holder",
+    "Mathlib.Topology.EMetricSpace.Lipschitz"
+   ],
+   "faltan": [
+    "Mathlib.Topology.MetricSpace.Holder"
+   ],
+   "estrato": "B"
+  },
+  {
+   "area": "Topology",
+   "modulo": "Mathlib.Topology.UniformSpace.Pi",
+   "nombre": "uniformContinuous_pi",
+   "cuerpo": "{β : Type*} [UniformSpace β] {f : β → ∀ i, α i} :\n    UniformContinuous f ↔ ∀ i, UniformContinuous fun x => f x i",
+   "contexto": [
+    "noncomputable section",
+    "open scoped Uniformity Topology",
+    "open Filter UniformSpace Function Set",
+    "universe u",
+    "variable {ι ι' β : Type*} (α : ι → Type u) [U : ∀ i, UniformSpace (α i)] [UniformSpace β]",
+    "variable {α}"
+   ],
+   "mods_nombres": [
+    "Mathlib.Order.Filter.Defs",
+    "Mathlib.Topology.UniformSpace.Defs"
+   ],
+   "faltan": [],
+   "estrato": "A"
   }
  ],
- "resumen": {
-  "fijo": {
-   "ok": 7,
-   "n": 24,
-   "seg": 477.5879683494568,
-   "mods": 72
-  },
-  "fijo+grafo": {
-   "ok": 7,
-   "n": 24,
-   "seg": 466.94779777526855,
-   "mods": 72
-  },
-  "fijo+regla4": {
-   "ok": 9,
-   "n": 24,
-   "seg": 492.81835556030273,
-   "mods": 94
-  }
- },
  "estrato_A": 141,
  "estrato_B": 62,
- "n_muestra_al_azar": 203,
- "prevalencia_B": 30.5,
- "balanceado": true,
  "fijo": [
   "Mathlib.Tactic",
   "Mathlib.Data.Real.Basic",
   "Mathlib.Data.Nat.Basic"
  ],
- "semilla": 20260911,
- "ejecutado": true,
- "roto": [
-  "el NULO solo elabora 7 de 12 en el estrato A, que por construccion cubre entero: los fallos no pueden ser de imports, son del enunciado mal recortado"
- ]
+ "ejecutado": false
 }
