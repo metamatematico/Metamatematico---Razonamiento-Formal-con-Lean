@@ -1,27 +1,27 @@
 {
- "medibles": 283,
- "confirmadas": 174,
- "invertidas": 50,
+ "medibles": 430,
+ "confirmadas": 261,
+ "invertidas": 67,
  "por_clase": {
   "curada": {
-   "medibles": 74,
-   "confirmadas": 58,
-   "invertidas": 6,
-   "independientes": 10,
-   "tasa_pct": 78.37837837837837,
-   "nulo_pct": 40.0999375390381,
-   "factor": 1.9545760713985014,
-   "pares_del_nulo": 1601
+   "medibles": 154,
+   "confirmadas": 112,
+   "invertidas": 11,
+   "independientes": 31,
+   "tasa_pct": 72.72727272727273,
+   "nulo_pct": 31.87200451085424,
+   "factor": 2.2818543685416754,
+   "pares_del_nulo": 7094
   },
   "jerarquia": {
-   "medibles": 200,
-   "confirmadas": 107,
-   "invertidas": 44,
-   "independientes": 49,
-   "tasa_pct": 53.5,
-   "nulo_pct": 24.440095672972383,
-   "factor": 2.189025800711744,
-   "pares_del_nulo": 4599
+   "medibles": 267,
+   "confirmadas": 140,
+   "invertidas": 56,
+   "independientes": 71,
+   "tasa_pct": 52.43445692883895,
+   "nulo_pct": 24.820846905537458,
+   "factor": 2.1125168342721206,
+   "pares_del_nulo": 6140
   },
   "cobertura": {
    "medibles": 9,
@@ -34,24 +34,29 @@
    "pares_del_nulo": 9
   }
  },
- "independientes": 59,
- "azar_pct": 34.07667757443542,
+ "independientes": 102,
+ "azar_pct": 29.921922483519566,
  "skills_envoltorio_categorico": [
   "cat-basics",
   "mathlib-algebra-category",
   "mathlib-order-category",
-  "mathlib-topology-category"
+  "mathlib-topology-category",
+  "module-theory"
  ],
  "sin_envoltorio": {
-  "medibles": 269,
-  "confirmadas": 160,
-  "invertidas": 50,
-  "azar_pct": 34.667588287042854
+  "medibles": 406,
+  "confirmadas": 243,
+  "invertidas": 66,
+  "azar_pct": 30.398277197057684
  },
  "lista_invertidas": [
   [
    "algebraic-number-theory",
    "arithmetic-geometry"
+  ],
+  [
+   "area-algebraictopology",
+   "simplex-category"
   ],
   [
    "area-analysis",
@@ -90,8 +95,20 @@
    "operator-theory"
   ],
   [
+   "area-analysis",
+   "real-analysis"
+  ],
+  [
+   "area-categorytheory",
+   "adjunctions"
+  ],
+  [
    "area-categorytheory",
    "functors"
+  ],
+  [
+   "area-categorytheory",
+   "limits"
   ],
   [
    "area-categorytheory",
@@ -108,6 +125,10 @@
   [
    "area-categorytheory",
    "mathlib-categorytheory-objectproperty"
+  ],
+  [
+   "area-categorytheory",
+   "nat-trans"
   ],
   [
    "area-combinatorics",
@@ -131,6 +152,10 @@
   ],
   [
    "area-geometry",
+   "complex-geometry"
+  ],
+  [
+   "area-geometry",
    "differential-geometry"
   ],
   [
@@ -144,6 +169,18 @@
   [
    "area-grouptheory",
    "mathlib-grouptheory-groupaction"
+  ],
+  [
+   "area-grouptheory",
+   "quotient-groups"
+  ],
+  [
+   "area-linearalgebra",
+   "bases-and-dimension"
+  ],
+  [
+   "area-linearalgebra",
+   "duality-theory"
   ],
   [
    "area-linearalgebra",
@@ -182,8 +219,16 @@
    "mathlib-linearalgebra-tensorproduct"
   ],
   [
+   "area-linearalgebra",
+   "tensor-products"
+  ],
+  [
    "area-measuretheory",
    "mathlib-measuretheory-outermeasure"
+  ],
+  [
+   "area-numbertheory",
+   "elementary-number-theory"
   ],
   [
    "area-numbertheory",
@@ -219,6 +264,10 @@
   ],
   [
    "area-settheory",
+   "cardinal-arithmetic"
+  ],
+  [
+   "area-settheory",
    "mathlib-data-fin"
   ],
   [
@@ -246,30 +295,82 @@
    "homological-algebra-cat"
   ],
   [
+   "module-theory",
+   "commutative-algebra"
+  ],
+  [
    "probability-theory",
    "ergodic-theory"
+  ],
+  [
+   "projective-varieties",
+   "schemes"
+  ],
+  [
+   "similarity-transformations",
+   "congruence-transformations"
+  ],
+  [
+   "smooth-manifolds",
+   "differential-forms"
+  ],
+  [
+   "zfc-classes",
+   "zfc-sets"
   ]
  ],
  "lista_independientes": [
   [
+   "affine-varieties",
+   "projective-varieties"
+  ],
+  [
    "algebraic-geometry",
    "homological-algebra-cat"
+  ],
+  [
+   "algebraic-geometry",
+   "projective-spectrum"
   ],
   [
    "algebraic-topology",
    "derived-category"
   ],
   [
+   "algebraic-topology",
+   "simplex-category"
+  ],
+  [
    "area-algebraicgeometry",
    "mathlib-algebraicgeometry-ellipticcurve"
+  ],
+  [
+   "area-algebraicgeometry",
+   "projective-spectrum"
   ],
   [
    "area-algebraictopology",
    "algebraic-topology"
   ],
   [
+   "area-algebraictopology",
+   "fundamental-group"
+  ],
+  [
    "area-analysis",
    "complex-analysis"
+  ],
+  [
+   "area-analysis",
+   "conformal-maps"
+  ],
+  [
+   "area-analysis",
+   "differentiation"
+  ],
+  [
+   "area-analysis",
+   "holomorphic-functions"
   ],
   [
    "area-analysis",
@@ -296,6 +397,10 @@
    "mathlib-data-seq"
   ],
   [
+   "area-analysis",
+   "upper-half-plane"
+  ],
+  [
    "area-categorytheory",
    "abelian-categories"
   ],
@@ -306,6 +411,10 @@
   [
    "area-categorytheory",
    "homological-algebra-cat"
+  ],
+  [
+   "area-categorytheory",
+   "kan-extensions"
   ],
   [
    "area-categorytheory",
@@ -348,8 +457,24 @@
    "partitions"
   ],
   [
+   "area-computability",
+   "finite-automata"
+  ],
+  [
+   "area-computability",
+   "formal-languages"
+  ],
+  [
+   "area-computability",
+   "turing-machines"
+  ],
+  [
    "area-dynamics",
    "ergodic-theory"
+  ],
+  [
+   "area-dynamics",
+   "flows"
   ],
   [
    "area-fieldtheory",
@@ -362,6 +487,10 @@
   [
    "area-geometry",
    "mathlib-geometry-ringedspace"
+  ],
+  [
+   "area-geometry",
+   "sheafed-space-complexes"
   ],
   [
    "area-grouptheory",
@@ -384,8 +513,16 @@
    "triangle-geometry"
   ],
   [
+   "area-modeltheory",
+   "semilinear-sets"
+  ],
+  [
    "area-numbertheory",
    "algebraic-number-theory"
+  ],
+  [
+   "area-numbertheory",
+   "infinite-places"
   ],
   [
    "area-numbertheory",
@@ -405,11 +542,23 @@
   ],
   [
    "area-numbertheory",
+   "modular-forms"
+  ],
+  [
+   "area-numbertheory",
    "number-fields"
   ],
   [
    "area-numbertheory",
    "p-adic-valuations"
+  ],
+  [
+   "area-numbertheory",
+   "riemann-zeta"
+  ],
+  [
+   "area-numbertheory",
+   "slash-invariant-forms"
   ],
   [
    "area-probability",
@@ -418,6 +567,18 @@
   [
    "area-probability",
    "stochastic-processes"
+  ],
+  [
+   "area-ringtheory",
+   "derivations"
+  ],
+  [
+   "area-ringtheory",
+   "generating-functions"
+  ],
+  [
+   "area-ringtheory",
+   "localization"
   ],
   [
    "area-ringtheory",
@@ -453,19 +614,91 @@
   ],
   [
    "area-settheory",
+   "hereditarily-finite-sets"
+  ],
+  [
+   "area-settheory",
    "mathlib-settheory-zfc"
+  ],
+  [
+   "area-settheory",
+   "zfc-sets"
+  ],
+  [
+   "complex-analysis",
+   "upper-half-plane"
+  ],
+  [
+   "ergodic-theory",
+   "flows"
+  ],
+  [
+   "ergodic-theory",
+   "rotation-number"
+  ],
+  [
+   "euclidean-geometry",
+   "collinearity-coplanarity"
   ],
   [
    "euclidean-geometry",
    "projective-geometry"
   ],
   [
+   "euclidean-geometry",
+   "similarity-transformations"
+  ],
+  [
    "functors",
    "operator-theory"
   ],
   [
+   "fundamental-group",
+   "covering-spaces"
+  ],
+  [
+   "holomorphic-functions",
+   "conformal-maps"
+  ],
+  [
+   "homological-algebra",
+   "sheafed-space-complexes"
+  ],
+  [
+   "ideals-quotient-rings",
+   "localization"
+  ],
+  [
    "ideals-quotient-rings",
    "unique-factorization"
+  ],
+  [
+   "model-theory",
+   "semilinear-sets"
+  ],
+  [
+   "module-theory",
+   "exact-sequences"
+  ],
+  [
+   "module-theory",
+   "homological-algebra"
+  ],
+  [
+   "module-theory",
+   "lie-algebras"
+  ],
+  [
+   "module-theory",
+   "projective-injective-modules"
+  ],
+  [
+   "module-theory",
+   "tensor-products"
+  ],
+  [
+   "number-fields",
+   "ideal-class-group"
   ],
   [
    "number-fields",
@@ -486,6 +719,14 @@
   [
    "stochastic-processes",
    "markov-chains"
+  ],
+  [
+   "turing-machines",
+   "finite-automata"
+  ],
+  [
+   "zfc-sets",
+   "hereditarily-finite-sets"
   ]
  ]
 }

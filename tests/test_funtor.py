@@ -159,6 +159,9 @@ class TestLasClasesDeAristaNoSeMezclan:
         jerarquia  221: area->mathlib, area->skill, skill->area
         cobertura  125, todas skill -> mathlib-*        AFIRMA COBERTURA
 
+    (Hoy son 240 / 251 / 125: `jerarquia` crecio 30 al dejar de filtrar el
+    mapa de modulos por la marca del grafo. `curada` no se movio.)
+
     Separadas por clase (scripts/funtor_dag_mathlib.py, seccion 6), la fila
     `curada` da 74 medibles / 58 confirmadas / 6 invertidas: los MISMOS
     numeros de antes. El 78,1 % nunca fue obsoleto; solo estaba escondido
@@ -211,7 +214,15 @@ class TestLasClasesDeAristaNoSeMezclan:
     def test_la_composicion_por_clase_no_ha_cambiado(self, deps):
         import collections
         c = collections.Counter(self._clase(m) for m in deps)
-        assert dict(c) == {"curada": 240, "jerarquia": 221, "cobertura": 125}, (
+        # DOS CAMBIOS, en este orden:
+        #   221 -> 251 `jerarquia`, al quitar el filtro por marca del mapa de
+        #     modulos (ver test_interpretacion.py::
+        #     test_quien_da_nombre_al_prompt_tiene_que_dar_modulo): 32
+        #     etiquetas mas conocen su modulo, luego 32 mas se enganchan a su
+        #     puerta de area. `curada` no se movio.
+        #   240 -> 271 `curada` y 251 -> 288 `jerarquia`, por la TANDA DE
+        #     CURACION: 31 nodos nuevos con su padre curado y su puerta.
+        assert dict(c) == {"curada": 271, "jerarquia": 288, "cobertura": 125}, (
             "la composicion por clase cambio a %s. Vuelve a correr "
             "scripts/funtor_dag_mathlib.py: las cifras por clase del README "
             "y de los tres artefactos pueden haber dejado de valer." % dict(c))
@@ -238,9 +249,27 @@ class TestLasClasesDeAristaNoSeMezclan:
             assert cob["nulo_pct"] > 95, (
                 "el nulo de `cobertura` bajo a %.1f %%: ahora SI discrimina y "
                 "habria que publicarla como evidencia." % cob["nulo_pct"])
+        # 58/74 -> 92/113 -> 112/154, en dos pasos:
+        #
+        #   1. Quitar el filtro por marca del mapa de modulos hizo MEDIBLE mas
+        #      grafo (mas extremos saben su modulo). La tasa subio: 78,4 % ->
+        #      81,4 %.
+        #   2. La TANDA DE CURACION metio 31 nodos con su padre. La tasa BAJA
+        #      —81,4 % -> 72,7 %— y el FACTOR SUBE —2,07x -> 2,28x—, porque el
+        #      nulo emparejado cae del 39,4 % al 31,9 %: las 41 aristas nuevas
+        #      medibles son afirmaciones mas dificiles. De ellas 20 confirman,
+        #      4 salen invertidas y 17 independientes.
+        #
+        # LAS INVERTIDAS NO SON ERRORES. Dos son aristas entre nodos de la
+        # tanda y en ambas el DAG mide ORDEN DE CONSTRUCCION, no
+        # especializacion: Similarity importa Congruence (Mathlib define el
+        # caso de razon 1 antes) y Class importa ZFC.Basic (Class = Set ZFSet,
+        # asi que necesita ZFSet primero). El grafo va del general al
+        # especifico, que es su convencion. Si alguien usa el DAG de oraculo
+        # para completar el grafo, ESTAS DOS LAS VOLTEARIA Y SE EQUIVOCARIA.
         cur = d["curada"]
-        assert cur["medibles"] == 74 and cur["confirmadas"] == 58, (
-            "la fila curada cambio a %d/%d; el 78,4 %% del README ya no vale"
+        assert cur["medibles"] == 154 and cur["confirmadas"] == 112, (
+            "la fila curada cambio a %d/%d; el 72,7 %% del README ya no vale"
             % (cur["confirmadas"], cur["medibles"]))
         assert 1.5 < cur["factor"] < 2.4, (
             "el factor de las curadas es %.2fx, fuera del rango medido"

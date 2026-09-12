@@ -129,17 +129,21 @@ def main(k):
     Nucleo._load_foundational_skills(n)
     g = n._graph
 
-    def ofrecidos(skills):
+    def ofrecidos(skills, consulta=""):
         """Misma regla que core._nombres_mathlib: k plazas CON NOMBRES.
 
         Si el medidor y el runtime no llenan las plazas igual, la cifra no
-        habla del sistema sino del medidor.
+        habla del sistema sino del medidor. Por eso la PUERTA
+        —`_evidencia_declarada`: sin una keyword declarada no se gasta plaza—
+        se aplica aqui llamando al metodo del runtime, no reimplementandolo.
         """
         out = set()
         llenas = 0
         for s in skills:
             if llenas >= k:
                 break
+            if consulta and not Nucleo._evidencia_declarada(n, s, consulta):
+                continue
             piezas = [p.strip() for p in
                       re.split(r"[,+]", nombres_de_trabajo(s) or "") if p.strip()]
             if not piezas:
@@ -188,7 +192,7 @@ def main(k):
             if not oro:
                 continue
             if etiqueta == "lexico":
-                ofr = ofrecidos(Nucleo._match_skills_to_query(n, nl, g))
+                ofr = ofrecidos(Nucleo._match_skills_to_query(n, nl, g), nl)
             elif etiqueta == "lexico+puerta":
                 # LA PUERTA SOLO ACTUA DONDE EL LEXICO CALLA, igual que en
                 # `_find_relevant_context`. Aqui se replica ese camino para
@@ -200,7 +204,7 @@ def main(k):
                     puertas = [a for a in areas_de(nl) if g.get_skill(a)]
                     hijos = [h for a in puertas for h in g.dependents(a)]
                     m = (puertas + hijos)[:8]
-                ofr = ofrecidos(m)
+                ofr = ofrecidos(m, nl)
             elif etiqueta == "semantico":
                 ofr = ofrecidos(sem[idx])
             else:

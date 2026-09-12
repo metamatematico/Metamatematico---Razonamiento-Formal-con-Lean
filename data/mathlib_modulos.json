@@ -29,6 +29,13 @@
     "homological-algebra-cat": [
       "Mathlib.CategoryTheory.Abelian.Basic"
     ],
+    "homology": [
+      "Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex"
+    ],
+    "limits": [
+      "Mathlib.CategoryTheory.Limits.Cones",
+      "Mathlib.CategoryTheory.Limits.HasLimits"
+    ],
     "operator-theory": [
       "Mathlib.Analysis.CStarAlgebra.Classes",
       "Mathlib.Topology.Algebra.Module.LinearMap"
@@ -48,6 +55,12 @@
       "Mathlib.Analysis.Analytic.Basic",
       "Mathlib.Analysis.Calculus.FDeriv.Defs"
     ],
+    "complex-geometry": [
+      "Mathlib.Geometry.Manifold.IsManifold.Basic"
+    ],
+    "conditional-expectation": [
+      "Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic"
+    ],
     "descriptive-set-theory": [
       "Mathlib.MeasureTheory.Constructions.Polish.Basic",
       "Mathlib.Topology.MetricSpace.Polish"
@@ -55,6 +68,9 @@
     "differential-geometry": [
       "Mathlib.Geometry.Manifold.ContMDiff.Defs",
       "Mathlib.Geometry.Manifold.IsManifold.Basic"
+    ],
+    "elementary-number-theory": [
+      "Mathlib.Data.Nat.Prime.Defs"
     ],
     "ergodic-theory": [
       "Mathlib.Dynamics.Ergodic.Ergodic",
@@ -98,12 +114,19 @@
     "probability-theory": [
       "Mathlib.Probability.Kernel.Defs"
     ],
+    "random-variables": [
+      "Mathlib.MeasureTheory.Function.AEEqFun",
+      "Mathlib.MeasureTheory.MeasurableSpace.Defs",
+      "Mathlib.Probability.Kernel.Defs"
+    ],
     "solvable-groups": [
       "Mathlib.GroupTheory.Solvable"
     ],
     "abelian-groups": [
-      "Mathlib.Algebra.Group.Defs",
-      "Mathlib.Algebra.Group.Subgroup.Defs"
+      "Mathlib.Algebra.Group.Defs"
+    ],
+    "adjunctions": [
+      "Mathlib.CategoryTheory.Adjunction.Basic"
     ],
     "banach-spaces": [
       "Mathlib.Analysis.Normed.Module.Basic",
@@ -113,11 +136,26 @@
       "Mathlib.LinearAlgebra.BilinearMap",
       "Mathlib.LinearAlgebra.QuadraticForm.Basic"
     ],
+    "cardinal-arithmetic": [
+      "Mathlib.Data.Set.Countable",
+      "Mathlib.SetTheory.Cardinal.Defs",
+      "Mathlib.SetTheory.Cardinal.Finite"
+    ],
     "cat-basics": [
       "Mathlib.CategoryTheory.Category.Basic"
     ],
+    "character-theory": [
+      "Mathlib.RepresentationTheory.Character"
+    ],
+    "cohomology": [
+      "Mathlib.Algebra.Homology.HomologicalComplex",
+      "Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex"
+    ],
     "compactness": [
       "Mathlib.Topology.Defs.Filter"
+    ],
+    "conformal-maps": [
+      "Mathlib.Analysis.Normed.Operator.Conformal"
     ],
     "connectedness": [
       "Mathlib.Topology.Connected.Basic"
@@ -125,12 +163,28 @@
     "covering-spaces": [
       "Mathlib.Topology.Covering.Basic"
     ],
+    "differential-forms": [
+      "Mathlib.Topology.Algebra.Module.Alternating.Basic"
+    ],
     "differential-topology": [
       "Mathlib.Geometry.Manifold.IsManifold.Basic"
+    ],
+    "differentiation": [
+      "Mathlib.Analysis.Calculus.Deriv.Basic",
+      "Mathlib.Analysis.Calculus.FDeriv.Defs"
     ],
     "divisibility-gcd": [
       "Mathlib.Algebra.GCDMonoid.Basic",
       "Mathlib.Algebra.GroupWithZero.Associated"
+    ],
+    "duality-theory": [
+      "Mathlib.Data.Opposite",
+      "Mathlib.LinearAlgebra.Dual.Defs"
+    ],
+    "bases-and-dimension": [
+      "Mathlib.LinearAlgebra.Basis.Defs",
+      "Mathlib.LinearAlgebra.Dimension.Finrank",
+      "Mathlib.LinearAlgebra.LinearIndependent.Defs"
     ],
     "eigen-theory": [
       "Mathlib.Algebra.Module.LinearMap.End",
@@ -153,12 +207,25 @@
     "free-groups": [
       "Mathlib.GroupTheory.FreeGroup.Basic"
     ],
+    "fundamental-group": [
+      "Mathlib.AlgebraicTopology.FundamentalGroupoid.Basic",
+      "Mathlib.AlgebraicTopology.FundamentalGroupoid.FundamentalGroup"
+    ],
+    "generating-functions": [
+      "Mathlib.RingTheory.PowerSeries.Basic"
+    ],
+    "graph-coloring": [
+      "Mathlib.Combinatorics.SimpleGraph.Coloring"
+    ],
     "graph-theory": [
       "Mathlib.Combinatorics.SimpleGraph.Basic"
     ],
     "group-actions": [
       "Mathlib.Algebra.Group.Action.Defs",
       "Mathlib.CategoryTheory.Action.Basic"
+    ],
+    "group-homomorphisms": [
+      "Mathlib.Algebra.Group.Hom.Defs"
     ],
     "harmonic-analysis": [
       "Mathlib.Topology.Algebra.PontryaginDual"
@@ -172,16 +239,31 @@
       "Mathlib.Analysis.InnerProductSpace.Defs",
       "Mathlib.Topology.UniformSpace.Cauchy"
     ],
+    "holomorphic-functions": [
+      "Mathlib.Analysis.Analytic.Basic"
+    ],
+    "ideal-class-group": [
+      "Mathlib.RingTheory.ClassGroup"
+    ],
     "inner-product-spaces": [
       "Mathlib.Analysis.InnerProductSpace.Defs"
     ],
+    "kan-extensions": [
+      "Mathlib.CategoryTheory.Functor.KanExtension.Basic"
+    ],
     "large-cardinals": [
       "Mathlib.SetTheory.Cardinal.Regular"
+    ],
+    "lebesgue-integration": [
+      "Mathlib.MeasureTheory.Integral.Bochner.Basic"
     ],
     "linear-algebra": [
       "Mathlib.Algebra.Module.Defs",
       "Mathlib.Algebra.Module.LinearMap.Defs",
       "Mathlib.LinearAlgebra.Matrix.Defs"
+    ],
+    "localization": [
+      "Mathlib.RingTheory.Localization.Defs"
     ],
     "markov-chains": [
       "Mathlib.Probability.Kernel.Defs"
@@ -201,9 +283,15 @@
       "Mathlib.Data.ZMod.Basic",
       "Mathlib.Data.ZMod.Defs"
     ],
+    "module-theory": [
+      "Mathlib.Algebra.Category.ModuleCat.Basic"
+    ],
     "monads": [
       "Mathlib.CategoryTheory.Monad.Basic",
       "Mathlib.CategoryTheory.Monad.Kleisli"
+    ],
+    "nat-trans": [
+      "Mathlib.CategoryTheory.NatTrans"
     ],
     "noetherian-rings": [
       "Mathlib.RingTheory.Noetherian.Defs"
@@ -217,17 +305,40 @@
       "Mathlib.Combinatorics.Enumerative.Partition.Basic",
       "Mathlib.Combinatorics.Young.YoungDiagram"
     ],
+    "polynomial-rings": [
+      "Mathlib.Algebra.MvPolynomial.Basic",
+      "Mathlib.Algebra.Polynomial.Basic"
+    ],
     "projective-geometry": [
       "Mathlib.LinearAlgebra.Projectivization.Basic"
     ],
     "projective-injective-modules": [
+      "Mathlib.Algebra.Module.Injective",
       "Mathlib.Algebra.Module.Projective",
       "Mathlib.CategoryTheory.Preadditive.Injective.Basic"
+    ],
+    "projective-varieties": [
+      "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Scheme"
+    ],
+    "quotient-groups": [
+      "Mathlib.GroupTheory.QuotientGroup.Defs"
+    ],
+    "real-analysis": [
+      "Mathlib.Data.Real.Basic",
+      "Mathlib.NumberTheory.Real.Irrational"
     ],
     "representation-theory": [
       "Mathlib.RepresentationTheory.Basic",
       "Mathlib.RepresentationTheory.FDRep",
       "Mathlib.RepresentationTheory.Rep"
+    ],
+    "riemann-integration": [
+      "Mathlib.Analysis.BoxIntegral.Basic",
+      "Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"
+    ],
+    "riemann-zeta": [
+      "Mathlib.NumberTheory.LSeries.Basic",
+      "Mathlib.NumberTheory.LSeries.RiemannZeta"
     ],
     "riemannian-geometry": [
       "Mathlib.Geometry.Manifold.Riemannian.Basic",
@@ -245,12 +356,21 @@
       "Mathlib.Topology.Separation.Basic",
       "Mathlib.Topology.Separation.Hausdorff"
     ],
+    "sequences-series": [
+      "Mathlib.Order.Filter.AtTopBot.Defs",
+      "Mathlib.Order.Filter.Defs",
+      "Mathlib.Topology.UniformSpace.Cauchy"
+    ],
     "smooth-manifolds": [
       "Mathlib.Geometry.Manifold.IsManifold.Basic"
     ],
     "spectral-theory": [
       "Mathlib.Algebra.Algebra.Spectrum.Basic",
       "Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Unital"
+    ],
+    "splitting-fields": [
+      "Mathlib.FieldTheory.SplittingField.Construction",
+      "Mathlib.FieldTheory.SplittingField.IsSplittingField"
     ],
     "stochastic-processes": [
       "Mathlib.Probability.Process.Adapted",
@@ -262,6 +382,9 @@
     "sylow-theory": [
       "Mathlib.GroupTheory.Sylow"
     ],
+    "tensor-products": [
+      "Mathlib.LinearAlgebra.TensorProduct.Defs"
+    ],
     "topos-theory": [
       "Mathlib.CategoryTheory.Sites.Sheaf",
       "Mathlib.CategoryTheory.Topos.Classifier"
@@ -269,14 +392,121 @@
     "triangle-geometry": [
       "Mathlib.LinearAlgebra.AffineSpace.Simplex.Basic"
     ],
+    "turing-machines": [
+      "Mathlib.Computability.PostTuringMachine"
+    ],
+    "ultraproducts": [
+      "Mathlib.Order.Filter.Germ.Basic"
+    ],
     "unique-factorization": [
       "Mathlib.RingTheory.UniqueFactorizationDomain.Defs"
     ],
     "derived-category": [
       "Mathlib.Algebra.Homology.DerivedCategory.Basic"
     ],
+    "sheafed-space-complexes": [
+      "Mathlib.Geometry.RingedSpace.SheafedSpace"
+    ],
     "graded-objects": [
       "Mathlib.CategoryTheory.GradedObject"
+    ],
+    "limits-continuity": [
+      "Mathlib.Order.Filter.Defs",
+      "Mathlib.Topology.Defs.Basic",
+      "Mathlib.Topology.Defs.Filter"
+    ],
+    "finite-automata": [
+      "Mathlib.Computability.DFA"
+    ],
+    "formal-languages": [
+      "Mathlib.Computability.Language"
+    ],
+    "partial-recursive-functions": [
+      "Mathlib.Computability.Partrec"
+    ],
+    "primitive-recursive-functions": [
+      "Mathlib.Computability.Primrec.Basic"
+    ],
+    "partial-functions": [
+      "Mathlib.Data.PFun"
+    ],
+    "different-ideal": [
+      "Mathlib.RingTheory.DedekindDomain.Different"
+    ],
+    "derivations": [
+      "Mathlib.RingTheory.Derivation.Basic"
+    ],
+    "homogeneous-ideals": [
+      "Mathlib.RingTheory.GradedAlgebra.Homogeneous.Ideal"
+    ],
+    "homogeneous-localization": [
+      "Mathlib.RingTheory.GradedAlgebra.HomogeneousLocalization"
+    ],
+    "zfc-classes": [
+      "Mathlib.SetTheory.ZFC.Class"
+    ],
+    "zfc-sets": [
+      "Mathlib.SetTheory.ZFC.Basic"
+    ],
+    "hereditarily-finite-sets": [
+      "Mathlib.SetTheory.Lists"
+    ],
+    "similarity-transformations": [
+      "Mathlib.Topology.MetricSpace.Similarity"
+    ],
+    "congruence-transformations": [
+      "Mathlib.Topology.MetricSpace.Congruence"
+    ],
+    "holder-continuity": [
+      "Mathlib.Topology.MetricSpace.Holder"
+    ],
+    "lie-algebras": [
+      "Mathlib.Algebra.Lie.Basic"
+    ],
+    "lie-algebra-morphisms": [
+      "Mathlib.Algebra.Lie.Basic"
+    ],
+    "character-modules": [
+      "Mathlib.Algebra.Module.CharacterModule"
+    ],
+    "slash-invariant-forms": [
+      "Mathlib.NumberTheory.ModularForms.SlashInvariantForms"
+    ],
+    "modular-forms": [
+      "Mathlib.NumberTheory.ModularForms.Basic"
+    ],
+    "infinite-places": [
+      "Mathlib.NumberTheory.NumberField.InfinitePlace.Basic"
+    ],
+    "simplex-category": [
+      "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
+    ],
+    "unit-circle": [
+      "Mathlib.Analysis.Complex.Circle"
+    ],
+    "upper-half-plane": [
+      "Mathlib.Analysis.Complex.UpperHalfPlane.Basic"
+    ],
+    "rotation-number": [
+      "Mathlib.Dynamics.Circle.RotationNumber.TranslationNumber"
+    ],
+    "flows": [
+      "Mathlib.Dynamics.Flow"
+    ],
+    "lie-groups": [
+      "Mathlib.Geometry.Manifold.Algebra.LieGroup"
+    ],
+    "left-invariant-derivations": [
+      "Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation"
+    ],
+    "projective-spectrum": [
+      "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Topology"
+    ],
+    "collinearity-coplanarity": [
+      "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional"
+    ],
+    "semilinear-sets": [
+      "Mathlib.ModelTheory.Arithmetic.Presburger.Semilinear.Defs"
     ],
     "mathlib-algebra-order": [
       "Mathlib.Algebra.Order.GroupWithZero.Unbundled.Basic"
@@ -720,5 +950,6 @@
       "Mathlib.Topology.Basic"
     ]
   },
-  "nombres": 34723
+  "nombres": 34723,
+  "sin_modulo": []
 }

@@ -32,6 +32,33 @@ RAIZ = "E:/Metamatematico"
 MATHLIB = RAIZ + "/.lake/packages/mathlib/Mathlib"
 SALIDA = RAIZ + "/data/mathlib_modulos.json"
 
+#: MODULOS PUESTOS A MANO, y solo cuando el nombre EXISTE y el indice no lo ve.
+#:
+#: `DECL` reconoce `structure/def/abbrev/class/inductive` con el nombre pegado
+#: a la palabra clave. Se le escapan declaraciones que Mathlib escribe de otra
+#: forma —`MeasureTheory.integral` es la integral de Bochner, definida con la
+#: firma partida en varias lineas— y entonces el nodo se queda sin nada que
+#: importar aunque su nombre sea perfectamente bueno: `#check` los acepta con
+#: Mathlib entero.
+#:
+#: Es curacion, no parche: cada uno lo decidio el autor en la hoja, mirando
+#: cual de los modulos candidatos usan los enunciados. NO SE USA para tapar un
+#: nombre que no existe —para eso la decision es reescribir el nombre o
+#: quitarlo— y `main()` comprueba contra el disco que el fichero este.
+MODULO_A_MANO = {
+    "conditional-expectation": [
+        "Mathlib.MeasureTheory.Function.ConditionalExpectation.Basic"],
+    # La de Bochner, no la de Lebesgue: los enunciados usan la primera. La de
+    # Lebesgue a valores en [0, inf] es `MeasureTheory.lintegral`, en
+    # Mathlib.MeasureTheory.Integral.Lebesgue.Basic.
+    "lebesgue-integration": [
+        "Mathlib.MeasureTheory.Integral.Bochner.Basic"],
+    # `AlgebraicGeometry.Proj` es correcto y no hay mejor: Mathlib no tiene
+    # «variedad proyectiva», solo el Proj de un algebra graduada.
+    "projective-varieties": [
+        "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Scheme"],
+}
+
 DECL = re.compile(
     r"^\s*(?:@\[[^\]]*\]\s*)?(?:private\s+|protected\s+|noncomputable\s+)*"
     r"(?:structure|def|abbrev|class|inductive)\s+([A-Za-z_][\w.']*)")
@@ -207,33 +234,69 @@ def main():
     # `GrpCat`, la categoria — correcta como identidad y pesima como import,
     # porque `Algebra.Category.Grp.Basic` esta arriba del DAG de Mathlib. Lo
     # que hay que importar para hablar de grupos es `Subgroup`, `MonoidHom`.
-    from nucleo.graph.interpretacion import (
-        VEREDICTO, VERTICES, nombres_de_trabajo)
+    #
+    # AQUI NO SE FILTRA POR LA MARCA, Y ANTES SI.  Habia un
+    # `if e.marca not in VERTICES: continue`, y era un error de tipo.
+    #
+    # La marca contesta «¿esta etiqueta es un objeto o una flecha DEL GRAFO?».
+    # Este mapa contesta «¿en que fichero de Mathlib se declara este nombre?».
+    # La segunda pregunta no depende de la primera: `TensorProduct` vive en
+    # `Mathlib.LinearAlgebra.TensorProduct` tanto si `tensor-products` es
+    # vertice como si es arista. Y que puede ser vertice —en la categoria de
+    # funtores— esta demostrado en `FlechasComoObjetos.lean`.
+    #
+    # LO QUE COSTABA, medido: las 28 etiquetas marcadas `F` SI inyectan su
+    # nombre en el prompt (`nombres_de_trabajo` no mira la marca), y el mapa
+    # les negaba el modulo. O sea: el sistema le ofrecia `TensorProduct` al
+    # modelo y luego no tenia como importarlo. De las 28, DIEZ resuelven a un
+    # modulo que la cabecera fija NO alcanza transitivamente —character-theory,
+    # cohomology, conformal-maps, fundamental-group, generating-functions,
+    # graph-coloring, homology, ideal-class-group, kan-extensions,
+    # random-variables—; las otras 15 ya se alcanzaban y 3 no resuelven nombre.
+    # Diez casos de `unknown identifier` garantizado, por un filtro que
+    # contestaba a otra pregunta.
+    from nucleo.graph.interpretacion import VEREDICTO, nombres_de_trabajo
     invalidos = {"EuclideanGeometry", "Ideal.Quotient", "QuotientGroup",
                  "RelCWComplex", "Turing.TM0", "Turing.TM1"}
+    # SE ANOTA LA CAUSA, porque el hueco es curacion y quien lo cure
+    # necesita saber por que falla cada uno. Antes los nombres de `invalidos`
+    # se saltaban en silencio y no aparecian en ninguna cuenta.
     por_skill, sin_modulo = {}, []
     for k, e in VEREDICTO.items():
         nombres = nombres_de_trabajo(k)
-        if e.marca not in VERTICES or not nombres:
+        if not nombres:
             continue
-        mods = []
+        mods, fallos = [], []
         for pieza in re.split(r"[,+]", nombres):
             n = pieza.strip()
-            if not n or n in invalidos:
+            if not n:
+                continue
+            if n in invalidos:
+                fallos.append((n, "en la lista `invalidos` del mapa"))
                 continue
             m = mapa.get(n)
             if m:
                 mods.append(m)
             else:
-                sin_modulo.append((k, n))
+                fallos.append((n, "el indice de Mathlib no lo declara"))
+        # la curacion a mano entra ANTES de dar el hueco por perdido
+        mods.extend(MODULO_A_MANO.get(k, []))
         if mods:
             por_skill[k] = sorted(dict.fromkeys(mods))[:3]
+        else:
+            # los que se quedan SIN NINGUN modulo: estos son los que rompen
+            # consultas, porque su nombre si llega al prompt
+            for n, causa in fallos:
+                sin_modulo.append({"skill": k, "marca": e.marca,
+                                   "nombre": n, "causa": causa})
 
     print("\n=== COBERTURA SOBRE EL GRAFO ===")
     print("  skills con al menos un modulo: %d" % len(por_skill))
-    print("  nombres validos sin modulo   : %d" % len(sin_modulo))
-    for k, n in sin_modulo[:8]:
-        print("     %-28s %s" % (k, n))
+    huerfanas = sorted({x["skill"] for x in sin_modulo})
+    print("  dan nombre y NO dan modulo   : %d" % len(huerfanas))
+    for x in sin_modulo:
+        print("     %-28s %-2s %-40s %s"
+              % (x["skill"], x["marca"], x["nombre"], x["causa"]))
 
     print("\n  ejemplos:")
     for k in list(por_skill)[:6]:
@@ -278,7 +341,11 @@ def main():
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
     io.open(SALIDA, "w", encoding="utf-8").write(json.dumps(
-        {"por_skill": por_skill, "nombres": len(mapa)},
+        {"por_skill": por_skill, "nombres": len(mapa),
+         # QUEDA ESCRITO PARA QUE SE PUEDA CURAR. Cada entrada es una etiqueta
+         # que inyecta su nombre en el prompt y no tiene con que importarlo:
+         # `scripts/hoja_de_curacion.py` las publica como tarea pendiente.
+         "sin_modulo": sin_modulo},
         ensure_ascii=False, indent=2))
     print("\n  skills en el mapa: %d  (%d por nombre verificado + %d por modulo propio)"
           % (len(por_skill), len(por_skill) - len(nuevos), len(nuevos)))

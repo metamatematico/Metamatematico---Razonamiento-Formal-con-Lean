@@ -19,10 +19,68 @@ tratar igual:
     C   objetos con morfismos canonicos          -> VERTICE
     S   propiedad que recorta una subcategoria   -> VERTICE (y la inclusion es arista)
         plena de un ambiente
-    F   un funtor, una construccion o una        -> ARISTA, no vertice
+    F   un funtor, una construccion o una        -> ARISTA *en este ambiente*
         clase de flechas
     O   un objeto individual concreto            -> vertice degenerado
     T   ni objetos ni flechas                    -> fuera
+
+LA MARCA `F` ES RELATIVA AL AMBIENTE  (verificado en Lean)
+----------------------------------------------------------
+Este cuadro decia antes «F -> ARISTA, NO VERTICE». Dicho asi es FALSO como
+principio, y esta demostrado que lo es:
+
+    MetamathProver/CategoryFoundations/FlechasComoObjetos.lean   (0 sorry)
+
+Ahi se prueba que las flechas de `C` son EXACTAMENTE los objetos de `Arrow C`
+—una biyeccion `(Σ X Y, X ⟶ Y) ≃ Arrow C`, con las dos composiciones `rfl`— y
+que los objetos de `C ⥤ D` son los funtores, con transformaciones naturales
+por morfismos. La generalizacion de ambos casos es la categoria coma:
+`Arrow C = Comma (𝟭 C) (𝟭 C)` cierra por `rfl`.
+
+O sea: «ser flecha» no clasifica a la cosa, clasifica al par (cosa, ambiente).
+`homology` es un morfismo en la categoria de complejos y es un objeto en la
+categoria de funtores donde vive; las dos lecturas son ciertas y no se
+contradicen, porque hablan de categorias distintas.
+
+Lo que la marca `F` dice de verdad, y que hasta ahora no estaba declarado, es:
+
+    EN EL AMBIENTE DE ESTE GRAFO —cuyos objetos son conceptos matematicos y
+    cuyas flechas son dependencias y traducciones— esta etiqueta nombra una
+    flecha, no un objeto.
+
+Eso es una afirmacion sobre ESTE grafo, no sobre las matematicas, y por eso
+sobrevive a la correccion. Es el mismo aviso que ya esta escrito mas abajo
+para los colimites («el morfismo NO esta determinado por los objetos»): el
+ambiente manda, y hasta ahora el grafo no lo declaraba.
+
+DONDE MUERDE LA MARCA `F`, Y DONDE MORDIA MAL
+---------------------------------------------
+Buscar los consumidores dio una sorpresa, asi que queda escrito.
+
+BIEN, y se queda: `complexity.py::_es_objeto` impide que una etiqueta `F` sea
+apice o pata de un patron de colimite. Ahi la pregunta SI es «¿esto es un
+objeto de este grafo?», que es justo lo que la marca contesta. No las borra del
+grafo: 26 de las 28 siguen siendo nodos vivos y tocan 134 de los 1356
+morfismos.
+
+MAL, y se quito: `scripts/mapa_modulos_mathlib.py` filtraba por `VERTICES`
+antes de decidir en que fichero de Mathlib vive cada nombre. Esa pregunta no
+depende de la marca —`TensorProduct` vive donde vive— y el filtro producia una
+ASIMETRIA que rompia consultas:
+
+    `nombres_de_trabajo` NO mira la marca, asi que las 28 etiquetas `F` SI
+    inyectan su nombre en el prompt. El mapa SI miraba la marca, y les negaba
+    el modulo. El sistema le ofrecia `TensorProduct` al modelo y luego no
+    tenia como importarlo.
+
+MEDIDO al quitarlo: de 116 etiquetas que inyectan nombre, las que se quedaban
+sin modulo caen de 40 a 8. De las 32 recuperadas, DOCE aportan un modulo que
+la cabecera fija no alcanza transitivamente —o sea, doce casos de
+`unknown identifier` garantizado—. Las 8 que quedan fallan por otra causa
+(nombre no cualificado como `ModuleCat R`, o en la lista `invalidos`).
+
+La capa L1 nunca dejo de indexarlas: el nombre salia igual. Lo que faltaba era
+el import.
 
 EL HALLAZGO
 -----------
@@ -323,10 +381,14 @@ VEREDICTO: dict[str, Etiqueta] = {
         # Mathlib — exactamente lo que esa etiqueta promete que no pasa.
         # La aclaracion va en `nota`, que es el campo que existe para eso.
         C, "un contexto (equivalentemente, un tipo cerrado)", "sustituciones",
-        "CategoryTheory.types",
-        nota="el universo `Type u` no es un identificador que se pueda "
-             "ofrecer; la categoria de tipos de Mathlib es "
-             "CategoryTheory.types"),
+        None,
+        nota="SIN NOMBRE, por decision de curacion. Mathlib no declara el "
+             "calculo de construcciones inductivas: no hay nada que importar "
+             "para hablar de el. `CategoryTheory.types` si existe —es la "
+             "instancia de categoria sobre Type u, en "
+             "Mathlib.CategoryTheory.Types.Basic— pero nombra OTRA COSA, la "
+             "categoria de tipos, no el calculo. Ofrecerlo era darle al "
+             "modelo un nombre que no responde a la pregunta"),
     "field-theory": _e(
         C, "un cuerpo", "homomorfismos de anillos, todos inyectivos",
         "Field", "no existe FieldCat"),
@@ -621,7 +683,10 @@ VEREDICTO: dict[str, Etiqueta] = {
     "modular-arithmetic": _e(C, "Z/nZ, un diagrama indexado por (N, |)",
                              "reducciones; el limite es Z-sombrero",
                              "ZMod, ZMod.castHom"),
-    "module-theory": _e(C, "un modulo sobre R", "R-lineales", "ModuleCat R"),
+    # `ModuleCat R` era una APLICACION, no un identificador: el anillo es
+    # argumento, no parte del nombre, asi que el indice no lo encontraba y el
+    # nodo se quedaba sin modulo que importar.
+    "module-theory": _e(C, "un modulo sobre R", "R-lineales", "ModuleCat"),
     "monads": _e(C, "una monada sobre C, monoide en [C,C]", "morfismos de monadas",
                  "CategoryTheory.Monad, CategoryTheory.Kleisli"),
     "nat-trans": _e(F, "", "la capa de 2-celdas de functors", "CategoryTheory.NatTrans"),
@@ -638,13 +703,28 @@ VEREDICTO: dict[str, Etiqueta] = {
                            "Polynomial, MvPolynomial"),
     "projective-geometry": _e(C, "un espacio proyectivo", "proyectividades",
                               "Projectivization"),
+    # `Module.Injective` llega de la tanda de curacion (Algebra.Module.Injective).
+    # NO se creo un nodo aparte: este ya esta marcado S y ya cubre los
+    # inyectivos, y un hermano casi identico habria duplicado la arista.
+    # `CategoryTheory.Injective` es la nocion categorica y `Module.Injective`
+    # la de modulos —la del criterio de Baer—; no son la misma declaracion.
     "projective-injective-modules": _e(S, "un modulo proyectivo o inyectivo",
                                        "R-lineales",
-                                       "Module.Projective, CategoryTheory.Injective"),
+                                       "Module.Projective, Module.Injective, "
+                                       "CategoryTheory.Injective",
+                                       nota="Module.Baer es el criterio "
+                                            "equivalente, un teorema con forma "
+                                            "de definicion, y ExtensionOf/"
+                                            "extensionOfMax la maquinaria de "
+                                            "Zorn que lo prueba"),
     "projective-varieties": _e(C, "Proj de un anillo graduado",
                                "morfismos de esquemas", "AlgebraicGeometry.Proj"),
+    # `QuotientGroup` es un ESPACIO DE NOMBRES, no una declaracion: `#check`
+    # lo rechaza. Con marca F lo que hace falta es la FLECHA, y la flecha es
+    # la proyeccion canonica. (Si algun dia se quisiera el objeto, seria
+    # HasQuotient.Quotient.)
     "quotient-groups": _e(F, "", "G ↦ G/N: es el conucleo, un COLIMITE",
-                          "QuotientGroup"),
+                          "QuotientGroup.mk'"),
     "real-analysis": _e(O, "R, terminal entre los cuerpos ordenados arquimedianos",
                         "", "Real", teoria="Real, Irrational, Rat"),
     "representation-theory": _e(C, "una representacion de G = un k[G]-modulo",
@@ -689,8 +769,14 @@ VEREDICTO: dict[str, Etiqueta] = {
                        "CategoryTheory.Classifier, CategoryTheory.Sheaf", "sin topos elemental"),
     "triangle-geometry": _e(C, "un 2-simplex afin", "semejanzas",
                             "Affine.Triangle, EuclideanGeometry"),
+    # DOS CORRECCIONES EN UNA ETIQUETA, que gastaba dos plazas y no resolvia
+    # ninguna. `Turing.TM0` es un espacio de nombres; la maquina es
+    # `Turing.TM0.Machine`, en Mathlib.Computability.PostTuringMachine desde
+    # que se partio TuringMachine.lean. Y `TM1` SE VA: no tiene una
+    # declaracion que sea «la maquina» —el modelo se da como familia indexada
+    # de Turing.TM1.Stmt—, asi que ofrecerlo era ofrecer un nombre inexistente.
     "turing-machines": _e(C, "una maquina de Turing", "simulaciones",
-                          "Turing.TM0, Turing.TM1"),
+                          "Turing.TM0.Machine"),
     "ultraproducts": _e(F, "", "producto ultrafiltrado: colimite filtrado",
                         "Filter.Germ"),
     "unique-factorization": _e(S, "un dominio de factorizacion unica", "homomorfismos",
@@ -722,7 +808,12 @@ VEREDICTO: dict[str, Etiqueta] = {
         C, "un par (X, K): espacio topologico con un haz de complejos de "
            "grupos abelianos",
         "un par (f, phi): f : X -> Y continua mas phi : K_Y -> f_* K_X",
-        "AlgebraicGeometry.SheafedSpace (CochainComplex AddCommGrp Z)",
+        # Lo que habia aqui era una APLICACION con el argumento fijado, y por
+        # eso el indice no le encontraba modulo. El identificador es el de
+        # abajo; si algun dia se quieren justamente los espacios anillados en
+        # complejos de cocadenas, esa abreviatura hay que declararla en el
+        # proyecto, porque Mathlib no la trae.
+        "AlgebraicGeometry.SheafedSpace",
         "EL APICE QUE FALTABA de {arithmetic-geometry, homological-algebra, "
         "point-set-topology}. Donde vive la cohomologia de haces ANTES de "
         "tomar cohomologia.\n"
@@ -793,6 +884,239 @@ VEREDICTO: dict[str, Etiqueta] = {
     "strategy-cases": _e(T, nota="eliminacion de la disyuncion; coproducto"),
     "strategy-construction": _e(T, nota="introduccion del existencial; objeto que representa el funtor"),
     "strategy-backward": _e(T, nota="descomponer el objetivo; levantamiento contra la meta"),
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # TANDA DE CURACION · 41 modulos decididos a mano por el autor
+    # ═══════════════════════════════════════════════════════════════════════
+    #
+    # Nueve modulos NO entran —marcados T en la hoja y por tanto sin nodo—:
+    # Computability.AkraBazzi.SumTransform (es el teorema, no un objeto), los
+    # cuatro de Control (interfaz de efectos de Lean: endofuntores sobre Type,
+    # y un lazo no es una dependencia), SetTheory.Ordinal.Notation (notacion),
+    # AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic (la misma
+    # categoria con otro nombre), Data.TypeVec (infraestructura) y
+    # Order.PFilter (el area de ordenes no existe y un nodo solo no la
+    # justifica).
+    #
+    # DOS decisiones de la hoja se ejecutan distinto porque el nodo YA EXISTIA:
+    #   · Topology.Category.TopCat.Basic -> `TopCat` ya es la identidad de
+    #     `point-set-topology`. La convencion del proyecto pone el envoltorio
+    #     categorico en `lean` del concepto (group-theory lleva GrpCat), no en
+    #     un nodo aparte, y un test prohibe que `teoria` nombre un ...Cat.
+    #   · Algebra.Module.Injective -> `projective-injective-modules` ya esta
+    #     marcado S y cubre los inyectivos; se le anade el nombre.
+    #
+    # Los 47 identificadores de esta tanda pasaron por `#check` con Mathlib
+    # entero importado: los 47 existen.
+
+    # ── Computability · area computation ────────────────────────────────
+    "finite-automata": _e(
+        C, "un automata sobre un alfabeto", "comap y reindex: el reindice funtorial",
+        "DFA, Language.IsRegular",
+        nota="en la jerarquia de modelos de maquina, el AFD es el caso sin "
+             "escritura ni movimiento libre; Language.IsRegular se declara "
+             "aqui y nombra justo lo que este nodo decide"),
+    "formal-languages": _e(
+        C, "un conjunto de palabras sobre un alfabeto",
+        "la inclusion; `map` es funtorial en el alfabeto",
+        "Language",
+        nota="reverse y map son operaciones; Symbol es el alfabeto de las "
+             "gramaticas, otro concepto"),
+    "partial-recursive-functions": _e(
+        F, "", "la clase de flechas que se deja calcular, cerrada por composicion",
+        "Partrec, Computable",
+        nota="Nat.Partrec es la definicion primitiva sobre los naturales y "
+             "rfind el operador de busqueda con el que se construye"),
+    "primitive-recursive-functions": _e(
+        F, "", "la misma clase de flechas, mas estrecha",
+        "Primrec",
+        nota="Primcodable es la codificacion que fija los objetos del "
+             "ambiente, no la nocion, y Nat.Primrec su caso sobre los naturales"),
+    "partial-functions": _e(
+        F, "", "una funcion parcial ES una flecha; PFun es la clase entera",
+        "PFun",
+        nota="sobre ella se define Partrec; comp, restrict, lift e image son "
+             "operaciones. La rama `Data` no es area, pero este concepto si "
+             "tiene donde colgar"),
+
+    # ── RingTheory · area algebra ───────────────────────────────────────
+    "different-ideal": _e(
+        F, "", "lo que la traza produce a partir de una extension de Dedekind",
+        "differentIdeal",
+        nota="FractionalIdeal.dual y Submodule.traceDual son el dual respecto "
+             "de la forma traza con el que se construye"),
+    "derivations": _e(
+        F, "", "una flecha con Leibniz; el tipo nombra la clase entera",
+        "Derivation",
+        nota="restrictScalars, llcomp y coeFnAddMonoidHom son operaciones y "
+             "empaquetado. Es el padre de left-invariant-derivations: una de "
+             "las cuatro aristas entre nodos de esta tanda"),
+    "homogeneous-ideals": _e(
+        S, "un ideal generado por elementos homogeneos",
+        "la inclusion en los ideales del algebra graduada",
+        "HomogeneousIdeal, Ideal.IsHomogeneous",
+        nota="las dos formas nombran la misma nocion y los enunciados usan "
+             "ambas; homogeneousHull es una operacion e irrelevant un ideal "
+             "concreto"),
+    "homogeneous-localization": _e(
+        F, "", "va de algebras graduadas a anillos",
+        "HomogeneousLocalization",
+        nota="NumDenSameDeg es su presentacion por fracciones del mismo grado "
+             "y awayMap su funtorialidad"),
+
+    # ── SetTheory · area set-theory ─────────────────────────────────────
+    "zfc-classes": _e(
+        C, "una clase: Class = Set ZFSet", "la inclusion de clases",
+        "Class",
+        nota="univ y powerset son operaciones. LA HOJA decia que el area no "
+             "tenia raiz y que esta entraba como tal; la raiz existe y es "
+             "`zfc-axioms` —marcada T, sin nombre Lean, porque los axiomas no "
+             "son un objeto—, de la que ya cuelgan cardinal-arithmetic y "
+             "ordinals. Asi que Class cuelga de ella: la teoria arriba, el "
+             "objeto debajo"),
+    "zfc-sets": _e(
+        S, "un conjunto ES una clase pequena", "Class.ofSet es literalmente la inclusion",
+        "ZFSet",
+        nota="Nonempty, range, prod e image son operaciones del universo, no "
+             "el universo"),
+    "hereditarily-finite-sets": _e(
+        S, "los conjuntos de rango y ramificacion finitos",
+        "la inclusion en ZFSet",
+        "Lists",
+        nota="modelo computable de los hereditariamente finitos; Lists' es la "
+             "mitad de la definicion mutua y toList/ofList la codificacion"),
+
+    # ── Topology / geometria metrica ────────────────────────────────────
+    "similarity-transformations": _e(
+        F, "", "las aplicaciones que escalan toda distancia por una razon fija",
+        "Similar",
+        nota="el modulo esta en topologia y el concepto es euclidiano: manda "
+             "el padre, no la carpeta"),
+    "congruence-transformations": _e(
+        F, "", "las que conservan todas las distancias: razon 1",
+        "Congruent",
+        nota="es el caso de razon 1 de Similar, y por eso cuelga de el y no "
+             "del area"),
+    "holder-continuity": _e(
+        F, "", "condicion de crecimiento sobre una aplicacion; especializa la continuidad",
+        "HolderWith, HolderOnWith",
+        nota="la global y la relativa a un conjunto son la misma nocion y las "
+             "dos aparecen en enunciados"),
+
+    # ── Algebra ─────────────────────────────────────────────────────────
+    "lie-algebras": _e(
+        C, "un modulo con un corchete alternado que cumple Jacobi",
+        "los homomorfismos de algebras de Lie",
+        "LieAlgebra",
+        nota="NODO NUEVO, no venia de ningun modulo: es el dagger de la hoja. "
+             "`Algebra.Lie` es una rama entera de Mathlib y el grafo no tenia "
+             "por donde entrar en ella"),
+    "lie-algebra-morphisms": _e(
+        F, "", "la capa de flechas de lie-algebras, y la de los modulos de Lie",
+        "LieHom, LieModuleHom",
+        nota="los cuatro identificadores mas citados del modulo son .comp y "
+             ".symm: operaciones SOBRE flechas, no las flechas"),
+    "character-modules": _e(
+        F, "", "el funtor contravariante M ↦ Hom(M, Q/Z)",
+        "CharacterModule",
+        nota="uncurry y homEquiv son sus adjunciones, dual su iteracion"),
+
+    # ── NumberTheory ────────────────────────────────────────────────────
+    "slash-invariant-forms": _e(
+        C, "una funcion del semiplano superior invariante bajo la accion slash de peso k",
+        "prod y const dan la estructura de anillo graduado sobre ellos",
+        "SlashInvariantForm",
+        nota="la invariancia es la que define los objetos; la holomorfia llega "
+             "despues. ABRE UN HUECO REAL: no habia nodo de formas modulares, "
+             "y la hoja lo comprueba en vez de suponerlo —entre "
+             "modular-arithmetic y number-fields la lista del area es "
+             "contigua, asi que no estaba escondido por el corte alfabetico"),
+    "modular-forms": _e(
+        S, "las slash-invariantes holomorfas y acotadas en las cuspides",
+        "el `extends` de Mathlib es la inclusion plena",
+        "ModularForm",
+        nota="ModularFormClass es la interfaz de coercion"),
+    "infinite-places": _e(
+        F, "", "un valor absoluto arquimediano: una flecha hacia R modulo equivalencia",
+        "NumberField.InfinitePlace",
+        nota="IsReal, IsComplex y embedding la parten en casos"),
+
+    # ── AlgebraicTopology ───────────────────────────────────────────────
+    "simplex-category": _e(
+        C, "los ordinales finitos; es el INDICE de todo objeto simplicial",
+        "las aplicaciones monotonas: caras y degeneraciones",
+        "SimplexCategory",
+        nota="Hom.comp es su composicion y Truncated.inclusion la inclusion de "
+             "la truncada. GeneratorsRelations queda FUERA: es la misma "
+             "categoria presentada por generadores, y dos nombres para un "
+             "objeto gastan dos plazas del prompt sin anadir concepto"),
+
+    # ── Analysis · los dos objetos individuales ─────────────────────────
+    "unit-circle": _e(
+        O, "el circulo unidad del plano complejo, con su estructura de grupo",
+        "exp, toUnits y coeHom son las flechas que entran y salen de el",
+        "Circle"),
+    "upper-half-plane": _e(
+        O, "el semiplano superior complejo",
+        "re e im son coordenadas, I un punto suyo",
+        "UpperHalfPlane",
+        nota="es el dominio sobre el que viven las formas modulares"),
+
+    # ── Dynamics · area probability ─────────────────────────────────────
+    "rotation-number": _e(
+        F, "", "los levantamientos de grado uno de la recta en si misma",
+        "CircleDeg1Lift, CircleDeg1Lift.translationNumber",
+        nota="el numero de traslacion es el invariante que el modulo existe "
+             "para definir; la tabla de citas no lo ofrece —ofrece "
+             "transnumAuxSeq, la sucesion auxiliar de la demostracion— y hubo "
+             "que leerlo de su declaracion"),
+    "flows": _e(
+        C, "un sistema dinamico entero: el espacio mas la accion continua",
+        "las aplicaciones que conmutan con la accion",
+        "Flow",
+        nota="orbit, restrict y reverse son operaciones sobre el, e "
+             "IsInvariant una propiedad de subconjuntos"),
+
+    # ── Geometry ────────────────────────────────────────────────────────
+    "lie-groups": _e(
+        C, "un grupo que es variedad suave con multiplicacion suave",
+        "los homomorfismos SUAVES",
+        "LieGroup",
+        nota="C y NO S: no es subcategoria plena de las variedades, porque los "
+             "morfismos son los homomorfismos suaves y no todas las "
+             "aplicaciones suaves. Es el aviso que ya estaba escrito arriba: "
+             "el morfismo no esta determinado por los objetos. LieAddGroup es "
+             "el duplicado aditivo y ContMDiffInv0 una hipotesis tecnica"),
+    "left-invariant-derivations": _e(
+        F, "", "las derivaciones invariantes por traslacion izquierda",
+        "LeftInvariantDerivation",
+        nota="subclase de las derivaciones, asi que el padre es `derivations` "
+             "y no el area. evalAt es la evaluacion en un punto, que da el "
+             "isomorfismo con el espacio tangente en la identidad"),
+
+    # ── AlgebraicGeometry ───────────────────────────────────────────────
+    "projective-spectrum": _e(
+        F, "", "lleva un anillo graduado a un espacio, igual que Spec",
+        "ProjectiveSpectrum",
+        nota="zeroLocus y vanishingIdeal son la conexion de Galois que la "
+             "define y basicOpen la base de la topologia"),
+
+    # ── LinearAlgebra ───────────────────────────────────────────────────
+    "collinearity-coplanarity": _e(
+        S, "los subconjuntos de un espacio afin con rango afin <= 1 o <= 2",
+        "la inclusion",
+        "Collinear, Coplanar",
+        nota="van juntas en un nodo porque separarlas duplicaria la arista sin "
+             "ganar nada"),
+
+    # ── ModelTheory ─────────────────────────────────────────────────────
+    "semilinear-sets": _e(
+        S, "los subconjuntos semilineales de N^n",
+        "la inclusion",
+        "IsSemilinearSet, IsLinearSet",
+        nota="son exactamente los definibles en la aritmetica de Presburger; "
+             "los IsProper... son la variante normalizada que usa la "
+             "demostracion"),
 }
 
 
@@ -1100,6 +1424,50 @@ DEGRADADAS_A_FLECHA: frozenset[str] = frozenset({
 #: Cuantas etiquetas publico el autor.
 LAS_DEL_AUTOR = 173
 
+#: LA TANDA DE CURACION: 31 etiquetas decididas a mano sobre los 41 modulos
+#: que `lo_que_falta_emerge` daba por «sin nodo».
+#:
+#: Van aparte de `LAS_DEL_AUTOR` POR EL MISMO MOTIVO que `VERTICES_ANADIDOS`:
+#: la guardia sobre el veredicto original tiene que seguir siendo exacta. 173
+#: son del autor, 3 los obligo el grafo, y estas 31 salen de una hoja de
+#: curacion. Subir el 173 habria borrado lo que esa guardia comprueba.
+#:
+#: Treinta vienen de un modulo; `lie-algebras` no viene de ninguno —es el
+#: dagger de la hoja: el padre que no existia y habia que crear—.
+#:
+#: NUEVE MODULOS NO PRODUJERON NODO (marca T en la hoja): el teorema de
+#: Akra-Bazzi, los cuatro de `Control`, la notacion ordinal, la presentacion
+#: por generadores de SimplexCategory, `Data.TypeVec` y `Order.PFilter`.
+TANDA_CURACION: frozenset[str] = frozenset({
+    # Computability
+    "finite-automata", "formal-languages", "partial-recursive-functions",
+    "primitive-recursive-functions", "partial-functions",
+    # RingTheory
+    "different-ideal", "derivations", "homogeneous-ideals",
+    "homogeneous-localization",
+    # SetTheory
+    "zfc-classes", "zfc-sets", "hereditarily-finite-sets",
+    # Topology / geometria metrica
+    "similarity-transformations", "congruence-transformations",
+    "holder-continuity",
+    # Algebra
+    "lie-algebras", "lie-algebra-morphisms", "character-modules",
+    # NumberTheory
+    "slash-invariant-forms", "modular-forms", "infinite-places",
+    # AlgebraicTopology
+    "simplex-category",
+    # Analysis
+    "unit-circle", "upper-half-plane",
+    # Dynamics
+    "rotation-number", "flows",
+    # Geometry
+    "lie-groups", "left-invariant-derivations",
+    # AlgebraicGeometry
+    "projective-spectrum",
+    # LinearAlgebra / ModelTheory
+    "collinearity-coplanarity", "semilinear-sets",
+})
+
 
 APICE_FALTANTE: dict[str, dict] = {
     "homology": {
@@ -1253,7 +1621,12 @@ def vertices() -> list[str]:
 
 
 def aristas() -> list[str]:
-    """Las etiquetas que son FUNTORES: aristas, no vertices."""
+    """Las etiquetas que son FUNTORES: aristas EN EL AMBIENTE DE ESTE GRAFO.
+
+    No son aristas en absoluto — en `Arrow C` las flechas son objetos, y en
+    `C ⥤ D` los funtores lo son. Probado en `FlechasComoObjetos.lean`; ver el
+    docstring del modulo.
+    """
     return sorted(k for k, v in VEREDICTO.items() if v.es_arista)
 
 

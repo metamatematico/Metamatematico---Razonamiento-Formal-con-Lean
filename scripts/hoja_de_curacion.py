@@ -23,12 +23,18 @@ QUE HAY QUE DECIDIR, Y POR QUE NO LO DECIDE NADIE MAS
 
        C  una categoria        -> VERTICE
        S  una subcategoria plena-> VERTICE (y la inclusion es arista)
-       F  un funtor o una clase de flechas -> ARISTA, no vertice
+       F  un funtor o una clase de flechas -> ARISTA *en este ambiente*
        O  un objeto individual  -> vertice degenerado
        T  ni objetos ni flechas -> FUERA
 
+   `F` NO dice «esto no puede ser un vertice nunca»: eso es falso y esta
+   demostrado que lo es en FlechasComoObjetos.lean —las flechas de C son
+   exactamente los objetos de Arrow C, y los funtores son los objetos de
+   C => D—. Dice que EN ESTE GRAFO, cuyos objetos son conceptos y cuyas
+   flechas son dependencias, la etiqueta nombra una flecha.
+
    No es opinable ni automatizable. `homology` es F: no es una coleccion que
-   se pueda colimitar, es el funtor A LO LARGO DEL CUAL se colimita.
+   se pueda colimitar aqui, es el funtor A LO LARGO DEL CUAL se colimita.
    `prime-factorization` es T: es un teorema, no un objeto. Un proceso
    automatico los habria hecho nodos y habria roto la categoria.
 
@@ -46,7 +52,7 @@ Y NADA ENTRA SIN MEDIRSE:
     python -m scripts.recuperacion_contra_proofnet
 
 Precision y cobertura contra 371 formalizaciones de oro, con su modelo nulo y
-sin gastar API. Baseline hoy: 21,3 % / 18,4 % contra 1,45 % / 3,3 %.
+sin gastar API. Baseline hoy: 22,8 % / 18,0 % contra 1,45 % / 3,3 %.
 Si la precision baja, esa tanda no entra. Ya paso: ofrecer los sustantivos de
 los nodos generados bajaba de 14,0 % a 11,5 %.
 
@@ -82,6 +88,72 @@ def tex(s: str) -> str:
     return s
 
 
+#: Nombres que `#check` ACEPTA con Mathlib entero importado, aunque el indice
+#: que construye `mapa_modulos_mathlib.construir()` no los encuentre. La
+#: distincion es la que decide la curacion: si el nombre existe, lo que hay
+#: que arreglar es el indice o asignar el modulo a mano; si no existe, hay que
+#: reescribir el nombre. Verificados en un solo `#check` con Mathlib entero.
+VERIFICADOS_CON_CHECK = frozenset({
+    "MeasureTheory.condExp", "MeasureTheory.integral",
+})
+
+
+#: MODULOS QUE YA SE DECIDIERON Y NO PRODUCEN NODO. Siguen saliendo como
+#: «sin nodo» en `lo_que_falta_emerge` —y es correcto: no hay nodo— pero no son
+#: trabajo pendiente, son una decision tomada. Sin esta tabla la hoja los
+#: volveria a pedir en cada tanda.
+DECIDIDOS_SIN_NODO = {
+    "Mathlib.Computability.AkraBazzi.SumTransform":
+        "T · es el teorema de Akra-Bazzi y sus piezas de demostracion, no un "
+        "objeto: el mismo caso que prime-factorization",
+    "Mathlib.Control.Bitraversable.Basic":
+        "T · interfaz de efectos de Lean: endofuntores sobre Type, y un lazo "
+        "no es una dependencia",
+    "Mathlib.Control.Fix":
+        "T · Part.fix es el punto fijo con el que Lean define funciones "
+        "parciales: maquinaria de definicion",
+    "Mathlib.Control.Functor.Multivariate": "T · la misma rama de efectos",
+    "Mathlib.Control.Monad.Cont": "T · la misma rama de efectos",
+    "Mathlib.Data.TypeVec":
+        "T · vectores de tipos para inductivos multivariados: infraestructura",
+    "Mathlib.Order.PFilter":
+        "T · un PFilter es un filtro sobre un preorden, pero `Order` no es "
+        "area del grafo y un nodo solo no la justifica: sin padre la arista no "
+        "existiria. Primer candidato si algun dia entra la teoria de ordenes",
+    "Mathlib.SetTheory.Ordinal.Notation":
+        "T · ONote y NONote son la forma normal de Cantor como dato "
+        "computable: notacion, no objeto. El nodo `ordinals` ya existe",
+    "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic":
+        "T · es SimplexCategory presentada por generadores: la misma categoria "
+        "con otro nombre, y dos nombres para un objeto gastan dos plazas",
+    "Mathlib.Topology.Category.TopCat.Basic":
+        "CUBIERTO · `TopCat` ya es la identidad de `point-set-topology`. La "
+        "convencion del proyecto pone el envoltorio categorico en el campo "
+        "`lean` del concepto (group-theory lleva GrpCat), no en un nodo aparte",
+}
+
+
+def nombres_sin_modulo():
+    """Las etiquetas que dan nombre al prompt y no dan modulo que importar.
+
+    Sale de `data/mathlib_modulos.json`, que lo anota al construirse: no se
+    recalcula aqui para que la hoja no pueda discrepar del mapa que usa el
+    sistema.
+    """
+    p = os.path.join(RAIZ, "data", "mathlib_modulos.json")
+    if not os.path.exists(p):
+        return []
+    d = json.load(io.open(p, encoding="utf-8"))
+    fuera = []
+    for x in d.get("sin_modulo") or []:
+        causa = x.get("causa") or ""
+        if x.get("nombre") in VERIFICADOS_CON_CHECK:
+            causa = ("existe —`#check` lo acepta— pero el índice no lo "
+                     "encuentra")
+        fuera.append((x.get("skill"), x.get("marca"), x.get("nombre"), causa))
+    return fuera
+
+
 def tt(s: str) -> str:
     """Un identificador de Mathlib en `\\texttt`, que PUEDA partirse.
 
@@ -89,8 +161,14 @@ def tt(s: str) -> str:
     `\\texttt` no parte por ningun sitio: se salia 33 pt del papel. Los
     nombres de Mathlib parten por los PUNTOS, que es como se leen, asi que
     se le pone ahi un punto de corte opcional.
+
+    Y por los GUIONES, que es como parten las etiquetas del grafo:
+    `sheafed-space-complexes` y `conditional-expectation` se salian 13 pt de
+    la columna de la tabla de nombres huerfanos.
     """
-    return r"\texttt{%s}" % tex(s).replace(".", r".\allowbreak{}")
+    return (r"\texttt{%s}" % tex(s)
+            .replace(".", r".\allowbreak{}")
+            .replace("-", r"-\allowbreak{}"))
 
 #: rama de Mathlib -> area del grafo. Las que no estan aqui NO tienen area:
 #: Mathlib no organiza asi, y eso ya avisa de que el concepto puede ser T.
@@ -226,6 +304,8 @@ def main() -> int:
         if x.get("veredicto") != "sin_nodo":
             continue
         for m in x.get("faltan", []):
+            if m in DECIDIDOS_SIN_NODO:
+                continue          # decidido, no pendiente
             if m not in mods:
                 mods.append(m)
 
@@ -262,19 +342,40 @@ def main() -> int:
     L.append("> Generado por `scripts/hoja_de_curacion.py`. **No editar a "
              "mano**: se regenera.\n")
     L.append("")
-    L.append("De 203 enunciados reales de Mathlib tomados al azar, **62 "
-             "nombran algo que la cabecera fija no alcanza**. De esos, en "
-             "**43 el grafo no tiene ningún nodo** que lo cubra — el 69 %. "
-             "Ningún recorrido recupera lo que no está.")
-    L.append("")
-    L.append("Son **%d módulos distintos**, repartidos así:" % len(mods))
-    L.append("")
-    L.append("| rama | módulos |")
-    L.append("|---|---|")
-    for r, ms in sorted(grupos.items(), key=lambda kv: -len(kv[1])):
-        L.append("| %s | %d |" % (r, len(ms)))
-    L.append("")
-    L.append("---\n")
+    if not mods:
+        # LA HOJA TIENE QUE SABER DECIR QUE NO QUEDA NADA. Con la lista vacía
+        # el texto de arriba seguía citando los 43 originales y luego ponía
+        # «0 módulos», que es un documento que se contradice a sí mismo.
+        L.append("**No queda nada pendiente.** Los %d módulos que "
+                 "`lo_que_falta_emerge` seguía marcando «sin nodo» están "
+                 "todos decididos.\n" % len(DECIDIDOS_SIN_NODO))
+        L.append("| módulo | decisión |")
+        L.append("|---|---|")
+        for m in sorted(DECIDIDOS_SIN_NODO):
+            L.append("| `%s` | %s |"
+                     % (m.replace("Mathlib.", ""), DECIDIDOS_SIN_NODO[m]))
+        L.append("")
+        L.append("Nueve son marca `T` —ni objetos ni flechas, así que no "
+                 "entran— y uno ya está cubierto por un nodo existente. "
+                 "Siguen apareciendo como «sin nodo» en la medición, y es "
+                 "correcto: no hay nodo. Lo que no son es trabajo.\n")
+        L.append("Si mañana la medición destapa módulos nuevos, esta hoja "
+                 "vuelve a llenarse sola.\n")
+        L.append("---\n")
+    else:
+        L.append("De 203 enunciados reales de Mathlib tomados al azar, **62 "
+                 "nombran algo que la cabecera fija no alcanza**. De esos, en "
+                 "**43 el grafo no tiene ningún nodo** que lo cubra — el 69 %. "
+                 "Ningún recorrido recupera lo que no está.")
+        L.append("")
+        L.append("Son **%d módulos distintos**, repartidos así:" % len(mods))
+        L.append("")
+        L.append("| rama | módulos |")
+        L.append("|---|---|")
+        for r, ms in sorted(grupos.items(), key=lambda kv: -len(kv[1])):
+            L.append("| %s | %d |" % (r, len(ms)))
+        L.append("")
+        L.append("---\n")
     L.append("## Qué hay que decidir en cada uno\n")
     L.append("**1 · La marca.** Es lo que sostiene el grafo y no lo decide "
              "nada automático:\n")
@@ -283,12 +384,20 @@ def main() -> int:
     L.append("| `C` | una categoría | **vértice** |")
     L.append("| `S` | una subcategoría plena | **vértice**, y la inclusión "
              "es arista |")
-    L.append("| `F` | un funtor o clase de flechas | **arista**, no vértice |")
+    L.append("| `F` | un funtor o clase de flechas | **arista** *en este "
+             "ambiente* |")
     L.append("| `O` | un objeto individual | vértice degenerado |")
     L.append("| `T` | ni objetos ni flechas | **fuera** |")
     L.append("")
-    L.append("`homology` es `F`: no es una colección que se pueda colimitar, "
-             "es el funtor *a lo largo del cual* se colimita. "
+    L.append("`F` **no** dice «esto no puede ser un vértice nunca». Eso es "
+             "falso, y está demostrado que lo es en `FlechasComoObjetos.lean`: "
+             "las flechas de `C` son exactamente los objetos de `Arrow C`, y "
+             "los funtores son los objetos de `C ⥤ D`. Lo que dice es que "
+             "**en este grafo** —cuyos objetos son conceptos y cuyas flechas "
+             "son dependencias— la etiqueta nombra una flecha.")
+    L.append("")
+    L.append("`homology` es `F`: aquí no es una colección que se pueda "
+             "colimitar, es el funtor *a lo largo del cual* se colimita. "
              "`prime-factorization` es `T`: es un teorema, no un objeto.")
     L.append("")
     L.append("**2 · El padre.** De qué concepto es especialización. La flecha "
@@ -335,13 +444,51 @@ def main() -> int:
             L.append("- [ ] identificadores que se quedan:")
             L.append("")
 
+    # ── la otra tarea: nombres que llegan al prompt sin modulo ──────────
+    huerfanos = nombres_sin_modulo()
+    if huerfanos:
+        L.append("---\n")
+        L.append("## Lo otro que hay que curar: %d nombres que no llegan a "
+                 "módulo\n" % len({h[0] for h in huerfanos}))
+        L.append("Esto **no** son módulos que falten en el grafo: son "
+                 "etiquetas **ya curadas** cuyo nombre de Mathlib sí se le "
+                 "ofrece al modelo y para el que el sistema no tiene con qué "
+                 "escribir el `import`. El modelo escribe el identificador y "
+                 "Lean contesta `unknown identifier`.\n")
+        L.append("Salió al quitar del mapa de módulos un filtro por la marca "
+                 "del grafo, que era un error de tipo —la marca dice si algo "
+                 "es objeto o flecha, no en qué fichero vive—. Con el filtro "
+                 "eran 40; sin él, estos.\n")
+        L.append("| etiqueta | marca | nombre que declara | por qué no resuelve |")
+        L.append("|---|---|---|---|")
+        for sk, mk, nom, causa in huerfanos:
+            L.append("| `%s` | `%s` | `%s` | %s |" % (sk, mk, nom, causa))
+        L.append("")
+        L.append("**La decisión, en cada uno, es una de estas tres:**\n")
+        L.append("- [ ] **el nombre está mal** → escribir el que exista "
+                 "(`ModuleCat R` no es un identificador: o es `ModuleCat`, "
+                 "o es otra cosa)")
+        L.append("- [ ] **el nombre está bien y el índice no lo ve** → "
+                 "asignarle el módulo a mano (los dos de `MeasureTheory` son "
+                 "de estos: `#check` los acepta)")
+        L.append("- [ ] **no hay nada que importar** → quitarle el nombre a "
+                 "la etiqueta, para que no lo ofrezca (`QuotientGroup` es un "
+                 "espacio de nombres, no una declaración: `#check` lo "
+                 "rechaza)")
+        L.append("")
+        L.append("Lo que **no** vale es dejarlo como está: hoy la etiqueta "
+                 "gasta una de las plazas del prompt para dar un nombre que "
+                 "no se puede importar.\n")
+
     L.append("---\n")
     L.append("## Antes de dar por buena una tanda\n")
     L.append("```\npython -m scripts.recuperacion_contra_proofnet\n```\n")
     L.append("Precisión y cobertura contra 371 formalizaciones de oro, con su "
              "modelo nulo y sin gastar API.\n")
-    L.append("**Baseline hoy: 21,3 % / 18,4 % contra 1,45 % / 3,3 % — "
-             "14,7×.** Si la precisión baja, esa tanda no entra.")
+    L.append("**Baseline hoy: 22,8 % / 18,0 % contra 1,45 % / 3,3 % — "
+             "15,7×.** Si la precisión baja, esa tanda no entra.")
+    L.append("")
+    L.append("Y la regla tiene una letra pequeña que costó descubrir. La primera tanda de 31 nodos **bajaba la precisión a 19,9 %** sin mover la cobertura, y la causa no era ningún veredicto equivocado —los 47 nombres los acepta `#check`— sino que el emparejador tokeniza el **id y el nombre** de cada nodo: `different-ideal` aportaba el token `different`, que sale en media biblioteca, y con eso gastaba una de las dos plazas del prompt. La puerta que lo arregla —*sólo se ocupa plaza con una keyword declarada*— subió la línea base de 21,3 % a 22,8 %. Si una tanda baja la precisión, mira primero si sus nodos entran en plaza por su nombre.")
     L.append("")
     L.append("Ya pasó: ofrecer los sustantivos de los nodos generados bajaba "
              "de 14,0 % a 11,5 %. Añadir vocabulario tiene coste.")
@@ -351,11 +498,33 @@ def main() -> int:
 
     # ── la misma hoja en LaTeX, para imprimirla y marcarla a mano ────────
     T = [PREAMBULO]
-    T.append(r"\section*{Qué hay que decidir}")
     # OJO: nada de `%` de Python sobre texto LaTeX. El `\%` de «69 \,\%» se
     # lee como especificador de formato y revienta con un error que no
     # menciona a LaTeX. Se concatena.
-    T.append(r"""
+    if not mods:
+        T.append(r"\section*{No queda nada pendiente}")
+        T.append(r"""
+Los \textbf{""" + str(len(DECIDIDOS_SIN_NODO)) + r"""} módulos que la medición
+sigue marcando «sin nodo» están todos decididos. Nueve son marca \texttt{T}
+—ni objetos ni flechas, así que no entran— y uno ya está cubierto por un nodo
+que existía. Siguen apareciendo como «sin nodo», y es correcto: no hay nodo.
+Lo que no son es trabajo.\par\medskip
+""")
+        T.append(r"\noindent\small\begin{tabular}"
+                 r"{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}"
+                 r">{\raggedright\arraybackslash}p{0.62\linewidth}@{}}\toprule")
+        T.append(r"módulo & decisión\\\midrule")
+        for m in sorted(DECIDIDOS_SIN_NODO):
+            T.append(r"%s & %s\\" % (tt(m.replace("Mathlib.", "")),
+                                     tex(DECIDIDOS_SIN_NODO[m])))
+        T.append(r"\bottomrule\end{tabular}\par\medskip")
+        T.append(r"""
+Si mañana la medición destapa módulos nuevos, esta hoja vuelve a llenarse
+sola.\par\medskip
+""")
+    else:
+        T.append(r"\section*{Qué hay que decidir}")
+        T.append(r"""
 De 203 enunciados reales de \Mathlib{} tomados al azar, \textbf{62 nombran
 algo que la cabecera fija no alcanza}. De esos, en \textbf{43 el grafo no
 tiene ningún nodo} que lo cubra —el 69\,\%—. Ningún recorrido recupera lo que
@@ -370,12 +539,24 @@ curación.
     T.append(r"\texttt{S} & una subcategoría plena & $\to$ & \textbf{vértice}, "
              r"y la inclusión es arista\\")
     T.append(r"\texttt{F} & un funtor o clase de flechas & $\to$ & "
-             r"\textbf{arista}, no vértice\\")
+             r"\textbf{arista} \emph{en este ambiente}\\")
     T.append(r"\texttt{O} & un objeto individual & $\to$ & vértice degenerado\\")
     T.append(r"\texttt{T} & ni objetos ni flechas & $\to$ & \textbf{fuera}\\")
     T.append(r"\bottomrule\end{tabular}\par\smallskip")
-    T.append(r"\texttt{homology} es \texttt{F}: no es una colección que se "
-             r"pueda colimitar, es el funtor \emph{a lo largo del cual} se "
+    # `sloppypar`: `\texttt{FlechasComoObjetos.lean}` es un bloque de 24
+    # caracteres que no parte, y el párrafo se salía 16,7 pt.
+    T.append(r"\begin{sloppypar}")
+    T.append(r"\texttt{F} \textbf{no} dice «esto no puede ser un vértice "
+             r"nunca». Eso es falso, y está demostrado que lo es en "
+             r"\texttt{FlechasComoObjetos.lean}: las flechas de $C$ son "
+             r"exactamente los objetos de la categoría de flechas "
+             r"$\mathrm{Arrow}\,C$, y los funtores son los objetos de la "
+             r"categoría de funtores $[C,D]$. Lo que dice es que "
+             r"\textbf{en este grafo} —cuyos objetos son conceptos y cuyas "
+             r"flechas son dependencias— la etiqueta nombra una "
+             r"flecha.\end{sloppypar}\smallskip")
+    T.append(r"\texttt{homology} es \texttt{F}: aquí no es una colección que "
+             r"se pueda colimitar, es el funtor \emph{a lo largo del cual} se "
              r"colimita. \texttt{prime-factorization} es \texttt{T}: es un "
              r"teorema, no un objeto.\par\medskip")
     T.append(r"\textbf{2 · El padre.} De qué concepto es especialización. La "
@@ -447,16 +628,68 @@ declaración}, no deducidos de la ruta: de 447 deducidos así, 95 no existían.
                      r"$\square$~se quedan: \dotfill\par\end{minipage}"
                      r"\par\medskip")
 
+    # ── la otra tarea, en LaTeX ─────────────────────────────────────────
+    if huerfanos:
+        T.append(r"\section*{Lo otro que hay que curar: " +
+                 str(len({h[0] for h in huerfanos})) +
+                 r" nombres que no llegan a módulo}")
+        T.append(r"""
+Esto \textbf{no} son módulos que falten en el grafo: son etiquetas
+\textbf{ya curadas} cuyo nombre de \Mathlib{} sí se le ofrece al modelo y para
+el que el sistema no tiene con qué escribir el \texttt{import}. El modelo
+escribe el identificador y Lean contesta \texttt{unknown identifier}.\par\medskip
+Salió al quitar del mapa de módulos un filtro por la marca del grafo, que era
+un error de tipo —la marca dice si algo es objeto o flecha, no en qué fichero
+vive—. Con el filtro eran 40; sin él, estos.\par\medskip
+""")
+        T.append(r"\noindent\small\begin{tabular}"
+                 r"{@{}>{\raggedright\arraybackslash}p{0.20\linewidth}c"
+                 r">{\raggedright\arraybackslash}p{0.28\linewidth}"
+                 r">{\raggedright\arraybackslash}p{0.34\linewidth}@{}}"
+                 r"\toprule")
+        T.append(r"etiqueta & marca & nombre que declara & por qué no "
+                 r"resuelve\\\midrule")
+        for sk, mk, nom, causa in huerfanos:
+            T.append(r"%s & \texttt{%s} & %s & %s\\"
+                     % (tt(sk), tex(mk or ""), tt(nom),
+                        tex(causa).replace("`", "")))
+        T.append(r"\bottomrule\end{tabular}\par\medskip")
+        T.append(r"""
+\begin{marca}
+\textbf{La decisión, en cada uno, es una de estas tres:}\par\smallskip
+$\square$~\textbf{el nombre está mal} $\to$ escribir el que exista.
+\texttt{ModuleCat R} no es un identificador: o es \texttt{ModuleCat}, o es otra
+cosa.\par\smallskip
+$\square$~\textbf{el nombre está bien y el índice no lo ve} $\to$ asignarle el
+módulo a mano. Los dos de \texttt{MeasureTheory} son de estos: \texttt{\#check}
+los acepta con \Mathlib{} entero importado.\par\smallskip
+$\square$~\textbf{no hay nada que importar} $\to$ quitarle el nombre a la
+etiqueta, para que no lo ofrezca. \texttt{QuotientGroup} es un espacio de
+nombres, no una declaración, y \texttt{\#check} lo rechaza.\par\medskip
+Lo que \textbf{no} vale es dejarlo como está: hoy la etiqueta gasta una de las
+plazas del prompt para dar un nombre que no se puede importar.
+\end{marca}
+""")
+
     T.append(r"\section*{Antes de dar por buena una tanda}")
     T.append(r"""
 \begin{marca}
 \noindent\texttt{python -m scripts.recuperacion\_contra\_proofnet}\par\smallskip
 Precisión y cobertura contra 371 formalizaciones de oro, con su modelo nulo y
 sin gastar API.\par\medskip
-\textbf{Baseline hoy: 21,3\,\% / 18,4\,\% contra 1,45\,\% / 3,3\,\% —
-14,7$\times$.} Si la precisión baja, esa tanda \textbf{no entra}.\par\medskip
+\textbf{Baseline hoy: 22,8\,\% / 18,0\,\% contra 1,45\,\% / 3,3\,\% —
+15,7$\times$.} Si la precisión baja, esa tanda \textbf{no entra}.\par\medskip
 Ya pasó: ofrecer los sustantivos de los nodos generados bajaba de 14,0\,\% a
-11,5\,\%. Añadir vocabulario tiene coste.
+11,5\,\%. Añadir vocabulario tiene coste.\par\medskip
+\textbf{Y la regla tiene letra pequeña.} La primera tanda de 31 nodos bajaba
+la precisión a 19,9\,\% sin mover la cobertura, y la causa no era ningún
+veredicto equivocado —los 47 nombres los acepta \texttt{\#check}— sino que el
+emparejador tokeniza el \textbf{id y el nombre} de cada nodo:
+\texttt{different-\allowbreak{}ideal} aportaba el token \texttt{different},
+que sale en media biblioteca, y con eso gastaba una de las dos plazas del
+prompt. La puerta que lo arregla —\emph{sólo se ocupa plaza con una keyword
+declarada}— subió la línea base de 21,3\,\% a 22,8\,\%. Si una tanda baja la
+precisión, mira primero si sus nodos entran en plaza por su nombre.
 \end{marca}
 """)
     T.append(r"\end{document}")

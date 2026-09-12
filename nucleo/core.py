@@ -226,6 +226,22 @@ _GENERICAS = frozenset({
     "property", "propiedad", "general", "basic", "basico", "mathlib", "math",
     "matematica", "matematicas", "formula", "ecuacion", "equation",
 
+    # PALABRAS QUE SON A LA VEZ NOMBRE MATEMATICO Y PALABRA CORRIENTE.
+    #
+    # Las destapo la tanda de curacion, y el fallo es el mismo de `and`: el
+    # emparejador tokeniza el ID y el NOMBRE de la skill, asi que
+    # `different-ideal` —el diferente de una extension de Dedekind— aporta el
+    # token `different`, que sale en media biblioteca. Medido sobre ProofNet:
+    # entraba en el top-4 de 106 de los 371 ejercicios, casi todos sobre
+    # numerabilidad y abiertos de R, con CERO nombres acertados.
+    #
+    # Entran aqui y NO se le cambia el nombre al nodo, porque el nombre es
+    # correcto: «el diferente» se llama asi. Lo que no vale es que la palabra
+    # SOLA abra la puerta; acompanada —«different ideal»— sigue contando,
+    # porque las keywords de frase esquivan esta lista a proposito.
+    "different", "ratio", "razon", "class", "clase", "classes", "clases",
+    "divisible", "flow", "flujo", "similar", "linear", "lineal",
+
     # `and` — LA CONJUNCION INGLESA, y el token que mas puertas abria.
     #
     # `tokens(minimo=3)` descarta los de una y dos letras, asi que `of`, `to`,
@@ -4225,7 +4241,7 @@ class Nucleo:
         #
         # Darselos al modelo es sustituir RECUERDO por CONSULTA en lo unico
         # donde el recuerdo falla tres de cada cuatro veces.
-        nombres = self._nombres_mathlib(matched)
+        nombres = self._nombres_mathlib(matched, consulta_en, graph)
         if nombres:
             ctx["mathlib_verificado"] = nombres
 
@@ -4320,12 +4336,79 @@ class Nucleo:
                     fuera.append(m)
         return fuera[:6]
 
-    def _nombres_mathlib(self, skills: list[str]) -> dict[str, str]:
+    def _evidencia_declarada(self, sid: str, consulta: str,
+                             graph=None) -> bool:
+        """¿Caso una KEYWORD DECLARADA de esta skill, y no un token suelto?
+
+        LA PUERTA DE LAS PLAZAS. `_match_skills_to_query` tokeniza tambien el
+        ID y el NOMBRE de cada skill, y eso basta para entrar en el top-10: un
+        nodo llamado `different-ideal` —el diferente de una extension de
+        Dedekind— aporta el token `different`, que sale en media biblioteca.
+        Estar en el top-10 es barato y esta bien que lo sea: el top-10 abre el
+        cono del area. Lo que NO puede ser barato es gastar una de las DOS
+        plazas de nombres, porque esas van al prompt.
+
+        Asi que para la plaza se exige evidencia de la que puso una persona:
+        una keyword declarada en `math_domains.py`, frase o palabra. Es el
+        mismo principio que `_GENERICAS` —una palabra corriente no es senal—
+        un nivel mas arriba: el ID y el NOMBRE de la skill no son vocabulario,
+        son etiquetas para que las lea un humano.
+
+        MEDIDO contra ProofNet (371 ejercicios, k=2), con volumen igualado
+        sobre los 280 donde las dos versiones ofrecen algo:
+
+                                    precision   cobertura
+            sin la puerta             21,3 %      21,9 %
+            con la puerta             22,3 %      21,4 %
+
+        Un punto de precision a cambio de medio de cobertura, y ocho
+        ejercicios menos en los que el grafo habla. Se acepta porque las dos
+        plazas son un recurso escaso: lo que entra desplaza, y un nombre
+        ofrecido por un token del id no es una recomendacion, es una
+        coincidencia ortografica.
+
+        LO DESTAPO LA TANDA DE CURACION. Sus 31 nodos bajaban la precision de
+        21,3 % a 19,9 % sin mover la cobertura, y la causa no era su veredicto
+        —los 47 nombres los acepta `#check`— sino que entraban en plaza con un
+        token suelto. La puerta lo arregla Y MEJORA LA LINEA BASE, que es lo
+        que la hace un arreglo y no un parche a medida.
+        """
+        try:
+            from nucleo.texto import (normalizar as _norm, tokens as _tok,
+                                      contiene_frase as _frase)
+        except Exception:                                   # noqa: BLE001
+            return True          # sin normalizador no se filtra nada
+        g = graph if graph is not None else (
+            getattr(self, "_graph", None) or getattr(self, "graph", None))
+        sk = g.get_skill(sid) if g is not None else None
+        kws = (getattr(sk, "metadata", None) or {}).get("keywords") or []
+        if not kws:
+            # LOS NODOS SIN KEYWORDS NO SE CASTIGAN. Los 10 fundacionales y
+            # algun curado antiguo no declaran ninguna; para ellos la puerta
+            # no puede decidir nada, asi que se deja pasar como antes.
+            return True
+        qn, qt = _norm(consulta), _tok(consulta)
+        for kw in kws:
+            kw = (kw or "").strip()
+            if not kw:
+                continue
+            if " " in kw:
+                if _frase(qn, kw):
+                    return True
+            elif _norm(kw) in qt:
+                return True
+        return False
+
+    def _nombres_mathlib(self, skills: list[str], consulta: str = "",
+                         graph=None) -> dict[str, str]:
         """Los nombres Mathlib comprobados de estas skills.
 
         Solo salen los que `verificar_vocabulario_grafo.py` dio por buenos: si
         un nombre no existe en la version instalada, callarse es mejor que
         ofrecerlo — el modelo ya inventa suficientes por su cuenta.
+
+        Con `consulta` se aplica ademas la puerta de `_evidencia_declarada`.
+        Sin ella —llamadas antiguas, tests— se comporta como antes.
         """
         # AVISO RUIDOSO: esto apaga la mejor capacidad medida del sistema.
         #
@@ -4361,6 +4444,9 @@ class Nucleo:
         for s in skills:
             if len(fuera) >= PLAZAS_CON_NOMBRES:
                 break
+            # LA PUERTA: sin evidencia declarada no se gasta plaza.
+            if consulta and not self._evidencia_declarada(s, consulta, graph):
+                continue
             # LA TEORIA, NO LA CATEGORIA.
             #
             # `Etiqueta.lean` dice que ES el nodo: para group-theory, la

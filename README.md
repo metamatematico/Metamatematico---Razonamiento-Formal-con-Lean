@@ -2,10 +2,10 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1085_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1089_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
-[![Grafo](https://img.shields.io/badge/Grafo-320_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
+[![Grafo](https://img.shields.io/badge/Grafo-352_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **Leonardo Jiménez Martínez · BIOMAT · Centro de Biomatemáticas**
@@ -54,7 +54,7 @@ idioma.
 
 | paso | quién | qué hace | ¿aporta? |
 |---|---|---|---|
-| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 13,1× sobre el azar** |
+| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 15,7× sobre el azar** |
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
 | 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
@@ -110,8 +110,8 @@ que él escribió.
 |  | el grafo | la lista |
 |---|---|---|
 | **qué guarda** | conceptos — *de qué habla* | hechos — *qué es cierto* |
-| **tamaño** | 321 nodos | 183 433 entradas |
-| **cómo se hizo** | 173 a mano + 125 generados | extraída del fuente, entera |
+| **tamaño** | 352 nodos | 183 433 entradas |
+| **cómo se hizo** | 205 a mano + 125 generados | extraída del fuente, entera |
 | **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
 | **estructura** | categórica: colímites, orden, pilares | plana, indexada |
 | **en el flujo** | pasos 1, 3 y 5 — *el 3 reusa el emparejamiento del 1* | alimenta el índice de premisas, y se alcanza por `classify_query`, **no** por el grafo |
@@ -173,18 +173,18 @@ de su área, y a volumen igualado pierde. Está medido en §7 del reporte.
 ## 3. El grafo: de qué consta
 
 <p align="center">
-  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado como árbol radial: 321 nodos que salen de los cuatro pilares fundacionales del centro hacia las sub-ramas de fuera, con el ángulo repartido por tamaño de subárbol para que ningún nodo tape a otro. Los 125 generados desde Mathlib y los 22 de área van en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
+  <img src="docs/img/10-grafo-real.svg" alt="El grafo del runtime dibujado como árbol radial: 352 nodos que salen de los cuatro pilares fundacionales del centro hacia las sub-ramas de fuera, con el ángulo repartido por tamaño de subárbol para que ningún nodo tape a otro. Los 125 generados desde Mathlib y los 22 de área van en tono más claro porque no están interpretados categóricamente. Las nueve tácticas se dibujan aparte abajo porque son sumideros: reciben 453 aristas y no emiten ninguna." width="100%">
 </p>
 
 | pieza | cuántos | qué es |
 |---|---|---|
-| nodos curados | 174 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
+| nodos curados | 205 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
 | nodos de área | 22 | la **puerta de entrada**: `Algebra`, `Topology`, `OrderTheory`… Entrar por una poda a 10 nodos de mediana |
 | nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
-| dependencias | 586 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
-| traducciones | 442 | entre pilares — Curry-Howard, conjuntos↔categorías |
+| dependencias | 684 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
+| traducciones | 535 | entre pilares — Curry-Howard, conjuntos↔categorías |
 | analogías | 7 | correspondencias débiles, marcadas como tales |
-| identidades | 321 | una por objeto, como exige la definición de categoría |
+| identidades | 352 | una por objeto, como exige la definición de categoría |
 
 ```bash
 python scripts/dibujar_grafo.py     # regenera la figura desde el grafo real
@@ -353,8 +353,8 @@ lo mismo acierta el 79 %.
 
 | qué | resultado | modelo nulo | veredicto |
 |---|---|---|---|
-| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 21,3 % precisión<br>18,4 % cobertura | 1,6 %<br>3,3 % | **13,1× · aporta** |
-| Dependencias **curadas** contra el DAG real<br><sub>74 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 78,4 % confirmadas<br><sub>58/74</sub> | 40,1 %<br><sub>nulo emparejado</sub> | **1,95× · aporta** |
+| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 22,8 % precisión<br>18,0 % cobertura | 1,45 %<br>3,3 % | **15,7× · aporta** |
+| Dependencias **curadas** contra el DAG real<br><sub>154 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 72,7 % confirmadas<br><sub>112/154</sub> | 31,9 %<br><sub>nulo emparejado</sub> | **2,28× · aporta** |
 | Costura de **cobertura** contra el DAG<br><sub>9 aristas `skill→módulo` medibles</sub> | 100 % confirmadas<br><sub>9/9</sub> | **100 %** | **1,00× · no dice nada** |
 | Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
@@ -411,7 +411,7 @@ grafo incumplía la propiedad.
 Va apagado por defecto porque cuesta un compilado, y el coste es asimétrico:
 refutar es barato —`decide` se para en el primer contraejemplo— y confirmar
 obliga a reducir la conjunción entera. Medido sobre tres colímites reales del
-grafo de 321 nodos: 2,6 s, 3,4 s y 15,3 s, los tres confirmados.
+grafo de 352 nodos: 2,6 s, 3,4 s y 15,3 s, los tres confirmados.
 
 El verificador se comprueba a sí mismo en `tests/test_colimite_en_lean.py`:
 con `a→i`, `b→i`, `i→x` confirma, y quitando sólo `i→x` —con lo que `x` pasa a
@@ -626,7 +626,7 @@ python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
 
 ## 7. Tests y guardianes
 
-**1085 tests en 53 suites.** Los que más valen no comprueban que el código
+**1089 tests en 53 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -746,7 +746,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
-tests/                    1085 tests en 53 suites
+tests/                    1089 tests en 53 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

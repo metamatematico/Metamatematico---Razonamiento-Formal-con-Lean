@@ -18,7 +18,7 @@ from nucleo.graph.interpretacion import (
     cambia_de_valor, resolver, vertices_tras_fusionar,
     APICE_FALTANTE, NO_SON_DOS_COCIENTES, DEGRADADAS_A_FLECHA,
     PATRONES_ESPURIOS, VECINO_VERDADERO, FUNCTORS_SOBRA,
-    VERTICES_ANADIDOS, LAS_DEL_AUTOR,
+    VERTICES_ANADIDOS, LAS_DEL_AUTOR, TANDA_CURACION,
 )
 
 
@@ -131,7 +131,8 @@ class TestCobertura:
         """Las cifras del veredicto, tal como las publico el autor: sobre sus
         173, sin contar los dos vertices que el grafo obligo a añadir."""
         del_autor = {k: v for k, v in VEREDICTO.items()
-                     if k not in VERTICES_ANADIDOS}
+                     if k not in VERTICES_ANADIDOS
+                     and k not in TANDA_CURACION}
         assert len(del_autor) == LAS_DEL_AUTOR
         cuenta: dict = {}
         for v in del_autor.values():
@@ -139,10 +140,21 @@ class TestCobertura:
         assert cuenta == {C: 74, S: 14, F: 28, O: 4, T: 53}
 
     def test_88_vertices_28_aristas(self):
-        """87 son los del autor; los dos añadidos van aparte."""
-        assert len(set(vertices()) - VERTICES_ANADIDOS) == 88
-        assert len(vertices()) == 91
-        assert len(aristas()) == 28
+        """87 son los del autor; los añadidos y la tanda van aparte.
+
+        Los TOTALES si se mueven con la tanda de curacion: 91 -> 105 vertices
+        (8 marcas C y 6 S) y 28 -> 43 aristas (15 marcas F). Lo que NO se
+        mueve, y es lo que esta guardia protege, es la cifra del autor.
+        """
+        assert len(set(vertices()) - VERTICES_ANADIDOS
+                   - TANDA_CURACION) == 88
+        assert len(vertices()) == 105
+        assert len(aristas()) == 43
+        # y el reparto de la tanda, para que no se cuele una marca cambiada
+        cuenta: dict = {}
+        for k in TANDA_CURACION:
+            cuenta[VEREDICTO[k].marca] = cuenta.get(VEREDICTO[k].marca, 0) + 1
+        assert cuenta == {C: 8, S: 6, F: 15, O: 2}
 
 
 class TestCoherencia:
@@ -408,8 +420,10 @@ class TestFusiones:
         vertices en el propio veredicto: proof-theory y recursion-theory son T,
         nat-trans y limits son F. Nunca estuvieron en los 87.
         """
-        assert len(set(vertices()) - VERTICES_ANADIDOS) == 88
-        assert len(set(vertices_tras_fusionar()) - VERTICES_ANADIDOS) == 82
+        assert len(set(vertices()) - VERTICES_ANADIDOS
+                   - TANDA_CURACION) == 88
+        assert len(set(vertices_tras_fusionar()) - VERTICES_ANADIDOS
+                   - TANDA_CURACION) == 82
         no_eran = [k for k in list(FUSIONES) + list(DEGRADADAS)
                    if marca(k) not in VERTICES]
         assert set(no_eran) == {"proof-theory", "recursion-theory",
@@ -942,3 +956,134 @@ def test_el_mapa_de_modulos_no_importa_tacticas():
     malos = ["%s: %s" % (k, m) for k, v in d.items() for m in v
              if ".Tactic." in m]
     assert not malos, "modulos de tacticas en el mapa: %s" % "; ".join(malos)
+
+
+
+
+def _raiz():
+    import os
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def test_la_marca_F_declara_su_ambiente_y_no_se_dice_absoluta():
+    """La marca `F` NO puede documentarse como «arista, no vertice» a secas.
+
+    Eso es falso y esta demostrado que lo es: las flechas de `C` son
+    exactamente los objetos de `Arrow C`, y los funtores son los objetos de
+    `C => D`. Lo unico que `F` afirma con verdad es algo sobre ESTE grafo, y
+    por tanto el docstring tiene que nombrar el ambiente.
+
+    Si alguien vuelve a escribir la version absoluta, este test lo para.
+    """
+    import io
+    import os
+    ruta = os.path.join(_raiz(), "nucleo", "graph", "interpretacion.py")
+    doc = io.open(ruta, encoding="utf-8").read().split('"""')[1]
+
+    # LA FILA DE LA TABLA, no el docstring entero. El texto SI cita la version
+    # absoluta, pero para refutarla; lo que no puede volver es que la TABLA la
+    # enuncie.
+    fila = [l for l in doc.splitlines() if l.strip().startswith("F   ")]
+    assert len(fila) == 1, "no se encuentra la fila de la marca F en la tabla"
+    assert "ambiente" in fila[0].lower(), (
+        "la fila de `F` no declara el ambiente: %r" % fila[0].strip())
+    assert "no vertice" not in fila[0].lower(), (
+        "la tabla vuelve a enunciar la marca F como principio absoluto")
+
+    # y la prueba que la refuta, citada
+    plano = " ".join(doc.lower().split())
+    for exigido in ("arrow c", "flechascomoobjetos.lean"):
+        assert exigido in plano, "el docstring no cita %r" % exigido
+
+
+def test_la_prueba_en_lean_de_que_F_es_relativa_existe_y_no_tiene_sorry():
+    """El docstring apunta a un archivo Lean. Si no esta, o si se apoya en un
+    `sorry`, la afirmacion de arriba no esta respaldada por nada.
+    """
+    import io
+    import os
+    ruta = os.path.join(_raiz(), "MetamathProver", "CategoryFoundations",
+                        "FlechasComoObjetos.lean")
+    assert os.path.exists(ruta), "falta la prueba que el docstring invoca"
+    src = io.open(ruta, encoding="utf-8").read()
+
+    # `sorry` dentro de codigo, no dentro de comentarios ni de docstrings
+    cuerpo = []
+    dentro = False
+    for linea in src.splitlines():
+        if "/-" in linea:
+            dentro = True
+        if dentro:
+            if "-/" in linea:
+                dentro = False
+            continue
+        cuerpo.append(linea.split("--")[0])
+    assert "sorry" not in "\n".join(cuerpo), "la prueba usa sorry"
+
+    # y prueba las dos mitades: flechas como objetos, funtores como objetos
+    assert "Arrow C" in src and "NatTrans" in src
+    assert "Comma" in src, "falta la generalizacion a categoria coma"
+
+
+def test_quien_da_nombre_al_prompt_tiene_que_dar_modulo():
+    """LA ASIMETRIA QUE ROMPIA CONSULTAS, y que este test impide que vuelva.
+
+    `nombres_de_trabajo` no mira la marca: las 28 etiquetas `F` inyectan su
+    nombre en el prompt igual que las demas. El mapa de modulos SI la miraba, y
+    les negaba el fichero donde vive ese nombre. Resultado: el sistema ofrecia
+    `TensorProduct` al modelo y luego no tenia como importarlo.
+
+    Era un error de tipo. La marca contesta «¿objeto o flecha DE ESTE GRAFO?»;
+    el mapa contesta «¿en que fichero se declara este nombre?». La segunda no
+    depende de la primera —ver `FlechasComoObjetos.lean`, donde las flechas de
+    `C` resultan ser los objetos de `Arrow C`.
+
+    Al quitar el filtro, las etiquetas que dan nombre sin dar modulo caen de 40
+    a 8, y ninguna de las 8 es por la marca.
+    """
+    import io
+    import json
+    import os
+    from nucleo.graph.interpretacion import VEREDICTO, nombres_de_trabajo
+    ruta = os.path.join(_raiz(), "data", "mathlib_modulos.json")
+    if not os.path.exists(ruta):
+        return
+    por_skill = json.load(io.open(ruta, encoding="utf-8"))["por_skill"]
+
+    huecos = [k for k in VEREDICTO
+              if nombres_de_trabajo(k) and k not in por_skill]
+
+    # NINGUN hueco puede deberse a la marca. Los 8 que quedan son otra cosa:
+    # `ModuleCat R` no es un identificador cualificado, `QuotientGroup` esta en
+    # la lista `invalidos`. Si un dia se arreglan, este test no se entera; si
+    # alguien reintroduce el filtro por marca, salta en la linea siguiente.
+    por_marca = {}
+    for k in huecos:
+        por_marca.setdefault(VEREDICTO[k].marca, []).append(k)
+    assert len(huecos) <= 8, (
+        "%d etiquetas dan nombre al prompt y no dan modulo (eran 8). "
+        "¿Volvio el filtro por marca en mapa_modulos_mathlib.py? %s"
+        % (len(huecos), por_marca))
+
+    # y en concreto: el grueso de las `F` tiene modulo
+    efes = [k for k, e in VEREDICTO.items() if e.marca == F]
+    sin = [k for k in efes if k not in por_skill]
+    assert len(sin) <= 3, (
+        "%d de las %d etiquetas `F` no tienen modulo: %s"
+        % (len(sin), len(efes), sin))
+
+
+def test_el_mapa_de_modulos_no_filtra_por_la_marca():
+    """El filtro se quito por escrito; que nadie lo reponga sin leer el porque.
+
+    Es mas barato que el test de arriba —no necesita el json regenerado— y
+    dice exactamente que linea no debe volver.
+    """
+    import io
+    import os
+    ruta = os.path.join(_raiz(), "scripts", "mapa_modulos_mathlib.py")
+    src = io.open(ruta, encoding="utf-8").read()
+    codigo = "\n".join(l.split("#")[0] for l in src.splitlines())
+    assert "marca not in VERTICES" not in codigo, (
+        "el mapa de modulos vuelve a filtrar por la marca: la marca dice si "
+        "algo es objeto del grafo, no en que fichero de Mathlib vive")

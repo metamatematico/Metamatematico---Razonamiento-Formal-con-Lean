@@ -1,34 +1,29 @@
 {
  "casos": 62,
  "cuenta": {
-  "sin_nodo": 43,
-  "emerge": 8,
-  "no_emerge": 10,
+  "sin_nodo": 11,
+  "emerge": 17,
+  "no_emerge": 33,
   "ya_estaba": 1
  },
  "detalle": [
   {
    "nombre": "_root_.rTensor_injective_iff_lcomp_surjective",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Algebra.Module.CharacterModule"
-   ]
+   "veredicto": "emerge",
+   "desde": 5,
+   "objetivo": 1
   },
   {
    "nombre": "ExtensionOfMaxAdjoin.extendIdealTo_wd",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Algebra.Module.Injective"
-   ]
+   "veredicto": "emerge",
+   "desde": 6,
+   "objetivo": 1
   },
   {
    "nombre": "map_comp",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.RingTheory.GradedAlgebra.Homogeneous.Ideal",
-    "Mathlib.RingTheory.GradedAlgebra.HomogeneousLocalization",
-    "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Topology"
-   ]
+   "veredicto": "emerge",
+   "desde": 6,
+   "objetivo": 3
   },
   {
    "nombre": "germ_injective_of_isIntegral",
@@ -60,17 +55,15 @@
   },
   {
    "nombre": "isCoskeletal_iff_isIso",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
-   ]
+   "veredicto": "emerge",
+   "desde": 2,
+   "objetivo": 1
   },
   {
    "nombre": "eqId_iff_eq",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
-   ]
+   "veredicto": "emerge",
+   "desde": 2,
+   "objetivo": 1
   },
   {
    "nombre": "simply_connected_iff_unique_homotopic",
@@ -80,21 +73,19 @@
   },
   {
    "nombre": "degeneracy_comp_PInfty",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
-   ]
+   "veredicto": "emerge",
+   "desde": 1,
+   "objetivo": 1
   },
   {
    "nombre": "PInfty_comp_map_mono_eq_zero",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.AlgebraicTopology.SimplexCategory.Defs"
-   ]
+   "veredicto": "emerge",
+   "desde": 1,
+   "objetivo": 1
   },
   {
    "nombre": "rotation_ne_conjLIE",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Analysis.Complex.Circle"
    ]
@@ -121,21 +112,21 @@
   },
   {
    "nombre": "fix_eval",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Data.PFun"
    ]
   },
   {
    "nombre": "kstar_def_nonempty",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Computability.Language"
    ]
   },
   {
    "nombre": "evalFrom_of_pow",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Computability.DFA",
     "Mathlib.Computability.Language"
@@ -150,7 +141,7 @@
   },
   {
    "nombre": "fix",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Computability.Partrec",
     "Mathlib.Computability.Primrec.Basic",
@@ -195,17 +186,15 @@
   },
   {
    "nombre": "isInvariant_iff_image",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Dynamics.Flow"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 2,
+   "objetivo": 1
   },
   {
    "nombre": "commute_nat_add",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Dynamics.Circle.RotationNumber.TranslationNumber"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 2,
+   "objetivo": 1
   },
   {
    "nombre": "ae_empty_or_univ",
@@ -215,10 +204,9 @@
   },
   {
    "nombre": "exists_separable_and_not_isCentral",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Algebra.Lie.Basic"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 4,
+   "objetivo": 2
   },
   {
    "nombre": "IsConformalMap.preserves_angle",
@@ -230,11 +218,11 @@
    "nombre": "contMDiff_mulInvariantVectorField",
    "veredicto": "no_emerge",
    "desde": 2,
-   "objetivo": 4
+   "objetivo": 5
   },
   {
    "nombre": "similar_of_angle_angle",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Topology.MetricSpace.Congruence",
     "Mathlib.Topology.MetricSpace.Similarity",
@@ -243,7 +231,7 @@
   },
   {
    "nombre": "comp_L",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Geometry.Manifold.Algebra.LieGroup",
     "Mathlib.RingTheory.Derivation.Basic",
@@ -252,59 +240,53 @@
   },
   {
    "nombre": "realize_relabel",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Computability.Language"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 1,
+   "objetivo": 1
   },
   {
    "nombre": "subtype_toEquiv_inclusion",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Computability.Language"
    ]
   },
   {
    "nombre": "card_eq_card_functions_add_card_relations",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Computability.Language"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 1,
+   "objetivo": 1
   },
   {
    "nombre": "cg_iff_empty_or_exists_nat_generating_family",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.Computability.Language"
    ]
   },
   {
    "nombre": "card_functions_sum_skolem₁",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Computability.Language"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 1,
+   "objetivo": 1
   },
   {
    "nombre": "funMap_cast",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Computability.Language"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 2,
+   "objetivo": 1
   },
   {
    "nombre": "isLinearSet_iff",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.ModelTheory.Arithmetic.Presburger.Semilinear.Defs"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 2,
+   "objetivo": 1
   },
   {
    "nombre": "mem_closure_iff_exists_term",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Computability.Language"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 1,
+   "objetivo": 1
   },
   {
    "nombre": "totallyBounded_univ",
@@ -314,19 +296,15 @@
   },
   {
    "nombre": "mult_log_place_eq_zero",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.NumberTheory.NumberField.InfinitePlace.Basic"
-   ]
+   "veredicto": "emerge",
+   "desde": 5,
+   "objetivo": 1
   },
   {
    "nombre": "vAdd_apply_of_mem_strictPeriods",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.NumberTheory.ModularForms.Basic",
-    "Mathlib.Analysis.Complex.UpperHalfPlane.Basic",
-    "Mathlib.NumberTheory.ModularForms.SlashInvariantForms"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 3,
+   "objetivo": 3
   },
   {
    "nombre": "Rat.surjective_padicValuation",
@@ -367,7 +345,7 @@
    "nombre": "coinvariantsAdjunction_homEquiv_apply_hom",
    "veredicto": "emerge",
    "desde": 4,
-   "objetivo": 1
+   "objetivo": 2
   },
   {
    "nombre": "d₀₁_ker_eq_invariants",
@@ -389,10 +367,9 @@
   },
   {
    "nombre": "trace_mem_dual_one",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.RingTheory.DedekindDomain.Different"
-   ]
+   "veredicto": "emerge",
+   "desde": 8,
+   "objetivo": 1
   },
   {
    "nombre": "HasEval.zero",
@@ -402,14 +379,13 @@
   },
   {
    "nombre": "cardinalMk_coe_sort",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.SetTheory.ZFC.Basic"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 1,
+   "objetivo": 1
   },
   {
    "nombre": "classToCong_empty",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.SetTheory.ZFC.Class"
    ]
@@ -423,22 +399,21 @@
   },
   {
    "nombre": "cons_subset",
-   "veredicto": "sin_nodo",
+   "veredicto": "sin_partida",
    "faltan": [
     "Mathlib.SetTheory.Lists"
    ]
   },
   {
    "nombre": "holderOnWith_one",
-   "veredicto": "sin_nodo",
-   "faltan": [
-    "Mathlib.Topology.MetricSpace.Holder"
-   ]
+   "veredicto": "no_emerge",
+   "desde": 2,
+   "objetivo": 1
   }
  ],
- "nulo_aciertos": 221,
- "nulo_intentos": 3200,
- "nulo2_aciertos": 436,
- "nulo2_intentos": 3200,
+ "nulo_aciertos": 483,
+ "nulo_intentos": 7400,
+ "nulo2_aciertos": 1283,
+ "nulo2_intentos": 7400,
  "semilla": 20260911
 }
