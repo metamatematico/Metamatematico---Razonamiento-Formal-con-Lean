@@ -94,3 +94,13 @@ data/_*.json
 # reconstruida: se colaron logs y un respaldo de 880 KB. (Los respaldos ya
 # estaban cubiertos arriba por `data/*.bak.json`.)
 *.log
+
+# Intermedios de LaTeX. El .tex y el .pdf se quedan; lo demas se regenera.
+*.aux
+*.out
+*.toc
+*.lof
+*.lot
+*.bcf
+*.run.xml
+*.blg

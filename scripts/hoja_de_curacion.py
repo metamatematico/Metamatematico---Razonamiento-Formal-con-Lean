@@ -65,6 +65,32 @@ RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, RAIZ)
 
 SALIDA = os.path.join(RAIZ, "docs", "CURACION_PENDIENTE.md")
+SALIDA_TEX = os.path.join(RAIZ, "docs", "CURACION_PENDIENTE.tex")
+
+#: Lo que LaTeX se come si no se escapa. Los identificadores de Mathlib traen
+#: guiones bajos a mansalva —`card_aditivo`, `sumTransform`— y sin escapar
+#: cada uno es un subindice o un error.
+_ESCAPES = ((chr(92), r"\textbackslash{}"), ("&", r"\&"), ("%", r"\%"),
+            ("$", r"\$"), ("#", r"\#"), ("_", r"\_"), ("{", r"\{"),
+            ("}", r"\}"), ("~", r"\textasciitilde{}"),
+            ("^", r"\textasciicircum{}"))
+
+
+def tex(s: str) -> str:
+    for a, b in _ESCAPES:
+        s = s.replace(a, b)
+    return s
+
+
+def tt(s: str) -> str:
+    """Un identificador de Mathlib en `\\texttt`, que PUEDA partirse.
+
+    `HomogeneousLocalization.NumDenSameDeg.embedding` son 47 caracteres y
+    `\\texttt` no parte por ningun sitio: se salia 33 pt del papel. Los
+    nombres de Mathlib parten por los PUNTOS, que es como se leen, asi que
+    se le pone ahi un punto de corte opcional.
+    """
+    return r"\texttt{%s}" % tex(s).replace(".", r".\allowbreak{}")
 
 #: rama de Mathlib -> area del grafo. Las que no estan aqui NO tienen area:
 #: Mathlib no organiza asi, y eso ya avisa de que el concepto puede ser T.
@@ -82,6 +108,97 @@ RAMA_A_AREA = {
     "CategoryTheory": "category-theory", "SetTheory": "set-theory",
     "Order": "", "Data": "", "Control": "", "Init": "", "Util": "",
 }
+
+
+#: Preambulo de la version imprimible. Compila con pdfLaTeX.
+#: No usa tikz ni listings, asi que no le aplican las dos trampas conocidas
+#: —babel-espanol volviendo activo el `"`, y listings leyendo bytes—.
+PREAMBULO = r"""% Generado por scripts/hoja_de_curacion.py. NO EDITAR A MANO.
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot,es-noquoting]{babel}
+\usepackage[a4paper,margin=2.1cm]{geometry}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{microtype}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+% LOS IDENTIFICADORES DE MATHLIB TRAEN UNICODE, y pdfLaTeX no lo sabe leer.
+% El primer intento murio con «Unicode character U+2080 not set up» por un
+% `min_bi` con subindice. Se declara el RANGO, no el caracter que fallo hoy:
+% esta hoja se regenera, y manana los modulos pendientes seran otros.
+\DeclareUnicodeCharacter{2080}{\ensuremath{_0}}
+\DeclareUnicodeCharacter{2081}{\ensuremath{_1}}
+\DeclareUnicodeCharacter{2082}{\ensuremath{_2}}
+\DeclareUnicodeCharacter{2083}{\ensuremath{_3}}
+\DeclareUnicodeCharacter{2084}{\ensuremath{_4}}
+\DeclareUnicodeCharacter{2085}{\ensuremath{_5}}
+\DeclareUnicodeCharacter{2086}{\ensuremath{_6}}
+\DeclareUnicodeCharacter{2087}{\ensuremath{_7}}
+\DeclareUnicodeCharacter{2088}{\ensuremath{_8}}
+\DeclareUnicodeCharacter{2089}{\ensuremath{_9}}
+\DeclareUnicodeCharacter{1D62}{\ensuremath{_i}}
+\DeclareUnicodeCharacter{2C7C}{\ensuremath{_j}}
+\DeclareUnicodeCharacter{207F}{\ensuremath{^n}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{03B3}{\ensuremath{\gamma}}
+\DeclareUnicodeCharacter{03B4}{\ensuremath{\delta}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
+\DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
+\DeclareUnicodeCharacter{03C6}{\ensuremath{\varphi}}
+\DeclareUnicodeCharacter{2115}{\ensuremath{\mathbb{N}}}
+\DeclareUnicodeCharacter{2124}{\ensuremath{\mathbb{Z}}}
+\DeclareUnicodeCharacter{211A}{\ensuremath{\mathbb{Q}}}
+\DeclareUnicodeCharacter{211D}{\ensuremath{\mathbb{R}}}
+\DeclareUnicodeCharacter{2102}{\ensuremath{\mathbb{C}}}
+\DeclareUnicodeCharacter{1D55C}{\ensuremath{\Bbbk}}
+\DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+\DeclareUnicodeCharacter{2200}{\ensuremath{\forall}}
+\DeclareUnicodeCharacter{2203}{\ensuremath{\exists}}
+
+\definecolor{acento}{RGB}{70,60,140}
+\definecolor{suave}{RGB}{120,120,130}
+\definecolor{fondo}{RGB}{244,243,248}
+\definecolor{aviso}{RGB}{150,90,20}
+
+\newcommand{\Mathlib}{\textsc{Mathlib}}
+
+\titleformat{\section}{\large\bfseries\color{acento}}{}{0pt}{}
+\titlespacing{\section}{0pt}{16pt}{6pt}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+\titlespacing{\subsection}{0pt}{10pt}{4pt}
+
+\newmdenv[backgroundcolor=fondo,linewidth=0pt,skipabove=8pt,skipbelow=8pt,
+          innerleftmargin=10pt,innerrightmargin=10pt,
+          innertopmargin=8pt,innerbottommargin=8pt]{marca}
+\newmdenv[linecolor=aviso,linewidth=1.2pt,topline=false,bottomline=false,
+          rightline=false,skipabove=6pt,skipbelow=6pt,
+          innerleftmargin=8pt,innertopmargin=4pt,
+          innerbottommargin=4pt]{aviso}
+
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small\color{suave}Metamatemático · curación pendiente}
+\fancyhead[R]{\small\color{suave}\thepage}
+
+\begin{document}
+\begin{center}
+{\LARGE\bfseries\color{acento} Curación pendiente}\par\smallskip
+{\color{suave}\small Los 41 módulos que el grafo no cubre, con todo lo
+verificable ya resuelto.}\par
+{\color{suave}\footnotesize Generado por \texttt{scripts/hoja\_de\_curacion.py}
+· se regenera, no se edita a mano}
+\end{center}
+\vspace{4pt}
+"""
 
 
 def main() -> int:
@@ -231,8 +348,123 @@ def main() -> int:
     L.append("")
 
     io.open(SALIDA, "w", encoding="utf-8").write("\n".join(L))
+
+    # ── la misma hoja en LaTeX, para imprimirla y marcarla a mano ────────
+    T = [PREAMBULO]
+    T.append(r"\section*{Qué hay que decidir}")
+    # OJO: nada de `%` de Python sobre texto LaTeX. El `\%` de «69 \,\%» se
+    # lee como especificador de formato y revienta con un error que no
+    # menciona a LaTeX. Se concatena.
+    T.append(r"""
+De 203 enunciados reales de \Mathlib{} tomados al azar, \textbf{62 nombran
+algo que la cabecera fija no alcanza}. De esos, en \textbf{43 el grafo no
+tiene ningún nodo} que lo cubra —el 69\,\%—. Ningún recorrido recupera lo que
+no está: son \textbf{""" + str(len(mods)) + r"""} módulos distintos, y son
+curación.
+""")
+    T.append(r"\begin{marca}")
+    T.append(r"\textbf{1 · La marca.} Es lo que sostiene el grafo, y no la "
+             r"decide nada automático:\par\smallskip")
+    T.append(r"\begin{tabular}{@{}llll@{}}\toprule")
+    T.append(r"\texttt{C} & una categoría & $\to$ & \textbf{vértice}\\")
+    T.append(r"\texttt{S} & una subcategoría plena & $\to$ & \textbf{vértice}, "
+             r"y la inclusión es arista\\")
+    T.append(r"\texttt{F} & un funtor o clase de flechas & $\to$ & "
+             r"\textbf{arista}, no vértice\\")
+    T.append(r"\texttt{O} & un objeto individual & $\to$ & vértice degenerado\\")
+    T.append(r"\texttt{T} & ni objetos ni flechas & $\to$ & \textbf{fuera}\\")
+    T.append(r"\bottomrule\end{tabular}\par\smallskip")
+    T.append(r"\texttt{homology} es \texttt{F}: no es una colección que se "
+             r"pueda colimitar, es el funtor \emph{a lo largo del cual} se "
+             r"colimita. \texttt{prime-factorization} es \texttt{T}: es un "
+             r"teorema, no un objeto.\par\medskip")
+    T.append(r"\textbf{2 · El padre.} De qué concepto es especialización. La "
+             r"flecha va del general al específico.\par\medskip")
+    T.append(r"\textbf{3 · Cuáles nombres se quedan.} Que exista no lo hace "
+             r"correcto: \texttt{Nat.Prime} es la noción de primo, "
+             r"\texttt{Nat.minFac} no lo es.")
+    T.append(r"\end{marca}")
+    T.append(r"""
+\noindent Lo que \textbf{no} hay que decidir, porque ya está verificado: si el
+nombre existe, en qué módulo vive, cuál es el canónico —las citas— y el DAG de
+\texttt{import}s. Los identificadores de abajo están \textbf{leídos de su
+declaración}, no deducidos de la ruta: de 447 deducidos así, 95 no existían.
+\par\medskip
+""")
+    T.append(r"\begin{center}\small\begin{tabular}{@{}lr@{\quad}lr@{\quad}lr@{}}"
+             r"\toprule")
+    orden = sorted(grupos, key=lambda r: (-len(grupos[r]), r))
+    filas = [(orden[i:i + 3]) for i in range(0, len(orden), 3)]
+    for f in filas:
+        T.append(" & ".join("%s & %d" % (tex(r), len(grupos[r])) for r in f)
+                 + r"\\")
+    T.append(r"\bottomrule\end{tabular}\end{center}")
+
+    for rama in orden:
+        area = RAMA_A_AREA.get(rama, "")
+        T.append(r"\section{%s\hfill{\normalsize\normalfont %s}}"
+                 % (tex(rama), (r"área \texttt{%s}" % tex(area)) if area
+                    else r"\textbf{sin área en el grafo}"))
+        if not area:
+            T.append(r"\begin{aviso}\Mathlib{} no organiza esta rama como un "
+                     r"área del grafo. Puede que estos conceptos sean "
+                     r"\texttt{T} y no toquen.\end{aviso}")
+        elif por_area.get(area):
+            # `\texttt` con guiones no parte, y una lista larga se salia del
+            # papel —48 pt en el peor caso—. `sloppypar` estira los espacios
+            # en vez de desbordar, que en una hoja para imprimir es la
+            # diferencia entre usable e inservible.
+            T.append(r"\begin{sloppypar}\noindent\small\textit{Padres "
+                     r"candidatos ya en el grafo:} %s\end{sloppypar}"
+                     % ", ".join(r"\texttt{%s}" % tex(x)
+                                 for x in sorted(por_area[area])[:10]))
+        for m in sorted(grupos[rama]):
+            ss = por.get(m, [])[:args.k]
+            T.append(r"\subsection*{\texttt{%s}}"
+                     % tex(m.replace("Mathlib.", "")))
+            if not ss:
+                T.append(r"\noindent\small Sin sustantivos propios: sólo "
+                         r"aporta teoremas. El grafo aporta \emph{sustantivos} "
+                         r"—de sus 176 identificadores ninguno es un teorema—, "
+                         r"así que probablemente no le toca.\par\medskip")
+                continue
+            # La columna del identificador va con ancho fijo y alineada a la
+            # izquierda: asi el corte por puntos que pone `tt` tiene donde
+            # caer. Con `l` a secas, un nombre de 47 caracteres se salia.
+            T.append(r"\noindent\begin{minipage}{0.56\linewidth}\small"
+                     r"\begin{tabular}"
+                     r"{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}"
+                     r"ll@{}}\toprule")
+            T.append(r"identificador & tipo & citas\\\midrule")
+            for s in ss:
+                T.append(r"%s & %s & %d\\" % (
+                    tt(s["nombre"]), tex(s.get("tipo") or ""),
+                    int(s.get("citas") or 0)))
+            T.append(r"\bottomrule\end{tabular}\end{minipage}\hfill"
+                     r"\begin{minipage}{0.40\linewidth}\small"
+                     r"$\square$~marca \texttt{C S F O T}\par\smallskip"
+                     r"$\square$~padre: \dotfill\par\smallskip"
+                     r"$\square$~se quedan: \dotfill\par\end{minipage}"
+                     r"\par\medskip")
+
+    T.append(r"\section*{Antes de dar por buena una tanda}")
+    T.append(r"""
+\begin{marca}
+\noindent\texttt{python -m scripts.recuperacion\_contra\_proofnet}\par\smallskip
+Precisión y cobertura contra 371 formalizaciones de oro, con su modelo nulo y
+sin gastar API.\par\medskip
+\textbf{Baseline hoy: 21,3\,\% / 18,4\,\% contra 1,45\,\% / 3,3\,\% —
+14,7$\times$.} Si la precisión baja, esa tanda \textbf{no entra}.\par\medskip
+Ya pasó: ofrecer los sustantivos de los nodos generados bajaba de 14,0\,\% a
+11,5\,\%. Añadir vocabulario tiene coste.
+\end{marca}
+""")
+    T.append(r"\end{document}")
+    io.open(SALIDA_TEX, "w", encoding="utf-8").write("\n".join(T))
+
     print("modulos pendientes: %d, en %d ramas" % (len(mods), len(grupos)))
     print("-> %s" % SALIDA)
+    print("-> %s" % SALIDA_TEX)
     return 0
 
 

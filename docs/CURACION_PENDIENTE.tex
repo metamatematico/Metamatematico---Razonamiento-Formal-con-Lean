@@ -1,0 +1,481 @@
+% Generado por scripts/hoja_de_curacion.py. NO EDITAR A MANO.
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot,es-noquoting]{babel}
+\usepackage[a4paper,margin=2.1cm]{geometry}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{microtype}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+% LOS IDENTIFICADORES DE MATHLIB TRAEN UNICODE, y pdfLaTeX no lo sabe leer.
+% El primer intento murio con «Unicode character U+2080 not set up» por un
+% `min_bi` con subindice. Se declara el RANGO, no el caracter que fallo hoy:
+% esta hoja se regenera, y manana los modulos pendientes seran otros.
+\DeclareUnicodeCharacter{2080}{\ensuremath{_0}}
+\DeclareUnicodeCharacter{2081}{\ensuremath{_1}}
+\DeclareUnicodeCharacter{2082}{\ensuremath{_2}}
+\DeclareUnicodeCharacter{2083}{\ensuremath{_3}}
+\DeclareUnicodeCharacter{2084}{\ensuremath{_4}}
+\DeclareUnicodeCharacter{2085}{\ensuremath{_5}}
+\DeclareUnicodeCharacter{2086}{\ensuremath{_6}}
+\DeclareUnicodeCharacter{2087}{\ensuremath{_7}}
+\DeclareUnicodeCharacter{2088}{\ensuremath{_8}}
+\DeclareUnicodeCharacter{2089}{\ensuremath{_9}}
+\DeclareUnicodeCharacter{1D62}{\ensuremath{_i}}
+\DeclareUnicodeCharacter{2C7C}{\ensuremath{_j}}
+\DeclareUnicodeCharacter{207F}{\ensuremath{^n}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{03B3}{\ensuremath{\gamma}}
+\DeclareUnicodeCharacter{03B4}{\ensuremath{\delta}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
+\DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
+\DeclareUnicodeCharacter{03C6}{\ensuremath{\varphi}}
+\DeclareUnicodeCharacter{2115}{\ensuremath{\mathbb{N}}}
+\DeclareUnicodeCharacter{2124}{\ensuremath{\mathbb{Z}}}
+\DeclareUnicodeCharacter{211A}{\ensuremath{\mathbb{Q}}}
+\DeclareUnicodeCharacter{211D}{\ensuremath{\mathbb{R}}}
+\DeclareUnicodeCharacter{2102}{\ensuremath{\mathbb{C}}}
+\DeclareUnicodeCharacter{1D55C}{\ensuremath{\Bbbk}}
+\DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+\DeclareUnicodeCharacter{2200}{\ensuremath{\forall}}
+\DeclareUnicodeCharacter{2203}{\ensuremath{\exists}}
+
+\definecolor{acento}{RGB}{70,60,140}
+\definecolor{suave}{RGB}{120,120,130}
+\definecolor{fondo}{RGB}{244,243,248}
+\definecolor{aviso}{RGB}{150,90,20}
+
+\newcommand{\Mathlib}{\textsc{Mathlib}}
+
+\titleformat{\section}{\large\bfseries\color{acento}}{}{0pt}{}
+\titlespacing{\section}{0pt}{16pt}{6pt}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+\titlespacing{\subsection}{0pt}{10pt}{4pt}
+
+\newmdenv[backgroundcolor=fondo,linewidth=0pt,skipabove=8pt,skipbelow=8pt,
+          innerleftmargin=10pt,innerrightmargin=10pt,
+          innertopmargin=8pt,innerbottommargin=8pt]{marca}
+\newmdenv[linecolor=aviso,linewidth=1.2pt,topline=false,bottomline=false,
+          rightline=false,skipabove=6pt,skipbelow=6pt,
+          innerleftmargin=8pt,innertopmargin=4pt,
+          innerbottommargin=4pt]{aviso}
+
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small\color{suave}Metamatemático · curación pendiente}
+\fancyhead[R]{\small\color{suave}\thepage}
+
+\begin{document}
+\begin{center}
+{\LARGE\bfseries\color{acento} Curación pendiente}\par\smallskip
+{\color{suave}\small Los 41 módulos que el grafo no cubre, con todo lo
+verificable ya resuelto.}\par
+{\color{suave}\footnotesize Generado por \texttt{scripts/hoja\_de\_curacion.py}
+· se regenera, no se edita a mano}
+\end{center}
+\vspace{4pt}
+
+\section*{Qué hay que decidir}
+
+De 203 enunciados reales de \Mathlib{} tomados al azar, \textbf{62 nombran
+algo que la cabecera fija no alcanza}. De esos, en \textbf{43 el grafo no
+tiene ningún nodo} que lo cubra —el 69\,\%—. Ningún recorrido recupera lo que
+no está: son \textbf{41} módulos distintos, y son
+curación.
+
+\begin{marca}
+\textbf{1 · La marca.} Es lo que sostiene el grafo, y no la decide nada automático:\par\smallskip
+\begin{tabular}{@{}llll@{}}\toprule
+\texttt{C} & una categoría & $\to$ & \textbf{vértice}\\
+\texttt{S} & una subcategoría plena & $\to$ & \textbf{vértice}, y la inclusión es arista\\
+\texttt{F} & un funtor o clase de flechas & $\to$ & \textbf{arista}, no vértice\\
+\texttt{O} & un objeto individual & $\to$ & vértice degenerado\\
+\texttt{T} & ni objetos ni flechas & $\to$ & \textbf{fuera}\\
+\bottomrule\end{tabular}\par\smallskip
+\texttt{homology} es \texttt{F}: no es una colección que se pueda colimitar, es el funtor \emph{a lo largo del cual} se colimita. \texttt{prime-factorization} es \texttt{T}: es un teorema, no un objeto.\par\medskip
+\textbf{2 · El padre.} De qué concepto es especialización. La flecha va del general al específico.\par\medskip
+\textbf{3 · Cuáles nombres se quedan.} Que exista no lo hace correcto: \texttt{Nat.Prime} es la noción de primo, \texttt{Nat.minFac} no lo es.
+\end{marca}
+
+\noindent Lo que \textbf{no} hay que decidir, porque ya está verificado: si el
+nombre existe, en qué módulo vive, cuál es el canónico —las citas— y el DAG de
+\texttt{import}s. Los identificadores de abajo están \textbf{leídos de su
+declaración}, no deducidos de la ruta: de 447 deducidos así, 95 no existían.
+\par\medskip
+
+\begin{center}\small\begin{tabular}{@{}lr@{\quad}lr@{\quad}lr@{}}\toprule
+Computability & 5 & Control & 4 & RingTheory & 4\\
+SetTheory & 4 & Topology & 4 & Algebra & 3\\
+NumberTheory & 3 & AlgebraicTopology & 2 & Analysis & 2\\
+Data & 2 & Dynamics & 2 & Geometry & 2\\
+AlgebraicGeometry & 1 & LinearAlgebra & 1 & ModelTheory & 1\\
+Order & 1\\
+\bottomrule\end{tabular}\end{center}
+\section{Computability\hfill{\normalsize\normalfont área \texttt{computation}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{algorithm-analysis}, \texttt{computability-theory}, \texttt{computational-complexity}, \texttt{formal-verification}, \texttt{lambda-calculus}, \texttt{np-completeness}, \texttt{recursion-theory}, \texttt{turing-machines}\end{sloppypar}
+\subsection*{\texttt{Computability.AkraBazzi.SumTransform}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{AkraBazziRecurrence.\allowbreak{}asympBound} & def & 10\\
+\texttt{AkraBazziRecurrence.\allowbreak{}min\_bi} & def & 4\\
+\texttt{AkraBazziRecurrence.\allowbreak{}sumTransform} & def & 4\\
+\texttt{AkraBazziRecurrence.\allowbreak{}max\_bi} & def & 1\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Computability.DFA}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{DFA.\allowbreak{}comap} & def & 1132\\
+\texttt{DFA.\allowbreak{}eval} & def & 829\\
+\texttt{Language.\allowbreak{}IsRegular} & def & 216\\
+\texttt{DFA.\allowbreak{}reindex} & def & 79\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Computability.Language}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Language.\allowbreak{}reverse} & def & 164\\
+\texttt{Language} & def & 122\\
+\texttt{Symbol} & inductive & 21\\
+\texttt{Language.\allowbreak{}map} & def & 1\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Computability.Partrec}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Computable} & def & 85\\
+\texttt{Nat.\allowbreak{}Partrec} & inductive & 39\\
+\texttt{Partrec} & def & 39\\
+\texttt{Nat.\allowbreak{}rfind} & def & 7\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Computability.Primrec.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Nat.\allowbreak{}Primrec} & inductive & 181\\
+\texttt{Primrec} & def & 181\\
+\texttt{Primcodable.\allowbreak{}subtype} & def & 135\\
+\texttt{Primcodable} & class & 70\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Control\hfill{\normalsize\normalfont \textbf{sin área en el grafo}}}
+\begin{aviso}\Mathlib{} no organiza esta rama como un área del grafo. Puede que estos conceptos sean \texttt{T} y no toquen.\end{aviso}
+\subsection*{\texttt{Control.Bitraversable.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Bitraversable} & class & 2\\
+\texttt{LawfulBitraversable} & class & 2\\
+\texttt{bisequence} & def & 0\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Control.Fix}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Fix} & class & 17\\
+\texttt{Part.\allowbreak{}fix} & def & 9\\
+\texttt{Part.\allowbreak{}Fix.\allowbreak{}approx} & def & 3\\
+\texttt{Part.\allowbreak{}fixAux} & def & 0\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Control.Functor.Multivariate}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{MvFunctor.\allowbreak{}supp} & def & 33\\
+\texttt{MvFunctor.\allowbreak{}ofEquiv} & def & 11\\
+\texttt{MvFunctor} & class & 9\\
+\texttt{MvFunctor.\allowbreak{}LiftP} & def & 7\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Control.Monad.Cont}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Cont} & abbrev & 7\\
+\texttt{ContT} & def & 5\\
+\texttt{ContT.\allowbreak{}monadLift} & def & 5\\
+\texttt{OptionT.\allowbreak{}mkLabel} & def & 2\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{RingTheory\hfill{\normalsize\normalfont área \texttt{algebra}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{abelian-groups}, \texttt{bases-and-dimension}, \texttt{bilinear-forms}, \texttt{canonical-forms}, \texttt{character-theory}, \texttt{commutative-algebra}, \texttt{derived-category}, \texttt{eigen-theory}, \texttt{exact-sequences}, \texttt{field-extensions}\end{sloppypar}
+\subsection*{\texttt{RingTheory.DedekindDomain.Different}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{FractionalIdeal.\allowbreak{}dual} & def & 110\\
+\texttt{differentIdeal} & def & 31\\
+\texttt{Submodule.\allowbreak{}traceDual} & def & 2\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{RingTheory.Derivation.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Derivation.\allowbreak{}restrictScalars} & def & 216\\
+\texttt{Derivation} & structure & 53\\
+\texttt{Derivation.\allowbreak{}coeFnAddMonoidHom} & def & 13\\
+\texttt{Derivation.\allowbreak{}llcomp} & def & 4\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{RingTheory.GradedAlgebra.Homogeneous.Ideal}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{HomogeneousIdeal} & abbrev & 42\\
+\texttt{Ideal.\allowbreak{}IsHomogeneous} & abbrev & 6\\
+\texttt{Ideal.\allowbreak{}homogeneousHull} & def & 5\\
+\texttt{HomogeneousIdeal.\allowbreak{}irrelevant} & def & 3\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{RingTheory.GradedAlgebra.HomogeneousLocalization}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{HomogeneousLocalization.\allowbreak{}NumDenSameDeg.\allowbreak{}embedding} & def & 53\\
+\texttt{HomogeneousLocalization} & def & 43\\
+\texttt{HomogeneousLocalization.\allowbreak{}NumDenSameDeg} & structure & 36\\
+\texttt{HomogeneousLocalization.\allowbreak{}awayMap} & def & 21\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{SetTheory\hfill{\normalsize\normalfont área \texttt{set-theory}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{cardinal-arithmetic}, \texttt{descriptive-set-theory}, \texttt{forcing}, \texttt{large-cardinals}\end{sloppypar}
+\subsection*{\texttt{SetTheory.Lists}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Lists'.\allowbreak{}cons} & def & 358\\
+\texttt{Lists'.\allowbreak{}toList} & def & 130\\
+\texttt{Lists.\allowbreak{}toList} & def & 130\\
+\texttt{Lists'.\allowbreak{}ofList} & def & 55\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{SetTheory.Ordinal.Notation}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{ONote.\allowbreak{}ofNat} & def & 409\\
+\texttt{NONote.\allowbreak{}ofNat} & def & 409\\
+\texttt{ONote.\allowbreak{}repr} & def & 159\\
+\texttt{NONote.\allowbreak{}repr} & def & 159\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{SetTheory.ZFC.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{ZFSet.\allowbreak{}Nonempty} & def & 2513\\
+\texttt{ZFSet.\allowbreak{}range} & def & 2184\\
+\texttt{ZFSet.\allowbreak{}prod} & def & 1046\\
+\texttt{ZFSet.\allowbreak{}image} & def & 415\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{SetTheory.ZFC.Class}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Class.\allowbreak{}univ} & def & 1539\\
+\texttt{Class.\allowbreak{}powerset} & def & 47\\
+\texttt{Class} & def & 38\\
+\texttt{Class.\allowbreak{}ofSet} & def & 21\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Topology\hfill{\normalsize\normalfont área \texttt{topology}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{algebraic-topology}, \texttt{compactness}, \texttt{connectedness}, \texttt{covering-spaces}, \texttt{differential-topology}, \texttt{fundamental-group}, \texttt{geometric-topology}, \texttt{homotopy-theory}, \texttt{point-set-topology}, \texttt{separation-axioms}\end{sloppypar}
+\subsection*{\texttt{Topology.Category.TopCat.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{TopCat.\allowbreak{}ofHom} & abbrev & 231\\
+\texttt{TopCat} & structure & 214\\
+\texttt{TopCat.\allowbreak{}trivial} & def & 49\\
+\texttt{TopCat.\allowbreak{}Hom.\allowbreak{}hom} & abbrev & 42\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Topology.MetricSpace.Congruence}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Congruent} & def & 7\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Topology.MetricSpace.Holder}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{HolderOnWith} & def & 40\\
+\texttt{HolderWith} & def & 38\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Topology.MetricSpace.Similarity}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Similar} & def & 10\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Algebra\hfill{\normalsize\normalfont área \texttt{algebra}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{abelian-groups}, \texttt{bases-and-dimension}, \texttt{bilinear-forms}, \texttt{canonical-forms}, \texttt{character-theory}, \texttt{commutative-algebra}, \texttt{derived-category}, \texttt{eigen-theory}, \texttt{exact-sequences}, \texttt{field-extensions}\end{sloppypar}
+\subsection*{\texttt{Algebra.Lie.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{LieEquiv.\allowbreak{}symm} & def & 2247\\
+\texttt{LieModuleEquiv.\allowbreak{}symm} & def & 2247\\
+\texttt{LieHom.\allowbreak{}comp} & def & 1617\\
+\texttt{LieModuleHom.\allowbreak{}comp} & def & 1617\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Algebra.Module.CharacterModule}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{CharacterModule.\allowbreak{}uncurry} & def & 165\\
+\texttt{CharacterModule.\allowbreak{}dual} & def & 110\\
+\texttt{CharacterModule.\allowbreak{}congr} & def & 103\\
+\texttt{CharacterModule.\allowbreak{}homEquiv} & def & 72\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Algebra.Module.Injective}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Module.\allowbreak{}Injective} & class & 16\\
+\texttt{Module.\allowbreak{}Baer} & def & 16\\
+\texttt{Module.\allowbreak{}Baer.\allowbreak{}ExtensionOf} & structure & 7\\
+\texttt{Module.\allowbreak{}Baer.\allowbreak{}extensionOfMax} & def & 6\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{NumberTheory\hfill{\normalsize\normalfont área \texttt{number-theory}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{algebraic-number-theory}, \texttt{analytic-number-theory}, \texttt{arithmetic-geometry}, \texttt{diophantine-equations}, \texttt{divisibility-gcd}, \texttt{elementary-number-theory}, \texttt{ideal-class-group}, \texttt{modular-arithmetic}, \texttt{number-fields}, \texttt{p-adic-valuations}\end{sloppypar}
+\subsection*{\texttt{NumberTheory.ModularForms.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{ModularForm.\allowbreak{}prod} & def & 1046\\
+\texttt{ModularForm.\allowbreak{}const} & def & 322\\
+\texttt{ModularForm} & structure & 47\\
+\texttt{ModularFormClass} & class & 38\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{NumberTheory.ModularForms.SlashInvariantForms}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{SlashInvariantForm.\allowbreak{}prod} & def & 1046\\
+\texttt{SlashInvariantForm.\allowbreak{}const} & def & 322\\
+\texttt{SlashInvariantForm} & structure & 27\\
+\texttt{SlashInvariantForm.\allowbreak{}coeHom} & def & 11\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{NumberTheory.NumberField.InfinitePlace.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{NumberField.\allowbreak{}InfinitePlace} & def & 181\\
+\texttt{NumberField.\allowbreak{}InfinitePlace.\allowbreak{}IsReal} & def & 59\\
+\texttt{NumberField.\allowbreak{}InfinitePlace.\allowbreak{}embedding} & def & 53\\
+\texttt{NumberField.\allowbreak{}InfinitePlace.\allowbreak{}IsComplex} & def & 50\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{AlgebraicTopology\hfill{\normalsize\normalfont área \texttt{topology}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{algebraic-topology}, \texttt{compactness}, \texttt{connectedness}, \texttt{covering-spaces}, \texttt{differential-topology}, \texttt{fundamental-group}, \texttt{geometric-topology}, \texttt{homotopy-theory}, \texttt{point-set-topology}, \texttt{separation-axioms}\end{sloppypar}
+\subsection*{\texttt{AlgebraicTopology.SimplexCategory.Defs}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{SimplexCategory.\allowbreak{}Hom.\allowbreak{}comp} & def & 1617\\
+\texttt{SimplexCategory.\allowbreak{}Truncated.\allowbreak{}inclusion} & abbrev & 169\\
+\texttt{SimplexCategory} & def & 124\\
+\texttt{SimplexCategory.\allowbreak{}Truncated.\allowbreak{}incl} & def & 19\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{FreeSimplexQuiver.\allowbreak{}homRel} & inductive & 19\\
+\texttt{SimplexCategoryGenRel} & def & 13\\
+\texttt{SimplexCategoryGenRel.\allowbreak{}generators} & abbrev & 4\\
+\texttt{FreeSimplexQuiver} & def & 1\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Analysis\hfill{\normalsize\normalfont área \texttt{analysis}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{banach-spaces}, \texttt{complex-analysis}, \texttt{conformal-maps}, \texttt{contour-integration}, \texttt{differentiation}, \texttt{functional-analysis}, \texttt{harmonic-analysis}, \texttt{hilbert-spaces}, \texttt{holomorphic-functions}, \texttt{lebesgue-integration}\end{sloppypar}
+\subsection*{\texttt{Analysis.Complex.Circle}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Circle} & def & 58\\
+\texttt{Circle.\allowbreak{}coeHom} & def & 11\\
+\texttt{Circle.\allowbreak{}toUnits} & def & 10\\
+\texttt{Circle.\allowbreak{}exp} & def & 9\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Analysis.Complex.UpperHalfPlane.Basic}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{UpperHalfPlane} & structure & 10\\
+\texttt{UpperHalfPlane.\allowbreak{}im} & def & 1\\
+\texttt{UpperHalfPlane.\allowbreak{}I} & def & 0\\
+\texttt{UpperHalfPlane.\allowbreak{}re} & def & 0\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Data\hfill{\normalsize\normalfont \textbf{sin área en el grafo}}}
+\begin{aviso}\Mathlib{} no organiza esta rama como un área del grafo. Puede que estos conceptos sean \texttt{T} y no toquen.\end{aviso}
+\subsection*{\texttt{Data.PFun}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{PFun.\allowbreak{}comp} & def & 1617\\
+\texttt{PFun.\allowbreak{}restrict} & def & 702\\
+\texttt{PFun.\allowbreak{}lift} & def & 618\\
+\texttt{PFun.\allowbreak{}image} & def & 415\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Data.TypeVec}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{TypeVec.\allowbreak{}comp} & def & 1617\\
+\texttt{TypeVec.\allowbreak{}prod} & def & 1046\\
+\texttt{TypeVec.\allowbreak{}const} & def & 322\\
+\texttt{TypeVec.\allowbreak{}last} & def & 155\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Dynamics\hfill{\normalsize\normalfont área \texttt{probability}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{brownian-motion}, \texttt{conditional-expectation}, \texttt{ergodic-theory}, \texttt{limit-theorems}, \texttt{markov-chains}, \texttt{martingale-theory}, \texttt{probability-theory}, \texttt{random-variables}, \texttt{stochastic-processes}\end{sloppypar}
+\subsection*{\texttt{Dynamics.Circle.RotationNumber.TranslationNumber}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{CircleDeg1Lift} & structure & 33\\
+\texttt{CircleDeg1Lift.\allowbreak{}translate} & def & 9\\
+\texttt{CircleDeg1Lift.\allowbreak{}toOrderIso} & def & 4\\
+\texttt{CircleDeg1Lift.\allowbreak{}transnumAuxSeq} & def & 0\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Dynamics.Flow}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Flow.\allowbreak{}restrict} & def & 702\\
+\texttt{Flow.\allowbreak{}reverse} & def & 164\\
+\texttt{Flow.\allowbreak{}orbit} & def & 63\\
+\texttt{IsInvariant} & def & 9\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Geometry\hfill{\normalsize\normalfont área \texttt{geometry}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{affine-varieties}, \texttt{algebraic-geometry}, \texttt{circle-geometry}, \texttt{complex-geometry}, \texttt{differential-forms}, \texttt{differential-geometry}, \texttt{euclidean-geometry}, \texttt{projective-geometry}, \texttt{projective-varieties}, \texttt{riemannian-geometry}\end{sloppypar}
+\subsection*{\texttt{Geometry.Manifold.Algebra.LeftInvariantDerivation}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{LeftInvariantDerivation.\allowbreak{}coeFnAddMonoidHom} & def & 13\\
+\texttt{LeftInvariantDerivation} & structure & 6\\
+\texttt{LeftInvariantDerivation.\allowbreak{}evalAt} & def & 6\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\subsection*{\texttt{Geometry.Manifold.Algebra.LieGroup}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{LieGroup} & class & 6\\
+\texttt{LieAddGroup} & class & 2\\
+\texttt{ContMDiffInv₀} & class & 0\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{AlgebraicGeometry\hfill{\normalsize\normalfont área \texttt{geometry}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{affine-varieties}, \texttt{algebraic-geometry}, \texttt{circle-geometry}, \texttt{complex-geometry}, \texttt{differential-forms}, \texttt{differential-geometry}, \texttt{euclidean-geometry}, \texttt{projective-geometry}, \texttt{projective-varieties}, \texttt{riemannian-geometry}\end{sloppypar}
+\subsection*{\texttt{AlgebraicGeometry.ProjectiveSpectrum.Topology}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{ProjectiveSpectrum.\allowbreak{}zeroLocus} & def & 139\\
+\texttt{ProjectiveSpectrum.\allowbreak{}basicOpen} & def & 91\\
+\texttt{ProjectiveSpectrum.\allowbreak{}vanishingIdeal} & def & 71\\
+\texttt{ProjectiveSpectrum} & structure & 46\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{LinearAlgebra\hfill{\normalsize\normalfont área \texttt{algebra}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{abelian-groups}, \texttt{bases-and-dimension}, \texttt{bilinear-forms}, \texttt{canonical-forms}, \texttt{character-theory}, \texttt{commutative-algebra}, \texttt{derived-category}, \texttt{eigen-theory}, \texttt{exact-sequences}, \texttt{field-extensions}\end{sloppypar}
+\subsection*{\texttt{LinearAlgebra.AffineSpace.FiniteDimensional}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Collinear} & def & 70\\
+\texttt{Coplanar} & def & 13\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{ModelTheory\hfill{\normalsize\normalfont área \texttt{logic}}}
+\begin{sloppypar}\noindent\small\textit{Padres candidatos ya en el grafo:} \texttt{compactness-theorem}, \texttt{homotopy-type-theory}, \texttt{incompleteness}, \texttt{model-theory}, \texttt{proof-theory}, \texttt{sequent-calculus}, \texttt{ultraproducts}\end{sloppypar}
+\subsection*{\texttt{ModelTheory.Arithmetic.Presburger.Semilinear.Defs}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{IsSemilinearSet} & def & 42\\
+\texttt{IsLinearSet} & def & 18\\
+\texttt{IsProperSemilinearSet} & def & 10\\
+\texttt{IsProperLinearSet} & def & 6\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section{Order\hfill{\normalsize\normalfont \textbf{sin área en el grafo}}}
+\begin{aviso}\Mathlib{} no organiza esta rama como un área del grafo. Puede que estos conceptos sean \texttt{T} y no toquen.\end{aviso}
+\subsection*{\texttt{Order.PFilter}}
+\noindent\begin{minipage}{0.56\linewidth}\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.58\linewidth}ll@{}}\toprule
+identificador & tipo & citas\\\midrule
+\texttt{Order.\allowbreak{}PFilter.\allowbreak{}principal} & def & 16\\
+\texttt{Order.\allowbreak{}PFilter} & structure & 6\\
+\texttt{Order.\allowbreak{}IsPFilter} & def & 2\\
+\texttt{Order.\allowbreak{}IsPFilter.\allowbreak{}toPFilter} & def & 0\\
+\bottomrule\end{tabular}\end{minipage}\hfill\begin{minipage}{0.40\linewidth}\small$\square$~marca \texttt{C S F O T}\par\smallskip$\square$~padre: \dotfill\par\smallskip$\square$~se quedan: \dotfill\par\end{minipage}\par\medskip
+\section*{Antes de dar por buena una tanda}
+
+\begin{marca}
+\noindent\texttt{python -m scripts.recuperacion\_contra\_proofnet}\par\smallskip
+Precisión y cobertura contra 371 formalizaciones de oro, con su modelo nulo y
+sin gastar API.\par\medskip
+\textbf{Baseline hoy: 21,3\,\% / 18,4\,\% contra 1,45\,\% / 3,3\,\% —
+14,7$\times$.} Si la precisión baja, esa tanda \textbf{no entra}.\par\medskip
+Ya pasó: ofrecer los sustantivos de los nodos generados bajaba de 14,0\,\% a
+11,5\,\%. Añadir vocabulario tiene coste.
+\end{marca}
+
+\end{document}
