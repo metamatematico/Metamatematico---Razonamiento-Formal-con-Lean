@@ -50,6 +50,35 @@ def main():
         return 1
     j = html.find("</script>", i)
     nuevo = html[:i + len(MARCA)] + crudo + html[j:]
+
+    # LAS CIFRAS DEL ENCABEZADO TAMBIEN, o se pudren en cada regeneracion.
+    # Estaban escritas a mano y este script solo cambiaba el bloque de datos:
+    # la pagina cargaba 352 nodos y seguia anunciando 321. Una pagina que dice
+    # mal su propio tamano es el fallo mas barato de evitar.
+    def mil(n):
+        return "%d" % n if n < 1000 else "%d %03d" % (n // 1000, n % 1000)
+
+    def cuenta(sort):
+        return sum(1 for x in d["nodos"] if x.get("s") == sort)
+
+    parches = [
+        (r"(<span><b>)\d+(</b> identidades</span>)", str(d["identidades"])),
+        (r"(<b>)[\d ]+ nodos, [\d ]+ morfismos(</b>)",
+         "%s nodos, %s morfismos" % (mil(len(d["nodos"])),
+                                     mil(len(d["aristas"])))),
+        (r'(font-weight:600">)\d+\s*\n?\s*(CONCEPTO</span>)', str(cuenta("CONCEPTO"))),
+        (r'(font-weight:600">)\d+ (MODULO</span>)', str(cuenta("MODULO"))),
+        (r'(font-weight:600">)\d+ (TACTICA</span>)', str(cuenta("TACTICA"))),
+    ]
+    for patron, valor in parches:
+        nuevo, k = re.subn(patron, lambda m, v=valor: m.group(1) + v + (
+            " " if not m.group(2).startswith(("CONCEPTO", "</b>")) else
+            ("\n        " if m.group(2).startswith("CONCEPTO") else "")
+        ) + m.group(2), nuevo, count=1)
+        if not k:
+            print("  AVISO: no se pudo actualizar la cifra %r del encabezado"
+                  % patron)
+
     io.open(HTML, "w", encoding="utf-8").write(nuevo)
 
     print("nodos %d · aristas %d · identidades %d · sectores %d"

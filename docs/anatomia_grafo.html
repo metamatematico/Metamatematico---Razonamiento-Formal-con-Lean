@@ -198,10 +198,10 @@ svg .ln{stroke:var(--muted);fill:none}
   <p class="toc-s">Las tres capas anteriores a la frontera:<br>qué contienen y qué está comprobado.</p>
   <ol>
     <li><a href="#que">Qué es, y qué no es</a></li>
-    <li><a href="#procedencia">Procedencia: 173 y 147</a></li>
+    <li><a href="#procedencia">Procedencia: 205 y 147</a></li>
     <li><a href="#objetos">Los objetos: cinco sorts</a></li>
     <li><a href="#pilares">Los diez fundacionales</a></li>
-    <li><a href="#curados">Los 159 conceptos curados</a></li>
+    <li><a href="#curados">Los 190 conceptos curados</a></li>
     <li><a href="#derivados">Los 147 leídos de Mathlib</a></li>
     <li><a href="#flechas">Las flechas, una por una</a></li>
     <li><a href="#vocabulario">El vocabulario</a></li>
@@ -213,10 +213,10 @@ svg .ln{stroke:var(--muted);fill:none}
     <li><a href="#construir">Cómo se construye</a></li>
   </ol>
   <p class="toc-f">
-    321 objetos · 1386 morfismos<br>
-    174 curados · 147 derivados<br>
-    4337 palabras clave<br>
-    176 nombres de Mathlib<br>
+    352 objetos · 1578 morfismos<br>
+    205 curados · 147 derivados<br>
+    4676 palabras clave<br>
+    217 nombres de Mathlib<br>
     0 ciclos de dependencia
   </p>
 </nav>
@@ -224,7 +224,7 @@ svg .ln{stroke:var(--muted);fill:none}
 <main>
   <header class="hero">
     <p class="hero-k"><span class="dot"></span>El grafo de conocimiento, en detalle</p>
-    <h1>321 objetos, 1 354 flechas, y de dónde sale <em>cada una</em></h1>
+    <h1>352 objetos, 1 578 flechas, y de dónde sale <em>cada una</em></h1>
     <p class="lede">Es el grafo que <strong>Metamatemático</strong> consulta
     para convertir una pregunta en castellano o en inglés en un enunciado de
     Lean&nbsp;4 que el kernel pueda verificar. Ocupa las tres capas que actúan
@@ -236,20 +236,20 @@ svg .ln{stroke:var(--muted);fill:none}
     quién escribió cada parte, qué evidencia respalda cada flecha y qué se ha
     medido de él — incluido lo que no funciona.</p>
     <div class="cifras">
-      <div><div class="n">321</div><div class="l">objetos</div></div>
-      <div><div class="n">1 349</div><div class="l">morfismos</div></div>
-      <div><div class="n">173</div><div class="l">hechos a mano</div></div>
+      <div><div class="n">352</div><div class="l">objetos</div></div>
+      <div><div class="n">1 578</div><div class="l">morfismos</div></div>
+      <div><div class="n">205</div><div class="l">hechos a mano</div></div>
       <div><div class="n">147</div><div class="l">leídos de Mathlib</div></div>
-      <div><div class="n">173</div><div class="l">nombres de Mathlib</div></div>
+      <div><div class="n">217</div><div class="l">nombres de Mathlib</div></div>
     </div>
   </header>
 
   <section id="que">
     <div class="head"><span class="num">01</span><h2>Qué es, y qué no es</h2></div>
 
-    <p>Es una <strong>categoría finita</strong>: 321 objetos, 1 356 morfismos,
+    <p>Es una <strong>categoría finita</strong>: 352 objetos, 1 578 morfismos,
     identidad en cada objeto y composición por transitividad. No es un grafo de
-    etiquetas al que se le llame categoría — las 320 identidades están
+    etiquetas al que se le llame categoría — las 352 identidades están
     explícitas porque la definición las exige, y el constructor rechaza
     morfismos mal tipados.</p>
 
@@ -264,7 +264,7 @@ svg .ln{stroke:var(--muted);fill:none}
     <div class="nota v">
       <b>Lo que NO es</b>
       <p><strong>No es el grafo de Mathlib.</strong> Mathlib son 7 747 módulos y
-      21 378 aristas de import; aquí hay 321 objetos. Los 125 nodos de módulo
+      21 378 aristas de import; aquí hay 352 objetos. Los 125 nodos de módulo
       que sí vienen de Mathlib son una selección por umbral de teoremas, no una
       copia reducida.</p>
       <p><strong>No contiene los hechos.</strong> Los 183 433 teoremas y lemas
@@ -281,14 +281,14 @@ svg .ln{stroke:var(--muted);fill:none}
       <b>Se puede recorrer entero</b>
       <p>Todo lo que describe este documento está en
       <strong><a href="https://claude.ai/code/artifact/eeb735d8-9854-490b-91e1-53c2ff9bad09">el
-      explorador interactivo</a></strong>: los 321 nodos con su ficha completa,
+      explorador interactivo</a></strong>: los 352 nodos con su ficha completa,
       filtro por sort y área, búsqueda por identificador, nombre o palabra
       clave, y las dos vecindades de cada nodo navegables.</p>
     </div>
   </section>
 
   <section id="procedencia">
-    <div class="head"><span class="num">02</span><h2>Procedencia: <span class="g">173</span> y <span class="v">147</span></h2></div>
+    <div class="head"><span class="num">02</span><h2>Procedencia: <span class="g">205</span> y <span class="v">147</span></h2></div>
 
     <p>La pregunta que más confunde al mirar el grafo es cuánto de él es nuestro
     y cuánto viene de Mathlib. La respuesta está en el propio dato: cada nodo
@@ -296,51 +296,51 @@ svg .ln{stroke:var(--muted);fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Reparto de los 321 objetos del grafo por procedencia. 173 son nuestros, escritos a mano: 158 conceptos con veredicto categórico, 9 tácticas y 6 estrategias, y ninguno lleva campo origen. 147 vienen de Mathlib: 125 nodos de módulo con origen igual a mathlib y 22 nodos de área con origen igual a jerarquia-mathlib, y los dos grupos van marcados interpretado igual a False porque nadie los ha leído categóricamente. Debajo, el mismo reparto aplicado a las flechas: de los 1029 morfismos que no son identidades, 683 van enteramente entre nodos nuestros, 221 salen de un nodo nuestro hacia uno de Mathlib o al revés, y 125 son internas a los nodos de Mathlib y reproducen su anidamiento de módulos." viewBox="0 0 1000 320" style="min-width:660px">
-  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">LOS 320 OBJETOS</text>
+<svg role="img" aria-label="Reparto de los 352 objetos del grafo por procedencia. 205 son nuestros, escritos a mano: 190 conceptos con veredicto categórico, 9 tácticas y 6 estrategias, y ninguno lleva campo origen. 147 vienen de Mathlib: 125 nodos de módulo con origen igual a mathlib y 22 nodos de área con origen igual a jerarquia-mathlib, y los dos grupos van marcados interpretado igual a False porque nadie los ha leído categóricamente. Debajo, el mismo reparto aplicado a las flechas: de los 1226 morfismos que no son identidades, 813 van enteramente entre nodos nuestros, 288 salen de un nodo nuestro hacia uno de Mathlib o al revés, y 125 son internas a los nodos de Mathlib y reproducen su anidamiento de módulos." viewBox="0 0 1000 320" style="min-width:660px">
+  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">LOS 352 OBJETOS</text>
 
-  <rect x="16" y="30" width="524" height="42" rx="7" fill="var(--nuestro)" opacity=".92"/>
-  <text x="34" y="56" font-size="13.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">NUESTROS · 173</text>
+  <rect x="16" y="30" width="556" height="42" rx="7" fill="var(--nuestro)" opacity=".92"/>
+  <text x="34" y="56" font-size="13.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">NUESTROS · 205</text>
   <text x="196" y="56" font-size="11.5" fill="#fff" opacity=".85" font-family="'IBM Plex Mono',monospace">origen = None</text>
 
-  <rect x="548" y="30" width="436" height="42" rx="7" fill="var(--mathlib)" opacity=".92"/>
-  <text x="566" y="56" font-size="13.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">DE MATHLIB · 147</text>
-  <text x="736" y="56" font-size="11.5" fill="#fff" opacity=".85" font-family="'IBM Plex Mono',monospace">interpretado = False</text>
+  <rect x="580" y="30" width="404" height="42" rx="7" fill="var(--mathlib)" opacity=".92"/>
+  <text x="598" y="56" font-size="13.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">DE MATHLIB · 147</text>
+  <text x="768" y="56" font-size="11.5" fill="#fff" opacity=".85" font-family="'IBM Plex Mono',monospace">interpretado = False</text>
 
-  <rect x="16" y="80" width="478" height="30" rx="5" fill="var(--nuestro)" opacity=".55"/>
-  <text class="t" x="30" y="100" font-size="11.5" font-weight="600">CONCEPTO · 159</text>
-  <rect x="498" y="80" width="27" height="30" rx="5" fill="var(--tactica)" opacity=".8"/>
-  <rect x="529" y="80" width="18" height="30" rx="5" fill="var(--estr)" opacity=".8"/>
-  <rect x="551" y="80" width="378" height="30" rx="5" fill="var(--mathlib)" opacity=".5"/>
-  <text class="t" x="565" y="100" font-size="11.5" font-weight="600">MODULO · 125</text>
-  <rect x="933" y="80" width="51" height="30" rx="5" fill="var(--mathlib)" opacity=".78"/>
+  <rect x="16" y="80" width="515" height="30" rx="5" fill="var(--nuestro)" opacity=".55"/>
+  <text class="t" x="30" y="100" font-size="11.5" font-weight="600">CONCEPTO · 190</text>
+  <rect x="535" y="80" width="24" height="30" rx="5" fill="var(--tactica)" opacity=".8"/>
+  <rect x="563" y="80" width="16" height="30" rx="5" fill="var(--estr)" opacity=".8"/>
+  <rect x="583" y="80" width="344" height="30" rx="5" fill="var(--mathlib)" opacity=".5"/>
+  <text class="t" x="597" y="100" font-size="11.5" font-weight="600">MODULO · 125</text>
+  <rect x="931" y="80" width="53" height="30" rx="5" fill="var(--mathlib)" opacity=".78"/>
 
-  <text class="d" x="16" y="128" font-size="10.5" font-family="'IBM Plex Mono',monospace">CONCEPTO 158</text>
+  <text class="d" x="16" y="128" font-size="10.5" font-family="'IBM Plex Mono',monospace">CONCEPTO 190</text>
   <text class="d" x="150" y="128" font-size="10.5" font-family="'IBM Plex Mono',monospace">TACTICA 9</text>
   <text class="d" x="250" y="128" font-size="10.5" font-family="'IBM Plex Mono',monospace">ESTRATEGIA 6</text>
   <text class="d" x="390" y="128" font-size="10.5" font-family="'IBM Plex Mono',monospace">MODULO 125</text>
   <text class="d" x="520" y="128" font-size="10.5" font-family="'IBM Plex Mono',monospace">AREA 22</text>
 
   <line x1="16" y1="150" x2="984" y2="150" stroke="var(--border)" stroke-width="1"/>
-  <text class="m d" x="16" y="176" font-size="10.5" letter-spacing="1.3">LAS 1 029 FLECHAS QUE NO SON IDENTIDADES</text>
+  <text class="m d" x="16" y="176" font-size="10.5" letter-spacing="1.3">LAS 1 226 FLECHAS QUE NO SON IDENTIDADES</text>
 
-  <rect x="16" y="190" width="643" height="38" rx="7" fill="var(--nuestro)" opacity=".85"/>
-  <text x="34" y="214" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">entre nodos nuestros · 683</text>
+  <rect x="16" y="190" width="641" height="38" rx="7" fill="var(--nuestro)" opacity=".85"/>
+  <text x="34" y="214" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">entre nodos nuestros · 813</text>
 
-  <rect x="663" y="190" width="208" height="38" rx="7" fill="var(--estr)" opacity=".82"/>
-  <text x="678" y="214" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">la costura · 221</text>
+  <rect x="661" y="190" width="227" height="38" rx="7" fill="var(--estr)" opacity=".82"/>
+  <text x="676" y="214" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">la costura · 288</text>
 
-  <rect x="875" y="190" width="109" height="38" rx="7" fill="var(--mathlib)" opacity=".85"/>
-  <text x="888" y="214" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">Mathlib · 125</text>
+  <rect x="892" y="190" width="92" height="38" rx="7" fill="var(--mathlib)" opacity=".85"/>
+  <text x="900" y="214" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">Mathlib · 125</text>
 
-  <text class="d" x="16" y="250" font-size="11">439 traducción · 237 dependencia · 7 analogía</text>
-  <text class="d" x="663" y="250" font-size="11">147 hacia Mathlib</text>
-  <text class="d" x="663" y="266" font-size="11">74 de vuelta</text>
-  <text class="d" x="875" y="250" font-size="11">anidamiento</text>
-  <text class="d" x="875" y="266" font-size="11">de módulos</text>
+  <text class="d" x="16" y="250" font-size="11">535 traducción · 271 dependencia · 7 analogía</text>
+  <text class="d" x="676" y="250" font-size="11">147 hacia Mathlib</text>
+  <text class="d" x="676" y="266" font-size="11">141 de vuelta</text>
+  <text class="d" x="892" y="250" font-size="11">anidamiento</text>
+  <text class="d" x="892" y="266" font-size="11">de módulos</text>
 
   <rect x="16" y="284" width="968" height="30" rx="7" fill="var(--surface-2)" stroke="var(--border)" stroke-width="1.1"/>
-  <text class="t" x="34" y="304" font-size="11.5">Sólo <tspan font-weight="600">125 flechas de 1 029</tspan> vienen tal cual de Mathlib. Las otras 904 las pusimos nosotros — 434 de ellas con una cuota medida sobre Mathlib que las respalda.</text>
+  <text class="t" x="34" y="304" font-size="11.5">Sólo <tspan font-weight="600">125 flechas de 1 226</tspan> vienen tal cual de Mathlib. Las otras 1 101 las pusimos nosotros — 531 de ellas con una cuota medida sobre Mathlib que las respalda.</text>
 </svg>
       </div>
       <figcaption><b>Fig. 1 —</b> Procedencia de objetos y flechas. El campo
@@ -354,7 +354,7 @@ svg .ln{stroke:var(--muted);fill:none}
       <table>
         <thead><tr><th>grupo</th><th class="mono">cuántos</th><th class="mono">origen</th><th>quién lo escribió</th></tr></thead>
         <tbody>
-          <tr><td><strong>CONCEPTO</strong></td><td class="mono">159</td><td class="mono">—</td><td>a mano, con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos»</td></tr>
+          <tr><td><strong>CONCEPTO</strong></td><td class="mono">190</td><td class="mono">—</td><td>a mano, con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos»</td></tr>
           <tr><td><strong>TACTICA</strong></td><td class="mono">9</td><td class="mono">—</td><td>a mano — las herramientas de prueba de Lean</td></tr>
           <tr><td><strong>ESTRATEGIA</strong></td><td class="mono">6</td><td class="mono">—</td><td>a mano — formas de demostrar</td></tr>
           <tr><td><strong>MODULO</strong></td><td class="mono">125</td><td class="mono">mathlib</td><td>generado desde la taxonomía de módulos, con umbral de teoremas</td></tr>
@@ -375,10 +375,10 @@ svg .ln{stroke:var(--muted);fill:none}
 
     <div class="rejilla">
       <div class="tarj">
-        <h4 style="color:var(--nuestro)">CONCEPTO · 159</h4>
+        <h4 style="color:var(--nuestro)">CONCEPTO · 190</h4>
         <p>Lleva veredicto categórico. <strong>Es el único sort que aporta
         nombres de Mathlib al prompt.</strong></p>
-        <span class="kv">113 con nombres · 45 sin<br>926 palabras clave · 5,9 de media</span>
+        <span class="kv">146 con nombres · 44 sin<br>1 265 palabras clave · 6,7 de media</span>
       </div>
       <div class="tarj">
         <h4 style="color:var(--mathlib)">MODULO · 125</h4>
@@ -419,7 +419,7 @@ svg .ln{stroke:var(--muted);fill:none}
 
     <pre>nivel 0   <b> 10</b>   los fundacionales — el suelo del sistema
 nivel 1   <b> 55</b>   las grandes ramas
-nivel 2   <b>159</b>   los dominios
+nivel 2   <b>190</b>   los dominios
 nivel 3   <b> 96</b>   las sub-ramas</pre>
   </section>
 
@@ -453,8 +453,8 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Alcance de cada uno de los diez nodos fundacionales, medido siguiendo flechas hacia delante sin límite de saltos, sobre un total de 321 nodos. fol-deduction alcanza 319, es decir todo el grafo salvo él mismo. zfc-axioms alcanza 288. cat-basics 46, functors 35, cic 25, lean-kernel 20, fol-metatheory 16, limits 9, y ordinals y nat-trans 7 cada uno. La lectura es que la lógica de primer orden es la raíz efectiva del grafo entero, y lo es por una sola arista curada que va de fol-deduction a zfc-axioms." viewBox="0 0 1000 270" style="min-width:620px">
-  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">NODOS QUE ALCANZA · SOBRE 320</text>
+<svg role="img" aria-label="Alcance de cada uno de los diez nodos fundacionales, medido siguiendo flechas hacia delante sin límite de saltos, sobre un total de 352 nodos. fol-deduction alcanza 351, es decir todo el grafo salvo él mismo. zfc-axioms alcanza 315. cat-basics 48, functors 37, cic 31, fol-metatheory 22, lean-kernel 20, limits 9, y ordinals y nat-trans 7 cada uno. La lectura es que la lógica de primer orden es la raíz efectiva del grafo entero, y lo es por una sola arista curada que va de fol-deduction a zfc-axioms." viewBox="0 0 1000 270" style="min-width:620px">
+  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">NODOS QUE ALCANZA · SOBRE 352</text>
   <line x1="228" y1="26" x2="228" y2="230" stroke="var(--border)" stroke-width="1"/>
   <line x1="452" y1="26" x2="452" y2="230" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
   <line x1="676" y1="26" x2="676" y2="230" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
@@ -464,32 +464,32 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
   <text class="d" x="900" y="248" font-size="10" text-anchor="middle" font-family="'IBM Plex Mono',monospace">300</text>
 
   <text class="m" x="16" y="44" font-size="11.5">fol-deduction</text>
-  <rect x="228" y="34" width="715" height="14" rx="3" fill="var(--nuestro)" opacity=".92"/>
-  <text class="m" x="951" y="45" font-size="11" fill="var(--nuestro)">319</text>
+  <rect x="228" y="34" width="786" height="14" rx="3" fill="var(--nuestro)" opacity=".92"/>
+  <text class="m" x="1022" y="45" font-size="11" fill="var(--nuestro)">351</text>
 
   <text class="m" x="16" y="66" font-size="11.5">zfc-axioms</text>
-  <rect x="228" y="56" width="645" height="14" rx="3" fill="var(--nuestro)" opacity=".92"/>
-  <text class="m" x="881" y="67" font-size="11" fill="var(--nuestro)">288</text>
+  <rect x="228" y="56" width="706" height="14" rx="3" fill="var(--nuestro)" opacity=".92"/>
+  <text class="m" x="942" y="67" font-size="11" fill="var(--nuestro)">315</text>
 
   <text class="m" x="16" y="88" font-size="11.5">cat-basics</text>
-  <rect x="228" y="78" width="103" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
-  <text class="m d" x="339" y="89" font-size="11">46</text>
+  <rect x="228" y="78" width="108" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
+  <text class="m d" x="344" y="89" font-size="11">48</text>
 
   <text class="m" x="16" y="110" font-size="11.5">functors</text>
-  <rect x="228" y="100" width="78" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
-  <text class="m d" x="314" y="111" font-size="11">35</text>
+  <rect x="228" y="100" width="83" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
+  <text class="m d" x="319" y="111" font-size="11">37</text>
 
   <text class="m" x="16" y="132" font-size="11.5">cic</text>
-  <rect x="228" y="122" width="56" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
-  <text class="m d" x="292" y="133" font-size="11">25</text>
+  <rect x="228" y="122" width="69" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
+  <text class="m d" x="305" y="133" font-size="11">31</text>
 
   <text class="m" x="16" y="154" font-size="11.5">lean-kernel</text>
   <rect x="228" y="144" width="45" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
   <text class="m d" x="281" y="155" font-size="11">20</text>
 
   <text class="m" x="16" y="176" font-size="11.5">fol-metatheory</text>
-  <rect x="228" y="166" width="36" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
-  <text class="m d" x="272" y="177" font-size="11">16</text>
+  <rect x="228" y="166" width="49" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
+  <text class="m d" x="285" y="177" font-size="11">22</text>
 
   <text class="m" x="16" y="198" font-size="11.5">limits</text>
   <rect x="228" y="188" width="20" height="14" rx="3" fill="var(--nuestro)" opacity=".62"/>
@@ -501,7 +501,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
 </svg>
       </div>
       <figcaption><b>Fig. 2 —</b> Alcance de los pilares.
-      <code>fol-deduction</code> llega a 319 de 321 nodos: la lógica de primer
+      <code>fol-deduction</code> llega a 351 de 352 nodos: la lógica de primer
       orden es la raíz efectiva del grafo entero.</figcaption>
     </figure>
 
@@ -535,7 +535,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
   </section>
 
   <section id="curados">
-    <div class="head"><span class="num">05</span><h2>Los 158 conceptos <span class="g">curados</span></h2></div>
+    <div class="head"><span class="num">05</span><h2>Los 190 conceptos <span class="g">curados</span></h2></div>
 
     <p>Son los que llevan veredicto categórico y los únicos que aportan
     vocabulario de Mathlib al prompt. Su reparto por área dice dónde está
@@ -575,7 +575,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
       aquí.</p>
     </div>
 
-    <p><strong>45 de los 158 conceptos no aportan ningún nombre de
+    <p><strong>44 de los 190 conceptos no aportan ningún nombre de
     Mathlib</strong> — <code>analytic-number-theory</code>,
     <code>computability-theory</code>, <code>convex-optimization</code>,
     <code>enumerative-combinatorics</code>… Existen como concepto, se pueden
@@ -659,41 +659,41 @@ area-measuretheory     6 · 11</pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Desglose de los 1356 morfismos del grafo por tipo y por procedencia. Las 583 dependencias se reparten en 223 curadas a mano sin metadatos de construcción, 221 derivadas de la jerarquía de módulos de Mathlib, 125 de cobertura que cosen los nodos generados a su área, y 14 con una construcción matemática nombrada explícitamente como localización, colapso, cadenas singulares u homología. Las 439 traducciones son sólo 5 traducciones reales entre pilares; las otras 434 son aristas de concepto a táctica, cada una con una cuota medida sobre Mathlib que dice qué porcentaje de las pruebas de esa área usan esa táctica. Las 7 analogías son correspondencias débiles marcadas explícitamente como tales. Y las 320 identidades son una por objeto, como exige la definición de categoría." viewBox="0 0 1000 400" style="min-width:680px">
-  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">DEPENDENCY · 586 — el orden del grafo</text>
-  <rect x="16" y="28" width="367" height="34" rx="6" fill="var(--nuestro)" opacity=".9"/>
-  <text x="30" y="50" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">curadas a mano · 223</text>
-  <rect x="387" y="28" width="364" height="34" rx="6" fill="var(--mathlib)" opacity=".82"/>
-  <text x="401" y="50" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">jerarquía de módulos · 221</text>
-  <rect x="755" y="28" width="206" height="34" rx="6" fill="var(--mathlib)" opacity=".55"/>
-  <text class="t" x="769" y="50" font-size="12" font-weight="600">cobertura · 125</text>
-  <rect x="965" y="28" width="19" height="34" rx="6" fill="var(--estr)" opacity=".85"/>
+<svg role="img" aria-label="Desglose de los 1578 morfismos del grafo por tipo y por procedencia. Las 684 dependencias se reparten en 257 curadas a mano sin metadatos de construcción, 288 derivadas de la jerarquía de módulos de Mathlib, 125 de cobertura que cosen los nodos generados a su área, y 14 con una construcción matemática nombrada explícitamente como localización, colapso, cadenas singulares u homología. Las 535 traducciones son sólo 4 traducciones reales entre pilares; las otras 531 son aristas de concepto a táctica, cada una con una cuota medida sobre Mathlib que dice qué porcentaje de las pruebas de esa área usan esa táctica. Las 7 analogías son correspondencias débiles marcadas explícitamente como tales. Y las 352 identidades son una por objeto, como exige la definición de categoría." viewBox="0 0 1000 400" style="min-width:680px">
+  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">DEPENDENCY · 684 — el orden del grafo</text>
+  <rect x="16" y="28" width="364" height="34" rx="6" fill="var(--nuestro)" opacity=".9"/>
+  <text x="30" y="50" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">curadas a mano · 257</text>
+  <rect x="384" y="28" width="408" height="34" rx="6" fill="var(--mathlib)" opacity=".82"/>
+  <text x="398" y="50" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">jerarquía de módulos · 288</text>
+  <rect x="796" y="28" width="177" height="34" rx="6" fill="var(--mathlib)" opacity=".55"/>
+  <text class="t" x="810" y="50" font-size="12" font-weight="600">cobertura · 125</text>
+  <rect x="977" y="28" width="7" height="34" rx="6" fill="var(--estr)" opacity=".85"/>
   <text class="d" x="16" y="78" font-size="10.5" font-family="'IBM Plex Mono',monospace">sin construcción declarada</text>
-  <text class="d" x="387" y="78" font-size="10.5" font-family="'IBM Plex Mono',monospace">construccion=jerarquia</text>
-  <text class="d" x="755" y="78" font-size="10.5" font-family="'IBM Plex Mono',monospace">construccion=cobertura</text>
+  <text class="d" x="384" y="78" font-size="10.5" font-family="'IBM Plex Mono',monospace">construccion=jerarquia</text>
+  <text class="d" x="796" y="78" font-size="10.5" font-family="'IBM Plex Mono',monospace">construccion=cobertura</text>
   <text class="d" x="890" y="94" font-size="10.5" font-family="'IBM Plex Mono',monospace">14 nombradas →</text>
 
   <line x1="16" y1="112" x2="984" y2="112" stroke="var(--border)" stroke-width="1"/>
-  <text class="m d" x="16" y="136" font-size="10.5" letter-spacing="1.3">TRANSLATION · 442 — y sólo 5 son traducciones entre pilares</text>
-  <rect x="16" y="148" width="315" height="34" rx="6" fill="var(--tactica)" opacity=".72"/>
-  <text x="30" y="170" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">→ tactic-simp · 143</text>
-  <rect x="335" y="148" width="297" height="34" rx="6" fill="var(--tactica)" opacity=".58"/>
-  <text x="349" y="170" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">→ tactic-rewrite · 135</text>
-  <rect x="636" y="148" width="260" height="34" rx="6" fill="var(--tactica)" opacity=".44"/>
-  <text class="t" x="650" y="170" font-size="12" font-weight="600">→ tactic-aesop · 118</text>
-  <rect x="900" y="148" width="48" height="34" rx="6" fill="var(--tactica)" opacity=".3"/>
-  <rect x="952" y="148" width="21" height="34" rx="6" fill="var(--tactica)" opacity=".22"/>
+  <text class="m d" x="16" y="136" font-size="10.5" letter-spacing="1.3">TRANSLATION · 535 — y sólo 4 son traducciones entre pilares</text>
+  <rect x="16" y="148" width="320" height="34" rx="6" fill="var(--tactica)" opacity=".72"/>
+  <text x="30" y="170" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">→ tactic-simp · 176</text>
+  <rect x="340" y="148" width="295" height="34" rx="6" fill="var(--tactica)" opacity=".58"/>
+  <text x="354" y="170" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">→ tactic-rewrite · 162</text>
+  <rect x="639" y="148" width="260" height="34" rx="6" fill="var(--tactica)" opacity=".44"/>
+  <text class="t" x="653" y="170" font-size="12" font-weight="600">→ tactic-aesop · 143</text>
+  <rect x="903" y="148" width="55" height="34" rx="6" fill="var(--tactica)" opacity=".3"/>
+  <rect x="962" y="148" width="15" height="34" rx="6" fill="var(--tactica)" opacity=".22"/>
   <rect x="977" y="148" width="7" height="34" rx="3" fill="var(--estr)" opacity=".9"/>
-  <text class="d" x="16" y="198" font-size="10.5" font-family="'IBM Plex Mono',monospace">434 aristas concepto → táctica, cada una con su cuota medida sobre Mathlib</text>
-  <text class="d" x="880" y="214" font-size="10.5" font-family="'IBM Plex Mono',monospace">ring 22 · ind 11 · omega 5</text>
-  <text x="977" y="214" font-size="10.5" fill="var(--estr)" font-family="'IBM Plex Mono',monospace" text-anchor="end">5 entre pilares ↑</text>
+  <text class="d" x="16" y="198" font-size="10.5" font-family="'IBM Plex Mono',monospace">531 aristas concepto → táctica, cada una con su cuota medida sobre Mathlib</text>
+  <text class="d" x="880" y="214" font-size="10.5" font-family="'IBM Plex Mono',monospace">ring 30 · ind 15 · omega 5</text>
+  <text x="977" y="214" font-size="10.5" fill="var(--estr)" font-family="'IBM Plex Mono',monospace" text-anchor="end">4 entre pilares ↑</text>
 
   <line x1="16" y1="232" x2="984" y2="232" stroke="var(--border)" stroke-width="1"/>
   <text class="m d" x="16" y="256" font-size="10.5" letter-spacing="1.3">ANALOGY · 7 — correspondencias débiles, marcadas como tales</text>
   <rect x="16" y="268" width="120" height="26" rx="6" fill="var(--estr)" opacity=".75"/>
   <text class="t" x="146" y="286" font-size="11.5">homología en álgebra y en topología · definibilidad ↔ computabilidad · cohomología étale…</text>
 
-  <text class="m d" x="16" y="326" font-size="10.5" letter-spacing="1.3">IDENTITY · 321 — una por objeto</text>
+  <text class="m d" x="16" y="326" font-size="10.5" letter-spacing="1.3">IDENTITY · 352 — una por objeto</text>
   <rect x="16" y="338" width="968" height="26" rx="6" fill="var(--nulo)" opacity=".45"/>
   <text class="t" x="30" y="356" font-size="11.5" font-weight="600">no son decorativas: la definición de categoría las exige, y sin ellas la composición no tiene neutro</text>
 
@@ -768,8 +768,8 @@ probability    simp <b>52 %</b> · rewrite 28 % · aesop     11 %</pre>
     palabra clave que case, un nodo sólo se alcanza recorriendo flechas desde
     otro.</p>
 
-    <pre>palabras clave declaradas   <b>4 337</b>
-distintas                   <b>1 924</b>   → 2 413 son repeticiones entre nodos
+    <pre>palabras clave declaradas   <b>4 676</b>
+distintas                   <b>2 233</b>   → 2 443 son repeticiones entre nodos
 frases de varias palabras     <b>335</b>   valen más que un token suelto
 con acento                     <b>66</b>   el alumno escribe con ellos
 nodos sin ninguna              <b>15</b>   las 9 tácticas + 6 estrategias, y nada más</pre>
@@ -779,7 +779,7 @@ nodos sin ninguna              <b>15</b>   las 9 tácticas + 6 estrategias, y na
         <thead><tr><th>sort</th><th class="mono">nodos</th><th class="mono">palabras clave</th><th class="mono">media</th><th>de dónde salen</th></tr></thead>
         <tbody>
           <tr><td class="mono">MODULO</td><td class="mono">125</td><td class="mono">3 000</td><td class="mono">24,0</td><td>contadas por frecuencia en los nombres de declaración</td></tr>
-          <tr><td class="mono">CONCEPTO</td><td class="mono">159</td><td class="mono">926</td><td class="mono">5,9</td><td><strong>elegidas a mano</strong>, en castellano y en inglés</td></tr>
+          <tr><td class="mono">CONCEPTO</td><td class="mono">190</td><td class="mono">1 265</td><td class="mono">6,7</td><td><strong>elegidas a mano</strong>, en castellano y en inglés</td></tr>
           <tr><td class="mono">AREA</td><td class="mono">22</td><td class="mono">389</td><td class="mono">17,7</td><td>los nombres de rama y sus sinónimos</td></tr>
           <tr><td class="mono">TACTICA · ESTRATEGIA</td><td class="mono">15</td><td class="mono">0</td><td class="mono">—</td><td>ninguna</td></tr>
         </tbody>
@@ -812,9 +812,9 @@ exists  en 57                self    en 33</pre>
     verificados que entran en el prompt de formalización para que el modelo no
     los invente.</p>
 
-    <pre>nodos que aportan alguno     <b>114</b>   todos CONCEPTO — ningún MODULO ni AREA
+    <pre>nodos que aportan alguno     <b>146</b>   todos CONCEPTO — ningún MODULO ni AREA
 plazas ocupadas              <b>201</b>
-identificadores distintos    <b>176</b>   algunos los comparten varios nodos</pre>
+identificadores distintos    <b>217</b>   algunos los comparten varios nodos</pre>
 
     <figure>
       <div class="marco">
@@ -902,7 +902,7 @@ tactic-omega         7                real-analysis     16</pre>
       <table>
         <thead><tr><th>propiedad</th><th>estado en el grafo real</th><th>demostrado en Lean</th></tr></thead>
         <tbody>
-          <tr><td><strong>Identidad</strong><span class="sub">id en cada objeto</span></td><td class="mono">320 de 320 <span class="pill v">se cumple</span></td><td><code>preorder_is_thin</code></td></tr>
+          <tr><td><strong>Identidad</strong><span class="sub">id en cada objeto</span></td><td class="mono">352 de 352 <span class="pill v">se cumple</span></td><td><code>preorder_is_thin</code></td></tr>
           <tr><td><strong>Composición asociativa</strong><span class="sub">por transitividad</span></td><td class="mono"><span class="pill v">se cumple</span></td><td><code>preorder_comp_trans</code></td></tr>
           <tr><td><strong>Delgadez</strong><span class="sub">≤ 1 flecha por par, en la subcategoría de orden</span></td><td class="mono"><span class="pill v">se cumple</span></td><td><code>JoinColimit.lean</code></td></tr>
           <tr><td><strong>Colímites</strong><span class="sub">propiedad universal y unicidad del mediador</span></td><td class="mono"><span class="pill v">verificado</span></td><td><code>ColimitVerifier</code> · <code>JoinColimit</code> · <code>IsColimitBridge</code></td></tr>
@@ -963,7 +963,7 @@ tactic-omega         7                real-analysis     16</pre>
         <thead><tr><th>qué se mide del grafo</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
           <tr><td><strong>El vocabulario que inyecta</strong><span class="sub">371 ejercicios de ProofNet con formalización de oro, k=2</span></td><td class="mono">22,8 % precisión<br>18,0 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">15,7× · aporta</span></td></tr>
-          <tr><td><strong>Sus dependencias <em>curadas</em></strong><span class="sub">74 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">58 confirmadas<br>78,4 %</td><td class="mono">40,1 %</td><td><span class="pill v">1,95× · aporta</span></td></tr>
+          <tr><td><strong>Sus dependencias <em>curadas</em></strong><span class="sub">154 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">112 confirmadas<br>72,7 %</td><td class="mono">31,9 %</td><td><span class="pill v">2,28× · aporta</span></td></tr>
           <tr><td><strong>Su costura de <em>cobertura</em></strong><span class="sub">9 aristas <code>skill→módulo</code> medibles contra el mismo DAG</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
           <tr><td><strong>El área que acierta</strong><span class="sub">3 000 consultas etiquetadas · exactitud equilibrada</span></td><td class="mono">40,9 %</td><td class="mono">33,3 %</td><td><span class="pill">+7,6 · por encima del azar</span></td></tr>
           <tr><td><strong>Su cobertura de Mathlib</strong><span class="sub">teoremas alcanzados por concepto</span></td><td class="mono">137 476<br>de 173 636</td><td class="mono">—</td><td><span class="pill">79,2 %</span></td></tr>
@@ -1011,7 +1011,7 @@ tactic-omega         7                real-analysis     16</pre>
       consultas de fundamentos</strong>, así que el beneficio no se puede
       medir. Riesgo de regresión, cero; beneficio, no medido.</li>
 
-      <li><strong>45 de los 158 conceptos no aportan ningún nombre de
+      <li><strong>44 de los 190 conceptos no aportan ningún nombre de
       Mathlib.</strong> Abren el cono de su área pero no llevan vocabulario
       verificado al prompt, que es la contribución medida del grafo.</li>
 
@@ -1063,7 +1063,7 @@ tactic-omega         7                real-analysis     16</pre>
       <table>
         <thead><tr><th class="mono">fichero</th><th>qué aporta</th></tr></thead>
         <tbody>
-          <tr><td class="mono">nucleo/pillars/math_domains.py</td><td>los 173 nodos curados, sus dependencias, las traducciones entre pilares y las 434 aristas a tácticas con su cuota</td></tr>
+          <tr><td class="mono">nucleo/pillars/math_domains.py</td><td>los 205 nodos curados, sus dependencias, las traducciones entre pilares y las 531 aristas a tácticas con su cuota</td></tr>
           <tr><td class="mono">nucleo/pillars/mathlib_taxonomy.py</td><td>los 125 nodos de módulo — <strong>generado, no se edita a mano</strong></td></tr>
           <tr><td class="mono">nucleo/pillars/areas.py</td><td>los 22 nodos de área, y el mapa categoría → área → sort</td></tr>
           <tr><td class="mono">nucleo/graph/category.py</td><td>la categoría: objetos, morfismos, identidades, composición y el tipado que rechaza aristas mal formadas</td></tr>
