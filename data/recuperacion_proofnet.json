@@ -3,20 +3,28 @@
  "k": 2,
  "resultados": {
   "lexico": {
-   "precision": 21.639898562975485,
-   "cobertura": 18.33810888252149,
-   "con_algo": 288,
-   "tp": 256,
-   "fp": 927,
-   "fn": 1140
+   "precision": 21.345514950166113,
+   "cobertura": 18.40974212034384,
+   "con_algo": 289,
+   "tp": 257,
+   "fp": 947,
+   "fn": 1139
   },
   "lexico+puerta": {
-   "precision": 21.122112211221122,
-   "cobertura": 18.33810888252149,
-   "con_algo": 294,
-   "tp": 256,
-   "fp": 956,
-   "fn": 1140
+   "precision": 20.85691188358933,
+   "cobertura": 18.48137535816619,
+   "con_algo": 295,
+   "tp": 258,
+   "fp": 979,
+   "fn": 1138
+  },
+  "semantico": {
+   "precision": 15.98360655737705,
+   "cobertura": 2.793696275071633,
+   "con_algo": 98,
+   "tp": 39,
+   "fp": 205,
+   "fn": 1357
   },
   "nulo": {
    "precision": 1.452020202020202,

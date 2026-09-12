@@ -1,0 +1,672 @@
+{
+ "propuesta": {
+  "Mathlib.Algebra.Lie.Basic": [
+   {
+    "nombre": "LieEquiv.symm",
+    "tipo": "def",
+    "citas": 2247
+   },
+   {
+    "nombre": "LieModuleEquiv.symm",
+    "tipo": "def",
+    "citas": 2247
+   },
+   {
+    "nombre": "LieHom.comp",
+    "tipo": "def",
+    "citas": 1617
+   }
+  ],
+  "Mathlib.Algebra.Module.CharacterModule": [
+   {
+    "nombre": "CharacterModule.uncurry",
+    "tipo": "def",
+    "citas": 165
+   },
+   {
+    "nombre": "CharacterModule.dual",
+    "tipo": "def",
+    "citas": 110
+   },
+   {
+    "nombre": "CharacterModule.congr",
+    "tipo": "def",
+    "citas": 103
+   }
+  ],
+  "Mathlib.Algebra.Module.Injective": [
+   {
+    "nombre": "Module.Injective",
+    "tipo": "class",
+    "citas": 16
+   },
+   {
+    "nombre": "Module.Baer",
+    "tipo": "def",
+    "citas": 16
+   },
+   {
+    "nombre": "Module.Baer.ExtensionOf",
+    "tipo": "structure",
+    "citas": 7
+   }
+  ],
+  "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Topology": [
+   {
+    "nombre": "ProjectiveSpectrum.zeroLocus",
+    "tipo": "def",
+    "citas": 139
+   },
+   {
+    "nombre": "ProjectiveSpectrum.basicOpen",
+    "tipo": "def",
+    "citas": 91
+   },
+   {
+    "nombre": "ProjectiveSpectrum.vanishingIdeal",
+    "tipo": "def",
+    "citas": 71
+   }
+  ],
+  "Mathlib.AlgebraicTopology.SimplexCategory.Defs": [
+   {
+    "nombre": "SimplexCategory.Hom.comp",
+    "tipo": "def",
+    "citas": 1617
+   },
+   {
+    "nombre": "SimplexCategory.Truncated.inclusion",
+    "tipo": "abbrev",
+    "citas": 169
+   },
+   {
+    "nombre": "SimplexCategory",
+    "tipo": "def",
+    "citas": 124
+   }
+  ],
+  "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic": [
+   {
+    "nombre": "FreeSimplexQuiver.homRel",
+    "tipo": "inductive",
+    "citas": 19
+   },
+   {
+    "nombre": "SimplexCategoryGenRel",
+    "tipo": "def",
+    "citas": 13
+   },
+   {
+    "nombre": "SimplexCategoryGenRel.generators",
+    "tipo": "abbrev",
+    "citas": 4
+   }
+  ],
+  "Mathlib.Analysis.Complex.Circle": [
+   {
+    "nombre": "Circle",
+    "tipo": "def",
+    "citas": 58
+   },
+   {
+    "nombre": "Circle.coeHom",
+    "tipo": "def",
+    "citas": 11
+   },
+   {
+    "nombre": "Circle.toUnits",
+    "tipo": "def",
+    "citas": 10
+   }
+  ],
+  "Mathlib.Analysis.Complex.UpperHalfPlane.Basic": [
+   {
+    "nombre": "UpperHalfPlane",
+    "tipo": "structure",
+    "citas": 10
+   },
+   {
+    "nombre": "UpperHalfPlane.im",
+    "tipo": "def",
+    "citas": 1
+   },
+   {
+    "nombre": "UpperHalfPlane.I",
+    "tipo": "def",
+    "citas": 0
+   }
+  ],
+  "Mathlib.Computability.AkraBazzi.SumTransform": [
+   {
+    "nombre": "AkraBazziRecurrence.asympBound",
+    "tipo": "def",
+    "citas": 10
+   },
+   {
+    "nombre": "AkraBazziRecurrence.min_bi",
+    "tipo": "def",
+    "citas": 4
+   },
+   {
+    "nombre": "AkraBazziRecurrence.sumTransform",
+    "tipo": "def",
+    "citas": 4
+   }
+  ],
+  "Mathlib.Computability.DFA": [
+   {
+    "nombre": "DFA.comap",
+    "tipo": "def",
+    "citas": 1132
+   },
+   {
+    "nombre": "DFA.eval",
+    "tipo": "def",
+    "citas": 829
+   },
+   {
+    "nombre": "Language.IsRegular",
+    "tipo": "def",
+    "citas": 216
+   }
+  ],
+  "Mathlib.Computability.Language": [
+   {
+    "nombre": "Language.reverse",
+    "tipo": "def",
+    "citas": 164
+   },
+   {
+    "nombre": "Language",
+    "tipo": "def",
+    "citas": 122
+   },
+   {
+    "nombre": "Symbol",
+    "tipo": "inductive",
+    "citas": 21
+   }
+  ],
+  "Mathlib.Computability.Partrec": [
+   {
+    "nombre": "Computable",
+    "tipo": "def",
+    "citas": 85
+   },
+   {
+    "nombre": "Nat.Partrec",
+    "tipo": "inductive",
+    "citas": 39
+   },
+   {
+    "nombre": "Partrec",
+    "tipo": "def",
+    "citas": 39
+   }
+  ],
+  "Mathlib.Computability.Primrec.Basic": [
+   {
+    "nombre": "Nat.Primrec",
+    "tipo": "inductive",
+    "citas": 181
+   },
+   {
+    "nombre": "Primrec",
+    "tipo": "def",
+    "citas": 181
+   },
+   {
+    "nombre": "Primcodable.subtype",
+    "tipo": "def",
+    "citas": 135
+   }
+  ],
+  "Mathlib.Control.Bitraversable.Basic": [
+   {
+    "nombre": "Bitraversable",
+    "tipo": "class",
+    "citas": 2
+   },
+   {
+    "nombre": "LawfulBitraversable",
+    "tipo": "class",
+    "citas": 2
+   },
+   {
+    "nombre": "bisequence",
+    "tipo": "def",
+    "citas": 0
+   }
+  ],
+  "Mathlib.Control.Fix": [
+   {
+    "nombre": "Fix",
+    "tipo": "class",
+    "citas": 17
+   },
+   {
+    "nombre": "Part.fix",
+    "tipo": "def",
+    "citas": 9
+   },
+   {
+    "nombre": "Part.Fix.approx",
+    "tipo": "def",
+    "citas": 3
+   }
+  ],
+  "Mathlib.Control.Functor.Multivariate": [
+   {
+    "nombre": "MvFunctor.supp",
+    "tipo": "def",
+    "citas": 33
+   },
+   {
+    "nombre": "MvFunctor.ofEquiv",
+    "tipo": "def",
+    "citas": 11
+   },
+   {
+    "nombre": "MvFunctor",
+    "tipo": "class",
+    "citas": 9
+   }
+  ],
+  "Mathlib.Control.Monad.Cont": [
+   {
+    "nombre": "Cont",
+    "tipo": "abbrev",
+    "citas": 7
+   },
+   {
+    "nombre": "ContT",
+    "tipo": "def",
+    "citas": 5
+   },
+   {
+    "nombre": "ContT.monadLift",
+    "tipo": "def",
+    "citas": 5
+   }
+  ],
+  "Mathlib.Data.PFun": [
+   {
+    "nombre": "PFun.comp",
+    "tipo": "def",
+    "citas": 1617
+   },
+   {
+    "nombre": "PFun.restrict",
+    "tipo": "def",
+    "citas": 702
+   },
+   {
+    "nombre": "PFun.lift",
+    "tipo": "def",
+    "citas": 618
+   }
+  ],
+  "Mathlib.Data.TypeVec": [
+   {
+    "nombre": "TypeVec.comp",
+    "tipo": "def",
+    "citas": 1617
+   },
+   {
+    "nombre": "TypeVec.prod",
+    "tipo": "def",
+    "citas": 1046
+   },
+   {
+    "nombre": "TypeVec.const",
+    "tipo": "def",
+    "citas": 322
+   }
+  ],
+  "Mathlib.Dynamics.Circle.RotationNumber.TranslationNumber": [
+   {
+    "nombre": "CircleDeg1Lift",
+    "tipo": "structure",
+    "citas": 33
+   },
+   {
+    "nombre": "CircleDeg1Lift.translate",
+    "tipo": "def",
+    "citas": 9
+   },
+   {
+    "nombre": "CircleDeg1Lift.toOrderIso",
+    "tipo": "def",
+    "citas": 4
+   }
+  ],
+  "Mathlib.Dynamics.Flow": [
+   {
+    "nombre": "Flow.restrict",
+    "tipo": "def",
+    "citas": 702
+   },
+   {
+    "nombre": "Flow.reverse",
+    "tipo": "def",
+    "citas": 164
+   },
+   {
+    "nombre": "Flow.orbit",
+    "tipo": "def",
+    "citas": 63
+   }
+  ],
+  "Mathlib.Geometry.Manifold.Algebra.LeftInvariantDerivation": [
+   {
+    "nombre": "LeftInvariantDerivation.coeFnAddMonoidHom",
+    "tipo": "def",
+    "citas": 13
+   },
+   {
+    "nombre": "LeftInvariantDerivation",
+    "tipo": "structure",
+    "citas": 6
+   },
+   {
+    "nombre": "LeftInvariantDerivation.evalAt",
+    "tipo": "def",
+    "citas": 6
+   }
+  ],
+  "Mathlib.Geometry.Manifold.Algebra.LieGroup": [
+   {
+    "nombre": "LieGroup",
+    "tipo": "class",
+    "citas": 6
+   },
+   {
+    "nombre": "LieAddGroup",
+    "tipo": "class",
+    "citas": 2
+   },
+   {
+    "nombre": "ContMDiffInv₀",
+    "tipo": "class",
+    "citas": 0
+   }
+  ],
+  "Mathlib.LinearAlgebra.AffineSpace.FiniteDimensional": [
+   {
+    "nombre": "Collinear",
+    "tipo": "def",
+    "citas": 70
+   },
+   {
+    "nombre": "Coplanar",
+    "tipo": "def",
+    "citas": 13
+   }
+  ],
+  "Mathlib.ModelTheory.Arithmetic.Presburger.Semilinear.Defs": [
+   {
+    "nombre": "IsSemilinearSet",
+    "tipo": "def",
+    "citas": 42
+   },
+   {
+    "nombre": "IsLinearSet",
+    "tipo": "def",
+    "citas": 18
+   },
+   {
+    "nombre": "IsProperSemilinearSet",
+    "tipo": "def",
+    "citas": 10
+   }
+  ],
+  "Mathlib.NumberTheory.ModularForms.Basic": [
+   {
+    "nombre": "ModularForm.prod",
+    "tipo": "def",
+    "citas": 1046
+   },
+   {
+    "nombre": "ModularForm.const",
+    "tipo": "def",
+    "citas": 322
+   },
+   {
+    "nombre": "ModularForm",
+    "tipo": "structure",
+    "citas": 47
+   }
+  ],
+  "Mathlib.NumberTheory.ModularForms.SlashInvariantForms": [
+   {
+    "nombre": "SlashInvariantForm.prod",
+    "tipo": "def",
+    "citas": 1046
+   },
+   {
+    "nombre": "SlashInvariantForm.const",
+    "tipo": "def",
+    "citas": 322
+   },
+   {
+    "nombre": "SlashInvariantForm",
+    "tipo": "structure",
+    "citas": 27
+   }
+  ],
+  "Mathlib.NumberTheory.NumberField.InfinitePlace.Basic": [
+   {
+    "nombre": "NumberField.InfinitePlace",
+    "tipo": "def",
+    "citas": 181
+   },
+   {
+    "nombre": "NumberField.InfinitePlace.IsReal",
+    "tipo": "def",
+    "citas": 59
+   },
+   {
+    "nombre": "NumberField.InfinitePlace.embedding",
+    "tipo": "def",
+    "citas": 53
+   }
+  ],
+  "Mathlib.Order.PFilter": [
+   {
+    "nombre": "Order.PFilter.principal",
+    "tipo": "def",
+    "citas": 16
+   },
+   {
+    "nombre": "Order.PFilter",
+    "tipo": "structure",
+    "citas": 6
+   },
+   {
+    "nombre": "Order.IsPFilter",
+    "tipo": "def",
+    "citas": 2
+   }
+  ],
+  "Mathlib.RingTheory.DedekindDomain.Different": [
+   {
+    "nombre": "FractionalIdeal.dual",
+    "tipo": "def",
+    "citas": 110
+   },
+   {
+    "nombre": "differentIdeal",
+    "tipo": "def",
+    "citas": 31
+   },
+   {
+    "nombre": "Submodule.traceDual",
+    "tipo": "def",
+    "citas": 2
+   }
+  ],
+  "Mathlib.RingTheory.Derivation.Basic": [
+   {
+    "nombre": "Derivation.restrictScalars",
+    "tipo": "def",
+    "citas": 216
+   },
+   {
+    "nombre": "Derivation",
+    "tipo": "structure",
+    "citas": 53
+   },
+   {
+    "nombre": "Derivation.coeFnAddMonoidHom",
+    "tipo": "def",
+    "citas": 13
+   }
+  ],
+  "Mathlib.RingTheory.GradedAlgebra.Homogeneous.Ideal": [
+   {
+    "nombre": "HomogeneousIdeal",
+    "tipo": "abbrev",
+    "citas": 42
+   },
+   {
+    "nombre": "Ideal.IsHomogeneous",
+    "tipo": "abbrev",
+    "citas": 6
+   },
+   {
+    "nombre": "Ideal.homogeneousHull",
+    "tipo": "def",
+    "citas": 5
+   }
+  ],
+  "Mathlib.RingTheory.GradedAlgebra.HomogeneousLocalization": [
+   {
+    "nombre": "HomogeneousLocalization.NumDenSameDeg.embedding",
+    "tipo": "def",
+    "citas": 53
+   },
+   {
+    "nombre": "HomogeneousLocalization",
+    "tipo": "def",
+    "citas": 43
+   },
+   {
+    "nombre": "HomogeneousLocalization.NumDenSameDeg",
+    "tipo": "structure",
+    "citas": 36
+   }
+  ],
+  "Mathlib.SetTheory.Lists": [
+   {
+    "nombre": "Lists'.cons",
+    "tipo": "def",
+    "citas": 358
+   },
+   {
+    "nombre": "Lists'.toList",
+    "tipo": "def",
+    "citas": 130
+   },
+   {
+    "nombre": "Lists.toList",
+    "tipo": "def",
+    "citas": 130
+   }
+  ],
+  "Mathlib.SetTheory.Ordinal.Notation": [
+   {
+    "nombre": "ONote.ofNat",
+    "tipo": "def",
+    "citas": 409
+   },
+   {
+    "nombre": "NONote.ofNat",
+    "tipo": "def",
+    "citas": 409
+   },
+   {
+    "nombre": "ONote.repr",
+    "tipo": "def",
+    "citas": 159
+   }
+  ],
+  "Mathlib.SetTheory.ZFC.Basic": [
+   {
+    "nombre": "ZFSet.Nonempty",
+    "tipo": "def",
+    "citas": 2513
+   },
+   {
+    "nombre": "ZFSet.range",
+    "tipo": "def",
+    "citas": 2184
+   },
+   {
+    "nombre": "ZFSet.prod",
+    "tipo": "def",
+    "citas": 1046
+   }
+  ],
+  "Mathlib.SetTheory.ZFC.Class": [
+   {
+    "nombre": "Class.univ",
+    "tipo": "def",
+    "citas": 1539
+   },
+   {
+    "nombre": "Class.powerset",
+    "tipo": "def",
+    "citas": 47
+   },
+   {
+    "nombre": "Class",
+    "tipo": "def",
+    "citas": 38
+   }
+  ],
+  "Mathlib.Topology.Category.TopCat.Basic": [
+   {
+    "nombre": "TopCat.ofHom",
+    "tipo": "abbrev",
+    "citas": 231
+   },
+   {
+    "nombre": "TopCat",
+    "tipo": "structure",
+    "citas": 214
+   },
+   {
+    "nombre": "TopCat.trivial",
+    "tipo": "def",
+    "citas": 49
+   }
+  ],
+  "Mathlib.Topology.MetricSpace.Congruence": [
+   {
+    "nombre": "Congruent",
+    "tipo": "def",
+    "citas": 7
+   }
+  ],
+  "Mathlib.Topology.MetricSpace.Holder": [
+   {
+    "nombre": "HolderOnWith",
+    "tipo": "def",
+    "citas": 40
+   },
+   {
+    "nombre": "HolderWith",
+    "tipo": "def",
+    "citas": 38
+   }
+  ],
+  "Mathlib.Topology.MetricSpace.Similarity": [
+   {
+    "nombre": "Similar",
+    "tipo": "def",
+    "citas": 10
+   }
+  ]
+ },
+ "sin_sustantivos": []
+}
