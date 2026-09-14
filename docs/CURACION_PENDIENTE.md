@@ -5,20 +5,30 @@
 
 **No queda nada pendiente.** Los 10 módulos que `lo_que_falta_emerge` seguía marcando «sin nodo» están todos decididos.
 
-| módulo | decisión |
-|---|---|
-| `AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic` | T · es SimplexCategory presentada por generadores: la misma categoria con otro nombre, y dos nombres para un objeto gastan dos plazas |
-| `Computability.AkraBazzi.SumTransform` | T · es el teorema de Akra-Bazzi y sus piezas de demostracion, no un objeto: el mismo caso que prime-factorization |
-| `Control.Bitraversable.Basic` | T · interfaz de efectos de Lean: endofuntores sobre Type, y un lazo no es una dependencia |
-| `Control.Fix` | T · Part.fix es el punto fijo con el que Lean define funciones parciales: maquinaria de definicion |
-| `Control.Functor.Multivariate` | T · la misma rama de efectos |
-| `Control.Monad.Cont` | T · la misma rama de efectos |
-| `Data.TypeVec` | T · vectores de tipos para inductivos multivariados: infraestructura |
-| `Order.PFilter` | T · un PFilter es un filtro sobre un preorden, pero `Order` no es area del grafo y un nodo solo no la justifica: sin padre la arista no existiria. Primer candidato si algun dia entra la teoria de ordenes |
-| `SetTheory.Ordinal.Notation` | T · ONote y NONote son la forma normal de Cantor como dato computable: notacion, no objeto. El nodo `ordinals` ya existe |
-| `Topology.Category.TopCat.Basic` | CUBIERTO · `TopCat` ya es la identidad de `point-set-topology`. La convencion del proyecto pone el envoltorio categorico en el campo `lean` del concepto (group-theory lleva GrpCat), no en un nodo aparte |
+**Fuera no es lo mismo que `T`.** La decisión —los diez fuera— la tomó la medición; el **motivo** es lo único que viaja al futuro, porque es lo que va a decidir el próximo módulo parecido. Cada uno tiene un **disparador de revisión distinto**, y `T` es la marca que no se revisa nunca: archivar bajo `T` algo que sí hay que revisar equivale a perderlo.
 
-Nueve son marca `T` —ni objetos ni flechas, así que no entran— y uno ya está cubierto por un nodo existente. Siguen apareciendo como «sin nodo» en la medición, y es correcto: no hay nodo. Lo que no son es trabajo.
+| motivo | qué es | cuándo se revisa |
+|---|---|---|
+| **alias** | una presentacion del objeto de un nodo que YA existe; su nombre va en el campo `lean` de ese nodo, no en uno nuevo | si cambia el nodo padre |
+| **huerfano** | objeto legitimo cuya AREA no esta en el grafo: sin padre la arista no existiria y el nombre quedaria suelto | si entra el area |
+| **politica** | TIENE objetos, pero es metalenguaje y su vocabulario es caro: sus tokens salen en media biblioteca | nunca, salvo decision explicita |
+| **cubierto** | el nombre ya esta en el campo `lean` de un nodo: el alias ya aplicado | si cambia ese nodo |
+| **T** | ni objetos ni flechas | nunca |
+
+| módulo | motivo | por qué |
+|---|---|---|
+| `AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic` | **alias** | `SimplexCategoryGenRel` (linea 75) es SimplexCategory presentada por generadores y relaciones. AVISO: la equivalencia `SimplexCategoryGenRel ≌ SimplexCategory` NO esta probada en Mathlib —solo el funtor `toSimplexCategory` (251) y las piezas de EpiMono y NormalForms—, asi que «la misma categoria con otro nombre» es una conjetura, no un hecho verificado, y el alias apuntaria a traves de un funtor del que aun no se sabe que sea equivalencia |
+| `SetTheory.Ordinal.Notation` | **alias** | `ONote` (40) y `NONote` (1129) son la forma normal de Cantor como dato computable, y `repr` (69) es la flecha canonica de evaluacion hacia `Ordinal`. NO es la identidad: es una presentacion del objeto del nodo `ordinals`, que ya existe |
+| `Topology.Category.TopCat.Basic` | **cubierto** | `structure TopCat` (32) ya es la identidad de `point-set-topology`. La convencion del proyecto pone el envoltorio categorico en el campo `lean` del concepto (group-theory lleva GrpCat), no en un nodo aparte |
+| `Computability.AkraBazzi.SumTransform` | **huerfano** | `structure AkraBazziRecurrence` (60) empaqueta la recurrencia con sus hipotesis: hay objeto. La analogia con `prime-factorization` NO se sostiene —aquel es un teorema sin estructura empaquetada—. Lo que falta es el padre: `algorithm-analysis` esta marcado T y sin nombre |
+| `Order.PFilter` | **huerfano** | `PFilter` (45) es una estructura con `instance : PartialOrder` (77): objeto de pleno derecho. Lo que falta es el PADRE — no hay ni un concepto curado de teoria de ordenes, solo nodos generados y el area. Y el area ya esta medio dentro sin nombre: `divisibility-gcd`, `subgroups-cosets` e `ideals-quotient-rings` son reticulos y preordenes colgando de otro sitio. AVISO PARA CUANDO ENTRE: su token es `filter`, de los mas frecuentes de Mathlib; sin keyword declarada bajaria la precision como hizo `different` |
+| `Control.Bitraversable.Basic` | **politica** | `class Bitraversable` (48) es un objeto. Fuera por metalenguaje: es la interfaz de efectos de Lean |
+| `Control.Fix` | **politica** | `class Fix` (35) es un objeto. Fuera porque su token seria `fix`, que sale en media biblioteca |
+| `Control.Functor.Multivariate` | **politica** | `class MvFunctor` (32) es un objeto. Su token seria `functor` |
+| `Control.Monad.Cont` | **politica** | `class MonadCont` (33) y `def ContT` (48) son objetos. Su token seria `cont` |
+| `Data.TypeVec` | **politica** | EL CASO QUE REFUTA LA MARCA DE FRENTE: define objetos (`TypeVec`, 41), flechas con notacion propia (`Arrow`, 52, con `⟹`), identidad (`id`, 71) y composicion. Fuera por metalenguaje y porque su token seria `type`. La puerta de las plazas ya lo para sin prohibirlo: no se le declara ninguna keyword, y esa es la razon |
+
+Reparto: 2 alias, 1 cubierto, 2 huerfano, 5 politica. **Ninguno queda en `T`** — nueve de los diez declaran objetos, y `Data.TypeVec` declara además flechas, identidad y composición en el propio fichero. Siguen apareciendo como «sin nodo» en la medición, y es correcto: no hay nodo. Lo que no son es trabajo.
 
 Si mañana la medición destapa módulos nuevos, esta hoja vuelve a llenarse sola.
 

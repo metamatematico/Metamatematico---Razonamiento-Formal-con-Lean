@@ -48,6 +48,18 @@
 \DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
 \DeclareUnicodeCharacter{2200}{\ensuremath{\forall}}
 \DeclareUnicodeCharacter{2203}{\ensuremath{\exists}}
+% Los simbolos de CATEGORIAS, que salen en cuanto la hoja habla de alias:
+% `SimplexCategoryGenRel ≌ SimplexCategory` tumbo la compilacion. Se declara
+% la familia entera y no el que fallo hoy, que es la leccion de U+2080.
+\DeclareUnicodeCharacter{224C}{\ensuremath{\backsimeq}}
+\DeclareUnicodeCharacter{2243}{\ensuremath{\simeq}}
+\DeclareUnicodeCharacter{2245}{\ensuremath{\cong}}
+\DeclareUnicodeCharacter{27F9}{\ensuremath{\Longrightarrow}}
+\DeclareUnicodeCharacter{27F6}{\ensuremath{\longrightarrow}}
+\DeclareUnicodeCharacter{2964}{\ensuremath{\rightarrowtail}}
+\DeclareUnicodeCharacter{2045}{\ensuremath{[\![}}
+\DeclareUnicodeCharacter{2046}{\ensuremath{]\!]}}
+\DeclareUnicodeCharacter{1D7ED}{\ensuremath{\mathbf{1}}}
 
 \definecolor{acento}{RGB}{70,60,140}
 \definecolor{suave}{RGB}{120,120,130}
@@ -87,23 +99,33 @@ verificable ya resuelto.}\par
 \section*{No queda nada pendiente}
 
 Los \textbf{10} módulos que la medición
-sigue marcando «sin nodo» están todos decididos. Nueve son marca \texttt{T}
-—ni objetos ni flechas, así que no entran— y uno ya está cubierto por un nodo
-que existía. Siguen apareciendo como «sin nodo», y es correcto: no hay nodo.
-Lo que no son es trabajo.\par\medskip
+sigue marcando «sin nodo» están todos decididos, y \textbf{ninguno queda en
+\texttt{T}}. La decisión la tomó la medición; el \emph{motivo} es lo único que
+viaja al futuro, porque es lo que va a decidir el próximo módulo parecido.
+Cada motivo tiene un disparador de revisión distinto, y \texttt{T} es la marca
+que no se revisa nunca: archivar bajo \texttt{T} algo que sí hay que revisar
+equivale a perderlo.\par\medskip
 
-\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}>{\raggedright\arraybackslash}p{0.62\linewidth}@{}}\toprule
-módulo & decisión\\\midrule
-\texttt{Algebraic\allowbreak{}Topology.\allowbreak{}SimplexCategory.\allowbreak{}Generators\allowbreak{}Relations.\allowbreak{}Basic} & T · es SimplexCategory presentada por generadores: la misma categoria con otro nombre, y dos nombres para un objeto gastan dos plazas\\
-\texttt{Computability.\allowbreak{}AkraBazzi.\allowbreak{}SumTransform} & T · es el teorema de Akra-Bazzi y sus piezas de demostracion, no un objeto: el mismo caso que prime-factorization\\
-\texttt{Control.\allowbreak{}Bitraversable.\allowbreak{}Basic} & T · interfaz de efectos de Lean: endofuntores sobre Type, y un lazo no es una dependencia\\
-\texttt{Control.\allowbreak{}Fix} & T · Part.fix es el punto fijo con el que Lean define funciones parciales: maquinaria de definicion\\
-\texttt{Control.\allowbreak{}Functor.\allowbreak{}Multivariate} & T · la misma rama de efectos\\
-\texttt{Control.\allowbreak{}Monad.\allowbreak{}Cont} & T · la misma rama de efectos\\
-\texttt{Data.\allowbreak{}TypeVec} & T · vectores de tipos para inductivos multivariados: infraestructura\\
-\texttt{Order.\allowbreak{}PFilter} & T · un PFilter es un filtro sobre un preorden, pero `Order` no es area del grafo y un nodo solo no la justifica: sin padre la arista no existiria. Primer candidato si algun dia entra la teoria de ordenes\\
-\texttt{SetTheory.\allowbreak{}Ordinal.\allowbreak{}Notation} & T · ONote y NONote son la forma normal de Cantor como dato computable: notacion, no objeto. El nodo `ordinals` ya existe\\
-\texttt{Topology.\allowbreak{}Category.\allowbreak{}TopCat.\allowbreak{}Basic} & CUBIERTO · `TopCat` ya es la identidad de `point-set-topology`. La convencion del proyecto pone el envoltorio categorico en el campo `lean` del concepto (group-theory lleva GrpCat), no en un nodo aparte\\
+\noindent\small\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{0.52\linewidth}>{\raggedright\arraybackslash}p{0.27\linewidth}@{}}\toprule
+motivo & qué es & cuándo se revisa\\\midrule
+\texttt{alias} & una presentacion del objeto de un nodo que YA existe; su nombre va en el campo `lean` de ese nodo, no en uno nuevo & si cambia el nodo padre\\
+\texttt{huerfano} & objeto legitimo cuya AREA no esta en el grafo: sin padre la arista no existiria y el nombre quedaria suelto & si entra el area\\
+\texttt{politica} & TIENE objetos, pero es metalenguaje y su vocabulario es caro: sus tokens salen en media biblioteca & nunca, salvo decision explicita\\
+\texttt{cubierto} & el nombre ya esta en el campo `lean` de un nodo: el alias ya aplicado & si cambia ese nodo\\
+\texttt{T} & ni objetos ni flechas & nunca\\
+\bottomrule\end{tabular}\par\medskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.28\linewidth}l>{\raggedright\arraybackslash}p{0.50\linewidth}@{}}\toprule
+módulo & motivo & por qué\\\midrule
+\texttt{Algebraic\allowbreak{}Topology.\allowbreak{}SimplexCategory.\allowbreak{}Generators\allowbreak{}Relations.\allowbreak{}Basic} & \texttt{alias} & `SimplexCategoryGenRel` (linea 75) es SimplexCategory presentada por generadores y relaciones. AVISO: la equivalencia `SimplexCategoryGenRel ≌ SimplexCategory` NO esta probada en Mathlib —solo el funtor `toSimplexCategory` (251) y las piezas de EpiMono y NormalForms—, asi que «la misma categoria con otro nombre» es una conjetura, no un hecho verificado, y el alias apuntaria a traves de un funtor del que aun no se sabe que sea equivalencia\\
+\texttt{SetTheory.\allowbreak{}Ordinal.\allowbreak{}Notation} & \texttt{alias} & `ONote` (40) y `NONote` (1129) son la forma normal de Cantor como dato computable, y `repr` (69) es la flecha canonica de evaluacion hacia `Ordinal`. NO es la identidad: es una presentacion del objeto del nodo `ordinals`, que ya existe\\
+\texttt{Topology.\allowbreak{}Category.\allowbreak{}TopCat.\allowbreak{}Basic} & \texttt{cubierto} & `structure TopCat` (32) ya es la identidad de `point-set-topology`. La convencion del proyecto pone el envoltorio categorico en el campo `lean` del concepto (group-theory lleva GrpCat), no en un nodo aparte\\
+\texttt{Computability.\allowbreak{}AkraBazzi.\allowbreak{}SumTransform} & \texttt{huerfano} & `structure AkraBazziRecurrence` (60) empaqueta la recurrencia con sus hipotesis: hay objeto. La analogia con `prime-factorization` NO se sostiene —aquel es un teorema sin estructura empaquetada—. Lo que falta es el padre: `algorithm-analysis` esta marcado T y sin nombre\\
+\texttt{Order.\allowbreak{}PFilter} & \texttt{huerfano} & `PFilter` (45) es una estructura con `instance : PartialOrder` (77): objeto de pleno derecho. Lo que falta es el PADRE — no hay ni un concepto curado de teoria de ordenes, solo nodos generados y el area. Y el area ya esta medio dentro sin nombre: `divisibility-gcd`, `subgroups-cosets` e `ideals-quotient-rings` son reticulos y preordenes colgando de otro sitio. AVISO PARA CUANDO ENTRE: su token es `filter`, de los mas frecuentes de Mathlib; sin keyword declarada bajaria la precision como hizo `different`\\
+\texttt{Control.\allowbreak{}Bitraversable.\allowbreak{}Basic} & \texttt{politica} & `class Bitraversable` (48) es un objeto. Fuera por metalenguaje: es la interfaz de efectos de Lean\\
+\texttt{Control.\allowbreak{}Fix} & \texttt{politica} & `class Fix` (35) es un objeto. Fuera porque su token seria `fix`, que sale en media biblioteca\\
+\texttt{Control.\allowbreak{}Functor.\allowbreak{}Multivariate} & \texttt{politica} & `class MvFunctor` (32) es un objeto. Su token seria `functor`\\
+\texttt{Control.\allowbreak{}Monad.\allowbreak{}Cont} & \texttt{politica} & `class MonadCont` (33) y `def ContT` (48) son objetos. Su token seria `cont`\\
+\texttt{Data.\allowbreak{}TypeVec} & \texttt{politica} & EL CASO QUE REFUTA LA MARCA DE FRENTE: define objetos (`TypeVec`, 41), flechas con notacion propia (`Arrow`, 52, con `⟹`), identidad (`id`, 71) y composicion. Fuera por metalenguaje y porque su token seria `type`. La puerta de las plazas ya lo para sin prohibirlo: no se le declara ninguna keyword, y esa es la razon\\
 \bottomrule\end{tabular}\par\medskip
 
 Si mañana la medición destapa módulos nuevos, esta hoja vuelve a llenarse

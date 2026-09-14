@@ -99,38 +99,115 @@ VERIFICADOS_CON_CHECK = frozenset({
 })
 
 
+#: POR QUE EL MOTIVO VA SEPARADO DE LA MARCA, y no es cosmetica.
+#:
+#: Esta tabla tenia un solo campo y los diez modulos decididos estaban
+#: archivados bajo `T`. La decision —los diez fuera— era correcta; NUEVE DE
+#: LAS DIEZ RAZONES NO. La marca `T` significa «ni objetos ni flechas», y
+#: nueve de estos diez declaran objetos. `Data.TypeVec` es el caso que lo
+#: refuta de frente: define objetos (`TypeVec`, linea 41), flechas con
+#: notacion propia (`Arrow`, 52, con `⟹`), identidad (`id`, 71) y
+#: composicion. Sea cual sea el motivo para dejarlo fuera, «ni objetos ni
+#: flechas» no puede serlo.
+#:
+#: Y en una hoja que se regenera sola, LA RAZON ES LO UNICO QUE VIAJA AL
+#: FUTURO: la decision ya la tomo la medicion, pero la razon es la que va a
+#: decidir el proximo modulo parecido. Cada motivo tiene un DISPARADOR DE
+#: REVISION distinto, y esa es toda la diferencia — `T` es la marca que no se
+#: revisa nunca, asi que archivar bajo `T` algo que si hay que revisar
+#: equivale a perderlo.
+#:
+#: Verificado contra Mathlib4 (este arbol: 401ee04, 7 mar 2026); el veredicto
+#: del autor cita 17019dc, 14 sep 2026, de ahi que alguna linea baile una.
+MOTIVOS_DE_EXCLUSION = {
+    "alias": ("una presentacion del objeto de un nodo que YA existe; su "
+              "nombre va en el campo `lean` de ese nodo, no en uno nuevo",
+              "si cambia el nodo padre"),
+    "huerfano": ("objeto legitimo cuya AREA no esta en el grafo: sin padre "
+                 "la arista no existiria y el nombre quedaria suelto",
+                 "si entra el area"),
+    "politica": ("TIENE objetos, pero es metalenguaje y su vocabulario es "
+                 "caro: sus tokens salen en media biblioteca",
+                 "nunca, salvo decision explicita"),
+    "cubierto": ("el nombre ya esta en el campo `lean` de un nodo: el alias "
+                 "ya aplicado", "si cambia ese nodo"),
+    "T": ("ni objetos ni flechas", "nunca"),
+}
+
 #: MODULOS QUE YA SE DECIDIERON Y NO PRODUCEN NODO. Siguen saliendo como
 #: «sin nodo» en `lo_que_falta_emerge` —y es correcto: no hay nodo— pero no son
 #: trabajo pendiente, son una decision tomada. Sin esta tabla la hoja los
 #: volveria a pedir en cada tanda.
+#:
+#: Cada entrada es (motivo, razon). Tras el veredicto del autor no queda
+#: NINGUNO en `T`.
 DECIDIDOS_SIN_NODO = {
-    "Mathlib.Computability.AkraBazzi.SumTransform":
-        "T · es el teorema de Akra-Bazzi y sus piezas de demostracion, no un "
-        "objeto: el mismo caso que prime-factorization",
-    "Mathlib.Control.Bitraversable.Basic":
-        "T · interfaz de efectos de Lean: endofuntores sobre Type, y un lazo "
-        "no es una dependencia",
-    "Mathlib.Control.Fix":
-        "T · Part.fix es el punto fijo con el que Lean define funciones "
-        "parciales: maquinaria de definicion",
-    "Mathlib.Control.Functor.Multivariate": "T · la misma rama de efectos",
-    "Mathlib.Control.Monad.Cont": "T · la misma rama de efectos",
-    "Mathlib.Data.TypeVec":
-        "T · vectores de tipos para inductivos multivariados: infraestructura",
-    "Mathlib.Order.PFilter":
-        "T · un PFilter es un filtro sobre un preorden, pero `Order` no es "
-        "area del grafo y un nodo solo no la justifica: sin padre la arista no "
-        "existiria. Primer candidato si algun dia entra la teoria de ordenes",
-    "Mathlib.SetTheory.Ordinal.Notation":
-        "T · ONote y NONote son la forma normal de Cantor como dato "
-        "computable: notacion, no objeto. El nodo `ordinals` ya existe",
-    "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic":
-        "T · es SimplexCategory presentada por generadores: la misma categoria "
-        "con otro nombre, y dos nombres para un objeto gastan dos plazas",
-    "Mathlib.Topology.Category.TopCat.Basic":
-        "CUBIERTO · `TopCat` ya es la identidad de `point-set-topology`. La "
-        "convencion del proyecto pone el envoltorio categorico en el campo "
-        "`lean` del concepto (group-theory lleva GrpCat), no en un nodo aparte",
+    # ── ALIAS: otra presentacion de algo que ya tiene nodo ───────────────
+    "Mathlib.AlgebraicTopology.SimplexCategory.GeneratorsRelations.Basic": (
+        "alias",
+        "`SimplexCategoryGenRel` (linea 75) es SimplexCategory presentada por "
+        "generadores y relaciones. AVISO: la equivalencia "
+        "`SimplexCategoryGenRel ≌ SimplexCategory` NO esta probada en Mathlib "
+        "—solo el funtor `toSimplexCategory` (251) y las piezas de EpiMono y "
+        "NormalForms—, asi que «la misma categoria con otro nombre» es una "
+        "conjetura, no un hecho verificado, y el alias apuntaria a traves de "
+        "un funtor del que aun no se sabe que sea equivalencia"),
+    "Mathlib.SetTheory.Ordinal.Notation": (
+        "alias",
+        "`ONote` (40) y `NONote` (1129) son la forma normal de Cantor como "
+        "dato computable, y `repr` (69) es la flecha canonica de evaluacion "
+        "hacia `Ordinal`. NO es la identidad: es una presentacion del objeto "
+        "del nodo `ordinals`, que ya existe"),
+
+    # ── HUERFANO: objeto legitimo, area ausente ─────────────────────────
+    "Mathlib.Order.PFilter": (
+        "huerfano",
+        "`PFilter` (45) es una estructura con `instance : PartialOrder` (77): "
+        "objeto de pleno derecho. Lo que falta es el PADRE — no hay ni un "
+        "concepto curado de teoria de ordenes, solo nodos generados y el "
+        "area. Y el area ya esta medio dentro sin nombre: `divisibility-gcd`, "
+        "`subgroups-cosets` e `ideals-quotient-rings` son reticulos y "
+        "preordenes colgando de otro sitio. AVISO PARA CUANDO ENTRE: su token "
+        "es `filter`, de los mas frecuentes de Mathlib; sin keyword declarada "
+        "bajaria la precision como hizo `different`"),
+    "Mathlib.Computability.AkraBazzi.SumTransform": (
+        "huerfano",
+        "`structure AkraBazziRecurrence` (60) empaqueta la recurrencia con "
+        "sus hipotesis: hay objeto. La analogia con `prime-factorization` NO "
+        "se sostiene —aquel es un teorema sin estructura empaquetada—. Lo que "
+        "falta es el padre: `algorithm-analysis` esta marcado T y sin nombre"),
+
+    # ── POLITICA: hay objetos, pero el vocabulario es caro ───────────────
+    "Mathlib.Control.Bitraversable.Basic": (
+        "politica",
+        "`class Bitraversable` (48) es un objeto. Fuera por metalenguaje: es "
+        "la interfaz de efectos de Lean"),
+    "Mathlib.Control.Fix": (
+        "politica",
+        "`class Fix` (35) es un objeto. Fuera porque su token seria `fix`, "
+        "que sale en media biblioteca"),
+    "Mathlib.Control.Functor.Multivariate": (
+        "politica",
+        "`class MvFunctor` (32) es un objeto. Su token seria `functor`"),
+    "Mathlib.Control.Monad.Cont": (
+        "politica",
+        "`class MonadCont` (33) y `def ContT` (48) son objetos. Su token "
+        "seria `cont`"),
+    "Mathlib.Data.TypeVec": (
+        "politica",
+        "EL CASO QUE REFUTA LA MARCA DE FRENTE: define objetos (`TypeVec`, "
+        "41), flechas con notacion propia (`Arrow`, 52, con `⟹`), identidad "
+        "(`id`, 71) y composicion. Fuera por metalenguaje y porque su token "
+        "seria `type`. La puerta de las plazas ya lo para sin prohibirlo: no "
+        "se le declara ninguna keyword, y esa es la razon"),
+
+    # ── CUBIERTO: el alias, ya aplicado ─────────────────────────────────
+    "Mathlib.Topology.Category.TopCat.Basic": (
+        "cubierto",
+        "`structure TopCat` (32) ya es la identidad de `point-set-topology`. "
+        "La convencion del proyecto pone el envoltorio categorico en el campo "
+        "`lean` del concepto (group-theory lleva GrpCat), no en un nodo "
+        "aparte"),
 }
 
 
@@ -253,6 +330,18 @@ PREAMBULO = r"""% Generado por scripts/hoja_de_curacion.py. NO EDITAR A MANO.
 \DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
 \DeclareUnicodeCharacter{2200}{\ensuremath{\forall}}
 \DeclareUnicodeCharacter{2203}{\ensuremath{\exists}}
+% Los simbolos de CATEGORIAS, que salen en cuanto la hoja habla de alias:
+% `SimplexCategoryGenRel ≌ SimplexCategory` tumbo la compilacion. Se declara
+% la familia entera y no el que fallo hoy, que es la leccion de U+2080.
+\DeclareUnicodeCharacter{224C}{\ensuremath{\backsimeq}}
+\DeclareUnicodeCharacter{2243}{\ensuremath{\simeq}}
+\DeclareUnicodeCharacter{2245}{\ensuremath{\cong}}
+\DeclareUnicodeCharacter{27F9}{\ensuremath{\Longrightarrow}}
+\DeclareUnicodeCharacter{27F6}{\ensuremath{\longrightarrow}}
+\DeclareUnicodeCharacter{2964}{\ensuremath{\rightarrowtail}}
+\DeclareUnicodeCharacter{2045}{\ensuremath{[\![}}
+\DeclareUnicodeCharacter{2046}{\ensuremath{]\!]}}
+\DeclareUnicodeCharacter{1D7ED}{\ensuremath{\mathbf{1}}}
 
 \definecolor{acento}{RGB}{70,60,140}
 \definecolor{suave}{RGB}{120,120,130}
@@ -524,16 +613,37 @@ def main() -> int:
         L.append("**No queda nada pendiente.** Los %d módulos que "
                  "`lo_que_falta_emerge` seguía marcando «sin nodo» están "
                  "todos decididos.\n" % len(DECIDIDOS_SIN_NODO))
-        L.append("| módulo | decisión |")
-        L.append("|---|---|")
-        for m in sorted(DECIDIDOS_SIN_NODO):
-            L.append("| `%s` | %s |"
-                     % (m.replace("Mathlib.", ""), DECIDIDOS_SIN_NODO[m]))
+        L.append("**Fuera no es lo mismo que `T`.** La decisión —los diez "
+                 "fuera— la tomó la medición; el **motivo** es lo único que "
+                 "viaja al futuro, porque es lo que va a decidir el próximo "
+                 "módulo parecido. Cada uno tiene un **disparador de revisión "
+                 "distinto**, y `T` es la marca que no se revisa nunca: "
+                 "archivar bajo `T` algo que sí hay que revisar equivale a "
+                 "perderlo.\n")
+        L.append("| motivo | qué es | cuándo se revisa |")
+        L.append("|---|---|---|")
+        for mot in ("alias", "huerfano", "politica", "cubierto", "T"):
+            que, cuando = MOTIVOS_DE_EXCLUSION[mot]
+            L.append("| **%s** | %s | %s |" % (mot, que, cuando))
         L.append("")
-        L.append("Nueve son marca `T` —ni objetos ni flechas, así que no "
-                 "entran— y uno ya está cubierto por un nodo existente. "
-                 "Siguen apareciendo como «sin nodo» en la medición, y es "
-                 "correcto: no hay nodo. Lo que no son es trabajo.\n")
+        L.append("| módulo | motivo | por qué |")
+        L.append("|---|---|---|")
+        for m in sorted(DECIDIDOS_SIN_NODO,
+                        key=lambda x: (DECIDIDOS_SIN_NODO[x][0], x)):
+            mot, razon = DECIDIDOS_SIN_NODO[m]
+            L.append("| `%s` | **%s** | %s |"
+                     % (m.replace("Mathlib.", ""), mot, razon))
+        L.append("")
+        _por_mot = {}
+        for mot, _r in DECIDIDOS_SIN_NODO.values():
+            _por_mot[mot] = _por_mot.get(mot, 0) + 1
+        L.append("Reparto: %s. **Ninguno queda en `T`** — nueve de los diez "
+                 "declaran objetos, y `Data.TypeVec` declara además flechas, "
+                 "identidad y composición en el propio fichero. Siguen "
+                 "apareciendo como «sin nodo» en la medición, y es correcto: "
+                 "no hay nodo. Lo que no son es trabajo.\n"
+                 % ", ".join("%d %s" % (n, k)
+                             for k, n in sorted(_por_mot.items())))
         L.append("Si mañana la medición destapa módulos nuevos, esta hoja "
                  "vuelve a llenarse sola.\n")
         L.append("---\n")
@@ -742,18 +852,31 @@ def main() -> int:
         T.append(r"\section*{No queda nada pendiente}")
         T.append(r"""
 Los \textbf{""" + str(len(DECIDIDOS_SIN_NODO)) + r"""} módulos que la medición
-sigue marcando «sin nodo» están todos decididos. Nueve son marca \texttt{T}
-—ni objetos ni flechas, así que no entran— y uno ya está cubierto por un nodo
-que existía. Siguen apareciendo como «sin nodo», y es correcto: no hay nodo.
-Lo que no son es trabajo.\par\medskip
+sigue marcando «sin nodo» están todos decididos, y \textbf{ninguno queda en
+\texttt{T}}. La decisión la tomó la medición; el \emph{motivo} es lo único que
+viaja al futuro, porque es lo que va a decidir el próximo módulo parecido.
+Cada motivo tiene un disparador de revisión distinto, y \texttt{T} es la marca
+que no se revisa nunca: archivar bajo \texttt{T} algo que sí hay que revisar
+equivale a perderlo.\par\medskip
 """)
         T.append(r"\noindent\small\begin{tabular}"
-                 r"{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}"
-                 r">{\raggedright\arraybackslash}p{0.62\linewidth}@{}}\toprule")
-        T.append(r"módulo & decisión\\\midrule")
-        for m in sorted(DECIDIDOS_SIN_NODO):
-            T.append(r"%s & %s\\" % (tt(m.replace("Mathlib.", "")),
-                                     tex(DECIDIDOS_SIN_NODO[m])))
+                 r"{@{}l>{\raggedright\arraybackslash}p{0.52\linewidth}"
+                 r">{\raggedright\arraybackslash}p{0.27\linewidth}@{}}\toprule")
+        T.append(r"motivo & qué es & cuándo se revisa\\\midrule")
+        for _mot in ("alias", "huerfano", "politica", "cubierto", "T"):
+            _que, _cuando = MOTIVOS_DE_EXCLUSION[_mot]
+            T.append(r"\texttt{%s} & %s & %s\\"
+                     % (tex(_mot), tex(_que), tex(_cuando)))
+        T.append(r"\bottomrule\end{tabular}\par\medskip")
+        T.append(r"\noindent\small\begin{tabular}"
+                 r"{@{}>{\raggedright\arraybackslash}p{0.28\linewidth}l"
+                 r">{\raggedright\arraybackslash}p{0.50\linewidth}@{}}\toprule")
+        T.append(r"módulo & motivo & por qué\\\midrule")
+        for m in sorted(DECIDIDOS_SIN_NODO,
+                        key=lambda x: (DECIDIDOS_SIN_NODO[x][0], x)):
+            _mot, _razon = DECIDIDOS_SIN_NODO[m]
+            T.append(r"%s & \texttt{%s} & %s\\"
+                     % (tt(m.replace("Mathlib.", "")), tex(_mot), tex(_razon)))
         T.append(r"\bottomrule\end{tabular}\par\medskip")
         T.append(r"""
 Si mañana la medición destapa módulos nuevos, esta hoja vuelve a llenarse
