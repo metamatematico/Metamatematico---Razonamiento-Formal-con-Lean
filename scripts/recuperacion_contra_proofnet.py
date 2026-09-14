@@ -113,6 +113,39 @@ def nombres_de_oro(formal):
     return out
 
 
+def ofrecidos_de(nucleo, skills, k, consulta=""):
+    """Los nombres que el grafo OFRECE para estas skills: k plazas CON NOMBRES.
+
+    ESTA ES LA REGLA DEL RUNTIME, Y VIVE AQUI PARA QUE NO HAYA DOS COPIAS.
+    Si el medidor y `core._nombres_mathlib` no llenan las plazas igual, la
+    cifra no habla del sistema sino del medidor. Por eso la PUERTA
+    —`_evidencia_declarada`: sin una keyword declarada no se gasta plaza— se
+    aplica llamando al metodo del runtime, no reimplementandolo.
+
+    Esta a nivel de modulo, y no dentro de `main`, porque la mide tambien
+    `scripts/banco_docstrings.py` sobre otro banco. Dos bancos distintos con
+    la misma regla es una comparacion; con dos reglas parecidas, no lo es.
+    """
+    from nucleo.core import Nucleo
+    from nucleo.graph.interpretacion import nombres_de_trabajo
+    out = set()
+    llenas = 0
+    for s in skills:
+        if llenas >= k:
+            break
+        if consulta and not Nucleo._evidencia_declarada(nucleo, s, consulta):
+            continue
+        piezas = [p.strip() for p in
+                  re.split(r"[,+]", nombres_de_trabajo(s) or "") if p.strip()]
+        if not piezas:
+            continue
+        llenas += 1
+        for pieza in piezas:
+            out.add(_norm(pieza))
+            out.add(_norm(pieza.split(".")[0]))
+    return out
+
+
 def main(k):
     from nucleo.core import Nucleo
     from nucleo.graph.category import SkillCategory
@@ -130,29 +163,7 @@ def main(k):
     g = n._graph
 
     def ofrecidos(skills, consulta=""):
-        """Misma regla que core._nombres_mathlib: k plazas CON NOMBRES.
-
-        Si el medidor y el runtime no llenan las plazas igual, la cifra no
-        habla del sistema sino del medidor. Por eso la PUERTA
-        —`_evidencia_declarada`: sin una keyword declarada no se gasta plaza—
-        se aplica aqui llamando al metodo del runtime, no reimplementandolo.
-        """
-        out = set()
-        llenas = 0
-        for s in skills:
-            if llenas >= k:
-                break
-            if consulta and not Nucleo._evidencia_declarada(n, s, consulta):
-                continue
-            piezas = [p.strip() for p in
-                      re.split(r"[,+]", nombres_de_trabajo(s) or "") if p.strip()]
-            if not piezas:
-                continue
-            llenas += 1
-            for pieza in piezas:
-                out.add(_norm(pieza))
-                out.add(_norm(pieza.split(".")[0]))
-        return out
+        return ofrecidos_de(n, skills, k, consulta)
 
     #: MODELO NULO: los nombres mas comunes del grafo, sin mirar la consulta.
     todos = collections.Counter()

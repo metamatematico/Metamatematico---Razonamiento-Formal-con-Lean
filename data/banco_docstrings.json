@@ -1,0 +1,311 @@
+{
+  "ambito": "mathlib",
+  "k": 2,
+  "filas": 53613,
+  "descartes": {
+    "se_nombra": 4025,
+    "corto": 3497,
+    "sin_oro": 285
+  },
+  "resultados": {
+    "grafo": {
+      "precision": 4.971529520588971,
+      "cobertura": 2.3465374526272846,
+      "con_algo": 35379,
+      "tp": 6557,
+      "fp": 125334,
+      "fn": 272876
+    },
+    "sin_tanda": {
+      "precision": 4.859725590104055,
+      "cobertura": 2.266375123911635,
+      "con_algo": 34623,
+      "tp": 6333,
+      "fp": 123983,
+      "fn": 273100
+    },
+    "nulo": {
+      "precision": 0.2619596822495373,
+      "cobertura": 0.4523445691811633,
+      "con_algo": 53613,
+      "tp": 1264,
+      "fp": 481253,
+      "fn": 278169
+    }
+  },
+  "muestra": [
+    {
+      "modulo": "Mathlib.Algebra.CubicDiscriminant",
+      "nombre": "Cubic",
+      "informal": "The structure representing a cubic polynomial.",
+      "oro": [
+        "Cubic",
+        "coefficient",
+        "degree"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.CubicDiscriminant",
+      "nombre": "toPoly",
+      "informal": "Convert a cubic polynomial to a polynomial.",
+      "oro": [
+        "Cubic",
+        "toPoly"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.CubicDiscriminant",
+      "nombre": "map",
+      "informal": "Map a cubic polynomial across a semiring homomorphism.",
+      "oro": [
+        "Cubic"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "DualNumber",
+      "informal": "The type of dual numbers, numbers of the form where . is notation for .",
+      "oro": [
+        "DualNumber",
+        "_"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "DualNumber.eps",
+      "informal": "The unit element that squares to zero, with notation .",
+      "oro": [
+        "DualNumber",
+        "DualNumber.eps",
+        "Zero"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "snd_mul",
+      "informal": "A version of with instead of .",
+      "oro": [
+        "Semiring",
+        "simp",
+        "snd_mul"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "commute_eps_left",
+      "informal": "commutes with every element of the algebra.",
+      "oro": [
+        "Commute",
+        "DualNumber",
+        "Semiring",
+        "commute_eps_left"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "commute_eps_right",
+      "informal": "commutes with every element of the algebra.",
+      "oro": [
+        "Commute",
+        "DualNumber",
+        "Semiring",
+        "commute_eps_right"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "lift",
+      "informal": "A universal property of the dual numbers, providing a unique for every map and a choice of element which squares to and commutes with the range of . This isomorphism is named to match the similar . Note that when , the commutativity assumption is automatic, and we are free to choose any element .",
+      "oro": [
+        "Commute",
+        "fe.1",
+        "fe.2",
+        "lift"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "lift_inlAlgHom_eps",
+      "informal": "When applied to , applies the map . -/ @[simp] theorem lift_apply_inl (fe : {_fe : (A →ₐ[R] B) × B // _}) (a : A) : lift fe (inl a : A[ε]) = fe.val.1 a := by rw [lift_apply_apply, fst_inl, snd_inl, map_zero, zero_mul, add_zero] @[simp] theorem lift_comp_inlHom (fe : {_fe : (A →ₐ[R] B) × B // _}) : (lift fe).comp (inlAlgHom R A A) = fe.val.1 := AlgHom.ext <| lift_apply_inl fe /-- Scaling on the left is sent by to multiplication on the left -/ @[simp] theorem lift_smul (fe : {_fe : (A →ₐ[R] B) × B // _}) (a : A) (ad : A[ε]) : lift fe (a • ad) = fe.val.1 a * lift fe ad := by rw [← inl_mul_eq_smul, map_mul, lift_apply_inl] /-- Scaling on the right is sent by to multiplication on the right -/ @[simp] theorem lift_op_smul (fe : {_fe : (A →ₐ[R] B) × B // _}) (a : A) (ad : A[ε]) : lift fe (MulOpposite.op a • ad) = lift fe ad * fe.val.1 a := by rw [← mul_inl_eq_op_smul, map_mul, lift_apply_inl] /-- When applied to , produces the element of that squares to 0. -/ @[simp] theorem lift_apply_eps (fe : {fe : (A →ₐ[R] B) × B // fe.2 * fe.2 = 0 ∧ ∀ a, Commute fe.2 (fe.1 a)}) : lift fe (ε : A[ε]) = fe.val.2 := by simp only [lift_apply_apply, fst_eps, map_zero, snd_eps, map_one, one_mul, zero_add] /-- Lifting itself gives the identity.",
+      "oro": [
+        "AlgHom.id",
+        "_",
+        "commute_eps_left",
+        "eps_mul_eps",
+        "inlAlgHom",
+        "lift",
+        "lift_inlAlgHom_eps",
+        "simp"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualNumber",
+      "nombre": "instRepr",
+      "informal": "Show DualNumber with values x and y as an \"x + y*ε\" string",
+      "oro": [
+        "DualNumber",
+        "Repr",
+        "instRepr",
+        "reprPrec"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.DualQuaternion",
+      "nombre": "dualNumberEquiv",
+      "informal": "The dual quaternions can be equivalently represented as a quaternion with dual coefficients, or as a dual number with quaternion coefficients. See also for a similar result.",
+      "oro": [
+        "DualNumber",
+        "Quaternion",
+        "dualNumberEquiv",
+        "toFun"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Exact",
+      "nombre": "MulExact",
+      "informal": "The maps and form an exact pair: iff belongs to the image of .",
+      "oro": [
+        "Exact",
+        "MulExact",
+        "belongs",
+        "exact",
+        "form",
+        "image",
+        "maps",
+        "pair",
+        "to_additive"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Exact",
+      "nombre": "mulExact_iff_of_surjective_of_bijective_of_injective",
+      "informal": "Two maps and are exact if and only if the induced maps are exact. Note that if you already have an instance (which is unlikely) this lemma may not apply if the one of is not definitionally equal to . -/ @[to_additive /-- Two maps and are exact if and only if the induced maps are exact. Note that if you already have an instance (which is unlikely) this lemma may not apply if the zero of is not definitionally equal to . -/] lemma iff_rangeFactorization [One P] (hg : 1 ∈ Set.range g) : letI : One (Set.range g) := ⟨⟨1, hg⟩⟩ MulExact f g ↔ MulExact ((↑) : Set.range f → N) (Set.rangeFactorization g) := by letI : One (Set.range g) := ⟨⟨1, hg⟩⟩ have : ((1 : Set.range g) : P) = 1 := rfl simp [MulExact, Set.rangeFactorization, Subtype.ext_iff, this] /-- If two maps and are exact, then the induced maps are exact. Note that if you already have an instance (which is unlikely) this lemma may not apply if the one of is not definitionally equal to . -/ @[to_additive /-- If two maps and are exact, then the induced maps are exact. Note that if you already have an instance (which is unlikely) this lemma may not apply if the zero of is not definitionally equal to . -/] lemma rangeFactorization [One P] (h : MulExact f g) (hg : 1 ∈ Set.range g) : letI : One (Set.range g) := ⟨⟨1, hg⟩⟩ MulExact ((↑) : Set.range f → N) (Set.rangeFactorization g) := (iff_rangeFactorization hg).1 h end MulExact end Function section MonoidHom variable [Group M] [Group N] [Group P] {f : M →* N} {g : N →* P} namespace MonoidHom open Function @[to_additive] lemma mulExact_iff : MulExact f g ↔ ker g = range f := Iff.symm SetLike.ext_iff @[to_additive] lemma mulExact_of_comp_eq_one_of_ker_le_range (h1 : g.comp f = 1) (h2 : ker g ≤ range f) : MulExact f g := MulExact.of_comp_of_mem_range (congrArg DFunLike.coe h1) h2 @[to_additive] lemma mulExact_of_comp_of_mem_range (h1 : g.comp f = 1) (h2 : ∀ x, g x = 1 → x ∈ range f) : MulExact f g := mulExact_of_comp_eq_one_of_ker_le_range h1 h2 /-- When we have a commutative diagram from a sequence of two maps to another, such that the left vertical map is surjective, the middle vertical map is bijective and the right vertical map is injective, then the upper row is exact iff the lower row is. See in the file for the categorical version of this result.",
+      "oro": [
+        "Algebra",
+        "CommMonoid",
+        "Exact.lean",
+        "Function.Bijective",
+        "Function.Injective",
+        "Function.Surjective",
+        "Homology",
+        "Mathlib",
+        "MulExact",
+        "ShortComplex",
+        "ShortComplex.exact_iff_of_epi_of_isIso_of_mono",
+        "When",
+        "another",
+        "bijective",
+        "categorical",
+        "comm",
+        "commutative",
+        "comp",
+        "diagram",
+        "exact",
+        "f'.comp",
+        "file",
+        "g'.comp",
+        "injective",
+        "is.",
+        "left",
+        "lower",
+        "maps",
+        "middle",
+        "mulExact_iff_of_surjective_of_bijective_of_injective",
+        "result.",
+        "right",
+        "sequence",
+        "such",
+        "surjective",
+        "that",
+        "then",
+        "to_additive",
+        "upper",
+        "version",
+        "vertical"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Exact",
+      "nombre": "iff_monoidHom_rangeRestrict",
+      "informal": "Two maps and are exact if and only if the induced maps are exact.",
+      "oro": [
+        "AddMonoidHom.range",
+        "MulExact",
+        "exact",
+        "exact.",
+        "f.range.subtype",
+        "g.rangeRestrict",
+        "iff_monoidHom_rangeRestrict",
+        "induced",
+        "maps",
+        "only",
+        "to_additive"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Exact",
+      "nombre": "iff_linearMap_rangeRestrict",
+      "informal": "Two maps and are exact if and only if the induced maps are exact.",
+      "oro": [
+        "Exact",
+        "LinearMap.range",
+        "g.rangeRestrict",
+        "iff_linearMap_rangeRestrict",
+        "subtype"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Exact",
+      "nombre": "Exact.exact_mapQ_iff",
+      "informal": "A necessary and sufficient condition for an exact sequence to descend to a quotient.",
+      "oro": [
+        "Exact",
+        "Exact.exact_mapQ_iff",
+        "comap",
+        "mapQ",
+        "range"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Exact",
+      "nombre": "exact_iff_of_surjective_of_bijective_of_injective",
+      "informal": "When we have a commutative diagram from a sequence of two linear maps to another, such that the left vertical map is surjective, the middle vertical map is bijective and the right vertical map is injective, then the upper row is exact iff the lower row is. See in the file for the categorical version of this result.",
+      "oro": [
+        "AddCommMonoid",
+        "Function.Bijective",
+        "Function.Exact",
+        "Function.Injective",
+        "Function.Surjective",
+        "Module",
+        "comm",
+        "comp",
+        "exact_iff_of_surjective_of_bijective_of_injective",
+        "f'.comp",
+        "g'.comp"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Exact",
+      "nombre": "Function.Exact.linearEquivOfSurjective",
+      "informal": "The linear equivalence associated to an exact sequence of -modules.",
+      "oro": [
+        "Function.Exact",
+        "Function.Exact.linearEquivOfSurjective",
+        "Function.Surjective",
+        "LinearMap.range",
+        "apply",
+        "simps"
+      ]
+    },
+    {
+      "modulo": "Mathlib.Algebra.Expr",
+      "nombre": "Expr.instOne",
+      "informal": "Produce a instance for such that is .",
+      "oro": [
+        "Expr.instOne",
+        "Lean.Level",
+        "_"
+      ]
+    }
+  ]
+}

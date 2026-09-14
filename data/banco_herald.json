@@ -1,0 +1,247 @@
+{
+  "ambito": "herald-entero",
+  "k": 2,
+  "filas": 43856,
+  "descartes": {
+    "se_nombra": 697,
+    "corto": 0,
+    "sin_oro": 0,
+    "fuera_de_tanda": 0
+  },
+  "resultados": {
+    "grafo": {
+      "precision": 10.333788328666113,
+      "cobertura": 6.90694644964988,
+      "con_algo": 34403,
+      "tp": 14687,
+      "fp": 127439,
+      "fn": 197954
+    },
+    "sin_tanda": {
+      "precision": 10.141193955907852,
+      "cobertura": 6.738587572481318,
+      "con_algo": 33639,
+      "tp": 14329,
+      "fp": 126966,
+      "fn": 198312
+    },
+    "nulo": {
+      "precision": 1.1715108030321455,
+      "cobertura": 2.174557117395046,
+      "con_algo": 43856,
+      "tp": 4624,
+      "fp": 390080,
+      "fn": 208017
+    }
+  },
+  "muestra": [
+    {
+      "nombre": "PrincipalSeg.top_eq",
+      "informal": "Top Elements of Principal Segment Embeddings are Equal under Order Isomorphism: : For any types , , and with relations , , and respectively, if is well-ordered by and there is an order isomorphism , then for any principal segment embeddings and , the top elements of their ranges are equal, i.e., .",
+      "oro": [
+        "IsWellOrder",
+        "PrincipalSeg.top_eq",
+        "f.top",
+        "g.top"
+      ]
+    },
+    {
+      "nombre": "AffineSubspace.perpBisector_ne_bot",
+      "informal": "For any two distinct points and in a vector space, the perpendicular bisector of the segment joining and is not the bottom element, i.e., .",
+      "oro": [
+        "AffineSubspace.perpBisector_ne_bot",
+        "perpBisector"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.Functor.LeftExtension.IsPointwiseLeftKanExtensionAt.isIso_hom_app",
+      "informal": "For any object in category , if is a pointwise left Kan extension at of a functor which is full and faithful, then the morphism is an isomorphism.",
+      "oro": [
+        "CategoryTheory.Functor.LeftExtension.IsPointwiseLeftKanExtensionAt.isIso_hom_app",
+        "E.IsPointwiseLeftKanExtensionAt",
+        "E.hom.app",
+        "IsIso",
+        "L.Faithful",
+        "L.Full",
+        "L.obj"
+      ]
+    },
+    {
+      "nombre": "PrincipalSeg.topLTTop",
+      "informal": "Top Element of Principal Segment Embedding is Less Than the Top Element of Another Principal Segment Embedding : For any types \\( \\alpha \\), \\( \\beta \\), and \\( \\gamma \\) with well-ordered relations \\( r \\), \\( s \\), and \\( t \\) respectively, if there is a principal segment embedding \\( f : r \\prec_i s \\) and principal segment embeddings \\( g : s \\prec_i t \\) and \\( h : r \\prec_i t \\), then the top element of the range of \\( h \\) is less than the top element of the range of \\( g \\) with respect to the relation \\( t \\), i.e., \\( t(h.\\text{top}, g.\\text{top}) \\).",
+      "oro": [
+        "IsWellOrder",
+        "PrincipalSeg",
+        "PrincipalSeg.topLTTop",
+        "g.top",
+        "h.top"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.ChosenFiniteProducts.lift_fst",
+      "informal": "First Projection Composition with Lift Equals First Component: \\(\\pi_1 \\circ \\langle f, g \\rangle = f\\) : For any category \\( \\mathcal{C} \\) with chosen finite products, and for any objects \\( T, X, Y \\) in \\( \\mathcal{C} \\), given morphisms \\( f : T \\to X \\) and \\( g : T \\to Y \\), the composition of the morphism \\( \\langle f, g \\rangle : T \\to X \\otimes Y \\) with the first projection morphism \\( \\pi_1 : X \\otimes Y \\to X \\) is equal to \\( f \\). In other words, \\( \\pi_1 \\circ \\langle f, g \\rangle = f \\).",
+      "oro": [
+        "CategoryTheory.ChosenFiniteProducts.lift_fst",
+        "_",
+        "lift"
+      ]
+    },
+    {
+      "nombre": "AffineSubspace.mem_perpBisector_iff_dist_eq'",
+      "informal": "For points , , and in an affine space, show that lies on the perpendicular bisector of the segment joining and if and only if the distance from to is equal to the distance from to , i.e., .",
+      "oro": [
+        "AffineSubspace.mem_perpBisector_iff_dist_eq'",
+        "dist",
+        "perpBisector"
+      ]
+    },
+    {
+      "nombre": "AffineSubspace.right_mem_perpBisector",
+      "informal": "For points and in an affine space, show that is in the perpendicular bisector of the segment from to if and only if .",
+      "oro": [
+        "AffineSubspace.right_mem_perpBisector",
+        "perpBisector"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.ChosenFiniteProducts.lift_snd",
+      "informal": "Second Projection of Morphism to Product Equals Given Morphism to Second Component : For any category \\( \\mathcal{C} \\) with chosen finite products, and for any objects \\( T, X, Y \\) in \\( \\mathcal{C} \\), if \\( f : T \\to X \\) and \\( g : T \\to Y \\) are morphisms, then the composition of the morphism \\( \\langle f, g \\rangle : T \\to X \\otimes Y \\) with the second projection morphism \\( \\text{snd}_{X, Y} : X \\otimes Y \\to Y \\) is equal to \\( g \\). In other words, \\( \\langle f, g \\rangle \\circ \\text{snd}_{X, Y} = g \\).",
+      "oro": [
+        "CategoryTheory.ChosenFiniteProducts.lift_snd",
+        "_",
+        "lift"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.OverPresheafAux.YonedaCollection.map₁_id",
+      "informal": "Identity Natural Transformation Maps Yoneda Collection Elements to Themselves: \\(\\text{map}_1(\\text{id}_F) = \\text{id}\\) : For any category \\( \\mathcal{C} \\) and presheaf \\( A : \\mathcal{C}^\\text{op} \\to \\text{Type} \\), and for any functor \\( F : (\\text{CostructuredArrow} \\, \\text{yoneda} \\, A)^\\text{op} \\to \\text{Type} \\) and object \\( X \\) in \\( \\mathcal{C} \\), the function applied to the identity natural transformation on \\( F \\) is the identity function on the Yoneda collection of \\( F \\) over \\( X \\). In other words, for any element \\( p \\) in the Yoneda collection of \\( F \\) over \\( X \\), \\( \\text{map}_1(\\text{id}_F)(p) = p \\).",
+      "oro": [
+        "CategoryTheory.OverPresheafAux.YonedaCollection.map",
+        "YonedaCollection.map",
+        "_id"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.Functor.LeftExtension.IsPointwiseLeftKanExtension.hom_ext",
+      "informal": "Uniqueness of Morphisms from Pointwise Left Kan Extension : For any categories \\( \\mathcal{C} \\), \\( \\mathcal{D} \\), and \\( \\mathcal{H} \\), and functors \\( L : \\mathcal{C} \\to \\mathcal{D} \\) and \\( F : \\mathcal{C} \\to \\mathcal{H} \\), if \\( E \\) is a pointwise left Kan extension of \\( F \\) along \\( L \\), then for any other left extension \\( G \\) of \\( F \\) along \\( L \\) and any two natural transformations \\( f_1, f_2 : E \\to G \\), it holds that \\( f_1 = f_2 \\).",
+      "oro": [
+        "CategoryTheory.Functor.LeftExtension.IsPointwiseLeftKanExtension.hom_ext",
+        "LeftExtension"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.OverPresheafAux.counitForward_val_fst",
+      "informal": "For any costructured arrow \\( s \\) in the category \\(\\mathbf{C}\\) equipped with the Yoneda embedding into presheaves over \\(\\mathbf{C}\\), and for any object \\( x \\) in the presheaf category \\(\\mathbf{F}\\) applied to the opposite of \\( s \\), the first component of the value of the counit forward map applied to \\( s \\) and \\( x \\) is equal to the homomorphism part of \\( s \\). That is, \\((\\text{counitForward } \\mathbf{F} s x).\\text{val}.\\text{fst} = s.\\text{hom}\\).",
+      "oro": [
+        "CategoryTheory.OverPresheafAux.counitForward_val_fst",
+        "CostructuredArrow",
+        "F.obj",
+        "counitForward",
+        "s.hom",
+        "val.fst",
+        "yoneda"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.Functor.RightExtension.IsPointwiseRightKanExtensionAt.isIso_hom_app",
+      "informal": "For any object in category , where is a pointwise right Kan extension of at , and is a full and faithful functor, show that the application of the morphism at is an isomorphism.",
+      "oro": [
+        "CategoryTheory.Functor.RightExtension.IsPointwiseRightKanExtensionAt.isIso_hom_app",
+        "E.IsPointwiseRightKanExtensionAt",
+        "E.hom.app",
+        "IsIso",
+        "L.Faithful",
+        "L.Full",
+        "L.obj"
+      ]
+    },
+    {
+      "nombre": "AlgebraicGeometry.topologically_iso_le",
+      "informal": "Isomorphisms in Schemes Induced by Topological Properties : For any property \\( P \\) of maps of topological spaces, if \\( P \\) holds for all homeomorphisms, then every isomorphism of schemes satisfies the induced property. Specifically, the property of scheme isomorphisms is a subset of the property , which holds for a morphism of schemes if the underlying continuous map satisfies \\( P \\).",
+      "oro": [
+        "AlgebraicGeometry.topologically_iso_le",
+        "MorphismProperty.isomorphisms",
+        "Scheme",
+        "TopologicalSpace",
+        "topologically"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.OverPresheafAux.YonedaCollection.map₂_id",
+      "informal": "Identity Morphism Maps to Identity in Yoneda Collection : For any category \\( C \\) and presheaf \\( A : C^{\\text{op}} \\to \\text{Type} \\), and for any presheaf \\( F : (\\text{CostructuredArrow yoneda } A)^{\\text{op}} \\to \\text{Type} \\), the function applied to the identity morphism \\( \\text{id}_X \\) of an object \\( X \\) in \\( C \\) is equal to the identity function on the Yoneda collection of \\( F \\) over \\( X \\). In other words, for any object \\( X \\) in \\( C \\), the following holds: \\[ \\text{map}_2(F, \\text{id}_X) = \\text{id} \\] where \\(\\text{map}_2\\) is the function that maps morphisms in \\( C \\) to the Yoneda collection of \\( F \\).",
+      "oro": [
+        "CategoryTheory.OverPresheafAux.YonedaCollection.map",
+        "YonedaCollection.map",
+        "_id"
+      ]
+    },
+    {
+      "nombre": "AffineSubspace.midpoint_mem_perpBisector",
+      "informal": "For any two points and in a vector space , show that the midpoint of the segment joining and lies on the perpendicular bisector of that segment.",
+      "oro": [
+        "AffineSubspace.midpoint_mem_perpBisector",
+        "midpoint",
+        "perpBisector"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.OverPresheafAux.app_unitForward",
+      "informal": "For any contravariant functor \\(F : C^{op} \\to \\mathit{Type}_v\\), a morphism \\(\\eta : F \\to A\\) in the category of presheaves over \\(C\\), an object \\(X\\) in \\(C^{op}\\), and an element \\(p\\) in the Yoneda collection of the object obtained by restricting \\(\\eta\\) through the unopposite of \\(X\\), show that applying \\(\\eta\\) at \\(X\\) to the unit forward morphism determined by \\(\\eta\\), \\(X\\)'s unopposite, and \\(p\\), is equal to \\(p\\)'s Yoneda equivalence first component.",
+      "oro": [
+        "CategoryTheory.OverPresheafAux.app_unitForward",
+        "X.unop",
+        "YonedaCollection",
+        "p.yonedaEquivFst",
+        "restrictedYonedaObj",
+        "unitForward"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.OverPresheafAux.unitForward_naturality₂",
+      "informal": "For any contravariant functor \\( F \\) from category \\( C \\) to the category of types, any natural transformation \\( \\eta \\) from \\( F \\) to a representable functor \\( A \\), and for any objects \\( X, Y \\) in \\( C \\) with a morphism \\( f \\) from \\( X \\) to \\( Y \\), and any element \\( p \\) in the Yoneda collection of \\( \\eta \\) at \\( Y \\), show that the unit forward map \\( \\eta \\) at \\( X \\) applied to the image of \\( p \\) under the map induced by \\( f \\), is equal to the image of \\( \\eta \\) at \\( Y \\) applied to \\( p \\) under the action of \\( F \\) on \\( f \\), i.e., \\[ \\eta_X^\\ast (f^\\ast p) = F(f^\\mathrm{op}) (\\eta_Y^\\ast p). \\]",
+      "oro": [
+        "CategoryTheory.OverPresheafAux.unitForward_naturality",
+        "F.map",
+        "YonedaCollection",
+        "YonedaCollection.map",
+        "f.op",
+        "restrictedYonedaObj",
+        "unitForward"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.ChosenFiniteProducts.associator_inv_fst",
+      "informal": "Associator Inverse and First Projection Commute: \\(\\alpha_{X, Y, Z}^{-1} \\circ \\pi_1 = \\pi_1 \\circ \\pi_1\\) : For any category \\( \\mathcal{C} \\) with chosen finite products, and for any objects \\( X, Y, Z \\) in \\( \\mathcal{C} \\), the following diagram commutes: \\[ \\begin{tikzcd} ((X \\otimes Y) \\otimes Z) \\ar[r, \"\\alpha_{X, Y, Z}^{-1}\"] \\ar[d, \"\\pi_1 \\otimes \\pi_1\"'] & (X \\otimes (Y \\otimes Z)) \\ar[d, \"\\pi_1\"] \\\\ (X \\otimes Y) \\ar[r, \"\\pi_1\"'] & X \\end{tikzcd} \\] where \\( \\alpha_{X, Y, Z} \\) is the associator isomorphism, and \\( \\pi_1 \\) denotes the first projection morphism. Specifically, the composition of the inverse of the associator isomorphism \\( \\alpha_{X, Y, Z}^{-1} \\) with the first projection morphism \\( \\pi_1 \\) from \\( X \\otimes (Y \\otimes Z) \\) to \\( X \\) is equal to the composition of the first projection morphism \\( \\pi_1 \\) from \\( (X \\otimes Y) \\otimes Z \\) to \\( X \\otimes Y \\) with the first projection morphism \\( \\pi_1 \\) from \\( X \\otimes Y \\) to \\( X \\).",
+      "oro": [
+        "CategoryTheory.ChosenFiniteProducts.associator_inv_fst",
+        "_"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.OverPresheafAux.YonedaCollection.map₁_yonedaEquivFst",
+      "informal": "For any functor \\( G \\) from the opposite category of costructured arrows of the Yoneda embedding in \\( A \\) to types, and for any natural transformation \\( \\eta \\) from \\( F \\) to \\( G \\), and for any element \\( p \\) in the Yoneda collection of \\( F \\) at \\( X \\), the first component of the Yoneda equivalence in the image of \\( p \\) under the action of \\( \\eta \\) is equal to the first component of the Yoneda equivalence of \\( p \\), i.e., \\((YonedaCollection.map₁ \\, \\eta \\, p).yonedaEquivFst = p.yonedaEquivFst\\).",
+      "oro": [
+        "CategoryTheory.OverPresheafAux.YonedaCollection.map",
+        "CostructuredArrow",
+        "YonedaCollection",
+        "YonedaCollection.map",
+        "_yonedaEquivFst",
+        "p.yonedaEquivFst",
+        "yoneda",
+        "yonedaEquivFst"
+      ]
+    },
+    {
+      "nombre": "CategoryTheory.OverPresheafAux.YonedaCollection.map₂_fst",
+      "informal": "For any objects \\(X, Y\\) in a category \\(C\\) and a functor \\(F : C^\\text{op} \\to \\mathbf{Set}\\), and given a morphism \\(f : X \\to Y\\) in \\(C\\) and an element \\(p\\) in the Yoneda collection of \\(F\\) at \\(Y\\), the first component of the result of applying the map induced by \\(f\\) on the Yoneda collection is equal to the composition of the Yoneda map of \\(f\\) followed by the first component of \\(p\\). That is, \\((\\text{YonedaCollection.map}\\_2\\ F\\ f\\ p).\\text{fst} = \\text{yoneda.map}\\ f \\circ p.\\text{fst}\\).",
+      "oro": [
+        "CategoryTheory.OverPresheafAux.YonedaCollection.map",
+        "YonedaCollection",
+        "YonedaCollection.map",
+        "_fst",
+        "p.fst",
+        "yoneda.map"
+      ]
+    }
+  ]
+}
