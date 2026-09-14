@@ -63,6 +63,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import re
 import os
 import sys
 
@@ -165,8 +166,19 @@ def tt(s: str) -> str:
     Y por los GUIONES, que es como parten las etiquetas del grafo:
     `sheafed-space-complexes` y `conditional-expectation` se salian 13 pt de
     la columna de la tabla de nombres huerfanos.
+
+    Y en los tramos LARGOS SIN PUNTO, antes de cada mayuscula:
+    `qExpansionFormalMultilinearSeries` son 33 caracteres de una pieza y no
+    hay donde cortar. Solo en tramos de mas de 16, para no descuadrar los
+    nombres normales.
     """
-    return (r"\texttt{%s}" % tex(s)
+    def _camel(tramo: str) -> str:
+        if len(tramo) <= 16:
+            return tramo
+        return re.sub(r"(?<=[a-z0-9])(?=[A-Z])", r"\\allowbreak{}", tramo)
+
+    partido = ".".join(_camel(t) for t in tex(s).split("."))
+    return (r"\texttt{%s}" % partido
             .replace(".", r".\allowbreak{}")
             .replace("-", r"-\allowbreak{}"))
 
@@ -279,9 +291,164 @@ verificable ya resuelto.}\par
 """
 
 
+#: Cuantos teoremas debe tener un modulo para merecer una decision. Por
+#: debajo de esto, curarlo cuesta mas de lo que puede aportar.
+MINIMO_TEOREMAS = 30
+
+_TEOREMA = re.compile(
+    r"^\s*(?:@\[[^\]]*\]\s*)?(?:private |protected |noncomputable )*"
+    r"(?:theorem|lemma)\s", re.M)
+
+
+#: LAS RAMAS QUE ABRIO LA TANDA DE CURACION. Son el primer grupo de la hoja:
+#: seguir lo empezado. Cada una tiene ya un nodo y el resto sin tocar.
+RAMAS_DE_LA_TANDA = (
+    "Mathlib.Algebra.Lie", "Mathlib.NumberTheory.ModularForms",
+    "Mathlib.Dynamics", "Mathlib.Computability", "Mathlib.SetTheory.ZFC",
+    "Mathlib.RingTheory.GradedAlgebra", "Mathlib.RingTheory.Derivation",
+    "Mathlib.AlgebraicTopology.SimplexCategory",
+)
+
+#: Cuantos modulos entran por cada grupo. La primera tanda fueron 41 y costo
+#: una sesion entera; doce por grupo es lo que cabe en una sentada.
+TOPE_POR_GRUPO = 12
+
+
+def _rama_de(mod: str) -> str:
+    p = mod.split(".")
+    return ".".join(p[:3]) if len(p) > 2 else ".".join(p[:2])
+
+
+def ramas_abiertas_y_finas():
+    """Dos grupos de modulos por curar, con criterios distintos a proposito.
+
+    OTRO CRITERIO, Y POR ESO OTRA HOJA. El selector de siempre parte de
+    `lo_que_falta_emerge`: enunciados reales que nombran algo que el grafo no
+    alcanza. Ese banco esta AGOTADO — los 41 se curaron y los 10 que quedan
+    estan decididos en DECIDIDOS_SIN_NODO.
+
+    Este mira la cobertura de Mathlib directamente, y devuelve DOS grupos
+    porque son dos apuestas distintas y conviene no mezclarlas:
+
+    GRUPO 1 · SEGUIR LA TANDA.  La curacion anterior metio el primer nodo de
+    varias ramas y se paro ahi. `Algebra.Lie` tiene 1 228 teoremas en 50
+    ficheros y el grafo toca UNO: un algebra de Lie sin subalgebras, sin
+    ideales y sin pesos. Son rincones —volumen pequeno— pero el barrio se
+    mide limpio y son los conceptos que busca quien investiga.
+
+    GRUPO 2 · EL NUCLEO.  Aplicando el mismo criterio a Mathlib entero salen
+    161 ramas abiertas y finas, y las mayores NO son las de la tanda:
+
+        Algebra.Order              5 140 teoremas ·   1 de 208 modulos
+        Algebra.Group              4 102          ·   4 de 148
+        Analysis.SpecialFunctions  3 906          ·   1 de  98
+        Analysis.Calculus          3 607          ·   2 de 122
+
+    Ahi es donde caen las consultas de un alumno, y explica el 5,0 % de
+    precision sobre Mathlib entero: el grafo es fino en casi todas partes, no
+    solo en los rincones.
+
+    UNA CAUTELA QUE VA EN LA HOJA, no en un comentario: en el grupo 2 el grafo
+    YA TIENE nodo de cabecera —`group-theory`, `ring-theory`,
+    `real-analysis`— y lo que falta son los modulos finos de debajo. Puede que
+    la respuesta correcta no sea un nodo nuevo sino MAS NOMBRES en el que ya
+    hay, que es una decision distinta y mas barata. La hoja lo pregunta.
+
+    Y AHORA SE PUEDE MEDIR EL RESULTADO, que es lo que faltaba la vez
+    anterior: `banco_docstrings.py` y `banco_herald.py` ven estos temas. Sobre
+    la primera tanda, sus modulos pasaron de 3,9 % a 16,9 % y de 4,0 % a
+    20,6 % de precision sin mover el global. Una tanda entra si sube su barrio
+    Y no baja el global.
+    """
+    mathlib = os.path.join(RAIZ, ".lake", "packages", "mathlib", "Mathlib")
+    if not os.path.isdir(mathlib):
+        return [], {}
+    cubiertos = set()
+    mapa = os.path.join(RAIZ, "data", "mathlib_modulos.json")
+    if os.path.exists(mapa):
+        d = json.load(io.open(mapa, encoding="utf-8"))
+        for ms in (d.get("por_skill") or {}).values():
+            cubiertos.update(ms)
+
+    teoremas, ramas = {}, {}
+    for raiz, _s, fs in os.walk(mathlib):
+        for f in fs:
+            if not f.endswith(".lean"):
+                continue
+            ruta = os.path.join(raiz, f)
+            rel = os.path.relpath(ruta, os.path.dirname(mathlib))
+            mod = rel[:-5].replace(os.sep, ".").replace("/", ".")
+            try:
+                src = io.open(ruta, encoding="utf-8", errors="replace").read()
+            except Exception:                                # noqa: BLE001
+                continue
+            teoremas[mod] = len(_TEOREMA.findall(src))
+            r = ramas.setdefault(_rama_de(mod), {"teo": 0, "mod": 0, "cub": 0})
+            r["teo"] += teoremas[mod]
+            r["mod"] += 1
+            if mod in cubiertos:
+                r["cub"] += 1
+
+    def candidatos(filtro, por_rama=None):
+        """Los mas grandes que cumplen `filtro`, sin los ya decididos.
+
+        Con `por_rama` se limita cuantos entran de cada rama. Sin ese tope,
+        las dos ramas mas grandes se comen la tanda entera: `Algebra.Lie` y
+        `Computability` dejaban fuera a las formas modulares, que es una de
+        las tres ramas que esta hoja existe para continuar.
+        """
+        c = [(n, m) for m, n in teoremas.items()
+             if m not in cubiertos
+             and m not in DECIDIDOS_SIN_NODO      # ya se decidio que no entra
+             and n >= MINIMO_TEOREMAS and filtro(m)]
+        c.sort(reverse=True)
+        fuera, cuenta = [], {}
+        if por_rama:
+            for n, m in c:
+                r = _rama_de(m)
+                if cuenta.get(r, 0) >= por_rama:
+                    continue
+                cuenta[r] = cuenta.get(r, 0) + 1
+                fuera.append(m)
+                if len(fuera) >= TOPE_POR_GRUPO:
+                    break
+            # si el tope por rama deja hueco, se rellena con los siguientes
+            for n, m in c:
+                if len(fuera) >= TOPE_POR_GRUPO:
+                    break
+                if m not in fuera:
+                    fuera.append(m)
+            return fuera
+        return [m for _n, m in c[:TOPE_POR_GRUPO]]
+
+    # GRUPO 1 · las ramas que la tanda abrio
+    de_la_tanda = candidatos(
+        lambda m: any(m.startswith(r + ".") or m == r
+                      for r in RAMAS_DE_LA_TANDA), por_rama=3)
+
+    # GRUPO 2 · el nucleo: abiertas, finas (<=25 % cubierto) y grandes
+    nucleo_ramas = {r for r, v in ramas.items()
+                    if v["cub"] >= 1 and v["cub"] / v["mod"] <= 0.25
+                    and v["teo"] >= 2000
+                    and not any(r.startswith(t) for t in RAMAS_DE_LA_TANDA)}
+    del_nucleo = candidatos(lambda m: _rama_de(m) in nucleo_ramas,
+                            por_rama=3)
+
+    meta = {"teoremas": teoremas, "ramas": ramas,
+            "grupo": {}, "nucleo_ramas": sorted(nucleo_ramas)}
+    for m in de_la_tanda:
+        meta["grupo"][m] = "tanda"
+    for m in del_nucleo:
+        meta["grupo"][m] = "nucleo"
+    # el grupo 1 primero: es el que continua algo ya decidido
+    return de_la_tanda + [m for m in del_nucleo if m not in de_la_tanda], meta
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--k", type=int, default=4)
+    ap.add_argument("--ramas", action="store_true",
+                    help="otro criterio: ramas que el grafo abrio y dejo finas")
     args = ap.parse_args()
 
     import warnings
@@ -298,16 +465,23 @@ def main() -> int:
             return 1
 
     # los modulos pendientes
-    d = json.load(io.open(emer, encoding="utf-8"))
-    mods = []
-    for x in d.get("detalle", []):
-        if x.get("veredicto") != "sin_nodo":
-            continue
-        for m in x.get("faltan", []):
-            if m in DECIDIDOS_SIN_NODO:
-                continue          # decidido, no pendiente
-            if m not in mods:
-                mods.append(m)
+    meta = {}
+    if args.ramas:
+        mods, meta = ramas_abiertas_y_finas()
+        if not mods:
+            print("sin candidatos — ¿esta Mathlib en .lake/packages?")
+            return 1
+    else:
+        d = json.load(io.open(emer, encoding="utf-8"))
+        mods = []
+        for x in d.get("detalle", []):
+            if x.get("veredicto") != "sin_nodo":
+                continue
+            for m in x.get("faltan", []):
+                if m in DECIDIDOS_SIN_NODO:
+                    continue      # decidido, no pendiente
+                if m not in mods:
+                    mods.append(m)
 
     # los sustantivos, por modulo
     por = {}
@@ -338,7 +512,8 @@ def main() -> int:
         grupos.setdefault(rama, []).append(m)
 
     L = []
-    L.append("# Curación pendiente\n")
+    L.append("# %s\n" % ("Curación por cobertura" if args.ramas
+                         else "Curación pendiente"))
     L.append("> Generado por `scripts/hoja_de_curacion.py`. **No editar a "
              "mano**: se regenera.\n")
     L.append("")
@@ -361,6 +536,59 @@ def main() -> int:
                  "correcto: no hay nodo. Lo que no son es trabajo.\n")
         L.append("Si mañana la medición destapa módulos nuevos, esta hoja "
                  "vuelve a llenarse sola.\n")
+        L.append("---\n")
+    elif args.ramas:
+        # LA PROSA TIENE QUE DECIR EL CRITERIO QUE SE USO, no otro. Esta hoja
+        # no sale de enunciados que fallan —ese banco esta agotado— sino de
+        # mirar la cobertura de Mathlib.
+        n_tanda = sum(1 for m in mods if meta["grupo"].get(m) == "tanda")
+        L.append("El banco de enunciados que fallan **está agotado**: los 41 "
+                 "módulos que destapó se curaron y los 10 que quedaban están "
+                 "decididos. Esta hoja sale de otro sitio — de mirar "
+                 "directamente qué partes de Mathlib no cubre el grafo.\n")
+        L.append("Son **%d módulos en dos grupos**, y son dos apuestas "
+                 "distintas que conviene no mezclar.\n" % len(mods))
+        L.append("**Grupo 1 · seguir la tanda** — %d módulos. La curación "
+                 "anterior metió el primer nodo de varias ramas y se paró "
+                 "ahí. `Algebra.Lie` tiene **1 228 teoremas en 50 ficheros y "
+                 "el grafo toca uno**: un álgebra de Lie sin subálgebras, sin "
+                 "ideales y sin pesos. Son rincones —poco volumen— pero el "
+                 "barrio se mide limpio y son los conceptos que busca quien "
+                 "investiga.\n" % n_tanda)
+        L.append("**Grupo 2 · el núcleo** — %d módulos. El mismo criterio "
+                 "sobre Mathlib entero da **161 ramas abiertas y finas**, y "
+                 "las mayores no son las de la tanda:\n" % (len(mods) - n_tanda))
+        L.append("| rama | teoremas | módulos | cubiertos |")
+        L.append("|---|---:|---:|---:|")
+        for r in sorted(meta.get("nucleo_ramas") or [],
+                        key=lambda x: -meta["ramas"][x]["teo"])[:5]:
+            v = meta["ramas"][r]
+            L.append("| `%s` | %d | %d | %d |"
+                     % (r.replace("Mathlib.", ""), v["teo"], v["mod"], v["cub"]))
+        L.append("")
+        L.append("Ahí es donde caen las consultas de un alumno, y explica el "
+                 "**5,0 % de precisión sobre Mathlib entero**: el grafo es "
+                 "fino en casi todas partes, no sólo en los rincones.\n")
+        L.append("> **Una pregunta extra para el grupo 2.** Ahí el grafo ya "
+                 "tiene nodo de cabecera —`group-theory`, `ring-theory`, "
+                 "`real-analysis`— y lo que falta son los módulos finos de "
+                 "debajo. Puede que la respuesta correcta **no sea un nodo "
+                 "nuevo sino más nombres en el que ya hay**, que es una "
+                 "decisión distinta y más barata. Si es el caso, escríbelo en "
+                 "vez de la marca.\n")
+        L.append("Y ahora hay con qué decidir, que es lo que faltó la vez "
+                 "anterior: `banco_docstrings.py` y `banco_herald.py` **sí "
+                 "ven** estos temas. Sobre la primera tanda, sus módulos "
+                 "pasaron de 3,9 % a 16,9 % y de 4,0 % a 20,6 % de precisión "
+                 "sin mover el global. **Una tanda entra si sube su barrio y "
+                 "no baja el global.**\n")
+        L.append("Repartidos por rama:")
+        L.append("")
+        L.append("| rama | módulos |")
+        L.append("|---|---|")
+        for r, ms in sorted(grupos.items(), key=lambda kv: -len(kv[1])):
+            L.append("| %s | %d |" % (r, len(ms)))
+        L.append("")
         L.append("---\n")
     else:
         L.append("De 203 enunciados reales de Mathlib tomados al azar, **62 "
@@ -425,7 +653,13 @@ def main() -> int:
                          por_area[area])[:14]))
         for m in sorted(grupos[rama]):
             ss = por.get(m, [])[:args.k]
-            L.append("### `%s`\n" % m.replace("Mathlib.", ""))
+            # CADA MODULO DICE DE QUE GRUPO ES, porque la decision no es la
+            # misma: en el grupo 2 la respuesta puede ser «mas nombres en el
+            # nodo que ya hay» en vez de un nodo nuevo.
+            _g = (meta.get("grupo") or {}).get(m)
+            _etq = {"tanda": "  ·  *grupo 1 · seguir la tanda*",
+                    "nucleo": "  ·  *grupo 2 · el núcleo*"}.get(_g, "")
+            L.append("### `%s`%s\n" % (m.replace("Mathlib.", ""), _etq))
             if not ss:
                 L.append("Sin sustantivos propios: sólo aporta teoremas. El "
                          "grafo aporta **sustantivos** —de sus 176 "
@@ -494,7 +728,10 @@ def main() -> int:
              "de 14,0 % a 11,5 %. Añadir vocabulario tiene coste.")
     L.append("")
 
-    io.open(SALIDA, "w", encoding="utf-8").write("\n".join(L))
+    # EN MODO --ramas VA A OTRO FICHERO. Son dos hojas con criterios
+    # distintos; pisarse una a otra perderia el trabajo de la anterior.
+    salida = SALIDA.replace("PENDIENTE", "RAMAS") if args.ramas else SALIDA
+    io.open(salida, "w", encoding="utf-8").write("\n".join(L))
 
     # ── la misma hoja en LaTeX, para imprimirla y marcarla a mano ────────
     T = [PREAMBULO]
@@ -521,6 +758,34 @@ Lo que no son es trabajo.\par\medskip
         T.append(r"""
 Si mañana la medición destapa módulos nuevos, esta hoja vuelve a llenarse
 sola.\par\medskip
+""")
+    elif args.ramas:
+        n_tanda = sum(1 for m in mods
+                      if (meta.get("grupo") or {}).get(m) == "tanda")
+        T.append(r"\section*{Dos grupos, dos apuestas}")
+        T.append(r"""
+El banco de enunciados que fallan está \textbf{agotado}: los 41 módulos que
+destapó se curaron y los 10 que quedaban están decididos. Esta hoja sale de
+mirar directamente qué partes de \Mathlib{} no cubre el grafo, y trae
+\textbf{""" + str(len(mods)) + r"""} módulos en dos grupos que conviene no
+mezclar.\par\medskip
+\textbf{Grupo 1 · seguir la tanda} —""" + str(n_tanda) + r""" módulos. La
+curación anterior metió el primer nodo de varias ramas y se paró ahí.
+\texttt{Algebra.Lie} tiene \textbf{1\,228 teoremas en 50 ficheros y el grafo
+toca uno}: un álgebra de Lie sin subálgebras, sin ideales y sin pesos. Son
+rincones —poco volumen— pero el barrio se mide limpio.\par\medskip
+\textbf{Grupo 2 · el núcleo} —""" + str(len(mods) - n_tanda) + r""" módulos.
+El mismo criterio sobre \Mathlib{} entero da \textbf{161 ramas abiertas y
+finas}, y las mayores no son las de la tanda: \texttt{Algebra.Order} con
+5\,140 teoremas y \textbf{1 módulo cubierto de 208}, \texttt{Algebra.Group}
+con 4\,102 y 4 de 148, \texttt{Analysis.SpecialFunctions} con 3\,906 y 1 de
+98. Ahí caen las consultas de un alumno, y explica el \textbf{5,0\,\%} de
+precisión sobre \Mathlib{} entero.\par\medskip
+\textbf{Una pregunta extra para el grupo 2.} Ahí el grafo YA tiene nodo de
+cabecera —\texttt{group-theory}, \texttt{real-analysis}— y lo que falta son
+los módulos finos de debajo. Puede que la respuesta correcta no sea un nodo
+nuevo sino \emph{más nombres en el que ya hay}, que es más barato. Si es el
+caso, escríbelo en vez de la marca.
 """)
     else:
         T.append(r"\section*{Qué hay que decidir}")
@@ -693,11 +958,13 @@ precisión, mira primero si sus nodos entran en plaza por su nombre.
 \end{marca}
 """)
     T.append(r"\end{document}")
-    io.open(SALIDA_TEX, "w", encoding="utf-8").write("\n".join(T))
+    salida_tex = (SALIDA_TEX.replace("PENDIENTE", "RAMAS") if args.ramas
+                  else SALIDA_TEX)
+    io.open(salida_tex, "w", encoding="utf-8").write("\n".join(T))
 
     print("modulos pendientes: %d, en %d ramas" % (len(mods), len(grupos)))
-    print("-> %s" % SALIDA)
-    print("-> %s" % SALIDA_TEX)
+    print("-> %s" % salida)
+    print("-> %s" % salida_tex)
     return 0
 
 
