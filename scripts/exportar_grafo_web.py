@@ -37,7 +37,7 @@ R0, R_MAX = 62.0, 470.0
 def main():
     from nucleo.core import Nucleo
     from nucleo.graph.category import SkillCategory
-    from nucleo.graph.interpretacion import nombres_de_trabajo
+    from nucleo.graph.interpretacion import marca, nombres_de_trabajo
 
     n = Nucleo.__new__(Nucleo)
     n._graph = SkillCategory()
@@ -136,6 +136,14 @@ def main():
             "lv": int(lv),
             "k": [k for k in (meta[s.id].get("keywords") or []) if k.strip()],
             "m": nm,
+            # LA MARCA DEL VEREDICTO, que es lo unico del grafo que no se
+            # puede deducir mirandolo. Falto aqui desde el principio: el
+            # explorador ensenaba los 352 nodos sin distinguir los 105 que
+            # son vertices legitimos de los 43 que son aristas disfrazadas,
+            # y esa distincion es la que sostiene la categoria. `null` en los
+            # 147 que no llevan marca —125 modulos de Mathlib y 22 areas—,
+            # que no son del autor y no les toca tenerla.
+            "mc": marca(s.id),
             "x": pos[s.id][0], "y": pos[s.id][1],
             "ent": ent[s.id], "sal": sal[s.id],
         })
