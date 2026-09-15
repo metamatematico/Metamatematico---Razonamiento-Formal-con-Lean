@@ -130,7 +130,7 @@ pre b{color:var(--tinta); font-weight:600}
 enunciado de Lean&nbsp;4 y deja que el kernel decida si es cierta; está
 organizado en cinco capas a uno y otro lado de la <em>frontera de
 formalización</em>, que es el momento en que ese enunciado existe. Esto es su
-estado a 10 de septiembre de 2026. Cada cifra va con su modelo
+estado a 14 de septiembre de 2026. Cada cifra va con su modelo
 nulo; donde no lo hay, se dice. Y donde una conclusión anterior resultó falsa,
 se dice también. Desde la última revisión hay una novedad que cambia el orden
 de todo lo demás: <strong>el sistema entero ya está medido contra el modelo
@@ -147,8 +147,8 @@ distinto.
   <div><div class="v">79,2 %</div><div class="e">de los teoremas de Mathlib bajo algún concepto</div></div>
 </div>
 <p class="sub">
-352 nodos · 1 578 morfismos · 22 áreas en la base · 82 scripts de medición ·
-54 mediciones guardadas en <code>data/</code>
+352 nodos · 1 578 morfismos · 22 áreas en la base · 98 scripts de medición ·
+70 mediciones guardadas en <code>data/</code>
 </p>
 
 
@@ -252,7 +252,121 @@ fichero para citar una cifra tropiece con él.
 </p>
 
 
-<h2><span class="n">03</span>Lo que aporta</h2>
+<h2><span class="n">03</span>El banco que faltaba, y lo que dejó ver</h2>
+<p>
+La curación de septiembre metió 31 conceptos —formas modulares, álgebras de
+Lie, el ideal diferente, la categoría simplicial— y el banco con el que se
+mide el vocabulario, ProofNet, son 371 ejercicios de Rudin, Artin, Munkres y
+Dummit-Foote. <strong>No contiene ni un ejercicio de esos temas.</strong>
+</p>
+
+<p>
+Eso no es un detalle de cobertura: significa que ProofNet sólo podía medir el
+<em>coste</em> de esos 31 conceptos —ocupan plazas del prompt— y nunca su
+beneficio. <strong>Un instrumento que sólo puede restar no decide si algo
+aporta</strong>, y sin embargo decidía: la tanda bajaba la precisión de
+21,3&nbsp;% a 19,9&nbsp;% y por esa cifra estuvo a punto de no entrar.
+</p>
+
+<div class="tabla">
+<table>
+<thead><tr><th>banco nuevo</th><th>de dónde sale el lado informal</th><th>filas</th></tr></thead>
+<tbody>
+<tr><td><code>banco_docstrings.py</code></td><td>los comentarios <code>/-- … -/</code> que Mathlib escribe sobre cada declaración. Gratis, y cubre <strong>todos</strong> los módulos</td><td class="num">53 613</td></tr>
+<tr><td><code>banco_herald.py</code></td><td><code>FrenzyMath/Herald_proofs</code> — enunciados <strong>reescritos por otro sistema</strong>. Es el control: no los produjo este repositorio ni su extractor</td><td class="num">43 856</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="nota rojo">
+<strong>La contaminación se trata, y se cuenta.</strong> Un docstring nombra lo
+que documenta: <em>«If <code>τ</code> is a <code>CanonicallyOrderedAdd</code>
+monoid, then <code>IsForwardInvariant</code> and <code>IsInvariant</code> are
+equivalent»</em>. Dejarlo así regalaría la respuesta — el grafo «acertaría»
+copiando el nombre que la pregunta ya trae, que es la firma del instrumento
+roto que esta página persigue. Se quita todo lo que va entre comillas
+invertidas, se descarta la fila si el nombre sigue apareciendo y se descarta si
+quedan menos de cinco palabras. En Mathlib caen <strong>4 025 filas por
+nombrarse a sí mismas</strong> y 3 497 por quedarse cortas. En Herald sólo 14
+de 705 en el subconjunto, porque sus frases ya venían redactadas — que es
+exactamente la diferencia entre un comentario de código y una frase escrita.
+</div>
+
+<h3>El resultado que ProofNet no podía dar</h3>
+
+<div class="tabla">
+<table>
+<thead><tr><th>banco</th><th>ámbito</th><th>sin la tanda</th><th>con la tanda</th><th>nulo</th></tr></thead>
+<tbody>
+<tr><td>docstrings</td><td>sus 30 módulos · 384 filas</td><td class="num nulo">3,9 %</td><td class="num"><strong>16,9 %</strong></td><td class="num nulo">0,5 %</td></tr>
+<tr><td>Herald</td><td>sus temas · 691 filas</td><td class="num nulo">4,0 %</td><td class="num"><strong>20,6 %</strong></td><td class="num nulo">0,2 %</td></tr>
+<tr><td>docstrings</td><td><strong>Mathlib entero</strong> · 53 613</td><td class="num nulo">4,9 %</td><td class="num">5,0 %</td><td class="num nulo">0,3 %</td></tr>
+<tr><td>Herald</td><td><strong>entero</strong> · 43 856</td><td class="num nulo">10,1 %</td><td class="num">10,3 %</td><td class="num nulo">1,2 %</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="nota verde">
+<strong>La tanda multiplica por cinco donde puso nodo y desaparece en las cien
+mil filas restantes</strong> — +0,1 y +0,2 puntos. No generaliza, y eso es lo
+correcto: un concepto de formas modulares no puede ayudar a un enunciado de
+topología general. <strong>Si generalizara habría que sospechar del
+instrumento.</strong>
+</div>
+
+<p>
+Lo que la comparación dice es dónde está el margen: <strong>no en afinar lo que
+hay, sino en cubrir lo que falta</strong>. Fuera de los módulos con nodo el
+grafo ya da 10,1&nbsp;% en Herald; cada rama que se cure sube su barrio de
+~4&nbsp;% a ~17-20&nbsp;% sin tocar el resto. Es aditivo, y por eso se puede ir
+rama por rama midiendo cada una.
+</p>
+
+<h3>Y una conclusión propia que se cayó por el camino</h3>
+
+<p>
+Al mirar qué dejó a medias la tanda, este documento iba a decir que
+<em>«<code>Algebra/Lie</code> es el hueco»</em>: 1 228 teoremas en 50 ficheros
+y el grafo tocando uno. <strong>Era verdad sólo dentro del marco de la
+tanda.</strong> Aplicando el mismo criterio a Mathlib entero salen
+<strong>161 ramas abiertas y finas</strong>, y las mayores no son ésas:
+</p>
+
+<pre>Algebra.Order              <b>5 140</b> teoremas ·  1 de 208 módulos
+Algebra.Group               4 102          ·  4 de 148
+Analysis.SpecialFunctions   3 906          ·  1 de  98
+Analysis.Calculus           3 607          ·  2 de 122
+<span style="opacity:.6">Algebra.Lie                 1 228          ·  1 de  50</span></pre>
+
+<p>
+El hueco de verdad está en el <strong>núcleo</strong> —álgebra ordenada,
+grupos, funciones especiales, cálculo—, que es donde caen las consultas de un
+alumno. Y encaja con el 5,0&nbsp;% sobre Mathlib entero: <strong>el grafo es
+fino en casi todas partes</strong>, no sólo en los rincones exóticos.
+</p>
+
+<div class="nota ambar">
+<strong>El criterio de aceptación deja de ser ciego.</strong> Una tanda se mide
+ahora <em>en su barrio</em> —¿sube de ~4&nbsp;% a ~17&nbsp;%?— <strong>y</strong>
+en el global —¿no baja los 10,1&nbsp;% de Herald?—. Dos condiciones, las dos
+comprobables sin gastar API. La vez anterior sólo se podía comprobar la
+segunda, y por eso hubo que construir la puerta de las plazas para que la
+tanda entrara.
+</div>
+
+<div class="nota">
+<strong>Dos cautelas que no conviene perder.</strong> El factor sobre el nulo
+—19× y 8,8×— <strong>no es comparable</strong> con el 15,7× de ProofNet: aquí
+el oro es la firma entera de la declaración, con sus clases de tipos, así que
+«los nombres más frecuentes» acierta menos por construcción. Lo comparable es
+la columna sin/con tanda. Y los dos bancos miden <strong>puntería, no
+resultado</strong>: que el grafo ofrezca los identificadores correctos no es lo
+mismo que hacer que Lean verifique más — eso sigue en la campaña de 20 casos,
+donde el vocabulario rescata 3 y rompe 2, <em>p</em>&nbsp;=&nbsp;1,0.
+</div>
+
+
+<h2><span class="n">04</span>Lo que aporta</h2>
 <p>
 Ocho capacidades baten a su modelo nulo, y el decisor las enciende leyendo estos
 mismos ficheros en cada consulta, no un número escrito a mano. <strong>Siete de
@@ -310,7 +424,7 @@ selector de premisas — que es donde su evidencia dice que sirven.
 </div>
 
 
-<h2><span class="n">04</span>Lo que no bate a su nulo</h2>
+<h2><span class="n">05</span>Lo que no bate a su nulo</h2>
 <p>
 Cinco capacidades miden peor —o igual— que no hacerlas. Cuatro estaban en
 producción. El decisor las apaga leyendo la medición, no una opinión.
@@ -351,7 +465,7 @@ después quedaba apagada <em>justo</em> cuando el decisor fallaba.
 </div>
 
 
-<h2><span class="n">05</span>La fibración: no faltan datos, la base no es un orden</h2>
+<h2><span class="n">06</span>La fibración: no faltan datos, la base no es un orden</h2>
 <p>
 Que π : Skills → Áreas sea funtor está verificado, y no basta: un funtor
 constante también cumple las dos leyes. La condición que dice que la base
@@ -406,7 +520,7 @@ no es una tarea: es qué base <em>sí</em> ordenaría la matemática.
 </p>
 
 
-<h2><span class="n">06</span>Los huecos de conexión, y lo que costaron</h2>
+<h2><span class="n">07</span>Los huecos de conexión, y lo que costaron</h2>
 
 <h3>El mapa de módulos conocía 76 de los 321 nodos</h3>
 <p>
@@ -474,7 +588,7 @@ que sí es transitiva.
 </div>
 
 
-<h2><span class="n">07</span>Los ocho veredictos</h2>
+<h2><span class="n">08</span>Los ocho veredictos</h2>
 <p>
 La respuesta nunca sale sin uno. Tres de los ocho existen porque los tres se
 dieron: el sistema llegó a estampar «verificado» sobre un archivo de
@@ -498,7 +612,7 @@ dieron: el sistema llegó a estampar «verificado» sobre un archivo de
 </div>
 
 
-<h2><span class="n">08</span>La clase de fallo que domina</h2>
+<h2><span class="n">09</span>La clase de fallo que domina</h2>
 <p>
 Ninguno de estos lo encontraron los tests; todos salieron de correr el sistema
 o de auditar los instrumentos. Y casi todos son <strong>el mismo fallo</strong>:
@@ -540,7 +654,7 @@ autoridad de la que tiene.
 </div>
 
 
-<h2><span class="n">09</span>Lo que no está medido</h2>
+<h2><span class="n">10</span>Lo que no está medido</h2>
 <ul>
 <li><strong>La calidad extremo a extremo del decisor</strong> contra «ejecútalo todo». Se mide el coste, no la calidad.</li>
 <li><strong>El banco de fidelidad completo.</strong> Los 24 casos están escritos y la corrida registrada es la muestra rápida: <strong>8 medidos, 8 correctos, 0 infieles</strong>. Es la única medida de si la respuesta responde a la pregunta, y necesita presupuesto de API y de Lean.</li>
@@ -558,27 +672,30 @@ TacticRanker está encurtido con 1.6.1 y sklearn avisa al cargarlo con 1.7.2.
 </div>
 
 
-<h2><span class="n">10</span>Lo siguiente, por orden de valor</h2>
+<h2><span class="n">11</span>Lo siguiente, por orden de valor</h2>
 <ol>
 <li><strong>Rehacer el banco de fidelidad, los 24 casos.</strong> Es la única afirmación que de verdad importa —que la respuesta responde a lo que se preguntó— y la única pendiente que necesita gastar. La muestra rápida ya reparte 4/2/2 entre los tres grupos, así que iterar es barato. La campaña de la §1 mide si Lean <em>verifica</em>; este banco mide si lo verificado es <em>lo que se preguntaba</em>, que no es lo mismo.</li>
 <li><strong>Pasar los rasgos del árbol a <code>premisas_para</code>.</strong> Miden 1,43× sobre su nulo prediciendo qué lemas harán falta, y hoy llegan al decisor como guarda en vez de al selector de premisas. Cambio de firma pequeño; la medición ya está escrita.</li>
-<li><strong>Un banco de consultas de fundamentos.</strong> Sin él, todo lo que se construya para la mitad categórica del sistema —que es su razón de ser— se mide con matemática de concurso o no se mide.</li>
+<li><strong>Curar el núcleo, rama por rama.</strong> Es lo que la §3 deja sobre la mesa: el grafo da 5,0 % sobre Mathlib entero y ~17-20 % donde tiene nodo, así que el margen está en cubrir. La hoja está escrita —<code>hoja_de_curacion.py --ramas</code>, 24 módulos en dos grupos— y el criterio de aceptación ya no es ciego. <em>Qué merece nodo lo sigue decidiendo una persona.</em></li>
+<li><strong>Un banco de consultas de fundamentos.</strong> Sin él, todo lo que se construya para la mitad categórica del sistema —que es su razón de ser— se mide con matemática de concurso o no se mide. Los dos bancos nuevos <strong>no</strong> lo resuelven: miden sobre enunciados de Mathlib, no sobre preguntas de alumno.</li>
 <li><strong>Qué base ordenaría la matemática.</strong> El área no lo hace, y está demostrado. Es una pregunta de investigación, no una tarea de curación.</li>
 </ol>
 
 <div class="nota verde">
-<strong>Tres conclusiones anteriores cayeron esta semana</strong>, y las tres por
-la misma disciplina que las había producido: pedirle un nulo a cada cifra. El
-52,1 % del emparejador era un artefacto de clase; el «faltan morfismos que
-crucen de área» era falso y demostrablemente contraproducente; y el «inerte»
-del paso 3 descansaba sobre un banco que no podía decidir. Ninguna de las tres
-se cayó revisando el código: se cayeron midiendo.
+<strong>Cuatro conclusiones propias han caído, y las cuatro por la misma
+disciplina que las produjo</strong>: pedirle un nulo a cada cifra, y un banco
+que pueda decidir. El 52,1 % del emparejador era un artefacto de clase; el
+«faltan morfismos que crucen de área» era falso y demostrablemente
+contraproducente; el «inerte» del paso 3 descansaba sobre un banco que no podía
+decidir; y <strong>«<code>Algebra/Lie</code> es el hueco» era verdad sólo
+dentro del marco que la pregunta había fijado</strong> — el hueco está en el
+núcleo. Ninguna de las cuatro se cayó revisando el código: se cayeron midiendo.
 </div>
 
 <div class="pie">
 Metamatemático · NLE v7.0 — Leonardo Jiménez Martínez, BIOMAT, Centro de
 Biomatemáticas.<br>
-Cifras verificadas el 7 de septiembre de 2026 contra el repositorio en
+Cifras verificadas el 14 de septiembre de 2026 contra el repositorio en
 <code>E:\Metamatematico</code>. Cada una es reproducible con su script en
 <code>scripts/</code>; los ficheros de medición viven en <code>data/</code>.
 </div>

@@ -307,16 +307,33 @@ class TestCifrasDelGrafo:
     #: EL ANCLA ES EL PAR, NO LA CIFRA SUELTA. «13,1 % precision» tambien
     #: existe en el README y es del emparejador SEMANTICO, que nunca se
     #: adopto: anclar solo en «precision» lo marcaba como desactualizado.
-    #: La cifra del lexico va seguida de SU COBERTURA en la misma celda, y esa
-    #: firma no la tiene ninguna otra.
+    #: La cifra va seguida de SU COBERTURA en la misma celda. Esa firma la
+    #: comparten los TRES bancos, asi que cada patron va ANCLADO al nombre de
+    #: su banco: sin el ancla, la fila de Herald se leia como si fuera la de
+    #: ProofNet y el guardian gritaba con la documentacion correcta. Un
+    #: guardian que se dispara con codigo correcto entrena a ignorarlo.
+    #:
+    #: Y se vigilan los tres, no solo ProofNet: un banco nuevo cuya cifra
+    #: nadie comprueba es exactamente el fallo que este test existe para
+    #: cazar, solo que mas reciente.
+    _PC = (r".{0,220}?(\d{1,2},\d)\s*%\s*precisi[oó]n"
+           r"[^0-9]{0,20}(\d{1,2},\d)\s*%\s*cobertura")
     CIFRAS_MEDIDAS = (
         ("vocabulario contra ProofNet", "recuperacion_proofnet.json",
-         r"(\d{1,2},\d)\s*%\s*precisi[oó]n[^0-9]{0,20}(\d{1,2},\d)\s*%\s*cobertura",
+         r"ProofNet" + _PC,
          (("precision", ("resultados", "lexico", "precision")),
           ("cobertura", ("resultados", "lexico", "cobertura")))),
         ("vocabulario curado", "recuperacion_proofnet.json",
          r"(\d{1,2},\d)\s*%\s*del vocabulario curado",
          (("precision", ("resultados", "lexico", "precision")),)),
+        ("vocabulario sobre Mathlib entero", "banco_docstrings.json",
+         r"Mathlib entero" + _PC,
+         (("precision", ("resultados", "grafo", "precision")),
+          ("cobertura", ("resultados", "grafo", "cobertura")))),
+        ("vocabulario contra Herald", "banco_herald.json",
+         r"Herald" + _PC,
+         (("precision", ("resultados", "grafo", "precision")),
+          ("cobertura", ("resultados", "grafo", "cobertura")))),
     )
 
     @staticmethod
