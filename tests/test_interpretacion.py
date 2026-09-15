@@ -19,6 +19,8 @@ from nucleo.graph.interpretacion import (
     APICE_FALTANTE, NO_SON_DOS_COCIENTES, DEGRADADAS_A_FLECHA,
     PATRONES_ESPURIOS, VECINO_VERDADERO, FUNCTORS_SOBRA,
     VERTICES_ANADIDOS, LAS_DEL_AUTOR, TANDA_CURACION,
+    RETIRADAS_DEL_GRAFO, DEL_VEREDICTO_48, RAMAS_DECLARADAS,
+    A_LA_CAPA_DE_AREAS, nombres_de_trabajo, rol, RAMA,
 )
 
 
@@ -111,8 +113,24 @@ class TestCobertura:
         """Salvo los que el propio grafo obligo a añadir, y esos estan
         declarados aparte precisamente para que esta guardia siga sirviendo."""
         sobran = sorted(set(VEREDICTO) - set(grafo.skill_ids)
-                        - VERTICES_ANADIDOS - DEGRADADAS_A_FLECHA)
+                        - VERTICES_ANADIDOS - DEGRADADAS_A_FLECHA
+                        - set(RETIRADAS_DEL_GRAFO))
         assert not sobran, f"no estan en el grafo: {sobran}"
+
+    def test_las_retiradas_siguen_en_la_tabla_y_no_en_el_grafo(self, grafo):
+        """Retirar un nodo NO es borrar su veredicto.
+
+        Las dos cosas se confundieron al aplicar las fusiones: se quitaron los
+        nodos y, de paso, la etiqueta renombrada desapareciode la tabla. Eso
+        movio el recuento publicado por el autor —74 C y 53 T— que otra
+        guardia de este mismo fichero protege, y perdio la traza de por que
+        esa etiqueta dejo de existir. El veredicto es un dato editorial: se
+        anota la retirada, no se borra la fila.
+        """
+        for k, motivo in RETIRADAS_DEL_GRAFO.items():
+            assert k in VEREDICTO, f"{k} se retiro del grafo Y de la tabla"
+            assert k not in grafo.skill_ids, f"{k} sigue siendo nodo"
+            assert motivo
 
     def test_los_tres_anadidos_ya_estan_en_el_grafo(self, grafo):
         """Los tres vertices que el grafo detecto que le faltaban ya estan
@@ -132,7 +150,8 @@ class TestCobertura:
         173, sin contar los dos vertices que el grafo obligo a añadir."""
         del_autor = {k: v for k, v in VEREDICTO.items()
                      if k not in VERTICES_ANADIDOS
-                     and k not in TANDA_CURACION}
+                     and k not in TANDA_CURACION
+                     and k not in DEL_VEREDICTO_48}
         assert len(del_autor) == LAS_DEL_AUTOR
         cuenta: dict = {}
         for v in del_autor.values():
@@ -147,8 +166,8 @@ class TestCobertura:
         mueve, y es lo que esta guardia protege, es la cifra del autor.
         """
         assert len(set(vertices()) - VERTICES_ANADIDOS
-                   - TANDA_CURACION) == 88
-        assert len(vertices()) == 105
+                   - TANDA_CURACION - DEL_VEREDICTO_48) == 88
+        assert len(vertices()) == 109
         assert len(aristas()) == 43
         # y el reparto de la tanda, para que no se cuele una marca cambiada
         cuenta: dict = {}
@@ -178,6 +197,8 @@ class TestCoherencia:
         for nombre, ids in DUPLICADOS:
             for i in ids:
                 assert i in VEREDICTO, f"{i} en DUPLICADOS sin veredicto"
+                if i in RETIRADAS_DEL_GRAFO:
+                    continue      # ya fundida: sigue en la tabla, no en el grafo
                 assert i in grafo.skill_ids, f"{i} no esta en el grafo"
 
     def test_las_marcas_dentro_de_un_grupo_pueden_diferir(self):
@@ -408,9 +429,21 @@ class TestFusiones:
 
     def test_ninguna_etiqueta_se_borra(self, grafo):
         """Las retiradas quedan como alias: si se borraran, las 172 dejarian
-        de mapear sobre el grafo."""
+        de mapear sobre el grafo.
+
+        `FUSIONES` son ocho y estuvieron declaradas sin aplicar:
+        las ocho seguian siendo nodo vivo. El veredicto sobre las 48 aplica
+        dos —`sequent-calculus` y `recursion-theory`— y esas ya NO son nodo.
+        Lo que esta guardia protege no cambia: la fila sigue en la tabla, y
+        `resolver()` sigue llevando la etiqueta vieja a la superviviente.
+        """
         for retirada in FUSIONES:
             assert retirada in VEREDICTO
+            if retirada in RETIRADAS_DEL_GRAFO:
+                assert resolver(retirada) in grafo.skill_ids, (
+                    "%s se aplico pero su superviviente no esta en el grafo"
+                    % retirada)
+                continue
             assert retirada in grafo.skill_ids
 
     def test_el_recuento_de_vertices(self):
@@ -421,9 +454,9 @@ class TestFusiones:
         nat-trans y limits son F. Nunca estuvieron en los 87.
         """
         assert len(set(vertices()) - VERTICES_ANADIDOS
-                   - TANDA_CURACION) == 88
+                   - TANDA_CURACION - DEL_VEREDICTO_48) == 88
         assert len(set(vertices_tras_fusionar()) - VERTICES_ANADIDOS
-                   - TANDA_CURACION) == 82
+                   - TANDA_CURACION - DEL_VEREDICTO_48) == 82
         no_eran = [k for k in list(FUSIONES) + list(DEGRADADAS)
                    if marca(k) not in VERTICES]
         assert set(no_eran) == {"proof-theory", "recursion-theory",
@@ -1087,3 +1120,55 @@ def test_el_mapa_de_modulos_no_filtra_por_la_marca():
     assert "marca not in VERTICES" not in codigo, (
         "el mapa de modulos vuelve a filtrar por la marca: la marca dice si "
         "algo es objeto del grafo, no en que fichero de Mathlib vive")
+
+
+class TestElRolDeRama:
+    """La columna que faltaba, y la regla que la hace auditable.
+
+    `CURACION_INTERNA` saco 36 conceptos marcados `T` —«ni objetos ni
+    flechas», es decir FUERA— que sin embargo eran nodos con hijos y palabras
+    clave. La hoja pregunto si hacia falta una sexta marca, `R`. El veredicto
+    dice que no: si `R` entra en la columna de `marca`, se pierde el veredicto
+    `T` —que es lo unico que impide que estos nodos tomen nombre manana— y la
+    auditoria que produjo la hoja deja de poder ejecutarse, porque ya no habria
+    contradiccion que detectar.
+
+    Asi que el rol va en campo aparte y la marca se queda intacta. Estos tests
+    son la contrapartida: si el rol es una columna de verdad, tiene reglas
+    propias que se pueden comprobar.
+    """
+
+    def test_un_nodo_rama_no_toma_nombre_nunca(self):
+        """LA REGLA, tal cual la escribio el veredicto.
+
+        «El objeto que encuentre el indice nunca entra en el nodo-rama. Si es
+        C, S u O, es un hijo nuevo; si es F, es evidencia.»
+
+        Es lo que permite que una rama conserve su `T` sin contradecirse: no
+        promete ser un objeto porque no ofrece ninguno. El dia que una rama
+        tome nombre, la contradiccion vuelve — y este test la caza antes.
+        """
+        con_voz = sorted(k for k in RAMAS_DECLARADAS
+                         if (nombres_de_trabajo(k) or "").strip())
+        assert not con_voz, (
+            "estos nodos-rama ofrecen nombres al prompt, y una rama no puede: "
+            "o el objeto es un hijo nuevo, o es evidencia — %s" % con_voz)
+
+    def test_toda_rama_declarada_sigue_marcada_T(self):
+        """El rol no sustituye a la marca, la acompaña."""
+        for k in RAMAS_DECLARADAS:
+            assert k in VEREDICTO, f"{k} es rama y no tiene veredicto"
+            assert marca(k) == T, (
+                f"{k} es rama pero su marca es {marca(k)}: el rol es una "
+                "columna aparte, no un reemplazo de la marca")
+
+    def test_el_rol_no_se_pisa_con_la_capa_de_areas(self):
+        """`zfc-axioms` y `lean-kernel` no son ramas: son raices, y su sitio
+        es la capa de areas. Son decisiones distintas y excluyentes."""
+        assert not (RAMAS_DECLARADAS & A_LA_CAPA_DE_AREAS)
+        for k in A_LA_CAPA_DE_AREAS:
+            assert rol(k) is None
+
+    def test_rol_solo_dice_rama_o_nada(self):
+        for k in VEREDICTO:
+            assert rol(k) in (None, RAMA)

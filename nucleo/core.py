@@ -1059,6 +1059,29 @@ class Nucleo:
         # `cic` y `lean-kernel` se quedan sin area a proposito: ver
         # `AREA_DE_PILAR` en nucleo/pillars/areas.py.
         from nucleo.pillars import areas as _areas
+        from nucleo.graph import interpretacion as _interp
+
+        # DOS DE LOS DIEZ NO SON CONCEPTOS, SON RAICES.
+        #
+        # `CURACION_INTERNA` los saco con marca `T` —«ni objetos ni flechas»,
+        # o sea FUERA— y con 143 y 10 hijos respectivamente. El veredicto
+        # sobre las 48 resuelve la contradiccion moviendolos DE CAPA en vez de
+        # cambiarles la marca: con 143 hijos `zfc-axioms` no es un concepto,
+        # es la raiz fundacional de medio grafo, y su sitio es la capa de las
+        # 22 areas — que precisamente no llevan marca «porque no son suyas».
+        # `lean-kernel` es el mismo caso sobre el subarbol del metalenguaje.
+        #
+        # No pierden ni una flecha: cambia el sort, no el nodo. Y la marca `T`
+        # se queda intacta en el veredicto, que es lo que impide que manana
+        # tomen nombre — el token de `zfc-axioms` seria `set`, de los mas
+        # genericos de Mathlib.
+        for _sid in _interp.A_LA_CAPA_DE_AREAS:
+            _sk = self._graph.get_skill(_sid)
+            if not _sk:
+                continue
+            _sk.metadata = dict(_sk.metadata or {})
+            _sk.metadata["sort"] = _areas.AREA
+
         for _sid in list(self._graph.skill_ids):
             _sk = self._graph.get_skill(_sid)
             if not _sk or (_sk.metadata or {}).get("sort"):

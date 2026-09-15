@@ -48,6 +48,18 @@ se revisa nunca, asi que archivar bajo `T` algo que si hay que revisar
 equivale a perderlo». Aquello eran diez modulos fuera del grafo. Esto son 38
 nodos DENTRO, y llevan mas tiempo.
 
+LO QUE PASO DESPUES, Y POR QUE ESTA HOJA ES MAS CORTA QUE SU PRIMERA VERSION
+---------------------------------------------------------------------------
+El veredicto sobre las 48 no contesto ficha por ficha: contesto que faltaba
+UNA COLUMNA. El grafo tiene dos clases de nodo —concepto y rama— y una sola
+columna para las dos, asi que 33 de las 36 del monton B no eran 33 decisiones
+sino un campo ausente. Con `rol` escrito en `interpretacion.py`, la hoja pasa
+de 48 fichas a menos de diez sin que nadie haya decidido caso por caso.
+
+Esta hoja se regenera, asi que las cifras de aqui arriba son las de su
+primera pasada y no las de hoy; lo que se imprime siempre es el estado
+actual. Que encoja es la senal de que el diagnostico era el correcto.
+
 LO QUE ESTA HOJA NO DECIDE
 --------------------------
 Si el nombre existe, en que modulo vive y cuantas veces se cita: todo eso
@@ -116,6 +128,32 @@ TIPOS_OBJETO = frozenset({
 #: corriente no es senal»— pero MEDIDA en vez de enumerada, que es lo que hay
 #: que hacer cuando el vocabulario es el de Mathlib y no el del usuario.
 TOPE_POSTINGS = 300
+
+#: LOS QUE EL TOPE NO CAZA, cada uno con la ficha que lo prueba.
+#:
+#: El tope de 300 descarta `order` (515), `limit` (591) y `continuous` (340).
+#: Estos seis se quedan por debajo y son igual de inutiles para buscar un
+#: objeto: no es cuestion de frecuencia sino de que no distinguen NADA. El
+#: veredicto sobre las 48 los saco leyendo las fichas, que es donde se ven.
+#:
+#: Cada entrada dice que ficha lo delato, porque una lista de palabras
+#: prohibidas sin su motivo se convierte en superticion a la tercera vez que
+#: alguien la amplia.
+GENERICAS_A_MANO = {
+    "theory":   "las mismas tres filas `FirstOrder.Language.*` salian en "
+                "homotopy-type-theory, ramsey-theory, computability-theory y "
+                "proof-theory",
+    "form":     "canonical-forms recibia BilinForm, traceForm, killingForm, "
+                "formPerm",
+    "complete": "np-completeness recibia CompleteSpace, CompleteLattice, "
+                "CauSeq.IsComplete",
+    "discrete": "discrete-optimization recibia DiscreteTopology, "
+                "CategoryTheory.Discrete",
+    "analytic": "analytic-number-theory recibia AnalyticAt, AnalyticOnNhd, "
+                "AnalyticOn",
+    "simplex":  "linear-programming recibia Affine.Simplex y SimplexCategory: "
+                "el metodo simplex no es el simplex",
+}
 
 #: QUE PARTE DEL NOMBRE CORTO TIENE QUE CUBRIR LA PALABRA BUSCADA.
 #:
@@ -216,7 +254,7 @@ def candidatos(sid, nombre, keywords, area, idx, rama_a_area):
     vistos, salida, genericas = set(), [], []
     for t in sorted(_terminos(sid, nombre, keywords)):
         postings = idx.get(t, ())
-        if len(postings) > TOPE_POSTINGS:
+        if len(postings) > TOPE_POSTINGS or t in GENERICAS_A_MANO:
             genericas.append((t, len(postings)))
             continue
         for d in postings:
@@ -286,6 +324,7 @@ def reunir():
     idx = indice_mathlib()
 
     filas = {"A": [], "B": [], "C": []}
+    resueltas_por_rol = []
     for s in S:
         if meta[s.id].get("sort") != "CONCEPTO":
             continue
@@ -293,6 +332,17 @@ def reunir():
         nombres = [p.strip() for p in
                    re.split(r"[,+]", I.nombres_de_trabajo(s.id) or "")
                    if p.strip()]
+        # UNA RAMA DECLARADA YA NO ES UNA CONTRADICCION, y por eso sale de la
+        # hoja. Marca `T` con hijos era el sintoma; el diagnostico —le falta
+        # una columna al grafo, no una marca— se escribio en `rol`, y con el
+        # escrito el nodo dice dos cosas coherentes a la vez: no es un objeto
+        # (marca) y si es estructura de enrutamiento (rol).
+        #
+        # La guardia que lo sostiene vive en `test_interpretacion.py`: una
+        # rama no toma nombre nunca. El dia que una lo tome, vuelve aqui.
+        if I.es_rama(s.id):
+            resueltas_por_rol.append(s.id)
+            continue
         if mk == I.T and nombres:
             monton = "C"
         elif mk == I.T:
@@ -334,6 +384,7 @@ def reunir():
     # `lean=None` —«no existe en Mathlib»— y lo que hay que mirar primero es
     # aquel para el que el indice SI encuentra hoy algo en su propia area:
     # ese es el que puede haber dejado de ser verdad.
+    filas["rol"] = sorted(resueltas_por_rol)
     filas["A"].sort(key=lambda f: (not f["fiable"], f["area"], f["id"]))
     for k in ("B", "C"):
         filas[k].sort(key=lambda f: (f["area"], f["id"]))
@@ -815,8 +866,9 @@ def main() -> int:
           "area HOY)" % (len(filas["A"]), caducables))
     print("monton B (marcados T, sin voz)   : %d" % len(filas["B"]))
     print("monton C (marcados T, CON voz)   : %d" % len(filas["C"]))
-    print("                           total : %d de %d conceptos"
-          % (sum(len(v) for v in filas.values()), n_conc))
+    print("   cerradas por el campo `rol`     : %d" % len(filas["rol"]))
+    print("                   QUEDAN PENDIENTES : %d de %d conceptos"
+          % (len(filas["A"]) + len(filas["B"]) + len(filas["C"]), n_conc))
     print("-> %s" % SALIDA)
     print("-> %s" % SALIDA_TEX)
     return 0

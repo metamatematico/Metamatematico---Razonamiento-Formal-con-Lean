@@ -257,7 +257,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1089 tests · 53 suites
+    1094 tests · 53 suites
   </p>
 </nav>
 
@@ -291,7 +291,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1089</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1094</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -784,7 +784,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <table>
         <thead><tr><th>antes de la frontera</th><th class="mono">precisión</th><th>veredicto</th></tr></thead>
         <tbody>
-          <tr><td><strong>grafo curado</strong> <span class="sub">352 nodos</span></td><td class="mono">22,8 %</td><td><span class="pill v">15,7× · aporta</span></td></tr>
+          <tr><td><strong>grafo curado</strong> <span class="sub">353 nodos</span></td><td class="mono">23,9 %</td><td><span class="pill v">16,5× · aporta</span></td></tr>
           <tr><td>índice completo de Mathlib <span class="sub">217 419 nombres</span></td><td class="mono">1,53 %</td><td><span class="pill">empata con el azar</span></td></tr>
           <tr><td><span class="pill n">modelo nulo</span></td><td class="mono">1,45 %</td><td>—</td></tr>
         </tbody>
@@ -976,7 +976,7 @@ svg .sLine{stroke:var(--muted); fill:none}
         <thead><tr><th>pieza</th><th>busca</th><th>explica</th><th>evidencia</th></tr></thead>
         <tbody>
           <tr><td><strong>L0</strong> lengua</td><td>sí</td><td>poco</td><td class="mono">58,7 % vs 33,3 %</td></tr>
-          <tr><td><strong>L1</strong> vocabulario</td><td>sí, y no llega al final</td><td><strong>mucho</strong></td><td class="mono">22,8 % vs 1,45 %<span class="sub">p = 1,0 en verificación</span></td></tr>
+          <tr><td><strong>L1</strong> vocabulario</td><td>sí, y no llega al final</td><td><strong>mucho</strong></td><td class="mono">23,9 % vs 1,45 %<span class="sub">p = 1,0 en verificación</span></td></tr>
           <tr><td><strong>L2</strong> territorio</td><td>reconoce temas</td><td>poco</td><td>no transfiere</td></tr>
           <tr><td><strong>L3</strong> rankeador</td><td><strong>la más efectiva</strong></td><td>poco</td><td class="mono">3,7× menos compilaciones</td></tr>
           <tr><td><strong>L4</strong> coocurrencia</td><td>no</td><td><strong>mucho</strong></td><td class="mono">exceso hasta +6,74</td></tr>
@@ -2211,7 +2211,7 @@ svg .sLine{stroke:var(--muted); fill:none}
   <rect x="16" y="254" width="404" height="32" rx="6" fill="var(--grafo)" opacity=".82"/>
   <text x="30" y="275" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">DEPENDENCY · 684</text>
   <text class="sTxt sDim" x="432" y="268" font-size="11">prerrequisitos. Acíclicas entre los 205 curados;</text>
-  <text class="sTxt sDim" x="432" y="282" font-size="11">de las curadas, 72,7 % confirmadas por el DAG de imports</text>
+  <text class="sTxt sDim" x="432" y="282" font-size="11">de las curadas, 72,5 % confirmadas por el DAG de imports</text>
 
   <rect x="16" y="294" width="316" height="32" rx="6" fill="var(--lean)" opacity=".78"/>
   <text x="30" y="315" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">TRANSLATION · 535</text>
@@ -3090,8 +3090,8 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
   <text class="sTxt" x="16" y="154" font-size="11.5">Dependencias curadas vs el DAG</text>
   <rect x="540" y="144" width="68" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
-  <text class="sMono" x="820" y="155" font-size="11" fill="var(--lean)">2,28×</text>
-  <text class="sMono sDim" x="880" y="155" font-size="10">72,7 % vs 31,9 %</text>
+  <text class="sMono" x="820" y="155" font-size="11" fill="var(--lean)">2,36×</text>
+  <text class="sMono sDim" x="880" y="155" font-size="10">72,5 % vs 30,7 %</text>
 
   <text class="sTxt" x="16" y="180" font-size="11.5">Área de la consulta · equilibrada</text>
   <rect x="540" y="170" width="49" height="14" rx="3" fill="var(--lean)" opacity=".88"/>
@@ -3156,8 +3156,8 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <table>
         <thead><tr><th>qué se mide</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
-          <tr><td><strong>Vocabulario contra ProofNet</strong><span class="sub">371 ejercicios con formalización de oro · k=2, el valor de producción</span></td><td class="mono">22,8 % precisión<br>18,0 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">15,7× · aporta</span></td></tr>
-          <tr><td><strong>Dependencias <em>curadas</em> contra el DAG real</strong><span class="sub">154 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">112 confirmadas<br>72,7 %</td><td class="mono">31,9 %</td><td><span class="pill v">2,28× · aporta</span></td></tr>
+          <tr><td><strong>Vocabulario contra ProofNet</strong><span class="sub">371 ejercicios con formalización de oro · k=2, el valor de producción</span></td><td class="mono">23,9 % precisión<br>16,5 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">15,7× · aporta</span></td></tr>
+          <tr><td><strong>Dependencias <em>curadas</em> contra el DAG real</strong><span class="sub">153 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">111 confirmadas<br>72,5 %</td><td class="mono">30,7 %</td><td><span class="pill v">2,36× · aporta</span></td></tr>
           <tr><td><strong>Costura de <em>cobertura</em> contra el DAG</strong><span class="sub">9 aristas <code>skill→módulo</code> medibles</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
           <tr><td><strong>Vocabulario sobre <em>Mathlib entero</em></strong><span class="sub">53 613 docstrings limpios · cubre todos los módulos, no sólo los de grado</span></td><td class="mono">5,0 % precisión<br>2,3 % cobertura</td><td class="mono">0,3 %<br>0,5 %</td><td><span class="pill v">19,0× · aporta</span></td></tr>
           <tr><td><strong>Vocabulario contra Herald</strong><span class="sub">43 856 enunciados reescritos por otro sistema · el control</span></td><td class="mono">10,3 % precisión<br>6,9 % cobertura</td><td class="mono">1,2 %<br>2,2 %</td><td><span class="pill v">8,8× · aporta</span></td></tr>
@@ -3257,7 +3257,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     <div class="ficha">
       <header><h3>Buscar en los 217 419 nombres no bate al vocabulario curado</h3></header>
       <div class="paso"><div class="et">la idea</div><p>El índice de nombres se usa para comprobar y cualificar, nunca para buscar. ¿Y si se usara como buscador, con índice invertido e idf?</p></div>
-      <div class="paso"><div class="et">medido</div><p>Contra ProofNet, mismo K y mismo nulo: el índice completo da <strong>0,0 %</strong> de precisión y el de sólo sustantivos <strong>1,5 %</strong>, frente al <strong>22,8 %</strong> del vocabulario curado y al 1,45 % del nulo. El mejor índice <em>empata con el azar</em>.</p></div>
+      <div class="paso"><div class="et">medido</div><p>Contra ProofNet, mismo K y mismo nulo: el índice completo da <strong>0,0 %</strong> de precisión y el de sólo sustantivos <strong>1,5 %</strong>, frente al <strong>23,9 %</strong> del vocabulario curado y al 1,45 % del nulo. El mejor índice <em>empata con el azar</em>.</p></div>
       <div class="paso"><div class="et">la lección</div><p>Más candidatos no es más información. Las colisiones de palabra dominan: «Banach» lleva a los espacios de Banach, no al teorema del punto fijo.</p></div>
     </div>
 

@@ -1341,12 +1341,14 @@ SUBBRANCH_SKILLS = [
         ["ultrafiltro", "ultrafiltros", "ultraproducto", "ultraproductos",
          "ultraproduct", "teorema de los"],
         pillar=PillarType.LOG),
-    _sb("sequent-calculus", "Sequent Calculus",
-        "Sequent calculus, natural deduction, cut elimination",
-        ["proof-theory"], "logic",
-        ["secuente", "secuentes", "deduccion natural", "eliminacion de corte",
-         "sequent", "cut elimination"],
-        pillar=PillarType.LOG),
+    # `sequent-calculus` SE RETIRO POR FUSION con `fol-deduction`.
+    # `FUSIONES` lo declaraba desde hace tiempo y nunca se habia aplicado; el
+    # veredicto sobre las 48 lo manda aplicar. No se decide buscando un
+    # nombre: Mathlib no tiene calculo de secuentes, y aunque lo tuviera seria
+    # el mismo vertice —la categoria deductiva— con otra presentacion.
+    # Salia con 3 flechas y las tres eran TRANSLATION a tacticas, asi que la
+    # retirada no dejo ningun hijo suelto. Sus palabras clave se las queda
+    # `fol-deduction`, que es donde contestan.
     _sb("incompleteness", "Godel Incompleteness",
         "Godel numbering, first and second incompleteness theorems",
         ["proof-theory"], "logic",
@@ -1355,8 +1357,14 @@ SUBBRANCH_SKILLS = [
         pillar=PillarType.LOG),
     # `numerable`/`countable` vienen de descriptive-set-theory, que las
     # reclamaba y contestaba `PolishSpace`. Aqui contestan `Set.Countable`.
-    _sb("cardinal-arithmetic", "Cardinal Arithmetic",
-        "Cardinals, cofinality, continuum hypothesis, cardinal exponentiation",
+    # RENOMBRADO desde `cardinal-arithmetic`, y con la marca cambiada de `T`
+    # a `C`. El nodo estaba MAL NOMBRADO, no mal marcado: la aritmetica son
+    # operaciones —eso si era `T`— pero `Cardinal` es un objeto con 645 citas,
+    # y el propio veredicto ya decia que el sustrato es categoria delgada.
+    # Objetos los cardinales, flechas `<=`; la aritmetica pasa a ser lo que
+    # es, la estructura de semianillo SOBRE este vertice.
+    _sb("cardinals", "Cardinals",
+        "Cardinals and their order; cofinality, continuum hypothesis, exponentiation",
         ["zfc-axioms"], "set-theory",
         ["cardinal", "cardinales", "cardinalidad", "cofinalidad",
          "hipotesis del continuo", "cardinality",
@@ -1364,11 +1372,11 @@ SUBBRANCH_SKILLS = [
          "countable", "uncountable", "denumerable"]),
     _sb("forcing", "Forcing",
         "Forcing, generic extensions, independence results",
-        ["cardinal-arithmetic"], "set-theory",
+        ["cardinals"], "set-theory",
         ["forcing", "forzamiento", "independencia", "extension generica"]),
     _sb("large-cardinals", "Large Cardinals",
         "Inaccessible, measurable and other large cardinal axioms",
-        ["cardinal-arithmetic"], "set-theory",
+        ["cardinals"], "set-theory",
         ["cardinal grande", "cardinales grandes", "inaccesible", "medible",
          "large cardinal"]),
 
@@ -1376,7 +1384,7 @@ SUBBRANCH_SKILLS = [
     #
     # LA HOJA DECIA que el area `set-theory` no tiene raiz y que `Class`
     # entraba como tal. NO ES ASI: la raiz existe y es `zfc-axioms` —una de
-    # las diez skills fundacionales de core.py—, y `cardinal-arithmetic` y
+    # las diez skills fundacionales de core.py—, y `cardinals` y
     # `ordinals` ya cuelgan de ella. El razonamiento de la hoja era correcto
     # (ninguna de las cuatro especializaciones puede ser padre de las otras)
     # y la conclusion no.
@@ -1434,6 +1442,30 @@ SUBBRANCH_SKILLS = [
         ["graph-theory"], "combinatorics",
         ["emparejamiento", "apareamiento", "hall", "konig", "flujo",
          "matching", "matchings"]),
+    # ═══ VEREDICTO SOBRE LAS 48 · los tres objetos que esperaban ════════
+    #
+    # `matching-theory` y `extremal-combinatorics` estaban marcadas `T` y
+    # tenian hijos: la contradiccion que destapo CURACION_INTERNA. El
+    # veredicto NO se la quita dandoles nombre —una rama no toma nombre
+    # nunca— sino bajando el objeto un nivel, a hijo propio. La rama se
+    # queda con su `T` y con su rol de enrutar, y el objeto queda donde se
+    # puede nombrar.
+    #
+    # Las palabras clave son ESTRECHAS a proposito: `matching`, `extremal`,
+    # `turing`. Es la condicion que fallo la primera vez con `different`,
+    # que sale en media biblioteca y gastaba una plaza del prompt sin
+    # acertar ni una vez.
+    _sb("matchings", "Matchings",
+        "Matchings as subgraphs: perfect matchings, Hall's condition",
+        ["matching-theory"], "combinatorics",
+        ["emparejamiento perfecto", "emparejamientos", "subgrafo emparejador",
+         "perfect matching", "matching", "matchings", "is matching"]),
+    _sb("extremal-graphs", "Extremal Graphs",
+        "Extremal graphs and the extremal number for a forbidden subgraph",
+        ["extremal-combinatorics"], "combinatorics",
+        ["grafo extremal", "grafos extremales", "numero extremal",
+         "subgrafo prohibido", "turan", "extremal graph", "extremal number",
+         "forbidden subgraph"]),
     _sb("planar-graphs", "Planar Graphs",
         "Planarity, Euler's formula, Kuratowski's theorem",
         ["graph-theory"], "combinatorics",
@@ -1473,11 +1505,22 @@ SUBBRANCH_SKILLS = [
         ["turing", "maquina de turing", "problema de la parada", "church",
          "halting problem"],
         pillar=PillarType.TYPE),
-    _sb("recursion-theory", "Recursion Theory",
-        "Recursive and recursively enumerable sets, Turing degrees",
-        ["turing-machines"], "computation",
-        ["recursivo", "recursividad", "grado de turing", "recursion theory"],
+    # EL OBJETO QUE SOSTENIA A `recursion-theory`. Al fusionarla no se
+    # pierde: baja un nivel y queda como hijo de `computability-theory`, que
+    # es donde debia estar. Los grados de Turing son un orden parcial —
+    # objetos los grados, flechas `<=` de reducibilidad— asi que es `C`.
+    _sb("turing-degrees", "Turing Degrees",
+        "Turing degrees: the partial order of relative computability",
+        ["computability-theory"], "computation",
+        ["grado de turing", "grados de turing", "reducibilidad de turing",
+         "turing degree", "turing degrees", "turing reducible"],
         pillar=PillarType.TYPE),
+    # `recursion-theory` SE RETIRO POR FUSION con `computability-theory`:
+    # son sinonimos, y `DUPLICADOS` ya lo decia. Sus dos hijos reales
+    # —`partial-recursive-functions` y `primitive-recursive-functions`—
+    # pasaron a colgar de `computability-theory`, y el objeto que el indice
+    # habia encontrado bajo ella, `TuringDegree`, no se pierde: baja un nivel
+    # y queda donde debia, como hijo propio.
 
     # ═══ TANDA DE CURACION (41 modulos decididos a mano) ═════════════════
     # Los cuatro de `Computability`. `Computability.AkraBazzi.SumTransform`
@@ -1502,7 +1545,7 @@ SUBBRANCH_SKILLS = [
         pillar=PillarType.TYPE),
     _sb("partial-recursive-functions", "Partial Recursive Functions",
         "Partial recursive and computable functions, the mu operator",
-        ["recursion-theory"], "computation",
+        ["computability-theory"], "computation",
         ["funcion parcial recursiva", "funciones parciales recursivas",
          "recursiva parcial", "computable", "computabilidad",
          "operador mu", "busqueda no acotada",
@@ -1511,7 +1554,7 @@ SUBBRANCH_SKILLS = [
         pillar=PillarType.TYPE),
     _sb("primitive-recursive-functions", "Primitive Recursive Functions",
         "Primitive recursion, bounded search, primitive recursive predicates",
-        ["recursion-theory"], "computation",
+        ["computability-theory"], "computation",
         ["recursiva primitiva", "recursivas primitivas",
          "recursion primitiva", "busqueda acotada", "codificacion",
          "primitive recursive", "primitive recursion", "bounded search"],
@@ -1649,7 +1692,7 @@ EXTRA_KEYWORDS: dict[str, list[str]] = {
     # las 33. Repartirlas sube la precision de 21,0 % a 22,0 %.
     #
     # Las genericas se van al nodo que SI las nombra: `numerable`/`countable`
-    # a cardinal-arithmetic (Set.Countable), `zorn` a zfc-axioms, y `conjunto`
+    # a cardinals (Set.Countable), `zorn` a zfc-axioms, y `conjunto`
     # se queda solo en el nodo de AREA, que ya lo tenia y rankea detras.
     "descriptive-set-theory": ["espacio polaco", "espacios polacos",
                                "boreliano", "borelianos", "conjunto proyectivo",

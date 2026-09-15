@@ -1,27 +1,27 @@
 {
- "medibles": 430,
- "confirmadas": 261,
- "invertidas": 67,
+ "medibles": 428,
+ "confirmadas": 260,
+ "invertidas": 66,
  "por_clase": {
   "curada": {
-   "medibles": 154,
-   "confirmadas": 112,
+   "medibles": 153,
+   "confirmadas": 111,
    "invertidas": 11,
    "independientes": 31,
-   "tasa_pct": 72.72727272727273,
-   "nulo_pct": 31.87200451085424,
-   "factor": 2.2818543685416754,
-   "pares_del_nulo": 7094
+   "tasa_pct": 72.54901960784314,
+   "nulo_pct": 30.74475777295734,
+   "factor": 2.3597199933595263,
+   "pares_del_nulo": 6915
   },
   "jerarquia": {
-   "medibles": 267,
+   "medibles": 266,
    "confirmadas": 140,
-   "invertidas": 56,
+   "invertidas": 55,
    "independientes": 71,
-   "tasa_pct": 52.43445692883895,
-   "nulo_pct": 24.820846905537458,
-   "factor": 2.1125168342721206,
-   "pares_del_nulo": 6140
+   "tasa_pct": 52.63157894736842,
+   "nulo_pct": 24.848782082720287,
+   "factor": 2.118074792243767,
+   "pares_del_nulo": 6117
   },
   "cobertura": {
    "medibles": 9,
@@ -44,9 +44,9 @@
   "module-theory"
  ],
  "sin_envoltorio": {
-  "medibles": 406,
-  "confirmadas": 243,
-  "invertidas": 66,
+  "medibles": 404,
+  "confirmadas": 242,
+  "invertidas": 65,
   "azar_pct": 30.398277197057684
  },
  "lista_invertidas": [
@@ -261,10 +261,6 @@
   [
    "area-ringtheory",
    "ideals-quotient-rings"
-  ],
-  [
-   "area-settheory",
-   "cardinal-arithmetic"
   ],
   [
    "area-settheory",

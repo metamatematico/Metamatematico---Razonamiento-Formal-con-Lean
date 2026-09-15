@@ -151,6 +151,29 @@ class Etiqueta:
     #: Vacio = no hay divergencia, la teoria y la categoria se nombran igual.
     teoria: str = ""
 
+    #: VOCABULARIO QUE NO ES IDENTIDAD. El tercer campo, y el que faltaba.
+    #:
+    #: `CURACION_INTERNA` saco dos nodos marcados `T` —«ni objetos ni
+    #: flechas»— que sin embargo alimentaban plazas del prompt:
+    #: `limits-continuity` con `Continuous, ContinuousAt, Filter.Tendsto` y
+    #: `cardinal-arithmetic` con `Cardinal, Set.Countable, Nat.card`. La hoja
+    #: lo llamo «una de las dos mitades sobra». El veredicto dice que no sobra
+    #: ninguna: el diagnostico es que `lean` HACE DOS TRABAJOS —identidad
+    #: ontologica del vertice, y vocabulario para el prompt— y son cosas
+    #: distintas, por eso pueden contradecirse.
+    #:
+    #: Con el campo partido, una `T` o una `F` pueden llevar vocabulario
+    #: correcto sin prometer que son un objeto. `Continuous` no es la
+    #: identidad de ningun vertice —continuidad es SER MORFISMO— y sigue
+    #: siendo la palabra con la que se formaliza una consulta sobre
+    #: continuidad.
+    #:
+    #: NO LLEGA AL PROMPT por ahora, a proposito: `nombres_de_trabajo` no lo
+    #: mira. Moverlo aqui es exactamente el experimento barato que pide el
+    #: veredicto —quitarlo y ver si baja su barrio—; si baja, estaba
+    #: aportando y se decide entonces como entra.
+    evidencia: str = ""
+
     @property
     def es_vertice(self) -> bool:
         return self.marca in VERTICES
@@ -346,8 +369,9 @@ def _nombres_de_cobertura() -> dict:
     return _COBERTURA
 
 
-def _e(marca, objeto="", morfismos="", lean=None, nota="", teoria=""):
-    return Etiqueta(marca, objeto, morfismos, lean, nota, teoria)
+def _e(marca, objeto="", morfismos="", lean=None, nota="", teoria="",
+       evidencia=""):
+    return Etiqueta(marca, objeto, morfismos, lean, nota, teoria, evidencia)
 
 
 VEREDICTO: dict[str, Etiqueta] = {
@@ -419,7 +443,14 @@ VEREDICTO: dict[str, Etiqueta] = {
         "a `graded-objects`. Esta bien definida precisamente porque el cociente "
         "ya invirtio lo que la homologia no distingue.\n"
         "El grupo abeliano graduado es su CODOMINIO, no lo que la etiqueta "
-        "nombra; tomarlo como vertice borra la funtorialidad"),
+        "nombra; tomarlo como vertice borra la funtorialidad",
+        # EL NOMBRE QUE BUSCABA `homotopy-theory` Y NO ERA SUYO. El arbol de
+        # hoy trae `AlgebraicTopology/SingularHomology/`, y el veredicto de
+        # las 48 lo coloca donde toca: no le da nombre al VERTICE
+        # `homotopy-theory` —que sigue sin localizacion— sino a esta ARISTA,
+        # que es la que sale de el y toca `algebraic-topology`. La firma lo
+        # dice sola: `C ⥤ TopCat ⥤ C` es un funtor, no un objeto.
+        evidencia="singularHomologyFunctor, singularChainComplexFunctor"),
     "limits": _e(
         F, "un cono sobre un diagrama fijo", "el funtor lim",
         "CategoryTheory.Limits.Cone, CategoryTheory.Limits.HasLimits",
@@ -576,10 +607,39 @@ VEREDICTO: dict[str, Etiqueta] = {
     # sustituto: no hay movimiento browniano ni medida de Wiener en el arbol
     # instalado. `lean=None` es la respuesta honesta —callarse— en vez de
     # ofrecerle al modelo dos nombres inventados bajo la etiqueta «verified».
-    "brownian-motion": _e(O, "el proceso W, o la medida de Wiener", "", None,
-                          "sin nombre en Mathlib 4.29.0-rc4"),
-    "cardinal-arithmetic": _e(T, nota="el sustrato Cardinal si es categoria delgada",
+    # LA UNICA DE LAS DIEZ QUE CADUCO. `lean=None` era cierto cuando se
+    # escribio y dejo de serlo: el arbol de 14 sep 2026 trae
+    # `Probability/BrownianMotion/`. El arbol LOCAL es de marzo y no lo
+    # tiene, asi que el nombre va anotado en `SIN_VERIFICAR_EN_ESTE_ARBOL` —
+    # comprobado alli, no aqui, y dicho en voz alta.
+    "brownian-motion": _e(O, "el proceso W, o la medida de Wiener", "",
+                          "ProbabilityTheory.IsBrownianReal",
+                          "sin nombre hasta el arbol de sep 2026; "
+                          "`IsPreBrownianReal` es la construccion previa",
+                          evidencia="IsPreBrownianReal"),
+    # RETIRADA DEL GRAFO, RENOMBRADA A `cardinals`. Se queda aqui, con la
+    # marca que le puso el autor, porque el veredicto es un dato editorial:
+    # borrarla habria movido su recuento publicado —74 C y 53 T— y perdido la
+    # traza de que esta etiqueta existio y por que dejo de existir. Es la
+    # misma razon por la que siguen `homology` y `cohomology`.
+    "cardinal-arithmetic": _e(T, nota="el sustrato Cardinal si es categoria "
+        "delgada. RETIRADA: renombrada a `cardinals`, que es el vertice que "
+        "esa nota estaba describiendo",
         teoria="Cardinal, Set.Countable, Nat.card"),
+    # GANA LA VOZ, Y LA MARCA CAMBIA — aqui el nodo estaba MAL NOMBRADO, no
+    # mal marcado, y por eso es el reverso exacto de `limits-continuity`. La
+    # aritmetica son operaciones, y eso si era `T`; pero `Cardinal` es un
+    # objeto con 645 citas, y el propio veredicto ya decia que el sustrato es
+    # categoria delgada. Renombrado desde `cardinal-arithmetic`: objetos los
+    # cardinales, flechas `<=`, y la aritmetica pasa a ser lo que es —la
+    # estructura de semianillo SOBRE este vertice, no el vertice—.
+    #
+    # El modulo es `SetTheory.Cardinal.Defs` segun el indice; el veredicto
+    # citaba `SetTheory/Ordinal/Univ.lean`, que es donde se usa.
+    "cardinals": _e(C, "un cardinal", "<=, la categoria delgada del orden",
+        "Cardinal", nota="renombrado desde cardinal-arithmetic: la aritmetica "
+        "es la estructura de semianillo sobre este vertice, no el vertice",
+        evidencia="Nat.card, Set.Countable"),
     "cat-basics": _e(C, "una categoria pequeña", "funtores", "CategoryTheory.Cat",
         teoria="CategoryTheory.Category, CategoryTheory.CategoryStruct"),
     "character-theory": _e(F, "", "chi = tr . rho, invariante de una representacion",
@@ -843,34 +903,58 @@ VEREDICTO: dict[str, Etiqueta] = {
     "circle-geometry": _e(T, nota="un capitulo; objetos en EuclideanGeometry.Sphere"),
     "compactness-theorem": _e(T, nota="un teorema; Theory.isSatisfiable_iff_isFinitelySatisfiable"),
     "computability-theory": _e(T, nota="una rama; los grados de Turing son orden parcial: TuringDegree"),
+    "turing-degrees": _e(C, "un grado de Turing", "<=, la reducibilidad",
+        "TuringDegree", nota="el objeto que sostenia a `recursion-theory`: al "
+        "fusionarla no se pierde, baja un nivel"),
     "computational-complexity": _e(T, nota="una rama; las reducciones son un preorden"),
-    "contour-integration": _e(T, nota="una tecnica; el emparejamiento H_1 x H^1_dR -> C"),
+    "contour-integration": _e(T, nota="una tecnica; el emparejamiento H_1 x H^1_dR -> C; circleIntegral es un operador, no un vertice",
+        evidencia="circleIntegral"),
     "convex-optimization": _e(T, nota="una tecnica; conjuntos convexos con afines"),
     "diophantine-equations": _e(T, nota="familia de problemas; X(Z) es el funtor de puntos"),
     "discrete-optimization": _e(T, nota="una tecnica"),
-    "extremal-combinatorics": _e(T, nota="una rama"),
+    "extremal-combinatorics": _e(T, nota="una rama; su objeto bajo un nivel "
+        "a `extremal-graphs`, que es como una rama deja de contradecirse"),
+    "extremal-graphs": _e(S, "un grafo extremal para un subgrafo prohibido",
+        "la inclusion en SimpleGraph",
+        "SimpleGraph.IsExtremal, SimpleGraph.extremalNumber"),
     "forcing": _e(T, nota="una tecnica; el topos de prehaces sobre P. Flypitch quedo en Lean 3"),
     "formal-verification": _e(T, nota="una actividad"),
     "inclusion-exclusion": _e(T, nota="una tecnica; inversion de Mobius: IncidenceAlgebra"),
     "incompleteness": _e(T, nota="dos teoremas; en Foundation (Lean 4), no en Mathlib"),
     "lean-kernel": _e(T, nota="un programa concreto"),
     "limit-theorems": _e(T, nota="teoremas (LGN, TCL)"),
+    # GANA LA MARCA, Y LOS NOMBRES SE MUEVEN. La `T` esta bien —continuidad es
+    # ser morfismo y limite es una construccion: las dos son capa de flechas—
+    # pero `Continuous`, `ContinuousAt` y `Filter.Tendsto` son vocabulario
+    # correcto aunque no sean identidad de un vertice. No se borran: bajan a
+    # `evidencia`, que es donde sirven sin prometer nada.
     "limits-continuity": _e(T, nota="dos nociones; continuidad = ser morfismo",
-        teoria="Continuous, ContinuousAt, Filter.Tendsto"),
+        evidencia="Continuous, ContinuousAt, Filter.Tendsto"),
     "linear-programming": _e(T, nota="una tecnica; la dualidad LP"),
-    "matching-theory": _e(T, nota="familia de problemas; SimpleGraph.Subgraph.IsMatching"),
+    "matching-theory": _e(T, nota="familia de problemas; su objeto bajo un "
+        "nivel a `matchings`"),
+    "matchings": _e(S, "un emparejamiento, como subgrafo",
+        "la inclusion de subgrafos",
+        "SimpleGraph.Subgraph.IsMatching"),
     "np-completeness": _e(T, nota="una clase de problemas"),
     "pde-techniques": _e(T, nota="tecnicas"),
     "prime-factorization": _e(T, nota="un teorema; UniqueFactorizationMonoid"),
     "prime-number-theorem": _e(T, nota="un teorema; en PrimeNumberTheoremAnd, no en Mathlib"),
     "proof-theory": _e(T, nota="una rama; su objeto es la categoria de fol-deduction"),
-    "quadratic-residues": _e(T, nota="un capitulo; el simbolo de Legendre es un caracter: legendreSym"),
+    "quadratic-residues": _e(T, nota="un capitulo; el simbolo de Legendre es un caracter",
+        evidencia="legendreSym"),
     "ramsey-theory": _e(T, nota="una rama; sin numeros de Ramsey en Mathlib"),
     "recursion-theory": _e(T, nota="sinonimo de computability-theory"),
-    "residue-theorem": _e(T, nota="un teorema; via Complex.integral_circle"),
+    # CORRECCION DE CITA: decia `Complex.integral_circle`, que no existe. El
+    # nombre real es `circleIntegral`, en
+    # `MeasureTheory/Integral/CircleIntegral.lean`. El veredicto de las 48
+    # atribuyo esta correccion a `contour-integration`; el nombre malo estaba
+    # aqui, que es su vecino de tabla.
+    "residue-theorem": _e(T, nota="un teorema; via circleIntegral"),
     "universal-properties": _e(T, nota="el mecanismo, no un tema; Functor.Representable, IsInitial"),
     "variational-methods": _e(T, nota="tecnicas; puntos criticos de funcionales"),
-    "yoneda-lemma": _e(T, nota="un lema; el funtor y si es objeto: CategoryTheory.yoneda"),
+    "yoneda-lemma": _e(T, nota="un lema; el funtor y si es objeto, pero es funtor",
+        evidencia="CategoryTheory.yoneda"),
     "zfc-axioms": _e(T, nota="enunciados; el universo V si es categoria: ZFSet"),
 
     # ═══ Las tacticas y estrategias restantes ════════════════════════════
@@ -1608,6 +1692,189 @@ RESTRICCIONES: dict[str, str] = {
                         "con descriptive-set-theory: no es decorativa, es la "
                         "condicion de existencia",
 }
+
+
+# ---------------------------------------------------------------------------
+# EL ROL: la columna que faltaba
+# ---------------------------------------------------------------------------
+#
+# `CURACION_INTERNA` saco 36 conceptos marcados `T` —«ni objetos ni flechas»,
+# es decir FUERA— que sin embargo eran nodos de pleno derecho, moviendo 284
+# flechas de salida y 189 palabras clave. La hoja pregunto si hacia falta una
+# sexta marca, `R` de enrutador. El veredicto dice que NO, y la razon es la
+# que hay que conservar:
+#
+#   · si `R` entra en la columna de `marca`, SE PIERDE EL VEREDICTO `T`, que
+#     es exactamente lo que impide que manana estos nodos tomen nombres;
+#   · y la auditoria que produjo la hoja —marca `T` con hijos— deja de poder
+#     ejecutarse, porque ya no habria contradiccion que detectar.
+#
+# No falta una marca: falta una DISTINCION. El grafo tiene dos clases de nodo
+# —concepto y rama— y una sola columna para las dos. Asi que el rol va en
+# campo aparte, y la marca se queda intacta diciendo lo que siempre dijo.
+#
+# La capa ya existia, ademas: los 22 nodos AREA no llevan marca «porque no son
+# suyos». Estos 33 son ramas que acabaron en la capa de nodos.
+#
+# LA REGLA, QUE ES AUDITABLE Y ESTA EN UN TEST: el objeto que encuentre el
+# indice NUNCA entra en el nodo-rama. Si es C, S u O, es un hijo nuevo; si es
+# F, es evidencia. Un nodo-rama no toma nombre nunca, y por eso puede quedarse
+# con su `T` sin contradiccion.
+RAMA = "rama"
+
+#: Los 33 nodos-rama. Marca `T` y rol `rama`: el veredicto los deja fuera como
+#: objetos y dentro como estructura de enrutamiento, que son dos cosas
+#: distintas y por eso caben las dos a la vez.
+RAMAS_DECLARADAS: frozenset[str] = frozenset({
+    # con un objeto esperando debajo: el hijo nuevo va en `HIJOS_DE_RAMA`
+    "computability-theory", "extremal-combinatorics", "matching-theory",
+    # con evidencia, no con objeto: lo que el indice encontro es una flecha
+    "contour-integration",      # circleIntegral es un operador
+    "quadratic-residues",       # legendreSym es un caracter
+    "yoneda-lemma",             # CategoryTheory.yoneda es un funtor
+    # el objeto ya tiene nodo propio en otro sitio
+    "prime-factorization",      # -> unique-factorization
+    "proof-theory",             # su objeto es su hijo `fol-deduction`
+    # la tanda de retirada medida: rama discutible, se decide midiendo
+    "algebraic-combinatorics", "probabilistic-method", "ramsey-theory",
+    "analytic-number-theory", "discrete-optimization", "linear-programming",
+    "variational-methods",
+    # rama declarada, sin mas
+    "canonical-forms", "pde-techniques", "residue-theorem",
+    "universal-properties", "enumerative-combinatorics", "inclusion-exclusion",
+    "algorithm-analysis", "computational-complexity", "formal-verification",
+    "np-completeness", "circle-geometry", "compactness-theorem",
+    "incompleteness", "diophantine-equations", "prime-number-theorem",
+    "convex-optimization", "limit-theorems", "forcing",
+})
+
+#: LAS DOS QUE NO SON RAMA SINO RAIZ. Con 143 hijos, `zfc-axioms` no es un
+#: concepto: es la raiz fundacional de medio grafo, y su sitio es la capa de
+#: las 22 areas. `lean-kernel` es el mismo caso sobre el subarbol del
+#: metalenguaje.
+#:
+#: Si alguna vez se prefiere mantener `zfc-axioms` como nodo, la marca honesta
+#: es `C` con `ZFSet` —el universo V si es categoria—, pero su token seria
+#: `set`, de los mas genericos de Mathlib, y habria que declararle una keyword
+#: estrecha antes. Es la misma leccion que `different`.
+A_LA_CAPA_DE_AREAS: frozenset[str] = frozenset({
+    "zfc-axioms", "lean-kernel",
+})
+
+#: Los tres objetos que el indice encontro bajo una rama y que bajan un nivel
+#: a ser hijos suyos, en vez de forzar a la rama a tomar nombre.
+#:
+#: `turing-degrees` es ademas lo que estaba sosteniendo a `recursion-theory`:
+#: al fusionarla con `computability-theory`, el objeto que el indice encontro
+#: bajo ella no se pierde — baja un nivel y queda donde debia estar.
+HIJOS_DE_RAMA: dict[str, str] = {
+    "turing-degrees": "computability-theory",
+    "extremal-graphs": "extremal-combinatorics",
+    "matchings": "matching-theory",
+}
+
+#: LAS DOS FUSIONES QUE SE APLICAN AHORA. `FUSIONES` las declaraba desde hace
+#: tiempo —las ocho— pero ninguna se habia aplicado: los ocho seguian siendo
+#: nodo vivo. El veredicto manda aplicar estas dos, y solo estas dos.
+#:
+#: OJO CON `proof-theory`: `FUSIONES` dice que se funde con `fol-deduction` y
+#: el veredicto dice que se queda como RAMA con `fol-deduction` de hijo. Gana
+#: el veredicto, que es posterior y mas fino: fundirlo perderia el enrutado.
+#: Las otras cinco siguen declaradas y sin aplicar, que es como estaban.
+FUSIONES_APLICADAS: frozenset[str] = frozenset({
+    "sequent-calculus",     # -> fol-deduction; 3 hijos, 0 sueltos
+    "recursion-theory",     # -> computability-theory; 5 hijos, 0 sueltos
+})
+
+#: Etiquetas que cambiaron de nombre. La vieja se queda en `VEREDICTO` con la
+#: marca que le puso el autor —el veredicto es un dato editorial— y la nueva
+#: entra aparte, en `DEL_VEREDICTO_48`.
+RENOMBRADAS: dict[str, str] = {
+    "cardinal-arithmetic": "cardinals",
+}
+
+#: TODO LO QUE YA NO ES NODO DEL GRAFO, con el motivo. Las guardias que
+#: comprueban «cada veredicto es un nodo» miran aqui: sin esta lista, aplicar
+#: una fusion declarada hace fallar un test que en realidad estaba pidiendo
+#: justo eso.
+RETIRADAS_DEL_GRAFO: dict[str, str] = dict(
+    {k: "fusion con `%s`" % FUSIONES[k] for k in FUSIONES_APLICADAS},
+    **{k: "renombrada a `%s`" % v for k, v in RENOMBRADAS.items()})
+
+#: Vertices que entraron POR EL VEREDICTO SOBRE LAS 48, no por el del autor.
+#:
+#: Van aparte por el mismo motivo que `VERTICES_ANADIDOS` y `TANDA_CURACION`:
+#: la guardia sobre las 173 del autor tiene que seguir siendo exacta. Subir
+#: el 173 o tocar su reparto de marcas habria borrado lo que esa guardia
+#: comprueba — que es precisamente lo que publico el autor y cuando.
+DEL_VEREDICTO_48: frozenset[str] = frozenset({
+    "cardinals",
+    "turing-degrees", "extremal-graphs", "matchings",
+})
+
+#: NOMBRES QUE EL ARBOL LOCAL NO PUEDE VERIFICAR, y por que se anotan aparte.
+#:
+#: El veredicto sobre las 48 se hizo contra Mathlib4 `17019dc` (14 sep 2026).
+#: El arbol que este repositorio compila es `401ee04`, de MARZO: seis meses
+#: antes. `ProbabilityTheory.IsBrownianReal` existe en el primero y no en el
+#: segundo, asi que `#check` lo rechazaria aqui y el indice de sustantivos
+#: tampoco lo ve. Es exactamente la caducidad que la hoja predijo, solo que
+#: al reves de lo habitual: no es que el nombre no exista, es que ESTE ARBOL
+#: SE QUEDO ATRAS.
+#:
+#: Va aparte para que no contamine `vocabulario_verificado`: un nombre que no
+#: se puede comprobar aqui NO es lo mismo que uno comprobado, y mezclarlos
+#: seria el fallo que ese modulo existe para impedir. Cuando el repositorio
+#: actualice Mathlib, esta tabla deberia quedarse vacia sola.
+SIN_VERIFICAR_EN_ESTE_ARBOL: dict[str, str] = {
+    "ProbabilityTheory.IsBrownianReal":
+        "Probability/BrownianMotion/Basic.lean:302 en el arbol 17019dc "
+        "(14 sep 2026). El arbol local es 401ee04 (7 mar 2026) y no tiene "
+        "el directorio BrownianMotion",
+}
+
+#: POR QUE CADUCA CADA `lean=None`, que no es lo mismo en todos.
+#:
+#: Un `lean=None` es una decision escrita —«ese nombre no existe en
+#: Mathlib»— y una decision sobre lo que una biblioteca NO tiene caduca sola
+#: cada vez que la biblioteca crece. Pero no todas: hay dos que no pueden
+#: caducar nunca, y por razones distintas entre si.
+#:
+#: Sin esta distincion las dos volvian a la hoja en cada pasada, a que alguien
+#: comprobase otra vez algo que no puede cambiar.
+NUNCA_CADUCA: dict[str, str] = {
+    "homotopy-type-theory":
+        "IMPOSIBLE por fundamento, no por biblioteca: `Eq : Prop` tiene "
+        "irrelevancia de pruebas definicional, luego UIP es teorema y la "
+        "univalencia es inconsistente. Ninguna version futura de Mathlib lo "
+        "cambia porque no es cosa de Mathlib",
+    "cic":
+        "IMPOSIBLE por construccion: el CIC es aquello EN LO QUE Mathlib esta "
+        "escrito, no algo que Mathlib pueda declarar. `lambda-calculus` lleva "
+        "hoy el mismo `lean=None` y NO es el mismo caso — el calculo lambda "
+        "si es formalizable como objeto dentro de Lean, asi que aquel es un "
+        "hueco de biblioteca corriente y este no",
+}
+
+
+def rol(etiqueta: str) -> Optional[str]:
+    """`rama` si el nodo es estructura de enrutamiento; `None` si es concepto.
+
+    Va aparte de `marca` a proposito. Ver el comentario de `RAMAS_DECLARADAS`.
+    """
+    return RAMA if etiqueta in RAMAS_DECLARADAS else None
+
+
+def es_rama(etiqueta: str) -> bool:
+    return etiqueta in RAMAS_DECLARADAS
+
+
+def caduca(etiqueta: str) -> bool:
+    """Si su `lean=None` puede dejar de ser verdad cuando Mathlib crezca."""
+    e = VEREDICTO.get(etiqueta)
+    if e is None or e.lean is not None:
+        return False
+    return etiqueta not in NUNCA_CADUCA
 
 
 def marca(etiqueta: str) -> Optional[str]:

@@ -222,7 +222,14 @@ class TestLasClasesDeAristaNoSeMezclan:
         #     puerta de area. `curada` no se movio.
         #   240 -> 271 `curada` y 251 -> 288 `jerarquia`, por la TANDA DE
         #     CURACION: 31 nodos nuevos con su padre curado y su puerta.
-        assert dict(c) == {"curada": 271, "jerarquia": 288, "cobertura": 125}, (
+        #   271 -> 272 `curada` y 288 -> 287 `jerarquia`, por el VEREDICTO
+        #     SOBRE LAS 48. Tres movimientos a la vez, y se compensan casi:
+        #     dos fusiones aplicadas —`sequent-calculus` y `recursion-theory`—
+        #     se llevan sus aristas, los dos nodos que pasan a la capa de
+        #     areas dejan de contar como curados, y los tres hijos nuevos
+        #     —`turing-degrees`, `extremal-graphs`, `matchings`— traen las
+        #     suyas.
+        assert dict(c) == {"curada": 272, "jerarquia": 287, "cobertura": 125}, (
             "la composicion por clase cambio a %s. Vuelve a correr "
             "scripts/funtor_dag_mathlib.py: las cifras por clase del README "
             "y de los tres artefactos pueden haber dejado de valer." % dict(c))
@@ -268,7 +275,7 @@ class TestLasClasesDeAristaNoSeMezclan:
         # especifico, que es su convencion. Si alguien usa el DAG de oraculo
         # para completar el grafo, ESTAS DOS LAS VOLTEARIA Y SE EQUIVOCARIA.
         cur = d["curada"]
-        assert cur["medibles"] == 154 and cur["confirmadas"] == 112, (
+        assert cur["medibles"] == 153 and cur["confirmadas"] == 111, (
             "la fila curada cambio a %d/%d; el 72,7 %% del README ya no vale"
             % (cur["confirmadas"], cur["medibles"]))
         assert 1.5 < cur["factor"] < 2.4, (
