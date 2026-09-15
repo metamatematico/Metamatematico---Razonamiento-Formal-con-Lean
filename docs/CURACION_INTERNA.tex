@@ -1,0 +1,889 @@
+% Generado por scripts/hoja_de_curacion_interna.py. NO EDITAR A MANO.
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot,es-noquoting]{babel}
+\usepackage[a4paper,margin=2.1cm]{geometry}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{microtype}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+% LOS IDENTIFICADORES DE MATHLIB TRAEN UNICODE, y pdfLaTeX no lo sabe leer.
+% El primer intento murio con «Unicode character U+2080 not set up» por un
+% `min_bi` con subindice. Se declara el RANGO, no el caracter que fallo hoy:
+% esta hoja se regenera, y manana los modulos pendientes seran otros.
+\DeclareUnicodeCharacter{2080}{\ensuremath{_0}}
+\DeclareUnicodeCharacter{2081}{\ensuremath{_1}}
+\DeclareUnicodeCharacter{2082}{\ensuremath{_2}}
+\DeclareUnicodeCharacter{2083}{\ensuremath{_3}}
+\DeclareUnicodeCharacter{2084}{\ensuremath{_4}}
+\DeclareUnicodeCharacter{2085}{\ensuremath{_5}}
+\DeclareUnicodeCharacter{2086}{\ensuremath{_6}}
+\DeclareUnicodeCharacter{2087}{\ensuremath{_7}}
+\DeclareUnicodeCharacter{2088}{\ensuremath{_8}}
+\DeclareUnicodeCharacter{2089}{\ensuremath{_9}}
+\DeclareUnicodeCharacter{1D62}{\ensuremath{_i}}
+\DeclareUnicodeCharacter{2C7C}{\ensuremath{_j}}
+\DeclareUnicodeCharacter{207F}{\ensuremath{^n}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{03B3}{\ensuremath{\gamma}}
+\DeclareUnicodeCharacter{03B4}{\ensuremath{\delta}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
+\DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
+\DeclareUnicodeCharacter{03C6}{\ensuremath{\varphi}}
+\DeclareUnicodeCharacter{2115}{\ensuremath{\mathbb{N}}}
+\DeclareUnicodeCharacter{2124}{\ensuremath{\mathbb{Z}}}
+\DeclareUnicodeCharacter{211A}{\ensuremath{\mathbb{Q}}}
+\DeclareUnicodeCharacter{211D}{\ensuremath{\mathbb{R}}}
+\DeclareUnicodeCharacter{2102}{\ensuremath{\mathbb{C}}}
+\DeclareUnicodeCharacter{1D55C}{\ensuremath{\Bbbk}}
+\DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+\DeclareUnicodeCharacter{2200}{\ensuremath{\forall}}
+\DeclareUnicodeCharacter{2203}{\ensuremath{\exists}}
+% Los simbolos de CATEGORIAS, que salen en cuanto la hoja habla de alias:
+% `SimplexCategoryGenRel ≌ SimplexCategory` tumbo la compilacion. Se declara
+% la familia entera y no el que fallo hoy, que es la leccion de U+2080.
+\DeclareUnicodeCharacter{224C}{\ensuremath{\backsimeq}}
+\DeclareUnicodeCharacter{2243}{\ensuremath{\simeq}}
+\DeclareUnicodeCharacter{2245}{\ensuremath{\cong}}
+\DeclareUnicodeCharacter{27F9}{\ensuremath{\Longrightarrow}}
+\DeclareUnicodeCharacter{27F6}{\ensuremath{\longrightarrow}}
+\DeclareUnicodeCharacter{2964}{\ensuremath{\rightarrowtail}}
+\DeclareUnicodeCharacter{2045}{\ensuremath{[\![}}
+\DeclareUnicodeCharacter{2046}{\ensuremath{]\!]}}
+\DeclareUnicodeCharacter{1D7ED}{\ensuremath{\mathbf{1}}}
+
+\definecolor{acento}{RGB}{70,60,140}
+\definecolor{suave}{RGB}{120,120,130}
+\definecolor{fondo}{RGB}{244,243,248}
+\definecolor{aviso}{RGB}{150,90,20}
+
+\newcommand{\Mathlib}{\textsc{Mathlib}}
+
+\titleformat{\section}{\large\bfseries\color{acento}}{}{0pt}{}
+\titlespacing{\section}{0pt}{16pt}{6pt}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0pt}{}
+\titlespacing{\subsection}{0pt}{10pt}{4pt}
+
+\newmdenv[backgroundcolor=fondo,linewidth=0pt,skipabove=8pt,skipbelow=8pt,
+          innerleftmargin=10pt,innerrightmargin=10pt,
+          innertopmargin=8pt,innerbottommargin=8pt]{marca}
+\newmdenv[linecolor=aviso,linewidth=1.2pt,topline=false,bottomline=false,
+          rightline=false,skipabove=6pt,skipbelow=6pt,
+          innerleftmargin=8pt,innertopmargin=4pt,
+          innerbottommargin=4pt]{aviso}
+
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\small\color{suave}Metamatemático · curación interna}
+\fancyhead[R]{\small\color{suave}\thepage}
+
+
+\begin{document}
+\begin{center}
+{\LARGE\bfseries\color{acento} Curación interna}\par\smallskip
+{\color{suave}\small Lo que le falta al grafo por dentro: 48 nodos que no cumplen lo que su marca promete.}\par
+{\color{suave}\footnotesize Generado por \texttt{scripts/hoja\_de\_curacion\_interna.py} · se regenera, no se edita a mano}
+\end{center}
+\vspace{4pt}
+\section*{De dónde sale esta hoja}
+
+Las otras dos miran hacia \textbf{afuera} —qué trozo de \Mathlib{} no cubre el
+grafo—. Ésta mira hacia \textbf{adentro}: de los 190
+conceptos que ya están, cuáles no cumplen lo que su propia marca promete.
+Son \textbf{48} decisiones, y ninguna medición las había
+pedido nunca, porque ninguna medición mira ahí: los bancos miden lo que el
+grafo \emph{ofrece}, no lo que \emph{promete}.\par\medskip
+
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.26\linewidth}>{\raggedright\arraybackslash}p{0.40\linewidth}r>{\raggedright\arraybackslash}p{0.16\linewidth}@{}}\toprule
+montón & qué es & n.\ & dónde\\\midrule
+enunciados que fallan & los 62 que la cabecera fija no alcanzaba & 0 & agotado\\
+cobertura de \Mathlib{} & ramas que el grafo abrió y dejó finas & 24 & \texttt{CURACION\_RAMAS}\\
+\textbf{A · \texttt{lean=None} caducable} & marca de vértice, cero nombres, y un «no existe» fechado en agosto & \textbf{10} & \emph{aquí}\\
+\textbf{B · marcados fuera} & marca \texttt{T} y sin embargo son nodos & \textbf{36} & \emph{aquí}\\
+\textbf{C · fuera y con voz} & marca \texttt{T} y además dan nombres & \textbf{2} & \emph{aquí}\\
+\bottomrule\end{tabular}\par\medskip
+
+\noindent Lo que \textbf{no} hay que curar, para acotar el trabajo: la
+cobertura de marca en la capa curada es del \textbf{100\,\%} —los 205 nodos
+del autor la tienen; los 147 sin marca son 125 módulos de \Mathlib{} y 22
+áreas, que no son suyos—, las 15 tácticas y estrategias son \texttt{T} y está
+bien, \texttt{homology} y \texttt{cohomology} tienen veredicto \texttt{F} y no
+son nodo, y \textbf{ningún concepto se ha quedado sin palabras clave}.
+\par\medskip
+
+\section*{Qué hay que decidir, y por qué no lo decide nadie más}
+\noindent\small\begin{tabular}{@{}ll l@{}}\toprule
+\texttt{C} & una categoría & \textbf{vértice}\\
+\texttt{S} & una subcategoría plena & \textbf{vértice}, y la inclusión es arista\\
+\texttt{F} & un funtor o clase de flechas & \textbf{arista} \emph{en este ambiente}\\
+\texttt{O} & un objeto individual & vértice degenerado\\
+\texttt{T} & ni objetos ni flechas & \textbf{fuera}\\
+\bottomrule\end{tabular}\par\medskip
+
+\noindent\textbf{En el montón A} no hay ninguna promesa rota: hay diez
+\texttt{lean=None}, que es una decisión escrita —\emph{no existe en
+\Mathlib{}}— fechada en agosto. La decisión es \textbf{si sigue siendo
+verdad}, y es la única de las tres que caduca sola: cada vez que \Mathlib{}
+crece, un «no existe» se acerca un poco más a ser falso.\par\medskip
+\noindent\textbf{En el montón B} la promesa rota es al revés: \texttt{T} dice
+\emph{fuera} y el nodo está dentro, enrutando. Tres salidas: \textbf{se
+retira} —la hoja dice cuántos hijos quedarían sueltos—, \textbf{cambia de
+marca} —la hoja dice si hay un objeto esperando— o \textbf{se queda como
+enrutador declarado}, un nodo sin voz que existe sólo para que sus palabras
+clave lleguen a los hijos.\par\medskip
+
+\begin{aviso}\small 
+La tercera opción es la que más importa de las tres. Si es la correcta para la mayoría de los 36, lo que falta no son 36 decisiones sino \textbf{una marca nueva} —algo como \texttt{R} de enrutador— y la hoja se cierra de golpe. Si no lo es, hay que ir uno por uno.
+\end{aviso}
+
+\noindent\textbf{En el montón C} la contradicción es exacta y no admite «se
+queda como está»: el veredicto dice que no son objetos y están alimentando
+plazas del prompt. Una de las dos mitades sobra.\par\medskip
+\subsection*{Qué valen los candidatos que trae cada ficha}
+\noindent Salen de un índice \textbf{léxico}: casan las palabras del nodo
+contra los nombres cortos de \Mathlib{}. Donde el nodo tiene área, aciertan —a
+\texttt{homotopy-theory} le traen \texttt{ContinuousMap.Homotopy} y
+\texttt{Path.Homotopy}, que es exactamente lo que es—. Donde no la tiene,
+\textbf{no saben}: a \texttt{fol-deduction} le traían seis \texttt{firstMap}
+porque «first order logic» empieza por «first».\par\medskip
+\noindent No es un fallo que se pueda afinar. Es la misma frontera que mide
+todo el proyecto: el índice busca por palabras y el objeto se identifica por
+estructura. Las fichas marcan cuál de los dos casos es, y cuando no hay señal
+dan tres pistas en vez de seis. \textbf{Una lista vacía no demuestra que no
+haya objeto}: demuestra que por ahí no se encuentra.\par\medskip
+
+\newpage
+\section*{Montón A · 10 decisiones que pueden haber caducado}
+
+Marca de vértice —\texttt{C}, \texttt{S} u \texttt{O}— y \textbf{cero
+identificadores de \Mathlib{}}.\par\medskip
+\noindent\textbf{No son diez olvidos.} Los diez llevan \texttt{lean=None} en
+el veredicto, y eso no es la ausencia de una decisión sino una decisión
+escrita: \emph{ese nombre no existe en \Mathlib{}}. La pregunta no es cuál
+falta, sino \textbf{si sigue siendo verdad}.\par\medskip
+\noindent Y una decisión sobre lo que \Mathlib{} \textbf{no} tiene caduca sola
+cada vez que \Mathlib{} crece. El veredicto cita el árbol \texttt{05322f9}
+(28 ago 2026) y el índice es posterior. \texttt{homotopy-type-theory} no
+caduca nunca —Lean 4 no es HoTT, y el propio veredicto lo llama «la única
+etiqueta excluida por fundamento, no por biblioteca»—;
+\texttt{homotopy-theory} puede haber caducado ya. Por eso van ordenados por
+caducidad y no por área.
+\par\medskip
+\subsection*{el índice \textbf{sí} encuentra algo en su área hoy — empezar por éstos}
+\noindent\texttt{planar-\allowbreak{}graphs}\quad{\color{suave}\small Planar Graphs}\par
+{\small\color{suave}marca \texttt{S} · 4 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} sin planaridad en Mathlib}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{IncidenceAlgebra.\allowbreak{}eulerChar} & def & 4 & \texttt{Combinatorics.\allowbreak{}Enumerative.\allowbreak{}IncidenceAlgebra}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{homotopy-\allowbreak{}type-\allowbreak{}theory}\quad{\color{suave}\small Homotopy Type Theory}\par
+{\small\color{suave}marca \texttt{C} · 3 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} IMPOSIBLE en Lean 4: Eq vive en Prop, Prop tiene irrelevancia de pruebas definicional, luego UIP es teorema y la univalencia es inconsistente. UNICA etiqueta excluida por fundamento, no por biblioteca}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}LHom.\allowbreak{}onTheory} & def & 12 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory} & abbrev & 10 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory.\allowbreak{}Model} & class & 1 & \texttt{ModelTheory.\allowbreak{}Semantics}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory.\allowbreak{}ModelType} & structure & 0 & \texttt{ModelTheory.\allowbreak{}Bundled}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory.\allowbreak{}typeOf} & def & 0 & \texttt{ModelTheory.\allowbreak{}Types}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}completeTheory} & def & 0 & \texttt{ModelTheory.\allowbreak{}Semantics}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{geometric-\allowbreak{}topology}\quad{\color{suave}\small Geometric Topology}\par
+{\small\color{suave}marca \texttt{C} · 4 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una variedad de dimension baja}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{DiscreteTopology} & class & 197 & \texttt{Topology.\allowbreak{}Order}\\
+\texttt{OrderTopology} & class & 196 & \texttt{Topology.\allowbreak{}Order.\allowbreak{}Basic}\\
+\texttt{Order\allowbreak{}Closed\allowbreak{}Topology} & class & 77 & \texttt{Topology.\allowbreak{}Order.\allowbreak{}OrderClosed}\\
+\texttt{Closed\allowbreak{}Ici\allowbreak{}Topology} & class & 50 & \texttt{Topology.\allowbreak{}Order.\allowbreak{}OrderClosed}\\
+\texttt{Closed\allowbreak{}Iic\allowbreak{}Topology} & class & 44 & \texttt{Topology.\allowbreak{}Order.\allowbreak{}OrderClosed}\\
+\texttt{IsModuleTopology} & class & 23 & \texttt{Topology.\allowbreak{}Algebra.\allowbreak{}Module.\allowbreak{}ModuleTopology}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{homotopy-\allowbreak{}theory}\quad{\color{suave}\small Homotopy Theory}\par
+{\small\color{suave}marca \texttt{C} · 2 palabras clave · 4 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} DECIDIDO: Top[W\textasciicircum{}-1], no hTop. La razon esta en el propio grafo: todas las aristas que salen de este vertice —homology, cohomology, fundamental-group— invierten W, luego por la propiedad universal de la localizacion factorizan por Top[W\textasciicircum{}-1], que es el vertice INICIAL con esa propiedad. No es una eleccion libre: la imponen las aristas que ya hay. Con hTop los invariantes dejan de ser conservativos (hay equivalencias debiles que no son de homotopia) y el vertice deja de estar determinado.
+Cierra ademas la arista con algebraic-topology: elegidos los CW-complejos, Whitehead mas aproximacion celular dan que hCW -> Top[W\textasciicircum{}-1] es una EQUIVALENCIA, luego la arista es comprobable, no declarativa.
+PRECIO EN LEAN: Mathlib tiene MorphismProperty, calculo de fracciones y el marco ModelCategory, pero la unica instancia concreta es la estructura inyectiva sobre complejos de cocadenas. NO hay estructura de Quillen sobre Top ni sobre SSet, asi que un colimite homotopico sobre este vertice no se enuncia hoy. El analogo que si se enuncia vive en DerivedCategory, que es el vertice homological-algebra.}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{ContinuousMap.\allowbreak{}Homotopy} & structure & 67 & \texttt{Topology.\allowbreak{}Homotopy.\allowbreak{}Basic}\\
+\texttt{Path.\allowbreak{}Homotopy} & abbrev & 67 & \texttt{Topology.\allowbreak{}Homotopy.\allowbreak{}Path}\\
+\texttt{SSet.\allowbreak{}RelativeMorphism.\allowbreak{}Homotopy} & structure & 67 & \texttt{Algebraic\allowbreak{}Topology.\allowbreak{}SimplicialSet.\allowbreak{}RelativeMorphism}\\
+\texttt{SSet.\allowbreak{}Truncated.\allowbreak{}HomotopyCategory} & def & 50 & \texttt{Algebraic\allowbreak{}Topology.\allowbreak{}SimplicialSet.\allowbreak{}HomotopyCat}\\
+\texttt{Homotopical\allowbreak{}Algebra.\allowbreak{}LeftHomotopyRel} & def & 19 & \texttt{Algebraic\allowbreak{}Topology.\allowbreak{}ModelCategory.\allowbreak{}LeftHomotopy}\\
+\texttt{Homotopical\allowbreak{}Algebra.\allowbreak{}RightHomotopyRel} & def & 19 & \texttt{Algebraic\allowbreak{}Topology.\allowbreak{}ModelCategory.\allowbreak{}RightHomotopy}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\subsection*{el índice no encuentra nada en su área}
+\noindent\texttt{cic}\quad{\color{suave}\small CIC}\par
+{\small\color{suave}marca \texttt{C} · 7 palabras clave · 15 hijos · \textbf{3 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} SIN NOMBRE, por decision de curacion. Mathlib no declara el calculo de construcciones inductivas: no hay nada que importar para hablar de el. `CategoryTheory.types` si existe —es la instancia de categoria sobre Type u, en Mathlib.CategoryTheory.Types.Basic— pero nombra OTRA COSA, la categoria de tipos, no el calculo. Ofrecerlo era darle al modelo un nombre que no responde a la pregunta}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{CategoryTheory.\allowbreak{}ToType} & abbrev & 102 & \texttt{CategoryTheory.\allowbreak{}ConcreteCategory.\allowbreak{}Basic}\\
+\texttt{Multiset.\allowbreak{}ToType} & def & 102 & \texttt{Data.\allowbreak{}Multiset.\allowbreak{}Fintype}\\
+\texttt{OrderType.\allowbreak{}ToType} & def & 102 & \texttt{Order.\allowbreak{}Types.\allowbreak{}Defs}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{fol-\allowbreak{}deduction}\quad{\color{suave}\small FOL Deduction}\par
+{\small\color{suave}marca \texttt{C} · 8 palabras clave · 10 hijos · \textbf{4 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} NO es tema: un sistema deductivo es una categoria (Lambek). Es el domicilio de las quince tacticas, que son generadores de flechas. Mathlib no tiene sistema deductivo sintactico; si el proyecto Foundation}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{CategoryTheory.\allowbreak{}Equalizer.\allowbreak{}Presieve.\allowbreak{}Arrows.\allowbreak{}firstMap} & def & 8 & \texttt{CategoryTheory.\allowbreak{}Sites.\allowbreak{}Equalizer\allowbreak{}Sheaf\allowbreak{}Condition}\\
+\texttt{CategoryTheory.\allowbreak{}Equalizer.\allowbreak{}Presieve.\allowbreak{}firstMap} & def & 8 & \texttt{CategoryTheory.\allowbreak{}Sites.\allowbreak{}Equalizer\allowbreak{}Sheaf\allowbreak{}Condition}\\
+\texttt{CategoryTheory.\allowbreak{}Equalizer.\allowbreak{}Sieve.\allowbreak{}firstMap} & def & 8 & \texttt{CategoryTheory.\allowbreak{}Sites.\allowbreak{}Equalizer\allowbreak{}Sheaf\allowbreak{}Condition}\\
+\bottomrule\end{tabular}\par\smallskip
+{\footnotesize\color{suave}Descartadas por genéricas: \texttt{order}\,(515). Si el objeto existe hay que buscarlo a mano: sus palabras no distinguen.}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{lambda-\allowbreak{}calculus}\quad{\color{suave}\small Lambda Calculus}\par
+{\small\color{suave}marca \texttt{C} · 5 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} es el metanivel de Lean}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Nat.\allowbreak{}beta} & def & 6 & \texttt{Logic.\allowbreak{}Godel.\allowbreak{}Godel\allowbreak{}Beta\allowbreak{}Function}\\
+\texttt{Probability\allowbreak{}Theory.\allowbreak{}beta} & def & 6 & \texttt{Probability.\allowbreak{}Distributions.\allowbreak{}Beta}\\
+\texttt{Probability\allowbreak{}Theory.\allowbreak{}betaPDF} & def & 6 & \texttt{Probability.\allowbreak{}Distributions.\allowbreak{}Beta}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{symplectic-\allowbreak{}geometry}\quad{\color{suave}\small Symplectic Geometry}\par
+{\small\color{suave}marca \texttt{C} · 3 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} solo SymplecticGroup}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Matrix.\allowbreak{}symplecticGroup} & def & 13 & \texttt{LinearAlgebra.\allowbreak{}SymplecticGroup}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{sequent-\allowbreak{}calculus}\quad{\color{suave}\small Sequent Calculus}\par
+{\small\color{suave}marca \texttt{C} · 6 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} mismo vertice que fol-deduction}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{MeasureTheory.\allowbreak{}Filtration.\allowbreak{}natural} & def & 1 & \texttt{Probability.\allowbreak{}Process.\allowbreak{}Filtration}\\
+\texttt{CategoryTheory.\allowbreak{}Pre\allowbreak{}Galois\allowbreak{}Category.\allowbreak{}IsNaturalSMul} & class & 0 & \texttt{CategoryTheory.\allowbreak{}Galois.\allowbreak{}Is\allowbreak{}Fundamentalgroup}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\noindent\texttt{brownian-\allowbreak{}motion}\quad{\color{suave}\small Brownian Motion}\par
+{\small\color{suave}marca \texttt{O} · 5 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} sin nombre en Mathlib 4.29.0-rc4}\par\smallskip
+{\small\textbf{No hay ningún candidato en el índice.}}\par\smallskip
+\noindent$\square$\,{\small \textbf{sigue sin nombre} — la decisión aguanta}\par
+\noindent$\square$\,{\small \textbf{ya no es verdad}, y el nombre que entra es: \dotfill}\par
+\noindent$\square$\,{\small \textbf{la marca era lo que estaba mal} $\rightarrow$ pasa a: \rule{2em}{0.4pt}}\par
+\medskip
+\newpage
+\section*{Montón B · 36 vértices marcados fuera}
+
+Marca \texttt{T} —«ni objetos ni flechas»— y sin embargo son nodos de pleno
+derecho. El caso más fuerte está aquí: \textbf{\texttt{zfc-axioms} está
+marcado \texttt{T}} y de él salen \textbf{143 flechas}. Su hermano fundacional
+\texttt{fol-deduction} está marcado \texttt{C}. Los dos pilares del grafo
+recibieron marcas opuestas, y ninguna medición iba a notarlo.
+\par\medskip
+\subsection*{área \texttt{(fundacional)}}
+\noindent\texttt{lean-\allowbreak{}kernel}\quad{\color{suave}\small Lean 4 Kernel}\par
+{\small\color{suave}marca \texttt{T} · 6 palabras clave · 10 hijos · \textbf{1 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} un programa concreto}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Probability\allowbreak{}Theory.\allowbreak{}Kernel} & structure & 518 & \texttt{Probability.\allowbreak{}Kernel.\allowbreak{}Defs}\\
+\texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}HasKernel} & abbrev & 45 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}Shapes.\allowbreak{}Kernels}\\
+\texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}kernel} & abbrev & 18 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}Shapes.\allowbreak{}Kernels}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{zfc-\allowbreak{}axioms}\quad{\color{suave}\small ZFC Axioms}\par
+{\small\color{suave}marca \texttt{T} · 9 palabras clave · 143 hijos · \textbf{20 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} enunciados; el universo V si es categoria: ZFSet}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Quotient.\allowbreak{}finChoice} & def & 4 & \texttt{Data.\allowbreak{}Fintype.\allowbreak{}Quotient}\\
+\texttt{Trunc.\allowbreak{}finChoice} & def & 4 & \texttt{Data.\allowbreak{}Fintype.\allowbreak{}Quotient}\\
+\texttt{Compact\allowbreak{}Exhaustion.\allowbreak{}choice} & def & 3 & \texttt{Topology.\allowbreak{}Compactness.\allowbreak{}SigmaCompact}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{algebra}}
+\noindent\texttt{canonical-\allowbreak{}forms}\quad{\color{suave}\small Canonical Forms}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} clasificacion; el esqueleto de eigen-theory}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{LinearMap.\allowbreak{}BilinForm} & abbrev & 124 & \texttt{LinearAlgebra.\allowbreak{}BilinearMap}\\
+\texttt{Cycle.\allowbreak{}formPerm} & def & 47 & \texttt{GroupTheory.\allowbreak{}Perm.\allowbreak{}Cycle.\allowbreak{}Concrete}\\
+\texttt{List.\allowbreak{}formPerm} & def & 47 & \texttt{GroupTheory.\allowbreak{}Perm.\allowbreak{}List}\\
+\texttt{Algebra.\allowbreak{}traceForm} & def & 44 & \texttt{RingTheory.\allowbreak{}Trace.\allowbreak{}Defs}\\
+\texttt{LieModule.\allowbreak{}traceForm} & def & 44 & \texttt{Algebra.\allowbreak{}Lie.\allowbreak{}TraceForm}\\
+\texttt{killingForm} & abbrev & 21 & \texttt{Algebra.\allowbreak{}Lie.\allowbreak{}TraceForm}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{analysis}}
+\noindent\texttt{contour-\allowbreak{}integration}\quad{\color{suave}\small Contour Integration}\par
+{\small\color{suave}marca \texttt{T} · 6 palabras clave · 4 hijos · \textbf{1 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} una tecnica; el emparejamiento H\_1 x H\textasciicircum{}1\_dR -> C}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{MeasureTheory.\allowbreak{}Has\allowbreak{}Finite\allowbreak{}Integral} & def & 85 & \texttt{MeasureTheory.\allowbreak{}Function.\allowbreak{}L1Space.\allowbreak{}Has\allowbreak{}Finite\allowbreak{}Integral}\\
+\texttt{BoxIntegral.\allowbreak{}integral} & def & 52 & \texttt{Analysis.\allowbreak{}BoxIntegral.\allowbreak{}Basic}\\
+\texttt{MeasureTheory.\allowbreak{}L1.\allowbreak{}SimpleFunc.\allowbreak{}integral} & def & 52 & \texttt{MeasureTheory.\allowbreak{}Integral.\allowbreak{}Bochner.\allowbreak{}L1}\\
+\texttt{MeasureTheory.\allowbreak{}SimpleFunc.\allowbreak{}integral} & def & 52 & \texttt{MeasureTheory.\allowbreak{}Integral.\allowbreak{}Bochner.\allowbreak{}L1}\\
+\texttt{BoxIntegral.\allowbreak{}Integration\allowbreak{}Params} & structure & 28 & \texttt{Analysis.\allowbreak{}BoxIntegral.\allowbreak{}Partition.\allowbreak{}Filter}\\
+\texttt{Fourier.\allowbreak{}fourierIntegral} & def & 27 & \texttt{Analysis.\allowbreak{}Fourier.\allowbreak{}FourierTransform}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{pde-\allowbreak{}techniques}\quad{\color{suave}\small PDE Techniques}\par
+{\small\color{suave}marca \texttt{T} · 3 palabras clave · 4 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} tecnicas}\par\smallskip
+{\small\textbf{No hay ningún candidato en el índice.}}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{residue-\allowbreak{}theorem}\quad{\color{suave}\small Residue Theorem}\par
+{\small\color{suave}marca \texttt{T} · 8 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} un teorema; via Complex.integral\_circle}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{IsLocalRing.\allowbreak{}ResidueField} & def & 26 & \texttt{RingTheory.\allowbreak{}LocalRing.\allowbreak{}ResidueField.\allowbreak{}Defs}\\
+\texttt{Valued.\allowbreak{}ResidueField} & def & 26 & \texttt{Topology.\allowbreak{}Algebra.\allowbreak{}Valued.\allowbreak{}ValuedField}\\
+\texttt{IsLocalRing.\allowbreak{}residue} & def & 24 & \texttt{RingTheory.\allowbreak{}LocalRing.\allowbreak{}ResidueField.\allowbreak{}Defs}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{category-theory}}
+\noindent\texttt{universal-\allowbreak{}properties}\quad{\color{suave}\small Universal Properties}\par
+{\small\color{suave}marca \texttt{T} · 3 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} el mecanismo, no un tema; Functor.Representable, IsInitial}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{CategoryTheory.\allowbreak{}Costructured\allowbreak{}Arrow.\allowbreak{}IsUniversal} & abbrev & 18 & \texttt{CategoryTheory.\allowbreak{}Comma.\allowbreak{}StructuredArrow.\allowbreak{}Basic}\\
+\texttt{CategoryTheory.\allowbreak{}StructuredArrow.\allowbreak{}IsUniversal} & abbrev & 18 & \texttt{CategoryTheory.\allowbreak{}Comma.\allowbreak{}StructuredArrow.\allowbreak{}Basic}\\
+\texttt{CategoryTheory.\allowbreak{}Is\allowbreak{}Universal\allowbreak{}Colimit} & def & 12 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}VanKampen}\\
+\texttt{CategoryTheory.\allowbreak{}Idempotents.\allowbreak{}karoubiUniversal} & def & 2 & \texttt{CategoryTheory.\allowbreak{}Idempotents.\allowbreak{}FunctorExtension}\\
+\texttt{CategoryTheory.\allowbreak{}Idempotents.\allowbreak{}karoubi\allowbreak{}Universal₁} & def & 0 & \texttt{CategoryTheory.\allowbreak{}Idempotents.\allowbreak{}FunctorExtension}\\
+\texttt{CategoryTheory.\allowbreak{}Idempotents.\allowbreak{}karoubi\allowbreak{}Universal₂} & def & 0 & \texttt{CategoryTheory.\allowbreak{}Idempotents.\allowbreak{}FunctorExtension}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{yoneda-\allowbreak{}lemma}\quad{\color{suave}\small Yoneda Lemma}\par
+{\small\color{suave}marca \texttt{T} · 3 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} un lema; el funtor y si es objeto: CategoryTheory.yoneda}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{CategoryTheory.\allowbreak{}Grothendieck\allowbreak{}Topology.\allowbreak{}yoneda} & def & 48 & \texttt{CategoryTheory.\allowbreak{}Sites.\allowbreak{}Canonical}\\
+\texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}Ind\allowbreak{}Object\allowbreak{}Presentation.\allowbreak{}yoneda} & def & 48 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}Indization.\allowbreak{}IndObject}\\
+\texttt{CategoryTheory.\allowbreak{}yoneda} & def & 48 & \texttt{CategoryTheory.\allowbreak{}Yoneda}\\
+\texttt{CategoryTheory.\allowbreak{}Grothendieck\allowbreak{}Topology.\allowbreak{}yonedaEquiv} & def & 19 & \texttt{CategoryTheory.\allowbreak{}Sites.\allowbreak{}Subcanonical}\\
+\texttt{CategoryTheory.\allowbreak{}yonedaEquiv} & def & 19 & \texttt{CategoryTheory.\allowbreak{}Yoneda}\\
+\texttt{CategoryTheory.\allowbreak{}OverPresheafAux.\allowbreak{}YonedaCollection} & def & 12 & \texttt{CategoryTheory.\allowbreak{}Comma.\allowbreak{}Presheaf.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{combinatorics}}
+\noindent\texttt{algebraic-\allowbreak{}combinatorics}\quad{\color{suave}\small Algebraic Combinatorics}\par
+{\small\color{suave}marca \texttt{T} · 1 palabras clave · 4 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Algebra.\allowbreak{}IsAlgebraic} & class & 201 & \texttt{RingTheory.\allowbreak{}Algebraic.\allowbreak{}Defs}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}IsAlgebraic} & abbrev & 116 & \texttt{ModelTheory.\allowbreak{}Basic}\\
+\texttt{IsAlgebraic} & def & 116 & \texttt{RingTheory.\allowbreak{}Algebraic.\allowbreak{}Defs}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{enumerative-\allowbreak{}combinatorics}\quad{\color{suave}\small Enumerative Combinatorics}\par
+{\small\color{suave}marca \texttt{T} · 10 palabras clave · 10 hijos · \textbf{1 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} ambiente: FintypeCat}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Nat.\allowbreak{}factorial} & def & 21 & \texttt{Data.\allowbreak{}Nat.\allowbreak{}Factorial.\allowbreak{}Basic}\\
+\texttt{Nat.\allowbreak{}ascFactorial} & def & 18 & \texttt{Data.\allowbreak{}Nat.\allowbreak{}Factorial.\allowbreak{}Basic}\\
+\texttt{Nat.\allowbreak{}descFactorial} & def & 16 & \texttt{Data.\allowbreak{}Nat.\allowbreak{}Factorial.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{extremal-\allowbreak{}combinatorics}\quad{\color{suave}\small Extremal Combinatorics}\par
+{\small\color{suave}marca \texttt{T} · 2 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una rama}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{SimpleGraph.\allowbreak{}extremalNumber} & def & 20 & \texttt{Combinatorics.\allowbreak{}SimpleGraph.\allowbreak{}Extremal.\allowbreak{}Basic}\\
+\texttt{SimpleGraph.\allowbreak{}IsExtremal} & def & 1 & \texttt{Combinatorics.\allowbreak{}SimpleGraph.\allowbreak{}Extremal.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{inclusion-\allowbreak{}exclusion}\quad{\color{suave}\small Inclusion-Exclusion}\par
+{\small\color{suave}marca \texttt{T} · 5 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una tecnica; inversion de Mobius: IncidenceAlgebra}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{SimpleGraph.\allowbreak{}Subgraph.\allowbreak{}inclusion} & def & 169 & \texttt{Combinatorics.\allowbreak{}SimpleGraph.\allowbreak{}Subgraph}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{matching-\allowbreak{}theory}\quad{\color{suave}\small Matching Theory}\par
+{\small\color{suave}marca \texttt{T} · 7 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} familia de problemas; SimpleGraph.Subgraph.IsMatching}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{SimpleGraph.\allowbreak{}Subgraph.\allowbreak{}IsMatching} & def & 9 & \texttt{Combinatorics.\allowbreak{}SimpleGraph.\allowbreak{}Matching}\\
+\texttt{SimpleGraph.\allowbreak{}Subgraph.\allowbreak{}Is\allowbreak{}Perfect\allowbreak{}Matching} & def & 2 & \texttt{Combinatorics.\allowbreak{}SimpleGraph.\allowbreak{}Matching}\\
+\texttt{hallMatchingsOn} & def & 2 & \texttt{Combinatorics.\allowbreak{}Hall.\allowbreak{}Basic}\\
+\texttt{SimpleGraph.\allowbreak{}IsMatchingFree} & def & 0 & \texttt{Combinatorics.\allowbreak{}SimpleGraph.\allowbreak{}Matching}\\
+\texttt{SimpleGraph.\allowbreak{}Subgraph.\allowbreak{}IsMatching.\allowbreak{}toEdge} & def & 0 & \texttt{Combinatorics.\allowbreak{}SimpleGraph.\allowbreak{}Matching}\\
+\texttt{hall\allowbreak{}Matchings\allowbreak{}Functor} & def & 0 & \texttt{Combinatorics.\allowbreak{}Hall.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{probabilistic-\allowbreak{}method}\quad{\color{suave}\small Probabilistic Method}\par
+{\small\color{suave}marca \texttt{T} · 1 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\textbf{No hay ningún candidato en el índice.}}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{ramsey-\allowbreak{}theory}\quad{\color{suave}\small Ramsey Theory}\par
+{\small\color{suave}marca \texttt{T} · 1 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una rama; sin numeros de Ramsey en Mathlib}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}LHom.\allowbreak{}onTheory} & def & 12 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory} & abbrev & 10 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory.\allowbreak{}Model} & class & 1 & \texttt{ModelTheory.\allowbreak{}Semantics}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{computation}}
+\noindent\texttt{algorithm-\allowbreak{}analysis}\quad{\color{suave}\small Algorithm Analysis}\par
+{\small\color{suave}marca \texttt{T} · 3 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una disciplina}\par\smallskip
+{\small\textbf{No hay ningún candidato en el índice.}}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{computability-\allowbreak{}theory}\quad{\color{suave}\small Computability Theory}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 7 hijos · \textbf{2 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} una rama; los grados de Turing son orden parcial: TuringDegree}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}LHom.\allowbreak{}onTheory} & def & 12 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory} & abbrev & 10 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory.\allowbreak{}Model} & class & 1 & \texttt{ModelTheory.\allowbreak{}Semantics}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{computational-\allowbreak{}complexity}\quad{\color{suave}\small Computational Complexity}\par
+{\small\color{suave}marca \texttt{T} · 2 palabras clave · 4 hijos · \textbf{1 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} una rama; las reducciones son un preorden}\par\smallskip
+{\small\textbf{No hay ningún candidato en el índice.}}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{formal-\allowbreak{}verification}\quad{\color{suave}\small Formal Verification}\par
+{\small\color{suave}marca \texttt{T} · 2 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una actividad}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{LinearPMap.\allowbreak{}IsFormalAdjoint} & def & 1 & \texttt{Analysis.\allowbreak{}Inner\allowbreak{}Product\allowbreak{}Space.\allowbreak{}LinearPMap}\\
+\texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}FormalCoproduct} & structure & 0 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}FormalCoproducts.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{np-\allowbreak{}completeness}\quad{\color{suave}\small NP-Completeness}\par
+{\small\color{suave}marca \texttt{T} · 8 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una clase de problemas}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{CompleteSpace} & class & 495 & \texttt{Topology.\allowbreak{}UniformSpace.\allowbreak{}Cauchy}\\
+\texttt{CompleteLattice} & class & 149 & \texttt{Order.\allowbreak{}CompleteLattice.\allowbreak{}Defs}\\
+\texttt{CauSeq.\allowbreak{}IsComplete} & class & 60 & \texttt{Algebra.\allowbreak{}Order.\allowbreak{}CauSeq.\allowbreak{}Completion}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{recursion-\allowbreak{}theory}\quad{\color{suave}\small Recursion Theory}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 5 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} sinonimo de computability-theory}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{TuringDegree} & abbrev & 1 & \texttt{Computability.\allowbreak{}TuringDegree}\\
+\texttt{TuringEquivalent} & abbrev & 1 & \texttt{Computability.\allowbreak{}TuringDegree}\\
+\texttt{TuringReducible} & abbrev & 0 & \texttt{Computability.\allowbreak{}TuringDegree}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{geometry}}
+\noindent\texttt{circle-\allowbreak{}geometry}\quad{\color{suave}\small Circle Geometry}\par
+{\small\color{suave}marca \texttt{T} · 7 palabras clave · 4 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} un capitulo; objetos en EuclideanGeometry.Sphere}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Inner\allowbreak{}Product\allowbreak{}Geometry.\allowbreak{}angle} & def & 115 & \texttt{Geometry.\allowbreak{}Euclidean.\allowbreak{}Angle.\allowbreak{}Unoriented.\allowbreak{}Basic}\\
+\texttt{Affine.\allowbreak{}Simplex.\allowbreak{}ninePointCircle} & def & 2 & \texttt{Geometry.\allowbreak{}Euclidean.\allowbreak{}NinePointCircle}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{logic}}
+\noindent\texttt{compactness-\allowbreak{}theorem}\quad{\color{suave}\small Compactness and Lowenheim-Skolem}\par
+{\small\color{suave}marca \texttt{T} · 6 palabras clave · 4 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} un teorema; Theory.isSatisfiable\_iff\_isFinitelySatisfiable}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}skolem₁} & def & 0 & \texttt{ModelTheory.\allowbreak{}Skolem}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{incompleteness}\quad{\color{suave}\small Godel Incompleteness}\par
+{\small\color{suave}marca \texttt{T} · 7 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} dos teoremas; en Foundation (Lean 4), no en Mathlib}\par\smallskip
+{\small\textbf{No hay ningún candidato en el índice.}}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{proof-\allowbreak{}theory}\quad{\color{suave}\small Proof Theory}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 6 hijos · \textbf{2 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} una rama; su objeto es la categoria de fol-deduction}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}LHom.\allowbreak{}onTheory} & def & 12 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory} & abbrev & 10 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}Theory.\allowbreak{}Model} & class & 1 & \texttt{ModelTheory.\allowbreak{}Semantics}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}completeTheory} & def & 0 & \texttt{ModelTheory.\allowbreak{}Semantics}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}infiniteTheory} & def & 0 & \texttt{ModelTheory.\allowbreak{}Syntax}\\
+\texttt{FirstOrder.\allowbreak{}Language.\allowbreak{}linear\allowbreak{}Order\allowbreak{}Theory} & def & 0 & \texttt{ModelTheory.\allowbreak{}Order}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{number-theory}}
+\noindent\texttt{analytic-\allowbreak{}number-\allowbreak{}theory}\quad{\color{suave}\small Analytic Number Theory}\par
+{\small\color{suave}marca \texttt{T} · 1 palabras clave · 6 hijos · \textbf{1 quedarían sueltos}}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{AnalyticAt} & def & 213 & \texttt{Analysis.\allowbreak{}Analytic.\allowbreak{}Basic}\\
+\texttt{AnalyticOnNhd} & def & 160 & \texttt{Analysis.\allowbreak{}Analytic.\allowbreak{}Basic}\\
+\texttt{AnalyticOn} & def & 131 & \texttt{Analysis.\allowbreak{}Analytic.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{diophantine-\allowbreak{}equations}\quad{\color{suave}\small Diophantine Equations}\par
+{\small\color{suave}marca \texttt{T} · 6 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} familia de problemas; X(Z) es el funtor de puntos}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Pell.\allowbreak{}IsPell} & def & 9 & \texttt{NumberTheory.\allowbreak{}PellMatiyasevic}\\
+\texttt{Pell.\allowbreak{}pellZd} & def & 9 & \texttt{NumberTheory.\allowbreak{}PellMatiyasevic}\\
+\texttt{Pell.\allowbreak{}pell} & def & 1 & \texttt{NumberTheory.\allowbreak{}PellMatiyasevic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{prime-\allowbreak{}factorization}\quad{\color{suave}\small Prime Factorization}\par
+{\small\color{suave}marca \texttt{T} · 12 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} un teorema; UniqueFactorizationMonoid}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Arithmetic\allowbreak{}Function} & def & 105 & \texttt{NumberTheory.\allowbreak{}Arithmetic\allowbreak{}Function.\allowbreak{}Defs}\\
+\texttt{Subgroup.\allowbreak{}IsArithmetic} & class & 26 & \texttt{NumberTheory.\allowbreak{}ModularForms.\allowbreak{}Arithmetic\allowbreak{}Subgroups}\\
+\texttt{Pell.\allowbreak{}IsFundamental} & def & 18 & \texttt{NumberTheory.\allowbreak{}Pell}\\
+\texttt{NumberField.\allowbreak{}mixedEmbedding.\allowbreak{}fundamentalCone} & def & 13 & \texttt{NumberTheory.\allowbreak{}NumberField.\allowbreak{}Canonical\allowbreak{}Embedding.\allowbreak{}FundamentalCone}\\
+\texttt{Nat.\allowbreak{}primesBelow} & def & 12 & \texttt{NumberTheory.\allowbreak{}SmoothNumbers}\\
+\texttt{to\allowbreak{}Arithmetic\allowbreak{}Function} & def & 4 & \texttt{NumberTheory.\allowbreak{}LSeries.\allowbreak{}Convolution}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{prime-\allowbreak{}number-\allowbreak{}theorem}\quad{\color{suave}\small Prime Number Theorem}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} un teorema; en PrimeNumberTheoremAnd, no en Mathlib}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Nat.\allowbreak{}ProbablePrime} & def & 3 & \texttt{NumberTheory.\allowbreak{}FermatPsp}\\
+\texttt{Nat.\allowbreak{}primeCounting} & def & 3 & \texttt{NumberTheory.\allowbreak{}PrimeCounting}\\
+\texttt{Nat.\allowbreak{}primeCounting'} & def & 2 & \texttt{NumberTheory.\allowbreak{}PrimeCounting}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{quadratic-\allowbreak{}residues}\quad{\color{suave}\small Quadratic Residues}\par
+{\small\color{suave}marca \texttt{T} · 7 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} un capitulo; el simbolo de Legendre es un caracter: legendreSym}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{jacobiTheta} & def & 53 & \texttt{NumberTheory.\allowbreak{}ModularForms.\allowbreak{}JacobiTheta.\allowbreak{}OneVariable}\\
+\texttt{legendreSym} & def & 37 & \texttt{NumberTheory.\allowbreak{}LegendreSymbol.\allowbreak{}Basic}\\
+\texttt{quadraticChar} & def & 23 & \texttt{NumberTheory.\allowbreak{}LegendreSymbol.\allowbreak{}QuadraticChar.\allowbreak{}Basic}\\
+\texttt{MulChar.\allowbreak{}IsQuadratic} & def & 17 & \texttt{NumberTheory.\allowbreak{}MulChar.\allowbreak{}Basic}\\
+\texttt{jacobiSum} & def & 15 & \texttt{NumberTheory.\allowbreak{}JacobiSum.\allowbreak{}Basic}\\
+\texttt{Arithmetic\allowbreak{}Function.\allowbreak{}vonMangoldt.\allowbreak{}residueClass} & abbrev & 12 & \texttt{NumberTheory.\allowbreak{}LSeries.\allowbreak{}PrimesInAP}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{optimization}}
+\noindent\texttt{convex-\allowbreak{}optimization}\quad{\color{suave}\small Convex Optimization}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 3 hijos · \textbf{1 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} una tecnica; conjuntos convexos con afines}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Convex} & def & 455 & \texttt{Analysis.\allowbreak{}Convex.\allowbreak{}Basic}\\
+\texttt{ConvexOn} & def & 194 & \texttt{Analysis.\allowbreak{}Convex.\allowbreak{}Function}\\
+\texttt{convexHull} & def & 126 & \texttt{Analysis.\allowbreak{}Convex.\allowbreak{}Hull}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{discrete-\allowbreak{}optimization}\quad{\color{suave}\small Discrete Optimization}\par
+{\small\color{suave}marca \texttt{T} · 2 palabras clave · 1 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una tecnica}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{DiscreteTopology} & class & 197 & \texttt{Topology.\allowbreak{}Order}\\
+\texttt{CategoryTheory.\allowbreak{}Discrete} & structure & 139 & \texttt{CategoryTheory.\allowbreak{}Discrete.\allowbreak{}Basic}\\
+\texttt{CategoryTheory.\allowbreak{}IsDiscrete} & class & 70 & \texttt{CategoryTheory.\allowbreak{}Discrete.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{linear-\allowbreak{}programming}\quad{\color{suave}\small Linear Programming}\par
+{\small\color{suave}marca \texttt{T} · 3 palabras clave · 1 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una tecnica; la dualidad LP}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Affine.\allowbreak{}Simplex} & structure & 232 & \texttt{LinearAlgebra.\allowbreak{}AffineSpace.\allowbreak{}Simplex.\allowbreak{}Basic}\\
+\texttt{SimplexCategory} & def & 124 & \texttt{Algebraic\allowbreak{}Topology.\allowbreak{}SimplexCategory.\allowbreak{}Defs}\\
+\texttt{SSet.\allowbreak{}Augmented.\allowbreak{}stdSimplex} & def & 67 & \texttt{Algebraic\allowbreak{}Topology.\allowbreak{}SimplicialSet.\allowbreak{}StdSimplex}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\noindent\texttt{variational-\allowbreak{}methods}\quad{\color{suave}\small Variational Methods}\par
+{\small\color{suave}marca \texttt{T} · 3 palabras clave · 1 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} tecnicas; puntos criticos de funcionales}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{ComplexShape.\allowbreak{}EulerCharSigns} & class & 4 & \texttt{Algebra.\allowbreak{}Homology.\allowbreak{}Euler\allowbreak{}Characteristic}\\
+\texttt{GradedObject.\allowbreak{}eulerChar} & def & 4 & \texttt{Algebra.\allowbreak{}Homology.\allowbreak{}Euler\allowbreak{}Characteristic}\\
+\texttt{Homological\allowbreak{}Complex.\allowbreak{}eulerChar} & abbrev & 4 & \texttt{Algebra.\allowbreak{}Homology.\allowbreak{}Euler\allowbreak{}Characteristic}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{probability}}
+\noindent\texttt{limit-\allowbreak{}theorems}\quad{\color{suave}\small Limit Theorems}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} teoremas (LGN, TCL)}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Probability\allowbreak{}Theory.\allowbreak{}centralMoment} & def & 6 & \texttt{Probability.\allowbreak{}Moments.\allowbreak{}Basic}\\
+\bottomrule\end{tabular}\par\smallskip
+{\footnotesize\color{suave}Descartadas por genéricas: \texttt{limit}\,(591). Si el objeto existe hay que buscarlo a mano: sus palabras no distinguen.}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\subsection*{área \texttt{set-theory}}
+\noindent\texttt{forcing}\quad{\color{suave}\small Forcing}\par
+{\small\color{suave}marca \texttt{T} · 4 palabras clave · 3 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} una tecnica; el topos de prehaces sobre P. Flypitch quedo en Lean 3}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Is\allowbreak{}Cyclotomic\allowbreak{}Extension} & class & 137 & \texttt{NumberTheory.\allowbreak{}Cyclotomic.\allowbreak{}Basic}\\
+\texttt{CategoryTheory.\allowbreak{}Functor.\allowbreak{}Well\allowbreak{}Order\allowbreak{}Induction\allowbreak{}Data.\allowbreak{}Extension} & structure & 26 & \texttt{CategoryTheory.\allowbreak{}SmallObject.\allowbreak{}Well\allowbreak{}Order\allowbreak{}Induction\allowbreak{}Data}\\
+\texttt{FiniteField.\allowbreak{}Extension} & def & 26 & \texttt{FieldTheory.\allowbreak{}Finite.\allowbreak{}Extension}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small se \textbf{retira} del grafo}\par
+\noindent$\square$\,{\small \textbf{cambia de marca} a \rule{2em}{0.4pt} y toma el nombre: \dotfill}\par
+\noindent$\square$\,{\small se queda como \textbf{enrutador declarado}: sin voz, sólo para que sus palabras clave lleguen a los hijos}\par
+\medskip
+\newpage
+\section*{Montón C · 2 marcados fuera y con voz}
+
+Marca \texttt{T} \textbf{y además} ofrecen identificadores al prompt. Es la
+contradicción exacta, y la única del documento que no admite «se queda como
+está».
+\par\medskip
+\subsection*{área \texttt{analysis}}
+\noindent\texttt{limits-\allowbreak{}continuity}\quad{\color{suave}\small Limits and Continuity}\par
+{\small\color{suave}marca \texttt{T} · 10 palabras clave · 5 hijos · 0 quedarían sueltos}\par\smallskip
+{\small\emph{El veredicto dijo:} dos nociones; continuidad = ser morfismo}\par\smallskip
+{\small\textbf{Ya ofrece al prompt:} \texttt{Continuous}, \texttt{ContinuousAt}, \texttt{Filter.\allowbreak{}Tendsto}}\par\smallskip
+{\small\textbf{Ninguno en su área. Pistas léxicas, probablemente ninguna sirve}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}HasLimitsOfShape} & class & 116 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}HasLimits}\\
+\texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}PreservesLimits} & abbrev & 59 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}Preserves.\allowbreak{}Basic}\\
+\texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}HasFiniteLimits} & class & 44 & \texttt{CategoryTheory.\allowbreak{}Limits.\allowbreak{}Shapes.\allowbreak{}FiniteLimits}\\
+\bottomrule\end{tabular}\par\smallskip
+{\footnotesize\color{suave}Descartadas por genéricas: \texttt{limit}\,(591), \texttt{continuous}\,(340). Si el objeto existe hay que buscarlo a mano: sus palabras no distinguen.}\par\smallskip
+\noindent$\square$\,{\small \textbf{la marca estaba mal} $\rightarrow$ pasa a \rule{2em}{0.4pt}}\par
+\noindent$\square$\,{\small \textbf{la marca está bien} $\rightarrow$ se le quitan los nombres}\par
+\noindent$\square$\,{\small cuál de las dos gana, y por qué: \dotfill}\par
+\medskip
+\subsection*{área \texttt{set-theory}}
+\noindent\texttt{cardinal-\allowbreak{}arithmetic}\quad{\color{suave}\small Cardinal Arithmetic}\par
+{\small\color{suave}marca \texttt{T} · 13 palabras clave · 5 hijos · \textbf{1 quedarían sueltos}}\par\smallskip
+{\small\emph{El veredicto dijo:} el sustrato Cardinal si es categoria delgada}\par\smallskip
+{\small\textbf{Ya ofrece al prompt:} \texttt{Cardinal}, \texttt{Set.\allowbreak{}Countable}, \texttt{Nat.\allowbreak{}card}}\par\smallskip
+{\small\textbf{Candidatos en su área}}\par\smallskip
+\noindent\small\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\linewidth}l r>{\raggedright\arraybackslash}p{0.34\linewidth}@{}}\toprule
+identificador & tipo & citas & módulo\\\midrule
+\texttt{Cardinal} & def & 645 & \texttt{SetTheory.\allowbreak{}Cardinal.\allowbreak{}Defs}\\
+\texttt{HasCardinalLT} & def & 57 & \texttt{SetTheory.\allowbreak{}Cardinal.\allowbreak{}HasCardinalLT}\\
+\texttt{embedding\allowbreak{}To\allowbreak{}Cardinal} & def & 0 & \texttt{SetTheory.\allowbreak{}Cardinal.\allowbreak{}Order}\\
+\bottomrule\end{tabular}\par\smallskip
+\noindent$\square$\,{\small \textbf{la marca estaba mal} $\rightarrow$ pasa a \rule{2em}{0.4pt}}\par
+\noindent$\square$\,{\small \textbf{la marca está bien} $\rightarrow$ se le quitan los nombres}\par
+\noindent$\square$\,{\small cuál de las dos gana, y por qué: \dotfill}\par
+\medskip
+\newpage
+\section*{Antes de dar por buena cualquier respuesta}
+\begin{marca}\small
+
+\texttt{python -m scripts.recuperacion\_contra\_proofnet}\par
+\texttt{python -m scripts.banco\_docstrings}\par
+\texttt{python -m scripts.banco\_herald}\par\medskip
+\textbf{Baseline hoy: 22,8\,\% / 18,0\,\% contra ProofNet}, 5,0\,\% sobre
+\Mathlib{} entero, 10,3\,\% contra Herald. Una tanda entra si sube su barrio y
+no baja el global.\par\medskip
+Y hay una asimetría que conviene tener presente: \textbf{quitar un nombre o
+retirar un nodo casi nunca baja la precisión}, así que el montón C y las
+retiradas del B se pueden medir barato. \textbf{Añadir} nombres sí tiene
+coste —la primera tanda bajó de 21,3\,\% a 19,9\,\% antes de que la puerta
+\texttt{\_evidencia\_declarada} lo arreglara—. El montón A es el caro.
+
+\end{marca}
+\end{document}

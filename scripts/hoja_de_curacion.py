@@ -280,6 +280,12 @@ RAMA_A_AREA = {
 #: Preambulo de la version imprimible. Compila con pdfLaTeX.
 #: No usa tikz ni listings, asi que no le aplican las dos trampas conocidas
 #: —babel-espanol volviendo activo el `"`, y listings leyendo bytes—.
+#:
+#: Y hay una TERCERA, encontrada al generar `CURACION_INTERNA`: babel-espanol
+#: deja activo tambien el `~`. Un `$\square$~{\small ...}` revienta con
+#: `Missing \endcsname inserted` y un `\language@active@arg~` en el log, que
+#: no menciona ni a babel ni al `~`. Estas dos hojas se salvan por no usarlo;
+#: quien lo escriba, que ponga `\,`.
 PREAMBULO = r"""% Generado por scripts/hoja_de_curacion.py. NO EDITAR A MANO.
 \documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
