@@ -49,10 +49,37 @@ class TestElAcoplamiento:
         hay que decirlo en el diagrama, en el README y en el reporte — hoy los
         tres dicen que el 3 reusa el 1.
         """
-        s = _fuente("nucleo/core.py")
-        assert "self._lean.sugerir_imports(self._modulos_mathlib(context))" in s, (
-            "el paso 3 ya no consume el `context` del paso 1 — si es a "
-            "propósito, actualiza el diagrama, el README y el reporte")
+        # SE COMPRUEBA LA INVARIANTE, NO LA ORTOGRAFÍA.
+        #
+        # Esto exigía la cadena literal
+        # `self._lean.sugerir_imports(self._modulos_mathlib(context))`, y
+        # saltó cuando esa línea se partió en dos para que el módulo del
+        # nombre OFRECIDO fuese siempre —ver `test_nombre_con_import.py`—.
+        # La invariante no se había roto: las dos llamadas siguen recibiendo
+        # `context`. Un guardián que se dispara con código correcto enseña a
+        # ignorarlo, que es el fallo que este fichero persigue en otros.
+        import ast
+        arbol = ast.parse(_fuente("nucleo/core.py"))
+
+        proveedores = []
+        for nodo in ast.walk(arbol):
+            if not isinstance(nodo, ast.Call):
+                continue
+            f = nodo.func
+            if not (isinstance(f, ast.Attribute)
+                    and f.attr in ("_modulos_mathlib",
+                                   "_modulos_de_los_nombres")):
+                continue
+            proveedores.append((f.attr, [ast.dump(a) for a in nodo.args]))
+
+        assert proveedores, (
+            "nadie elige los módulos que importa Lean: el paso 3 desapareció")
+        for nombre, args in proveedores:
+            assert any("id='context'" in a for a in args), (
+                "`%s` ya no recibe el `context` del paso 1: si abre su propia "
+                "consulta al grafo, los dos veredictos pasan a ser "
+                "independientes y hay que decirlo en el diagrama, el README y "
+                "el reporte" % nombre)
 
     def test_modulos_mathlib_solo_mira_las_primeras(self):
         """El corte que hace que medidor y runtime coincidan.

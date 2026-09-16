@@ -2404,11 +2404,48 @@ class Nucleo:
         #
         # No se borra nada: si alguien vuelve a medirlo y gana, el decisor lo
         # enciende solo, porque lee la RUTA al numero y no una copia.
-        if "eleccion_de_imports" in _corre:
-            try:
-                self._lean.sugerir_imports(self._modulos_mathlib(context))
-            except Exception:
-                logger.debug("no se pudieron sugerir imports", exc_info=True)
+        # OFRECER UN NOMBRE Y PODER IMPORTARLO SON EL MISMO ACTO.
+        #
+        # Esto estaba partido en dos capacidades que el decisor gobernaba por
+        # separado, y la particion era el fallo:
+        #
+        #   nombres_de_mathlib_en_el_prompt  ENCENDIDA  22,8 % contra 1,45 %
+        #   eleccion_de_imports              APAGADA    18 de 20 contra 18
+        #
+        # La segunda se apago por no batir a su nulo, y esa decision es
+        # correcta DENTRO DE SU BANCO. Lo que nadie midio es la INTERACCION:
+        # la primera mete en el prompt nombres que solo la segunda sabe
+        # importar. Con la primera encendida y la segunda apagada, el sistema
+        # le da al modelo un nombre que el fichero que compila no puede
+        # resolver — y el fallo se lee como error del modelo o del alumno.
+        #
+        # Lo destapo una consulta real del chat: «demuestra que todo espacio
+        # vectorial tiene una base». El grafo ofrecio `Module.Basis`, que es
+        # el nombre correcto, y Lean contesto `invalid binder annotation,
+        # type is not a class instance ?m.2` — porque con la cabecera
+        # generica ni siquiera `Module` esta en el ambito. Comprobado: esas
+        # seis lineas mas `[Module K V] : True := trivial` reproducen el
+        # error palabra por palabra.
+        #
+        # Medido sobre ProofNet (`scripts/nombre_sin_import.py`): de las 284
+        # consultas que reciben algun nombre, 282 —el 99,3 %— reciben alguno
+        # cuyo modulo no se alcanza desde la cabecera. Con esto, 0.
+        #
+        # Asi que el modulo de un nombre OFRECIDO no es una optimizacion
+        # opcional: es la precondicion de la capacidad que si esta encendida,
+        # y va siempre. Lo que sigue gobernado por `eleccion_de_imports` es
+        # lo que de verdad se midio y empato — proponer modulos ADEMAS de
+        # esos, por vecindad en el grafo.
+        try:
+            mods = self._modulos_de_los_nombres(context)
+            if "eleccion_de_imports" in _corre:
+                for m in self._modulos_mathlib(context):
+                    if m not in mods:
+                        mods.append(m)
+            if mods:
+                self._lean.sugerir_imports(mods)
+        except Exception:
+            logger.debug("no se pudieron sugerir imports", exc_info=True)
 
         # LA FRONTERA: aqui el codigo del LLM esta terminado y Lean aun no lo
         # ha visto. Todo lo de abajo —imports, reparaciones, cascada,
@@ -4279,6 +4316,33 @@ class Nucleo:
     })
 
     _MODULOS_CACHE = None
+
+    def _modulos_de_los_nombres(self, context) -> list:
+        """Los modulos de los nombres que el prompt SI ofrecio. Obligatorios.
+
+        `_modulos_mathlib` mira las cuatro primeras skills emparejadas, que no
+        es lo mismo: de esas cuatro solo unas pocas ganan una de las
+        `PLAZAS_CON_NOMBRES` y llegan al prompt. Las demas no aportan nombre,
+        asi que su modulo no hace falta y solo cuesta compilacion.
+
+        Aqui se leen los nombres REALMENTE ofrecidos —`mathlib_verificado`,
+        que es lo que el prompt le enseña al modelo— y se devuelve el modulo
+        de cada uno. Si el sistema le dice al modelo «usa `Module.Basis`, esta
+        comprobado», el fichero que compila tiene que poder resolverlo: lo
+        contrario es ofrecer un nombre y esconder su casa.
+        """
+        if not isinstance(context, dict):
+            return []
+        ofrecidos = context.get("mathlib_verificado") or {}
+        if not ofrecidos:
+            return []
+        self._modulos_mathlib(context)      # asegura el cache cargado
+        fuera = []
+        for sid in ofrecidos:
+            for m in (Nucleo._MODULOS_CACHE or {}).get(sid, []):
+                if m not in fuera:
+                    fuera.append(m)
+        return fuera
 
     def _modulos_mathlib(self, context) -> list:
         """Modulos de Mathlib para las skills activadas en esta consulta.
