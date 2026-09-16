@@ -1,15 +1,15 @@
 {
- "n_nodos": 320,
- "n_morfismos": 1349,
+ "n_nodos": 353,
+ "n_morfismos": 1582,
  "por_sort": {
-  "CONCEPTO": 158,
+  "AREA": 24,
+  "CONCEPTO": 189,
   "TACTICA": 9,
   "ESTRATEGIA": 6,
-  "MODULO": 125,
-  "AREA": 22
+  "MODULO": 125
  },
  "por_origen": {
-  "None": 173,
+  "None": 206,
   "mathlib": 125,
   "jerarquia-mathlib": 22
  },
@@ -17,20 +17,20 @@
   "0": 10,
   "1": 55,
   "2": 159,
-  "3": 96
+  "3": 129
  },
  "por_area": {
   "(sin área)": 10,
-  "algebra": 95,
-  "geometry": 18,
-  "analysis": 31,
-  "topology": 22,
+  "algebra": 103,
+  "geometry": 25,
+  "analysis": 33,
+  "topology": 23,
   "logic": 10,
-  "number-theory": 17,
-  "combinatorics": 15,
-  "probability": 16,
-  "set-theory": 17,
-  "computation": 9,
+  "number-theory": 20,
+  "combinatorics": 17,
+  "probability": 18,
+  "set-theory": 20,
+  "computation": 14,
   "optimization": 5,
   "lean-tactics": 9,
   "category-theory": 18,
@@ -53,9 +53,7 @@
    "id": "cic",
    "n": "CIC",
    "d": "Calculo de Construcciones Inductivas",
-   "m": [
-    "Type u con CategoryTheory.types"
-   ],
+   "m": [],
    "dep": [],
    "sal": 15
   },
@@ -111,10 +109,11 @@
    "n": "Limits & Colimits",
    "d": "Limites y colimites categoricos",
    "m": [
-    "Limits.Cone",
-    "HasLimits"
+    "CategoryTheory.Limits.Cone",
+    "CategoryTheory.Limits.HasLimits"
    ],
    "dep": [
+    "area-categorytheory",
     "functors"
    ],
    "sal": 3
@@ -127,6 +126,7 @@
     "CategoryTheory.NatTrans"
    ],
    "dep": [
+    "area-categorytheory",
     "functors"
    ],
    "sal": 1
@@ -152,7 +152,7 @@
    "dep": [
     "fol-deduction"
    ],
-   "sal": 142
+   "sal": 143
   }
  ],
  "curados_por_area": {
@@ -160,6 +160,11 @@
    [
     "abelian-groups",
     "Abelian Groups",
+    3
+   ],
+   [
+    "bases-and-dimension",
+    "Bases and Dimension",
     3
    ],
    [
@@ -173,6 +178,11 @@
     3
    ],
    [
+    "character-modules",
+    "Character Modules",
+    3
+   ],
+   [
     "character-theory",
     "Character Theory",
     3
@@ -183,8 +193,18 @@
     1
    ],
    [
+    "derivations",
+    "Derivations",
+    3
+   ],
+   [
     "derived-category",
     "Derived Category",
+    3
+   ],
+   [
+    "different-ideal",
+    "The Different Ideal",
     3
    ],
    [
@@ -243,6 +263,16 @@
     1
    ],
    [
+    "homogeneous-ideals",
+    "Homogeneous Ideals",
+    3
+   ],
+   [
+    "homogeneous-localization",
+    "Homogeneous Localization",
+    3
+   ],
+   [
     "homological-algebra",
     "Homological Algebra",
     2
@@ -255,6 +285,16 @@
    [
     "inner-product-spaces",
     "Inner Product Spaces",
+    3
+   ],
+   [
+    "lie-algebra-morphisms",
+    "Lie Algebra Morphisms",
+    3
+   ],
+   [
+    "lie-algebras",
+    "Lie Algebras",
     3
    ],
    [
@@ -375,6 +415,11 @@
     3
    ],
    [
+    "holder-continuity",
+    "Holder Continuity",
+    3
+   ],
+   [
     "holomorphic-functions",
     "Holomorphic Functions",
     3
@@ -433,6 +478,11 @@
     "spectral-theory",
     "Spectral Theory",
     3
+   ],
+   [
+    "upper-half-plane",
+    "The Upper Half Plane",
+    3
    ]
   ],
   "geometry": [
@@ -452,9 +502,19 @@
     3
    ],
    [
+    "collinearity-coplanarity",
+    "Collinearity and Coplanarity",
+    3
+   ],
+   [
     "complex-geometry",
     "Complex Geometry",
     2
+   ],
+   [
+    "congruence-transformations",
+    "Congruence Transformations",
+    3
    ],
    [
     "differential-forms",
@@ -472,9 +532,24 @@
     1
    ],
    [
+    "left-invariant-derivations",
+    "Left Invariant Derivations",
+    3
+   ],
+   [
+    "lie-groups",
+    "Lie Groups",
+    3
+   ],
+   [
     "projective-geometry",
     "Projective Geometry",
     1
+   ],
+   [
+    "projective-spectrum",
+    "Projective Spectrum",
+    3
    ],
    [
     "projective-varieties",
@@ -492,6 +567,11 @@
     3
    ],
    [
+    "similarity-transformations",
+    "Similarity Transformations",
+    3
+   ],
+   [
     "smooth-manifolds",
     "Smooth Manifolds",
     3
@@ -504,6 +584,11 @@
    [
     "triangle-geometry",
     "Triangle Geometry",
+    3
+   ],
+   [
+    "unit-circle",
+    "The Unit Circle",
     3
    ]
   ],
@@ -544,8 +629,18 @@
     3
    ],
    [
+    "infinite-places",
+    "Infinite Places",
+    3
+   ],
+   [
     "modular-arithmetic",
     "Modular Arithmetic",
+    3
+   ],
+   [
+    "modular-forms",
+    "Modular Forms",
     3
    ],
    [
@@ -577,6 +672,11 @@
     "riemann-zeta",
     "Riemann Zeta and L-functions",
     3
+   ],
+   [
+    "slash-invariant-forms",
+    "Slash Invariant Forms",
+    3
    ]
   ],
   "combinatorics": [
@@ -594,6 +694,11 @@
     "extremal-combinatorics",
     "Extremal Combinatorics",
     2
+   ],
+   [
+    "extremal-graphs",
+    "Extremal Graphs",
+    3
    ],
    [
     "generating-functions",
@@ -621,6 +726,11 @@
     3
    ],
    [
+    "matchings",
+    "Matchings",
+    3
+   ],
+   [
     "partitions",
     "Integer Partitions",
     3
@@ -639,6 +749,73 @@
     "ramsey-theory",
     "Ramsey Theory",
     2
+   ]
+  ],
+  "computation": [
+   [
+    "algorithm-analysis",
+    "Algorithm Analysis",
+    1
+   ],
+   [
+    "computability-theory",
+    "Computability Theory",
+    1
+   ],
+   [
+    "computational-complexity",
+    "Computational Complexity",
+    1
+   ],
+   [
+    "finite-automata",
+    "Finite Automata",
+    3
+   ],
+   [
+    "formal-languages",
+    "Formal Languages",
+    3
+   ],
+   [
+    "formal-verification",
+    "Formal Verification",
+    1
+   ],
+   [
+    "lambda-calculus",
+    "Lambda Calculus",
+    3
+   ],
+   [
+    "np-completeness",
+    "NP-Completeness",
+    3
+   ],
+   [
+    "partial-functions",
+    "Partial Functions",
+    3
+   ],
+   [
+    "partial-recursive-functions",
+    "Partial Recursive Functions",
+    3
+   ],
+   [
+    "primitive-recursive-functions",
+    "Primitive Recursive Functions",
+    3
+   ],
+   [
+    "turing-degrees",
+    "Turing Degrees",
+    3
+   ],
+   [
+    "turing-machines",
+    "Turing Machines",
+    3
    ]
   ],
   "topology": [
@@ -696,58 +873,11 @@
     "sheafed-space-complexes",
     "Sheafed Spaces of Complexes",
     3
-   ]
-  ],
-  "(sin área)": [
-   [
-    "cat-basics",
-    "Category Basics",
-    0
    ],
    [
-    "cic",
-    "CIC",
-    0
-   ],
-   [
-    "fol-deduction",
-    "FOL Deduction",
-    0
-   ],
-   [
-    "fol-metatheory",
-    "FOL Metatheory",
-    0
-   ],
-   [
-    "functors",
-    "Functors",
-    0
-   ],
-   [
-    "lean-kernel",
-    "Lean 4 Kernel",
-    0
-   ],
-   [
-    "limits",
-    "Limits & Colimits",
-    0
-   ],
-   [
-    "nat-trans",
-    "Natural Transformations",
-    0
-   ],
-   [
-    "ordinals",
-    "Ordinals",
-    0
-   ],
-   [
-    "zfc-axioms",
-    "ZFC Axioms",
-    0
+    "simplex-category",
+    "The Simplex Category",
+    3
    ]
   ],
   "probability": [
@@ -765,6 +895,11 @@
     "ergodic-theory",
     "Ergodic Theory",
     2
+   ],
+   [
+    "flows",
+    "Flows",
+    3
    ],
    [
     "limit-theorems",
@@ -789,6 +924,11 @@
    [
     "random-variables",
     "Random Variables",
+    3
+   ],
+   [
+    "rotation-number",
+    "Rotation and Translation Number",
     3
    ],
    [
@@ -844,46 +984,46 @@
     3
    ]
   ],
-  "computation": [
+  "(sin área)": [
    [
-    "algorithm-analysis",
-    "Algorithm Analysis",
-    1
+    "cat-basics",
+    "Category Basics",
+    0
    ],
    [
-    "computability-theory",
-    "Computability Theory",
-    1
+    "cic",
+    "CIC",
+    0
    ],
    [
-    "computational-complexity",
-    "Computational Complexity",
-    1
+    "fol-deduction",
+    "FOL Deduction",
+    0
    ],
    [
-    "formal-verification",
-    "Formal Verification",
-    1
+    "fol-metatheory",
+    "FOL Metatheory",
+    0
    ],
    [
-    "lambda-calculus",
-    "Lambda Calculus",
-    3
+    "functors",
+    "Functors",
+    0
    ],
    [
-    "np-completeness",
-    "NP-Completeness",
-    3
+    "limits",
+    "Limits & Colimits",
+    0
    ],
    [
-    "recursion-theory",
-    "Recursion Theory",
-    3
+    "nat-trans",
+    "Natural Transformations",
+    0
    ],
    [
-    "turing-machines",
-    "Turing Machines",
-    3
+    "ordinals",
+    "Ordinals",
+    0
    ]
   ],
   "logic": [
@@ -913,13 +1053,50 @@
     1
    ],
    [
-    "sequent-calculus",
-    "Sequent Calculus",
+    "semilinear-sets",
+    "Semilinear Sets",
     3
    ],
    [
     "ultraproducts",
     "Ultraproducts",
+    3
+   ]
+  ],
+  "set-theory": [
+   [
+    "cardinals",
+    "Cardinals",
+    3
+   ],
+   [
+    "descriptive-set-theory",
+    "Descriptive Set Theory",
+    1
+   ],
+   [
+    "forcing",
+    "Forcing",
+    3
+   ],
+   [
+    "hereditarily-finite-sets",
+    "Hereditarily Finite Sets",
+    3
+   ],
+   [
+    "large-cardinals",
+    "Large Cardinals",
+    3
+   ],
+   [
+    "zfc-classes",
+    "Classes",
+    3
+   ],
+   [
+    "zfc-sets",
+    "ZF Sets",
     3
    ]
   ],
@@ -949,84 +1126,104 @@
     "Variational Methods",
     2
    ]
-  ],
-  "set-theory": [
-   [
-    "cardinal-arithmetic",
-    "Cardinal Arithmetic",
-    3
-   ],
-   [
-    "descriptive-set-theory",
-    "Descriptive Set Theory",
-    1
-   ],
-   [
-    "forcing",
-    "Forcing",
-    3
-   ],
-   [
-    "large-cardinals",
-    "Large Cardinals",
-    3
-   ]
   ]
  },
  "areas": [
   {
+   "id": "zfc-axioms",
+   "n": "ZFC Axioms",
+   "kw": 9,
+   "hijos": 143
+  },
+  {
    "id": "area-algebra",
    "n": "Área · Algebra",
    "kw": 15,
-   "hijos": 27
+   "hijos": 33
   },
   {
    "id": "area-analysis",
    "n": "Área · Analysis",
    "kw": 27,
-   "hijos": 22
-  },
-  {
-   "id": "area-topology",
-   "n": "Área · Topology",
-   "kw": 23,
-   "hijos": 18
+   "hijos": 29
   },
   {
    "id": "area-ringtheory",
    "n": "Área · RingTheory",
    "kw": 19,
-   "hijos": 17
+   "hijos": 24
+  },
+  {
+   "id": "area-topology",
+   "n": "Área · Topology",
+   "kw": 23,
+   "hijos": 22
   },
   {
    "id": "area-categorytheory",
    "n": "Área · CategoryTheory",
    "kw": 19,
-   "hijos": 15
+   "hijos": 19
   },
   {
    "id": "area-linearalgebra",
    "n": "Área · LinearAlgebra",
    "kw": 18,
-   "hijos": 15
+   "hijos": 19
   },
   {
    "id": "area-numbertheory",
    "n": "Área · NumberTheory",
    "kw": 29,
-   "hijos": 12
+   "hijos": 17
   },
   {
    "id": "area-ordertheory",
    "n": "Área · OrderTheory",
    "kw": 24,
-   "hijos": 12
+   "hijos": 15
+  },
+  {
+   "id": "lean-kernel",
+   "n": "Lean 4 Kernel",
+   "kw": 6,
+   "hijos": 10
   },
   {
    "id": "area-combinatorics",
    "n": "Área · Combinatorics",
    "kw": 16,
+   "hijos": 10
+  },
+  {
+   "id": "area-geometry",
+   "n": "Área · Geometry",
+   "kw": 22,
+   "hijos": 10
+  },
+  {
+   "id": "area-measuretheory",
+   "n": "Área · MeasureTheory",
+   "kw": 11,
    "hijos": 9
+  },
+  {
+   "id": "area-settheory",
+   "n": "Área · SetTheory",
+   "kw": 23,
+   "hijos": 9
+  },
+  {
+   "id": "area-algebraicgeometry",
+   "n": "Área · AlgebraicGeometry",
+   "kw": 9,
+   "hijos": 8
+  },
+  {
+   "id": "area-grouptheory",
+   "n": "Área · GroupTheory",
+   "kw": 13,
+   "hijos": 7
   },
   {
    "id": "area-probability",
@@ -1035,45 +1232,27 @@
    "hijos": 7
   },
   {
-   "id": "area-algebraicgeometry",
-   "n": "Área · AlgebraicGeometry",
-   "kw": 9,
-   "hijos": 6
-  },
-  {
-   "id": "area-geometry",
-   "n": "Área · Geometry",
-   "kw": 22,
-   "hijos": 6
-  },
-  {
-   "id": "area-grouptheory",
-   "n": "Área · GroupTheory",
-   "kw": 13,
-   "hijos": 6
-  },
-  {
-   "id": "area-measuretheory",
-   "n": "Área · MeasureTheory",
-   "kw": 11,
-   "hijos": 6
-  },
-  {
-   "id": "area-settheory",
-   "n": "Área · SetTheory",
-   "kw": 23,
+   "id": "area-computability",
+   "n": "Área · Computability",
+   "kw": 18,
    "hijos": 6
   },
   {
    "id": "area-algebraictopology",
    "n": "Área · AlgebraicTopology",
    "kw": 12,
-   "hijos": 3
+   "hijos": 5
   },
   {
    "id": "area-fieldtheory",
    "n": "Área · FieldTheory",
    "kw": 11,
+   "hijos": 4
+  },
+  {
+   "id": "area-dynamics",
+   "n": "Área · Dynamics",
+   "kw": 16,
    "hijos": 3
   },
   {
@@ -1086,31 +1265,19 @@
    "id": "area-modeltheory",
    "n": "Área · ModelTheory",
    "kw": 13,
-   "hijos": 2
+   "hijos": 3
   },
   {
    "id": "area-representationtheory",
    "n": "Área · RepresentationTheory",
    "kw": 11,
-   "hijos": 2
-  },
-  {
-   "id": "area-computability",
-   "n": "Área · Computability",
-   "kw": 18,
-   "hijos": 1
-  },
-  {
-   "id": "area-dynamics",
-   "n": "Área · Dynamics",
-   "kw": 16,
-   "hijos": 1
+   "hijos": 3
   }
  ],
  "por_tipo": {
-  "IDENTITY": 320,
-  "DEPENDENCY": 583,
-  "TRANSLATION": 439,
+  "IDENTITY": 353,
+  "DEPENDENCY": 684,
+  "TRANSLATION": 538,
   "ANALOGY": 7
  },
  "cruce": [
@@ -1118,13 +1285,13 @@
    "t": "TRANSLATION",
    "de": "nuestro",
    "a": "nuestro",
-   "n": 439
+   "n": 538
   },
   {
    "t": "DEPENDENCY",
    "de": "nuestro",
    "a": "nuestro",
-   "n": 237
+   "n": 272
   },
   {
    "t": "DEPENDENCY",
@@ -1135,14 +1302,14 @@
   {
    "t": "DEPENDENCY",
    "de": "mathlib",
-   "a": "mathlib",
-   "n": 125
+   "a": "nuestro",
+   "n": 140
   },
   {
    "t": "DEPENDENCY",
    "de": "mathlib",
-   "a": "nuestro",
-   "n": 74
+   "a": "mathlib",
+   "n": 125
   },
   {
    "t": "ANALOGY",
@@ -1155,31 +1322,31 @@
  "construcciones_top": [
   [
    "jerarquia",
-   221
+   287
   ],
   [
    "tactica-tactic-simp",
-   143
+   176
   ],
   [
    "tactica-tactic-rewrite",
-   135
+   163
+  ],
+  [
+   "tactica-tactic-aesop",
+   145
   ],
   [
    "cobertura",
    125
   ],
   [
-   "tactica-tactic-aesop",
-   118
-  ],
-  [
    "tactica-tactic-ring",
-   22
+   30
   ],
   [
    "tactica-tactic-induction",
-   11
+   14
   ],
   [
    "tactica-tactic-omega",
@@ -1211,7 +1378,7 @@
   ]
  ],
  "cuota_mathlib": {
-  "True": 429,
+  "True": 528,
   "False": 5
  },
  "certificadas_lean": [
@@ -1261,15 +1428,15 @@
   },
   {
    "s": "CONCEPTO",
-   "nodos": 158,
-   "kw": 913,
-   "media": 5.8
+   "nodos": 189,
+   "kw": 1283,
+   "media": 6.8
   },
   {
    "s": "AREA",
-   "nodos": 22,
-   "kw": 389,
-   "media": 17.7
+   "nodos": 24,
+   "kw": 404,
+   "media": 16.8
   },
   {
    "s": "TACTICA",
@@ -1284,9 +1451,9 @@
    "media": 0.0
   }
  ],
- "kw_total": 4302,
- "kw_distintas": 1889,
- "kw_frases": 347,
+ "kw_total": 4687,
+ "kw_distintas": 2243,
+ "kw_frases": 619,
  "kw_con_acento": 66,
  "kw_repetidas": [
   [
@@ -1347,26 +1514,25 @@
   "tactic-ring",
   "tactic-simp"
  ],
- "nodos_con_nombres": 112,
- "plazas_nombres": 190,
- "nombres_distintos": 169,
+ "nodos_con_nombres": 147,
+ "plazas_nombres": 239,
+ "nombres_distintos": 217,
  "nombres_tipo": [
-  "AEEqFun",
   "Action",
   "AddCommGroup",
-  "AddSubgroup",
   "Affine.Triangle",
   "AffineIsometry",
   "Algebra k L",
   "AlgebraicGeometry.AffineScheme",
   "AlgebraicGeometry.Proj",
   "AlgebraicGeometry.Scheme",
-  "AlgebraicGeometry.SheafedSpace (CochainComplex AddCommGrp Z)",
+  "AlgebraicGeometry.SheafedSpace",
   "AnalyticOnNhd",
   "Associates",
-  "BoxIntegral",
+  "BoxIntegral.integral",
   "Bundle.RiemannianMetric",
   "CStarAlgebra",
+  "Cardinal",
   "Cardinal.IsInaccessible",
   "CategoryTheory.Abelian",
   "CategoryTheory.Adjunction",
@@ -1375,20 +1541,31 @@
   "CategoryTheory.CategoryStruct",
   "CategoryTheory.Classifier",
   "CategoryTheory.Functor",
+  "CategoryTheory.Functor.IsLeftKanExtension",
   "CategoryTheory.GradedObject",
   "CategoryTheory.Injective",
   "CategoryTheory.Kleisli",
-  "CategoryTheory.Localization",
+  "CategoryTheory.Limits.Cone",
+  "CategoryTheory.Limits.HasLimits",
   "CategoryTheory.Monad",
   "CategoryTheory.NatTrans",
-  "CategoryTheory.Opposite",
   "CategoryTheory.Over",
   "CategoryTheory.Sheaf",
   "CategoryTheory.ShortComplex.Exact",
+  "CauchySeq",
+  "CharacterModule",
+  "Circle",
+  "CircleDeg1Lift",
+  "CircleDeg1Lift.translationNumber",
+  "Class",
   "ClassGroup",
+  "Collinear",
+  "CommGroup",
   "CommRing",
   "CompactSpace",
   "CompleteSpace",
+  "Computable",
+  "Congruent",
   "ConnectedSpace",
   "ContMDiff",
   "Continuous",
@@ -1396,9 +1573,13 @@
   "ContinuousFunctionalCalculus",
   "ContinuousLinearMap",
   "ContinuousLinearMap.adjoint",
+  "Coplanar",
+  "DFA",
+  "Derivation",
   "DerivedCategory",
   "DerivedCategory C",
   "DerivedCategory.Q",
+  "DifferentiableAt",
   "DifferentiableOn",
   "Ergodic",
   "EuclideanGeometry",
@@ -1408,52 +1589,63 @@
   "Field",
   "Filter.Germ",
   "Filter.Tendsto",
+  "Filter.atTop",
   "Fintype",
   "FirstOrder.Language",
   "FirstOrder.Language.ElementaryEmbedding",
   "FirstOrder.Language.LHom",
   "FirstOrder.Language.Structure",
   "FirstOrder.Language.Theory",
-  "FirstOrder.Language.Ultraproduct",
+  "Flow",
   "FreeGroup",
   "FunctionField",
-  "Functor.IsLeftKanExtension",
   "FundamentalGroup",
   "FundamentalGroupoid",
   "GCDMonoid",
   "GaloisField",
   "Group",
-  "HasLimits",
-  "HasSum",
+  "HasDerivAt",
+  "HolderOnWith",
+  "HolderWith",
+  "HomogeneousIdeal",
+  "HomogeneousLocalization",
   "HomologicalComplex",
   "Ideal",
+  "Ideal.IsHomogeneous",
   "Ideal.Quotient",
   "Ideal.span",
   "InnerProductSpace",
   "Int",
   "IntermediateField",
-  "IsBrownianReal",
+  "Irrational",
   "IsCompact",
   "IsConformalMap",
   "IsCoveringMap",
   "IsGalois",
+  "IsLinearSet",
   "IsLocalization",
   "IsManifold",
-  "IsManifold con modelo complejo",
   "IsNoetherianRing",
   "IsOpen",
-  "IsPreBrownianReal",
   "IsRiemannianManifold",
+  "IsSemilinearSet",
   "IsSolvable",
-  "IsSplittingField",
-  "Kernel",
   "LSeries",
-  "Limits.Cone",
+  "Language",
+  "Language.IsRegular",
+  "LeftInvariantDerivation",
+  "LieAlgebra",
+  "LieGroup",
+  "LieHom",
+  "LieModuleHom",
+  "LinearIndependent",
   "LinearMap",
   "LinearMap.BilinForm",
+  "Lists",
   "Matrix",
   "Measurable",
   "MeasurableSpace",
+  "MeasureTheory.AEEqFun",
   "MeasureTheory.Adapted",
   "MeasureTheory.Filtration",
   "MeasureTheory.Integrable",
@@ -1463,81 +1655,108 @@
   "MeasureTheory.condExp",
   "MeasureTheory.integral",
   "MetricSpace",
+  "ModularForm",
   "Module",
+  "Module.Basis",
   "Module.Dual",
   "Module.End",
   "Module.End.HasEigenvalue",
+  "Module.Injective",
   "Module.Projective",
-  "ModuleCat R",
+  "Module.finrank",
+  "ModuleCat",
   "MonoidHom",
   "MulAction",
   "MvPolynomial",
+  "Nat",
   "Nat.Partition",
+  "Nat.Prime",
   "NormedSpace",
   "NumberField",
+  "NumberField.InfinitePlace",
   "NumberField.RingOfIntegers",
+  "Opposite",
   "Ordinal",
+  "PFun",
   "PMF",
   "Padic",
   "PadicInt",
+  "Partrec",
   "Path.Homotopy",
   "PolishSpace",
   "Polynomial",
+  "Polynomial.IsSplittingField",
   "Polynomial.SplittingField",
   "PontryaginDual",
   "PowerSeries",
+  "Primrec",
+  "ProbabilityTheory.IsBrownianReal",
   "ProbabilityTheory.IsMarkovKernel",
   "ProbabilityTheory.Kernel",
+  "ProjectiveSpectrum",
   "Projectivization",
   "QuadraticForm",
   "QuotientGroup",
+  "QuotientGroup.mk'",
+  "Rat",
   "Real",
   "Rep",
   "Representation",
   "Ring",
   "RingHom",
   "SSet.Quasicategory",
+  "Similar",
   "SimpleGraph",
   "SimpleGraph.Coloring",
+  "SimpleGraph.IsExtremal",
+  "SimpleGraph.Subgraph.IsMatching",
+  "SimpleGraph.extremalNumber",
+  "SimplexCategory",
+  "SlashInvariantForm",
   "StandardBorelSpace",
   "Subgroup",
   "Sylow",
   "Sylow.mulAction",
   "T0Space",
   "T2Space",
-  "TangentBundle",
   "TensorProduct",
   "TopologicalSpace",
-  "Turing.TM0",
-  "Turing.TM1",
-  "Type u con CategoryTheory.types",
+  "Turing.TM0.Machine",
+  "TuringDegree",
   "UniqueFactorizationMonoid",
+  "UpperHalfPlane",
   "Valuation",
   "YoungDiagram",
+  "ZFSet",
   "ZMod",
   "ZMod.castHom"
  ],
  "nombres_lema": [
+  "deriv",
+  "differentIdeal",
   "intervalIntegral",
-  "mfderiv",
   "riemannZeta",
   "spectrum"
  ],
  "namespaces": [
   [
    "CategoryTheory",
-   17
+   18
   ],
   [
    "MeasureTheory",
+   9
+  ],
+  [
+   "Module",
    8
   ],
   [
    "FirstOrder",
-   6
+   5
   ],
   [
-   "Module",
+   "SimpleGraph",
    5
   ],
   [
@@ -1546,31 +1765,27 @@
   ],
   [
    "Ideal",
+   4
+  ],
+  [
+   "Filter",
    3
   ],
   [
-   "FDRep",
-   2
-  ],
-  [
    "ProbabilityTheory",
-   2
+   3
   ],
   [
    "NumberField",
-   2
+   3
   ],
   [
-   "Sylow",
-   2
+   "Polynomial",
+   3
   ],
   [
-   "ContinuousLinearMap",
-   2
-  ],
-  [
-   "LinearMap",
-   2
+   "Nat",
+   3
   ]
  ],
  "conceptos_sin_nombres": [
@@ -1578,7 +1793,7 @@
   "algorithm-analysis",
   "analytic-number-theory",
   "canonical-forms",
-  "cardinal-arithmetic",
+  "cic",
   "circle-geometry",
   "compactness-theorem",
   "computability-theory",
@@ -1598,7 +1813,6 @@
   "inclusion-exclusion",
   "incompleteness",
   "lambda-calculus",
-  "lean-kernel",
   "limit-theorems",
   "limits-continuity",
   "linear-programming",
@@ -1612,14 +1826,11 @@
   "proof-theory",
   "quadratic-residues",
   "ramsey-theory",
-  "recursion-theory",
   "residue-theorem",
-  "sequent-calculus",
   "symplectic-geometry",
   "universal-properties",
   "variational-methods",
-  "yoneda-lemma",
-  "zfc-axioms"
+  "yoneda-lemma"
  ],
  "sumideros": 134,
  "fuentes": 1,
@@ -1627,31 +1838,31 @@
  "mas_reciben": [
   [
    "tactic-simp",
-   146,
+   179,
    2,
    "TACTICA"
   ],
   [
    "tactic-rewrite",
-   137,
+   165,
    1,
    "TACTICA"
   ],
   [
    "tactic-aesop",
-   120,
+   147,
    0,
    "TACTICA"
   ],
   [
    "tactic-ring",
-   24,
+   32,
    0,
    "TACTICA"
   ],
   [
    "tactic-induction",
-   13,
+   16,
    2,
    "TACTICA"
   ],
@@ -1670,56 +1881,56 @@
   [
    "ring-theory",
    6,
-   12,
+   14,
    "CONCEPTO"
   ]
  ],
  "mas_emiten": [
   [
    "zfc-axioms",
-   142,
+   143,
    1,
-   "CONCEPTO"
+   "AREA"
   ],
   [
    "area-algebra",
-   27,
+   33,
    1,
    "AREA"
   ],
   [
    "area-analysis",
-   22,
-   1,
-   "AREA"
-  ],
-  [
-   "area-topology",
-   18,
+   29,
    1,
    "AREA"
   ],
   [
    "area-ringtheory",
-   17,
+   24,
    1,
    "AREA"
   ],
   [
-   "real-analysis",
-   16,
+   "area-topology",
+   22,
    1,
-   "CONCEPTO"
-  ],
-  [
-   "cic",
-   15,
-   1,
-   "CONCEPTO"
+   "AREA"
   ],
   [
    "area-categorytheory",
-   15,
+   19,
+   1,
+   "AREA"
+  ],
+  [
+   "area-linearalgebra",
+   19,
+   1,
+   "AREA"
+  ],
+  [
+   "area-numbertheory",
+   17,
    1,
    "AREA"
   ]
@@ -1727,31 +1938,31 @@
  "alcance_pilares": [
   [
    "fol-deduction",
-   319
+   352
   ],
   [
    "zfc-axioms",
-   288
+   317
   ],
   [
    "cat-basics",
-   46
+   48
   ],
   [
    "functors",
-   35
+   37
   ],
   [
    "cic",
-   25
-  ],
-  [
-   "lean-kernel",
-   20
+   29
   ],
   [
    "fol-metatheory",
-   16
+   22
+  ],
+  [
+   "lean-kernel",
+   19
   ],
   [
    "limits",
@@ -1770,49 +1981,81 @@
  "medido": {
   "vocabulario": {
    "lexico": {
-    "precision": 20.998980632008156,
-    "cobertura": 14.756446991404012,
-    "con_algo": 283,
-    "tp": 206,
-    "fp": 775,
-    "fn": 1190
+    "precision": 23.883696780893043,
+    "cobertura": 16.4756446991404,
+    "con_algo": 273,
+    "tp": 230,
+    "fp": 733,
+    "fn": 1166
    },
    "lexico+puerta": {
-    "precision": 20.53838484546361,
-    "cobertura": 14.756446991404012,
-    "con_algo": 289,
-    "tp": 206,
-    "fp": 797,
-    "fn": 1190
+    "precision": 23.883696780893043,
+    "cobertura": 16.4756446991404,
+    "con_algo": 273,
+    "tp": 230,
+    "fp": 733,
+    "fn": 1166
    },
    "semantico": {
-    "precision": 13.147410358565738,
-    "cobertura": 2.3638968481375358,
-    "con_algo": 103,
-    "tp": 33,
-    "fp": 218,
-    "fn": 1363
+    "precision": 13.214285714285714,
+    "cobertura": 2.650429799426934,
+    "con_algo": 117,
+    "tp": 37,
+    "fp": 243,
+    "fn": 1359
    },
    "nulo": {
-    "precision": 1.6335227272727273,
+    "precision": 1.452020202020202,
     "cobertura": 3.2951289398280803,
     "con_algo": 352,
     "tp": 46,
-    "fp": 2770,
+    "fp": 3122,
     "fn": 1350
    }
   },
   "funtor": {
-   "medibles": 73,
-   "confirmadas": 57,
-   "invertidas": 6,
-   "independientes": 10,
-   "azar_pct": 32.578947368421055,
+   "medibles": 428,
+   "confirmadas": 260,
+   "invertidas": 66,
+   "por_clase": {
+    "curada": {
+     "medibles": 153,
+     "confirmadas": 111,
+     "invertidas": 11,
+     "independientes": 31,
+     "tasa_pct": 72.54901960784314,
+     "nulo_pct": 30.74475777295734,
+     "factor": 2.3597199933595263,
+     "pares_del_nulo": 6915
+    },
+    "jerarquia": {
+     "medibles": 266,
+     "confirmadas": 140,
+     "invertidas": 55,
+     "independientes": 71,
+     "tasa_pct": 52.63157894736842,
+     "nulo_pct": 24.848782082720287,
+     "factor": 2.118074792243767,
+     "pares_del_nulo": 6117
+    },
+    "cobertura": {
+     "medibles": 9,
+     "confirmadas": 9,
+     "invertidas": 0,
+     "independientes": 0,
+     "tasa_pct": 100.0,
+     "nulo_pct": 100.0,
+     "factor": 1.0,
+     "pares_del_nulo": 9
+    }
+   },
+   "independientes": 102,
+   "azar_pct": 29.921922483519566,
    "sin_envoltorio": {
-    "medibles": 72,
-    "confirmadas": 56,
-    "invertidas": 6,
-    "azar_pct": 32.792792792792795
+    "medibles": 404,
+    "confirmadas": 242,
+    "invertidas": 65,
+    "azar_pct": 30.398277197057684
    }
   },
   "fibracion": {
@@ -1869,9 +2112,9 @@
   "taxonomia": {
    "nivel": 2,
    "conceptos": 1139,
-   "conceptos_cubiertos": 210,
+   "conceptos_cubiertos": 211,
    "teoremas": 173636,
-   "teoremas_cubiertos": 137342
+   "teoremas_cubiertos": 137476
   }
  }
 }

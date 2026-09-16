@@ -49,16 +49,41 @@ TIMEOUT = 2400
 #:
 #: El criterio en cada caso: el objeto o el lema con el que se trabaja de
 #: verdad en ese tema, no una traduccion del titulo del nodo.
+#: LAS QUE YA NO SON PROPUESTA, y COMO se resolvieron — que es lo que hay que
+#: conservar, porque la respuesta no fue la que este fichero probaba.
+#:
+#: Este experimento dio NO: meter el objeto adyacente en el nodo bajaba la
+#: precision de 21,0 % a 20,1 %, y la causa era mecanica —`PLAZAS_CON_NOMBRES`
+#: es 2, y un nodo con nombre ocupa plaza donde antes pasaba al siguiente—.
+#:
+#: El veredicto sobre las 48 encontro la salida que faltaba, y no es «darselo
+#: al nodo» ni «no darselo a nadie»: es BAJAR EL OBJETO UN NIVEL. La rama se
+#: queda muda —marca `T`, rol `rama`— y el objeto entra como hijo propio, con
+#: palabra clave estrecha. Medido: los tres hijos nuevos cuestan CERO,
+#: 23,9 % / 16,5 % con y sin ellos, mientras que metidos en la rama habrian
+#: gastado su plaza.
+#:
+#: Asi que estas cinco no estaban mal propuestas: estaban mal COLOCADAS.
+RESUELTAS_POR_EL_VEREDICTO = {
+    "cardinal-arithmetic": "el nodo se renombro a `cardinals`, marca C, y "
+                           "`Cardinal` es su IDENTIDAD, no un anadido",
+    "computability-theory": "bajo a hijo: el nodo `turing-degrees`, marca C, "
+                            "con `TuringDegree`",
+    "matching-theory": "bajo a hijo: el nodo `matchings`, marca S",
+    "yoneda-lemma": "entro como `evidencia`, no como nombre: es un FUNTOR, y "
+                    "un funtor no es objeto de este grafo",
+    "prime-factorization": "no hacia falta: su objeto ya tenia nodo propio, "
+                           "`unique-factorization`",
+    "zfc-axioms": "NO se adopto `ZFSet`: el nodo paso a la capa de areas. Su "
+                  "token seria `set`, de los mas genericos de Mathlib",
+}
+
 PROPUESTAS = {
-    # el sustrato si es un objeto, aunque «aritmetica cardinal» sea un tema
-    "cardinal-arithmetic": ["Cardinal"],
     # un capitulo de geometria; los objetos viven en Sphere
     "circle-geometry": ["EuclideanGeometry.Sphere"],
     # es un teorema, y este es SU nombre en Mathlib
     "compactness-theorem": [
         "FirstOrder.Language.Theory.isSatisfiable_iff_isFinitelySatisfiable"],
-    # una rama; los grados de Turing si son un orden parcial
-    "computability-theory": ["TuringDegree"],
     # el ambiente en que se cuenta
     "enumerative-combinatorics": ["FintypeCat"],
     # la nota decide Top[W^-1]; Mathlib tiene el marco, no la instancia.
@@ -68,14 +93,9 @@ PROPUESTAS = {
     # la tecnica es inversion de Mobius, y su objeto es el algebra de
     # incidencia
     "inclusion-exclusion": ["IncidenceAlgebra"],
-    "matching-theory": ["SimpleGraph.Subgraph.IsMatching"],
-    "prime-factorization": ["UniqueFactorizationMonoid"],
     # el mecanismo se ejerce con estos dos
     "universal-properties": ["CategoryTheory.Limits.IsInitial",
                              "CategoryTheory.Functor.Representable"],
-    "yoneda-lemma": ["CategoryTheory.yoneda"],
-    # los axiomas son enunciados; el universo si es un objeto
-    "zfc-axioms": ["ZFSet"],
 }
 
 

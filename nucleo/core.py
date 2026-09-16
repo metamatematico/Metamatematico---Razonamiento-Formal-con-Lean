@@ -4920,11 +4920,28 @@ class Nucleo:
                 "confidence":  self._last_decision.confidence,
             }
 
+        # LO QUE DE VERDAD LLEGO AL PROMPT, y por que nodo.
+        #
+        # El subgrafo dice que se activo; esto dice que se OFRECIO, que es
+        # otra cosa y es la que el alumno necesita para entender el sistema.
+        # De los nodos emparejados, solo unos pocos ganan una de las
+        # `PLAZAS_CON_NOMBRES` del prompt: los demas enrutan y se callan.
+        #
+        # Sin este dato la visualizacion enseña una subred bonita y deja fuera
+        # el unico paso donde el grafo se juega su medida — el 23,9 % de
+        # precision contra ProofNet sale de estos nombres, no del dibujo.
+        try:
+            nombres_ofrecidos = self._nombres_mathlib(
+                list(matched) + list(dep_skills), query, graph)
+        except Exception:
+            nombres_ofrecidos = {}
+
         return {
             "query":             query,
             "graph_nodes":       graph_nodes,
             "graph_edges":       graph_edges,
             "matched_skills":    matched,
+            "nombres_ofrecidos": nombres_ofrecidos,
             "dependency_skills": list(dep_skills),
             "tactic_skills":     list(tactic_skills),
             "skill_ids_ordered": skill_ids_ordered,

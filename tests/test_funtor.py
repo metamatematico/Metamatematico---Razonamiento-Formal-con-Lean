@@ -229,7 +229,7 @@ class TestLasClasesDeAristaNoSeMezclan:
         #     areas dejan de contar como curados, y los tres hijos nuevos
         #     —`turing-degrees`, `extremal-graphs`, `matchings`— traen las
         #     suyas.
-        assert dict(c) == {"curada": 272, "jerarquia": 287, "cobertura": 125}, (
+        assert dict(c) == {"curada": 272, "jerarquia": 290, "cobertura": 125}, (
             "la composicion por clase cambio a %s. Vuelve a correr "
             "scripts/funtor_dag_mathlib.py: las cifras por clase del README "
             "y de los tres artefactos pueden haber dejado de valer." % dict(c))
@@ -275,7 +275,7 @@ class TestLasClasesDeAristaNoSeMezclan:
         # especifico, que es su convencion. Si alguien usa el DAG de oraculo
         # para completar el grafo, ESTAS DOS LAS VOLTEARIA Y SE EQUIVOCARIA.
         cur = d["curada"]
-        assert cur["medibles"] == 153 and cur["confirmadas"] == 111, (
+        assert cur["medibles"] == 151 and cur["confirmadas"] == 109, (
             "la fila curada cambio a %d/%d; el 72,7 %% del README ya no vale"
             % (cur["confirmadas"], cur["medibles"]))
         assert 1.5 < cur["factor"] < 2.4, (

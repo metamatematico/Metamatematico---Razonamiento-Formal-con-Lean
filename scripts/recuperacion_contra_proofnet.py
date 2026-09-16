@@ -244,7 +244,11 @@ def main(k):
                 print("    %s vs modelo nulo en cobertura: %+.1f puntos"
                       % (e, d))
 
-    json.dump({"n": len(filas), "k": k, "resultados": res},
+    # LA HUELLA DEL GRAFO MEDIDO, para que esta cifra no pueda citarse como
+    # actual cuando el grafo se haya movido. Ver nucleo/graph/huella.py.
+    from nucleo.graph.huella import huella
+    json.dump({"n": len(filas), "k": k, "grafo": huella(g),
+               "resultados": res},
               io.open(SALIDA, "w", encoding="utf-8"), indent=1,
               ensure_ascii=False)
     print("\n-> %s" % SALIDA)

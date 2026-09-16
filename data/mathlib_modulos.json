@@ -136,10 +136,8 @@
       "Mathlib.LinearAlgebra.BilinearMap",
       "Mathlib.LinearAlgebra.QuadraticForm.Basic"
     ],
-    "cardinal-arithmetic": [
-      "Mathlib.Data.Set.Countable",
-      "Mathlib.SetTheory.Cardinal.Defs",
-      "Mathlib.SetTheory.Cardinal.Finite"
+    "cardinals": [
+      "Mathlib.SetTheory.Cardinal.Defs"
     ],
     "cat-basics": [
       "Mathlib.CategoryTheory.Category.Basic"
@@ -410,10 +408,14 @@
     "graded-objects": [
       "Mathlib.CategoryTheory.GradedObject"
     ],
-    "limits-continuity": [
-      "Mathlib.Order.Filter.Defs",
-      "Mathlib.Topology.Defs.Basic",
-      "Mathlib.Topology.Defs.Filter"
+    "turing-degrees": [
+      "Mathlib.Computability.TuringDegree"
+    ],
+    "extremal-graphs": [
+      "Mathlib.Combinatorics.SimpleGraph.Extremal.Basic"
+    ],
+    "matchings": [
+      "Mathlib.Combinatorics.SimpleGraph.Matching"
     ],
     "finite-automata": [
       "Mathlib.Computability.DFA"
@@ -951,5 +953,12 @@
     ]
   },
   "nombres": 34723,
-  "sin_modulo": []
+  "sin_modulo": [
+    {
+      "skill": "brownian-motion",
+      "marca": "O",
+      "nombre": "ProbabilityTheory.IsBrownianReal",
+      "causa": "el indice de Mathlib no lo declara"
+    }
+  ]
 }

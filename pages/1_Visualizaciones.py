@@ -234,6 +234,39 @@ PALETTE = {
 
 BG = "#0d1117"
 FG = "#c9d1d9"
+
+#: LA PALETA DE LA SUBRED, EN UN SOLO SITIO Y MEDIDA.
+#:
+#: El fondo es casi negro, asi que cualquier color oscuro desaparece. Estaba
+#: pasando con lo mas importante del dibujo: las aristas de dependencia iban
+#: en `#4a5568` —2,51:1 contra el fondo, y con alpha 0,85 menos— y son las
+#: MAS numerosas, o sea que la estructura del subgrafo era lo que peor se
+#: veia. Y las de analogia iban en el mismo verde que los nodos-tactica, que
+#: es peor que un color feo: dos cosas distintas con el mismo significado
+#: visual.
+#:
+#: Las reglas, que comprueba `tests/test_contraste_visualizaciones.py`:
+#:
+#:   · contraste >= 3,0:1 contra el fondo (minimo de WCAG para graficos)
+#:   · ningun color de nodo repetido en una arista, ni al reves
+#:   · nada casi negro: un color mas oscuro que el fondo no se dibuja, se
+#:     esconde
+#:
+#: Los NODOS llevan los tres colores que significan algo —activado, de quien
+#: depende, tactica— y las ARISTAS van en hues que ningun nodo usa, con el
+#: gris para la dependencia porque es estructura y no debe competir.
+COLOR_SUBRED = {
+    "nodo_activado":     "#fbbf24",   # oro: lo que la consulta engancho
+    "nodo_dependencia":  "#818cf8",   # indigo: lo que hace falta debajo
+    "nodo_tactica":      "#4ade80",   # verde: tacticas y estrategias Lean
+    "arista_dependencia": "#8b949e",  # gris: estructura, no compite
+    "arista_traduccion":  "#58a6ff",  # azul: entre pilares
+    "arista_analogia":    "#ff7b72",  # salmon: no lo usa ningun nodo
+    "texto":              "#c9d1d9",
+    # el panel de texto de la derecha: tambien es contenido, tambien se mide
+    "texto_tactica":      "#f48fb1",   # rosa: tacticas Lean
+    "texto_estrategia":   "#fff59d",   # amarillo palido: estrategias
+}
 plt.rcParams.update({
     "figure.facecolor": BG, "axes.facecolor": BG,
     "text.color": FG, "axes.labelcolor": FG,
@@ -637,7 +670,7 @@ def fig_skill_graph(filter_cat=None, query=None):
     TACTIC_CATS = ("Tácticas Lean", "Estrategias")
     matched_set, dep_set, tactic_set = set(), set(), set()
     if query:
-        matched = match_skills(query)
+        matched, _proc = match_skills(query)
         needed  = proof_subgraph(G, matched)
         matched_set = set(matched)
         tactic_set  = {n for n in needed if G.nodes[n].get("cat") in TACTIC_CATS}
@@ -829,7 +862,7 @@ def fig_tsne(method="tsne", query=None):
     matched_set, dep_set, tactic_set = set(), set(), set()
     if query:
         G = build_graph()
-        matched    = match_skills(query)
+        matched, _proc = match_skills(query)
         needed     = proof_subgraph(G, matched)
         matched_set = set(matched)
         tactic_set  = {n for n in needed if G.nodes[n].get("cat") in TACTIC_CATS}
@@ -1149,7 +1182,7 @@ def fig_mes_complexification(query=None):
             needed     = set(matched) | dep_set | tactic_set
         else:
             G = build_graph()
-            matched   = match_skills(query)[:5]
+            matched   = match_skills(query)[0][:5]
             needed    = proof_subgraph(G, matched)
             tactic_set = {n for n in needed if G.nodes[n].get("cat") in TACTIC_CATS}
             dep_set    = needed - set(matched) - tactic_set
@@ -1994,22 +2027,52 @@ _KW_MAP = {
 }
 
 
-def match_skills(query: str) -> list:
-    """Devuelve lista de skill IDs que coinciden con la consulta."""
-    # Prefer live data from get_viz_data() when available and query matches
+def match_skills(query: str) -> tuple:
+    """Los skills que el sistema asigna a esta consulta, y de donde salen.
+
+    Devuelve `(ids, procedencia)`, donde `procedencia` es una de tres:
+
+        "chat"      son los de la consulta que el alumno acaba de hacer en el
+                    chat: exactamente los que el sistema uso para responderle
+        "emparejador" se ha vuelto a preguntar al emparejador REAL del nucleo
+                    con otro texto; es el mismo codigo que corre en el chat
+        "palabras"  el nucleo no esta arrancado y esto es un mapa de palabras
+                    clave de la propia pagina: una SIMULACION
+
+    LA PROCEDENCIA SE DEVUELVE PORQUE NO DA IGUAL. Antes esta funcion caia al
+    mapa de palabras en silencio, asi que el alumno podia estar viendo una
+    subred que el sistema no habia calculado nunca —y creyendo que si—. Un
+    dibujo que no distingue lo medido de lo simulado enseña lo contrario de lo
+    que este proyecto quiere enseñar.
+    """
+    q = (query or "").strip()
+
+    # 1 · la consulta del chat: lo que de verdad paso
     vd = _vd()
-    if vd and vd.get("matched_skills") and             vd.get("query", "").strip() == (query or "").strip():
-        return list(vd["matched_skills"])
-    # Fallback: keyword map
-    q = query.lower()
+    if vd and vd.get("matched_skills") and vd.get("query", "").strip() == q:
+        return list(vd["matched_skills"]), "chat"
+
+    # 2 · otro texto: se le pregunta al emparejador de verdad
+    try:
+        nucleo = _get_nucleo_viz()
+        if nucleo is not None and getattr(nucleo, "_graph", None) is not None:
+            ids = nucleo._match_skills_to_query(q, nucleo._graph)
+            ids = [getattr(x, "id", x) for x in ids]
+            if ids:
+                return ids, "emparejador"
+    except Exception:
+        pass
+
+    # 3 · ultimo recurso: el mapa de palabras de esta pagina
+    ql = q.lower()
     matched = set()
     for kw, sids in _KW_MAP.items():
-        if kw in q:
+        if kw in ql:
             matched.update(sids)
     if not matched:
         matched.update(["zfc-axioms", "fol-deduction", "strat-forward"])
     G = build_graph()
-    return [s for s in matched if s in G]
+    return [s for s in matched if s in G], "palabras"
 
 
 def proof_subgraph(G, matched: list) -> set:
@@ -2028,7 +2091,7 @@ def proof_subgraph(G, matched: list) -> set:
 def fig_proof_trace(query: str):
     """Grafo jerárquico de la subred de skills activada para demostrar 'query'."""
     G = build_graph()
-    matched = match_skills(query)
+    matched, procedencia = match_skills(query)
     needed = proof_subgraph(G, matched)
     SG = G.subgraph(needed)
 
@@ -2066,15 +2129,31 @@ def fig_proof_trace(query: str):
     for n in SG.nodes():
         cat = G.nodes[n].get("cat", "")
         if n in matched:
-            node_colors.append("#fbbf24"); node_sizes.append(1100)
+            node_colors.append(COLOR_SUBRED["nodo_activado"])
+            node_sizes.append(1115)
         elif cat in TACTIC_CATS:
-            node_colors.append("#4ade80"); node_sizes.append(650)
+            node_colors.append(COLOR_SUBRED["nodo_tactica"])
+            node_sizes.append(650)
         else:
-            node_colors.append("#818cf8"); node_sizes.append(480)
+            node_colors.append(COLOR_SUBRED["nodo_dependencia"])
+            node_sizes.append(480)
 
-    for kind, color, alpha in [("dep", "#4a5568", 0.85),
-                                ("trans", "#58a6ff", 0.7),
-                                ("analogy", "#4ade80", 0.5)]:
+    # LOS COLORES DE ARISTA, MEDIDOS CONTRA EL FONDO. Ver
+    # `tests/test_contraste_visualizaciones.py`, que los comprueba.
+    #
+    # `dep` era `#4a5568`: 2,51:1 contra `#0d1117`, y con alpha 0,85 menos
+    # todavia. Son las aristas MAS numerosas —la estructura del subgrafo
+    # entero— asi que lo que peor se veia era justo lo que hay que ver. Ahora
+    # es gris claro: neutro a proposito, para que la estructura se lea sin
+    # competir con los tres colores que si significan algo.
+    #
+    # `analogy` era `#4ade80`, el MISMO verde que los nodos-tactica. Una
+    # arista verde y un nodo verde que quieren decir cosas distintas es peor
+    # que un color feo. Pasa a salmon, que no lo usa ningun nodo.
+    for kind, color, alpha in [
+            ("dep", COLOR_SUBRED["arista_dependencia"], 0.9),
+            ("trans", COLOR_SUBRED["arista_traduccion"], 0.85),
+            ("analogy", COLOR_SUBRED["arista_analogia"], 0.9)]:
         elist = [(u, v) for u, v, d in SG.edges(data=True)
                  if d.get("kind") == kind and u in pos and v in pos]
         if elist:
@@ -2087,22 +2166,60 @@ def fig_proof_trace(query: str):
 
     nx.draw_networkx_nodes(SG, pos, ax=ax,
                            node_color=node_colors, node_size=node_sizes,
-                           edgecolors=["#ffffff" if c == "#fbbf24" else c
-                                       for c in node_colors],
+                           edgecolors=[
+                               "#ffffff"
+                               if c == COLOR_SUBRED["nodo_activado"] else c
+                               for c in node_colors],
                            linewidths=1.8)
 
+    # LAS ETIQUETAS, DEBAJO DEL NODO Y SOBRE SU PROPIA CAJA.
+    #
+    # Iban CENTRADAS en el nodo y en gris claro, asi que sobre el nodo dorado
+    # —justo el mas importante, el que engancho la consulta— quedaban gris
+    # sobre amarillo: ilegibles. Es el mismo fallo de contraste que las
+    # aristas oscuras, del reves.
+    #
+    # Debajo y con caja: asi el texto va siempre claro sobre el fondo de la
+    # pagina y no depende del color del nodo, que cambia con su papel.
     labels = {n: G.nodes[n]["name"] for n in SG.nodes() if n in pos}
-    nx.draw_networkx_labels(SG, pos, labels, ax=ax, font_size=7, font_color=FG)
+    pos_etq = {n: (x, y - 0.42) for n, (x, y) in pos.items()}
+    nx.draw_networkx_labels(
+        SG, pos_etq, labels, ax=ax, font_size=7,
+        font_color=COLOR_SUBRED["texto"],
+        bbox=dict(boxstyle="round,pad=0.22", facecolor=BG,
+                  edgecolor="none", alpha=0.82),
+    )
 
     # Líneas divisoras de nivel
     if pos:
-        x_min = min(p[0] for p in pos.values()) - 1.8
+        x_min = min(p[0] for p in pos.values()) - 4.0
+        # LA FILA L3 NO TENIA ROTULO, y ahi caen las sub-ramas — los nodos
+        # mas especificos del grafo, que son justo los que mejor contestan a
+        # una consulta concreta. `Yoneda Lemma` aparecia solo, debajo de las
+        # tacticas, sin nada que dijera que fila era.
         for lvl, lbl, clr in [(0, "L0 — Fundamentos", "#ef5350"),
                                (1, "L1 — Dominios", "#42a5f5"),
-                               (2, "L2 — Tácticas / Estrategias", "#f48fb1")]:
+                               (2, "L2 — Tácticas / Estrategias", "#f48fb1"),
+                               (3, "L3 — Sub-ramas", "#80cbc4")]:
+            if not any(level_of.get(n) == lvl for n in SG.nodes()):
+                continue
             y = y_of.get(lvl, -lvl * 2.0)
             ax.axhline(y=y + 0.9, color=clr, alpha=0.12, lw=0.8, linestyle="--")
             ax.text(x_min, y, lbl, color=clr, fontsize=7, alpha=0.75, va="center")
+
+    # LOS LIMITES, A MANO Y CON SITIO PARA LO QUE CUELGA DEL DIBUJO.
+    #
+    # Con el encuadre automatico de matplotlib se perdian dos cosas: las
+    # etiquetas de la fila de abajo —las tacticas— caian fuera del lienzo y
+    # salian nodos verdes SIN NOMBRE, y los rotulos de nivel de la izquierda
+    # aparecian cortados por la mitad («Fundamentos» en vez de «L0 —
+    # Fundamentos»). Las dos veces el dibujo se veia bien y faltaba
+    # informacion, que es la forma mas silenciosa de estar mal.
+    if pos:
+        xs = [p[0] for p in pos.values()]
+        ys = [p[1] for p in pos.values()]
+        ax.set_xlim(min(xs) - 4.2, max(xs) + 1.6)
+        ax.set_ylim(min(ys) - 1.3, max(ys) + 1.1)
 
     q_short = query[:55] + ("…" if len(query) > 55 else "")
     ax.set_title(f'Subred activada: "{q_short}"', color=FG, fontsize=10, pad=10)
@@ -2112,12 +2229,16 @@ def fig_proof_trace(query: str):
     n_tacs = len([n for n in needed if G.nodes[n].get("cat") in TACTIC_CATS])
     ax.legend(
         handles=[
-            mpatches.Patch(color="#fbbf24", label=f"Skills activados ({len(matched)})"),
-            mpatches.Patch(color="#818cf8", label=f"Dependencias ({n_deps})"),
-            mpatches.Patch(color="#4ade80", label=f"Tácticas / Estrategias ({n_tacs})"),
+            mpatches.Patch(color=COLOR_SUBRED["nodo_activado"],
+                           label=f"Skills activados ({len(matched)})"),
+            mpatches.Patch(color=COLOR_SUBRED["nodo_dependencia"],
+                           label=f"Dependencias ({n_deps})"),
+            mpatches.Patch(color=COLOR_SUBRED["nodo_tactica"],
+                           label=f"Tácticas / Estrategias ({n_tacs})"),
         ],
-        loc="lower right", fontsize=7,
-        facecolor="#161b22", edgecolor="#30363d", labelcolor=FG,
+        loc="upper left", fontsize=7, framealpha=0.92,
+        facecolor="#161b22", edgecolor="#30363d",
+        labelcolor=COLOR_SUBRED["texto"],
     )
 
     # ── Jerarquía textual derecha ───────────────────────────────────
@@ -2156,13 +2277,14 @@ def fig_proof_trace(query: str):
             name = G.nodes[n]["name"]
             cat  = G.nodes[n].get("cat", "")
             pfx  = "▶" if cat == "Tácticas Lean" else "◆"
-            clr  = "#f48fb1" if cat == "Tácticas Lean" else "#fff59d"
+            clr  = (COLOR_SUBRED["texto_tactica"] if cat == "Tácticas Lean"
+                    else COLOR_SUBRED["texto_estrategia"])
             ax2.text(0.08, y, f"{pfx} {name}",
                      transform=ax2.transAxes, color=clr, fontsize=7.5)
             y -= 0.042
 
     fig.tight_layout()
-    return fig, len(matched), len(needed)
+    return fig, len(matched), len(needed), procedencia
 
 
 # ─── INTERFAZ STREAMLIT ───────────────────────────────────────────────────────
@@ -2368,7 +2490,7 @@ with tab4:
                 matched_info = list(_vd4["matched_skills"])
                 G_tmp = _graph_live(_vd4)
             else:
-                matched_info = match_skills(_cq)
+                matched_info, _proc = match_skills(_cq)
                 G_tmp = build_graph()
             st.markdown(
                 f"Para la consulta activa, el sistema identificó **{len(matched_info)} skills** "
@@ -2489,7 +2611,7 @@ with tab6:
     # busca el patron `"Tests", "N", "M suites"` con una regex, y un f-string
     # no encaja, asi que el test pasaba a saltarse en silencio. Una cifra
     # viva que apaga su propio control es peor que una literal vigilada.
-    col3.metric("Tests", "1094", "53 suites")
+    col3.metric("Tests", "1115", "55 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
@@ -2551,21 +2673,89 @@ with tab7:
 
     if (run_trace or _auto_run) and query_input and query_input.strip():
         with st.spinner("Calculando subred de skills activada..."):
-            fig, n_act, n_total = fig_proof_trace(query_input.strip())
+            fig, n_act, n_total, procedencia = fig_proof_trace(
+                query_input.strip())
         st.pyplot(fig, width="stretch")
         plt.close(fig)
 
         st.caption(
             f"**{n_act}** skills directamente activados · "
             f"**{n_total}** nodos en la subred total (dependencias + tácticas) · "
-            f"Aristas: gris=dependencia, azul=traducción, verde=analogía"
+            f"Aristas: gris=dependencia, azul=traducción, salmón=analogía"
         )
+
+        # ── DE DONDE SALE ESTA SUBRED ────────────────────────────────────
+        #
+        # Lo primero que hay que decir, y antes iba sin decir: la pagina caia
+        # a un mapa de palabras clave propio cuando no reconocia la consulta,
+        # asi que el alumno podia estar viendo una subred que el sistema no
+        # calculo nunca — y creyendo que si.
+        if procedencia == "chat":
+            st.success(
+                "**Ésta es tu consulta del chat.** Son exactamente los nodos "
+                "que el sistema usó para responderte, no una reconstrucción."
+            )
+        elif procedencia == "emparejador":
+            st.info(
+                "**Consulta nueva.** Se la ha preguntado al emparejador real "
+                "del núcleo — el mismo código que corre en el chat— así que "
+                "esto es lo que el sistema haría con este texto."
+            )
+        else:
+            st.warning(
+                "**Simulación.** El núcleo no está arrancado, así que esta "
+                "subred sale de un mapa de palabras clave de esta página y "
+                "**no** de lo que el sistema haría. Sirve para ver la forma "
+                "del grafo, no para sacar conclusiones."
+            )
+
         st.info(
-            "★ = skill activado por tu consulta · "
-            "🟡 nodo dorado = skill principal · "
-            "🟣 nodo azul = dependencia requerida · "
+            "🟡 nodo dorado = skill que enganchó tu consulta · "
+            "🟣 nodo índigo = dependencia que hace falta debajo · "
             "🟢 nodo verde = táctica / estrategia Lean"
         )
+
+        # ── LO QUE DE VERDAD LLEGO AL PROMPT ─────────────────────────────
+        #
+        # El dibujo enseña QUE SE ACTIVO. Esto enseña QUE SE OFRECIO, que es
+        # otra cosa y es donde el grafo se juega su medida: de los nodos
+        # enganchados, solo unos pocos ganan una de las plazas del prompt.
+        # Los demas enrutan y se callan — las 33 ramas, por ejemplo, no
+        # aportan ningun nombre por diseño.
+        _vdata = _vd()
+        _nombres = (_vdata or {}).get("nombres_ofrecidos") or {}
+        if procedencia == "chat" and _nombres:
+            st.markdown("#### Lo que el sistema le pasó al modelo")
+            st.caption(
+                "De los nodos de arriba, sólo éstos aportaron vocabulario de "
+                "Mathlib. Es la parte medible: contra ProofNet, estos nombres "
+                "dan 23,9 % de precisión frente al 1,5 % de ofrecer los más "
+                "comunes sin mirar la consulta."
+            )
+            _G_n = build_graph()
+            _filas = []
+            for _sid, _noms in sorted(_nombres.items()):
+                _filas.append({
+                    "nodo": (_G_n.nodes[_sid]["name"]
+                             if _sid in _G_n else _sid),
+                    "id": _sid,
+                    "nombres de Mathlib": _noms,
+                })
+            st.dataframe(_filas, width="stretch", hide_index=True)
+            _mudos = [m for m in match_skills(query_input.strip())[0]
+                      if m not in _nombres]
+            if _mudos:
+                st.caption(
+                    "Los otros **%d** nodos enganchados no aportaron nombre: "
+                    "enrutan la consulta hacia sus hijos y se callan. Que un "
+                    "nodo se active no significa que hable."
+                    % len(_mudos)
+                )
+        elif procedencia == "chat":
+            st.caption(
+                "En esta consulta **ningún** nodo aportó nombres de Mathlib: "
+                "el grafo enrutó, pero el prompt salió sin vocabulario suyo."
+            )
 
 # ── Tab 8: Agentes ─────────────────────────────────────────────────────────────
 with tab8:

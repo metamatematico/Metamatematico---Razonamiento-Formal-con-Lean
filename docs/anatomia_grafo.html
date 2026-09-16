@@ -201,7 +201,7 @@ svg .ln{stroke:var(--muted);fill:none}
     <li><a href="#procedencia">Procedencia: 205 y 147</a></li>
     <li><a href="#objetos">Los objetos: cinco sorts</a></li>
     <li><a href="#pilares">Los diez fundacionales</a></li>
-    <li><a href="#curados">Los 190 conceptos curados</a></li>
+    <li><a href="#curados">Los 189 conceptos curados</a></li>
     <li><a href="#derivados">Los 147 leídos de Mathlib</a></li>
     <li><a href="#flechas">Las flechas, una por una</a></li>
     <li><a href="#vocabulario">El vocabulario</a></li>
@@ -213,8 +213,8 @@ svg .ln{stroke:var(--muted);fill:none}
     <li><a href="#construir">Cómo se construye</a></li>
   </ol>
   <p class="toc-f">
-    352 objetos · 1578 morfismos<br>
-    205 curados · 147 derivados<br>
+    353 objetos · 1585 morfismos<br>
+    206 curados · 147 derivados<br>
     4676 palabras clave<br>
     217 nombres de Mathlib<br>
     0 ciclos de dependencia
@@ -224,7 +224,7 @@ svg .ln{stroke:var(--muted);fill:none}
 <main>
   <header class="hero">
     <p class="hero-k"><span class="dot"></span>El grafo de conocimiento, en detalle</p>
-    <h1>352 objetos, 1 578 flechas, y de dónde sale <em>cada una</em></h1>
+    <h1>353 objetos, 1 585 flechas, y de dónde sale <em>cada una</em></h1>
     <p class="lede">Es el grafo que <strong>Metamatemático</strong> consulta
     para convertir una pregunta en castellano o en inglés en un enunciado de
     Lean&nbsp;4 que el kernel pueda verificar. Ocupa las tres capas que actúan
@@ -247,9 +247,9 @@ svg .ln{stroke:var(--muted);fill:none}
   <section id="que">
     <div class="head"><span class="num">01</span><h2>Qué es, y qué no es</h2></div>
 
-    <p>Es una <strong>categoría finita</strong>: 352 objetos, 1 578 morfismos,
+    <p>Es una <strong>categoría finita</strong>: 353 objetos, 1 585 morfismos,
     identidad en cada objeto y composición por transitividad. No es un grafo de
-    etiquetas al que se le llame categoría — las 352 identidades están
+    etiquetas al que se le llame categoría — las 353 identidades están
     explícitas porque la definición las exige, y el constructor rechaza
     morfismos mal tipados.</p>
 
@@ -264,7 +264,7 @@ svg .ln{stroke:var(--muted);fill:none}
     <div class="nota v">
       <b>Lo que NO es</b>
       <p><strong>No es el grafo de Mathlib.</strong> Mathlib son 7 747 módulos y
-      21 378 aristas de import; aquí hay 352 objetos. Los 125 nodos de módulo
+      21 378 aristas de import; aquí hay 353 objetos. Los 125 nodos de módulo
       que sí vienen de Mathlib son una selección por umbral de teoremas, no una
       copia reducida.</p>
       <p><strong>No contiene los hechos.</strong> Los 183 433 teoremas y lemas
@@ -281,7 +281,7 @@ svg .ln{stroke:var(--muted);fill:none}
       <b>Se puede recorrer entero</b>
       <p>Todo lo que describe este documento está en
       <strong><a href="https://claude.ai/code/artifact/eeb735d8-9854-490b-91e1-53c2ff9bad09">el
-      explorador interactivo</a></strong>: los 352 nodos con su ficha completa,
+      explorador interactivo</a></strong>: los 353 nodos con su ficha completa,
       filtro por sort y área, búsqueda por identificador, nombre o palabra
       clave, y las dos vecindades de cada nodo navegables.</p>
     </div>
@@ -296,7 +296,7 @@ svg .ln{stroke:var(--muted);fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Reparto de los 352 objetos del grafo por procedencia. 205 son nuestros, escritos a mano: 190 conceptos con veredicto categórico, 9 tácticas y 6 estrategias, y ninguno lleva campo origen. 147 vienen de Mathlib: 125 nodos de módulo con origen igual a mathlib y 22 nodos de área con origen igual a jerarquia-mathlib, y los dos grupos van marcados interpretado igual a False porque nadie los ha leído categóricamente. Debajo, el mismo reparto aplicado a las flechas: de los 1226 morfismos que no son identidades, 813 van enteramente entre nodos nuestros, 288 salen de un nodo nuestro hacia uno de Mathlib o al revés, y 125 son internas a los nodos de Mathlib y reproducen su anidamiento de módulos." viewBox="0 0 1000 320" style="min-width:660px">
+<svg role="img" aria-label="Reparto de los 353 objetos del grafo por procedencia. 205 son nuestros, escritos a mano: 189 conceptos con veredicto categórico, 9 tácticas y 6 estrategias, y ninguno lleva campo origen. 147 vienen de Mathlib: 125 nodos de módulo con origen igual a mathlib y 22 nodos de área con origen igual a jerarquia-mathlib, y los dos grupos van marcados interpretado igual a False porque nadie los ha leído categóricamente. Debajo, el mismo reparto aplicado a las flechas: de los 1226 morfismos que no son identidades, 813 van enteramente entre nodos nuestros, 288 salen de un nodo nuestro hacia uno de Mathlib o al revés, y 125 son internas a los nodos de Mathlib y reproducen su anidamiento de módulos." viewBox="0 0 1000 320" style="min-width:660px">
   <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">LOS 352 OBJETOS</text>
 
   <rect x="16" y="30" width="556" height="42" rx="7" fill="var(--nuestro)" opacity=".92"/>
@@ -453,7 +453,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Alcance de cada uno de los diez nodos fundacionales, medido siguiendo flechas hacia delante sin límite de saltos, sobre un total de 352 nodos. fol-deduction alcanza 351, es decir todo el grafo salvo él mismo. zfc-axioms alcanza 315. cat-basics 48, functors 37, cic 31, fol-metatheory 22, lean-kernel 20, limits 9, y ordinals y nat-trans 7 cada uno. La lectura es que la lógica de primer orden es la raíz efectiva del grafo entero, y lo es por una sola arista curada que va de fol-deduction a zfc-axioms." viewBox="0 0 1000 270" style="min-width:620px">
+<svg role="img" aria-label="Alcance de cada uno de los diez nodos fundacionales, medido siguiendo flechas hacia delante sin límite de saltos, sobre un total de 353 nodos. fol-deduction alcanza 351, es decir todo el grafo salvo él mismo. zfc-axioms alcanza 315. cat-basics 48, functors 37, cic 31, fol-metatheory 22, lean-kernel 20, limits 9, y ordinals y nat-trans 7 cada uno. La lectura es que la lógica de primer orden es la raíz efectiva del grafo entero, y lo es por una sola arista curada que va de fol-deduction a zfc-axioms." viewBox="0 0 1000 270" style="min-width:620px">
   <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">NODOS QUE ALCANZA · SOBRE 352</text>
   <line x1="228" y1="26" x2="228" y2="230" stroke="var(--border)" stroke-width="1"/>
   <line x1="452" y1="26" x2="452" y2="230" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
@@ -501,7 +501,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
 </svg>
       </div>
       <figcaption><b>Fig. 2 —</b> Alcance de los pilares.
-      <code>fol-deduction</code> llega a 351 de 352 nodos: la lógica de primer
+      <code>fol-deduction</code> llega a 351 de 353 nodos: la lógica de primer
       orden es la raíz efectiva del grafo entero.</figcaption>
     </figure>
 
@@ -535,29 +535,37 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
   </section>
 
   <section id="curados">
-    <div class="head"><span class="num">05</span><h2>Los 190 conceptos <span class="g">curados</span></h2></div>
+    <div class="head"><span class="num">05</span><h2>Los 189 conceptos <span class="g">curados</span></h2></div>
 
-    <p>Son los que llevan veredicto categórico y los únicos que aportan
-    vocabulario de Mathlib al prompt. Su reparto por área dice dónde está
-    trabajada la ontología y dónde no:</p>
+    <p>Son los que llevan veredicto categórico. Su reparto por área dice
+    dónde está trabajada la ontología y dónde no.</p>
+
+    <p>La columna <strong>ramas</strong> es la que cambió con el veredicto
+    sobre las 48: <strong>33 de los 189</strong> no son conceptos sino
+    <em>estructura de enrutamiento</em> — marca <code>T</code>, porque no son
+    objetos, y rol <code>rama</code>, porque sí reparten consultas hacia sus
+    hijos. Antes esas dos cosas compartían columna y el nodo se contradecía
+    solo. <strong>Una rama no toma nombre nunca</strong>: si el índice
+    encuentra un objeto bajo ella, baja a hijo; si lo que encuentra es un
+    funtor, entra como evidencia.</p>
 
     <div class="tabla">
       <table>
-        <thead><tr><th>área</th><th class="mono">nodos</th><th>algunos de ellos</th></tr></thead>
+        <thead><tr><th>área</th><th class="mono">nodos</th><th class="mono">de ellos ramas</th><th>algunos de ellos</th></tr></thead>
         <tbody>
-          <tr><td><strong>algebra</strong></td><td class="mono">35</td><td class="mono">abelian-groups · bilinear-forms · canonical-forms · character-theory · commutative-algebra · derived-category</td></tr>
-          <tr><td><strong>analysis</strong></td><td class="mono">20</td><td class="mono">banach-spaces · complex-analysis · conformal-maps · contour-integration · differentiation · functional-analysis</td></tr>
-          <tr><td><strong>geometry</strong></td><td class="mono">14</td><td class="mono">affine-varieties · algebraic-geometry · circle-geometry · complex-geometry · differential-forms</td></tr>
-          <tr><td><strong>number-theory</strong></td><td class="mono">14</td><td class="mono">algebraic-number-theory · analytic-number-theory · arithmetic-geometry · diophantine-equations · divisibility-gcd</td></tr>
-          <tr><td><strong>combinatorics</strong></td><td class="mono">12</td><td class="mono">algebraic-combinatorics · enumerative-combinatorics · extremal-combinatorics · generating-functions · graph-theory</td></tr>
-          <tr><td><strong>topology</strong></td><td class="mono">11</td><td class="mono">algebraic-topology · compactness · connectedness · covering-spaces · differential-topology · fundamental-group</td></tr>
-          <tr><td><em>(los fundacionales)</em></td><td class="mono">10</td><td class="mono">cat-basics · cic · fol-deduction · fol-metatheory · functors · lean-kernel · limits · nat-trans · ordinals · zfc-axioms</td></tr>
-          <tr><td><strong>probability</strong></td><td class="mono">9</td><td class="mono">brownian-motion · conditional-expectation · ergodic-theory · limit-theorems · markov-chains · martingale-theory</td></tr>
-          <tr><td><strong>category-theory</strong></td><td class="mono">9</td><td class="mono">abelian-categories · adjunctions · higher-category-theory · kan-extensions · monads</td></tr>
-          <tr><td><strong>computation</strong></td><td class="mono">8</td><td class="mono">algorithm-analysis · computability-theory · computational-complexity · lambda-calculus · np-completeness</td></tr>
-          <tr><td><strong>logic</strong></td><td class="mono">7</td><td class="mono">compactness-theorem · homotopy-type-theory · incompleteness · model-theory · proof-theory · sequent-calculus</td></tr>
-          <tr><td><strong>optimization</strong></td><td class="mono">5</td><td class="mono">convex-optimization · discrete-optimization · duality-theory · linear-programming · variational-methods</td></tr>
-          <tr><td><strong>set-theory</strong></td><td class="mono">4</td><td class="mono">cardinal-arithmetic · descriptive-set-theory · forcing · large-cardinals</td></tr>
+          <tr><td><strong>algebra</strong></td><td class="mono">43</td><td class="mono">1</td><td class="mono">abelian-groups · bases-and-dimension · bilinear-forms · canonical-forms · character-modules</td></tr>
+          <tr><td><strong>analysis</strong></td><td class="mono">22</td><td class="mono">3</td><td class="mono">banach-spaces · complex-analysis · conformal-maps · contour-integration · differentiation</td></tr>
+          <tr><td><strong>geometry</strong></td><td class="mono">21</td><td class="mono">1</td><td class="mono">affine-varieties · algebraic-geometry · circle-geometry · collinearity-coplanarity · complex-geometry</td></tr>
+          <tr><td><strong>number-theory</strong></td><td class="mono">17</td><td class="mono">5</td><td class="mono">algebraic-number-theory · analytic-number-theory · arithmetic-geometry · diophantine-equations · divisibility-gcd</td></tr>
+          <tr><td><strong>combinatorics</strong></td><td class="mono">14</td><td class="mono">7</td><td class="mono">algebraic-combinatorics · enumerative-combinatorics · extremal-combinatorics · extremal-graphs · generating-functions</td></tr>
+          <tr><td><strong>computation</strong></td><td class="mono">13</td><td class="mono">5</td><td class="mono">algorithm-analysis · computability-theory · computational-complexity · finite-automata · formal-languages</td></tr>
+          <tr><td><strong>topology</strong></td><td class="mono">12</td><td class="mono">0</td><td class="mono">algebraic-topology · compactness · connectedness · covering-spaces · differential-topology</td></tr>
+          <tr><td><strong>probability</strong></td><td class="mono">11</td><td class="mono">1</td><td class="mono">brownian-motion · conditional-expectation · ergodic-theory · flows · limit-theorems</td></tr>
+          <tr><td><strong>category-theory</strong></td><td class="mono">9</td><td class="mono">2</td><td class="mono">abelian-categories · adjunctions · higher-category-theory · homological-algebra-cat · kan-extensions</td></tr>
+          <tr><td><em>(los fundacionales)</em></td><td class="mono">8</td><td class="mono">0</td><td class="mono">cat-basics · cic · fol-deduction · fol-metatheory · functors</td></tr>
+          <tr><td><strong>logic</strong></td><td class="mono">7</td><td class="mono">3</td><td class="mono">compactness-theorem · homotopy-type-theory · incompleteness · model-theory · proof-theory</td></tr>
+          <tr><td><strong>set-theory</strong></td><td class="mono">7</td><td class="mono">1</td><td class="mono">cardinals · descriptive-set-theory · forcing · hereditarily-finite-sets · large-cardinals</td></tr>
+          <tr><td><strong>optimization</strong></td><td class="mono">5</td><td class="mono">4</td><td class="mono">convex-optimization · discrete-optimization · duality-theory · linear-programming · variational-methods</td></tr>
         </tbody>
       </table>
     </div>
@@ -575,7 +583,7 @@ nivel 3   <b> 96</b>   las sub-ramas</pre>
       aquí.</p>
     </div>
 
-    <p><strong>44 de los 190 conceptos no aportan ningún nombre de
+    <p><strong>44 de los 189 conceptos no aportan ningún nombre de
     Mathlib</strong> — <code>analytic-number-theory</code>,
     <code>computability-theory</code>, <code>convex-optimization</code>,
     <code>enumerative-combinatorics</code>… Existen como concepto, se pueden
@@ -659,8 +667,8 @@ area-measuretheory     6 · 11</pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Desglose de los 1578 morfismos del grafo por tipo y por procedencia. Las 684 dependencias se reparten en 257 curadas a mano sin metadatos de construcción, 288 derivadas de la jerarquía de módulos de Mathlib, 125 de cobertura que cosen los nodos generados a su área, y 14 con una construcción matemática nombrada explícitamente como localización, colapso, cadenas singulares u homología. Las 535 traducciones son sólo 4 traducciones reales entre pilares; las otras 531 son aristas de concepto a táctica, cada una con una cuota medida sobre Mathlib que dice qué porcentaje de las pruebas de esa área usan esa táctica. Las 7 analogías son correspondencias débiles marcadas explícitamente como tales. Y las 352 identidades son una por objeto, como exige la definición de categoría." viewBox="0 0 1000 400" style="min-width:680px">
-  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">DEPENDENCY · 684 — el orden del grafo</text>
+<svg role="img" aria-label="Desglose de los 1585 morfismos del grafo por tipo y por procedencia. Las 687 dependencias se reparten en 257 curadas a mano sin metadatos de construcción, 288 derivadas de la jerarquía de módulos de Mathlib, 125 de cobertura que cosen los nodos generados a su área, y 14 con una construcción matemática nombrada explícitamente como localización, colapso, cadenas singulares u homología. Las 538 traducciones son sólo 4 traducciones reales entre pilares; las otras 531 son aristas de concepto a táctica, cada una con una cuota medida sobre Mathlib que dice qué porcentaje de las pruebas de esa área usan esa táctica. Las 7 analogías son correspondencias débiles marcadas explícitamente como tales. Y las 353 identidades son una por objeto, como exige la definición de categoría." viewBox="0 0 1000 400" style="min-width:680px">
+  <text class="m d" x="16" y="16" font-size="10.5" letter-spacing="1.3">DEPENDENCY · 687 — el orden del grafo</text>
   <rect x="16" y="28" width="364" height="34" rx="6" fill="var(--nuestro)" opacity=".9"/>
   <text x="30" y="50" font-size="12" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">curadas a mano · 257</text>
   <rect x="384" y="28" width="408" height="34" rx="6" fill="var(--mathlib)" opacity=".82"/>
@@ -963,9 +971,9 @@ tactic-omega         7                real-analysis     16</pre>
         <thead><tr><th>qué se mide del grafo</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
           <tr><td><strong>El vocabulario que inyecta</strong><span class="sub">371 ejercicios de ProofNet con formalización de oro, k=2</span></td><td class="mono">23,9 % precisión<br>16,5 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">15,7× · aporta</span></td></tr>
-          <tr><td><strong>Sus dependencias <em>curadas</em></strong><span class="sub">153 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">111 confirmadas<br>72,5 %</td><td class="mono">30,7 %</td><td><span class="pill v">2,36× · aporta</span></td></tr>
+          <tr><td><strong>Sus dependencias <em>curadas</em></strong><span class="sub">151 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">109 confirmadas<br>72,2 %</td><td class="mono">30,7 %</td><td><span class="pill v">2,35× · aporta</span></td></tr>
           <tr><td><strong>Su costura de <em>cobertura</em></strong><span class="sub">9 aristas <code>skill→módulo</code> medibles contra el mismo DAG</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
-          <tr><td><strong>El vocabulario, sobre Mathlib entero</strong><span class="sub">53 613 docstrings limpios — dónde el grafo tiene nodo y dónde no</span></td><td class="mono">5,0 % precisión<br>2,3 % cobertura</td><td class="mono">0,3 %<br>0,5 %</td><td><span class="pill v">19,0× · aporta</span></td></tr>
+          <tr><td><strong>El vocabulario, sobre Mathlib entero</strong><span class="sub">53 613 docstrings limpios — dónde el grafo tiene nodo y dónde no</span></td><td class="mono">5,0 % precisión<br>2,2 % cobertura</td><td class="mono">0,3 %<br>0,5 %</td><td><span class="pill v">19,0× · aporta</span></td></tr>
           <tr><td><strong>El vocabulario, contra Herald</strong><span class="sub">43 856 enunciados reescritos por otro sistema · el control independiente</span></td><td class="mono">10,3 % precisión<br>6,9 % cobertura</td><td class="mono">1,2 %<br>2,2 %</td><td><span class="pill v">8,8× · aporta</span></td></tr>
           <tr><td><strong>El área que acierta</strong><span class="sub">3 000 consultas etiquetadas · exactitud equilibrada</span></td><td class="mono">40,9 %</td><td class="mono">33,3 %</td><td><span class="pill">+7,6 · por encima del azar</span></td></tr>
           <tr><td><strong>Su cobertura de Mathlib</strong><span class="sub">teoremas alcanzados por concepto</span></td><td class="mono">137 476<br>de 173 636</td><td class="mono">—</td><td><span class="pill">79,2 %</span></td></tr>
@@ -1013,7 +1021,7 @@ tactic-omega         7                real-analysis     16</pre>
       consultas de fundamentos</strong>, así que el beneficio no se puede
       medir. Riesgo de regresión, cero; beneficio, no medido.</li>
 
-      <li><strong>44 de los 190 conceptos no aportan ningún nombre de
+      <li><strong>44 de los 189 conceptos no aportan ningún nombre de
       Mathlib.</strong> Abren el cono de su área pero no llevan vocabulario
       verificado al prompt, que es la contribución medida del grafo.</li>
 
@@ -1065,7 +1073,7 @@ tactic-omega         7                real-analysis     16</pre>
       <table>
         <thead><tr><th class="mono">fichero</th><th>qué aporta</th></tr></thead>
         <tbody>
-          <tr><td class="mono">nucleo/pillars/math_domains.py</td><td>los 205 nodos curados, sus dependencias, las traducciones entre pilares y las 531 aristas a tácticas con su cuota</td></tr>
+          <tr><td class="mono">nucleo/pillars/math_domains.py</td><td>los 206 nodos curados, sus dependencias, las traducciones entre pilares y las 531 aristas a tácticas con su cuota</td></tr>
           <tr><td class="mono">nucleo/pillars/mathlib_taxonomy.py</td><td>los 125 nodos de módulo — <strong>generado, no se edita a mano</strong></td></tr>
           <tr><td class="mono">nucleo/pillars/areas.py</td><td>los 22 nodos de área, y el mapa categoría → área → sort</td></tr>
           <tr><td class="mono">nucleo/graph/category.py</td><td>la categoría: objetos, morfismos, identidades, composición y el tipado que rechaza aristas mal formadas</td></tr>

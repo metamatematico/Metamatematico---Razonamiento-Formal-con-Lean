@@ -202,6 +202,17 @@ def medir(filas, k: int) -> dict:
     return res
 
 
+
+def _huella_medida():
+    """La huella del grafo que este banco acaba de usar.
+
+    Se recalcula en vez de recibirse para que no dependa de que el llamante se
+    acuerde de pasarla: un dato de procedencia que hay que recordar poner es
+    un dato que algun dia falta.
+    """
+    from nucleo.graph.huella import huella_viva
+    return huella_viva()
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--tanda", action="store_true",
@@ -252,6 +263,8 @@ def main() -> int:
     io.open(SALIDA, "w", encoding="utf-8").write(json.dumps(
         {"ambito": "tanda" if args.tanda else "herald-entero", "k": args.k,
          "filas": len(filas), "descartes": desc, "resultados": res,
+         # la huella del grafo medido: ver nucleo/graph/huella.py
+         "grafo": _huella_medida(),
          "muestra": filas[:20]}, ensure_ascii=False, indent=2))
     print("\n-> %s" % SALIDA)
     return 0

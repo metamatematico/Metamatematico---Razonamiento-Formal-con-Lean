@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1094_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1115_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-353_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -181,7 +181,7 @@ de su área, y a volumen igualado pierde. Está medido en §7 del reporte.
 | nodos curados | 206 | con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos» |
 | nodos de área | 22 | la **puerta de entrada**: `Algebra`, `Topology`, `OrderTheory`… Entrar por una poda a 10 nodos de mediana |
 | nodos generados | 125 | leídos de la taxonomía de Mathlib. Dicen *dónde vive* algo, no qué es. Marcados `interpretado=False` |
-| dependencias | 684 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
+| dependencias | 687 | prerrequisitos, y **acíclicas**: eran 1156 con 4 ciclos, el mayor de 80 nodos |
 | traducciones | 538 | entre pilares — Curry-Howard, conjuntos↔categorías |
 | analogías | 7 | correspondencias débiles, marcadas como tales |
 | identidades | 353 | una por objeto, como exige la definición de categoría |
@@ -257,6 +257,36 @@ división en ramas deja de funcionar.**
 > queda entrelazado. **La descomposición en ramas no es recuperable de las
 > dependencias** — el orden de construcción no respeta la frontera entre
 > álgebra, topología y análisis.
+
+### Lo que ve el alumno de su propia consulta
+
+En *Visualizaciones → Traza*, el alumno ve **el subgrafo que el sistema asignó
+a la consulta que acaba de hacer en el chat**: qué nodos enganchó, de qué
+dependen y a qué tácticas de Lean llegan.
+
+Dos cosas que la vista dice en voz alta y antes callaba:
+
+**De dónde sale la subred.** Son tres casos y no dan igual, así que van
+etiquetados: *tu consulta del chat* —los nodos exactos que se usaron para
+responder—, *consulta nueva* —se le pregunta al emparejador real del núcleo— o
+*simulación* —el núcleo no está arrancado y sale de un mapa de palabras de la
+propia página—. Antes caía al tercer caso en silencio, así que se podía estar
+mirando una subred que el sistema no calculó nunca.
+
+**Qué llegó al prompt.** El dibujo enseña qué se *activó*; debajo hay una tabla
+con qué se *ofreció*, que es otra cosa y es donde el grafo se juega su medida.
+De los nodos enganchados sólo unos pocos ganan una de las plazas del prompt:
+los demás enrutan y se callan — las 33 ramas, por diseño, no aportan ningún
+nombre. Que un nodo se active no significa que hable.
+
+> **Colores.** El fondo es casi negro, así que un color oscuro no queda feo:
+> desaparece. `tests/test_contraste_visualizaciones.py` exige 3,0:1 contra el
+> fondo —el mínimo de WCAG para gráficos—, que ninguna arista repita el color
+> de un nodo, y que la figura no escriba colores sueltos fuera de la paleta.
+> Cazó tres fallos al estrenarse: las aristas de dependencia iban a 2,51:1
+> —las más numerosas, o sea que la estructura era lo que peor se veía—, las de
+> analogía usaban el mismo verde que los nodos-táctica, y las etiquetas se
+> dibujaban centradas sobre el nodo, ilegibles sobre el dorado.
 
 ---
 
@@ -354,7 +384,7 @@ lo mismo acierta el 79 %.
 | qué | resultado | modelo nulo | veredicto |
 |---|---|---|---|
 | Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 23,9 % precisión<br>16,5 % cobertura | 1,45 %<br>3,3 % | **15,7× · aporta** |
-| Dependencias **curadas** contra el DAG real<br><sub>153 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 72,5 % confirmadas<br><sub>111/153</sub> | 30,7 %<br><sub>nulo emparejado</sub> | **2,36× · aporta** |
+| Dependencias **curadas** contra el DAG real<br><sub>151 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 72,2 % confirmadas<br><sub>109/151</sub> | 30,7 %<br><sub>nulo emparejado</sub> | **2,35× · aporta** |
 | Costura de **cobertura** contra el DAG<br><sub>9 aristas `skill→módulo` medibles</sub> | 100 % confirmadas<br><sub>9/9</sub> | **100 %** | **1,00× · no dice nada** |
 | Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
@@ -626,7 +656,7 @@ python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
 
 ## 7. Tests y guardianes
 
-**1094 tests en 53 suites.** Los que más valen no comprueban que el código
+**1115 tests en 55 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -636,10 +666,39 @@ funcione, sino que **no vuelva a mentir**:
 | `test_domain_tactic_pipeline` | que el prior del área vuelva a adelantar al objetivo |
 | rutas absolutas | que un `except` mudo degrade el sistema en silencio |
 | cifras declaradas | que la documentación anuncie números que ya no son ciertos |
+| `test_alineacion` | que las piezas dejen de decir lo mismo entre sí |
 
 ```bash
 python -m pytest tests/ -o "addopts="
 ```
+
+### El auditor de alineación
+
+Los tests comprueban que **cada pieza cumple su contrato**. Eso no basta:
+`FUSIONES` llegó a declarar ocho fusiones con **cero aplicadas** —las ocho
+seguían siendo nodo vivo— y ningún test falló, porque la tabla declaraba bien
+y el grafo cargaba bien. Nadie preguntaba si una cosa correspondía con la otra.
+
+```bash
+python -m scripts.alineacion
+```
+
+Siete comprobaciones, y dos distinciones que las hacen usables:
+
+- **historia vs referencia viva.** Un id retirado en prosa es trazabilidad y se
+  queda; en un `dict` que alguien consulta, está roto. Lo separa parseando con
+  `ast`, no con `grep`.
+- **fallo vs aviso.** `homology` también es una palabra del emparejador, no
+  sólo una etiqueta retirada. Un auditor que se dispara con código correcto
+  entrena a ignorarlo.
+
+La séptima es la que más dura: **cada medición escribe la huella del grafo que
+midió**. `banco_herald.json` decía «10,3 % de precisión» y la documentación lo
+citaba como la cifra de hoy; se había medido sobre un grafo de 352 nodos que
+todavía tenía tres que ya no existen. Ni el fichero ni la documentación mentían
+por separado — faltaba la pregunta *¿y esto sobre qué grafo?*, que nadie podía
+hacerse porque el dato no estaba escrito. Es la disciplina del modelo nulo una
+vuelta más arriba: **cada cifra con su grafo**.
 
 ---
 
@@ -746,7 +805,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
-tests/                    1094 tests en 53 suites
+tests/                    1115 tests en 55 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

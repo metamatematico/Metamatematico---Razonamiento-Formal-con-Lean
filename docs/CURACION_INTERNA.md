@@ -264,7 +264,7 @@ El caso más fuerte está aquí: **`zfc-axioms` está marcado `T`** y de él sal
 
 | marca | nivel | palabras clave | padres | hijos | hijos que quedarían sueltos |
 |---|---|---:|---|---:|---:|
-| `T` | 3 | 10 | `area-ordertheory`, `real-analysis` | 5 | 0 |
+| `T` | 3 | 10 | `real-analysis` | 5 | 0 |
 
 > El veredicto dijo: «dos nociones; continuidad = ser morfismo»
 

@@ -1,6 +1,11 @@
 {
  "n": 371,
  "k": 2,
+ "grafo": {
+  "nodos": 353,
+  "morfismos": 1585,
+  "hash": "76eb8e1b702025db"
+ },
  "resultados": {
   "lexico": {
    "precision": 23.883696780893043,

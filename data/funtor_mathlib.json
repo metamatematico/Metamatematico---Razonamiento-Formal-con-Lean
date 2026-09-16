@@ -1,27 +1,32 @@
 {
- "medibles": 428,
+ "grafo": {
+  "nodos": 353,
+  "morfismos": 1585,
+  "hash": "76eb8e1b702025db"
+ },
+ "medibles": 429,
  "confirmadas": 260,
- "invertidas": 66,
+ "invertidas": 67,
  "por_clase": {
   "curada": {
-   "medibles": 153,
-   "confirmadas": 111,
+   "medibles": 151,
+   "confirmadas": 109,
    "invertidas": 11,
    "independientes": 31,
-   "tasa_pct": 72.54901960784314,
-   "nulo_pct": 30.74475777295734,
-   "factor": 2.3597199933595263,
-   "pares_del_nulo": 6915
+   "tasa_pct": 72.18543046357617,
+   "nulo_pct": 30.705882352941178,
+   "factor": 2.3508665093501815,
+   "pares_del_nulo": 6800
   },
   "jerarquia": {
-   "medibles": 266,
-   "confirmadas": 140,
-   "invertidas": 55,
+   "medibles": 269,
+   "confirmadas": 142,
+   "invertidas": 56,
    "independientes": 71,
-   "tasa_pct": 52.63157894736842,
-   "nulo_pct": 24.848782082720287,
-   "factor": 2.118074792243767,
-   "pares_del_nulo": 6117
+   "tasa_pct": 52.78810408921933,
+   "nulo_pct": 24.846427416747492,
+   "factor": 2.124575223786017,
+   "pares_del_nulo": 6186
   },
   "cobertura": {
    "medibles": 9,
@@ -35,7 +40,7 @@
   }
  },
  "independientes": 102,
- "azar_pct": 29.921922483519566,
+ "azar_pct": 29.35893001268304,
  "skills_envoltorio_categorico": [
   "cat-basics",
   "mathlib-algebra-category",
@@ -44,10 +49,10 @@
   "module-theory"
  ],
  "sin_envoltorio": {
-  "medibles": 404,
+  "medibles": 405,
   "confirmadas": 242,
-  "invertidas": 65,
-  "azar_pct": 30.398277197057684
+  "invertidas": 66,
+  "azar_pct": 29.82221691922205
  },
  "lista_invertidas": [
   [
@@ -261,6 +266,10 @@
   [
    "area-ringtheory",
    "ideals-quotient-rings"
+  ],
+  [
+   "area-settheory",
+   "cardinals"
   ],
   [
    "area-settheory",

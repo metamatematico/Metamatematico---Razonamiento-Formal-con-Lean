@@ -240,7 +240,9 @@ comparable con la cifra publicada del 78,1 %. `jerarquia` y `cobertura` son
 costuras de etiquetado —pertenencia a una rama, cobertura de un modulo— y el
 DAG de imports no es el juez de ninguna de las dos.""")
 
-json.dump({"medibles": len(aristas), "confirmadas": len(ok), "invertidas": len(inv),
+from nucleo.graph.huella import huella_viva as _huella_viva
+json.dump({"grafo": _huella_viva(),
+           "medibles": len(aristas), "confirmadas": len(ok), "invertidas": len(inv),
            "por_clase": resumen_clases,
            "independientes": len(nada), "azar_pct": 100.0 * base / len(pares),
            "skills_envoltorio_categorico": sorted(cat_skills),

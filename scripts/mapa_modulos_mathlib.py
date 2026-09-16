@@ -255,7 +255,8 @@ def main():
     # random-variables—; las otras 15 ya se alcanzaban y 3 no resuelven nombre.
     # Diez casos de `unknown identifier` garantizado, por un filtro que
     # contestaba a otra pregunta.
-    from nucleo.graph.interpretacion import VEREDICTO, nombres_de_trabajo
+    from nucleo.graph.interpretacion import (
+        VEREDICTO, nombres_de_trabajo, RETIRADAS_DEL_GRAFO)
     invalidos = {"EuclideanGeometry", "Ideal.Quotient", "QuotientGroup",
                  "RelCWComplex", "Turing.TM0", "Turing.TM1"}
     # SE ANOTA LA CAUSA, porque el hueco es curacion y quien lo cure
@@ -263,6 +264,14 @@ def main():
     # se saltaban en silencio y no aparecian en ninguna cuenta.
     por_skill, sin_modulo = {}, []
     for k, e in VEREDICTO.items():
+        # LAS RETIRADAS NO ENTRAN EN EL MAPA. Siguen en `VEREDICTO` a
+        # proposito —el veredicto es un dato editorial y borrar una fila
+        # moveria el recuento publicado del autor— pero este mapa contesta
+        # «que modulo importar para este NODO», y un nodo retirado no se
+        # empareja con ninguna consulta: su entrada seria un import que
+        # nadie puede pedir.
+        if k in RETIRADAS_DEL_GRAFO:
+            continue
         nombres = nombres_de_trabajo(k)
         if not nombres:
             continue
