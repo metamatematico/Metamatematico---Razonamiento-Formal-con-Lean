@@ -2130,7 +2130,7 @@ def fig_proof_trace(query: str):
         cat = G.nodes[n].get("cat", "")
         if n in matched:
             node_colors.append(COLOR_SUBRED["nodo_activado"])
-            node_sizes.append(1119)
+            node_sizes.append(1122)
         elif cat in TACTIC_CATS:
             node_colors.append(COLOR_SUBRED["nodo_tactica"])
             node_sizes.append(650)
@@ -2611,7 +2611,7 @@ with tab6:
     # busca el patron `"Tests", "N", "M suites"` con una regex, y un f-string
     # no encaja, asi que el test pasaba a saltarse en silencio. Una cifra
     # viva que apaga su propio control es peor que una literal vigilada.
-    col3.metric("Tests", "1119", "56 suites")
+    col3.metric("Tests", "1122", "56 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")

@@ -59,9 +59,19 @@ MODULO_A_MANO = {
         "Mathlib.AlgebraicGeometry.ProjectiveSpectrum.Scheme"],
 }
 
+#: LA CLASE DE LA DECLARACION SE CAPTURA, no solo el nombre.
+#:
+#: `Module.Basis` es un `structure` —un tipo de DATOS— y el prompt le decia al
+#: modelo unicamente que el nombre existe. Con eso escribio
+#: `∃ (ι) (b : ι → V), Module.Basis ι K V`, que pone un Type donde Lean espera
+#: un Prop: «existe una base» no se escribe con la estructura, se escribe con
+#: `Nonempty (Module.Basis ι K V)`.
+#:
+#: El dato estaba en el indice desde el principio. Lo que faltaba era
+#: llevarlo al prompt.
 DECL = re.compile(
     r"^\s*(?:@\[[^\]]*\]\s*)?(?:private\s+|protected\s+|noncomputable\s+)*"
-    r"(?:structure|def|abbrev|class|inductive)\s+([A-Za-z_][\w.']*)")
+    r"(structure|def|abbrev|class|inductive)\s+([A-Za-z_][\w.']*)")
 NS = re.compile(r"^\s*namespace\s+([A-Za-z_][\w.']*)")
 END = re.compile(r"^\s*end\s+([A-Za-z_][\w.']*)")
 
@@ -73,8 +83,8 @@ def modulo_de(ruta):
 
 
 def construir():
-    """nombre cualificado -> modulo donde se declara."""
-    mapa, ficheros = {}, 0
+    """nombre cualificado -> (modulo donde se declara, clase de declaracion)."""
+    mapa, clases, ficheros = {}, {}, 0
     for raiz, _d, fs in os.walk(MATHLIB):
         for f in fs:
             if not f.endswith(".lean"):
@@ -99,7 +109,8 @@ def construir():
                     continue
                 m = DECL.match(l)
                 if m:
-                    largo = ".".join(pila + [m.group(1)]) if pila else m.group(1)
+                    clase, corto = m.group(1), m.group(2)
+                    largo = ".".join(pila + [corto]) if pila else corto
                     # el primero gana: los ficheros `Basic` suelen ir antes y
                     # son los que uno quiere importar
                     # Los ficheros de `Mathlib.Tactic.*` declaran nombres de
@@ -109,8 +120,10 @@ def construir():
                     # lo que se busca es donde vive la TEORIA.
                     if mod.startswith("Mathlib.Tactic."):
                         continue
-                    mapa.setdefault(largo, mod)
-    return mapa, ficheros
+                    if largo not in mapa:
+                        mapa[largo] = mod
+                        clases[largo] = clase
+    return mapa, clases, ficheros
 
 
 def _lean_existe(mod):
@@ -223,7 +236,7 @@ def modulos_de_los_derivados(hechos):
 
 def main():
     print("recorriendo el fuente de Mathlib...")
-    mapa, ficheros = construir()
+    mapa, clases, ficheros = construir()
     print("  %d ficheros, %d nombres cualificados" % (ficheros, len(mapa)))
     if not mapa:
         print("  ATENCION: mapa vacio — revisa MATHLIB=%s" % MATHLIB)
@@ -349,8 +362,22 @@ def main():
           % sum(len(v) for v in por_skill.values()))
 
     os.makedirs(os.path.dirname(SALIDA), exist_ok=True)
+    clase_por_nombre = {}
+    for _sid, _mods in por_skill.items():
+        for _n in re.split(r"[,+]", nombres_de_trabajo(_sid) or ""):
+            _n = _n.strip()
+            if _n and _n in clases:
+                clase_por_nombre[_n] = clases[_n]
+
     io.open(SALIDA, "w", encoding="utf-8").write(json.dumps(
         {"por_skill": por_skill, "nombres": len(mapa),
+         # LA CLASE DE CADA NOMBRE QUE EL GRAFO OFRECE, para el prompt.
+         #
+         # Solo de los ofrecidos: son ~217 de los 34 723 del mapa, y el
+         # fichero se lee en cada arranque. El dato completo vive en
+         # `sustantivos_mathlib.jsonl` y son 9 MB — cargarlos para anotar dos
+         # nombres seria pagar el indice entero por consulta.
+         "clase_por_nombre": clase_por_nombre,
          # QUEDA ESCRITO PARA QUE SE PUEDA CURAR. Cada entrada es una etiqueta
          # que inyecta su nombre en el prompt y no tiene con que importarlo:
          # `scripts/hoja_de_curacion.py` las publica como tarea pendiente.

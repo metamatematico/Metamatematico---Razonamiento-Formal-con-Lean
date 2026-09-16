@@ -141,3 +141,60 @@ def test_no_vuelve_a_quedar_detras_del_decisor():
         "de un `if eleccion_de_imports`: los nombres ofrecidos solo traerian "
         "su modulo cuando otra capacidad, medida contra otro nulo y apagada, "
         "estuviera encendida" % culpables)
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# Y NO BASTA CON QUE EL NOMBRE EXISTA E IMPORTE: hay que decir QUE ES.
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Segundo fallo reportado desde el chat, con los imports ya arreglados:
+#
+#     ∃ (i : Type _) (b : i → V), Module.Basis i K V
+#     -> Type mismatch: `Module.Basis i K V` has type Type ...
+#        but is expected to have type Prop
+#
+# El nombre era correcto, existia y se importaba. Lo que el modelo no sabia
+# es que `Module.Basis` es un `structure` —un tipo de DATOS— y lo puso donde
+# Lean espera una proposicion. «Existe una base» se escribe
+# `Nonempty (Module.Basis i K V)`.
+
+def test_ningun_nombre_ofrecido_es_un_teorema():
+    """El grafo aporta SUSTANTIVOS, y por eso hay que decir que lo son.
+
+    Es la razon de la linea de guia del prompt: si alguno de los nombres
+    ofrecidos fuese un teorema, decir «esto es data, no una proposicion»
+    seria falso para el. Hoy no lo es para ninguno.
+    """
+    import json
+    from nucleo.rutas import dato
+    clases = json.load(io.open(dato("mathlib_modulos.json"),
+                               encoding="utf-8")).get("clase_por_nombre") or {}
+    assert clases, "el mapa no trae `clase_por_nombre`: regenerarlo con " \
+                   "python -m scripts.mapa_modulos_mathlib"
+    proposiciones = {n: c for n, c in clases.items()
+                     if c in ("theorem", "lemma", "instance")}
+    assert not proposiciones, (
+        "estos nombres ofrecidos son proposiciones, asi que la guia del "
+        "prompt («esto es data, no una proposicion») dejo de ser cierta "
+        "para ellos: %s" % proposiciones)
+
+
+def test_el_prompt_dice_de_que_clase_es_cada_nombre(nucleo_y_grafo):
+    """Sin la clase, el modelo no puede saber donde cabe el nombre."""
+    n, _g = nucleo_y_grafo
+    anotado = n._con_su_clase("Module.Basis, LinearIndependent")
+    assert "(structure)" in anotado, (
+        "`Module.Basis` es un structure y el prompt no lo dice: %s" % anotado)
+    assert "(def)" in anotado, anotado
+
+    # un nombre desconocido se deja tal cual: callarse antes que inventar
+    assert n._con_su_clase("NoExisteEsteNombre") == "NoExisteEsteNombre"
+
+
+def test_la_guia_de_data_vs_proposicion_sigue_en_el_prompt():
+    """Que nadie la quite por ahorrar dos lineas de prompt."""
+    src = io.open(os.path.join(RAIZ, "nucleo", "core.py"),
+                  encoding="utf-8").read()
+    assert "is DATA, not a" in src and "Nonempty (X ...)" in src, (
+        "desaparecio del prompt la guia que distingue un tipo de datos de una "
+        "proposicion — es la que evita `exists ..., Module.Basis i K V`")

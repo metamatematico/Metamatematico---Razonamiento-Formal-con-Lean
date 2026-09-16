@@ -2210,11 +2210,28 @@ class Nucleo:
                 "  proof term can then match it against the ambient variables' universes.\n"
                 + (("VERIFIED Mathlib names for this query "
                     "(they exist; checked with #check):\n"
-                    + "\n".join("  %s: %s" % (k, v)
+                    + "\n".join("  %s: %s" % (k, self._con_su_clase(v))
                                  for k, v in context["mathlib_verificado"].items())
                     + "\nUse these where they fit. If you need another one that is "
                       "not listed here, write it anyway, but be aware that it has "
-                      "not been checked.\n\n")
+                      "not been checked.\n"
+                    # QUE CLASE ES CADA NOMBRE, Y POR QUE HACE FALTA DECIRLO.
+                    #
+                    # Los 205 nombres que el grafo ofrece son `structure` (53),
+                    # `class` (43), `abbrev` (25) y `def` (84). NINGUNO es un
+                    # teorema: el grafo aporta SUSTANTIVOS, y eso ya estaba
+                    # medido. Lo que faltaba era decirselo al modelo.
+                    #
+                    # Sin esta linea, ante «demuestra que todo espacio
+                    # vectorial tiene una base» escribio
+                    #     ∃ (i) (b : i → V), Module.Basis i K V
+                    # que pone un Type donde Lean espera un Prop. El nombre
+                    # era correcto y el uso no: «existe una base» se escribe
+                    # `Nonempty (Module.Basis i K V)`.
+                    "A `structure`, `class`, `def` or `abbrev` is DATA, not a "
+                    "proposition: it cannot be the body of an `exists ..., _` "
+                    "nor the statement of a theorem. To say \"there exists an "
+                    "X\" where X is one of those, write `Nonempty (X ...)`.\n\n")
                    if isinstance(context, dict) and context.get("mathlib_verificado")
                    else "")
                 + (self._bloque_estructural(context)
@@ -4316,6 +4333,37 @@ class Nucleo:
     })
 
     _MODULOS_CACHE = None
+
+    def _con_su_clase(self, nombres: str) -> str:
+        """`Module.Basis, LinearIndependent` -> `Module.Basis (structure), ...`
+
+        La clase sale de `clase_por_nombre` en `mathlib_modulos.json`, que la
+        anota al construir el mapa. Solo de los ~205 nombres que el grafo
+        ofrece: el dato completo son 9 MB y cargarlo para anotar dos nombres
+        seria pagar el indice entero en cada consulta.
+
+        Si un nombre no tiene clase anotada se deja tal cual. Es la misma
+        regla que gobierna toda la inyeccion de vocabulario: callarse es mejor
+        que inventar.
+        """
+        clases = getattr(Nucleo, "_CLASES_CACHE", None)
+        if clases is None:
+            try:
+                import json as _j
+                from nucleo.rutas import dato as _dato
+                with open(_dato("mathlib_modulos.json"), encoding="utf-8") as f:
+                    clases = _j.load(f).get("clase_por_nombre") or {}
+            except Exception:
+                clases = {}
+            Nucleo._CLASES_CACHE = clases
+        fuera = []
+        for pieza in re.split(r"[,+]", nombres or ""):
+            pieza = pieza.strip()
+            if not pieza:
+                continue
+            c = clases.get(pieza)
+            fuera.append("%s (%s)" % (pieza, c) if c else pieza)
+        return ", ".join(fuera)
 
     def _modulos_de_los_nombres(self, context) -> list:
         """Los modulos de los nombres que el prompt SI ofrecio. Obligatorios.
