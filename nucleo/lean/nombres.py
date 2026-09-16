@@ -531,3 +531,61 @@ def reparar_codigo(codigo: str) -> tuple:
             cambios.append(("(import)", m))
 
     return nuevo, cambios
+
+
+def enunciados_de(nombres) -> dict:
+    """nombre cualificado -> su enunciado o firma REAL en Mathlib.
+
+    POR QUE HACE FALTA, Y QUE FALLO CIERRA
+    --------------------------------------
+    Consulta del chat: «demuestra que todo espacio vectorial tiene una base».
+    El modelo escribio
+
+        ∃ (i : Type _), Nonempty (Module.Basis i K V) := by
+          obtain ⟨s, hs⟩ := Module.Basis.exists_basis K V
+          exact ⟨s, ⟨hs⟩⟩
+
+    y fallo dos veces seguidas en el bucle de revision con el error delante.
+    Los dos defectos salen de lo mismo: NO SABIA QUE FORMA TIENE el lema que
+    estaba usando. Su enunciado real es
+
+        Module.Basis.exists_basis : ∃ s : Set V, Nonempty (Basis s K V)
+
+    o sea que el indice es `Set V` y no un `Type _` —de ahi el choque de
+    universos— y que `hs` YA es un `Nonempty`, de ahi el doble envoltorio. Con
+    esa linea delante los dos errores son evidentes; sin ella, el modelo
+    adivina la forma y la revision solo le repite que se equivoco.
+
+    Es el mismo patron que las dos correcciones anteriores de esta consulta:
+    el sistema TENIA el dato —aqui, en `lemas_mathlib.jsonl`— y no lo pasaba.
+
+    NO SE CACHEA EL FICHERO ENTERO. Son 217 419 enunciados y cargarlos costaria
+    decenas de MB para leer tres. Se hace una pasada pidiendo los que hagan
+    falta, que son un punado por ronda de revision: ~1 s frente a los 12-30 s
+    que cuesta cada compilacion de Lean que esto evita.
+    """
+    pedidos = {n for n in (nombres or ()) if n}
+    if not pedidos:
+        return {}
+    fuera = {}
+    for ruta in (BANCO, _SUSTANTIVOS):
+        try:
+            with io.open(ruta, encoding="utf-8") as fh:
+                for linea in fh:
+                    if not any(n in linea for n in pedidos):
+                        continue
+                    try:
+                        d = json.loads(linea)
+                    except Exception:                          # noqa: BLE001
+                        continue
+                    n = d.get("nombre") or d.get("name") or ""
+                    if n not in pedidos or n in fuera:
+                        continue
+                    texto = (d.get("enunciado") or d.get("firma") or "").strip()
+                    if texto:
+                        fuera[n] = texto
+        except FileNotFoundError:
+            continue
+        if len(fuera) == len(pedidos):
+            break
+    return fuera

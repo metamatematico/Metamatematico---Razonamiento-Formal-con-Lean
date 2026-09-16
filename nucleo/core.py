@@ -3446,6 +3446,42 @@ class Nucleo:
             pista = self._lean_hint(primero)
             bloque_errores = "\n".join(f"  - {e.strip()[:300]}" for e in errores[:4])
 
+            # LOS ENUNCIADOS REALES DE LO QUE EL CODIGO USA.
+            #
+            # La revision le repetia al modelo el error y le pedia que lo
+            # arreglase, y el modelo fallaba dos rondas seguidas porque el
+            # error no le decia lo unico que le faltaba: QUE FORMA TIENE el
+            # lema que estaba usando.
+            #
+            # Caso real: escribio `exists (i : Type _), Nonempty (Basis i K V)`
+            # y `exact <s, <hs>>` sobre `Module.Basis.exists_basis`, cuyo
+            # enunciado es `exists s : Set V, Nonempty (Basis s K V)`. Con esa
+            # linea delante los dos defectos son evidentes —el indice es un
+            # `Set V`, no un `Type _`, y `hs` YA es un `Nonempty`—; sin ella
+            # el modelo adivina la forma y la revision solo le confirma que se
+            # equivoco.
+            #
+            # Es la tercera vez en esta misma consulta que el arreglo consiste
+            # en pasar un dato que el sistema YA TENIA: primero el modulo,
+            # luego la clase, ahora el enunciado.
+            bloque_firmas = ""
+            try:
+                from nucleo.lean import nombres as _nom
+                candidatos = set(re.findall(
+                    r"\b[A-Z][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)+",
+                    mejor_code))
+                firmas = _nom.enunciados_de(candidatos)
+                if firmas:
+                    bloque_firmas = (
+                        "\nThe REAL signatures of the Mathlib names your code "
+                        "uses (read from the library, not guessed):\n"
+                        + "\n".join("  %s %s" % (k, v)
+                                    for k, v in sorted(firmas.items())[:8])
+                        + "\nIf your proof assumed a different shape, that is "
+                          "the error: match these.\n")
+            except Exception:
+                logger.debug("sin firmas para la revision", exc_info=True)
+
             revise_prompt = (
                 f"{formalize_prompt}\n\n"
                 "─────────────────────────────────────────────\n"
@@ -3453,7 +3489,8 @@ class Nucleo:
                 "Code you sent:\n"
                 f"```lean\n{mejor_code}\n```\n\n"
                 "Exact errors Lean returned:\n"
-                f"{bloque_errores}\n\n"
+                f"{bloque_errores}\n"
+                f"{bloque_firmas}\n"
                 f"Diagnosis: {pista}\n\n"
                 "Fix it. Instructions:\n"
                 "- Fix EXACTLY the listed errors; do not rewrite what already worked.\n"

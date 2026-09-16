@@ -198,3 +198,49 @@ def test_la_guia_de_data_vs_proposicion_sigue_en_el_prompt():
     assert "is DATA, not a" in src and "Nonempty (X ...)" in src, (
         "desaparecio del prompt la guia que distingue un tipo de datos de una "
         "proposicion — es la que evita `exists ..., Module.Basis i K V`")
+
+
+# ─────────────────────────────────────────────────────────────────────────
+# TERCERA CAPA: el modelo no sabia QUE FORMA tiene el lema que usa.
+# ─────────────────────────────────────────────────────────────────────────
+#
+# Con los imports puestos y la clase dicha, el modelo escribio:
+#
+#     ∃ (i : Type _), Nonempty (Module.Basis i K V) := by
+#       obtain ⟨s, hs⟩ := Module.Basis.exists_basis K V
+#       exact ⟨s, ⟨hs⟩⟩
+#
+# y fallo DOS rondas de revision con el error delante. Los dos defectos salen
+# de lo mismo: el enunciado real es
+#
+#     Module.Basis.exists_basis : ∃ s : Set V, Nonempty (Basis s K V)
+#
+# o sea que el indice es un `Set V` —no un `Type _`, de ahi el choque de
+# universos— y `hs` YA es un `Nonempty`, de ahi el doble envoltorio.
+# Verificado con Lean: cambiando esas dos cosas, la prueba pasa.
+
+def test_el_indice_sabe_el_enunciado_de_lo_que_ofrece():
+    """El dato que faltaba en la revision estaba en el repositorio."""
+    from nucleo.lean import nombres as N
+    d = N.enunciados_de({"Module.Basis.exists_basis"})
+    assert "Module.Basis.exists_basis" in d, (
+        "el indice ya no sabe el enunciado de `exists_basis`: la revision "
+        "vuelve a pedirle al modelo que adivine la forma del lema")
+    assert "Set V" in d["Module.Basis.exists_basis"], d
+
+
+def test_la_revision_enseña_las_firmas_reales():
+    """Que nadie quite el bloque: es lo que convierte «te equivocaste» en
+    «esto es lo que hay»."""
+    src = io.open(os.path.join(RAIZ, "nucleo", "core.py"),
+                  encoding="utf-8").read()
+    assert "bloque_firmas" in src, (
+        "desaparecio de la revision el bloque de firmas reales")
+    assert "enunciados_de(candidatos)" in src, (
+        "la revision ya no busca los enunciados de los nombres del codigo")
+    i = src.index("revise_prompt = (")
+    j = src.index("Fix it. Instructions:", i)
+    assert "bloque_firmas" in src[i:j], (
+        "`bloque_firmas` se calcula y NO entra en el prompt de revision — "
+        "que es exactamente el fallo que este fichero persigue: tener el "
+        "dato y no pasarlo")
