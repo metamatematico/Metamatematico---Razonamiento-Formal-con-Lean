@@ -1,0 +1,810 @@
+{
+  "grafo": {
+    "nodos": 353,
+    "morfismos": 1585,
+    "hash": "76eb8e1b702025db"
+  },
+  "pares": 1436,
+  "con_viaje": 102,
+  "tasa": 0.071,
+  "nulo_base_directa": 0.068,
+  "ventaja_sobre_el_nulo": 1.1,
+  "por_area": {
+    "Logic": {
+      "con_viaje": 8,
+      "pares": 34
+    },
+    "Topology": {
+      "con_viaje": 13,
+      "pares": 164
+    },
+    "MeasureTheory": {
+      "con_viaje": 6,
+      "pares": 72
+    },
+    "Geometry": {
+      "con_viaje": 1,
+      "pares": 73
+    },
+    "Algebra": {
+      "con_viaje": 11,
+      "pares": 163
+    },
+    "AlgebraicTopology": {
+      "con_viaje": 7,
+      "pares": 46
+    },
+    "OrderTheory": {
+      "con_viaje": 2,
+      "pares": 57
+    },
+    "ModelTheory": {
+      "con_viaje": 1,
+      "pares": 13
+    },
+    "RingTheory": {
+      "con_viaje": 10,
+      "pares": 104
+    },
+    "LinearAlgebra": {
+      "con_viaje": 7,
+      "pares": 123
+    },
+    "RepresentationTheory": {
+      "con_viaje": 2,
+      "pares": 55
+    },
+    "FieldTheory": {
+      "con_viaje": 4,
+      "pares": 55
+    },
+    "Analysis": {
+      "con_viaje": 14,
+      "pares": 121
+    },
+    "CategoryTheory": {
+      "con_viaje": 1,
+      "pares": 146
+    },
+    "GroupTheory": {
+      "con_viaje": 5,
+      "pares": 55
+    },
+    "AlgebraicGeometry": {
+      "con_viaje": 6,
+      "pares": 51
+    },
+    "Combinatorics": {
+      "con_viaje": 0,
+      "pares": 44
+    },
+    "NumberTheory": {
+      "con_viaje": 0,
+      "pares": 23
+    },
+    "Probability": {
+      "con_viaje": 1,
+      "pares": 22
+    },
+    "Dynamics": {
+      "con_viaje": 3,
+      "pares": 15
+    }
+  },
+  "viajes": [
+    {
+      "origen": "bases-and-dimension",
+      "area_origen": "Algebra",
+      "destino": "LinearAlgebra",
+      "soporte": "area-linearalgebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "bilinear-forms",
+      "area_origen": "Algebra",
+      "destino": "LinearAlgebra",
+      "soporte": "area-linearalgebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "character-theory",
+      "area_origen": "Algebra",
+      "destino": "RepresentationTheory",
+      "soporte": "area-representationtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "derivations",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "derived-category",
+      "area_origen": "Algebra",
+      "destino": "Topology",
+      "soporte": "algebraic-topology",
+      "candidatos": 20
+    },
+    {
+      "origen": "different-ideal",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "field-extensions",
+      "area_origen": "Algebra",
+      "destino": "FieldTheory",
+      "soporte": "area-fieldtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "finite-fields",
+      "area_origen": "Algebra",
+      "destino": "FieldTheory",
+      "soporte": "area-fieldtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "free-groups",
+      "area_origen": "Algebra",
+      "destino": "GroupTheory",
+      "soporte": "area-grouptheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "galois-theory",
+      "area_origen": "Algebra",
+      "destino": "FieldTheory",
+      "soporte": "area-fieldtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "galois-theory",
+      "area_origen": "Algebra",
+      "destino": "GroupTheory",
+      "soporte": "area-grouptheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "homogeneous-ideals",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "homogeneous-localization",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "ideals-quotient-rings",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "localization",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "noetherian-rings",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "quotient-groups",
+      "area_origen": "Algebra",
+      "destino": "GroupTheory",
+      "soporte": "area-grouptheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "representation-theory",
+      "area_origen": "Algebra",
+      "destino": "RepresentationTheory",
+      "soporte": "area-representationtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "solvable-groups",
+      "area_origen": "Algebra",
+      "destino": "GroupTheory",
+      "soporte": "area-grouptheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "splitting-fields",
+      "area_origen": "Algebra",
+      "destino": "FieldTheory",
+      "soporte": "area-fieldtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "sylow-theory",
+      "area_origen": "Algebra",
+      "destino": "GroupTheory",
+      "soporte": "area-grouptheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "tensor-products",
+      "area_origen": "Algebra",
+      "destino": "LinearAlgebra",
+      "soporte": "area-linearalgebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "unique-factorization",
+      "area_origen": "Algebra",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "banach-spaces",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "duality-theory",
+      "area_origen": "Analysis",
+      "destino": "LinearAlgebra",
+      "soporte": "area-linearalgebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "functional-analysis",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "harmonic-analysis",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "hilbert-spaces",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "holder-continuity",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "lebesgue-integration",
+      "area_origen": "Analysis",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "measure-theory",
+      "area_origen": "Analysis",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "metric-spaces",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "area-topology",
+      "candidatos": 2
+    },
+    {
+      "origen": "operator-theory",
+      "area_origen": "Analysis",
+      "destino": "CategoryTheory",
+      "soporte": "functors",
+      "candidatos": 3
+    },
+    {
+      "origen": "pde-techniques",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "sequences-series",
+      "area_origen": "Analysis",
+      "destino": "OrderTheory",
+      "soporte": "area-ordertheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "variational-methods",
+      "area_origen": "Analysis",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "higher-category-theory",
+      "area_origen": "CategoryTheory",
+      "destino": "AlgebraicTopology",
+      "soporte": "area-algebraictopology",
+      "candidatos": 2
+    },
+    {
+      "origen": "algebraic-combinatorics",
+      "area_origen": "Combinatorics",
+      "destino": "Algebra",
+      "soporte": "group-theory",
+      "candidatos": 3
+    },
+    {
+      "origen": "generating-functions",
+      "area_origen": "Combinatorics",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "probabilistic-method",
+      "area_origen": "Combinatorics",
+      "destino": "Probability",
+      "soporte": "probability-theory",
+      "candidatos": 5
+    },
+    {
+      "origen": "algorithm-analysis",
+      "area_origen": "Computability",
+      "destino": "Logic",
+      "soporte": "proof-theory",
+      "candidatos": 6
+    },
+    {
+      "origen": "computability-theory",
+      "area_origen": "Computability",
+      "destino": "Logic",
+      "soporte": "model-theory",
+      "candidatos": 4
+    },
+    {
+      "origen": "computational-complexity",
+      "area_origen": "Computability",
+      "destino": "Logic",
+      "soporte": "model-theory",
+      "candidatos": 4
+    },
+    {
+      "origen": "np-completeness",
+      "area_origen": "Computability",
+      "destino": "Logic",
+      "soporte": "model-theory",
+      "candidatos": 4
+    },
+    {
+      "origen": "partial-functions",
+      "area_origen": "Computability",
+      "destino": "Logic",
+      "soporte": "model-theory",
+      "candidatos": 4
+    },
+    {
+      "origen": "affine-varieties",
+      "area_origen": "Geometry",
+      "destino": "AlgebraicGeometry",
+      "soporte": "area-algebraicgeometry",
+      "candidatos": 2
+    },
+    {
+      "origen": "algebraic-geometry",
+      "area_origen": "Geometry",
+      "destino": "AlgebraicGeometry",
+      "soporte": "area-algebraicgeometry",
+      "candidatos": 2
+    },
+    {
+      "origen": "circle-geometry",
+      "area_origen": "Geometry",
+      "destino": "Analysis",
+      "soporte": "area-analysis",
+      "candidatos": 2
+    },
+    {
+      "origen": "collinearity-coplanarity",
+      "area_origen": "Geometry",
+      "destino": "LinearAlgebra",
+      "soporte": "area-linearalgebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "euclidean-geometry",
+      "area_origen": "Geometry",
+      "destino": "Analysis",
+      "soporte": "area-analysis",
+      "candidatos": 2
+    },
+    {
+      "origen": "left-invariant-derivations",
+      "area_origen": "Geometry",
+      "destino": "Algebra",
+      "soporte": "derivations",
+      "candidatos": 8
+    },
+    {
+      "origen": "projective-geometry",
+      "area_origen": "Geometry",
+      "destino": "LinearAlgebra",
+      "soporte": "area-linearalgebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "projective-spectrum",
+      "area_origen": "Geometry",
+      "destino": "AlgebraicGeometry",
+      "soporte": "area-algebraicgeometry",
+      "candidatos": 2
+    },
+    {
+      "origen": "projective-varieties",
+      "area_origen": "Geometry",
+      "destino": "AlgebraicGeometry",
+      "soporte": "area-algebraicgeometry",
+      "candidatos": 2
+    },
+    {
+      "origen": "schemes",
+      "area_origen": "Geometry",
+      "destino": "AlgebraicGeometry",
+      "soporte": "area-algebraicgeometry",
+      "candidatos": 2
+    },
+    {
+      "origen": "triangle-geometry",
+      "area_origen": "Geometry",
+      "destino": "LinearAlgebra",
+      "soporte": "area-linearalgebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "unit-circle",
+      "area_origen": "Geometry",
+      "destino": "Analysis",
+      "soporte": "area-analysis",
+      "candidatos": 2
+    },
+    {
+      "origen": "fol-metatheory",
+      "area_origen": "Logic",
+      "destino": "ModelTheory",
+      "soporte": "area-modeltheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "ultraproducts",
+      "area_origen": "Logic",
+      "destino": "OrderTheory",
+      "soporte": "area-ordertheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "area-modeltheory",
+      "area_origen": "ModelTheory",
+      "destino": "Logic",
+      "soporte": "fol-deduction",
+      "candidatos": 1
+    },
+    {
+      "origen": "algebraic-number-theory",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "field-theory",
+      "candidatos": 5
+    },
+    {
+      "origen": "analytic-number-theory",
+      "area_origen": "NumberTheory",
+      "destino": "Analysis",
+      "soporte": "complex-analysis",
+      "candidatos": 4
+    },
+    {
+      "origen": "arithmetic-geometry",
+      "area_origen": "NumberTheory",
+      "destino": "AlgebraicGeometry",
+      "soporte": "area-algebraicgeometry",
+      "candidatos": 2
+    },
+    {
+      "origen": "diophantine-equations",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "area-algebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "divisibility-gcd",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "area-algebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "ideal-class-group",
+      "area_origen": "NumberTheory",
+      "destino": "RingTheory",
+      "soporte": "area-ringtheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "infinite-places",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "field-extensions",
+      "candidatos": 7
+    },
+    {
+      "origen": "modular-arithmetic",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "area-algebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "modular-forms",
+      "area_origen": "NumberTheory",
+      "destino": "Analysis",
+      "soporte": "complex-analysis",
+      "candidatos": 4
+    },
+    {
+      "origen": "number-fields",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "field-extensions",
+      "candidatos": 7
+    },
+    {
+      "origen": "p-adic-valuations",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "field-extensions",
+      "candidatos": 7
+    },
+    {
+      "origen": "prime-factorization",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "area-algebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "prime-number-theorem",
+      "area_origen": "NumberTheory",
+      "destino": "Analysis",
+      "soporte": "complex-analysis",
+      "candidatos": 4
+    },
+    {
+      "origen": "quadratic-residues",
+      "area_origen": "NumberTheory",
+      "destino": "Algebra",
+      "soporte": "area-algebra",
+      "candidatos": 2
+    },
+    {
+      "origen": "riemann-zeta",
+      "area_origen": "NumberTheory",
+      "destino": "Analysis",
+      "soporte": "complex-analysis",
+      "candidatos": 4
+    },
+    {
+      "origen": "slash-invariant-forms",
+      "area_origen": "NumberTheory",
+      "destino": "Analysis",
+      "soporte": "complex-analysis",
+      "candidatos": 4
+    },
+    {
+      "origen": "brownian-motion",
+      "area_origen": "Probability",
+      "destino": "Analysis",
+      "soporte": "real-analysis",
+      "candidatos": 3
+    },
+    {
+      "origen": "conditional-expectation",
+      "area_origen": "Probability",
+      "destino": "Analysis",
+      "soporte": "measure-theory",
+      "candidatos": 5
+    },
+    {
+      "origen": "conditional-expectation",
+      "area_origen": "Probability",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "ergodic-theory",
+      "area_origen": "Probability",
+      "destino": "Dynamics",
+      "soporte": "area-dynamics",
+      "candidatos": 2
+    },
+    {
+      "origen": "ergodic-theory",
+      "area_origen": "Probability",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "flows",
+      "area_origen": "Probability",
+      "destino": "Dynamics",
+      "soporte": "area-dynamics",
+      "candidatos": 2
+    },
+    {
+      "origen": "flows",
+      "area_origen": "Probability",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "limit-theorems",
+      "area_origen": "Probability",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "markov-chains",
+      "area_origen": "Probability",
+      "destino": "Analysis",
+      "soporte": "real-analysis",
+      "candidatos": 3
+    },
+    {
+      "origen": "martingale-theory",
+      "area_origen": "Probability",
+      "destino": "Analysis",
+      "soporte": "real-analysis",
+      "candidatos": 3
+    },
+    {
+      "origen": "probability-theory",
+      "area_origen": "Probability",
+      "destino": "Analysis",
+      "soporte": "real-analysis",
+      "candidatos": 3
+    },
+    {
+      "origen": "random-variables",
+      "area_origen": "Probability",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "rotation-number",
+      "area_origen": "Probability",
+      "destino": "Dynamics",
+      "soporte": "area-dynamics",
+      "candidatos": 2
+    },
+    {
+      "origen": "rotation-number",
+      "area_origen": "Probability",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "stochastic-processes",
+      "area_origen": "Probability",
+      "destino": "Analysis",
+      "soporte": "real-analysis",
+      "candidatos": 3
+    },
+    {
+      "origen": "descriptive-set-theory",
+      "area_origen": "SetTheory",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "descriptive-set-theory",
+      "area_origen": "SetTheory",
+      "destino": "Topology",
+      "soporte": "point-set-topology",
+      "candidatos": 3
+    },
+    {
+      "origen": "algebraic-topology",
+      "area_origen": "Topology",
+      "destino": "AlgebraicTopology",
+      "soporte": "area-algebraictopology",
+      "candidatos": 2
+    },
+    {
+      "origen": "covering-spaces",
+      "area_origen": "Topology",
+      "destino": "AlgebraicTopology",
+      "soporte": "area-algebraictopology",
+      "candidatos": 2
+    },
+    {
+      "origen": "differential-topology",
+      "area_origen": "Topology",
+      "destino": "Geometry",
+      "soporte": "differential-geometry",
+      "candidatos": 7
+    },
+    {
+      "origen": "fundamental-group",
+      "area_origen": "Topology",
+      "destino": "AlgebraicTopology",
+      "soporte": "area-algebraictopology",
+      "candidatos": 2
+    },
+    {
+      "origen": "geometric-topology",
+      "area_origen": "Topology",
+      "destino": "AlgebraicTopology",
+      "soporte": "area-algebraictopology",
+      "candidatos": 2
+    },
+    {
+      "origen": "homotopy-theory",
+      "area_origen": "Topology",
+      "destino": "AlgebraicTopology",
+      "soporte": "area-algebraictopology",
+      "candidatos": 2
+    },
+    {
+      "origen": "simplex-category",
+      "area_origen": "Topology",
+      "destino": "AlgebraicTopology",
+      "soporte": "area-algebraictopology",
+      "candidatos": 2
+    },
+    {
+      "origen": "cic",
+      "area_origen": "fundacional",
+      "destino": "Logic",
+      "soporte": "fol-deduction",
+      "candidatos": 1
+    },
+    {
+      "origen": "zfc-axioms",
+      "area_origen": "fundacional",
+      "destino": "Logic",
+      "soporte": "fol-deduction",
+      "candidatos": 1
+    }
+  ]
+}
