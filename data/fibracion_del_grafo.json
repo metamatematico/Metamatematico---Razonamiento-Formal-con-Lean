@@ -1,421 +1,2582 @@
 {
-  "skills": 173,
-  "morfismos": 849,
-  "areas": 12,
-  "flechas_base": 30,
-  "pares": 860,
-  "levantados": 3,
-  "tasa": 0.0035,
+  "grafo": {
+    "nodos": 353,
+    "morfismos": 1585,
+    "hash": "76eb8e1b702025db"
+  },
+  "skills": 353,
+  "morfismos": 1585,
+  "areas": 23,
+  "flechas_base": 69,
+  "pares": 6753,
+  "levantados": 10,
+  "tasa": 0.0015,
   "es_fibracion": false,
   "por_que_falla": {
-    "sin soporte del area de abajo": 801,
-    "hay soporte pero ninguno domina": 29,
-    "el mayor esta en otra fibra": 27
+    "sin soporte del area de abajo": 6266,
+    "el mayor esta en otra fibra": 310,
+    "hay soporte pero ninguno domina": 167
   },
-  "morfismos_de_orden": 230,
-  "morfismos_dentro_de_area": 134,
-  "morfismos_que_cruzan": 29,
-  "morfismos_al_fundacional": 67,
-  "relaciones_entre_areas_por_clausura": 74,
-  "nulo_media": 0.0608,
+  "morfismos_de_orden": 687,
+  "morfismos_dentro_de_area": 403,
+  "morfismos_que_cruzan": 104,
+  "morfismos_al_fundacional": 180,
+  "relaciones_entre_areas_por_clausura": 462,
+  "nulo_media": 0.0422,
   "nulo_tasas": [
-    0.057,
-    0.0627,
-    0.0627
+    0.0443,
+    0.0418,
+    0.0473,
+    0.0408,
+    0.0369
   ],
-  "subbase_fibracion": [],
+  "subbase_fibracion": [
+    [
+      "Logic",
+      "ModelTheory",
+      1,
+      1
+    ]
+  ],
   "subbase_fallida": [
     [
       "Algebra",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Algebra",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "Algebra",
       "Analysis",
       0,
-      25
+      44
     ],
     [
       "Algebra",
       "CategoryTheory",
       0,
-      9
+      23
     ],
     [
       "Algebra",
       "Combinatorics",
       0,
-      12
+      22
+    ],
+    [
+      "Algebra",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "Algebra",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "Algebra",
+      "FieldTheory",
+      0,
+      2
     ],
     [
       "Algebra",
       "Geometry",
       0,
-      14
+      24
+    ],
+    [
+      "Algebra",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "Algebra",
+      "LinearAlgebra",
+      0,
+      13
     ],
     [
       "Algebra",
       "Logic",
       0,
-      7
+      13
+    ],
+    [
+      "Algebra",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Algebra",
+      "ModelTheory",
+      0,
+      1
     ],
     [
       "Algebra",
       "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "Algebra",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "Algebra",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "Algebra",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Algebra",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "Algebra",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "Algebra",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "AlgebraicGeometry",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "AlgebraicGeometry",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "AlgebraicGeometry",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "AlgebraicGeometry",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "AlgebraicGeometry",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "AlgebraicGeometry",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "AlgebraicGeometry",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "AlgebraicGeometry",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "AlgebraicGeometry",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "AlgebraicGeometry",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "AlgebraicGeometry",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "AlgebraicGeometry",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "AlgebraicGeometry",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "AlgebraicGeometry",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "AlgebraicGeometry",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "AlgebraicGeometry",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "AlgebraicGeometry",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "AlgebraicGeometry",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "AlgebraicGeometry",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "AlgebraicGeometry",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "AlgebraicGeometry",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "AlgebraicTopology",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "AlgebraicTopology",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "AlgebraicTopology",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "AlgebraicTopology",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "AlgebraicTopology",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "AlgebraicTopology",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "AlgebraicTopology",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "AlgebraicTopology",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "AlgebraicTopology",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "AlgebraicTopology",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "AlgebraicTopology",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "AlgebraicTopology",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "AlgebraicTopology",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "AlgebraicTopology",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "AlgebraicTopology",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "AlgebraicTopology",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "AlgebraicTopology",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "AlgebraicTopology",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "AlgebraicTopology",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "AlgebraicTopology",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "AlgebraicTopology",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "Analysis",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "Analysis",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Analysis",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "Analysis",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "Analysis",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "Analysis",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "Analysis",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "Analysis",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "Analysis",
+      "Geometry",
       1,
-      14
+      24
     ],
     [
-      "Algebra",
-      "Probability",
-      0,
-      9
-    ],
-    [
-      "Algebra",
-      "SetTheory",
+      "Analysis",
+      "GroupTheory",
       0,
       4
     ],
     [
-      "Algebra",
-      "Topology",
-      0,
-      11
-    ],
-    [
       "Analysis",
-      "Algebra",
+      "LinearAlgebra",
       0,
-      35
-    ],
-    [
-      "Analysis",
-      "CategoryTheory",
-      0,
-      9
-    ],
-    [
-      "Analysis",
-      "Combinatorics",
-      0,
-      12
-    ],
-    [
-      "Analysis",
-      "Geometry",
-      0,
-      14
+      13
     ],
     [
       "Analysis",
       "Logic",
       0,
-      7
+      13
+    ],
+    [
+      "Analysis",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Analysis",
+      "ModelTheory",
+      0,
+      1
     ],
     [
       "Analysis",
       "NumberTheory",
       0,
-      14
+      27
+    ],
+    [
+      "Analysis",
+      "OrderTheory",
+      0,
+      13
     ],
     [
       "Analysis",
       "Probability",
+      0,
+      15
+    ],
+    [
+      "Analysis",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Analysis",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "Analysis",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "Analysis",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "CategoryTheory",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "CategoryTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "CategoryTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "CategoryTheory",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "CategoryTheory",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "CategoryTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "CategoryTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "CategoryTheory",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "CategoryTheory",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "CategoryTheory",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "CategoryTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "CategoryTheory",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "CategoryTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "CategoryTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "CategoryTheory",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "CategoryTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "CategoryTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "CategoryTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "CategoryTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "CategoryTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "CategoryTheory",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "Combinatorics",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "Combinatorics",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Combinatorics",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "Combinatorics",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "Combinatorics",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "Combinatorics",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "Combinatorics",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "Combinatorics",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "Combinatorics",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "Combinatorics",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "Combinatorics",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "Combinatorics",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "Combinatorics",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Combinatorics",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "Combinatorics",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "Combinatorics",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "Combinatorics",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "Combinatorics",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Combinatorics",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "Combinatorics",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "Combinatorics",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "Dynamics",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "Dynamics",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Dynamics",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "Dynamics",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "Dynamics",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "Dynamics",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "Dynamics",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "Dynamics",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "Dynamics",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "Dynamics",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "Dynamics",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "Dynamics",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "Dynamics",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Dynamics",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "Dynamics",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "Dynamics",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "Dynamics",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "Dynamics",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Dynamics",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "Dynamics",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "Dynamics",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "FieldTheory",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "FieldTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "FieldTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "FieldTheory",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "FieldTheory",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "FieldTheory",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "FieldTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "FieldTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "FieldTheory",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "FieldTheory",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "FieldTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "FieldTheory",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "FieldTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "FieldTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "FieldTheory",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "FieldTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "FieldTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "FieldTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "FieldTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "FieldTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "FieldTheory",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "Geometry",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "Geometry",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Geometry",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "Geometry",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "Geometry",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "Geometry",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "Geometry",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "Geometry",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "Geometry",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "Geometry",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "Geometry",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "Geometry",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "Geometry",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Geometry",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "Geometry",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "Geometry",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "Geometry",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "Geometry",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Geometry",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "Geometry",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "Geometry",
+      "Topology",
       1,
-      9
+      23
     ],
     [
-      "Analysis",
-      "SetTheory",
-      0,
-      4
-    ],
-    [
-      "Analysis",
-      "Topology",
-      0,
-      11
-    ],
-    [
-      "Combinatorics",
+      "GroupTheory",
       "Algebra",
       0,
-      35
+      55
     ],
     [
-      "Combinatorics",
+      "GroupTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "GroupTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "GroupTheory",
       "Analysis",
       0,
-      25
+      44
     ],
     [
-      "Combinatorics",
+      "GroupTheory",
       "CategoryTheory",
       0,
-      9
+      23
     ],
     [
+      "GroupTheory",
       "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "GroupTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "GroupTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "GroupTheory",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "GroupTheory",
       "Geometry",
       0,
-      14
+      24
     ],
     [
-      "Combinatorics",
+      "GroupTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "GroupTheory",
       "Logic",
       0,
-      7
+      13
     ],
     [
-      "Combinatorics",
+      "GroupTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "GroupTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "GroupTheory",
       "NumberTheory",
       0,
-      14
+      27
     ],
     [
-      "Combinatorics",
+      "GroupTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "GroupTheory",
       "Probability",
       0,
-      9
+      15
     ],
     [
-      "Combinatorics",
+      "GroupTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "GroupTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "GroupTheory",
       "SetTheory",
       0,
-      4
+      13
     ],
     [
-      "Combinatorics",
+      "GroupTheory",
       "Topology",
       0,
-      11
+      23
     ],
     [
-      "Geometry",
+      "LinearAlgebra",
       "Algebra",
       0,
-      35
+      55
     ],
     [
-      "Geometry",
+      "LinearAlgebra",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "LinearAlgebra",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "LinearAlgebra",
       "Analysis",
       0,
-      25
+      44
     ],
     [
-      "Geometry",
+      "LinearAlgebra",
       "CategoryTheory",
       0,
-      9
+      23
     ],
     [
-      "Geometry",
+      "LinearAlgebra",
       "Combinatorics",
       0,
-      12
+      22
     ],
     [
-      "Geometry",
-      "Logic",
+      "LinearAlgebra",
+      "Computability",
       0,
-      7
+      15
     ],
     [
-      "Geometry",
-      "NumberTheory",
+      "LinearAlgebra",
+      "Dynamics",
       0,
-      14
+      1
     ],
     [
-      "Geometry",
-      "Probability",
+      "LinearAlgebra",
+      "FieldTheory",
       0,
-      9
+      2
     ],
     [
+      "LinearAlgebra",
       "Geometry",
-      "SetTheory",
+      0,
+      24
+    ],
+    [
+      "LinearAlgebra",
+      "GroupTheory",
       0,
       4
     ],
     [
-      "Geometry",
+      "LinearAlgebra",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "LinearAlgebra",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "LinearAlgebra",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "LinearAlgebra",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "LinearAlgebra",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "LinearAlgebra",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "LinearAlgebra",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "LinearAlgebra",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "LinearAlgebra",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "LinearAlgebra",
       "Topology",
+      0,
+      23
+    ],
+    [
+      "Logic",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "Logic",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Logic",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "Logic",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "Logic",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "Logic",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "Logic",
+      "Computability",
+      4,
+      15
+    ],
+    [
+      "Logic",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "Logic",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "Logic",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "Logic",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "Logic",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "Logic",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Logic",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "Logic",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "Logic",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "Logic",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Logic",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "Logic",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "Logic",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "MeasureTheory",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "MeasureTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "MeasureTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "MeasureTheory",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "MeasureTheory",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "MeasureTheory",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "MeasureTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "MeasureTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "MeasureTheory",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "MeasureTheory",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "MeasureTheory",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "MeasureTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "MeasureTheory",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "MeasureTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "MeasureTheory",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "MeasureTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "MeasureTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "MeasureTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "MeasureTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "MeasureTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "MeasureTheory",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "ModelTheory",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "ModelTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "ModelTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "ModelTheory",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "ModelTheory",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "ModelTheory",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "ModelTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "ModelTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "ModelTheory",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "ModelTheory",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "ModelTheory",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "ModelTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "ModelTheory",
+      "Logic",
       1,
-      11
+      13
+    ],
+    [
+      "ModelTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "ModelTheory",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "ModelTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "ModelTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "ModelTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "ModelTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "ModelTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "ModelTheory",
+      "Topology",
+      0,
+      23
     ],
     [
       "NumberTheory",
       "Algebra",
       0,
-      35
+      55
+    ],
+    [
+      "NumberTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "NumberTheory",
+      "AlgebraicTopology",
+      0,
+      2
     ],
     [
       "NumberTheory",
       "Analysis",
       0,
-      25
+      44
     ],
     [
       "NumberTheory",
       "CategoryTheory",
       0,
-      9
+      23
     ],
     [
       "NumberTheory",
       "Combinatorics",
       0,
-      12
+      22
+    ],
+    [
+      "NumberTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "NumberTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "NumberTheory",
+      "FieldTheory",
+      0,
+      2
     ],
     [
       "NumberTheory",
       "Geometry",
       0,
-      14
+      24
     ],
     [
       "NumberTheory",
-      "Logic",
-      0,
-      7
-    ],
-    [
-      "NumberTheory",
-      "Probability",
-      0,
-      9
-    ],
-    [
-      "NumberTheory",
-      "SetTheory",
+      "GroupTheory",
       0,
       4
     ],
     [
       "NumberTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "NumberTheory",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "NumberTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "NumberTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "NumberTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "NumberTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "NumberTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "NumberTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "NumberTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "NumberTheory",
       "Topology",
       0,
-      11
+      23
+    ],
+    [
+      "OrderTheory",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "OrderTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "OrderTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "OrderTheory",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "OrderTheory",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "OrderTheory",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "OrderTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "OrderTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "OrderTheory",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "OrderTheory",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "OrderTheory",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "OrderTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "OrderTheory",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "OrderTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "OrderTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "OrderTheory",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "OrderTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "OrderTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "OrderTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "OrderTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "OrderTheory",
+      "Topology",
+      0,
+      23
     ],
     [
       "Probability",
       "Algebra",
       0,
-      35
+      55
+    ],
+    [
+      "Probability",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Probability",
+      "AlgebraicTopology",
+      0,
+      2
     ],
     [
       "Probability",
       "Analysis",
       0,
-      25
+      44
     ],
     [
       "Probability",
       "CategoryTheory",
       0,
-      9
+      23
     ],
     [
       "Probability",
       "Combinatorics",
       0,
-      12
+      22
+    ],
+    [
+      "Probability",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "Probability",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "Probability",
+      "FieldTheory",
+      0,
+      2
     ],
     [
       "Probability",
       "Geometry",
       0,
-      14
+      24
     ],
     [
       "Probability",
-      "Logic",
-      0,
-      7
-    ],
-    [
-      "Probability",
-      "NumberTheory",
-      0,
-      14
-    ],
-    [
-      "Probability",
-      "SetTheory",
+      "GroupTheory",
       0,
       4
     ],
     [
       "Probability",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "Probability",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "Probability",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Probability",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "Probability",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "Probability",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "Probability",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Probability",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "Probability",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "Probability",
       "Topology",
       0,
-      11
+      23
+    ],
+    [
+      "RepresentationTheory",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "RepresentationTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "RepresentationTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "RepresentationTheory",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "RepresentationTheory",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "RepresentationTheory",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "RepresentationTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "RepresentationTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "RepresentationTheory",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "RepresentationTheory",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "RepresentationTheory",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "RepresentationTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "RepresentationTheory",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "RepresentationTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "RepresentationTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "RepresentationTheory",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "RepresentationTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "RepresentationTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "RepresentationTheory",
+      "RingTheory",
+      0,
+      15
+    ],
+    [
+      "RepresentationTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "RepresentationTheory",
+      "Topology",
+      0,
+      23
+    ],
+    [
+      "RingTheory",
+      "Algebra",
+      0,
+      55
+    ],
+    [
+      "RingTheory",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "RingTheory",
+      "AlgebraicTopology",
+      0,
+      2
+    ],
+    [
+      "RingTheory",
+      "Analysis",
+      0,
+      44
+    ],
+    [
+      "RingTheory",
+      "CategoryTheory",
+      0,
+      23
+    ],
+    [
+      "RingTheory",
+      "Combinatorics",
+      0,
+      22
+    ],
+    [
+      "RingTheory",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "RingTheory",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "RingTheory",
+      "FieldTheory",
+      0,
+      2
+    ],
+    [
+      "RingTheory",
+      "Geometry",
+      0,
+      24
+    ],
+    [
+      "RingTheory",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "RingTheory",
+      "LinearAlgebra",
+      0,
+      13
+    ],
+    [
+      "RingTheory",
+      "Logic",
+      0,
+      13
+    ],
+    [
+      "RingTheory",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "RingTheory",
+      "ModelTheory",
+      0,
+      1
+    ],
+    [
+      "RingTheory",
+      "NumberTheory",
+      0,
+      27
+    ],
+    [
+      "RingTheory",
+      "OrderTheory",
+      0,
+      13
+    ],
+    [
+      "RingTheory",
+      "Probability",
+      0,
+      15
+    ],
+    [
+      "RingTheory",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "RingTheory",
+      "SetTheory",
+      0,
+      13
+    ],
+    [
+      "RingTheory",
+      "Topology",
+      0,
+      23
     ],
     [
       "Topology",
       "Algebra",
       0,
-      35
+      55
+    ],
+    [
+      "Topology",
+      "AlgebraicGeometry",
+      0,
+      3
+    ],
+    [
+      "Topology",
+      "AlgebraicTopology",
+      0,
+      2
     ],
     [
       "Topology",
       "Analysis",
-      0,
-      25
+      1,
+      44
     ],
     [
       "Topology",
       "CategoryTheory",
       0,
-      9
+      23
     ],
     [
       "Topology",
       "Combinatorics",
       0,
-      12
+      22
+    ],
+    [
+      "Topology",
+      "Computability",
+      0,
+      15
+    ],
+    [
+      "Topology",
+      "Dynamics",
+      0,
+      1
+    ],
+    [
+      "Topology",
+      "FieldTheory",
+      0,
+      2
     ],
     [
       "Topology",
       "Geometry",
       0,
-      14
+      24
+    ],
+    [
+      "Topology",
+      "GroupTheory",
+      0,
+      4
+    ],
+    [
+      "Topology",
+      "LinearAlgebra",
+      0,
+      13
     ],
     [
       "Topology",
       "Logic",
       0,
-      7
+      13
+    ],
+    [
+      "Topology",
+      "MeasureTheory",
+      0,
+      5
+    ],
+    [
+      "Topology",
+      "ModelTheory",
+      0,
+      1
     ],
     [
       "Topology",
       "NumberTheory",
       0,
-      14
+      27
+    ],
+    [
+      "Topology",
+      "OrderTheory",
+      0,
+      13
     ],
     [
       "Topology",
       "Probability",
       0,
-      9
+      15
+    ],
+    [
+      "Topology",
+      "RepresentationTheory",
+      0,
+      2
+    ],
+    [
+      "Topology",
+      "RingTheory",
+      0,
+      15
     ],
     [
       "Topology",
       "SetTheory",
       0,
-      4
+      13
     ]
   ],
   "fibras": {
-    "Computability": 8,
-    "Topology": 11,
-    "fundacional": 25,
-    "Geometry": 14,
-    "Logic": 7,
-    "Probability": 9,
-    "SetTheory": 4,
-    "Combinatorics": 12,
-    "Algebra": 35,
-    "Analysis": 25,
-    "CategoryTheory": 9,
-    "NumberTheory": 14
+    "GroupTheory": 4,
+    "NumberTheory": 27,
+    "AlgebraicGeometry": 3,
+    "Algebra": 55,
+    "Computability": 15,
+    "Topology": 23,
+    "FieldTheory": 2,
+    "LinearAlgebra": 13,
+    "Probability": 15,
+    "Dynamics": 1,
+    "MeasureTheory": 5,
+    "Analysis": 44,
+    "Logic": 13,
+    "Geometry": 24,
+    "CategoryTheory": 23,
+    "SetTheory": 13,
+    "RepresentationTheory": 2,
+    "OrderTheory": 13,
+    "fundacional": 18,
+    "AlgebraicTopology": 2,
+    "ModelTheory": 1,
+    "RingTheory": 15,
+    "Combinatorics": 22
   }
 }

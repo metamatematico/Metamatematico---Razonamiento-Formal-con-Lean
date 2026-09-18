@@ -56,8 +56,33 @@ SALIDA = RAIZ / "data" / "fibracion_del_grafo.json"
 
 
 def _grafo():
-    from scripts.train_gnn_ppo import build_skill_graph
-    return build_skill_graph()
+    """EL GRAFO DEL SISTEMA, no el del entrenamiento.
+
+    Esto llamaba a `build_skill_graph()` de `scripts/train_gnn_ppo.py`, que
+    RECONSTRUYE un grafo para entrenar la red: 206 skills y 1016 morfismos
+    frente a los 353 y 1585 que monta `Nucleo.initialize()`. Le faltaban 147
+    nodos y 569 morfismos, y entre ellos los que mas importan aqui —los
+    DEPENDENCY que cruzan de area, que son 254 en el grafo real y salian 33
+    en el reconstruido—.
+
+    O sea que el diagnostico de la fibracion, y la conclusion de que «no falla
+    por falta de datos», se sacaron de un grafo que no es el de este sistema.
+    La cifra publicada describia otra cosa.
+
+    (Medido de nuevo sobre el grafo vivo, el veredicto cualitativo NO cambia:
+    la tasa sigue pegada a la del azar. Pero eso hay que saberlo, no suponerlo.)
+    """
+    import asyncio
+
+    from nucleo.config import NucleoConfig
+    from nucleo.core import Nucleo
+
+    yaml = RAIZ / "nucleo_config.yaml"
+    cfg = NucleoConfig.from_yaml(str(yaml)) if yaml.exists() else NucleoConfig()
+    n = Nucleo(cfg)
+    # el constructor NO monta el grafo; lo monta initialize(), que es async
+    asyncio.run(n.initialize())
+    return n._graph
 
 
 def _clasifica(motivo: str) -> str:
@@ -219,7 +244,14 @@ def main(a) -> int:
         print("      %-14s -> %-14s %3d/%-3d = %.0f %%" % (b, c, ok, n,
                                                            100 * ok / n))
 
+    # LA HUELLA DEL GRAFO MEDIDO. Este fichero no la escribia, y por eso pudo
+    # quedarse tres versiones de grafo atras —173 skills con el sistema ya en
+    # 353— sin que el chequeo 7 del auditor lo notara: no puede comparar lo
+    # que no esta escrito. Ver `nucleo/graph/huella.py`.
+    from nucleo.graph.huella import huella
+
     SALIDA.write_text(json.dumps({
+        "grafo": huella(graph),
         "skills": len(graph.skills), "morfismos": len(graph.morphisms),
         "areas": len(pi.codominio.objetos),
         "flechas_base": len(pi.codominio.morfismos),

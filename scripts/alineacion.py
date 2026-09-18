@@ -327,11 +327,20 @@ def RETIRADAS_GLOBALES():
 
 
 #: Los ficheros de medicion que la documentacion cita como cifras actuales.
+#:
+#: UNA MEDICION QUE NO ESTA EN ESTA LISTA NO LA VIGILA NADIE, y el fallo no se
+#: nota: el fichero sigue ahi, con sus cifras, y la documentacion las cita tan
+#: tranquila. `fibracion_del_grafo.json` describia un grafo de 173 skills con
+#: el sistema ya en 353 —y encima medido sobre el grafo del ENTRENAMIENTO y no
+#: sobre el del sistema, al que le faltaban 569 morfismos— sin que nada
+#: saltara, porque no estaba aqui.
 MEDICIONES = (
     "recuperacion_proofnet.json",
     "banco_docstrings.json",
     "banco_herald.json",
     "funtor_mathlib.json",
+    "fibracion_del_grafo.json",
+    "viajes.json",
 )
 
 
