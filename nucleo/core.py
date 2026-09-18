@@ -1317,7 +1317,7 @@ class Nucleo:
 
         if action.action_type == ActionType.RESPONSE:
             # Consulta matematica → Lean primero, LLM solo traduce
-            if self._is_mathematical(input_text):
+            if self._es_consulta_matematica(input_text):
                 # Enrutar al agente especializado si está disponible
                 if self._multi_agent_orchestrator is not None:
                     category, _agent = self.get_specialized_agent(input_text)
@@ -1394,7 +1394,7 @@ class Nucleo:
             # equivoca (o la red devuelve ASSIST para todo), un saludo acababa
             # formalizandose en Lean 4: una llamada al LLM y una ejecucion de
             # Lean tiradas para devolver un sinsentido.
-            if not self._is_mathematical(input_text):
+            if not self._es_consulta_matematica(input_text):
                 context = self._find_relevant_context(input_text, self._graph)
                 context["mode"] = self._mode.name
                 llm_response = await self._llm.generate(input_text, context=context)
@@ -1568,6 +1568,39 @@ class Nucleo:
         # notación de conjuntos o funciones con argumento
         r"[a-z]\s*\(\s*[a-z0-9]",
     )
+
+    def _es_consulta_matematica(self, texto: str) -> bool:
+        """La puerta a Lean, preguntada sobre LO QUE ESCRIBIO EL ALUMNO.
+
+        EL FALLO QUE CIERRA, y es el mas caro que ha tenido este sistema.
+        Consulta real:
+
+            «Demuestra que la raiz cuadrada de 2 es irracional»
+
+        El traductor —`Helsinki-NLP/opus-mt-es-en`, 74 M— la convierte en
+
+            «It shows that the square root of 2 is irrational.»
+
+        El imperativo «demuestra» se vuelve declarativo «it shows that», y
+        sobre ESA frase `_is_mathematical` contesta False. Resultado: la
+        consulta canonica del proyecto —la irracionalidad de raiz de 2— nunca
+        llegaba a Lean. Devolvia prosa plausible sin verificar, que es
+        exactamente lo que este sistema existe para no hacer.
+
+        Nadie lo veia porque las dos piezas estaban bien por separado: el
+        traductor traduce y el clasificador clasifica. Lo que estaba mal era
+        el ORDEN — se le preguntaba al clasificador sobre un texto que el
+        alumno no escribio.
+
+        SE PREGUNTA POR LAS DOS, y la razon es de coste asimetrico: un falso
+        positivo gasta una llamada y una compilacion de Lean; un falso
+        negativo apaga el producto entero para esa consulta y devuelve prosa
+        con aspecto de respuesta. Ante la duda, se formaliza.
+        """
+        original = getattr(self, "_consulta_original", None)
+        if original and original != texto and self._is_mathematical(original):
+            return True
+        return self._is_mathematical(texto)
 
     def _is_mathematical(self, text: str) -> bool:
         """
@@ -1776,7 +1809,7 @@ class Nucleo:
             pilar = ctx.get("pillar") or "—"
             competencia = ctx.get("competencia_emergente")
 
-            if not self._is_mathematical(input_text):
+            if not self._es_consulta_matematica(input_text):
                 title = "Modo demo"
                 explanation = (
                     "Esta consulta no es matemática, así que el NLE no la envía a Lean. "
@@ -2668,7 +2701,9 @@ class Nucleo:
             hint = self._lean_hint(first_err)
             verification_status = "no_verificado"
             _tras = (
-                f" Tras {_rondas_revision} ronda(s) de revisión con el error de Lean."
+                f" El sistema reintentó {_rondas_revision} vez/veces "
+                "realimentando el error de Lean al generador, y el resultado "
+                "sigue sin verificarse."
                 if _rondas_revision else ""
             )
             verification_note = (
@@ -3437,6 +3472,21 @@ class Nucleo:
 
         mejor_code, mejor_res = lean_code, result
 
+        # RONDAS QUE DE VERDAD SE EJECUTAN, no las que se aceptan.
+        #
+        # Esto devolvia `0 if mejor_res is result else max_rondas`, y las dos
+        # mitades eran falsas. Si la revision corria dos rondas y ninguna
+        # mejoraba, devolvia 0 —indistinguible de no haber corrido— y la frase
+        # que se le enseña al alumno, «Tras N ronda(s) de revision», DESAPARECIA
+        # justo en el caso para el que existe: se le dice que Lean fallo y se le
+        # oculta que el sistema intento arreglarlo dos veces, con dos llamadas
+        # al modelo y dos compilaciones detras. Y al reves, una mejora en la
+        # ronda 1 se reportaba como 2.
+        #
+        # Me lo comi yo leyendo la bateria: vi `rondas 0` y concluí que el bucle
+        # no habia corrido. El instrumento mentia sobre su propio esfuerzo.
+        hechas = 0
+
         for ronda in range(1, max_rondas + 1):
             errores = mejor_res.error_messages or []
             primero = (mejor_res.get_first_error() or "").strip()
@@ -3518,6 +3568,7 @@ class Nucleo:
                 break
 
             res_n = await self._lean.check_code(code_n)
+            hechas = ronda
 
             # Mismo criterio de mejora que repair_imports.
             mejora = (
@@ -3535,10 +3586,9 @@ class Nucleo:
 
             mejor_code, mejor_res = code_n, res_n
             if mejor_res.status != LeanResultStatus.ERROR:
-                return mejor_code, mejor_res, ronda
+                return mejor_code, mejor_res, hechas
 
-        rondas = 0 if mejor_res is result else max_rondas
-        return mejor_code, mejor_res, rondas
+        return mejor_code, mejor_res, hechas
 
 
     # =========================================================================
