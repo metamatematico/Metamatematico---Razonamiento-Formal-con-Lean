@@ -73,14 +73,29 @@ class TestCifrasDeclaradas:
             declarados.append((PAGINA.name, int(pagina.replace(",", ""))))
 
         #: en el README y el artefacto la cifra va suelta en la prosa, asi que
-        #: se buscan las formas en que se escribe, no un numero cualquiera
+        #: se buscan las formas en que se escribe, no un numero cualquiera.
+        #:
+        #: `_N` acepta separador de millares, porque el artefacto escribe
+        #: «1 129» con ESPACIO FINO (U+202F) y el README «1129» a secas. El
+        #: patron de aqui decia `(\d+)  tests` con dos espacios —un intento de
+        #: casar ese espacio fino que se degrado— y asi no casaba nada: en el
+        #: artefacto sobrevivio «1 085 tests en 56 suites», 44 tests por
+        #: debajo de la realidad, con el guardian en verde. Un guardian que no
+        #: casa es peor que no tenerlo, porque se confia en el.
+        #:
+        #: Los separadores van por NOMBRE y no escritos a pelo: el espacio
+        #: fino y el duro son INVISIBLES en el editor, y el primero que toque
+        #: esta linea los borraria sin enterarse, devolviendo el guardian al
+        #: estado de no casar nada.
+        _SEPS = "\u202f\u00a0.,\u0020"      # fino, duro, punto, coma, normal
+        _N = r"(\d[\d%s]*\d|\d)" % re.escape(_SEPS)
         for nombre, patrones in (
-            ("README.md", (r"Tests-(\d+)_passing",
-                           r"\*\*(\d+) tests en \d+ suites",
-                           r"tests/\s+(\d+) tests en")),
-            ("docs/arquitectura_nle.html", (r"(\d+) tests · \d+ suites",
-                                            r'"n">(\d+)</div><div class="l">tests en verde',
-                                            r"(\d+)  tests en \d+ suites")),
+            ("README.md", (r"Tests-" + _N + r"_passing",
+                           r"\*\*" + _N + r" tests en \d+ suites",
+                           r"tests/\s+" + _N + r" tests en")),
+            ("docs/arquitectura_nle.html", (_N + r" tests · \d+ suites",
+                                            r'"n">' + _N + r'</div><div class="l">tests en verde',
+                                            _N + r" tests en \d+ suites")),
         ):
             p = RAIZ / nombre
             if not p.exists():
@@ -88,7 +103,10 @@ class TestCifrasDeclaradas:
             doc = io.open(p, encoding="utf-8").read()
             for pat in patrones:
                 for m in re.finditer(pat, doc):
-                    declarados.append((nombre, int(m.group(1))))
+                    crudo = m.group(1)
+                    for sep in (".", ",", " ", " ", " "):
+                        crudo = crudo.replace(sep, "")
+                    declarados.append((nombre, int(crudo)))
 
         assert declarados, "ya no se publica en ningun sitio cuantos tests hay"
         malos = sorted({(n, v) for n, v in declarados if v != casos})
@@ -270,6 +288,19 @@ class TestCifrasDelGrafo:
             if p.exists():
                 docs[nombre] = re.sub(r"<svg[\s\S]*?</svg>", " ",
                                       io.open(p, encoding="utf-8").read())
+
+        # LA HOJA DE CURACION TAMBIEN PUBLICA CIFRAS MEDIDAS, y se quedo fuera
+        # de esta lista por ser .md en vez de .html. Citaba «10,3 % contra
+        # Herald» —el grafo de 352 nodos— mientras los cuatro documentos de
+        # arriba ya estaban corregidos, y nada lo marcaba.
+        #
+        # Ojo: la genera `scripts/hoja_de_curacion_interna.py` con la cifra
+        # escrita a mano en DOS sitios (el markdown y el LaTeX), asi que
+        # corregir solo el .md lo revierte la siguiente regeneracion. Hay que
+        # tocar el generador.
+        p = RAIZ / "docs" / "CURACION_INTERNA.md"
+        if p.exists():
+            docs["curacion"] = io.open(p, encoding="utf-8").read()
         return docs
 
     def test_el_desglose_de_morfismos_cuadra_con_el_total(self):
@@ -388,6 +419,84 @@ class TestCifrasDelGrafo:
         assert not malas, (
             "cifras MEDIDAS desactualizadas en la documentacion: "
             + "; ".join(sorted(set(malas))))
+
+    #: EL FACTOR ES UNA CIFRA DERIVADA, y por eso se escapaba del guardian de
+    #: arriba, que compara cada numero publicado con UNA RUTA dentro del JSON.
+    #: El factor no esta en ningun JSON: es el cociente. Al no tener ruta se
+    #: quedo sin vigilar, y la documentacion arrastro «15,7x» durante toda una
+    #: remedicion mientras la precision de al lado —esa si vigilada— ya decia
+    #: 23,9 %. La pagina publicaba «23,9 ... 1,45 ... 15,7x», y
+    #: 23,9/1,45 son 16,5: el lector con una calculadora veia la contradiccion
+    #: que el guardian no veia. Estaba en CINCO documentos.
+    #:
+    #: EL COCIENTE SE SACA DEL JSON, NUNCA DE LO PUBLICADO. Lo intente: si el
+    #: documento ya trae precision y nulo al lado del factor, parece que el
+    #: factor se puede comprobar contra ellos sin abrir ningun fichero. No se
+    #: puede. El nulo se publica redondeado a 0,3 % y vale 0,262, asi que
+    #: 5,0/0,3 da 16,7x cuando el cociente real es 19,2x. Un cociente no
+    #: sobrevive al redondeo de sus operandos: el guardian habria exigido
+    #: escribir un factor FALSO.
+    #:
+    #: EL ANCLA ES EL PAR precision+cobertura DE SU BANCO, el mismo `_PC` que
+    #: usa el test de arriba, y no el nombre del banco a secas. Anclar en el
+    #: nombre marcaba documentacion CORRECTA dos veces: «ProofNet» sale tambien
+    #: en la prosa de otra fila —«ProofNet no paga»— y el primer factor que
+    #: venia detras era el del reconocedor de area, 3,2x, perfectamente valido.
+    #: El par exige las palabras «precision» y «cobertura», que solo estan en
+    #: la fila de resultados.
+    FACTORES = (
+        ("ProofNet", "recuperacion_proofnet.json",
+         ("resultados", "lexico", "precision"),
+         ("resultados", "nulo", "precision")),
+        ("Mathlib entero", "banco_docstrings.json",
+         ("resultados", "grafo", "precision"),
+         ("resultados", "nulo", "precision")),
+        ("Herald", "banco_herald.json",
+         ("resultados", "grafo", "precision"),
+         ("resultados", "nulo", "precision")),
+    )
+
+    def test_los_factores_contra_el_nulo_son_el_cociente_real(self):
+        """Cada «Nx» publicado tiene que ser el cociente que dice ser."""
+        import io
+        import json
+        import re
+        from nucleo.rutas import RAIZ
+
+        malas = []
+        for ancla, fichero, ruta_sis, ruta_nulo in self.FACTORES:
+            p = RAIZ / "data" / fichero
+            if not p.exists():
+                continue
+            d = json.load(io.open(p, encoding="utf-8"))
+            try:
+                sis = nulo = d
+                for k in ruta_sis:
+                    sis = sis[k]
+                for k in ruta_nulo:
+                    nulo = nulo[k]
+            except (KeyError, TypeError):
+                continue
+            if not nulo:
+                continue
+            real = sis / nulo
+
+            # ancla + el par precision/cobertura + los dos nulos + el factor
+            patron = (re.escape(ancla) + self._PC
+                      + r".{0,40}?(\d{1,2},\d)\s*[xX]")
+            for nombre, doc in self._docs().items():
+                plano = self._sin_etiquetas(doc).replace("×", "x")
+                for m in re.finditer(patron, plano):
+                    pub = float(m.group(3).replace(",", "."))
+                    # una decima de tolerancia: la documentacion redondea
+                    if abs(pub - real) > 0.1 + 1e-9:
+                        malas.append(
+                            "%s · %s publica %sx y el cociente medido es %.1fx"
+                            % (nombre, ancla, m.group(3), real))
+
+        assert not malas, (
+            "factores contra el nulo que no son el cociente que dicen ser: %s. "
+            "Recalcularlo desde el JSON, no copiarlo." % "; ".join(sorted(set(malas))))
 
     def test_las_cifras_documentadas_son_las_reales(self):
         """Las cifras que la documentacion DECLARA, contra el grafo real.

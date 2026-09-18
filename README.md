@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1124_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1147_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-353_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -54,7 +54,7 @@ idioma.
 
 | paso | quién | qué hace | ¿aporta? |
 |---|---|---|---|
-| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 15,7× sobre el azar** |
+| 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 16,5× sobre el azar** |
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
 | 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
@@ -383,7 +383,7 @@ lo mismo acierta el 79 %.
 
 | qué | resultado | modelo nulo | veredicto |
 |---|---|---|---|
-| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 23,9 % precisión<br>16,5 % cobertura | 1,45 %<br>3,3 % | **15,7× · aporta** |
+| Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 23,9 % precisión<br>16,5 % cobertura | 1,45 %<br>3,3 % | **16,5× · aporta** |
 | Dependencias **curadas** contra el DAG real<br><sub>151 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 72,2 % confirmadas<br><sub>109/151</sub> | 30,7 %<br><sub>nulo emparejado</sub> | **2,35× · aporta** |
 | Costura de **cobertura** contra el DAG<br><sub>9 aristas `skill→módulo` medibles</sub> | 100 % confirmadas<br><sub>9/9</sub> | **100 %** | **1,00× · no dice nada** |
 | Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
@@ -394,7 +394,7 @@ lo mismo acierta el 79 %.
 | Poda por área antes de elegir<br><sub>con localización perfecta — el techo</sub> | 6,8 % | 9,8 % | **no llega al nulo** |
 | Revisión de sintaxis de la consulta<br><sub>23 243 enunciados de LeanWorkbook, todos correctos</sub> | 3,6 % falsos positivos<br>60,8 % de caza | 3,6 % (moneda) | **+57,3 puntos · aporta** |
 | N-gramas **+** rasgos del árbol → premisas<br><sub>22 117 enunciados · el 80,9 % es de LAS DOS juntas: los 68 rasgos añaden +4,1 puntos sobre los n-gramas solos (76,8 %)</sub> | 80,9 % cobertura | 56,6 % (los 6 más citados) | **1,43× · aporta** |
-| Fibración π : Skills → Áreas<br><sub>860 pares (objeto, área debajo)</sub> | 0,3 % se levanta | 6,1 % (áreas al azar) | **peor que el azar** |
+| Fibración π : Skills → Áreas<br><sub>6753 pares (objeto, área debajo)</sub> | 0,1 % se levanta | 4,2 % (áreas al azar) | **peor que el azar** |
 
 ```bash
 python scripts/recuperacion_contra_proofnet.py    # vocabulario
@@ -614,7 +614,7 @@ que manda todo a un punto también cumple las dos leyes. La condición que dice
 que la base *sirve* es la de fibración, demostrada en
 `MetamathProver/CategoryFoundations/Fibracion.lean` (0 sorry).
 
-Sobre el grafo real **no se cumple**: 3 de 860 pares (0,3 %), contra el 6,1 %
+Sobre el grafo real **no se cumple**: 10 de 6753 pares (0,1 %), contra el 4,2 %
 de barajar las áreas al azar. Y la causa no es la que parecía.
 
 **La base no es un orden.** Se construye como la imagen de las flechas del
@@ -656,7 +656,7 @@ python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
 
 ## 7. Tests y guardianes
 
-**1124 tests en 56 suites.** Los que más valen no comprueban que el código
+**1147 tests en 58 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -805,7 +805,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
-tests/                    1124 tests en 56 suites
+tests/                    1147 tests en 58 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

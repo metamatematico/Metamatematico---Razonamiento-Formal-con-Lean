@@ -606,8 +606,8 @@ def _md(filas, n_nodos, n_conc):
     L.append("```\npython -m scripts.recuperacion_contra_proofnet\n"
              "python -m scripts.banco_docstrings\n"
              "python -m scripts.banco_herald\n```\n")
-    L.append("**Baseline hoy: 22,8 % / 18,0 % contra ProofNet**, 5,0 % sobre "
-             "Mathlib entero, 10,3 % contra Herald. Una tanda entra si sube "
+    L.append("**Baseline hoy: 23,9 % / 16,5 % contra ProofNet**, 5,0 % sobre "
+             "Mathlib entero, 10,6 % contra Herald. Una tanda entra si sube "
              "su barrio y no baja el global.\n")
     L.append("Y aquí hay una asimetría que conviene tener presente: **quitar "
              "un nombre o retirar un nodo casi nunca baja la precisión**, "
@@ -842,7 +842,7 @@ está».""")
 \texttt{python -m scripts.banco\_docstrings}\par
 \texttt{python -m scripts.banco\_herald}\par\medskip
 \textbf{Baseline hoy: 22,8\,\% / 18,0\,\% contra ProofNet}, 5,0\,\% sobre
-\Mathlib{} entero, 10,3\,\% contra Herald. Una tanda entra si sube su barrio y
+\Mathlib{} entero, 10,6\,\% contra Herald. Una tanda entra si sube su barrio y
 no baja el global.\par\medskip
 Y hay una asimetría que conviene tener presente: \textbf{quitar un nombre o
 retirar un nodo casi nunca baja la precisión}, así que el montón C y las

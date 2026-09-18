@@ -2611,7 +2611,7 @@ with tab6:
     # busca el patron `"Tests", "N", "M suites"` con una regex, y un f-string
     # no encaja, asi que el test pasaba a saltarse en silencio. Una cifra
     # viva que apaga su propio control es peor que una literal vigilada.
-    col3.metric("Tests", "1124", "56 suites")
+    col3.metric("Tests", "1147", "58 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")
@@ -3308,9 +3308,60 @@ with tab11:
             f"{_fb['relaciones_entre_areas_por_clausura']} relaciones entre "
             "áreas al cerrar transitivamente. La base **afirma de más**, y el "
             "93 % de los objetos no tiene ni un skill del área de abajo por "
-            "debajo. No falta formalización: faltan morfismos que crucen.")
+            "debajo.")
+        # ESTA LINEA DECIA «faltan morfismos que crucen», Y EL PROPIO REPO LO
+        # REFUTA. `scripts/base_no_es_un_orden.py` demuestra que la clausura
+        # transitiva es monotona: una arista nueva solo puede AÑADIR
+        # relaciones a la base, nunca quitarlas, y las areas ya forman una
+        # componente fuertemente conexa de 21 de 23. Añadir morfismos que
+        # crucen agranda la componente y EMPEORA la tasa. La pagina publicaba
+        # como remedio exactamente lo contrario de lo que el script mide.
+        st.caption(
+            "Y **no se arregla añadiendo morfismos que crucen**: la clausura "
+            "transitiva es monótona, así que una arista nueva sólo puede "
+            "añadir relaciones a la base. Las áreas ya forman una componente "
+            "fuertemente conexa de 21 de 23 — "
+            "`scripts/base_no_es_un_orden.py` lo mide.")
     else:
         st.info("Corre `scripts/fibracion_del_grafo.py`.")
+
+    # ── viajar por los levantamientos que SI existen ────────────────────
+    st.markdown("##### Viajar: ¿qué sostiene a este concepto?")
+    _vj = _leer_medicion("viajes.json")
+    if not _vj:
+        st.info("Corre `scripts/viajes_del_grafo.py`.")
+    else:
+        st.caption(
+            "La fibración global no vale, pero **los levantamientos que "
+            "existen son correctos uno a uno**, y son la respuesta a «¿qué "
+            "parte de aquella área sostiene a este concepto?». "
+            f"Hay **{_vj['con_viaje']} de {_vj['pares']}** pares que la base "
+            f"promete ({100 * _vj['tasa']:.1f} %), contra un azar de "
+            f"{100 * _vj['nulo_base_directa']:.1f} % — ventaja "
+            f"**{_vj['ventaja_sobre_el_nulo']}×**, o sea casi ninguna. "
+            "Se enseñan porque cada uno es cierto, no porque el sistema sepa "
+            "viajar en general.")
+        _por_origen = {}
+        for _v in _vj["viajes"]:
+            _por_origen.setdefault(_v["origen"], []).append(_v)
+        _sel = st.selectbox(
+            "Concepto de partida (sólo los que tienen algún viaje)",
+            sorted(_por_origen), key="viaje_origen")
+        if _sel:
+            st.caption("vive en **%s**" % _por_origen[_sel][0]["area_origen"])
+            for _v in sorted(_por_origen[_sel], key=lambda x: x["destino"]):
+                st.markdown(
+                    "- hacia **%s** → lo sostiene `%s`  (%d candidatos, "
+                    "se elige el mayor)"
+                    % (_v["destino"], _v["soporte"], _v["candidatos"]))
+        with st.expander("Los %d viajes que existen" % _vj["con_viaje"]):
+            import pandas as _pd
+            st.dataframe(
+                _pd.DataFrame([
+                    {"concepto": v["origen"], "vive en": v["area_origen"],
+                     "viaja a": v["destino"], "lo sostiene": v["soporte"]}
+                    for v in _vj["viajes"]]),
+                use_container_width=True, hide_index=True)
 
     st.divider()
 

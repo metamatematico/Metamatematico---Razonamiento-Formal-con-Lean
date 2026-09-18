@@ -300,6 +300,6 @@ python -m scripts.banco_docstrings
 python -m scripts.banco_herald
 ```
 
-**Baseline hoy: 22,8 % / 18,0 % contra ProofNet**, 5,0 % sobre Mathlib entero, 10,3 % contra Herald. Una tanda entra si sube su barrio y no baja el global.
+**Baseline hoy: 23,9 % / 16,5 % contra ProofNet**, 5,0 % sobre Mathlib entero, 10,6 % contra Herald. Una tanda entra si sube su barrio y no baja el global.
 
 Y aquí hay una asimetría que conviene tener presente: **quitar un nombre o retirar un nodo casi nunca baja la precisión**, así que el montón C y las retiradas del B se pueden medir barato. **Añadir** nombres sí tiene coste — la primera tanda bajó de 21,3 % a 19,9 % antes de que la puerta `_evidencia_declarada` lo arreglara. El montón A es el caro.

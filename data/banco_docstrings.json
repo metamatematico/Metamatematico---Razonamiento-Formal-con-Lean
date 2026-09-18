@@ -7,22 +7,27 @@
     "corto": 3497,
     "sin_oro": 285
   },
+  "grafo": {
+    "nodos": 353,
+    "morfismos": 1585,
+    "hash": "76eb8e1b702025db"
+  },
   "resultados": {
     "grafo": {
-      "precision": 5.0191893039402595,
-      "cobertura": 2.157583392083254,
-      "con_algo": 34416,
-      "tp": 6029,
-      "fp": 114090,
-      "fn": 273404
+      "precision": 5.017384505331803,
+      "cobertura": 2.1586569946999816,
+      "con_algo": 34441,
+      "tp": 6032,
+      "fp": 114190,
+      "fn": 273401
     },
     "sin_tanda": {
-      "precision": 4.896704855336142,
-      "cobertura": 2.0756317256730594,
-      "con_algo": 33614,
-      "tp": 5800,
-      "fp": 112647,
-      "fn": 273633
+      "precision": 4.894857152497195,
+      "cobertura": 2.076705328289787,
+      "con_algo": 33641,
+      "tp": 5803,
+      "fp": 112750,
+      "fn": 273630
     },
     "nulo": {
       "precision": 0.2619596822495373,

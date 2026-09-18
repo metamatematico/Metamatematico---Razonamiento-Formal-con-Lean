@@ -915,7 +915,7 @@ tactic-omega         7                real-analysis     16</pre>
           <tr><td><strong>Delgadez</strong><span class="sub">≤ 1 flecha por par, en la subcategoría de orden</span></td><td class="mono"><span class="pill v">se cumple</span></td><td><code>JoinColimit.lean</code></td></tr>
           <tr><td><strong>Colímites</strong><span class="sub">propiedad universal y unicidad del mediador</span></td><td class="mono"><span class="pill v">verificado</span></td><td><code>ColimitVerifier</code> · <code>JoinColimit</code> · <code>IsColimitBridge</code></td></tr>
           <tr><td><strong>Funtor π : Skills → Áreas</strong></td><td class="mono"><span class="pill v">cumple las dos leyes</span></td><td><code>QuotientFunctor.lean</code></td></tr>
-          <tr><td><strong>Fibración</strong><span class="sub">todo lo de abajo se levanta</span></td><td class="mono">3 de 860 pares <span class="pill a">NO se cumple</span></td><td><code>Fibracion.lean</code>, 0 sorry</td></tr>
+          <tr><td><strong>Fibración</strong><span class="sub">todo lo de abajo se levanta</span></td><td class="mono">10 de 6753 pares <span class="pill a">NO se cumple</span></td><td><code>Fibracion.lean</code>, 0 sorry</td></tr>
         </tbody>
       </table>
     </div>
@@ -926,8 +926,8 @@ tactic-omega         7                real-analysis     16</pre>
       basta</strong>: un funtor que manda todo a un punto también las cumple. La
       condición que dice que la base <em>sirve</em> —que se pueda mover una
       pregunta de un área a otra— es la de fibración, y sobre el grafo real
-      falla: <strong>3 de 860 pares (0,3 %) admiten levantamiento cartesiano,
-      frente al 6,1 % de barajar las áreas al azar</strong>.</p>
+      falla: <strong>10 de 6753 pares (0,1 %) admiten levantamiento cartesiano,
+      frente al 4,2 % de barajar las áreas al azar</strong>.</p>
       <p>La causa no es la formalización, que está completa y sin
       <code>sorry</code>. De los <strong>230 morfismos de orden</strong> sólo
       <strong>29 cruzan de área</strong> —134 se quedan dentro y 67 van al
@@ -970,14 +970,14 @@ tactic-omega         7                real-analysis     16</pre>
       <table>
         <thead><tr><th>qué se mide del grafo</th><th class="mono">resultado</th><th class="mono">modelo nulo</th><th>veredicto</th></tr></thead>
         <tbody>
-          <tr><td><strong>El vocabulario que inyecta</strong><span class="sub">371 ejercicios de ProofNet con formalización de oro, k=2</span></td><td class="mono">23,9 % precisión<br>16,5 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">15,7× · aporta</span></td></tr>
+          <tr><td><strong>El vocabulario que inyecta</strong><span class="sub">371 ejercicios de ProofNet con formalización de oro, k=2</span></td><td class="mono">23,9 % precisión<br>16,5 % cobertura</td><td class="mono">1,45 %<br>3,3 %</td><td><span class="pill v">16,5× · aporta</span></td></tr>
           <tr><td><strong>Sus dependencias <em>curadas</em></strong><span class="sub">151 aristas <code>skill→skill</code> medibles · nulo emparejado</span></td><td class="mono">109 confirmadas<br>72,2 %</td><td class="mono">30,7 %</td><td><span class="pill v">2,35× · aporta</span></td></tr>
           <tr><td><strong>Su costura de <em>cobertura</em></strong><span class="sub">9 aristas <code>skill→módulo</code> medibles contra el mismo DAG</span></td><td class="mono">9 confirmadas<br>100 %</td><td class="mono">100 %</td><td><span class="pill">1,00× · no dice nada</span></td></tr>
-          <tr><td><strong>El vocabulario, sobre Mathlib entero</strong><span class="sub">53 613 docstrings limpios — dónde el grafo tiene nodo y dónde no</span></td><td class="mono">5,0 % precisión<br>2,2 % cobertura</td><td class="mono">0,3 %<br>0,5 %</td><td><span class="pill v">19,0× · aporta</span></td></tr>
-          <tr><td><strong>El vocabulario, contra Herald</strong><span class="sub">43 856 enunciados reescritos por otro sistema · el control independiente</span></td><td class="mono">10,3 % precisión<br>6,9 % cobertura</td><td class="mono">1,2 %<br>2,2 %</td><td><span class="pill v">8,8× · aporta</span></td></tr>
+          <tr><td><strong>El vocabulario, sobre Mathlib entero</strong><span class="sub">53 613 docstrings limpios — dónde el grafo tiene nodo y dónde no</span></td><td class="mono">5,0 % precisión<br>2,2 % cobertura</td><td class="mono">0,3 %<br>0,5 %</td><td><span class="pill v">19,2× · aporta</span></td></tr>
+          <tr><td><strong>El vocabulario, contra Herald</strong><span class="sub">43 856 enunciados reescritos por otro sistema · el control independiente</span></td><td class="mono">10,6 % precisión<br>6,6 % cobertura</td><td class="mono">1,2 %<br>2,2 %</td><td><span class="pill v">9,0× · aporta</span></td></tr>
           <tr><td><strong>El área que acierta</strong><span class="sub">3 000 consultas etiquetadas · exactitud equilibrada</span></td><td class="mono">40,9 %</td><td class="mono">33,3 %</td><td><span class="pill">+7,6 · por encima del azar</span></td></tr>
           <tr><td><strong>Su cobertura de Mathlib</strong><span class="sub">teoremas alcanzados por concepto</span></td><td class="mono">137 476<br>de 173 636</td><td class="mono">—</td><td><span class="pill">79,2 %</span></td></tr>
-          <tr><td><strong>La fibración</strong><span class="sub">860 pares (objeto, área por debajo)</span></td><td class="mono">3 se levantan<br>0,3 %</td><td class="mono">6,1 %</td><td><span class="pill a">peor que el azar</span></td></tr>
+          <tr><td><strong>La fibración</strong><span class="sub">6753 pares (objeto, área por debajo)</span></td><td class="mono">10 se levantan<br>0,1 %</td><td class="mono">4,2 %</td><td><span class="pill a">peor que el azar</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -1025,8 +1025,8 @@ tactic-omega         7                real-analysis     16</pre>
       Mathlib.</strong> Abren el cono de su área pero no llevan vocabulario
       verificado al prompt, que es la contribución medida del grafo.</li>
 
-      <li><strong>La fibración no se cumple</strong> — 3 de 860 pares se
-      levantan, frente al 6,1 % del azar. Y no por falta de morfismos: está
+      <li><strong>La fibración no se cumple</strong> — 10 de 6753 pares se
+      levantan, frente al 4,2 % del azar. Y no por falta de morfismos: está
       demostrado que añadirlos empeora la clausura. Lo que falla es el área
       como base.</li>
 
@@ -1102,7 +1102,7 @@ python scripts/auditar_respaldo_lean.py   # comprueba el mapeo Python ↔ teorem
     formalización de oro escrita por matemáticos. Las dependencias curadas: contra el
     DAG de imports escaneado de los 7 746 ficheros <code>.lean</code>, 24 209
     aristas. El
-    área: 3 000 consultas etiquetadas de MATH y GSM8K. La fibración: 860 pares
+    área: 3 000 consultas etiquetadas de MATH y GSM8K. La fibración: 6753 pares
     (objeto, área por debajo), con las áreas barajadas como modelo nulo. El
     respaldo formal: auditoría del mapeo operación ↔ teorema sobre 63
     operaciones.</p>
