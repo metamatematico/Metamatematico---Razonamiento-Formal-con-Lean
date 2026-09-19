@@ -91,19 +91,88 @@ def _nombre_legible(sid: str) -> str:
     return sid.replace("-", " ")
 
 
+#: los ocho veredictos, dichos para quien pregunta y no para quien programa
+VEREDICTO = {
+    "verificado": ("Lean compiló la formalización contra Mathlib y la aceptó, "
+                   "y además el enunciado no era vacío ni era la negación de "
+                   "lo que preguntaste. Por eso la respuesta no es una "
+                   "opinión."),
+    "parcial": ("la estructura de la prueba compila, pero quedó un `sorry` "
+                "—un hueco— que la cascada de tácticas no pudo cerrar. Lo que "
+                "se demostró es menos de lo que se enunció."),
+    "refutado": ("Lean verificó la NEGACIÓN del enunciado: lo que preguntaste "
+                 "es falso, y eso está demostrado, no supuesto."),
+    "sin_teorema": ("Lean aceptó el archivo, pero el archivo no contiene "
+                    "ningún teorema. Compilar no es demostrar: un fichero que "
+                    "sólo comprueba tipos también compila."),
+    "vacuo": ("hay teorema y compila, pero su conclusión es exactamente "
+              "`True`. No afirma nada, así que no vale como respuesta."),
+    "no_verificado": ("Lean rechazó el código y los reintentos no lo "
+                      "arreglaron. Lo que sigue abajo es una explicación, no "
+                      "algo comprobado."),
+    "timeout": ("Lean no terminó dentro del límite de tiempo. No es que el "
+                "enunciado sea falso: es que no se llegó a saber."),
+    "sin_entorno": ("no hay un Lean instalado con el que comprobar, así que "
+                    "nada de esto pasó por el verificador. No es un fallo de "
+                    "la matemática."),
+}
+
+
 def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
              contexto: Optional[dict] = None, plan: Any = None,
              revision: Any = None, rondas: int = 0,
              estado_lean: str = "", error_lean: str = "",
-             veredicto: str = "") -> Explicacion:
+             veredicto: str = "",
+             consulta_original: str = "", traducida: bool = False,
+             modulos: Optional[list] = None,
+             reparacion: str = "", nombres_dudosos: Optional[list] = None,
+             nombres_desmentidos: Optional[list] = None,
+             codigo: str = "", nota_veredicto: str = "") -> Explicacion:
     """Monta la explicación del proceso con lo que el pipeline ya tiene.
 
     Todos los argumentos son opcionales a propósito: este módulo se llama
     desde varios puntos del camino y ninguno tiene todo el rastro. Lo que
     falta no se inventa ni se omite — el paso dice que no consta.
+
+    EL ORDEN ES EL DEL RECORRIDO, NO EL DE LA IMPORTANCIA
+    -----------------------------------------------------
+    Los pasos van como le pasaron a la consulta: entra, se traduce, se lee,
+    se busca, se formaliza, se compila, se repara, se vuelve a compilar y
+    sale. Ordenarlos por interés —primero lo que mejor mide— produciría un
+    panel más lucido y le quitaría lo único que lo hace útil, que es poder
+    seguir el hilo de la propia pregunta de principio a fin.
     """
     ctx = contexto or {}
     e = Explicacion()
+
+    # ── 0 · la frontera del idioma, a la entrada ────────────────────────
+    #
+    # ES EL PRIMER PASO Y EL MAS INVISIBLE. Si preguntaste en castellano, lo
+    # que el resto del sistema leyo NO fue tu frase: fue una traduccion. Un
+    # panel que empieza en «que entendi» se salta el punto exacto donde se
+    # pudo perder algo, y es el punto donde mas facil es perderlo.
+    if traducida and consulta_original:
+        e.pasos.append(Paso(
+            "idioma", "Lo primero: tu pregunta se tradujo al inglés",
+            detalle=("todo el aparato es inglés —las palabras clave del grafo, "
+                     "los 183 433 hechos de Mathlib y el propio Lean—, así que "
+                     "la consulta se traduce **una sola vez, al entrar**, con "
+                     "un modelo local que no cuesta nada por consulta. La "
+                     "notación matemática se extrae antes y se vuelve a poner "
+                     "después, porque un traductor general convierte `\\sin x` "
+                     "en `\\without x`."),
+            items=(["escribiste: %s" % consulta_original.strip()[:160],
+                    "el sistema leyó: %s" % (consulta or "").strip()[:160]]),
+            respaldo=("sobre 200 enunciados con notación se protegieron 15 014 "
+                      "caracteres y se expusieron 653, con hueco en 21 de los "
+                      "200: la protección no es perfecta y por eso se dice"),
+        ))
+    elif consulta_original:
+        e.pasos.append(Paso(
+            "idioma", "Tu pregunta no se tradujo",
+            detalle=("entró ya en inglés, que es el idioma en el que trabajan "
+                     "el grafo, Mathlib y Lean, así que pasó directa."),
+        ))
 
     # ── 1 · qué entendí de tu consulta ──────────────────────────────────
     partes = []
@@ -121,7 +190,30 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
         detalle=("; ".join(partes) + "." if partes
                  else "no consta el área ni la lectura: la consulta entró "
                       "por un camino que no las calcula."),
+        respaldo=("el área se acierta el 58,7 % de las veces con exactitud "
+                  "equilibrada, frente al 33,3 % de responder siempre la clase "
+                  "mayoritaria" if area else ""),
     ))
+
+    # ── 1b · si la notación estaba mal escrita, se avisa ────────────────
+    #
+    # Sólo el delimitador descasado, y el motivo es de medida: avisar de los
+    # cinco motivos daría 3,6 % de falsos positivos sobre enunciados
+    # correctos, o sea uno de cada veintiocho alumnos aprendiendo a ignorar
+    # los avisos. Un guardián que salta con el codigo bueno se desactiva solo.
+    avisos = [a for a in (getattr(revision, "avisos", None) or []) if a]
+    if avisos:
+        e.pasos.append(Paso(
+            "notacion", "Algo de la notación no cuadra",
+            detalle=("un delimitador sin cerrar hace que se formalice OTRA "
+                     "fórmula, y Lean verifica esa otra tan contento: el sello "
+                     "saldría puesto sobre un enunciado que no preguntaste."),
+            items=[str(a)[:160] for a in avisos[:4]],
+            respaldo=("este aviso tiene 0,6 % de falsos positivos sobre 23 243 "
+                      "enunciados correctos y caza el 99 % de las roturas "
+                      "reales; los otros cuatro motivos no se avisan porque "
+                      "fallan el 2,3 % y sólo cazan la mitad"),
+        ))
 
     # ── 2 · qué se activó del grafo ─────────────────────────────────────
     skills = list(ctx.get("relevant_skills") or [])
@@ -156,6 +248,46 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
                   "más frecuentes sin mirar la consulta" if planos else ""),
     ))
 
+    # ── 3b · qué módulos de Mathlib vio Lean ────────────────────────────
+    #
+    # VA CON SU VEREDICTO DE «INERTE», y eso es lo interesante de enseñarlo:
+    # el grafo hace aqui trabajo real —bate al azar 18/20 contra 14/20— y aun
+    # asi no aporta, porque un conjunto fijo de tres modulos consigue los
+    # mismos 18. Ensenar solo lo que gana seria publicidad, no explicacion.
+    mods = [m for m in (modulos or []) if m]
+    if mods:
+        e.pasos.append(Paso(
+            "modulos", "Qué trozos de Mathlib se le dieron a Lean",
+            detalle=("`import Mathlib` entero tarda 742 segundos —más que el "
+                     "tiempo límite—, así que se importa sólo lo que hace "
+                     "falta."),
+            items=[str(m) for m in mods[:8]],
+            respaldo=("esta elección es **inerte**: elabora 18 de 20 "
+                      "enunciados, exactamente los mismos 18 que un conjunto "
+                      "fijo de tres módulos. Gana al azar (14 de 20) pero no "
+                      "gana a la constante"),
+        ))
+
+    # ── 3c · qué se arregló antes de compilar ───────────────────────────
+    dudosos = [n for n in (nombres_dudosos or []) if n]
+    if reparacion or dudosos:
+        det = []
+        if reparacion:
+            det.append("se corrigió el encabezado y se volvió a compilar: %s"
+                       % reparacion)
+        if dudosos:
+            det.append("estos identificadores no aparecen en el índice de "
+                       "217 419 nombres reales de Mathlib, así que o no "
+                       "existen o están mal cualificados")
+        e.pasos.append(Paso(
+            "reparacion", "Qué se arregló antes de darlo por malo",
+            detalle="; ".join(det) + ".",
+            items=[str(n) for n in dudosos[:6]],
+            respaldo=("el reparador es deliberadamente conservador: sobre las "
+                      "241 pruebas de miniF2F que ya compilaban no modifica "
+                      "ninguna. Sólo actúa donde hay algo roto"),
+        ))
+
     # ── 4 · qué decidió el sistema, y qué dejó fuera ────────────────────
     if plan is not None:
         activas = getattr(plan, "activas", []) or []
@@ -184,20 +316,60 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
         except Exception:                                       # noqa: BLE001
             e.coste = {}
 
-    # ── 5 · qué dijo Lean ───────────────────────────────────────────────
+    # ── 5 · qué dijo Lean, y cuál de los ocho veredictos salió ──────────
+    #
+    # EL VEREDICTO SE NOMBRA Y SE EXPLICA, los dos. «no_verificado» a secas
+    # no le dice nada a nadie, y es justo el caso en el que el alumno mas
+    # necesita saber que lo que va a leer debajo no esta comprobado.
     if estado_lean or veredicto:
-        if veredicto == "verificado":
-            det = ("Lean 4 compiló la formalización contra Mathlib y la "
-                   "aceptó. Eso es lo que hace que la respuesta no sea una "
-                   "opinión.")
+        det = VEREDICTO.get(veredicto, "")
+        if det:
+            det = "el veredicto es **%s**: %s" % (veredicto, det)
         elif error_lean:
-            det = ("Lean 4 la rechazó: %s" % error_lean[:220])
+            det = "Lean 4 la rechazó: %s" % error_lean[:220]
         else:
             det = "Lean devolvió `%s`." % (estado_lean or "sin estado")
+        if error_lean and veredicto not in ("verificado", "refutado"):
+            det += " Lo que dijo exactamente: «%s»." % error_lean[:200]
         if rondas:
-            det += (" El sistema reintentó %d vez/veces realimentando el "
-                    "error al generador." % rondas)
-        e.pasos.append(Paso("lean", "Qué dijo el verificador", detalle=det))
+            det += (" Antes de darlo por bueno o por malo, el sistema cerró "
+                    "el lazo %d vez/veces: le devolvió a quien escribió el "
+                    "código el error de Lean, y sólo aceptó el reintento si "
+                    "**mejoraba** el resultado anterior." % rondas)
+        e.pasos.append(Paso(
+            "lean", "Qué dijo el verificador",
+            detalle=det,
+            items=([l for l in (codigo or "").strip().split("\n")[:6] if l]
+                   if veredicto == "verificado" else []),
+            respaldo=("hay ocho veredictos y no dos porque compilar no es "
+                      "demostrar: tres de ellos —`vacuo`, `sin_teorema` y "
+                      "`refutado`— nombran casos en que Lean acepta el archivo "
+                      "y aun así no se demostró lo que preguntaste"),
+        ))
+
+    # ── 6 · la frontera del idioma, a la salida ─────────────────────────
+    #
+    # Cierra el recorrido por donde lo abrio. Y hay una razon para decirlo
+    # en vez de darlo por hecho: el enunciado que el modelo tiene delante ya
+    # esta en ingles, asi que «responde en el idioma del usuario» le haria
+    # contestar en ingles. Que salga en castellano es una decision, no una
+    # consecuencia.
+    desmentidos = [n for n in (nombres_desmentidos or []) if n]
+    if traducida or desmentidos:
+        det = []
+        if traducida:
+            det.append("la respuesta vuelve a tu idioma, y lo que se le "
+                       "enseña como «pregunta original» es la tuya, no la "
+                       "traducción")
+        if desmentidos:
+            det.append("además se desmintió al traductor en %d nombre(s): "
+                       "dijo que no existían y el índice dice que sí"
+                       % len(desmentidos))
+        e.pasos.append(Paso(
+            "salida", "Cómo sale la respuesta",
+            detalle="; ".join(det) + ".",
+            items=[str(n) for n in desmentidos[:5]],
+        ))
 
     return e
 

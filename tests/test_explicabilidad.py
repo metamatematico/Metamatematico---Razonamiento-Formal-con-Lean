@@ -164,3 +164,121 @@ class TestElCaminoReal:
         assert "explicabilidad" in claves, (
             "core.py ya no mete `explicabilidad` en los metadatos de la "
             "respuesta: el panel del chat se queda vacio")
+
+
+class TestElRecorridoEntero:
+    """Desde el input hasta el output, y en ese orden.
+
+    El panel existe para que el alumno pueda SEGUIR SU PROPIA CONSULTA. Si
+    empieza en «que entendi» se salta la traduccion, que es justo el punto
+    donde mas facil es perder algo y el mas invisible de todos; si termina en
+    «que dijo Lean» se salta que la respuesta vuelve a su idioma por una
+    decision explicita y no por inercia.
+    """
+
+    @pytest.fixture
+    def completo(self):
+        return explicar(
+            consulta="Is 17 prime?",
+            consulta_original="¿Es 17 un numero primo?",
+            traducida=True,
+            area="number-theory",
+            contexto={"relevant_skills": ["prime-numbers"],
+                      "mathlib_verificado": {"prime-numbers": ["Nat.Prime"]},
+                      "procedencia": "chat"},
+            plan=_Plan(), rondas=1,
+            modulos=["Mathlib.Data.Nat.Prime"],
+            reparacion="ERROR -> SUCCESS",
+            nombres_dudosos=["Nat.isPrimo"],
+            nombres_desmentidos=["Nat.Prime.two_le"],
+            veredicto="verificado", estado_lean="SUCCESS",
+            codigo="theorem t : Nat.Prime 17 := by decide")
+
+    def test_el_primer_paso_es_la_traduccion(self, completo):
+        assert completo.pasos[0].clave == "idioma", (
+            "la traduccion es lo primero que le pasa a la consulta y lo mas "
+            "invisible: un panel que empieza despues esconde el punto donde "
+            "mas facil es perder el sentido de la pregunta")
+
+    def test_la_traduccion_ensena_las_dos_frases(self, completo):
+        items = " ".join(completo.pasos[0].items)
+        assert "¿Es 17 un numero primo?" in items and "Is 17 prime?" in items, (
+            "decir «se tradujo» sin ensenar a que no permite al alumno "
+            "detectar que se tradujo mal, que es para lo que sirve decirlo")
+
+    def test_el_ultimo_paso_es_la_salida(self, completo):
+        assert completo.pasos[-1].clave == "salida"
+
+    def test_el_orden_es_el_del_recorrido(self, completo):
+        claves = [p.clave for p in completo.pasos]
+        esperado = ["idioma", "entendi", "grafo", "vocabulario", "modulos",
+                    "reparacion", "decisor", "lean", "salida"]
+        assert claves == esperado, (
+            "los pasos se ordenan como le pasaron a la consulta, no por "
+            "interes: ordenarlos por lo que mejor mide da un panel mas lucido "
+            "y le quita lo unico que lo hace util, seguir el hilo")
+
+    def test_sin_traduccion_el_panel_lo_dice_igual(self):
+        e = explicar(consulta="Is 17 prime?",
+                     consulta_original="Is 17 prime?", traducida=False)
+        assert e.pasos[0].clave == "idioma"
+        assert "no se tradujo" in e.pasos[0].titulo.lower()
+
+
+class TestElVeredictoSeNombraYSeExplica:
+    """`no_verificado` a secas no le dice nada a nadie."""
+
+    @pytest.mark.parametrize("v", ["verificado", "parcial", "refutado",
+                                   "sin_teorema", "vacuo", "no_verificado",
+                                   "timeout", "sin_entorno"])
+    def test_los_ocho_veredictos_se_explican(self, v):
+        from nucleo.explicabilidad import VEREDICTO
+        e = explicar(veredicto=v, estado_lean="X")
+        paso = [p for p in e.pasos if p.clave == "lean"][0]
+        assert v in paso.detalle, "el veredicto se nombra"
+        assert VEREDICTO[v][:30] in paso.detalle, (
+            "y se explica: un alumno no sabe que significa `%s`" % v)
+
+    def test_el_rechazo_ensena_lo_que_dijo_lean(self):
+        e = explicar(veredicto="no_verificado", estado_lean="ERROR",
+                     error_lean="unknown identifier 'Nat.isPrimo'")
+        paso = [p for p in e.pasos if p.clave == "lean"][0]
+        assert "Nat.isPrimo" in paso.detalle, (
+            "cuando Lean rechaza, el error literal es lo mas util que hay: "
+            "es lo unico que le dice al alumno DONDE mirar")
+
+    def test_el_verificado_no_repite_el_error(self):
+        e = explicar(veredicto="verificado", estado_lean="SUCCESS",
+                     error_lean="ruido que sobrevivio de un intento anterior")
+        paso = [p for p in e.pasos if p.clave == "lean"][0]
+        assert "ruido que sobrevivio" not in paso.detalle
+
+    def test_las_rondas_dicen_que_solo_se_acepta_si_mejora(self):
+        e = explicar(veredicto="verificado", estado_lean="SUCCESS", rondas=2)
+        paso = [p for p in e.pasos if p.clave == "lean"][0]
+        assert "mejoraba" in paso.detalle, (
+            "es la condicion que separa un lazo de una deriva, y sin ella "
+            "«reintento 2 veces» suena a que el sistema insiste hasta que "
+            "sale, que es lo contrario de lo que hace")
+
+
+class TestLoInerteTambienSeEnsena:
+    """La elección de módulos no aporta, y se cuenta igual."""
+
+    def test_los_modulos_van_con_su_veredicto_de_inerte(self):
+        e = explicar(modulos=["Mathlib.Data.Nat.Prime"])
+        paso = [p for p in e.pasos if p.clave == "modulos"][0]
+        assert "inerte" in paso.respaldo.lower(), (
+            "el grafo hace aqui trabajo real —18 de 20 contra 14 de 20 del "
+            "azar— y aun asi no aporta, porque una constante consigue los "
+            "mismos 18. Ensenar solo lo que gana seria publicidad")
+
+    def test_sin_modulos_no_hay_paso(self):
+        assert not [p for p in explicar().pasos if p.clave == "modulos"]
+
+    def test_el_area_va_con_su_nulo(self):
+        e = explicar(area="number-theory")
+        paso = [p for p in e.pasos if p.clave == "entendi"][0]
+        assert "33,3" in paso.respaldo, (
+            "58,7 % suena bien hasta que se sabe contra que: la clase "
+            "mayoritaria acierta el 33,3 %")

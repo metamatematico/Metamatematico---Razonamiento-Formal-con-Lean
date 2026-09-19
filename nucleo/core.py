@@ -2527,6 +2527,12 @@ class Nucleo:
         # pruebas reales de `data/lean_examples.json`: 0 modificadas. Un
         # reparador que rompe código bueno sería peor que no tenerlo.
         _cambios_nombres, _desconocidos = [], []
+        # QUE SE REPARO, EN UNA FRASE, PARA EL PANEL DEL ALUMNO. Se inicializa
+        # aqui y no dentro del `if` porque el panel se monta seiscientas lineas
+        # mas abajo y una variable que solo existe en una rama es una variable
+        # que el panel a veces no tiene: el hueco saldria como fallo del
+        # modulo en vez de como «no hizo falta reparar nada».
+        _reparacion_hecha = ""
         try:
             from nucleo.lean import nombres as _nom_lean
             _rep, _cambios_nombres = _nom_lean.reparar_codigo(lean_code)
@@ -2578,6 +2584,7 @@ class Nucleo:
                                else f"{result.status.name}, pero "
                                     f"{_antes} -> {_despues} errores")
                     logger.info(f"Lean: reparacion de imports efectiva ({_porque})")
+                    _reparacion_hecha = _porque
                     lean_code, result = _reparado, _r2
 
         # ── Paso 2c: revision con el veredicto de Lean como realimentacion ──
@@ -3015,6 +3022,19 @@ class Nucleo:
                 error_lean=(result.get_first_error() or ""
                             if hasattr(result, "get_first_error") else ""),
                 veredicto=verification_status,
+                # EL RECORRIDO ENTERO, no solo el tramo del medio. Todo esto
+                # ya estaba calculado en el alcance de esta funcion y moria
+                # aqui: la traduccion de entrada, los modulos que vio Lean, lo
+                # que hubo que reparar antes de compilar y los nombres que no
+                # estan en Mathlib.
+                consulta_original=getattr(self, "_consulta_original", "") or "",
+                traducida=bool(getattr(self, "_respuesta_en_espanol", False)),
+                modulos=list(mods or []),
+                reparacion=_reparacion_hecha,
+                nombres_dudosos=[f.get("nombre", "") for f in _desconocidos],
+                nombres_desmentidos=[c["nombre"] for c in _correcciones],
+                codigo=lean_code or "",
+                nota_veredicto=verification_note or "",
             ).a_dict()
         except Exception as e:                                  # noqa: BLE001
             logger.debug("explicabilidad no disponible: %s", e)
