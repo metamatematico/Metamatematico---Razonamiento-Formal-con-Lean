@@ -1,0 +1,31 @@
+{
+  "fuente": "E:/MetamatematicoDataSet/LeanWorkbook",
+  "objetos": 24752,
+  "flechas": 25206,
+  "cierran": 13511,
+  "componen": 11691,
+  "terminal": "no goals",
+  "flechas_al_terminal": 13511,
+  "componentes_con_terminal": 5,
+  "componentes_sin_terminal": 13189,
+  "mayor_sin_terminal": 108,
+  "paralelas": 16,
+  "paralelas_por_par": {
+    "ring / ring_nf": 3,
+    "nlinarith / ring": 2,
+    "linarith / nlinarith": 2,
+    "exact / simpa": 1,
+    "exact / nlinarith / refine'": 1,
+    "cases' / exact": 1,
+    "linear_combination / simp": 1,
+    "exact / refine'": 1,
+    "norm_num / simp": 1,
+    "aesop / by_cases": 1,
+    "apply / exact": 1,
+    "linear_combination / ring_nf": 1
+  },
+  "estados_que_ramifican": 72,
+  "raices": 13219,
+  "longitud_media": 1.863,
+  "longitud_maxima": 108
+}
