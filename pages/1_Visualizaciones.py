@@ -1625,43 +1625,58 @@ def fig_cocone_diagram(componentes, apex, apex_nombre, cocones_extra, nombres):
 
 
 def fig_pipeline():
+    """El recorrido real de una consulta, tal y como lo ejecuta `Nucleo.process`.
+
+    QUE FALTABA, Y POR QUE IMPORTABA
+    --------------------------------
+    El diagrama anterior ya ponia a Lean EN MEDIO —eso estaba bien— pero se
+    dejaba fuera cuatro cosas que no son adorno:
+
+      · LA FRONTERA DEL IDIOMA. Si el alumno pregunta en castellano, el resto
+        del sistema NO lee su frase: lee una traduccion. Empezar el diagrama en
+        «consulta del usuario» esconde el punto donde mas facil es perder el
+        sentido de la pregunta, y el mas invisible de todos.
+
+      · EL LAZO AL MODELO. Estaban dibujados `repair_imports` (mecanico) y la
+        cascada (el `sorry`), y faltaba justo el que da nombre a la
+        arquitectura: cuando el error es SEMANTICO, el error estructurado de
+        Lean vuelve a quien escribio el codigo, maximo dos rondas, y SOLO se
+        acepta el reintento si mejora. Sin esa condicion no es un lazo, es una
+        deriva.
+
+      · EL ARBOL DE VEREDICTO. El diagrama iba «LEAN VERIFICA -> SUCCESS ->
+        LLM TRADUCE», que dice que compilar es demostrar. No lo es: tres de los
+        ocho veredictos nombran casos en que Lean acepta el archivo y aun asi
+        no se demostro lo que se pregunto.
+
+      · EL PANEL DE EXPLICABILIDAD, que es lo unico de todo esto que el alumno
+        llega a ver.
     """
-    Flujo de trabajo real del NLE, tal como lo ejecuta Nucleo.process().
-
-    El diagrama anterior contradecia la tesis del sistema: ponia
-    LLM -> Respuesta -> Lean, es decir Lean como sello de aprobacion al final.
-    El pipeline real es Lean-PRIMERO (core.py::_math_via_lean):
-
-        LLM formaliza  ->  LEAN VERIFICA  ->  LLM traduce
-
-    Lean va EN MEDIO y es la fuente de verdad; el LLM actua de formalizador y
-    despues de traductor, nunca de razonador. Faltaban ademas la reparacion de
-    imports, la cascada de solvers, y la complexificacion posterior.
-    """
-    fig, ax = plt.subplots(figsize=(14.5, 9.6), facecolor=BG)
+    fig, ax = plt.subplots(figsize=(15.0, 12.2), facecolor=BG)
     ax.set_facecolor(BG)
     ax.set_xlim(0, 14)
-    # LA NOTA DEL PIE TIENE SU PROPIA FRANJA. Con `ylim(0, 9.6)` la caja del
-    # aviso caia encima de la etiqueta del lazo de realimentacion y de la linea
-    # discontinua que lo dibuja. Bajar el limite le da sitio sin mover nada.
-    ax.set_ylim(-0.62, 9.6)
+    ax.set_ylim(-0.75, 12.45)
     ax.axis("off")
 
-    VERDE, NARANJA, AZUL, MORADO, GRIS = "#4ade80", "#fb923c", "#60a5fa", "#818cf8", "#9ca3af"
-    #: Lo que es LOCAL — ni llamada al modelo ni compilado de Lean. Se le da
-    #: color propio porque es la diferencia que importa al leer el coste.
+    VERDE, NARANJA, AZUL, MORADO, GRIS = ("#4ade80", "#fb923c", "#60a5fa",
+                                          "#818cf8", "#9ca3af")
+    #: lo que es LOCAL — ni llamada al modelo ni compilado de Lean
     CIAN = "#2dd4bf"
+    #: la frontera del idioma, que se cruza dos veces
+    IDIOMA = "#38bdf8"
+    #: lo que Lean acepta y aun asi NO demuestra lo que se pregunto
+    AMBAR = "#f59e0b"
 
-    def caja(x, y, w, h, titulo, borde, relleno="#161b22", sub="", fs=8.4, fs_sub=6.6):
-        """Caja con titulo y, opcionalmente, un subtitulo DENTRO (sin colisiones)."""
+    def caja(x, y, w, h, titulo, borde, relleno="#161b22", sub="",
+             fs=8.4, fs_sub=6.6):
         ax.add_patch(FancyBboxPatch(
             (x, y), w, h, boxstyle="round,pad=0.08",
             facecolor=relleno, edgecolor=borde, linewidth=1.4, zorder=3))
         cx = x + w / 2
         if sub:
-            ax.text(cx, y + h * 0.62, titulo, ha="center", va="center",
+            ax.text(cx, y + h * 0.63, titulo, ha="center", va="center",
                     fontsize=fs, color=borde, fontweight="bold", zorder=4)
-            ax.text(cx, y + h * 0.26, sub, ha="center", va="center",
+            ax.text(cx, y + h * 0.25, sub, ha="center", va="center",
                     fontsize=fs_sub, color=GRIS, style="italic", zorder=4)
         else:
             ax.text(cx, y + h / 2, titulo, ha="center", va="center",
@@ -1672,127 +1687,184 @@ def fig_pipeline():
             arrowstyle="-|>", color=color, lw=lw, linestyle=ls,
             connectionstyle=f"arc3,rad={curva}", shrinkA=3, shrinkB=3))
 
-    def etiqueta(x, y, txt, color=GRIS, fs=7.0, style="normal"):
-        ax.text(x, y, txt, ha="center", va="center", fontsize=fs,
+    def etiqueta(x, y, txt, color=GRIS, fs=7.0, style="normal", ha="center"):
+        ax.text(x, y, txt, ha=ha, va="center", fontsize=fs,
                 color=color, style=style, zorder=7)
 
-    # ═══ BANDA 1 — Dinamica Global ═══════════════════════════════════════════
-    caja(0.25, 8.05, 2.05, 0.95, "Consulta\ndel usuario", AZUL, "#132033")
-
-    ax.add_patch(FancyBboxPatch(
-        (2.70, 7.35), 4.95, 2.05, boxstyle="round,pad=0.10",
-        facecolor="#12151d", edgecolor=MORADO, linewidth=1.6, zorder=1))
-    etiqueta(5.17, 9.20, "① DINÁMICA GLOBAL — red de co-reguladores", MORADO, 8.6)
-    caja(2.90, 8.28, 2.25, 0.72, "CR_tac  clasifica", MORADO, "#1a1a2e",
-         sub="heurística de keywords", fs=7.6, fs_sub=6.1)
-    caja(5.30, 8.28, 2.15, 0.72, "CR_int  arbitra", MORADO, "#1a1a2e",
-         sub="solo REPAIR_FRACTURE manda", fs=7.6, fs_sub=5.8)
-    caja(2.90, 7.52, 4.55, 0.58,
-         "CR_org · CR_str  →  COMPLEXIFY sobre huecos conceptuales",
-         MORADO, "#1a1a2e", fs=7.4)
-    flecha((2.30, 8.52), (2.90, 8.64), MORADO)
-
-    caja(8.20, 8.05, 1.85, 0.90, "¿es\nmatemática?", AZUL, "#132033", fs=8.0)
-    flecha((7.45, 8.64), (8.20, 8.50), MORADO)
-
-    caja(10.75, 8.15, 3.00, 0.70, "LLM conversacional", NARANJA, "#1f1107", fs=8.0)
-    flecha((10.05, 8.50), (10.75, 8.50), NARANJA)
-    etiqueta(10.40, 8.72, "no", NARANJA, 7.2)
-
-    # ── PASO 0 · lo que ocurre ANTES de gastar nada ──────────────────────────
+    # ═══ BANDA 0 — LA FRONTERA DEL IDIOMA, A LA ENTRADA ══════════════════════
     #
-    # Las dos cajas de esta franja faltaban y el diagrama contradecia al
-    # codigo: `_math_via_lean` empieza revisando la sintaxis de la consulta y
-    # despues pregunta al decisor que capacidades corren. Las dos son locales
-    # —ni una llamada al modelo ni un compilado de Lean— y las dos cambian lo
-    # que pasa a continuacion, asi que dibujarlas no es adorno.
-    caja(8.15, 7.06, 2.55, 0.76, "PASO 0 · SINTAXIS", CIAN, "#0b1f22",
-         sub="árbol · avisa delimitadores", fs=7.2, fs_sub=5.4)
-    caja(11.05, 7.06, 2.60, 0.76, "DECISOR", CIAN, "#0b1f22",
-         sub="qué corre, por medición", fs=7.2, fs_sub=5.4)
-
-    # ═══ BANDA 2 — Pipeline Lean-primero ═════════════════════════════════════
+    # Es lo PRIMERO que le pasa a la consulta y lo que el diagrama anterior no
+    # tenia. Todo el aparato es ingles: las palabras clave del grafo, los
+    # 183 433 hechos de Mathlib, los ejemplos de miniF2F y el propio Lean.
     ax.add_patch(FancyBboxPatch(
-        (0.30, 2.85), 13.40, 4.10, boxstyle="round,pad=0.12",
+        (0.30, 10.75), 13.40, 1.15, boxstyle="round,pad=0.10",
+        facecolor="#0b1a24", edgecolor=IDIOMA, linewidth=1.6, zorder=1))
+    etiqueta(7.00, 12.18, "① LA FRONTERA DEL IDIOMA — se cruza al entrar y al salir",
+             IDIOMA, 8.8)
+    caja(0.55, 10.95, 2.55, 0.68, "Consulta del alumno", IDIOMA, "#0e2230",
+         sub="castellano o inglés", fs=8.0, fs_sub=6.2)
+    caja(3.60, 10.95, 4.30, 0.68, "TRADUCE es → en  ·  una sola vez", IDIOMA,
+         "#0e2230", sub="modelo local de 74 M · 0 € por consulta", fs=8.0,
+         fs_sub=6.2)
+    caja(8.40, 10.95, 5.05, 0.68, "la notación se extrae y se restituye", IDIOMA,
+         "#0e2230", sub="sin proteger, `\\sin x` → `\\without x`", fs=8.0,
+         fs_sub=6.2)
+    flecha((3.10, 11.29), (3.60, 11.29), IDIOMA)
+    flecha((7.90, 11.29), (8.40, 11.29), IDIOMA)
+    etiqueta(7.00, 10.58,
+             "de aquí en adelante el sistema trabaja en UN idioma — lo que lee "
+             "no es la frase del alumno, y por eso el panel le enseña las dos",
+             GRIS, 6.4)
+
+    # ═══ BANDA 1 — DINÁMICA GLOBAL Y LO QUE NO CUESTA NADA ═══════════════════
+    caja(0.55, 9.05, 2.05, 0.85, "consulta\nya en inglés", AZUL, "#132033",
+         fs=7.8)
+    flecha((1.58, 10.95), (1.58, 9.90), IDIOMA)
+
+    ax.add_patch(FancyBboxPatch(
+        (2.95, 8.55), 4.75, 1.60, boxstyle="round,pad=0.10",
+        facecolor="#12151d", edgecolor=MORADO, linewidth=1.6, zorder=1))
+    etiqueta(5.32, 9.98, "② DINÁMICA GLOBAL — red de co-reguladores", MORADO, 8.2)
+    caja(3.12, 9.20, 2.20, 0.60, "CR_tac clasifica", MORADO, "#1a1a2e",
+         sub="heurística de palabras", fs=7.3, fs_sub=5.9)
+    caja(5.42, 9.20, 2.10, 0.60, "CR_int arbitra", MORADO, "#1a1a2e",
+         sub="solo REPAIR_FRACTURE manda", fs=7.3, fs_sub=5.5)
+    caja(3.12, 8.68, 4.40, 0.46,
+         "CR_org · CR_str → COMPLEXIFY sobre huecos", MORADO, "#1a1a2e", fs=7.1)
+    flecha((2.60, 9.48), (3.12, 9.50), MORADO)
+
+    caja(8.05, 9.02, 1.80, 0.88, "¿es\nmatemática?", AZUL, "#132033", fs=7.9)
+    flecha((7.70, 9.46), (8.05, 9.46), MORADO)
+    caja(10.60, 9.10, 3.05, 0.70, "LLM conversacional", NARANJA, "#1f1107",
+         sub="no formaliza · sin veredicto", fs=7.8, fs_sub=6.0)
+    flecha((9.85, 9.46), (10.60, 9.46), NARANJA)
+    etiqueta(10.22, 9.68, "no", NARANJA, 7.0)
+
+    # lo LOCAL: cambia lo que pasa despues y no cuesta ni una llamada
+    caja(8.00, 8.05, 2.55, 0.72, "PASO 0 · SINTAXIS", CIAN, "#0b1f22",
+         sub="árbol · avisa delimitadores", fs=7.1, fs_sub=5.3)
+    caja(10.90, 8.05, 2.75, 0.72, "DECISOR", CIAN, "#0b1f22",
+         sub="qué corre, por medición", fs=7.1, fs_sub=5.3)
+    flecha((10.55, 8.41), (10.90, 8.41), CIAN)
+    etiqueta(11.35, 8.95, "LOCALES: ni llamada al modelo ni compilado", GRIS, 5.8)
+    flecha((8.95, 9.02), (9.25, 8.77), AZUL)
+    etiqueta(9.52, 8.95, "sí", VERDE, 7.4)
+
+    # ═══ BANDA 2 — EL LAZO ═══════════════════════════════════════════════════
+    ax.add_patch(FancyBboxPatch(
+        (0.30, 2.95), 13.40, 4.75, boxstyle="round,pad=0.12",
         facecolor="#0e1a12", edgecolor=VERDE, linewidth=2.0, zorder=1))
-    etiqueta(7.00, 6.66,
-             "② PIPELINE LEAN-PRIMERO   —   la verdad matemática la produce Lean, no el LLM",
-             VERDE, 9.2)
-    flecha((9.10, 8.05), (9.42, 7.82), AZUL)
-    etiqueta(9.68, 7.98, "sí", VERDE, 7.6)
-    flecha((10.70, 7.44), (11.05, 7.44), CIAN)
-    flecha((12.35, 7.06), (12.35, 6.99), CIAN)
-    etiqueta(12.35, 7.94, "LOCALES: ni llamada al modelo ni compilado de Lean",
-             GRIS, 5.8)
+    etiqueta(7.00, 7.44,
+             "③ EL LAZO — el modelo propone un paso, Lean lo evalúa, y lo que "
+             "Lean dice condiciona el siguiente",
+             VERDE, 9.0)
+    flecha((12.28, 8.05), (12.28, 7.72), CIAN)
 
-    caja(0.75, 4.85, 2.85, 1.15, "LLM FORMALIZA", NARANJA, "#1f1107",
-         sub="rol: formalizador", fs=8.8, fs_sub=6.8)
-    etiqueta(3.05, 4.58, "few-shot miniF2F + refs Mathlib ancladas", GRIS, 6.3)
+    caja(0.70, 5.55, 2.80, 1.05, "EL MODELO PROPONE", NARANJA, "#1f1107",
+         sub="rol: formalizador, no razonador", fs=8.5, fs_sub=6.2)
+    etiqueta(2.10, 6.82, "few-shot miniF2F + nombres del grafo", GRIS, 6.2)
 
-    caja(5.25, 4.75, 3.30, 1.35, "LEAN  VERIFICA", VERDE, "#0d2416",
-         sub="fuente de verdad", fs=10.5, fs_sub=7.4)
-    etiqueta(6.90, 4.50, "lake env lean --json  ·  Mathlib", GRIS, 6.3)
+    # reparacion de nombres ANTES de gastar un compilado
+    caja(3.85, 5.62, 1.95, 0.90, "cualifica\nnombres", CIAN, "#0b1f22",
+         sub="índice de 217 419", fs=7.2, fs_sub=5.6)
+    flecha((3.50, 6.07), (3.85, 6.07), CIAN)
 
-    caja(10.20, 4.85, 3.05, 1.15, "LLM TRADUCE", NARANJA, "#1f1107",
-         sub="rol: traductor, NO razonador", fs=8.8, fs_sub=6.4)
+    caja(6.15, 5.45, 3.05, 1.25, "LEAN VERIFICA", VERDE, "#0d2416",
+         sub="fuente de verdad · inapelable", fs=10.2, fs_sub=7.0)
+    flecha((5.80, 6.07), (6.15, 6.07), VERDE, lw=2.2)
+    etiqueta(7.67, 5.22, "lake env lean --json · Mathlib", GRIS, 6.2)
 
-    flecha((3.60, 5.42), (5.25, 5.42), VERDE, lw=2.2)
-    flecha((8.55, 5.42), (10.20, 5.42), VERDE, lw=2.2)
-    etiqueta(9.37, 5.66, "SUCCESS", VERDE, 7.2)
+    # ── los tres lazos, por severidad ────────────────────────────────────────
+    #
+    # EL DEL MEDIO ES EL QUE FALTABA. `repair_imports` y la cascada ya estaban;
+    # el error SEMANTICO volviendo al modelo, no.
+    caja(0.75, 3.95, 2.55, 0.68, "repair_imports", AZUL, "#132033",
+         sub="1 vuelta · solo si mejora", fs=7.4, fs_sub=5.8)
+    flecha((6.30, 5.45), (3.30, 4.55), AZUL, curva=0.18, ls=(0, (4, 2)))
+    etiqueta(4.75, 5.02, "falta un módulo", AZUL, 6.8)
+    flecha((1.35, 4.63), (1.25, 5.55), AZUL, curva=0.14, ls=(0, (4, 2)))
 
-    # -- bucles de reparacion (faltaban por completo en el diagrama anterior) --
-    caja(1.30, 3.25, 2.60, 0.72, "repair_imports", AZUL, "#132033",
-         sub="reintenta solo si mejora", fs=7.6, fs_sub=6.0)
-    flecha((5.60, 4.75), (3.55, 3.97), AZUL, curva=0.20, ls=(0, (4, 2)))
-    etiqueta(4.80, 4.18, "ERROR", AZUL, 7.0)
-    flecha((1.60, 3.97), (1.32, 4.85), AZUL, curva=0.16, ls=(0, (4, 2)))
+    caja(4.35, 3.35, 3.35, 0.72, "el error VUELVE al modelo", NARANJA,
+         "#1f1107", sub="máx 2 rondas · solo si mejora", fs=7.8, fs_sub=6.0)
+    flecha((6.90, 5.45), (6.30, 4.07), NARANJA, curva=0.12, ls=(0, (5, 2)),
+           lw=1.9)
+    etiqueta(6.98, 4.72, "error semántico", NARANJA, 6.9)
+    flecha((4.35, 3.71), (1.50, 5.55), NARANJA, curva=0.22, ls=(0, (5, 2)),
+           lw=1.9)
+    etiqueta(2.60, 3.20, "el `kind` del JSON de Lean, no una subcadena",
+             NARANJA, 6.2)
 
-    caja(9.55, 3.25, 3.30, 0.72, "SolverCascade → SorryFiller", AZUL, "#132033",
-         sub="agente de categoría → TacticRanker → regex", fs=7.6, fs_sub=6.0)
-    flecha((8.15, 4.75), (10.35, 3.97), AZUL, curva=-0.20, ls=(0, (4, 2)))
-    etiqueta(9.00, 4.18, "SORRY", AZUL, 7.0)
-    flecha((12.05, 3.97), (12.20, 4.85), AZUL, curva=-0.18, ls=(0, (4, 2)))
+    caja(9.75, 3.95, 3.25, 0.68, "las 12 tácticas, un compilado", AZUL,
+         "#132033", sub="first | … | done · 7,0× más rápido", fs=7.4,
+         fs_sub=5.8)
+    flecha((9.00, 5.45), (10.40, 4.63), AZUL, curva=-0.18, ls=(0, (4, 2)))
+    etiqueta(9.95, 5.06, "queda un `sorry`", AZUL, 6.8)
+    flecha((12.70, 4.63), (12.80, 5.45), AZUL, curva=-0.16, ls=(0, (4, 2)))
 
-    # ═══ BANDA 3 — Fases posteriores ═════════════════════════════════════════
-    caja(0.80, 1.20, 2.45, 0.80, "③ Evaluación", AZUL, "#132033", fs=8.2)
-    caja(3.85, 1.20, 3.05, 0.80, "④ Memoria MES + PPO", AZUL, "#132033", fs=8.2)
-    caja(7.50, 1.20, 3.20, 0.80, "⑤ Complexificación", MORADO, "#1a1a2e", fs=8.2)
-    caja(11.30, 1.20, 2.40, 0.80, "Respuesta al usuario", VERDE, "#0d2416", fs=8.2)
+    # ── el arbol de veredicto: compilar NO es demostrar ──────────────────────
+    ax.add_patch(FancyBboxPatch(
+        (9.90, 5.35), 3.55, 1.95, boxstyle="round,pad=0.10",
+        facecolor="#131108", edgecolor=AMBAR, linewidth=1.5, zorder=2))
+    etiqueta(11.67, 7.12, "ACEPTAR NO ES DEMOSTRAR", AMBAR, 7.4)
+    etiqueta(11.67, 6.85, "¿la conclusión es `True`?   →  vacuo", AMBAR, 6.6)
+    etiqueta(11.67, 6.58, "¿hay algún teorema?         →  sin_teorema", AMBAR, 6.6)
+    etiqueta(11.67, 6.31, "¿es la negación de lo pedido? → refutado", AMBAR, 6.6)
+    ax.plot([10.15, 13.20], [6.12, 6.12], color=AMBAR, lw=0.8, zorder=3)
+    etiqueta(11.67, 5.88, "si sobrevive a las tres  →  VERIFICADO", VERDE, 7.4)
+    etiqueta(11.67, 5.58, "ocho veredictos, no dos", GRIS, 6.2)
+    flecha((9.20, 6.30), (9.90, 6.30), VERDE, lw=2.2)
+    etiqueta(9.55, 6.55, "acepta", VERDE, 6.8)
 
-    flecha((2.02, 2.85), (2.02, 2.00), AZUL)
-    etiqueta(3.45, 2.48, "tras formar la respuesta", GRIS, 6.5)
-    flecha((3.25, 1.60), (3.85, 1.60), AZUL)
-    flecha((6.90, 1.60), (7.50, 1.60), AZUL)
-    flecha((12.50, 2.85), (12.50, 2.00), NARANJA)
-    # Lazo de realimentacion. Sin el, la Complexificacion parece un callejon
-    # sin salida: en el codigo, apply_option cambia el numero de skills y
-    # llenar_hueco_conceptual añade nodos verificados por Lean, y ese grafo es
-    # el que usaran las consultas SIGUIENTES.
-    # La caja de Consulta esta en y=8.05, no en 6.30: el lazo terminaba dentro
-    # de la banda 2, con la punta en el vacio.
-    flecha((9.10, 1.20), (9.10, 0.42), MORADO, ls=(0, (4, 2)))
-    flecha((9.10, 0.42), (0.12, 0.42), MORADO, ls=(0, (4, 2)))
-    flecha((0.12, 0.42), (0.12, 8.52), MORADO, ls=(0, (4, 2)))
-    flecha((0.12, 8.52), (0.23, 8.52), MORADO, ls=(0, (4, 2)))
-    etiqueta(4.60, 0.60, "el grafo cambia — no para esta consulta, para las siguientes",
-             MORADO, 6.5)
-    etiqueta(8.90, 0.86,
-             "⑤ va DESPUÉS de responder: la consulta actual se resuelve sobre un grafo estable",
-             GRIS, 6.5)
+    # ═══ BANDA 3 — LO QUE LLEGA AL ALUMNO ════════════════════════════════════
+    caja(0.70, 1.80, 2.85, 0.80, "EL MODELO TRADUCE", NARANJA, "#1f1107",
+         sub="el código que Lean aceptó", fs=8.0, fs_sub=6.0)
+    # LA BAJADA RODEA POR LA DERECHA. En recto atravesaba la caja de las
+    # 12 tacticas, y una flecha que cruza una caja dice que pasa por ella.
+    ax.plot([13.35, 13.35], [5.35, 2.80], color=NARANJA, lw=1.5, zorder=6)
+    ax.plot([13.35, 2.10], [2.80, 2.80], color=NARANJA, lw=1.5, zorder=6)
+    flecha((2.10, 2.80), (2.10, 2.60), NARANJA)
 
-    # ── Nota honesta sobre el GNN ────────────────────────────────────────────
-    ax.text(7.00, -0.30,
-            "El orden de la cascada lo fijan el TacticRanker (0,598 contra 0,318 de la mayoritaria) y los"
-            " patrones del objetivo.\n"
-            "El ORDEN POR ÁREA está APAGADO: medía 1,262 posiciones contra 1,091 del nulo «simp primero»,"
-            " y el decisor apaga lo que no bate a su nulo.\n"
-            "El GNN+PPO sigue fuera del ENRUTADO: se entrenó con etiqueta constante y CR_tac lo detecta"
-            " degenerado.",
-            ha="center", fontsize=6.9, color="#f59e0b", zorder=7,
+    caja(4.15, 1.80, 3.20, 0.80, "vuelve a TU idioma", IDIOMA, "#0e2230",
+         sub="la «pregunta original» es la tuya", fs=8.0, fs_sub=6.0)
+    flecha((3.55, 2.20), (4.15, 2.20), IDIOMA)
+
+    caja(7.95, 1.80, 3.10, 0.80, "PANEL DE EXPLICABILIDAD", CIAN, "#0b1f22",
+         sub="los 9 pasos del recorrido", fs=7.8, fs_sub=6.0)
+    flecha((7.35, 2.20), (7.95, 2.20), CIAN)
+    caja(11.55, 1.80, 2.10, 0.80, "Respuesta", VERDE, "#0d2416", fs=8.2)
+    flecha((11.05, 2.20), (11.55, 2.20), VERDE)
+    etiqueta(9.50, 1.58, "lo único de todo esto que el alumno llega a ver — y "
+                         "lo que NO se usó va con su motivo", GRIS, 6.2)
+
+    # ── fases posteriores ────────────────────────────────────────────────────
+    caja(0.70, 0.55, 2.20, 0.62, "④ Evaluación", AZUL, "#132033", fs=7.6)
+    caja(3.25, 0.55, 2.70, 0.62, "⑤ Memoria MES + PPO", AZUL, "#132033", fs=7.6)
+    caja(6.30, 0.55, 2.85, 0.62, "⑥ Complexificación", MORADO, "#1a1a2e", fs=7.6)
+    flecha((1.80, 1.80), (1.80, 1.17), AZUL)
+    flecha((2.90, 0.86), (3.25, 0.86), AZUL)
+    flecha((5.95, 0.86), (6.30, 0.86), AZUL)
+    etiqueta(11.55, 0.86,
+             "⑥ va DESPUÉS de responder: esta consulta se resuelve sobre\n"
+             "un grafo estable; el que cambia es el de las SIGUIENTES",
+             MORADO, 6.4)
+    flecha((9.15, 0.86), (9.55, 0.86), MORADO, ls=(0, (4, 2)))
+
+    # ── la nota honesta ──────────────────────────────────────────────────────
+    ax.text(7.00, -0.42,
+            "El orden de la cascada lo fija el TacticRanker: 0,621 de acierto "
+            "contra 0,318 de responder siempre la mayoritaria, y 1,57 posiciones "
+            "contra 2,44 de su nulo por frecuencia.\n"
+            "El ORDEN POR ÁREA está APAGADO — medía 1,262 posiciones contra "
+            "1,091 del nulo «simp primero», y el decisor apaga lo que no bate a "
+            "su nulo.\n"
+            "La elección de módulos es INERTE: elabora 18 de 20, los mismos 18 "
+            "que un conjunto fijo de tres. El GNN+PPO sigue fuera del enrutado: "
+            "se entrenó con etiqueta constante.",
+            ha="center", fontsize=6.8, color=AMBAR, zorder=7,
             bbox=dict(boxstyle="round", facecolor="#1c1710",
                       edgecolor="#7c5a1e", alpha=0.95))
 
-    ax.set_title("Flujo de trabajo del NLE — Nucleo.process()",
+    ax.set_title("El recorrido de una consulta — Nucleo.process()",
                  color=FG, fontsize=12.5, pad=12)
     fig.tight_layout()
     return fig
