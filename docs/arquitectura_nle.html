@@ -1084,7 +1084,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" id="fig-grafo" aria-label="El grafo del runtime como arbol radial: 353 nodos que salen de los 10 pilares fundacionales del centro hacia las sub-ramas de fuera, con el angulo repartido por tamaño de subarbol. Los 125 generados desde Mathlib y los 22 de area van en tono mas claro porque no estan interpretados categoricamente. Las 9 tacticas se dibujan aparte porque son sumideros: reciben aristas y no emiten ninguna." xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 820">
+<svg role="img" id="fig-grafo" aria-label="El grafo del runtime como arbol radial: 353 nodos que salen de los 10 pilares fundacionales del centro hacia las sub-ramas de fuera, con el angulo repartido por tamaño de subarbol. Los 125 generados desde Mathlib y los 22 de area van en tono mas claro porque no estan interpretados categoricamente. Las 9 tacticas se dibujan aparte porque casi no emiten: reciben 552 aristas y solo emiten 11, todas hacia las 6 estrategias." xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 820">
 
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 272 605"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M485 357 Q522 384 246 260"/>
@@ -2117,7 +2117,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 <text class="lb" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10.5" font-weight="600" opacity=".8" x="382" y="531" text-anchor="end">settheory</text>
 <text class="lb" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10.5" font-weight="600" opacity=".8" x="351" y="473" text-anchor="end">topology</text>
 <text class="tt" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" x="966" y="620">las 9 tácticas, aparte</text>
-<text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="966" y="638">549 aristas entran · 0 salen</text>
+<text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="966" y="638">552 entran · 11 salen, todas a estrategias</text>
 <circle class="n t" fill="#ae3b35" stroke="none" cx="972" cy="660" r="3.2"/>
 <text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="982" y="664">aesop</text>
 <circle class="n t" fill="#ae3b35" stroke="none" cx="972" cy="673" r="3.2"/>
@@ -2179,7 +2179,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Anatomía del grafo. Arriba, los 353 nodos repartidos en cinco sorts, dibujados como barras proporcionales: 189 conceptos curados que llevan veredicto categórico, de los cuales 33 son ramas —estructura de enrutamiento, que no aporta nombres— y el resto sí ofrece vocabulario de Mathlib al prompt; 125 módulos leídos de la taxonomía de Mathlib marcados como no interpretados; 22 nodos de área que son la puerta de entrada; 9 tácticas y 6 estrategias. Abajo, los 1586 morfismos en cuatro tipos: 687 dependencias que son prerrequisitos y son acíclicas entre los curados, 538 traducciones entre pilares como Curry-Howard, 353 identidades una por objeto como exige la definición de categoría, y 7 analogías marcadas explícitamente como correspondencias débiles. A la derecha, la nota de que las nueve tácticas reciben 453 aristas y no emiten ninguna, por lo que son sumideros y están identificadas como una categoría-error pendiente." viewBox="0 0 1000 452" style="min-width:660px">
+<svg role="img" aria-label="Anatomía del grafo. Arriba, los 353 nodos repartidos en cinco sorts, dibujados como barras proporcionales: 189 conceptos curados que llevan veredicto categórico, de los cuales 33 son ramas —estructura de enrutamiento, que no aporta nombres— y el resto sí ofrece vocabulario de Mathlib al prompt; 125 módulos leídos de la taxonomía de Mathlib marcados como no interpretados; 22 nodos de área que son la puerta de entrada; 9 tácticas y 6 estrategias. Abajo, los 1586 morfismos en cuatro tipos: 687 dependencias que son prerrequisitos y son acíclicas entre los curados, 538 traducciones entre pilares como Curry-Howard, 353 identidades una por objeto como exige la definición de categoría, y 7 analogías marcadas explícitamente como correspondencias débiles. A la derecha, la nota de que las nueve tácticas reciben 552 aristas y sólo emiten 11, todas hacia las seis estrategias, por lo que están identificadas como una categoría-error pendiente." viewBox="0 0 1000 452" style="min-width:660px">
   <text class="sMono sDim" x="16" y="18" font-size="10.5" letter-spacing="1.3">LOS 352 NODOS, POR SORT</text>
 
   <rect x="16" y="34" width="474" height="34" rx="6" fill="var(--grafo)" opacity=".92"/>
@@ -2228,7 +2228,7 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sTxt sDim" x="432" y="395" font-size="11">correspondencias débiles, marcadas como tales</text>
 
   <rect x="16" y="418" width="968" height="32" rx="7" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.2"/>
-  <text class="sTxt" x="34" y="439" font-size="11.5">Las 9 tácticas reciben <tspan font-weight="600">453 aristas y no emiten ninguna</tspan>: son sumideros. Una táctica no es una cosa, es una transformación de estado de prueba — como flecha compondría y tendría dominio y codominio.</text>
+  <text class="sTxt" x="34" y="439" font-size="11.5">Las 9 tácticas reciben <tspan font-weight="600">552 aristas y sólo emiten 11</tspan>, todas hacia las 6 estrategias. Una táctica no es una cosa, es una transformación de estado de prueba — como flecha compondría y tendría dominio y codominio.</text>
 </svg>
       </div>
       <figcaption><b>Fig. 5 —</b> Composición del grafo. Sólo los 158 nodos
@@ -2358,7 +2358,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
   <text class="sTxt sDim" x="752" y="79" font-size="12">objetos = estados de prueba</text>
   <text class="sTxt sDim" x="752" y="98" font-size="12">morfismos = tácticas</text>
   <text class="sMono" x="752" y="122" font-size="10.5" fill="var(--alerta)">HOY: 9 nodos sumidero</text>
-  <text class="sMono" x="752" y="138" font-size="10.5" fill="var(--alerta)">453 aristas entran · 0 salen</text>
+  <text class="sMono" x="752" y="138" font-size="10.5" fill="var(--alerta)">552 entran · 11 salen, a estrategias</text>
   <text class="sTxt sDim" x="734" y="192" font-size="12" font-style="italic">Una táctica no es una cosa: es</text>
   <text class="sTxt sDim" x="734" y="210" font-size="12" font-style="italic">estado → estado. Como objeto</text>
   <text class="sTxt sDim" x="734" y="228" font-size="12" font-style="italic">no compone con nada.</text>
@@ -2374,7 +2374,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
   <rect x="16" y="466" width="968" height="82" rx="9" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.3"/>
   <text class="sMono" x="34" y="488" font-size="10.5" fill="var(--alerta)" letter-spacing="1.2">MEDIDO SOBRE EL GRAFO REAL — NO ES UNA FIBRACIÓN</text>
   <text class="sTxt sDim" x="34" y="509" font-size="11">10 de 6753 pares admiten levantamiento cartesiano: <tspan font-weight="600">0,1 %</tspan>, frente al <tspan font-weight="600">4,3 %</tspan> que da barajar las áreas al azar. Peor que el azar.</text>
-  <text class="sTxt sDim" x="34" y="527" font-size="11">La causa está medida: sólo <tspan font-weight="600">104 de 688</tspan> morfismos de orden cruzan de área, y esos 104 generan <tspan font-weight="600">462</tspan> relaciones entre áreas al cerrar</text>
+  <text class="sTxt sDim" x="34" y="527" font-size="11">La causa está medida: sólo <tspan font-weight="600">105 de 688</tspan> morfismos de orden cruzan de área, y esos 105 generan <tspan font-weight="600">462</tspan> relaciones entre áreas al cerrar</text>
   <text class="sTxt sDim" x="34" y="543" font-size="11">transitivamente. La base afirma de más: el <tspan font-weight="600">93 %</tspan> de los objetos no tiene ni un skill del área de abajo por debajo.</text>
 </svg>
       </div>
@@ -3344,7 +3344,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     <h3>Identificado, con el camino claro</h3>
     <ul>
       <li><strong>Las tácticas deberían ser flechas, no nodos.</strong> Hoy son
-      9 sumideros que reciben 453 aristas. Sus objetos deben ser estados de
+      9 nodos que reciben 552 aristas y sólo emiten 11. Sus objetos deben ser estados de
       prueba y sus morfismos las tácticas. Hay <strong>25 214
       transiciones</strong> <code>state_before → tactic → state_after</code> en
       disco para construir esa categoría y medirla sin API, y la cascada en un
@@ -3356,7 +3356,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       así que una arista nueva sólo puede añadir relaciones a la base, y las
       áreas ya forman una componente fuertemente conexa de 21 de 23. Añadir
       morfismos que crucen <strong>empeora</strong> la tasa — medido en
-      <code>scripts/base_no_es_un_orden.py</code>. Los 104 de 688 que cruzan hoy
+      <code>scripts/base_no_es_un_orden.py</code>. Los 105 de 688 que cruzan hoy
       generan 462 relaciones entre áreas al cerrar: la base afirma de más. La
       palanca no son los morfismos sino la <strong>asignación de áreas</strong>.
       Lo que sí se puede usar son los <strong>105 levantamientos</strong> que
