@@ -15,8 +15,31 @@ def _strip_markdown(text: str) -> str:
     # Headers → texto con separador
     text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
     # Bold/italic
-    text = re.sub(r'\*{1,3}([^*]+)\*{1,3}', r'\1', text)
-    text = re.sub(r'_{1,2}([^_]+)_{1,2}', r'\1', text)
+    text = re.sub(r'\*{1,3}([^*\n]+)\*{1,3}', r'\1', text)
+
+    # EL GUION BAJO SOLO ES CURSIVA EN FRONTERA DE PALABRA.
+    #
+    # Esto era `_{1,2}([^_]+)_{1,2}` y trataba CUALQUIER par de guiones bajos
+    # como cursiva de Markdown. Consecuencias, las dos vistas en un PDF real
+    # del teorema fundamental del calculo:
+    #
+    #   intervalIntegral.integral_eq_sub_of_hasDerivAt
+    #     -> intervalIntegral.integraleqsubofhasDerivAt
+    #
+    #   \int_a^b f(x)\,dx = F(b) - F(a)
+    #     -> \inta^b f(x)\,dx = F(b) - F(a)
+    #
+    # El nombre del lema salia INSERVIBLE: el alumno no puede copiarlo, y
+    # ademas parece otro nombre —uno que no existe—, que es justo lo que este
+    # sistema existe para no producir. Y todos los subindices de LaTeX se
+    # perdian, asi que las formulas del PDF decian algo distinto de la
+    # matematica.
+    #
+    # La regla de Markdown de verdad (CommonMark) es que `_` abre enfasis solo
+    # si no esta pegado a un caracter de palabra: `snake_case` NUNCA es
+    # cursiva. Se exige eso en los dos extremos, y se prohibe cruzar lineas
+    # para que dos guiones lejanos no se emparejen.
+    text = re.sub(r'(?<![\w\\])_{1,2}([^_\n]+)_{1,2}(?!\w)', r'\1', text)
     # Inline code
     text = re.sub(r'`([^`]+)`', r'\1', text)
     # Links [text](url) → text
@@ -72,6 +95,78 @@ def _find_arial() -> Optional[str]:
     return next((p for p in candidates if os.path.exists(p)), None)
 
 
+def _find_mono() -> Optional[str]:
+    """Una monoespaciada CON Unicode para el bloque de codigo Lean.
+
+    POR QUE HACE FALTA. El bloque de codigo se pintaba con `Courier`, que es
+    una fuente nucleo de PDF y solo cubre latin-1, y encima se codificaba con
+    `encode('latin-1', errors='replace')` SIN pasar por la tabla de simbolos.
+    Resultado, visto en un PDF real:
+
+        theorem ftc_evaluation (f F : ? ? ?) (a b : ?)
+          ? x in a..b, f x = F b - F a := by
+
+    O sea que la pieza FORMAL —el codigo que Lean compilo y verifico, que es
+    lo unico con respaldo en todo el documento— era la peor renderizada del
+    PDF, mientras la prosa de al lado leia `R -> R` perfectamente.
+
+    Transliterar a ASCII como hace `_safe_text` tampoco sirve aqui: `int x in
+    a..b` se lee, pero NO COMPILA si el alumno lo pega. Un codigo que parece
+    Lean y no lo es, en un documento cuya tesis es «esto lo verifico Lean».
+
+    Con una TTF Unicode el codigo sale tal cual, que es lo correcto.
+    """
+    # DEJAVU PRIMERO: es la unica de la lista con cobertura completa de los
+    # simbolos que Lean usa a diario. Consolas —la monoespaciada por defecto de
+    # Windows— NO trae `ℝ`, `∀` ni `∈`, y eso son cuadros vacios en el PDF,
+    # que es peor que el `?` porque ni siquiera avisa de que falta algo.
+    candidatos = [
+        'C:/Windows/Fonts/DejaVuSansMono.ttf',
+        '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf',
+        '/Library/Fonts/DejaVuSansMono.ttf',
+        'C:/Windows/Fonts/consola.ttf',        # Consolas: mono, cobertura parcial
+        'C:/Windows/Fonts/lucon.ttf',          # Lucida Console
+    ]
+    return next((p for p in candidatos if os.path.exists(p)), None)
+
+
+def _glifos_de(ruta: str) -> Optional[set]:
+    """Los puntos de codigo que esta fuente sabe dibujar, o None si no se sabe."""
+    try:
+        from fontTools.ttLib import TTFont
+        t = TTFont(ruta, fontNumber=0, lazy=True)
+        cubre = set()
+        for tabla in t['cmap'].tables:
+            cubre |= set(tabla.cmap)
+        t.close()
+        return cubre
+    except Exception:                                           # noqa: BLE001
+        return None
+
+
+def _solo_lo_que_falte(texto: str, cubre: Optional[set]) -> str:
+    """Translitera UNICAMENTE los simbolos que la fuente no tiene.
+
+    NUNCA SE DEJA UN CUADRO VACIO, y nunca se estropea lo que si se puede
+    pintar. La alternativa que habia era todo o nada: o `encode('latin-1')`
+    —que convertia el codigo Lean entero en interrogantes— o transliterar
+    entero, que produce algo que parece Lean y no compila.
+
+    Aqui el codigo sale literal salvo los caracteres que esa fuente concreta
+    no sabe dibujar, y esos se sustituyen por su equivalente ASCII en vez de
+    desaparecer. Si no se puede leer la fuente, se es conservador y se
+    translitera todo.
+    """
+    if cubre is None:
+        return _safe_text(texto)
+    fuera = {c for c in set(texto) if ord(c) not in cubre}
+    if not fuera:
+        return texto
+    for c in fuera:
+        texto = texto.replace(c, _safe_text(c))
+    return texto
+
+
 def generate_pdf(
     query: str,
     response: str,
@@ -105,6 +200,18 @@ def generate_pdf(
         font_name = "Main"
     else:
         font_name = "Helvetica"  # fallback sin Unicode completo
+
+    mono_path = _find_mono()
+    mono_cubre = None
+    if mono_path:
+        try:
+            pdf.add_font("Mono", "", mono_path)
+            mono_name = "Mono"
+            mono_cubre = _glifos_de(mono_path)
+        except Exception:                                       # noqa: BLE001
+            mono_name = "Courier"
+    else:
+        mono_name = "Courier"
 
     # ── Encabezado ────────────────────────────────────────────────────────────
     pdf.set_font(font_name, "B", 15)
@@ -185,11 +292,17 @@ def generate_pdf(
         pdf.set_fill_color(245, 245, 250)
         pdf.set_draw_color(180, 180, 220)
         pdf.set_text_color(20, 20, 60)
-        pdf.set_font("Courier", "", 9)
+        pdf.set_font(mono_name, "", 9)
 
         lean_clean = lean_code.strip()
-        # Reemplazar solo los chars no-latin para Courier (sin TTF custom)
-        lean_clean = lean_clean.encode('latin-1', errors='replace').decode('latin-1')
+        if mono_name != "Courier":
+            lean_clean = _solo_lo_que_falte(lean_clean, mono_cubre)
+        else:
+            # SIN FUENTE UNICODE NO HAY CODIGO EXACTO, y hay que elegir el mal
+            # menor. `?` es ilegible Y no compila; la transliteracion al menos
+            # se lee. Se marca que NO es el codigo literal para que nadie lo
+            # pegue creyendo que si.
+            lean_clean = _safe_text(lean_clean)
 
         for line in lean_clean.splitlines():
             # Sin new_x="LMARGIN" el cursor se queda en el margen derecho y la
