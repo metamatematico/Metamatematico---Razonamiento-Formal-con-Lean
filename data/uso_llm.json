@@ -7,10 +7,10 @@
       "dolares": 6.557335000000001
     },
     "claude-sonnet-5": {
-      "llamadas": 263,
-      "entrada": 1850774,
-      "salida": 163892,
-      "dolares": 5.340468000000003
+      "llamadas": 274,
+      "entrada": 1873433,
+      "salida": 173954,
+      "dolares": 5.486406000000004
     }
   }
 }

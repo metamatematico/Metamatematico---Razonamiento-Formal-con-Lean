@@ -81,6 +81,7 @@
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M347 434 Q454 422 346 396"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M464 745 Q512 577 458 743"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M464 745 Q512 577 492 751"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M715 722 Q638 566 906 446"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M464 745 Q512 577 906 446"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M217 469 Q389 440 906 446"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M249 253 Q405 332 817 175"/>
@@ -178,8 +179,8 @@
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M874 559 Q717 485 247 563"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M769 132 Q665 271 763 128"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M392 715 Q476 562 763 128"/>
-<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M763 128 Q662 269 796 155"/>
-<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M796 155 Q678 282 801 159"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M801 159 Q681 285 796 155"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M769 132 Q665 271 801 159"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M847 213 Q703 312 763 693"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M847 213 Q703 312 353 354"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M353 354 Q457 382 903 351"/>
@@ -1066,6 +1067,6 @@
 <text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="982" y="146">147 sin interpretar</text>
 <circle class="n g" fill="#564c9e" stroke="none" cx="972" cy="161" r="4.6"/>
 <text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="982" y="165">22 de área, que cosen</text>
-<text class="tt" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" x="966" y="196">353 nodos · 1585 morfismos</text>
-<text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="966" y="214">se dibujan 658 dependencias</text>
+<text class="tt" fill="#1b1e17" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="600" x="966" y="196">353 nodos · 1586 morfismos</text>
+<text class="sm" fill="#1b1e17" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" opacity=".62" x="966" y="214">se dibujan 659 dependencias</text>
 </svg>

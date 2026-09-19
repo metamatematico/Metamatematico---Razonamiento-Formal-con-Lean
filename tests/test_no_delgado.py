@@ -632,7 +632,13 @@ class TestMigracionACocono:
         su condicion de co-cono es vacua y no hay nada que puedan incumplir.
         """
         descs = self._descs(sistema)
-        assert len(descs) == 22
+        # 22 -> 24 por DOS cambios de esta tanda: el cargador conecta las
+        # dependencias en una segunda pasada y recupera
+        # `measure-theory -> ergodic-theory`, que se perdia por el orden; y
+        # `schemes` pasa a depender de `algebraic-geometry` en vez de
+        # `projective-varieties`, que iba contra la convencion
+        # general->especifico del grafo.
+        assert len(descs) == 24
 
         hac = {frozenset(p.component_ids) for p, a in descs
                if a == "homological-algebra-cat"}

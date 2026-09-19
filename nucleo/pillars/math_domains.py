@@ -1243,12 +1243,12 @@ SUBBRANCH_SKILLS = [
          "affine variety"]),
     _sb("projective-varieties", "Projective Varieties",
         "Projective space, homogeneous ideals, Bezout's theorem",
-        ["affine-varieties"], "geometry",
+        ["schemes"], "geometry",
         ["variedad proyectiva", "espacio proyectivo", "bezout",
          "projective variety"]),
     _sb("schemes", "Schemes",
         "Schemes, sheaves, morphisms of schemes, spectra of rings",
-        ["projective-varieties"], "geometry",
+        ["algebraic-geometry"], "geometry",
         ["esquema", "esquemas", "haz", "haces", "gavilla", "espectro",
          "scheme", "schemes", "sheaf"]),
     _sb("triangle-geometry", "Triangle Geometry",
@@ -1917,19 +1917,45 @@ def load_math_domains(graph: SkillCategory) -> dict[str, int]:
     added = 0
     skipped = 0
 
-    # Sort by level to ensure dependencies are added before dependents
     sorted_skills = sorted(ALL_DOMAIN_SKILLS, key=lambda s: s.level)
+
+    # LA ADMISION SE CALCULA POR PUNTO FIJO, no en una sola pasada.
+    #
+    # La puerta existe para DEGRADAR CON GRACIA: si se carga sobre un grafo sin
+    # los cimientos L0, las skills cuyos prerrequisitos no existen no entran, y
+    # no se construye medio grafo colgando de nada. Eso hay que conservarlo.
+    #
+    # Pero se comprobaba contra `existing_ids` SOBRE LA MARCHA, asi que el
+    # veredicto dependia del ORDEN del fichero: una skill cuyo prerrequisito se
+    # procesa despues se descartaba ENTERA —no una arista, el nodo—, y en
+    # silencio.
+    #
+    # Se vio al invertir cuatro dependencias contra el DAG de Mathlib: al pasar
+    # `zfc-classes` a depender de `zfc-sets`, `zfc-classes` DESAPARECIO del
+    # grafo, y con ella `similarity-transformations` y `projective-varieties`.
+    # Tres nodos menos por reordenar una lista de prerrequisitos.
+    #
+    # El punto fijo da las dos cosas: se repasa la lista hasta que no entre
+    # nada nuevo, asi que el orden deja de importar, y una skill cuya cadena de
+    # prerrequisitos no llega a nada existente sigue sin entrar. Sobre un grafo
+    # vacio admite lo mismo que antes; sobre el grafo real, tambien, mas las
+    # que solo se caian por la posicion en el fichero.
+    admitidos = set(existing_ids)
+    while True:
+        nuevos = [s for s in sorted_skills
+                  if s.id not in admitidos
+                  and (not s.dependencies
+                       or any(d in admitidos for d in s.dependencies))]
+        if not nuevos:
+            break
+        admitidos |= {s.id for s in nuevos}
 
     for sdef in sorted_skills:
         if sdef.id in existing_ids:
             skipped += 1
             continue
 
-        # Check that at least one dependency exists (graceful degradation)
-        has_dep = not sdef.dependencies or any(
-            d in existing_ids for d in sdef.dependencies
-        )
-        if not has_dep:
+        if sdef.id not in admitidos:
             skipped += 1
             continue
 
@@ -1957,13 +1983,32 @@ def load_math_domains(graph: SkillCategory) -> dict[str, int]:
         )
         graph.add_skill(skill)
         existing_ids.add(sdef.id)
+        added += 1
 
-        # Add dependency morphisms
+    # ── LAS DEPENDENCIAS, EN UNA SEGUNDA PASADA ────────────────────────────
+    #
+    # Esto se hacia DENTRO del bucle de arriba, con `if dep_id in existing_ids`,
+    # y esa condicion descartaba EN SILENCIO cualquier prerrequisito que se
+    # procesara despues. El orden por nivel tapaba casi todo el problema —
+    # medido: una sola arista perdida, `measure-theory -> ergodic-theory`,
+    # porque `ergodic-theory` esta declarada en el nivel 2 y su prerrequisito
+    # `measure-theory` en el 3, y un prerrequisito nunca deberia estar mas
+    # abajo que quien lo necesita.
+    #
+    # Una sola arista es poco, pero el descarte es silencioso y la lista tiene
+    # 251 dependencias: basta reordenar dos declaraciones o tocar un nivel para
+    # perder aristas sin que nada avise. Separar las dos pasadas quita la
+    # restriccion de orden de raiz, y de paso permite declarar prerrequisitos
+    # en cualquier sentido sin pelearse con la posicion en el fichero.
+    #
+    # Se sigue comprobando que el destino exista: una dependencia hacia un id
+    # que no esta en el grafo es un error de escritura, no una arista.
+    for sdef in sorted_skills:
+        if sdef.id not in existing_ids:
+            continue
         for dep_id in sdef.dependencies:
             if dep_id in existing_ids:
                 graph.add_morphism(dep_id, sdef.id, MorphismType.DEPENDENCY)
-
-        added += 1
 
     # Add inter-pillar translations
     translations = 0

@@ -365,7 +365,7 @@ class TestFormaDelGrafoReal:
         return out
 
     def test_casi_todas_son_coproducto(self, descomposiciones):
-        """24 de 27 siguen siendo coproductos, y eso NO es neutral.
+        """19 de 24 siguen siendo coproductos, y eso NO es neutral.
 
         Las cifras anteriores —29 de 31— median dos defectos a la vez:
 
@@ -384,8 +384,14 @@ class TestFormaDelGrafoReal:
         suficiente: hacen falta diagramas con enlaces.
         """
         formas = [forma_de(p) for p, _ in descomposiciones]
-        assert len(descomposiciones) == 22
-        assert formas.count(FORMA_COPRODUCTO) == 17
+        # 22 -> 24 por DOS cambios de esta tanda: el cargador conecta las
+        # dependencias en una segunda pasada y recupera
+        # `measure-theory -> ergodic-theory`, que se perdia por el orden; y
+        # `schemes` pasa a depender de `algebraic-geometry` en vez de
+        # `projective-varieties`, que iba contra la convencion
+        # general->especifico del grafo.
+        assert len(descomposiciones) == 24
+        assert formas.count(FORMA_COPRODUCTO) == 19
         assert formas.count(FORMA_PUSHOUT) == 5
 
     def test_ninguna_pierde_su_colimite_por_las_decisiones(self, descomposiciones):

@@ -7,7 +7,7 @@ QUE HACE, Y POR QUE NO LO CALCULA LA INTERFAZ
 puede serlo. Este script contesta la pregunta útil: «¿QUÉ traslados hay?».
 
 Recorre todos los pares (concepto, área que la base pone por debajo) y guarda
-los que admiten levantamiento cartesiano. Son 102 de 1436. Cada uno es una
+los que admiten levantamiento cartesiano. Son 105 de 1436. Cada uno es una
 respuesta concreta a «¿qué parte de aquella área sostiene a esto?»:
 
     probability-theory   [Probability]  <- Analysis   =  real-analysis
@@ -23,8 +23,8 @@ transitiva convierte 69 flechas en 462 relaciones, y por las 393 que sobran no
 se puede viajar porque ningún morfismo las induce.
 
 SE GUARDA LA COBERTURA JUNTO A LOS VIAJES, no en otro fichero. Una lista de
-102 traslados correctos da la impresión de un sistema que sabe viajar; la
-cobertura dice que son el 7,1 % de lo que la base promete. Separarlos sería
+105 traslados correctos da la impresión de un sistema que sabe viajar; la
+cobertura dice que son el 7,3 % de lo que la base promete. Separarlos sería
 invitar a publicar lo primero sin lo segundo.
 
 No gasta API.
@@ -110,9 +110,9 @@ def main() -> int:
         "con_viaje": c.con_viaje,
         "tasa": round(c.tasa, 4),
         # LA VENTAJA SOBRE EL AZAR VA AQUI Y NO EN UN COMENTARIO. Medida en
-        # `fibracion_del_grafo.py`: 7,1 % real contra 6,8 % del nulo. Es 1,1x,
+        # `fibracion_del_grafo.py`: 7,3 % real contra 6,8 % del nulo. Es 1,1x,
         # o sea nada. Quien lea este fichero tiene que tropezarse con eso
-        # antes de citar el 7,1 %.
+        # antes de citar el 7,3 %.
         "nulo_base_directa": 0.068,
         "ventaja_sobre_el_nulo": 1.1,
         "por_area": {k: {"con_viaje": v[0], "pares": v[1]}

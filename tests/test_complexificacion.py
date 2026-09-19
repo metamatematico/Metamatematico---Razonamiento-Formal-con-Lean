@@ -309,7 +309,13 @@ class TestComplexificacionEnchufada:
         *_, res, _cn, _gaps = corrida
         assert res.colimites_rotos == []
         assert res.preserva
-        assert len(res.colimites_preservados) == 22
+        # 22 -> 24 por DOS cambios de esta tanda: el cargador conecta las
+        # dependencias en una segunda pasada y recupera
+        # `measure-theory -> ergodic-theory`, que se perdia por el orden; y
+        # `schemes` pasa a depender de `algebraic-geometry` en vez de
+        # `projective-varieties`, que iba contra la convencion
+        # general->especifico del grafo.
+        assert len(res.colimites_preservados) == 24
 
     def test_los_huecos_bajan(self, corrida):
         _g, _pm, _cb, _cong, antes, _res, _cn, gaps1 = corrida

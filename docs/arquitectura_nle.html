@@ -257,7 +257,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1147 tests · 58 suites
+    1209 tests · 62 suites
   </p>
 </nav>
 
@@ -291,7 +291,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1147</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1209</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -2373,7 +2373,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
 
   <rect x="16" y="466" width="968" height="82" rx="9" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.3"/>
   <text class="sMono" x="34" y="488" font-size="10.5" fill="var(--alerta)" letter-spacing="1.2">MEDIDO SOBRE EL GRAFO REAL — NO ES UNA FIBRACIÓN</text>
-  <text class="sTxt sDim" x="34" y="509" font-size="11">10 de 6753 pares admiten levantamiento cartesiano: <tspan font-weight="600">0,1 %</tspan>, frente al <tspan font-weight="600">4,2 %</tspan> que da barajar las áreas al azar. Peor que el azar.</text>
+  <text class="sTxt sDim" x="34" y="509" font-size="11">10 de 6753 pares admiten levantamiento cartesiano: <tspan font-weight="600">0,1 %</tspan>, frente al <tspan font-weight="600">4,3 %</tspan> que da barajar las áreas al azar. Peor que el azar.</text>
   <text class="sTxt sDim" x="34" y="527" font-size="11">La causa está medida: sólo <tspan font-weight="600">104 de 687</tspan> morfismos de orden cruzan de área, y esos 104 generan <tspan font-weight="600">462</tspan> relaciones entre áreas al cerrar</text>
   <text class="sTxt sDim" x="34" y="543" font-size="11">transitivamente. La base afirma de más: el <tspan font-weight="600">93 %</tspan> de los objetos no tiene ni un skill del área de abajo por debajo.</text>
 </svg>
@@ -3139,7 +3139,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <text class="sTxt" x="16" y="422" font-size="11.5">Fibración π : Skills → Áreas</text>
   <rect x="291" y="412" width="249" height="14" rx="3" fill="var(--alerta)" opacity=".85"/>
   <text class="sMono" x="820" y="423" font-size="11" fill="var(--alerta)">0,04×</text>
-  <text class="sMono sDim" x="880" y="423" font-size="10">0,1 % vs 4,2 %</text>
+  <text class="sMono sDim" x="880" y="423" font-size="10">0,1 % vs 4,3 %</text>
 
   <text class="sTxt sDim" x="16" y="476" font-size="10.5">Menos es mejor en «orden de tácticas» (posición de la táctica que cierra): la razón está invertida para que la lectura sea la misma en todas las filas.</text>
   <text class="sTxt sDim" x="16" y="490" font-size="10.5">La escala es logarítmica, así que las distancias son razones y no diferencias. El nulo de cada fila está en la columna de la derecha.</text>
@@ -3170,7 +3170,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
           <tr><td><strong>Elección de imports</strong><span class="sub">20 enunciados, Lean como juez · azar 14/20</span></td><td class="mono">18/20 elabora</td><td class="mono">18/20 fijo</td><td><span class="pill">inerte</span></td></tr>
           <tr><td><strong>Orden de tácticas</strong><span class="sub">1 600 pruebas de Mathlib · <code>simp</code> cierra el 95,8 %</span></td><td class="mono">1,26 posiciones</td><td class="mono">1,09</td><td><span class="pill a">no bate al nulo</span></td></tr>
           <tr><td><strong>Poda por área antes de elegir</strong><span class="sub">con localización perfecta — es el techo, no lo real</span></td><td class="mono">6,8 %</td><td class="mono">9,8 %</td><td><span class="pill a">no llega al nulo</span></td></tr>
-          <tr><td><strong>Fibración π : Skills → Áreas</strong><span class="sub">6753 pares (objeto, área por debajo)</span></td><td class="mono">10 se levantan<br>0,1 %</td><td class="mono">4,2 %<br>(áreas al azar)</td><td><span class="pill a">peor que el azar</span></td></tr>
+          <tr><td><strong>Fibración π : Skills → Áreas</strong><span class="sub">6753 pares (objeto, área por debajo)</span></td><td class="mono">10 se levantan<br>0,1 %</td><td class="mono">4,3 %<br>(áreas al azar)</td><td><span class="pill a">peor que el azar</span></td></tr>
           <tr><td><strong>Nombres de los nodos generados</strong><span class="sub">447 identificadores, uno a uno con <code>#check</code></span></td><td class="mono">346 existen</td><td class="mono">—</td><td><span class="pill a">95 no existen</span></td></tr>
           <tr><td><strong>Respaldo formal Python ↔ Lean</strong><span class="sub">auditoría del mapeo operación → teorema</span></td><td class="mono">62/63 · 98 %</td><td class="mono">—</td><td><span class="pill v">0 mapeos rotos</span></td></tr>
         </tbody>
@@ -3279,7 +3279,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="tests">
     <div class="head"><span class="num">17</span><h2>Tests y <span class="g">guardianes</span></h2></div>
 
-    <p><strong>1 147 tests en 58 suites</strong>, verdes en los dos intérpretes
+    <p><strong>1 209 tests en 62 suites</strong>, verdes en los dos intérpretes
     con los que se trabaja. Los que más valen no comprueban que el código
     funcione: comprueban que el sistema <strong>no pueda volver a afirmar más de
     lo que sabe</strong>.</p>
@@ -3359,8 +3359,8 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <code>scripts/base_no_es_un_orden.py</code>. Los 104 de 687 que cruzan hoy
       generan 462 relaciones entre áreas al cerrar: la base afirma de más. La
       palanca no son los morfismos sino la <strong>asignación de áreas</strong>.
-      Lo que sí se puede usar son los <strong>102 levantamientos</strong> que
-      existen uno a uno (<code>data/viajes.json</code>), al 7,1 % de lo que la
+      Lo que sí se puede usar son los <strong>105 levantamientos</strong> que
+      existen uno a uno (<code>data/viajes.json</code>), al 7,3 % de lo que la
       base promete y sólo 1,1× sobre el azar.</li>
       <li><strong>La fibra de hechos.</strong> <code>data/banco_lemas.jsonl</code>
       son 23 243 pares (enunciado, lemas que la prueba usó): un grafo bipartito

@@ -1,11 +1,11 @@
 {
   "grafo": {
     "nodos": 353,
-    "morfismos": 1585,
+    "morfismos": 1586,
     "hash": "76eb8e1b702025db"
   },
   "skills": 353,
-  "morfismos": 1585,
+  "morfismos": 1586,
   "areas": 23,
   "flechas_base": 69,
   "pares": 6753,
@@ -13,22 +13,22 @@
   "tasa": 0.0015,
   "es_fibracion": false,
   "por_que_falla": {
-    "sin soporte del area de abajo": 6266,
+    "sin soporte del area de abajo": 6265,
     "el mayor esta en otra fibra": 310,
-    "hay soporte pero ninguno domina": 167
+    "hay soporte pero ninguno domina": 168
   },
-  "morfismos_de_orden": 687,
+  "morfismos_de_orden": 688,
   "morfismos_dentro_de_area": 403,
-  "morfismos_que_cruzan": 104,
+  "morfismos_que_cruzan": 105,
   "morfismos_al_fundacional": 180,
   "relaciones_entre_areas_por_clausura": 462,
-  "nulo_media": 0.0422,
+  "nulo_media": 0.0427,
   "nulo_tasas": [
     0.0443,
     0.0418,
     0.0473,
-    0.0408,
-    0.0369
+    0.0431,
+    0.037
   ],
   "subbase_fibracion": [
     [
@@ -2555,28 +2555,28 @@
     ]
   ],
   "fibras": {
-    "GroupTheory": 4,
     "NumberTheory": 27,
     "AlgebraicGeometry": 3,
     "Algebra": 55,
     "Computability": 15,
-    "Topology": 23,
-    "FieldTheory": 2,
-    "LinearAlgebra": 13,
-    "Probability": 15,
-    "Dynamics": 1,
-    "MeasureTheory": 5,
-    "Analysis": 44,
-    "Logic": 13,
-    "Geometry": 24,
-    "CategoryTheory": 23,
-    "SetTheory": 13,
     "RepresentationTheory": 2,
+    "Topology": 23,
+    "LinearAlgebra": 13,
+    "AlgebraicTopology": 2,
     "OrderTheory": 13,
     "fundacional": 18,
-    "AlgebraicTopology": 2,
-    "ModelTheory": 1,
+    "MeasureTheory": 5,
+    "Analysis": 44,
+    "Dynamics": 1,
     "RingTheory": 15,
-    "Combinatorics": 22
+    "GroupTheory": 4,
+    "Combinatorics": 22,
+    "ModelTheory": 1,
+    "Logic": 13,
+    "SetTheory": 13,
+    "CategoryTheory": 23,
+    "FieldTheory": 2,
+    "Probability": 15,
+    "Geometry": 24
   }
 }

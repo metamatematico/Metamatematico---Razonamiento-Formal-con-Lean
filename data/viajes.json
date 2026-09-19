@@ -1,12 +1,12 @@
 {
   "grafo": {
     "nodos": 353,
-    "morfismos": 1585,
+    "morfismos": 1586,
     "hash": "76eb8e1b702025db"
   },
   "pares": 1436,
-  "con_viaje": 102,
-  "tasa": 0.071,
+  "con_viaje": 105,
+  "tasa": 0.0731,
   "nulo_base_directa": 0.068,
   "ventaja_sobre_el_nulo": 1.1,
   "por_area": {
@@ -14,49 +14,53 @@
       "con_viaje": 8,
       "pares": 34
     },
+    "MeasureTheory": {
+      "con_viaje": 9,
+      "pares": 72
+    },
     "Topology": {
       "con_viaje": 13,
       "pares": 164
-    },
-    "MeasureTheory": {
-      "con_viaje": 6,
-      "pares": 72
     },
     "Geometry": {
       "con_viaje": 1,
       "pares": 73
     },
-    "Algebra": {
-      "con_viaje": 11,
-      "pares": 163
-    },
     "AlgebraicTopology": {
       "con_viaje": 7,
       "pares": 46
     },
-    "OrderTheory": {
-      "con_viaje": 2,
-      "pares": 57
+    "Algebra": {
+      "con_viaje": 11,
+      "pares": 163
     },
     "ModelTheory": {
       "con_viaje": 1,
       "pares": 13
     },
-    "RingTheory": {
-      "con_viaje": 10,
-      "pares": 104
-    },
-    "LinearAlgebra": {
-      "con_viaje": 7,
-      "pares": 123
+    "OrderTheory": {
+      "con_viaje": 2,
+      "pares": 57
     },
     "RepresentationTheory": {
       "con_viaje": 2,
       "pares": 55
     },
+    "RingTheory": {
+      "con_viaje": 10,
+      "pares": 104
+    },
+    "GroupTheory": {
+      "con_viaje": 5,
+      "pares": 55
+    },
     "FieldTheory": {
       "con_viaje": 4,
       "pares": 55
+    },
+    "LinearAlgebra": {
+      "con_viaje": 7,
+      "pares": 123
     },
     "Analysis": {
       "con_viaje": 14,
@@ -65,10 +69,6 @@
     "CategoryTheory": {
       "con_viaje": 1,
       "pares": 146
-    },
-    "GroupTheory": {
-      "con_viaje": 5,
-      "pares": 55
     },
     "AlgebraicGeometry": {
       "con_viaje": 6,
@@ -655,6 +655,13 @@
     {
       "origen": "ergodic-theory",
       "area_origen": "Probability",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
+      "candidatos": 2
+    },
+    {
+      "origen": "ergodic-theory",
+      "area_origen": "Probability",
       "destino": "Topology",
       "soporte": "point-set-topology",
       "candidatos": 3
@@ -664,6 +671,13 @@
       "area_origen": "Probability",
       "destino": "Dynamics",
       "soporte": "area-dynamics",
+      "candidatos": 2
+    },
+    {
+      "origen": "flows",
+      "area_origen": "Probability",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
       "candidatos": 2
     },
     {
@@ -713,6 +727,13 @@
       "area_origen": "Probability",
       "destino": "Dynamics",
       "soporte": "area-dynamics",
+      "candidatos": 2
+    },
+    {
+      "origen": "rotation-number",
+      "area_origen": "Probability",
+      "destino": "MeasureTheory",
+      "soporte": "area-measuretheory",
       "candidatos": 2
     },
     {

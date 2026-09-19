@@ -229,7 +229,12 @@ class TestLasClasesDeAristaNoSeMezclan:
         #     areas dejan de contar como curados, y los tres hijos nuevos
         #     —`turing-degrees`, `extremal-graphs`, `matchings`— traen las
         #     suyas.
-        assert dict(c) == {"curada": 272, "jerarquia": 290, "cobertura": 125}, (
+        #   272 -> 273 `curada`, por la arista que el cargador recupera al
+        #     conectar las dependencias en una segunda pasada:
+        #     `measure-theory -> ergodic-theory`, que se caia porque
+        #     `ergodic-theory` esta declarada en el nivel 2 y su
+        #     prerrequisito en el 3.
+        assert dict(c) == {"curada": 273, "jerarquia": 290, "cobertura": 125}, (
             "la composicion por clase cambio a %s. Vuelve a correr "
             "scripts/funtor_dag_mathlib.py: las cifras por clase del README "
             "y de los tres artefactos pueden haber dejado de valer." % dict(c))
@@ -275,7 +280,16 @@ class TestLasClasesDeAristaNoSeMezclan:
         # especifico, que es su convencion. Si alguien usa el DAG de oraculo
         # para completar el grafo, ESTAS DOS LAS VOLTEARIA Y SE EQUIVOCARIA.
         cur = d["curada"]
-        assert cur["medibles"] == 151 and cur["confirmadas"] == 109, (
+        # 151/109 -> 152/112. La medible de mas es la arista recuperada; las
+        # tres confirmadas de mas salen de invertir `projective-varieties ->
+        # schemes`, que iba contra la convencion general->especifico (un
+        # esquema es lo general y la variedad proyectiva el caso particular).
+        #
+        # LAS 10 QUE QUEDAN SIGUEN SIN SER ERRORES, y las dos que este
+        # comentario ya avisaba —Similarity/Congruence y Class/ZFC.Basic— las
+        # volteo alguien que uso el DAG de oraculo, exactamente como aqui se
+        # predijo, y hubo que revertirlas.
+        assert cur["medibles"] == 152 and cur["confirmadas"] == 112, (
             "la fila curada cambio a %d/%d; el 72,7 %% del README ya no vale"
             % (cur["confirmadas"], cur["medibles"]))
         assert 1.5 < cur["factor"] < 2.4, (

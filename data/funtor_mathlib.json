@@ -1,22 +1,22 @@
 {
  "grafo": {
   "nodos": 353,
-  "morfismos": 1585,
+  "morfismos": 1586,
   "hash": "76eb8e1b702025db"
  },
- "medibles": 429,
- "confirmadas": 260,
- "invertidas": 67,
+ "medibles": 430,
+ "confirmadas": 263,
+ "invertidas": 66,
  "por_clase": {
   "curada": {
-   "medibles": 151,
-   "confirmadas": 109,
-   "invertidas": 11,
-   "independientes": 31,
-   "tasa_pct": 72.18543046357617,
-   "nulo_pct": 30.705882352941178,
-   "factor": 2.3508665093501815,
-   "pares_del_nulo": 6800
+   "medibles": 152,
+   "confirmadas": 112,
+   "invertidas": 10,
+   "independientes": 30,
+   "tasa_pct": 73.68421052631578,
+   "nulo_pct": 31.303306898099652,
+   "factor": 2.3538794404749925,
+   "pares_del_nulo": 6683
   },
   "jerarquia": {
    "medibles": 269,
@@ -39,7 +39,7 @@
    "pares_del_nulo": 9
   }
  },
- "independientes": 102,
+ "independientes": 101,
  "azar_pct": 29.35893001268304,
  "skills_envoltorio_categorico": [
   "cat-basics",
@@ -49,9 +49,9 @@
   "module-theory"
  ],
  "sin_envoltorio": {
-  "medibles": 405,
-  "confirmadas": 242,
-  "invertidas": 66,
+  "medibles": 406,
+  "confirmadas": 245,
+  "invertidas": 65,
   "azar_pct": 29.82221691922205
  },
  "lista_invertidas": [
@@ -308,10 +308,6 @@
    "ergodic-theory"
   ],
   [
-   "projective-varieties",
-   "schemes"
-  ],
-  [
    "similarity-transformations",
    "congruence-transformations"
   ],
@@ -325,10 +321,6 @@
   ]
  ],
  "lista_independientes": [
-  [
-   "affine-varieties",
-   "projective-varieties"
-  ],
   [
    "algebraic-geometry",
    "homological-algebra-cat"

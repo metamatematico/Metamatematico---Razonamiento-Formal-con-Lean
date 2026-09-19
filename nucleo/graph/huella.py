@@ -77,14 +77,29 @@ def desajuste(guardada: Optional[dict], viva: Optional[dict] = None):
         viva = huella_viva()
     if not guardada:
         return "sin huella: no se sabe sobre que grafo se midio"
-    if guardada.get("hash") == viva.get("hash"):
-        return None
+
+    # LOS TRES CAMPOS DECIDEN, NO SOLO EL HASH.
+    #
+    # Esto devolvia `None` en cuanto el hash coincidia, y el hash cubre los ids
+    # y los nombres que cada nodo ofrece — NO LAS ARISTAS. `nodos` y
+    # `morfismos` se guardaban y se enseñaban, pero solo se leian DESPUES de
+    # que el hash hubiera fallado: no decidian nada.
+    #
+    # Consecuencia: un cambio que solo toca aristas era invisible. Paso de
+    # verdad — al reconectar dependencias el grafo paso de 1585 a 1586
+    # morfismos y tres mediciones guardadas con 1585 seguian dandose por
+    # buenas, con el auditor diciendo «las seis miden el grafo de hoy».
+    #
+    # Reordenar prerrequisitos, invertir una dependencia o recuperar una arista
+    # perdida cambian lo que un banco mide y no mueven el hash ni un bit.
     partes = []
     for campo in ("nodos", "morfismos"):
         a, b = guardada.get(campo), viva.get(campo)
         if a != b:
             partes.append("%s %s -> %s" % (campo, a, b))
     if not partes:
+        if guardada.get("hash") == viva.get("hash"):
+            return None
         partes.append("mismos nodos y morfismos, pero cambiaron los nombres "
                       "que se ofrecen")
     return "; ".join(partes)

@@ -18,7 +18,7 @@ POR QUE ESTE MODULO NO SUPONE QUE PI SEA UNA FIBRACION
 No lo es, y no puede serlo. Está medido:
 
     base cerrada transitivamente    13 de 6753 pares   0,2 %   (nulo 6,5 %)
-    base directa                   102 de 1436 pares   7,1 %   (nulo 6,8 %)
+    base directa                   105 de 1436 pares   7,3 %   (nulo 6,8 %)
 
 La segunda fila es la importante y es una MALA noticia disfrazada de buena: al
 no cerrar la base la tasa sube treinta y cinco veces, pero el modelo nulo sube
@@ -32,7 +32,7 @@ conexa de 21 de 23. Exigir que TODO objeto de cualquiera de esas áreas se
 levante a cualquier otra es matemática falsa: no todo concepto de álgebra
 depende de uno de probabilidad.
 
-LO QUE SI HAY, Y ES LO QUE ESTE MODULO SIRVE. Los 102 levantamientos que
+LO QUE SI HAY, Y ES LO QUE ESTE MODULO SIRVE. Los 105 levantamientos que
 existen son correctos uno a uno:
 
     probability-theory   [Probability]  <- Analysis   =  real-analysis
