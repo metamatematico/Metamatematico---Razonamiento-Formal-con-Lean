@@ -3300,19 +3300,67 @@ class Nucleo:
                         "unknownIdentifier", "unknownConstant")
 
     def _es_error_mecanico(self, result) -> bool:
-        """¿El fallo es de MODULO/NOMBRE y no de matematicas?
+        """¿El fallo es de MODULO y no de matematicas?
 
         Se mira primero el tipo estructurado y solo despues el texto: el tipo
         no depende de como este redactado el mensaje.
+
+        Y DESPUES SE PREGUNTA AL INDICE, que es lo que faltaba. «Mecanico»
+        significa aqui «`repair_imports` puede arreglarlo solo», y eso sólo es
+        cierto si el nombre EXISTE y lo que falta es su modulo. Un nombre
+        INVENTADO produce el mismo mensaje de Lean y no lo arregla ningun
+        import: hay que cambiar el lema.
+
+        Caso real, `Unknown constant Bool.RingHom` —en Mathlib `Bool` es un
+        algebra de Boole, no un anillo—: el triaje lo daba por mecanico, ASI
+        QUE SE SALTABA EL BUCLE DE REVISION, `repair_imports` no encontraba
+        modulo porque no hay tal declaracion, y el alumno recibia el error en
+        crudo. El unico camino capaz de arreglarlo —que el modelo elija otro
+        lema— era justo el que el triaje apagaba.
+
+        Ahora un error de nombre es mecanico sólo si el nombre existe. Si no
+        existe es semantico, la revision corre, y le llega el diagnostico con
+        los candidatos parecidos que el indice ya conoce.
         """
+        es_de_nombre = False
         try:
             for k in result.error_kinds:
                 if any(t in k for t in self._TIPOS_MECANICOS):
-                    return True
+                    es_de_nombre = True
+                    break
         except AttributeError:                       # LeanResult antiguo
             pass
-        primero = (result.get_first_error() or "").lower()
-        return any(m in primero for m in self._ERRORES_MECANICOS)
+        primero_crudo = result.get_first_error() or ""
+        primero = primero_crudo.lower()
+        if not es_de_nombre:
+            es_de_nombre = any(m in primero for m in self._ERRORES_MECANICOS)
+        if not es_de_nombre:
+            return False
+
+        # «unknown module» sí es de modulo por definicion: no lleva nombre que
+        # comprobar y `repair_imports` es exactamente su herramienta.
+        if "unknown module" in primero:
+            return True
+
+        try:
+            from nucleo.lean import nombres as _nom
+            m = re.search(
+                r"(?:unknown (?:identifier|constant)|the (?:identifier|"
+                r"constant))\s+[`']?([A-Za-z_][\w.']*)",
+                primero_crudo, re.I)
+            if m and _nom.disponible():
+                existe = _nom.existe(m.group(1))
+                if not existe:
+                    logger.info(
+                        "Lean: '%s' no esta en el indice; el fallo NO es de "
+                        "modulo, va a revision", m.group(1))
+                return existe
+        except Exception:                                       # noqa: BLE001
+            # SIN INDICE, EL COMPORTAMIENTO DE ANTES. Un respaldo que cambia
+            # de criterio en silencio es peor que no tenerlo.
+            logger.debug("no se pudo consultar el indice en el triaje",
+                         exc_info=True)
+        return True
 
     def _lean_hint(self, error: str) -> str:
         """El diagnostico del error de Lean, COMPROBADO contra el indice.
@@ -3383,6 +3431,40 @@ class Nucleo:
                     return ("`%s` si existe en Mathlib; Lean no lo ve en este "
                             "fichero, asi que falta un import o un `open`."
                             % nombre)
+
+                # NO EXISTE — Y AUN ASI EL INDICE TIENE ALGO QUE DECIR.
+                #
+                # Hasta aqui el diagnostico contestaba «ese nombre no existe en
+                # Mathlib; usa `exact?` o busca el lema real». Es CIERTO, pero
+                # inutil: manda buscar a mano lo que el sistema ya sabe.
+                #
+                # Caso real, `Unknown constant Bool.RingHom`: el nombre es una
+                # invencion del modelo —en Mathlib `Bool` es un algebra de
+                # Boole, no un anillo— y el indice, preguntado, devuelve
+                # `RingHom`, `BoolRing`, `RingEquiv.toRingHom`… `BoolRing` es
+                # casi con seguridad lo que se buscaba.
+                #
+                # `nombres.parecidos()` llevaba tiempo escrito y el diagnostico
+                # no lo llamaba: el dato estaba y no se pasaba, que es la forma
+                # exacta de los otros tres fallos de esta familia.
+                #
+                # Se ofrecen como CANDIDATOS y no como respuesta: es semejanza
+                # de cadenas, no de matematicas, y presentarla como la solucion
+                # seria inventar con otro disfraz.
+                if nombre:
+                    cerca = [c for c in _nom.parecidos(nombre, 4) if c != nombre]
+                    ns = nombre.rsplit(".", 1)[0] if "." in nombre else ""
+                    intro = "`%s` no existe en Mathlib" % nombre
+                    if ns and _nom.existe_namespace(ns):
+                        intro += (" —el namespace `%s` si, pero no declara ese "
+                                  "nombre—" % ns)
+                    if cerca:
+                        return ("%s. Lo mas parecido que si existe: %s. "
+                                "Comprueba cual es el que sirve; son "
+                                "candidatos por parecido de nombre, no una "
+                                "respuesta."
+                                % (intro, ", ".join("`%s`" % c for c in cerca)))
+                    return intro + ". Usa `exact?` o busca el lema real."
             except Exception:                                   # noqa: BLE001
                 logger.debug("no se pudo comprobar el nombre en el indice",
                              exc_info=True)

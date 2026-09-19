@@ -222,3 +222,95 @@ class TestUnNamespaceNoEsUnaDeclaracion:
                  if NS.lower() in l.lower() and del_lema not in l]
         assert all(pos_lema < o for o in otros), (
             "el modulo que resuelve de verdad tiene que ir primero")
+
+INVENTADO_REAL = "Bool.RingHom"
+
+
+class TestUnNombreInventadoNoEsUnFalloDeModulo:
+    """El triaje decidia mal quien podia arreglar el fallo.
+
+    `Unknown constant Bool.RingHom` —en Mathlib `Bool` es un algebra de Boole,
+    no un anillo, asi que el nombre es una invencion del modelo—. El triaje lo
+    daba por MECANICO, que significa «esto lo arregla `repair_imports` solo»,
+    y con eso SE SALTABA EL BUCLE DE REVISION. Luego `repair_imports` no
+    encontraba modulo, porque no hay tal declaracion, y el alumno recibia el
+    error en crudo.
+
+    El unico camino capaz de arreglarlo —que el modelo elija otro lema— era
+    justo el que el triaje apagaba.
+    """
+
+    @staticmethod
+    def _res(texto, kinds=None):
+        class R:
+            def __init__(self):
+                self.error_kinds = kinds or []
+
+            def get_first_error(self):
+                return texto
+        return R()
+
+    def test_un_nombre_inventado_va_a_revision(self, n, indice):
+        from nucleo.core import Nucleo
+        assert not indice.existe(INVENTADO_REAL), (
+            "la premisa: %s no existe en Mathlib" % INVENTADO_REAL)
+        assert not Nucleo._es_error_mecanico(
+            n, self._res("Unknown constant " + INVENTADO_REAL)), (
+            "un nombre inventado se daba por mecanico, se saltaba la revision, "
+            "y ningun import podia arreglarlo")
+
+    def test_un_nombre_real_sigue_siendo_de_modulo(self, n, indice):
+        from nucleo.core import Nucleo
+        assert Nucleo._es_error_mecanico(
+            n, self._res("Unknown constant " + REAL)), (
+            "un lema que existe y no esta importado SI lo arregla "
+            "`repair_imports`: mandarlo a revision gastaria una llamada al "
+            "modelo para nada")
+
+    def test_un_modulo_desconocido_no_necesita_indice(self, n):
+        from nucleo.core import Nucleo
+        assert Nucleo._es_error_mecanico(
+            n, self._res("unknown module Mathlib.NoExisteEsto"))
+
+    def test_los_errores_semanticos_no_se_tocan(self, n):
+        from nucleo.core import Nucleo
+        assert not Nucleo._es_error_mecanico(n, self._res("type mismatch"))
+
+    def test_tambien_por_el_tipo_estructurado(self, n, indice):
+        """El `kind` del JSON no dice si el nombre existe: hay que mirarlo."""
+        from nucleo.core import Nucleo
+        assert not Nucleo._es_error_mecanico(
+            n, self._res("Unknown constant " + INVENTADO_REAL,
+                         ["lean.unknownConstant"]))
+
+
+class TestElDiagnosticoOfreceLoQueSiExiste:
+    """Decir «no existe» es cierto e inutil si el indice sabe que hay cerca."""
+
+    def test_ofrece_candidatos_parecidos(self, n, indice):
+        from nucleo.core import Nucleo
+        hint = Nucleo._lean_hint(n, "Unknown constant " + INVENTADO_REAL)
+        assert "BoolRing" in hint, (
+            "`nombres.parecidos()` devuelve `BoolRing`, que es casi con "
+            "seguridad lo que se buscaba, y el diagnostico mandaba a buscar a "
+            "mano lo que el sistema ya sabia")
+
+    def test_los_candidatos_se_presentan_como_candidatos(self, n, indice):
+        """Semejanza de cadenas, no de matematicas."""
+        from nucleo.core import Nucleo
+        hint = Nucleo._lean_hint(n, "Unknown constant " + INVENTADO_REAL)
+        assert "candidatos" in hint.lower() and "no una respuesta" in hint, (
+            "presentar un parecido de nombre como la solucion seria inventar "
+            "con otro disfraz")
+
+    def test_dice_que_el_namespace_si_existe(self, n, indice):
+        from nucleo.core import Nucleo
+        hint = Nucleo._lean_hint(n, "Unknown constant " + INVENTADO_REAL)
+        assert "Bool" in hint and "no declara" in hint
+
+    def test_sin_parecidos_no_se_inventa_una_lista(self, n):
+        from nucleo.core import Nucleo
+        hint = Nucleo._lean_hint(
+            n, "Unknown constant zzqqxx_no_se_parece_a_nada_de_nada_jamas")
+        assert "no existe" in hint.lower()
+        assert "parecido" not in hint.lower() or "exact?" in hint

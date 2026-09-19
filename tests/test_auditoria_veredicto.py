@@ -96,9 +96,35 @@ class TestTriajeDeErrores:
         assert Nucleo._es_error_mecanico(n, r)
 
     def test_sigue_valiendo_la_subcadena_cuando_no_hay_kind(self):
+        """Sin `kind`, la clasificacion por subcadena sigue funcionando.
+
+        EL NOMBRE DEL EJEMPLO IMPORTA, y antes no. Esto usaba `Foo.bar`, un
+        relleno, porque lo unico que se comprobaba era que la subcadena
+        «unknown constant» disparase el triaje. Desde que «mecanico» significa
+        «`repair_imports` puede arreglarlo solo» —y eso exige que el nombre
+        EXISTA y solo le falte el modulo— un nombre inventado se clasifica, con
+        razon, como semantico: ningun import arregla un lema que no existe.
+
+        Asi que el ejemplo pasa a ser un lema REAL de Mathlib. El test sigue
+        comprobando lo suyo —la via de la subcadena cuando no hay `kind`— sin
+        depender de un nombre que la regla nueva tiene que rechazar.
+        """
         n = Nucleo.__new__(Nucleo)
-        r = self._res("", "Unknown constant `Foo.bar`")
+        r = self._res("", "Unknown constant `RingHom`")
         assert Nucleo._es_error_mecanico(n, r)
+
+    def test_un_nombre_inventado_no_es_mecanico_aunque_lo_parezca(self):
+        """La otra cara, y es la que costo una consulta real.
+
+        `Unknown constant Bool.RingHom` tiene la misma forma que el de arriba
+        y es un fallo distinto: el nombre no existe. Darlo por mecanico saltaba
+        el bucle de revision —el unico camino capaz de cambiar el lema— y
+        dejaba el arreglo en manos de `repair_imports`, que no encuentra modulo
+        porque no hay tal declaracion.
+        """
+        n = Nucleo.__new__(Nucleo)
+        r = self._res("", "Unknown constant `Bool.RingHom`")
+        assert not Nucleo._es_error_mecanico(n, r)
 
     def test_un_error_semantico_no_es_mecanico(self):
         """Si se marcara como mecánico, el sistema NO haría la ronda de
