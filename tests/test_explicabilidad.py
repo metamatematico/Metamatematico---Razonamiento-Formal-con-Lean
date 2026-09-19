@@ -282,3 +282,65 @@ class TestLoInerteTambienSeEnsena:
         assert "33,3" in paso.respaldo, (
             "58,7 % suena bien hasta que se sabe contra que: la clase "
             "mayoritaria acierta el 33,3 %")
+
+
+class TestLoQueLeeUnAlumnoEstaEnCastellano:
+    """Tres fallos que la primera consulta real destapó.
+
+    Ninguno de los tres rompía nada: la cifra era correcta, el panel se
+    pintaba y el codigo estaba. Lo que fallaba era que el alumno entendia
+    otra cosa, que es el fallo que ningun test normal ve.
+    """
+
+    def test_el_punto_decimal_no_se_lee_como_millares(self):
+        """«18.000 contra 18.000» se lee «dieciocho mil». Y son 18."""
+        from nucleo.decisor import _cifra
+        assert _cifra(18.0) == "18"
+        assert _cifra(1.262) == "1,262"
+        assert _cifra(7.78) == "7,78"
+        assert _cifra(0.065) == "0,065"
+        assert "." not in _cifra(1.091), (
+            "en castellano el punto son los millares: una cifra con punto "
+            "decimal en un texto para el alumno dice otro numero")
+
+    def test_el_coste_local_se_dice_en_castellano(self):
+        """«6 local» no es castellano, y calla lo que importa: que fue gratis."""
+        from nucleo.explicabilidad import coste_en_palabras
+        t = coste_en_palabras({"compilado de Lean": 1, "local": 6})
+        assert "1 compilado de Lean" in t
+        assert "6 pasos locales" in t and "no cuestan nada" in t
+        assert "6 local," not in t
+
+    def test_el_coste_en_singular_no_dice_1_pasos(self):
+        from nucleo.explicabilidad import coste_en_palabras
+        assert coste_en_palabras({"local": 1}).startswith("1 paso local")
+
+    def test_el_coste_de_cero_no_se_enumera(self):
+        from nucleo.explicabilidad import coste_en_palabras
+        assert "llamada" not in coste_en_palabras(
+            {"llamada al modelo": 0, "local": 3})
+
+    def test_el_codigo_ensena_el_teorema_y_no_los_imports(self):
+        """Seis `import Mathlib.…` es lo unico que no habla de su pregunta."""
+        codigo = ("import Mathlib.Data.Real.Basic\n"
+                  "import Mathlib.NumberTheory.Real.Irrational\n"
+                  "import Mathlib.Tactic.Ring\n"
+                  "import Mathlib.Tactic.Linarith\n"
+                  "import Mathlib.Tactic.NormNum\n"
+                  "import Mathlib.Tactic.Positivity\n"
+                  "theorem sqrt2 : Irrational (Real.sqrt 2) :=\n"
+                  "  irrational_sqrt_two")
+        e = explicar(veredicto="verificado", estado_lean="SUCCESS",
+                     codigo=codigo)
+        items = [p for p in e.pasos if p.clave == "lean"][0].items
+        assert any("theorem" in i for i in items), (
+            "cortando por las seis primeras lineas salian seis imports y ni "
+            "una linea de matematicas")
+        assert not any(i.startswith("import ") for i in items)
+
+    def test_si_solo_hay_encabezado_se_ensena_el_encabezado(self):
+        """Mejor el import que un hueco en blanco sin explicar."""
+        e = explicar(veredicto="verificado", estado_lean="SUCCESS",
+                     codigo="import Mathlib.Data.Real.Basic")
+        items = [p for p in e.pasos if p.clave == "lean"][0].items
+        assert items == ["import Mathlib.Data.Real.Basic"]

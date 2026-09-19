@@ -91,6 +91,21 @@ def _nombre_legible(sid: str) -> str:
     return sid.replace("-", " ")
 
 
+def _lineas_que_importan(codigo: str, tope: int = 6) -> list:
+    """Las líneas del código que dicen algo, sin el encabezado.
+
+    Un `import` le dice al alumno dónde vive una definición, no qué se
+    demostró. Si al quitarlos no queda nada —que puede pasar—, se devuelve
+    lo que había: enseñar el encabezado es peor que enseñarlo todo, pero
+    mucho mejor que dejar el hueco en blanco sin explicar por qué.
+    """
+    lineas = [l for l in (codigo or "").strip().split("\n") if l.strip()]
+    cuerpo = [l for l in lineas
+              if not l.lstrip().startswith(("import ", "open ", "set_option",
+                                            "namespace ", "end "))]
+    return (cuerpo or lineas)[:tope]
+
+
 #: los ocho veredictos, dichos para quien pregunta y no para quien programa
 VEREDICTO = {
     "verificado": ("Lean compiló la formalización contra Mathlib y la aceptó, "
@@ -339,7 +354,10 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
         e.pasos.append(Paso(
             "lean", "Qué dijo el verificador",
             detalle=det,
-            items=([l for l in (codigo or "").strip().split("\n")[:6] if l]
+            # EL TEOREMA, NO LOS IMPORTS. Cortando por las seis primeras
+            # lineas el alumno veia seis `import Mathlib.…` y ni una linea de
+            # matematicas: justo lo unico que no le dice nada de su pregunta.
+            items=(_lineas_que_importan(codigo)
                    if veredicto == "verificado" else []),
             respaldo=("hay ocho veredictos y no dos porque compilar no es "
                       "demostrar: tres de ellos —`vacuo`, `sin_teorema` y "
@@ -438,7 +456,26 @@ def en_markdown(exp: Explicacion, breve: bool = True) -> str:
         out.append("\n")
 
     if exp.coste:
-        out.append("**Lo que costó**: "
-                   + ", ".join("%s %s" % (v, k) for k, v in exp.coste.items())
-                   + "\n")
+        out.append("**Lo que costó**: " + coste_en_palabras(exp.coste) + "\n")
     return "".join(out)
+
+
+#: singular y plural de cada clase de coste, porque «6 local» no es castellano
+#: y «local» a secas no le dice al alumno lo que importa: que fue gratis.
+COSTE = {
+    "llamada al modelo": ("1 llamada al modelo", "%d llamadas al modelo"),
+    "compilado de Lean": ("1 compilado de Lean", "%d compilados de Lean"),
+    "local": ("1 paso local, que no cuesta nada",
+              "%d pasos locales, que no cuestan nada"),
+}
+
+
+def coste_en_palabras(coste: dict) -> str:
+    """«1 compilado de Lean, 6 pasos locales, que no cuestan nada»."""
+    partes = []
+    for clave, n in (coste or {}).items():
+        if not n:
+            continue
+        uno, varios = COSTE.get(clave, ("1 %s" % clave, "%%d %s" % clave))
+        partes.append(uno if n == 1 else varios % n)
+    return ", ".join(partes)

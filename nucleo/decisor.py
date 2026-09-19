@@ -158,6 +158,16 @@ class Contexto:
     hay_modelo: bool = True
 
 
+def _cifra(x: float) -> str:
+    """Una cifra como se escribe en castellano: coma decimal, sin ceros de más.
+
+    18.0 -> «18»   ·   1.262 -> «1,262»   ·   7.78 -> «7,78»
+    """
+    if abs(x - round(x)) < 5e-4:
+        return "%d" % round(x)
+    return ("%.3f" % x).rstrip("0").rstrip(".").replace(".", ",")
+
+
 @dataclass
 class Decision:
     activas: list = field(default_factory=list)
@@ -536,6 +546,12 @@ def leer_veredicto(cap: Capacidad, datos: pathlib.Path = DATOS) -> Veredicto:
     """
     if cap.evidencia is None:
         return Veredicto(motivo="sin evidencia con modelo nulo")
+    #: el motivo lo LEE UN ALUMNO, y en castellano el punto son los millares
+    #:
+    #: Con `%.3f` salia «enunciados que elaboran, de 20 18.000 contra 18.000»,
+    #: que se lee «dieciocho mil contra dieciocho mil» y no significa nada. La
+    #: cifra era correcta y la frase era mentira, que es la peor combinacion:
+    #: nada falla y el lector entiende otra cosa.
     ev = cap.evidencia
     try:
         d = json.loads((datos / ev.fichero).read_text(encoding="utf-8"))
@@ -548,8 +564,9 @@ def leer_veredicto(cap: Capacidad, datos: pathlib.Path = DATOS) -> Veredicto:
         return Veredicto(motivo="la ruta ya no existe en %s" % ev.fichero)
     gana = real > nulo if ev.mas_es_mejor else real < nulo
     return Veredicto(real=float(real), nulo=float(nulo), gana=gana,
-                     motivo="%s %.3f contra %.3f (%s)"
-                            % (ev.metrica, real, nulo, ev.contra))
+                     motivo="%s %s contra %s (%s)"
+                            % (ev.metrica, _cifra(real), _cifra(nulo),
+                               ev.contra))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
