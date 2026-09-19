@@ -130,6 +130,49 @@ def modulo_de(nombre: str) -> str:
     return _MODULO.get(n) or _MODULO.get(nombre_completo(n) or "") or ""
 
 
+def modulos_del_namespace(ns: str, tope: int = 3) -> list:
+    """Los modulos que definen algo dentro del namespace `ns`.
+
+    POR QUE HACE FALTA, Y ES LA MISMA FAMILIA DE FALLO UNA CAPA MAS ABAJO.
+    Lean distingue dos errores que el sistema trataba igual de mal:
+
+        Unknown constant  intervalIntegral.integral_eq_sub_of_hasDerivAt
+        unknown namespace intervalIntegral
+
+    El primero ya se resuelve: se busca la DECLARACION y se importa su modulo.
+    El segundo no se podia, porque `intervalIntegral` NO ES UNA DECLARACION
+    —es un namespace— y quien busca modulos busca declaraciones por su nombre
+    base. No encontraba nada, `repair_imports` no reparaba, y el diagnostico se
+    caia al generico «revisa la sintaxis Lean 4 y los imports de Mathlib», que
+    no es accionable.
+
+    Un namespace existe si algo se declara dentro de el. Se devuelven los
+    modulos mas frecuentes y no todos: un namespace grande vive repartido en
+    decenas de ficheros, y traerlos todos costaria mas compilacion de la que
+    ahorra.
+    """
+    _cargar()
+    if not _MODULO:
+        return []
+    pref = (ns or "").strip().strip("`") + "."
+    if len(pref) < 3:
+        return []
+    cuenta: dict = {}
+    for nombre, modulo in _MODULO.items():
+        if nombre.startswith(pref) and modulo:
+            cuenta[modulo] = cuenta.get(modulo, 0) + 1
+    return [m for m, _n in sorted(cuenta.items(), key=lambda kv: -kv[1])[:tope]]
+
+
+def existe_namespace(ns: str) -> bool:
+    """Se declara algo dentro de este namespace?"""
+    _cargar()
+    if not _NOMBRES:
+        return False
+    pref = (ns or "").strip().strip("`") + "."
+    return len(pref) >= 3 and any(n.startswith(pref) for n in _NOMBRES)
+
+
 def disponible() -> bool:
     _cargar()
     return bool(_NOMBRES)

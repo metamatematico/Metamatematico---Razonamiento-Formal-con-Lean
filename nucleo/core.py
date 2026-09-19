@@ -3280,7 +3280,78 @@ class Nucleo:
         return any(m in primero for m in self._ERRORES_MECANICOS)
 
     def _lean_hint(self, error: str) -> str:
+        """El diagnostico del error de Lean, COMPROBADO contra el indice.
+
+        EL FALLO QUE CIERRA, y salio en una consulta real sobre el teorema
+        fundamental del calculo. Lean dijo:
+
+            Unknown constant intervalIntegral.integral_eq_sub_of_hasDerivAt
+
+        y este metodo contesto, de la tabla: «ese nombre no existe en Mathlib;
+        usa `exact?` o busca el lema real». Es FALSO. El nombre existe, y el
+        sistema lo sabia: `nombres.existe()` dice True, `nombres.modulo_de()`
+        da `Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus` y
+        `enunciados_de()` devuelve su enunciado entero.
+
+        «Unknown constant» de Lean significa «no esta en el ambito de ESTE
+        fichero», que casi siempre es un import que falta — no que el lema no
+        exista. Y el dano es doble: al alumno se le afirma una falsedad, y al
+        bucle de reparacion se le dice que abandone un lema correcto, porque
+        el prompt de revision lleva escrito «si un lema no existe bajo ese
+        nombre, usa otro o deja `sorry`».
+
+        En la misma pantalla el verificador de nombres decia lo contrario:
+        tres piezas del sistema contradiciendose, con el indice delante.
+        """
         low = (error or "").lower()
+
+        # UN NAMESPACE NO ES UNA DECLARACION, y por eso este caso caia al
+        # mensaje generico «revisa la sintaxis y los imports», que no dice
+        # nada. `intervalIntegral` no se busca como lema: se busca como
+        # prefijo de los lemas que viven dentro.
+        if "unknown namespace" in low:
+            try:
+                from nucleo.lean import nombres as _nom
+                m = re.search(r"unknown namespace\s+[`']?([A-Za-z_][\w.']*)",
+                              error or "", re.I)
+                ns = m.group(1) if m else ""
+                if ns and _nom.existe_namespace(ns):
+                    mods = _nom.modulos_del_namespace(ns)
+                    if mods:
+                        return ("el namespace `%s` SI existe en Mathlib; sus "
+                                "lemas viven en %s. Falta importar el modulo, "
+                                "no cambiar el nombre."
+                                % (ns, ", ".join("`%s`" % x for x in mods)))
+                    return ("el namespace `%s` si existe; falta el import del "
+                            "modulo que lo define." % ns)
+            except Exception:                                   # noqa: BLE001
+                logger.debug("no se pudo resolver el namespace", exc_info=True)
+
+        # ANTES DE LA TABLA, PREGUNTAR AL INDICE. Solo para los errores de
+        # nombre desconocido, que son los unicos donde la tabla afirma algo
+        # comprobable.
+        if "unknown identifier" in low or "unknown constant" in low or (
+                " is unknown" in low):
+            try:
+                from nucleo.lean import nombres as _nom
+                m = re.search(
+                    r"(?:unknown (?:identifier|constant)|the (?:identifier|"
+                    r"constant))\s+[`']?([A-Za-z_][\w.']*)",
+                    error or "", re.I)
+                nombre = m.group(1) if m else ""
+                if nombre and _nom.existe(nombre):
+                    modulo = _nom.modulo_de(nombre)
+                    if modulo:
+                        return ("`%s` SI existe en Mathlib, en `%s`: lo que "
+                                "falta es ese import, no el lema."
+                                % (nombre, modulo))
+                    return ("`%s` si existe en Mathlib; Lean no lo ve en este "
+                            "fichero, asi que falta un import o un `open`."
+                            % nombre)
+            except Exception:                                   # noqa: BLE001
+                logger.debug("no se pudo comprobar el nombre en el indice",
+                             exc_info=True)
+
         return next(
             (h for k, h in self._LEAN_HINTS.items() if k in low),
             "revisa la sintaxis Lean 4 y los imports de Mathlib.",

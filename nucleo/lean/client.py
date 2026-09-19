@@ -411,6 +411,15 @@ class LeanClient:
         re.compile(r"unknown (?:identifier|constant)\s+([A-Za-z_][\w.']*)", re.I),
         re.compile(r"Function expected at\s*\n\s*([A-Za-z_][\w.']*)"),
         re.compile(r"unknown namespace\s+[`']?([A-Za-z_][\w.']*)[`']?", re.I),
+        # LA FORMA LARGA, que faltaba. Para el MISMO fallo Lean escribe unas
+        # veces «Unknown constant `X`» y otras «The identifier `X` is unknown,
+        # y autoImplicit…». Eso ya estaba documentado en `_ERRORES_MECANICOS`
+        # de core.py —donde se resolvio leyendo el tipo estructurado del JSON—
+        # y aqui nadie lo aplico: `repair_imports` no reparaba NADA cuando Lean
+        # elegia la forma larga, aunque el lema existiera y su modulo fuera
+        # localizable.
+        re.compile(r"the (?:identifier|constant)\s+`([^`]+)`\s+is unknown", re.I),
+        re.compile(r"the (?:identifier|constant)\s+'([^']+)'\s+is unknown", re.I),
     ]
     #: Mathlib usa el sufijo de SUBINDICE (`div_le_div_iff₀`, `le_div_iff₀`)
     #: para las variantes sobre grupos con cero. La clase de caracteres no lo
@@ -617,6 +626,44 @@ class LeanClient:
                 logger.debug(f"Lean: '{ident}' es cuestion de namespace, no de import")
                 continue
             modulo = modulos.get(ident)
+
+            # UN NAMESPACE NO ES UNA DECLARACION, y tratarlo como tal trae el
+            # modulo equivocado.
+            #
+            # `unknown namespace intervalIntegral`: buscar `intervalIntegral`
+            # entre las declaraciones encuentra
+            # `...IntervalIntegral.Basic` —es donde se ABRE el namespace— y se
+            # importaba ese. Pero el lema que el codigo usaba,
+            # `intervalIntegral.integral_eq_sub_of_hasDerivAt`, vive en
+            # `...IntervalIntegral.FundThmCalculus`. Import correcto de un
+            # modulo inutil: Lean volvia a fallar y parecia que la reparacion
+            # no servia.
+            #
+            # EL CODIGO DICE QUE LEMA DEL NAMESPACE SE ESTA USANDO, asi que se
+            # resuelve ESE y se importa SU modulo. Y si el codigo no nombra
+            # ninguno, se cae a los modulos mas poblados del namespace, que es
+            # mejor que nada pero se marca como lo que es: una conjetura.
+            try:
+                from nucleo.lean import nombres as _nom
+                usados = sorted({
+                    m.group(0) for m in re.finditer(
+                        re.escape(ident) + r"\.[A-Za-z_][\w.']*", code)})
+                mods_ns = [x for x in (_nom.modulo_de(u) for u in usados) if x]
+                if not mods_ns:
+                    mods_ns = _nom.modulos_del_namespace(ident)
+                    if mods_ns:
+                        logger.info("Lean: '%s' es un namespace y el codigo no "
+                                    "nombra ningun lema suyo; se importan los "
+                                    "modulos mas poblados", ident)
+                if mods_ns:
+                    # los del lema PRIMERO: son los que resuelven de verdad
+                    modulo = ",".join(dict.fromkeys(mods_ns + (
+                        [modulo] if modulo else [])))
+                    logger.info("Lean: namespace '%s' -> %s", ident, modulo)
+            except Exception:                                   # noqa: BLE001
+                logger.debug("no se pudo resolver el namespace '%s'", ident,
+                             exc_info=True)
+
             if not modulo:
                 logger.debug(f"Lean: sin modulo para '{ident}'")
                 continue
