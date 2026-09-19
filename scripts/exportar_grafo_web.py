@@ -46,18 +46,40 @@ def main():
     S = list(g.skills)
     meta = {s.id: (s.metadata or {}) for s in S}
 
+    # EL ROTULO DE LA BASE SE CUENTA, NO SE ESCRIBE.
+    #
+    # Decia «· la base: 22 áreas» a mano, y el sector dibujaba 24. Hay TRES
+    # cifras distintas rondando y cada una es de otra cosa:
+    #
+    #     24  nodos con sort=AREA   (los 22 `area-*` mas `zfc-axioms` y
+    #                                `lean-kernel`, que el veredicto movio a
+    #                                esta capa)
+    #     22  areas matematicas     (las `area-*`)
+    #     23  objetos de la base    (las 22 mas `fundacional`, que NO es un
+    #                                area: es donde caen tacticas y estrategias)
+    #
+    # Un numero escrito a mano aqui envejece en cuanto se mueve un nodo, y
+    # ademas no dice de cual de las tres habla. Se cuenta, y se rotula lo que
+    # el sector ES —la base de pi— sin prometer que todos sus nodos sean areas.
+    _n_area = sum(1 for s in S if (s.metadata or {}).get("sort") == "AREA")
+    _n_matematicas = sum(1 for s in S
+                         if (s.metadata or {}).get("sort") == "AREA"
+                         and s.id.startswith("area-"))
+    _ROTULO_BASE = ("· la base de π: %d nodos (%d áreas)"
+                    % (_n_area, _n_matematicas))
+
     def area_de(sid):
         """El sector en que se dibuja el nodo.
 
-        Los 22 nodos AREA van JUNTOS y no repartidos por su propia rama: son
-        la base de la proyeccion pi, y verlos como un anillo es lo que hace
+        Los nodos AREA van JUNTOS y no repartidos por su propia rama: son la
+        base de la proyeccion pi, y verlos como un anillo es lo que hace
         legible que las demas fibras se proyectan sobre ellos. Repartidos,
         cada uno abria un sector de un solo nodo y el dibujo se deshacia en
         quince cuñas vacias.
         """
         so = meta[sid].get("sort")
         if so == "AREA":
-            return "· la base: 22 áreas"
+            return _ROTULO_BASE
         if so in ("TACTICA", "ESTRATEGIA"):
             return "· tácticas y estrategias"
         return meta[sid].get("category") or "· fundacional"
