@@ -2997,6 +2997,29 @@ class Nucleo:
         except Exception as e:                                  # noqa: BLE001
             logger.debug(f"revision de nombres no disponible: {e}")
 
+        # EL RASTRO DEL PROCESO. Se monta con lo que ya hay en el alcance: el
+        # plan del decisor, el contexto con los conceptos y los nombres, la
+        # revision de notacion y el veredicto de Lean.
+        #
+        # Va en un `try` porque explicar no puede tumbar una respuesta ya
+        # verificada: si falla el panel, el alumno pierde el porque, no la
+        # demostracion.
+        try:
+            from nucleo.explicabilidad import explicar as _explicar
+            _explicabilidad = _explicar(
+                consulta=input_text, area=_area or "", lectura=_lectura or "",
+                contexto=context, plan=_plan, revision=_revision,
+                rondas=_rondas_revision,
+                estado_lean=getattr(getattr(result, "status", None),
+                                    "name", ""),
+                error_lean=(result.get_first_error() or ""
+                            if hasattr(result, "get_first_error") else ""),
+                veredicto=verification_status,
+            ).a_dict()
+        except Exception as e:                                  # noqa: BLE001
+            logger.debug("explicabilidad no disponible: %s", e)
+            _explicabilidad = {}
+
         return NucleoResponse(
             content=content,
             action_type=ActionType.ASSIST,
@@ -3030,6 +3053,18 @@ class Nucleo:
                 "verificado": _verificado,
                 "area": _area,
                 "rondas_revision": _rondas_revision,
+                # EL RASTRO DEL PROCESO, PARA EL ALUMNO.
+                #
+                # Todo esto ya se calculaba y moria en la pagina de ANALISIS o
+                # en un script de informe: el decisor sabe que capacidades
+                # corrieron y cuales estan apagadas por medir peor que su nulo,
+                # el contexto sabe que conceptos se activaron y que nombres se
+                # ofrecieron, y aqui se sabe que dijo Lean. Quien preguntaba
+                # recibia el veredicto y la prosa, nunca el porque.
+                #
+                # Ver `nucleo/explicabilidad.py`. No calcula nada nuevo: deja
+                # de tirar lo que ya habia.
+                "explicabilidad": _explicabilidad,
             },
         )
 

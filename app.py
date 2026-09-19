@@ -1573,6 +1573,23 @@ los resultados se muestran aquí.
             st.markdown(item["q"])
         with st.chat_message("assistant", avatar="🧮"):
             st.markdown(item["a"])
+            # POR QUE PLEGADO Y NO ABIERTO. El alumno vino a por una
+            # demostracion; el proceso es lo segundo. Pero tiene que ESTAR, y
+            # a un clic: hasta ahora este rastro solo existia en la pagina de
+            # analisis, que nadie abre despues de preguntar.
+            _ex = item.get("explic") or {}
+            if _ex.get("pasos"):
+                with st.expander("🔍 Cómo se llegó a esta respuesta"):
+                    try:
+                        from nucleo.explicabilidad import (Explicacion, Paso,
+                                                           en_markdown)
+                        _e = Explicacion(
+                            pasos=[Paso(**d) for d in _ex.get("pasos", [])],
+                            apagadas=_ex.get("apagadas", []),
+                            coste=_ex.get("coste", {}))
+                        st.markdown(en_markdown(_e), unsafe_allow_html=True)
+                    except Exception as _ex_err:
+                        st.caption("no se pudo montar el panel: %s" % _ex_err)
             tok_str = (f' · {item["in_tok"]}→{item["out_tok"]} tok'
                        if item.get("in_tok") else "")
             _cap_c, _pdf_c = st.columns([8, 2])
@@ -1832,6 +1849,13 @@ los resultados se muestran aquí.
                     "_conf":      _conf,
                     "_area":      _area,
                     "_vstatus":   _vstatus,
+                    # EL RASTRO DEL PROCESO. Lo monta `nucleo/explicabilidad.py`
+                    # con lo que el pipeline ya calculaba y tiraba: que
+                    # capacidades corrieron, cuales estan apagadas por medir
+                    # peor que su nulo, que conceptos activo el grafo y que
+                    # nombres se le pasaron al modelo.
+                    "_explic":    (nr.metadata.get("explicabilidad", {})
+                                   if hasattr(nr, "metadata") else {}),
                 }
             except Exception as _nucleo_err:
                 import logging, traceback
@@ -1929,6 +1953,7 @@ los resultados se muestran aquí.
                     "in_tok": res.get("in_tok", 0),
                     "out_tok":res.get("out_tok", 0),
                     "t":      round(elapsed, 1),
+                    "explic": res.get("_explic", {}),
                 })
 
         # Botón de visualizaciones tras la nueva respuesta
