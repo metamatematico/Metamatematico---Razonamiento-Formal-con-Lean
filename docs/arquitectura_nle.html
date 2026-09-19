@@ -264,17 +264,27 @@ svg .sLine{stroke:var(--muted); fill:none}
 <main>
   <header class="hero">
     <p class="hero-kicker"><span class="dot"></span>Arquitectura y evidencia</p>
-    <h1>Cinco capas alrededor de una frontera: dónde termina la <em>palabra</em> y empieza el <em>tipo</em></h1>
-    <p class="lede"><strong>Metamatemático es una herramienta que toma una
-    pregunta de matemáticas escrita en castellano o en inglés, la traduce a un
-    enunciado formal de Lean&nbsp;4 y deja que el kernel decida si es
-    cierta.</strong> No responde: verifica. Y cuando no puede verificar, dice
-    exactamente qué falló — el veredicto tiene ocho estados, no dos.</p>
-    <p class="lede">Lo que la organiza es una sola distinción, y no se
-    postuló: se descubrió midiendo. <strong>Antes</strong> de que exista un
-    enunciado formal, el sistema trabaja con palabras humanas —ahí gana, y por
-    mucho—. <strong>Después</strong>, el objeto ya es un tipo, y quien busca
-    bien sobre tipos es Lean, no un grafo de palabras. Esa es la
+    <h1>El que <em>propone</em>, el que <em>verifica</em>, y la capa de en medio</h1>
+    <p class="lede"><strong>Escribes una pregunta de matemáticas en castellano
+    o en inglés. Metamatemático la convierte en un enunciado de Lean&nbsp;4 y
+    deja que el kernel decida.</strong> Lo que devuelve no es una respuesta:
+    es un <em>veredicto</em> —de ocho estados, no de dos— junto al código
+    exacto que Lean aceptó o rechazó. Cuando no puede verificar, dice qué
+    falló.</p>
+    <p class="lede"><strong>La forma del sistema es un lazo, no una
+    tubería.</strong> El modelo de lenguaje propone un paso formal; Lean lo
+    evalúa; y lo que Lean contesta condiciona el paso siguiente. Los dos
+    extremos ya existían y no se hablaban: un modelo escribe con la misma
+    seguridad un lema que existe y uno que ha inventado, y un verificador sólo
+    sabe decir sí o no a un texto que ya le llega escrito. <strong>Lo que este
+    proyecto construye es la capa de en medio</strong>: prepara lo que el
+    modelo ve antes de escribir, y lee lo que Lean dice después de compilar,
+    para que el lazo se cierre sobre <em>evidencia</em> y no sobre confianza.</p>
+    <p class="lede">Esa capa tiene dos mitades que no se parecen, y la
+    distinción no se postuló: se descubrió midiendo. <strong>Antes</strong> de
+    que exista un enunciado formal se trabaja con palabras humanas —ahí el
+    grafo de conceptos gana, y por mucho—. <strong>Después</strong>, el objeto
+    ya es un tipo, y quien busca bien sobre tipos es Lean. Ésa es la
     <em>frontera de formalización</em>, y de ella salen las cinco capas: tres
     antes (lengua, concepto, territorio), dos después (evidencia,
     emergencia).</p>
@@ -287,7 +297,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     <p class="autor">Leonardo Jiménez Martínez · BIOMAT, Centro de
     Biomatemáticas · Licencia MIT</p>
     <div class="cifras">
-      <div><div class="n">352</div><div class="l">nodos en el grafo</div></div>
+      <div><div class="n">353</div><div class="l">nodos en el grafo</div></div>
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
@@ -349,6 +359,44 @@ svg .sLine{stroke:var(--muted); fill:none}
       justamente para nombrar los casos en que Lean acepta un archivo que no
       demuestra lo pedido.</p>
     </div>
+
+    <h3>Las tres vueltas del lazo, y dónde se cierra cada una</h3>
+
+    <p>«El modelo propone y Lean evalúa» es la forma; lo que la hace funcionar
+    es <strong>qué vuelve, y hasta dónde</strong>. El sistema cierra tres lazos
+    de radio distinto, y ninguno de los tres es el modelo hablando consigo
+    mismo:</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>lazo</th><th>qué vuelve al que propone</th><th class="mono">cuántas vueltas</th><th>evidencia</th></tr></thead>
+        <tbody>
+          <tr><td><strong>el encabezado</strong><span class="sub">falta un módulo</span></td><td>el import que Lean echa en falta, resuelto contra el índice de nombres reales</td><td class="mono">1</td><td class="mono">rescata 4, rompe 0</td></tr>
+          <tr><td><strong>el error</strong><span class="sub">error semántico</span></td><td>el error estructurado de Lean —su campo <code>kind</code>, no una subcadena— con el código que lo produjo</td><td class="mono">2 como máximo</td><td class="mono">4 de 15 · <em>p</em> = 0,125</td></tr>
+          <tr><td><strong>la táctica</strong><span class="sub">queda un <code>sorry</code></span></td><td>no vuelve al modelo: entran las 12 tácticas en un solo compilado, ordenadas por la forma del objetivo</td><td class="mono">1 compilado</td><td class="mono">1,57 vs 2,44 posiciones</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="nota v">
+      <b>Un reintento sólo se acepta si mejora</b>
+      <p>Es la condición que separa un lazo de una deriva. Sin ella, un
+      reintento que rompe lo que ya compilaba sería indistinguible de uno que
+      arregla, y el sistema iría hacia atrás sin que nadie lo notara. Por eso
+      el número de vueltas es pequeño y está declarado: <strong>lo que se
+      devuelve al modelo es el veredicto de Lean, no una opinión sobre
+      él</strong>.</p>
+    </div>
+
+    <p>Las tres vueltas operan sobre un objeto que el grafo de conceptos no
+    contiene: el <strong>estado de prueba</strong>. Ese objeto tiene su propia
+    categoría, construida y medida
+    (<a href="#fibra">§8</a>) — objetos los estados, morfismos las tácticas,
+    <code>no goals</code> el objeto terminal. Y el sistema enseña las tres
+    vueltas al alumno en vez de resumírselas: el panel de
+    <strong>explicabilidad</strong> dice qué se entendió, qué se activó, qué
+    capacidades corrieron y cuáles no —con su motivo—, y qué contestó Lean en
+    cada ronda.</p>
 
     <h3>Y una segunda regla, sobre la evidencia</h3>
 
@@ -2310,7 +2358,7 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="La base y las fibras. Abajo, la base: las 22 áreas de Mathlib con sus 389 palabras clave en español e inglés, que es un poset por construcción y por tanto no puede tener ciclos. Encima, tres fibras. La primera son los 159 conceptos curados que dicen qué es una cosa, con su proyección de localización hacia la base. La segunda son los 125 módulos generados que dicen dónde vive el código, también con su proyección. La tercera son los 183 433 hechos que dicen qué es cierto, y su proyección no existe: va dibujada tachada, porque hoy la lista es plana y no una fibra. A la derecha, separada por una línea vertical, la categoría de tácticas: sus objetos deberían ser estados de prueba y sus morfismos las tácticas, pero hoy son nueve nodos sumidero. Al pie, el resultado medido: la proyección es un funtor verificado, pero no es una fibración sobre el grafo real, porque sólo 10 de 6753 pares admiten levantamiento cartesiano frente al 4,2 por ciento que da barajar las áreas al azar." viewBox="0 0 1000 560" style="min-width:680px">
+<svg role="img" aria-label="La base y las fibras. Abajo, la base: las 22 áreas de Mathlib con sus 389 palabras clave en español e inglés, que es un poset por construcción y por tanto no puede tener ciclos. Encima, tres fibras. La primera son los 159 conceptos curados que dicen qué es una cosa, con su proyección de localización hacia la base. La segunda son los 125 módulos generados que dicen dónde vive el código, también con su proyección. La tercera son los 183 433 hechos que dicen qué es cierto, y su proyección no existe: va dibujada tachada, porque hoy la lista es plana y no una fibra. A la derecha, separada por una línea vertical, la categoría de estados de prueba, que ya está construida a partir de las transiciones de LeanWorkbook: 24 752 estados como objetos, 25 206 tácticas como morfismos y el estado sin objetivos como objeto terminal. Al pie, el resultado medido: la proyección es un funtor verificado, pero no es una fibración sobre el grafo real, porque sólo 10 de 6753 pares admiten levantamiento cartesiano frente al 4,2 por ciento que da barajar las áreas al azar." viewBox="0 0 1000 560" style="min-width:680px">
   <defs>
     <marker id="fb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="var(--grafo)"/>
@@ -2353,18 +2401,18 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
 
   <line x1="712" y1="30" x2="712" y2="368" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 5"/>
   <text class="sMono sDim" x="734" y="18" font-size="10.5" letter-spacing="1.3">CATEGORÍA APARTE</text>
-  <rect x="734" y="30" width="250" height="132" rx="9" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.3" stroke-dasharray="5 4"/>
-  <text class="sTxt" x="752" y="56" font-size="15" font-weight="600">T · tácticas</text>
-  <text class="sTxt sDim" x="752" y="79" font-size="12">objetos = estados de prueba</text>
-  <text class="sTxt sDim" x="752" y="98" font-size="12">morfismos = tácticas</text>
-  <text class="sMono" x="752" y="122" font-size="10.5" fill="var(--alerta)">HOY: 9 nodos sumidero</text>
-  <text class="sMono" x="752" y="138" font-size="10.5" fill="var(--alerta)">552 entran · 11 salen, a estrategias</text>
-  <text class="sTxt sDim" x="734" y="192" font-size="12" font-style="italic">Una táctica no es una cosa: es</text>
-  <text class="sTxt sDim" x="734" y="210" font-size="12" font-style="italic">estado → estado. Como objeto</text>
-  <text class="sTxt sDim" x="734" y="228" font-size="12" font-style="italic">no compone con nada.</text>
-  <text class="sMono sDim" x="734" y="256" font-size="10">25 214 transiciones en disco</text>
-  <text class="sMono sDim" x="734" y="271" font-size="10">state_before → tactic → state_after</text>
-  <text class="sMono sDim" x="734" y="286" font-size="10">para construirla y medirla sin API</text>
+  <rect x="734" y="30" width="250" height="132" rx="9" fill="var(--lean-soft)" stroke="var(--lean)" stroke-width="1.3" stroke-dasharray="5 4"/>
+  <text class="sTxt" x="752" y="56" font-size="15" font-weight="600">T · estados de prueba</text>
+  <text class="sTxt sDim" x="752" y="79" font-size="12">objetos = 24 752 estados</text>
+  <text class="sTxt sDim" x="752" y="98" font-size="12">morfismos = 25 206 tácticas</text>
+  <text class="sMono" x="752" y="122" font-size="10.5" fill="var(--lean)">CONSTRUIDA · graph/estados.py</text>
+  <text class="sMono" x="752" y="138" font-size="10.5" fill="var(--lean)">`no goals` es el objeto terminal</text>
+  <text class="sTxt sDim" x="734" y="192" font-size="12" font-style="italic">Aquí la táctica ES la flecha, y</text>
+  <text class="sTxt sDim" x="734" y="210" font-size="12" font-style="italic">compone: el 46,4 % de ellas lo</text>
+  <text class="sTxt sDim" x="734" y="228" font-size="12" font-style="italic">hace. En el grafo de skills no.</text>
+  <text class="sMono sDim" x="734" y="256" font-size="10">16 pares paralelos · 72 ramifican</text>
+  <text class="sMono sDim" x="734" y="271" font-size="10">13 511 flechas al terminal (53,6 %)</text>
+  <text class="sMono sDim" x="734" y="286" font-size="10">no enseña a ELEGIR — ver §18</text>
 
   <rect x="16" y="384" width="968" height="72" rx="9" fill="var(--surface-2)" stroke="var(--border)" stroke-width="1.2"/>
   <text class="sTxt" x="34" y="406" font-size="12" font-weight="600">EL FUNTOR ESTÁ VERIFICADO — Y UN FUNTOR NO BASTA</text>
@@ -3343,12 +3391,16 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
     <h3>Identificado, con el camino claro</h3>
     <ul>
-      <li><strong>Las tácticas deberían ser flechas, no nodos.</strong> Hoy son
-      9 nodos que reciben 552 aristas y sólo emiten 11. Sus objetos deben ser estados de
-      prueba y sus morfismos las tácticas. Hay <strong>25 214
-      transiciones</strong> <code>state_before → tactic → state_after</code> en
-      disco para construir esa categoría y medirla sin API, y la cascada en un
-      compilado hace que explorarlo ya no cueste tres minutos por consulta.</li>
+      <li><strong>La categoría de estados existe, y lo que le falta no son
+      datos.</strong> Estaba aquí como «las tácticas deberían ser flechas» y ya
+      está construida (<code>nucleo/graph/estados.py</code>): 24 752 estados,
+      25 206 tácticas, <code>no goals</code> terminal, el 46,4 % de las flechas
+      componen. Lo que <em>no</em> puede dar es la parte que hacía falta:
+      <strong>sólo 72 de los 24 752 estados registran dos tácticas
+      distintas</strong>, porque el corpus recoge la prueba que alguien
+      escribió y no las que descartó. Aprender a <em>elegir</em> exige generar
+      esas alternativas probando tácticas contra estados reales, y eso cuesta
+      compilaciones de Lean, no lectura de un fichero.</li>
       <li><strong>La base no es un orden, y por eso no hay viaje general.</strong>
       Esto decía que faltaban morfismos que crucen de área y que eran
       «lo único que puede convertir el funtor en una fibración». Es falso, y lo

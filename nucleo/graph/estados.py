@@ -22,11 +22,11 @@ LA FORMA REAL, MEDIDA, Y NO ES LA QUE PARECE
 --------------------------------------------
 Sobre las 25 206 transiciones usables de LeanWorkbook:
 
-    objetos distintos                            24 750
+    objetos distintos                            24 752
     flechas por objeto                             1,02
     transiciones que COMPONEN                    46,4 %
     estados con más de una táctica distinta          72
-    pares de tácticas con mismo origen Y destino    341
+    pares de tácticas con mismo origen Y destino     16
 
 Y una cifra que hay que leer con cuidado, porque yo mismo la leí mal primero:
 en bruto sale UNA componente conexa con el 99,9 % de los objetos, que parece
@@ -43,12 +43,15 @@ SE PUEDE:
   · `no goals` es un OBJETO TERMINAL de verdad, y eso es el enunciado
     categórico de «una prueba acaba cuando no quedan objetivos»;
   · las cadenas dan SECUENCIAS: qué táctica tiende a seguir a cuál;
-  · los 341 pares paralelos —dos tácticas distintas, mismo origen y mismo
+  · los 16 pares paralelos —dos tácticas DISTINTAS, mismo origen y mismo
     destino— dicen «estas dos hacen aquí lo mismo», que es contenido real y es
-    lo único que esta categoría afirma y un árbol no podría.
+    lo único que esta categoría afirma y un árbol no podría. Fueron 341 hasta
+    que se miró: la misma táctica repetida no son dos morfismos paralelos, y
+    contarla asi inflaba la cifra veintiuna veces. `tests/test_estados.py` lo
+    fija con un caso que falla si se vuelve a contar mal.
 
 NO SE PUEDE:
-  · aprender a ELEGIR entre alternativas. Sólo 72 estados de 24 750 registran
+  · aprender a ELEGIR entre alternativas. Sólo 72 estados de 24 752 registran
     dos tácticas distintas: el corpus casi nunca muestra dos opciones en el
     mismo punto, porque recoge la prueba que alguien escribió, no las que
     descartó;
