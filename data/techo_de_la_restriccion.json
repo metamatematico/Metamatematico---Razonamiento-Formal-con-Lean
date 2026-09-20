@@ -1,0 +1,201 @@
+{
+ "escalon2": {
+  "afectadas": 10,
+  "rescata": 0,
+  "rompe": 0,
+  "igual": 10
+ },
+ "grabaciones": 66,
+ "identificadores": 292,
+ "inexistentes": 26,
+ "con_candidato": 10,
+ "nulo_acierta": 0,
+ "corte": 0.78,
+ "distancias": [
+  0.0,
+  0.0,
+  0.4,
+  0.4,
+  0.483,
+  0.5,
+  0.571,
+  0.6,
+  0.6,
+  0.636,
+  0.636,
+  0.69,
+  0.737,
+  0.737,
+  0.755,
+  0.769,
+  0.816,
+  0.816,
+  0.828,
+  0.868,
+  0.946,
+  0.955,
+  0.955,
+  0.955,
+  0.966,
+  0.966
+ ],
+ "detalle": [
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "inventado": "isCyclic_of_subgroup_isCyclic",
+   "candidato": "isCyclic_of_subgroup_isDomain",
+   "distancia": 0.828
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "inventado": "AddCommGroup.equiv_directSum_zmod_of_fintype",
+   "candidato": "AddCommGroup.equiv_directSum_zmod_of_finite",
+   "distancia": 0.966
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "inventado": "Nat.factors_unique",
+   "candidato": "",
+   "distancia": 0.737
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "inventado": "Nat.prime_of_mem_factors",
+   "candidato": "Nat.prime_of_mem_primeFactors",
+   "distancia": 0.868
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "inventado": "Nat.prod_factors",
+   "candidato": "",
+   "distancia": 0.769
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "inventado": "hl'_prime",
+   "candidato": "",
+   "distancia": 0.483
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "inventado": "hl'_prod",
+   "candidato": "",
+   "distancia": 0.571
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "inventado": "Set.countable_univ_iff.mp",
+   "candidato": "",
+   "distancia": 0.4
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "Real.not_summable_iff_tendsto_nat_atTop_of_nonneg",
+   "candidato": "not_summable_iff_tendsto_nat_atTop_of_nonneg",
+   "distancia": 0.946
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "Real.not_summable_one_div_nat_cast",
+   "candidato": "Real.not_summable_one_div_natCast",
+   "distancia": 0.955
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "exact_mod_cast",
+   "candidato": "",
+   "distancia": 0.6
+  },
+  {
+   "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+   "inventado": "DecidableEq",
+   "candidato": "",
+   "distancia": 0.69
+  },
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "inventado": "isCyclic_of_subgroup",
+   "candidato": "isCyclic_of_subgroup_isDomain",
+   "distancia": 0.816
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "inventado": "AddCommGroup.equiv_directSum_zmod_of_fintype",
+   "candidato": "AddCommGroup.equiv_directSum_zmod_of_finite",
+   "distancia": 0.966
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "inventado": "Nat.factors_unique",
+   "candidato": "",
+   "distancia": 0.737
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "inventado": "Cardinal.not_countable_of_lt_cardinal_mk",
+   "candidato": "",
+   "distancia": 0.0
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "Real.not_summable_one_div_nat_cast",
+   "candidato": "Real.not_summable_one_div_natCast",
+   "distancia": 0.955
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "Summable",
+   "candidato": "",
+   "distancia": 0.636
+  },
+  {
+   "consulta": "Demuestra que un espacio métrico compacto es completo",
+   "inventado": "CompactSpace.complete_of_metricSpace",
+   "candidato": "",
+   "distancia": 0.0
+  },
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "inventado": "isCyclic_of_subgroup",
+   "candidato": "isCyclic_of_subgroup_isDomain",
+   "distancia": 0.816
+  },
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "inventado": "infer_instance",
+   "candidato": "",
+   "distancia": 0.5
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "inventado": "Set.countable_univ_iff.mp",
+   "candidato": "",
+   "distancia": 0.4
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "Real.not_summable_one_div_nat_cast",
+   "candidato": "Real.not_summable_one_div_natCast",
+   "distancia": 0.955
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "Summable",
+   "candidato": "",
+   "distancia": 0.636
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "inventado": "exact_mod_cast",
+   "candidato": "",
+   "distancia": 0.6
+  },
+  {
+   "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+   "inventado": "IsCompact.exists_forall_ge",
+   "candidato": "",
+   "distancia": 0.755
+  }
+ ],
+ "avisos": []
+}

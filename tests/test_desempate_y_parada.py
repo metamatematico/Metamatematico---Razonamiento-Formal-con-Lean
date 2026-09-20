@@ -128,3 +128,43 @@ class TestLasPalabrasDeParadaNoSonEvidencia:
             n, "the unit circle is compact", g)
         assert "simplex-category" in Nucleo._match_skills_to_query(
             n, "the simplex category", g)
+
+
+class TestLaNotacionDePuntoNoEsUnaInvencion:
+    """`hf.continuous` es idiomático, y se le enseñaba al alumno como error.
+
+    En Lean, si `hf : Continuous f`, escribir `hf.continuous` resuelve a
+    `Continuous.continuous hf`. Ese nombre no esta en el indice de Mathlib y
+    no tiene por que estarlo. Medido sobre las 66 formalizaciones grabadas:
+    33 de los nombres que `revisar_codigo` marcaba son notacion de punto y 26
+    son invenciones de verdad — mas falsos positivos que verdaderos.
+    """
+
+    def test_el_indice_distingue_las_dos_familias(self):
+        from nucleo.lean import nombres as N
+        if not N.disponible():
+            import pytest
+            pytest.skip("sin indice de nombres")
+        # prefijo que NO es namespace -> variable local
+        for n in ("hf.continuous", "s.Nonempty", "P.det", "hU.union"):
+            assert not N.existe_namespace(n.split(".")[0]), (
+                "%s deberia ser notacion de punto sobre una local" % n)
+        # prefijo que SI es namespace -> nombre de verdad
+        for n in ("Nat.prime_of_mem_factors", "Basis.exists_basis"):
+            assert N.existe_namespace(n.split(".")[0]), (
+                "%s lleva un namespace real: si falla, es una invencion" % n)
+
+    def test_core_filtra_la_notacion_de_punto(self):
+        """Que nadie quite el filtro sin enterarse."""
+        import io
+        import os
+        ruta = os.path.join(os.path.dirname(os.path.dirname(
+            os.path.abspath(__file__))), "nucleo", "core.py")
+        s = io.open(ruta, encoding="utf-8").read()
+        assert "_es_punto_local" in s, (
+            "core.py ya no filtra la notacion de punto: el panel vuelve a "
+            "decirle al alumno que `hf.continuous` no existe en Mathlib")
+        i = s.index("_desconocidos = [f for f in")
+        assert "_es_punto_local" in s[i:i + 300], (
+            "el filtro existe pero ya no se aplica donde se construye "
+            "`_desconocidos`, que es lo que llega al panel")

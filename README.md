@@ -2,7 +2,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4-blue.svg)](https://lean-lang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-yellow.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-1253_passing-brightgreen.svg)](#7-tests-y-guardianes)
+[![Tests](https://img.shields.io/badge/Tests-1255_passing-brightgreen.svg)](#7-tests-y-guardianes)
 [![Fidelidad](https://img.shields.io/badge/Banco_de_fidelidad-8%2F8_medidos-brightgreen.svg)](#6-lo-que-está-medido)
 [![Hechos](https://img.shields.io/badge/Hechos_indexados-183_433-8b5cf6.svg)](#4-la-lista-183-433-hechos)
 [![Grafo](https://img.shields.io/badge/Grafo-353_nodos-8b5cf6.svg)](#3-el-grafo-de-qué-consta)
@@ -316,7 +316,7 @@ Mathlib trae la herramienta hecha, en `.lake/packages/importGraph`:
 | `#import_diff` | diferencia entre dos conjuntos de imports |
 
 Al compararlo con el extractor propio apareció un fallo: el lector del fuente
-metía unas 2 800 aristas falsas y con ellas un ciclo imposible de 1 253 módulos.
+metía unas 2 800 aristas falsas y con ellas un ciclo imposible de 1 255 módulos.
 El oficial da cero, como debe.
 
 ### Mathlib no etiqueta por rama — etiqueta por táctica
@@ -657,7 +657,7 @@ python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
 
 ## 7. Tests y guardianes
 
-**1253 tests en 63 suites.** Los que más valen no comprueban que el código
+**1255 tests en 63 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
 
 | guardián | qué impide |
@@ -806,7 +806,7 @@ nucleo/
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
-tests/                    1253 tests en 63 suites
+tests/                    1255 tests en 63 suites
 data/                     índices derivados (los grandes van en .gitignore)
 ```
 

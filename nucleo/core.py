@@ -2597,8 +2597,36 @@ class Nucleo:
                     "Lean: nombres cualificados antes de compilar: %s",
                     ", ".join("%s -> %s" % (a, b) for a, b in _cambios_nombres))
                 lean_code = _rep
+            # LA NOTACION DE PUNTO NO ES UN NOMBRE INVENTADO, Y SE LE ESTABA
+            # ENSEÑANDO AL ALUMNO COMO SI LO FUERA.
+            #
+            # En Lean, si `hf : Continuous f`, escribir `hf.continuous`
+            # resuelve a `Continuous.continuous hf`. El nombre `hf.continuous`
+            # no esta en el indice de Mathlib y no tiene por que estarlo: es
+            # idiomatico. Pero `revisar_codigo` lo marcaba como desconocido, no
+            # le encontraba sugerencia, y de ahi salia al panel como
+            # «identificador que no aparece en el indice».
+            #
+            # MEDIDO sobre las 66 formalizaciones grabadas
+            # (`scripts/techo_de_la_restriccion.py`): 33 de los nombres
+            # marcados son notacion de punto y 26 son invenciones de verdad.
+            # Mas falsos positivos que verdaderos — y el falso positivo aqui
+            # es caro, porque le dice al alumno que algo correcto esta mal.
+            #
+            # La distincion la sabe el propio indice: si lo que va antes del
+            # primer punto NO es un espacio de nombres conocido, es una
+            # variable local.
+            def _es_punto_local(nom: str) -> bool:
+                if "." not in (nom or ""):
+                    return False
+                try:
+                    return not _nom_lean.existe_namespace(nom.split(".")[0])
+                except Exception:                              # noqa: BLE001
+                    return False
+
             _desconocidos = [f for f in _nom_lean.revisar_codigo(lean_code)
-                             if not f["sugerencia"]]
+                             if not f["sugerencia"]
+                             and not _es_punto_local(f.get("nombre", ""))]
             if _desconocidos:
                 logger.warning(
                     "Lean: nombres que NO estan en Mathlib y no se pueden "
