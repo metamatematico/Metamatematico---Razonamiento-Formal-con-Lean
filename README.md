@@ -56,7 +56,8 @@ idioma.
 |---|---|---|---|
 | 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 16,5× sobre el azar** |
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
-| 3 | **grafo** | elige qué módulos importa Lean | **inerte** |
+| 3a | **grafo** | el módulo de cada nombre que el paso 1 ofreció | **imprescindible — sin él, 282 de 284** |
+| 3b | **grafo** | propone módulos vecinos, además de ésos | **inerte** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
 | 5 | **grafo** | ordena las tácticas si queda un `sorry` | **no bate al nulo** |
 | 6 | LLM | traduce el código que Lean aceptó | — |

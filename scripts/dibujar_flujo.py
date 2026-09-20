@@ -149,9 +149,12 @@ ARIA = (
     "clasificador decide entonces si es matemática; si no lo es va al modelo "
     "conversacional, que responde sin verificación formal. Si lo es, el grafo "
     "actúa en tres puntos numerados: prepara el prompt con nombres de Mathlib "
-    "comprobados, elige qué módulos importa Lean, y ordena las tácticas si "
-    "queda un sorry. Solo el primero aporta: el segundo es inerte y el "
-    "tercero no bate a su modelo nulo. "
+    "comprobados, completa la cabecera de imports, y ordena las tácticas si "
+    "queda un sorry. El primero aporta. El segundo son dos cosas: dar el "
+    "módulo de cada nombre ofrecido va siempre, porque sin ello 282 de 284 "
+    "consultas reciben un nombre que Lean no resuelve, mientras que proponer "
+    "módulos vecinos además de ésos es inerte. El tercero no bate a su "
+    "modelo nulo. "
     "Lean verifica y abre cuatro caminos: si falta un módulo se repara el "
     "encabezado y se reintenta una vez, si el error es semántico vuelve al "
     "modelo hasta dos rondas, si queda un sorry entra la cascada de tácticas, "
@@ -265,17 +268,18 @@ def main(_):
 
     # ── 3 · imports ────────────────────────────────────────────────────────
     p.append(ruta((432, 426), (432, 438)))
-    p.append(caja("paso3", 170, 440, 574, 72, "gr"))
-    p.append(txt(186, 462, "3 · EL GRAFO ELIGE QUÉ MÓDULOS VE LEAN", "b"))
-    p.append(txt(186, 482, "descarta `import Mathlib` — 742 s, más que el "
-                           "timeout", "s"))
-    p.append(txt(186, 500, "INERTE · empata con un conjunto fijo de 3 módulos, "
-                           "y el margen total son 2,5 puntos", "s"))
+    p.append(caja("paso3", 170, 440, 574, 90, "gr"))
+    p.append(txt(186, 458, "3a · EL MÓDULO DE CADA NOMBRE OFRECIDO", "b"))
+    p.append(txt(186, 476, "va SIEMPRE — sin él, 282 de 284 reciben un "
+                           "nombre que Lean no resuelve", "s"))
+    p.append(txt(186, 496, "3b · Y ADEMÁS, MÓDULOS VECINOS EN EL GRAFO", "b"))
+    p.append(txt(186, 514, "INERTE · empata con un conjunto fijo de 3 módulos "
+                           "— apagado por el decisor", "s"))
 
     # ── 4 · Lean ───────────────────────────────────────────────────────────
-    p.append(ruta((432, 512), (432, 524)))
-    p.append(caja("paso4", 170, 526, 574, 50, "ve"))
-    p.append(txt(186, 548, "4 · LEAN VERIFICA", "b"))
+    p.append(ruta((432, 530), (432, 542)))
+    p.append(caja("paso4", 170, 544, 574, 50, "ve"))
+    p.append(txt(186, 566, "4 · LEAN VERIFICA", "b"))
     p.append(txt(186, 566, "la fuente de verdad · su veredicto es inapelable",
                  "s"))
 

@@ -421,7 +421,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Diagrama del flujo completo. La consulta del alumno entra en español o en inglés y cruza la frontera del idioma, donde se traduce al inglés con un modelo local protegiendo la notación matemática. Se revisa la sintaxis de la consulta. Un clasificador decide si es matemática: si no lo es, va al modelo conversacional y sale sin veredicto formal. Si lo es, el paso 1 hace que el grafo prepare el prompt con nombres de Mathlib verificados; el paso 2 es el modelo de lenguaje formalizando en Lean 4; el paso 3 es el grafo eligiendo qué módulos importa Lean, reusando el mismo emparejamiento del paso 1; el paso 4 es Lean verificando. Lean abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico vuelve al modelo hasta dos rondas; si queda un sorry entra la cascada de doce tácticas del paso 5; y si acepta el archivo pasa directo al veredicto. Todos confluyen en un veredicto final de ocho estados. El paso 6 es el modelo traduciendo el veredicto, y por último se cruza la frontera de vuelta para responder en el idioma de la pregunta." viewBox="0 0 1120 1180" style="min-width:720px">
+<svg role="img" aria-label="Diagrama del flujo completo. La consulta del alumno entra en español o en inglés y cruza la frontera del idioma, donde se traduce al inglés con un modelo local protegiendo la notación matemática. Se revisa la sintaxis de la consulta. Un clasificador decide si es matemática: si no lo es, va al modelo conversacional y sale sin veredicto formal. Si lo es, el paso 1 hace que el grafo prepare el prompt con nombres de Mathlib verificados; el paso 2 es el modelo de lenguaje formalizando en Lean 4; el paso 3 es el grafo eligiendo qué módulos importa Lean, y son dos cosas distintas: el módulo de cada nombre que el paso 1 ofreció, que va siempre porque sin él 282 de 284 consultas reciben un nombre que Lean no puede resolver, y proponer módulos vecinos además de ésos, que es lo que midió inerte; las dos reusan el emparejamiento del paso 1; el paso 4 es Lean verificando. Lean abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico vuelve al modelo hasta dos rondas; si queda un sorry entra la cascada de doce tácticas del paso 5; y si acepta el archivo pasa directo al veredicto. Todos confluyen en un veredicto final de ocho estados. El paso 6 es el modelo traduciendo el veredicto, y por último se cruza la frontera de vuelta para responder en el idioma de la pregunta." viewBox="0 0 1120 1180" style="min-width:720px">
   <defs>
     <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
@@ -476,9 +476,11 @@ svg .sLine{stroke:var(--muted); fill:none}
   <path class="sLine" d="M440 482 L440 496" marker-end="url(#fl)" stroke-width="1.6"/>
 
   <rect x="140" y="498" width="600" height="66" rx="9" fill="var(--grafo-soft)" stroke="var(--grafo)" stroke-width="1.4"/>
-  <text class="sTxt" x="158" y="520" font-size="12.5" font-weight="600">3 · EL GRAFO ELIGE LOS MÓDULOS QUE VE LEAN</text>
-  <text class="sTxt sDim" x="158" y="539" font-size="11">descarta `import Mathlib`, que tarda 742 s — más que el tiempo límite</text>
-  <text class="sMono sDim" x="158" y="555" font-size="10.5">INERTE — empata con un conjunto fijo de tres módulos</text>
+  <text class="sTxt" x="158" y="518" font-size="12.5" font-weight="600">3 · EL GRAFO ELIGE LOS MÓDULOS QUE VE LEAN — y son DOS cosas</text>
+  <text class="sTxt sDim" x="158" y="535" font-size="10.5">a · el módulo de cada nombre OFRECIDO — va siempre, no se negocia</text>
+  <text class="sMono" x="470" y="535" font-size="10" fill="var(--lean)">sin esto, 282 de 284 reciben un nombre que Lean no resuelve</text>
+  <text class="sTxt sDim" x="158" y="551" font-size="10.5">b · módulos vecinos, ADEMÁS de ésos</text>
+  <text class="sMono sDim" x="470" y="551" font-size="10">INERTE — empata con un conjunto fijo de tres</text>
 
   <path d="M140 362 L112 362 L112 531 L136 531" fill="none" stroke="var(--grafo)" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#flg)"/>
   <text class="sTxt" x="18" y="432" font-size="10.5" fill="var(--grafo)">reusa el</text>
@@ -609,7 +611,8 @@ svg .sLine{stroke:var(--muted); fill:none}
         <tbody>
           <tr><td class="mono">1</td><td><strong>grafo</strong></td><td>inyecta nombres de Mathlib verificados en el prompt<span class="sub">_find_relevant_context</span></td><td><span class="pill v">aporta · 16,5×</span></td></tr>
           <tr><td class="mono">2</td><td>modelo</td><td>escribe Lean 4 — no juzga si es correcto<span class="sub">LEAN_SYSTEM_PROMPT</span></td><td>—</td></tr>
-          <tr><td class="mono">3</td><td><strong>grafo</strong></td><td>elige qué módulos importa Lean<span class="sub">_modulos_mathlib</span></td><td><span class="pill">inerte</span></td></tr>
+          <tr><td class="mono">3a</td><td><strong>grafo</strong></td><td>da el módulo de cada nombre que el paso 1 ofreció<span class="sub">_modulos_de_los_nombres · va siempre</span></td><td><span class="pill v">imprescindible · 282 de 284</span></td></tr>
+          <tr><td class="mono">3b</td><td><strong>grafo</strong></td><td>propone módulos vecinos, además de ésos<span class="sub">_modulos_mathlib</span></td><td><span class="pill">inerte</span></td></tr>
           <tr><td class="mono">4</td><td><strong>Lean</strong></td><td>verifica · veredicto inapelable<span class="sub">lean/client.py</span></td><td>—</td></tr>
           <tr><td class="mono">5</td><td><strong>L3</strong></td><td>ordena las 12 tácticas ante un <code>sorry</code><span class="sub">solver_cascade.py::TacticRanker</span></td><td><span class="pill v">aporta · 3,7×</span></td></tr>
           <tr><td class="mono">6</td><td>modelo</td><td>traduce el código que Lean aceptó<span class="sub">EXPLICACION_SYSTEM_PROMPT</span></td><td>—</td></tr>
@@ -620,8 +623,10 @@ svg .sLine{stroke:var(--muted); fill:none}
     <p>La última columna es el resultado de medir cada punto por separado.
     <strong>No hay un veredicto único sobre «el núcleo»</strong>: aporta en el
     paso 1 y en el paso 5 —y por razones distintas, a un lado y a otro de la
-    frontera de formalización (<a href="#arquitectura">§5</a>)— y es inerte en
-    el 3. Resumirlo en una sola cifra sería mentir por agregación.</p>
+    frontera de formalización (<a href="#arquitectura">§5</a>)—, y en el 3
+    depende de cuál de sus dos mitades se mire: dar el módulo del nombre que
+    se ofreció es imprescindible, y proponer módulos vecinos además es
+    inerte. Resumirlo en una sola cifra sería mentir por agregación.</p>
 
     <p>Conviene separar dos cosas que el paso 5 mezcló mucho tiempo: la
     <em>regla por área</em> que proponía el grafo de conceptos <strong>no batía
@@ -3265,7 +3270,8 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     funciona no se puede evaluar.</p>
 
     <div class="ficha">
-      <header><h3>La elección de imports no aporta, y el banco casi no puede detectarlo</h3></header>
+      <header><h3>Proponer imports por vecindad no aporta — y no es todo el paso 3</h3></header>
+      <div class="paso"><div class="et">qué se midió<br>y qué no</div><p>Sólo la mitad <em>b</em>: proponer módulos por vecindad ADEMÁS de los del nombre ofrecido. La mitad <em>a</em> —el módulo de cada nombre que el prompt ofrece— no pasa por aquí, va siempre, y sin ella <strong>282 de las 284 consultas</strong> de ProofNet que reciben un nombre reciben alguno que Lean no puede resolver; con ella, 0.</p></div>
       <div class="paso"><div class="et">medido</div><p>Un conjunto fijo de tres módulos hace elaborar 18 de 20 enunciados. Añadirle lo que el grafo propone: los mismos 18, y un 11 % más de tiempo. Contra el azar sí gana —18 frente a 12, rescatando 6 casos sin romper ninguno—, o sea que hace trabajo real, pero redundante con una constante.</p></div>
       <div class="paso"><div class="et">el margen</div><p>De los 2 fallos, ninguno es de imports: uno necesita <code>open Real</code> y otro usa sintaxis vieja de Mathlib.</p></div>
       <div class="paso"><div class="et">y la cautela</div><p>El «conjunto fijo» no es pequeño: <code>Mathlib.Tactic</code> arrastra <strong>2 972 módulos</strong> por transitividad, y los tres juntos cubren el <strong>38,4 % de Mathlib</strong>. La medición es aditiva —añadir imports nunca rompe una elaboración— así que la única forma de ganar era rescatar un fallo. En <strong>10 de 20 casos el grafo no añade ni un módulo</strong>: las dos ramas son la misma ejecución.</p></div>

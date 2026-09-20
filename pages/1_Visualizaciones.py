@@ -1764,14 +1764,38 @@ def fig_pipeline():
          sub="rol: formalizador, no razonador", fs=8.5, fs_sub=6.2)
     etiqueta(2.10, 6.82, "few-shot miniF2F + nombres del grafo", GRIS, 6.2)
 
-    # reparacion de nombres ANTES de gastar un compilado
-    caja(3.85, 5.62, 1.95, 0.90, "cualifica\nnombres", CIAN, "#0b1f22",
-         sub="índice de 217 419", fs=7.2, fs_sub=5.6)
-    flecha((3.50, 6.07), (3.85, 6.07), CIAN)
+    # LA CABECERA, QUE SON DOS COSAS Y SOLO UNA ES INERTE. El diagrama
+    # anterior tenia esto como «paso 3 · el grafo elige los modulos» con un
+    # solo veredicto, y al redibujarlo se perdio entero. Van las dos: el
+    # modulo del nombre OFRECIDO va siempre —sin el, 282 de 284 consultas
+    # reciben un nombre que Lean no resuelve— y proponer vecinos ademas de
+    # esos es lo unico que midio inerte.
+    # UNA SOLA CAJA CON SUS DOS MITADES DENTRO. Tres cajas apiladas en este
+    # hueco se tocaban entre si y con las etiquetas de los lazos; el veredicto
+    # distinto de cada mitad se ve igual de bien con dos lineas de color.
+    ax.add_patch(FancyBboxPatch(
+        (3.62, 5.62), 2.25, 1.00, boxstyle="round,pad=0.07",
+        facecolor="#0b1f22", edgecolor=CIAN, linewidth=1.4, zorder=3))
+    ax.text(4.74, 6.44, "LA CABECERA QUE VE LEAN", ha="center", va="center",
+            fontsize=7.2, color=CIAN, fontweight="bold", zorder=4)
+    ax.text(3.74, 6.18, "a · el módulo del nombre ofrecido", ha="left",
+            va="center", fontsize=6.6, color=VERDE, zorder=4)
+    ax.text(3.80, 6.01, "va siempre — sin él, 282 de 284", ha="left",
+            va="center", fontsize=5.9, color=GRIS, style="italic", zorder=4)
+    ax.text(3.74, 5.83, "b · módulos vecinos, además", ha="left", va="center",
+            fontsize=6.6, color=GRIS, zorder=4)
+    ax.text(3.80, 5.68, "INERTE — apagado por el decisor", ha="left",
+            va="center", fontsize=5.9, color=GRIS, style="italic", zorder=4)
+    flecha((3.50, 6.12), (3.62, 6.12), CIAN)
+    # y la reparacion de nombres, que es OTRA cosa: cualifica identificadores
+    caja(3.62, 4.72, 2.25, 0.62, "cualifica nombres", CIAN, "#0b1f22",
+         sub="índice de 217 419 · antes de compilar", fs=7.0, fs_sub=5.4)
+    flecha((3.50, 5.03), (3.62, 5.03), CIAN)
 
     caja(6.15, 5.45, 3.05, 1.25, "LEAN VERIFICA", VERDE, "#0d2416",
          sub="fuente de verdad · inapelable", fs=10.2, fs_sub=7.0)
-    flecha((5.80, 6.07), (6.15, 6.07), VERDE, lw=2.2)
+    flecha((5.87, 6.12), (6.15, 6.00), VERDE, lw=2.0)
+    flecha((5.87, 5.03), (6.15, 5.70), VERDE, lw=2.0)
     etiqueta(7.67, 5.22, "lake env lean --json · Mathlib", GRIS, 6.2)
 
     # ── los tres lazos, por severidad ────────────────────────────────────────
@@ -1780,8 +1804,8 @@ def fig_pipeline():
     # el error SEMANTICO volviendo al modelo, no.
     caja(0.75, 3.95, 2.55, 0.68, "repair_imports", AZUL, "#132033",
          sub="1 vuelta · solo si mejora", fs=7.4, fs_sub=5.8)
-    flecha((6.30, 5.45), (3.30, 4.55), AZUL, curva=0.18, ls=(0, (4, 2)))
-    etiqueta(4.75, 5.02, "falta un módulo", AZUL, 6.8)
+    flecha((6.30, 5.45), (3.30, 4.50), AZUL, curva=0.22, ls=(0, (4, 2)))
+    etiqueta(4.30, 4.35, "falta un módulo", AZUL, 6.8)
     flecha((1.35, 4.63), (1.25, 5.55), AZUL, curva=0.14, ls=(0, (4, 2)))
 
     caja(4.35, 3.35, 3.35, 0.72, "el error VUELVE al modelo", NARANJA,
@@ -1857,9 +1881,9 @@ def fig_pipeline():
             "El ORDEN POR ÁREA está APAGADO — medía 1,262 posiciones contra "
             "1,091 del nulo «simp primero», y el decisor apaga lo que no bate a "
             "su nulo.\n"
-            "La elección de módulos es INERTE: elabora 18 de 20, los mismos 18 "
-            "que un conjunto fijo de tres. El GNN+PPO sigue fuera del enrutado: "
-            "se entrenó con etiqueta constante.",
+            "Del paso 3 solo es INERTE la mitad b —proponer vecinos—: 18 de 20, "
+            "los mismos 18 que un conjunto fijo de tres, y 12 de 20 al azar. La mitad a va siempre.\n"
+            "El GNN+PPO sigue fuera del enrutado: se entrenó con etiqueta constante y CR_tac lo detecta degenerado.",
             ha="center", fontsize=6.8, color=AMBAR, zorder=7,
             bbox=dict(boxstyle="round", facecolor="#1c1710",
                       edgecolor="#7c5a1e", alpha=0.95))

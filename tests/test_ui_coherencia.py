@@ -573,9 +573,13 @@ class TestCifrasDelGrafo:
         # `>N · ` a secas: el patron pedia «N · EL » y el paso 4 dice
         # «4 · LEAN VERIFICA», asi que el guardian contaba 5 de 6 y acusaba al
         # diagrama de estar incompleto cuando el roto era el.
-        pasos = set(re.findall(r">([1-9]) · ", svg))
+        #: `3a`/`3b`: el paso 3 son DOS cosas y solo una es inerte, asi que
+        #: el diagrama y la tabla las numeran aparte. Se normaliza al numero
+        #: para que el guardian siga comparando PASOS y no filas.
+        pasos = {m[0] for m in re.findall(r">([1-9])[ab]? · ", svg)}
         readme = io.open(RAIZ / "README.md", encoding="utf-8").read()
-        filas = re.findall(r"^\| ([0-9]) \|", readme, re.M)
+        filas = [m[0] for m in
+                 re.findall(r"^\| ([0-9][ab]?) \|", readme, re.M)]
         assert pasos, "el diagrama ya no numera sus pasos"
         assert len(pasos) == len(set(filas)), (
             "el diagrama tiene %d pasos numerados y la tabla del README %d. "

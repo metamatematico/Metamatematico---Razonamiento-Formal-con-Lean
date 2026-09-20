@@ -263,7 +263,13 @@ class TestElVeredictoSeNombraYSeExplica:
 
 
 class TestLoInerteTambienSeEnsena:
-    """La elección de módulos no aporta, y se cuenta igual."""
+    """Proponer módulos por vecindad no aporta, y se cuenta igual.
+
+    Es la mitad `b` del paso 3. La mitad `a` —el módulo de cada nombre que
+    el prompt ofrecio— va siempre y no pasa por el decisor: sin ella, 282
+    de las 284 consultas de ProofNet que reciben un nombre reciben alguno
+    que Lean no puede resolver.
+    """
 
     def test_los_modulos_van_con_su_veredicto_de_inerte(self):
         e = explicar(modulos=["Mathlib.Data.Nat.Prime"])
