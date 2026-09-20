@@ -2232,11 +2232,11 @@ svg .sLine{stroke:var(--muted); fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Anatomía del grafo. Arriba, los 353 nodos repartidos en cinco sorts, dibujados como barras proporcionales: 189 conceptos curados que llevan veredicto categórico, de los cuales 33 son ramas —estructura de enrutamiento, que no aporta nombres— y el resto sí ofrece vocabulario de Mathlib al prompt; 125 módulos leídos de la taxonomía de Mathlib marcados como no interpretados; 22 nodos de área que son la puerta de entrada; 9 tácticas y 6 estrategias. Abajo, los 1586 morfismos en cuatro tipos: 687 dependencias que son prerrequisitos y son acíclicas entre los curados, 538 traducciones entre pilares como Curry-Howard, 353 identidades una por objeto como exige la definición de categoría, y 7 analogías marcadas explícitamente como correspondencias débiles. A la derecha, la nota de que las nueve tácticas reciben 552 aristas y sólo emiten 11, todas hacia las seis estrategias, por lo que están identificadas como una categoría-error pendiente." viewBox="0 0 1000 452" style="min-width:660px">
-  <text class="sMono sDim" x="16" y="18" font-size="10.5" letter-spacing="1.3">LOS 352 NODOS, POR SORT</text>
+<svg role="img" aria-label="Anatomía del grafo. Arriba, los 353 nodos repartidos en cinco sorts, dibujados como barras proporcionales: 189 conceptos curados que llevan veredicto categórico, de los cuales 33 son ramas —estructura de enrutamiento, que no aporta nombres— y el resto sí ofrece vocabulario de Mathlib al prompt; 125 módulos leídos de la taxonomía de Mathlib marcados como no interpretados; 24 nodos con sort AREA —las 22 áreas de Mathlib más zfc-axioms y lean-kernel, que el veredicto movió a esa capa—; 9 tácticas y 6 estrategias. Abajo, los 1586 morfismos en cuatro tipos: 688 dependencias que son prerrequisitos y son acíclicas entre los curados, 538 traducciones entre pilares como Curry-Howard, 353 identidades una por objeto como exige la definición de categoría, y 7 analogías marcadas explícitamente como correspondencias débiles. A la derecha, la nota de que las nueve tácticas reciben 552 aristas y sólo emiten 11, todas hacia las seis estrategias, por lo que están identificadas como una categoría-error pendiente." viewBox="0 0 1000 452" style="min-width:660px">
+  <text class="sMono sDim" x="16" y="18" font-size="10.5" letter-spacing="1.3">LOS 353 NODOS, POR SORT</text>
 
   <rect x="16" y="34" width="474" height="34" rx="6" fill="var(--grafo)" opacity=".92"/>
-  <text x="30" y="56" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">CONCEPTO · 190</text>
+  <text x="30" y="56" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">CONCEPTO · 189</text>
   <text class="sTxt sDim" x="502" y="50" font-size="11">curados a mano, con veredicto categórico:</text>
   <text class="sTxt sDim" x="502" y="64" font-size="11">«un objeto es un grupo, las flechas son homomorfismos»</text>
 
@@ -2246,8 +2246,8 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sTxt sDim" x="502" y="106" font-size="11">algo, no qué es. Van marcados interpretado=False</text>
 
   <rect x="16" y="118" width="55" height="34" rx="6" fill="var(--lean)" opacity=".85"/>
-  <text class="sTxt" x="94" y="134" font-size="12.5" font-weight="600">AREA · 22</text>
-  <text class="sTxt sDim" x="94" y="148" font-size="10.5">la puerta de entrada</text>
+  <text class="sTxt" x="94" y="134" font-size="12.5" font-weight="600">AREA · 24</text>
+  <text class="sTxt sDim" x="94" y="148" font-size="10.5">22 áreas + zfc-axioms y lean-kernel</text>
   <text class="sTxt sDim" x="502" y="134" font-size="11">la base de la proyección π. Entrar por una poda</text>
   <text class="sTxt sDim" x="502" y="148" font-size="11">el grafo a 10 nodos de mediana</text>
 
@@ -2267,12 +2267,12 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sTxt sDim" x="432" y="282" font-size="11">de las curadas, 73,7 % confirmadas por el DAG de imports</text>
 
   <rect x="16" y="294" width="316" height="32" rx="6" fill="var(--lean)" opacity=".78"/>
-  <text x="30" y="315" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">TRANSLATION · 535</text>
+  <text x="30" y="315" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">TRANSLATION · 538</text>
   <text class="sTxt sDim" x="432" y="308" font-size="11">entre pilares: Curry-Howard, conjuntos ↔ categorías</text>
   <text class="sTxt sDim" x="432" y="322" font-size="11">tipos ↔ proposiciones</text>
 
   <rect x="16" y="334" width="208" height="32" rx="6" fill="var(--llm)" opacity=".78"/>
-  <text x="30" y="355" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">IDENTITY · 352</text>
+  <text x="30" y="355" font-size="12.5" font-weight="600" fill="#fff" font-family="'IBM Plex Sans',sans-serif">IDENTITY · 353</text>
   <text class="sTxt sDim" x="432" y="348" font-size="11">una por objeto, como exige la definición de categoría</text>
   <text class="sTxt sDim" x="432" y="362" font-size="11">— no son decorativas: la ley las necesita</text>
 
@@ -2284,8 +2284,9 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sTxt" x="34" y="439" font-size="11.5">Las 9 tácticas reciben <tspan font-weight="600">552 aristas y sólo emiten 11</tspan>, todas hacia las 6 estrategias. Una táctica no es una cosa, es una transformación de estado de prueba — como flecha compondría y tendría dominio y codominio.</text>
 </svg>
       </div>
-      <figcaption><b>Fig. 5 —</b> Composición del grafo. Sólo los 158 nodos
-      <code>CONCEPTO</code> aportan nombres de Mathlib al prompt: los
+      <figcaption><b>Fig. 5 —</b> Composición del grafo. Sólo los 189 nodos
+      <code>CONCEPTO</code> pueden aportar nombres de Mathlib al prompt —y
+      147 lo hacen—: los
       <code>MODULO</code> y los <code>AREA</code> aportan estructura, y por eso
       la política de ranking los sitúa detrás — un acierto de área es más grueso
       que uno de concepto.</figcaption>
