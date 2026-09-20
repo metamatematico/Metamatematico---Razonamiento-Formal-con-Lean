@@ -54,6 +54,49 @@ LA FIRMA DEL INSTRUMENTO ROTO. Si `fijo+regla4` no gana en NINGUN caso del
 estrato B, o si alguna rama falla en el estrato A, no se ha medido el sistema:
 se ha medido un error de montaje. El guion lo dice y no da nota.
 
+LA PRIMERA CORRIDA · 19 de septiembre de 2026 · SIN NOTA
+--------------------------------------------------------
+22 casos (11 del estrato B + 11 controles del A), 66 compilados, ~18 min:
+
+    rama            elabora   estrato A   estrato B
+    fijo              5/22        5/11        0/11
+    fijo+grafo        5/22        5/11        0/11
+    fijo+regla4       8/22        5/11        3/11
+
+La alarma de este guion salto y NO se dio nota, y tenia razon: el nulo solo
+elabora 5 de 11 en el estrato A, que por construccion cubre entero. Pero el
+motivo que la alarma supone —«enunciado mal recortado»— solo explica 3 de los
+14 fallos. Mirados uno a uno:
+
+    nombre relativo al namespace -> implicito automatico   6
+    contexto mal recortado                                 3
+    open de un namespace sin su modulo                     2
+    otros                                                  2
+    constante desconocida                                  1
+
+LA FAMILIA GRANDE NO ES UN FALLO DEL RECORTE, ES DEL ORACULO. Dentro de
+`namespace Foo`, el enunciado escribe `bar` y Lean resuelve `Foo.bar`. El
+oraculo de alcance solo mira nombres CUALIFICADOS, asi que no pone
+`Foo.bar` en `faltan` y la cabecera se queda sin su modulo. Y entonces Lean
+no dice «unknown identifier»: AUTO-LIGA `bar` como implicito y falla mucho
+despues con «Function expected at bar ... has type ?m.1». Un import que falta
+disfrazado de error de tipos.
+
+Es la misma familia que `_es_error_mecanico` ya se comio en `core.py`: creerse
+la forma del mensaje en vez de preguntarle al indice.
+
+QUE HACE FALTA ANTES DE VOLVER A CORRERLO
+  1. que `nombres_en` resuelva tambien los nombres relativos al namespace
+     vigente, no solo los que llevan punto;
+  2. equilibrar `namespace`/`end` y tirar las lineas truncadas al capturar el
+     contexto —3 casos se caen por un `end` sin nombre—;
+  3. y solo entonces medir, con el estrato A limpio como puerta de validez.
+
+LO UNICO QUE ESTA CORRIDA SI SOSTIENE, porque no depende del estrato A:
+`fijo+grafo` dio EXACTAMENTE lo mismo que `fijo` en los 22 casos, y no añadio
+ni un modulo en ninguno. Sobre enunciados reales de Mathlib —no las
+desigualdades de LeanWorkbook— la mitad b del paso 3 sigue sin aparecer.
+
 No gasta API. Solo Lean.
 
     python -m scripts.imports_que_discriminan            # en seco, gratis
