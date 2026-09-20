@@ -1043,7 +1043,7 @@ def fig_architecture():
         _n_sk = 0
 
     box(2.3, 6.15, 2.5, 1.0, "L0  LENGUA",
-        "4 337 palabras clave ES/EN\n58,7 % vs 33,3 % del nulo",
+        "4 687 palabras clave ES/EN\n62,1 % vs 33,3 % del nulo",
         ANTES, "#818cf8")
     box(2.3, 4.75, 2.5, 1.0, "L1  CONCEPTO",
         f"{_n_sk or 158} curados · #check\n21,6 % vs 1,45 %  (14,9x)",
@@ -2683,7 +2683,7 @@ with tab6:
     # busca el patron `"Tests", "N", "M suites"` con una regex, y un f-string
     # no encaja, asi que el test pasaba a saltarse en silencio. Una cifra
     # viva que apaga su propio control es peor que una literal vigilada.
-    col3.metric("Tests", "1244", "62 suites")
+    col3.metric("Tests", "1253", "63 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
     st.markdown("**Desglose de parámetros GNN:**")

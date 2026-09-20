@@ -219,6 +219,62 @@ _TODAS_LAS_GOBERNADAS = frozenset({
 
 
 _GENERICAS = frozenset({
+    # LAS PALABRAS DE PARADA, QUE FALTABAN.
+    #
+    # `the` esta en el nombre de cuatro nodos —«The Different Ideal», «The
+    # Upper Half Plane», «The Simplex Category», «The Unit Circle»— y no
+    # estaba aqui. Resultado, medido con una consulta real: ante «Is **the**
+    # square root of 2 irrational?» el grafo activaba esos cuatro, ninguno de
+    # los cuales declara una sola palabra sobre raices ni irracionalidad.
+    # CUALQUIER consulta en ingles con «the» los activaba, dijera lo que
+    # dijera. Ruido puro presentado como senal.
+    #
+    # De los tokens del grafo solo `the` y `and` son palabras de parada, y
+    # `and` ya estaba. `tests/test_desempate_y_parada.py` comprueba que no
+    # vuelva a quedarse ninguna suelta si mañana entra un nodo «A …» o «Of …».
+    #
+    # Rechazar NO cierra la puerta a lo legitimo: la regla de abajo solo anula
+    # cuando TODAS las coincidencias son genericas, asi que «the unit circle»
+    # sigue activando `unit-circle` por `unit` y `circle`.
+    #
+    # Y AHORA LA PARTE INCOMODA: ESTE ARREGLO MIDE PEOR EN UN BANCO
+    # ----------------------------------------------------------------------
+    # `scripts/parada_y_desempate.py`, sobre las 3 000 consultas etiquetadas:
+    #
+    #     area de la 1a skill, equilibrada    antes 45,18 %   con el arreglo 39,37 %
+    #     consultas mudas                           114                     195
+    #
+    # Cinco puntos y ocho decimas PEOR. Se entra igual, y el motivo hay que
+    # leerlo entero antes de revertirlo:
+    #
+    #  1. ESA CIFRA NO LA LEE NADIE. El area de `relevant_skills[0]` no se
+    #     consume en ningun punto del runtime —el `_area` sale de
+    #     `classify_query`, que es otra cosa— ni la mira el decisor. Es un
+    #     proxy sin consumidor, la categoria que este repositorio ya tiene
+    #     nombrada para otras medidas.
+    #
+    #  2. LA CIFRA QUE SI TIENE CONSUMIDOR NO SE MUEVE. ProofNet, que es de
+    #     donde el decisor lee el veredicto de `nombres_de_mathlib_en_el_prompt`,
+    #     da IDENTICO al decimal con y sin el arreglo: precision 23,88 %,
+    #     cobertura 16,48 %, 963 nombres ofrecidos en 273 de 371. Comprobado
+    #     a volumen igualado, y comprobado ademas que el parche llegaba.
+    #
+    #  3. POR QUE ESE BANCO NO PUEDE DECIDIR ESTO. Cuando ninguna skill
+    #     CONCEPTO casa de verdad, el emparejador cae en un nodo basura igual:
+    #     con `the` cae en `different-ideal` —area `algebra`— y sin `the` cae
+    #     en un MODULO con area gruesa. Las dos opciones son malas y la medida
+    #     premia la que dice «algebra», porque el banco es 88,9 % algebra. Es
+    #     el mismo caso que el orden de tacticas, donde `simp` cierra el
+    #     95,8 % y el banco no puede decidir nada.
+    #
+    #  4. Y EL BENEFICIO NO ESTA MEDIDO, que es lo que hay que decir en vez de
+    #     celebrarlo: lo que esto quita son cuatro identificadores sin relacion
+    #     —`differentIdeal`, `UpperHalfPlane`, `SimplexCategory`, `Circle`— del
+    #     prompt de cualquier consulta con un articulo. Medir si eso mejora lo
+    #     que el modelo escribe exige un banco de consultas en lenguaje natural
+    #     con nombres de oro, y NO EXISTE: los 371 enunciados de ProofNet no
+    #     contienen `the` suelta ni una sola vez.
+    "the",
     "theorem", "teorema", "lemma", "lema", "proof", "prueba", "demostracion",
     "prove", "demuestra", "demostrar", "show", "muestra", "point", "punto",
     "set", "conjunto", "number", "numero", "function", "funcion", "space",
@@ -932,7 +988,7 @@ class Nucleo:
         inalcanzable desde el texto de una pregunta.
 
         MEDIDO EN LOS DOS BANCOS, el cambio sale IDENTICO en todas las
-        columnas: ProofNet 21,0 % / 17,7 % y MATH 40,9 % equilibrada, con las
+        columnas: ProofNet 21,0 % / 17,7 % y MATH 38,9 % equilibrada, con las
         mismas 232 consultas mudas y los mismos 7,00 conceptos por consulta.
 
         Y la causa de que salga identico no es que sea neutro: es que los

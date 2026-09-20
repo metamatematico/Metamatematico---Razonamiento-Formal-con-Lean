@@ -20,6 +20,24 @@ DOS MEDIDAS:
       También cuántas consultas no activan NINGUNA skill, que es el fallo
       silencioso: el grafo no aporta nada y nadie se entera.
 
+`skill_area_equilibrada` ES UN PROXY SIN CONSUMIDOR, Y HAY QUE DECIRLO
+----------------------------------------------------------------------
+El área de `relevant_skills[0]` **no la lee nada** en tiempo de ejecución: el
+`_area` de la respuesta sale de `classify_query`, que es otra cosa y se mide
+en la medida A. El decisor tampoco la mira — lee `area_equilibrada` de este
+mismo fichero, no ésta.
+
+Se publica igual porque describe el emparejador, pero **no sirve para decidir
+si un cambio entra**, y una vez estuvo a punto de usarse para eso: al sacar la
+palabra `the` de las genéricas esta cifra cae 5,8 puntos, y lo que cae con
+ella es un nodo basura que respondía «algebra» sobre un banco que es 88,9 %
+álgebra. La medida premia acertar la clase mayoritaria por accidente, que es
+justo contra lo que existe la regla del modelo nulo.
+
+Quien quiera decidir un cambio del emparejador tiene que ir a ProofNet
+(`recuperacion_contra_proofnet.py`), que es el que tiene formalización de oro
+y el que el decisor lee de verdad.
+
 AVISO: las categorías del dataset (`algebra`, `geometry`, `number_theory`,
 `counting_and_probability`, `precalculus`, `intermediate_algebra`,
 `prealgebra`, `gsm8k`) no son las once del grafo. El mapeo va explícito abajo y

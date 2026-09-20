@@ -108,17 +108,62 @@ _DEFAULT_WEIGHTS_DIR = Path(__file__).parent.parent.parent / "training" / "agent
 def classify_query(text: str) -> str:
     """Clasifica un texto en una de las 14 categorías.
 
-    Retorna la categoría con más coincidencias de palabras clave.
-    Si empate → 'algebra' (más general).
+    Retorna la categoría con más coincidencias de palabras clave. El empate lo
+    gana la coincidencia MÁS LARGA, y sin ninguna coincidencia se responde la
+    clase mayoritaria.
+
+    EL DESEMPATE ERA UNA CONSTANTE DISFRAZADA
+    -----------------------------------------
+    Esto hacía `max(scores, key=...)`, que ante un empate devuelve la PRIMERA
+    clave del diccionario. Y la primera es `algebra`. No había criterio
+    detrás: era el orden de una lista.
+
+    Ante «Is the square root of 2 irrational?»:
+
+        algebra        1   por «root»
+        number-theory  1   por «irrational»
+
+    y ganaba álgebra. Que además es la clase mayoritaria del banco —88,9 % en
+    crudo—, así que ese desempate inflaba la exactitud cruda y hundía la
+    equilibrada: la forma exacta de fallo contra la que existe la regla de
+    medir con modelo nulo.
+
+    UNA COINCIDENCIA LARGA ES MÁS ESPECÍFICA QUE UNA CORTA. «irrational» dice
+    mucho más que «root», que sale en media biblioteca. Medido sobre las 3 000
+    consultas etiquetadas de MATH+GSM8K (`scripts/parada_y_desempate.py`):
+
+        variante                        equilibrada    cruda
+        modelo nulo (siempre álgebra)        33,33 %   88,97 %
+        empate → la primera de la lista      58,72 %   61,20 %
+        empate → la coincidencia más larga   62,07 %   60,35 %
+
+    +3,35 puntos de exactitud equilibrada, que es la que vale aquí: la cruda
+    sobre un banco 88,9 % álgebra premia justo el fallo que se corrige.
+
+    Y SE PROBÓ TAMBIÉN A CASAR CON LÍMITES DE PALABRA —`\\bprime\\b` en vez de
+    `"prime" in texto`— Y SALE PEOR: 55,47 % equilibrada, 3,25 puntos por
+    debajo de hoy. Las dos juntas dan 57,49 %, también peor. Queda escrito
+    para que nadie lo intente otra vez sin medirlo: la subcadena está
+    recogiendo plurales y derivados que los límites de palabra tiran.
     """
     text_lower = text.lower()
-    scores: Dict[str, int] = {cat: 0 for cat in CATEGORIES}
+    aciertos: Dict[str, list] = {cat: [] for cat in CATEGORIES}
     for cat, keywords in _CATEGORY_KEYWORDS.items():
-        for kw in keywords:
-            if kw in text_lower:
-                scores[cat] += 1
-    best = max(scores, key=lambda c: scores[c])
-    return best if scores[best] > 0 else "algebra"
+        aciertos[cat] = [kw for kw in keywords if kw in text_lower]
+
+    mejor = max((len(v) for v in aciertos.values()), default=0)
+    if mejor == 0:
+        # EL SUELO VA DECLARADO: sin ninguna coincidencia se responde la clase
+        # mayoritaria, que es exactamente lo que hace el modelo nulo. Eso no
+        # es un acierto del clasificador y no se cuenta como tal.
+        return "algebra"
+
+    empatadas = [c for c in CATEGORIES if len(aciertos[c]) == mejor]
+    if len(empatadas) == 1:
+        return empatadas[0]
+    return max(empatadas,
+               key=lambda c: (max(len(k) for k in aciertos[c]),
+                              sum(len(k) for k in aciertos[c])))
 
 
 class SpecializedAgent:

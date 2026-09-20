@@ -1421,7 +1421,7 @@ capacidad contra su modelo nulo.
 
 | | Capa | Qué hace | Mide |
 |---|---|---|---|
-| **antes** | L0 Lengua | palabras clave ES/EN → concepto | 58,7 % vs 33,3 % |
+| **antes** | L0 Lengua | palabras clave ES/EN → concepto | 62,1 % vs 33,3 % |
 | | L1 Concepto | 158 conceptos · vocabulario con `#check` | 21,6 % vs 1,45 % |
 | | L2 Territorio | 147 generados · alcance temático | no transfiere |
 | ⎯ | **Lean verifica** | la decisión sale del modelo | el veredicto |

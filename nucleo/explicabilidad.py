@@ -205,7 +205,7 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
         detalle=("; ".join(partes) + "." if partes
                  else "no consta el área ni la lectura: la consulta entró "
                       "por un camino que no las calcula."),
-        respaldo=("el área se acierta el 58,7 % de las veces con exactitud "
+        respaldo=("el área se acierta el 62,1 % de las veces con exactitud "
                   "equilibrada, frente al 33,3 % de responder siempre la clase "
                   "mayoritaria" if area else ""),
     ))

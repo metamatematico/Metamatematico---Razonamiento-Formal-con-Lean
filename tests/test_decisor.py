@@ -291,7 +291,7 @@ class TestNadieSeAcreditaLoQueNoCorre:
     def test_la_que_de_verdad_clasifica_se_mide_por_el_equilibrado(self):
         """`classify_query` corre, y SI esta medida — con su propia cifra.
 
-        Tiene evidencia distinta de la del reconocedor por la forma: 58,72 %
+        Tiene evidencia distinta de la del reconocedor por la forma: 62,07 %
         contra un nulo de 33,33 % en `emparejamiento.json`, sobre las 3 000
         consultas etiquetadas. (Este test nacio afirmando que NADIE la habia
         medido, y era falso: la cifra llevaba tiempo publicada en el

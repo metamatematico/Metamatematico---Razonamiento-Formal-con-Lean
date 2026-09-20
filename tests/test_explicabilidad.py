@@ -280,7 +280,7 @@ class TestLoInerteTambienSeEnsena:
         e = explicar(area="number-theory")
         paso = [p for p in e.pasos if p.clave == "entendi"][0]
         assert "33,3" in paso.respaldo, (
-            "58,7 % suena bien hasta que se sabe contra que: la clase "
+            "62,1 % suena bien hasta que se sabe contra que: la clase "
             "mayoritaria acierta el 33,3 %")
 
 

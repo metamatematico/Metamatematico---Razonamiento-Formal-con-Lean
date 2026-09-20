@@ -55,7 +55,7 @@ formalizar gana; toda la que actúa después pierde o empata:
 
 | capacidad | actúa | medida vs nulo | |
 |---|---|---|---|
-| clasificación de área | antes | 58.7 vs 33.3 | ✓ |
+| clasificación de área | antes | 62.1 vs 33.3 | ✓ |
 | nombres de Mathlib en el prompt | antes | 21.6 vs 1.5 | ✓ |
 | revisión de sintaxis | antes | 0.61 vs 0.04 | ✓ |
 | elección de imports | después | 18 vs 18 | empate |
@@ -96,7 +96,7 @@ formalizar gana; toda la que actúa después pierde o empata:
 sobre identificadores, nombres y palabras clave declaradas en español e inglés.
 Rechaza los solapamientos que consisten sólo en palabras genéricas.
 
-**Qué muestra.** 58.7 % de acierto de área equilibrado contra 33.3 % de
+**Qué muestra.** 62.1 % de acierto de área equilibrado contra 33.3 % de
 responder siempre la clase mayoritaria.
 
 ### L1 — Concepto
@@ -248,7 +248,7 @@ las dos, a una o —esto importa— a ninguna de forma medible.
 
 | capa / pieza | busca | explica | evidencia |
 |---|---|---|---|
-| **L0** lengua | **sí** | poco | 58.7 % vs 33.3 % de acierto de área |
+| **L0** lengua | **sí** | poco | 62.1 % vs 33.3 % de acierto de área |
 | **L1** vocabulario | **sí, y no llega al final** | **sí, mucho** | 21.6 % vs 1.5 % en recuperación; **p = 1.0** sobre la verificación |
 | **L2** territorio | reconoce temas | poco | su vocabulario no transfiere (3 vías medidas) |
 | **L3** rankeador | **sí, es la más efectiva** | poco | **3.7×** menos compilaciones de Lean |

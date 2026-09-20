@@ -116,7 +116,7 @@ class TestLasDosCapasNoSeHablan:
     """Y es una decisión medida, no una deuda.
 
     Con exactitud equilibrada —la única que sobrevive a un banco 89 % álgebra—
-    `classify_query` acierta el 58,7 % y la primera skill del grafo el 40,9 %,
+    `classify_query` acierta el 62,1 % y la primera skill del grafo el 38,9 %,
     sobre un azar del 33,3 %. Conectar el índice de premisas al grafo sería
     cambiar el clasificador bueno por el malo.
     """
@@ -127,7 +127,7 @@ class TestLasDosCapasNoSeHablan:
             assert marca not in s, (
                 "premisas.py ha empezado a mirar el grafo (%s). Si es a "
                 "propósito, mide antes: en exactitud equilibrada hoy "
-                "classify_query gana 58,7 %% contra 40,9 %%." % marca)
+                "classify_query gana 62,1 %% contra 38,9 %%." % marca)
 
 
 class TestElDecisorGobiernaLoQueDice:

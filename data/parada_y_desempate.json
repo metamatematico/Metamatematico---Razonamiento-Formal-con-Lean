@@ -1,0 +1,42 @@
+{
+  "muestra": 3000,
+  "semilla": 20260901,
+  "nulo": {
+    "area": "algebra",
+    "equilibrada": 33.33
+  },
+  "clasificador": {
+    "hoy (subcadena · empate→1ª)": {
+      "equilibrada": 58.72,
+      "cruda": 61.2
+    },
+    "límites de palabra": {
+      "equilibrada": 55.47,
+      "cruda": 67.6
+    },
+    "desempate por especificidad": {
+      "equilibrada": 62.07,
+      "cruda": 60.35
+    },
+    "las dos juntas": {
+      "equilibrada": 57.49,
+      "cruda": 67.47
+    }
+  },
+  "emparejador": {
+    "sin «the» de parada (antes)": {
+      "equilibrada_muda_es_fallo": 43.4,
+      "equilibrada_solo_las_que_hablan": 45.58,
+      "equilibrada_con_suelo_declarado": 45.18,
+      "mudas": 114,
+      "skills_por_consulta": 8.208
+    },
+    "con «the» de parada (arreglo)": {
+      "equilibrada_muda_es_fallo": 36.37,
+      "equilibrada_solo_las_que_hablan": 38.94,
+      "equilibrada_con_suelo_declarado": 39.37,
+      "mudas": 195,
+      "skills_por_consulta": 7.033
+    }
+  }
+}
