@@ -269,7 +269,7 @@ class TestLoInerteTambienSeEnsena:
         e = explicar(modulos=["Mathlib.Data.Nat.Prime"])
         paso = [p for p in e.pasos if p.clave == "modulos"][0]
         assert "inerte" in paso.respaldo.lower(), (
-            "el grafo hace aqui trabajo real —18 de 20 contra 14 de 20 del "
+            "el grafo hace aqui trabajo real —18 de 20 contra 12 de 20 del "
             "azar— y aun asi no aporta, porque una constante consigue los "
             "mismos 18. Ensenar solo lo que gana seria publicidad")
 

@@ -279,7 +279,7 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
             items=[str(m) for m in mods[:8]],
             respaldo=("esta elección es **inerte**: elabora 18 de 20 "
                       "enunciados, exactamente los mismos 18 que un conjunto "
-                      "fijo de tres módulos. Gana al azar (14 de 20) pero no "
+                      "fijo de tres módulos. Gana al azar (18 contra 12) pero no "
                       "gana a la constante"),
         ))
 

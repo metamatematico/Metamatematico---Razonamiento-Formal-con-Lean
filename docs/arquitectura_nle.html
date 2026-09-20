@@ -3266,9 +3266,9 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
     <div class="ficha">
       <header><h3>La elección de imports no aporta, y el banco casi no puede detectarlo</h3></header>
-      <div class="paso"><div class="et">medido</div><p>Un conjunto fijo de tres módulos hace elaborar 18 de 20 enunciados. Añadirle lo que el grafo propone: los mismos 18, el mismo tiempo. Contra el azar sí gana —18 frente a 14—, o sea que hace trabajo real, pero redundante con una constante.</p></div>
+      <div class="paso"><div class="et">medido</div><p>Un conjunto fijo de tres módulos hace elaborar 18 de 20 enunciados. Añadirle lo que el grafo propone: los mismos 18, y un 11 % más de tiempo. Contra el azar sí gana —18 frente a 12, rescatando 6 casos sin romper ninguno—, o sea que hace trabajo real, pero redundante con una constante.</p></div>
       <div class="paso"><div class="et">el margen</div><p>De los 2 fallos, ninguno es de imports: uno necesita <code>open Real</code> y otro usa sintaxis vieja de Mathlib.</p></div>
-      <div class="paso"><div class="et">y la cautela</div><p>El «conjunto fijo» no es pequeño: <code>Mathlib.Tactic</code> arrastra <strong>2 972 módulos</strong> por transitividad, y los tres juntos cubren el <strong>38,4 % de Mathlib</strong>. La medición es aditiva —añadir imports nunca rompe una elaboración— así que la única forma de ganar era rescatar un fallo. En <strong>14 de 20 casos el grafo no añade ni un módulo</strong>: las dos ramas son la misma ejecución.</p></div>
+      <div class="paso"><div class="et">y la cautela</div><p>El «conjunto fijo» no es pequeño: <code>Mathlib.Tactic</code> arrastra <strong>2 972 módulos</strong> por transitividad, y los tres juntos cubren el <strong>38,4 % de Mathlib</strong>. La medición es aditiva —añadir imports nunca rompe una elaboración— así que la única forma de ganar era rescatar un fallo. En <strong>10 de 20 casos el grafo no añade ni un módulo</strong>: las dos ramas son la misma ejecución.</p></div>
       <div class="paso"><div class="et">cómo leerlo</div><p>El test discriminante tiene <strong>n ≈ 0</strong>. «Inerte» está sostenido como <em>no se midió beneficio</em>, <strong>no</strong> como <em>se demostró que no lo hay</em>.</p></div>
     </div>
 
