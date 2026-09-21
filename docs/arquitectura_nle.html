@@ -875,7 +875,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 <pre>                consulta (ES/EN)
                        │
   <b>L0  LENGUA</b>       palabras clave ES/EN → concepto      ANTES
-  <b>L1  CONCEPTO</b>     158 curados · vocabulario #check       DE
+  <b>L1  CONCEPTO</b>     189 curados · vocabulario #check       DE
   <b>L2  TERRITORIO</b>   147 generados · dónde vive        FORMALIZAR
                        │
              <b>ENUNCIADO FORMAL</b>   ←── la frontera
@@ -919,12 +919,129 @@ svg .sLine{stroke:var(--muted); fill:none}
           <tr><td><strong>L3</strong> evidencia</td><td><span class="pill v">sí · desde hoy</span></td><td><code>modelo_de_orden_de_cascada</code></td><td class="mono">0,621 vs 0,318<br>1,57 vs 2,44 posiciones</td></tr>
           <tr><td><strong>L4</strong> emergencia</td><td><span class="pill v">sí · desde hoy</span></td><td>siembra al arrancar<span class="sub">28 pares con exceso ≥ 1,5</span></td><td class="mono">exceso hasta +6,74</td></tr>
           <tr><td>bloque estructural<span class="sub">la explicabilidad en el prompt</span></td><td><span class="pill a">no</span></td><td><code>contexto_estructural_en_el_prompt</code></td><td>sin evidencia — el decisor lo deja fuera</td></tr>
+          <tr><td><strong>sesión de Lean</strong><span class="sub">la cascada, sobre la sesión viva</span></td><td><span class="pill v">sí · desde el 21-09</span></td><td><code>cascada_por_estado</code></td><td class="mono">mismos 9 cierres<br>fallos: 276 s → 40,4 s</td></tr>
+          <tr><td><strong>lazo por pasos</strong><span class="sub">mediador, proponentes, φ</span></td><td><span class="pill a">no</span></td><td><code>lazo_por_pasos</code></td><td>construido; su puerta con modelo no se ha corrido (<a href="#lazo">§18</a>)</td></tr>
         </tbody>
       </table>
     </div>
 
+    <figure>
+      <div class="marco">
+<svg role="img" aria-label="La arquitectura de hoy. Arriba, el camino servido, de izquierda a derecha: la consulta en español o inglés entra en el grafo, capas L0 a L2, que da nombres comprobados con check y los módulos; el formalizador, un modelo de lenguaje, escribe el enunciado y la prueba; se cruza la frontera de formalización; Lean compila el fichero, con hasta dos rondas de reparación; sale un veredicto de ocho estados y la respuesta en el idioma de la pregunta. Debajo de Lean, si queda un sorry, la cascada de doce tácticas corre en la sesión viva de Lean, encendida desde el paso 2, y la táctica ganadora vuelve al fichero, que confirma. A la izquierda, el decisor, con veintitrés capacidades, lee los ficheros de medición y sólo deja correr lo que bate a su modelo nulo. Abajo, en una banda discontinua, el lazo por pasos, construido y apagado hasta su puerta con modelo: cinco proponentes, D0 la cascada, D1v los vecinos de estado que entran con más ocho menos cero, D3 el modelo sin medir, D2 apply como sonda que no entra, y D1d el encoder denso que no entra; el mediador busca primero lo mejor y guarda los fallos de cada estado; la sesión de Lean evalúa cada táctica en centésimas de segundo; el fichero decide sobre la prueba ensamblada. Cada intento va al registro, que alimenta L4, y φ etiqueta cada estado para la explicación por paso, con la exactitud sin revisar." viewBox="0 0 1000 560" style="min-width:760px">
+  <defs>
+    <marker id="aHoy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+  </defs>
+  <text class="sMono sDim" x="16" y="24" font-size="10.5" letter-spacing="1.2">EL CAMINO SERVIDO</text>
+  <line x1="526" y1="36" x2="526" y2="250" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 5"/>
+  <text class="sMono sDim" x="532" y="24" font-size="10.5" letter-spacing="1.2">LA FRONTERA ↓</text>
+
+  <rect x="16" y="56" width="120" height="56" rx="8" fill="var(--surface-2)" stroke="var(--border)"/>
+  <text class="sTxt" x="76" y="80" font-size="12.5" font-weight="600" text-anchor="middle">consulta</text>
+  <text class="sMono sDim" x="76" y="98" font-size="10.5" text-anchor="middle">ES / EN</text>
+
+  <rect x="156" y="56" width="170" height="56" rx="8" fill="var(--grafo-soft)" stroke="var(--grafo)" stroke-width="1.4"/>
+  <text class="sTxt" x="170" y="80" font-size="12.5" font-weight="600">el grafo · L0–L2</text>
+  <text class="sMono sDim" x="170" y="98" font-size="10.5">nombres #check · módulos</text>
+
+  <rect x="346" y="56" width="160" height="56" rx="8" fill="var(--llm-soft)" stroke="var(--llm)" stroke-width="1.4"/>
+  <text class="sTxt" x="360" y="80" font-size="12.5" font-weight="600">formalizador · LLM</text>
+  <text class="sMono sDim" x="360" y="98" font-size="10.5">enunciado + prueba</text>
+
+  <rect x="546" y="56" width="180" height="56" rx="8" fill="var(--lean-soft)" stroke="var(--lean)" stroke-width="1.4"/>
+  <text class="sTxt" x="560" y="80" font-size="12.5" font-weight="600">Lean · el fichero</text>
+  <text class="sMono sDim" x="560" y="98" font-size="10.5">check_code · repara ≤ 2</text>
+
+  <rect x="746" y="56" width="110" height="56" rx="8" fill="var(--lean)"/>
+  <text x="801" y="80" font-size="12.5" font-weight="600" fill="var(--surface)" text-anchor="middle" font-family="'IBM Plex Sans',sans-serif">veredicto</text>
+  <text x="801" y="98" font-size="10.5" fill="var(--surface)" text-anchor="middle" font-family="'IBM Plex Mono',monospace">8 estados</text>
+
+  <rect x="876" y="56" width="108" height="56" rx="8" fill="var(--surface-2)" stroke="var(--border)"/>
+  <text class="sTxt" x="930" y="80" font-size="12.5" font-weight="600" text-anchor="middle">respuesta</text>
+  <text class="sMono sDim" x="930" y="98" font-size="10.5" text-anchor="middle">su idioma</text>
+
+  <line x1="136" y1="84" x2="154" y2="84" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <line x1="326" y1="84" x2="344" y2="84" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <line x1="506" y1="84" x2="544" y2="84" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <line x1="726" y1="84" x2="744" y2="84" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <line x1="856" y1="84" x2="874" y2="84" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+
+  <rect x="546" y="170" width="180" height="62" rx="8" fill="var(--surface)" stroke="var(--lean)" stroke-width="1.4"/>
+  <text class="sTxt" x="560" y="192" font-size="12.5" font-weight="600">cascada por estado</text>
+  <text class="sMono sDim" x="560" y="208" font-size="10.5">12 tácticas · sesión viva</text>
+  <text class="sMono" x="560" y="224" font-size="10.5" fill="var(--lean)">ENCENDIDA · paso 2</text>
+  <line x1="600" y1="112" x2="600" y2="168" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <text class="sTxt sDim" x="608" y="144" font-size="10.5">queda sorry</text>
+  <line x1="690" y1="168" x2="690" y2="114" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <text class="sTxt sDim" x="698" y="136" font-size="10.5">la ganadora,</text>
+  <text class="sTxt sDim" x="698" y="150" font-size="10.5">al fichero</text>
+
+  <rect x="16" y="170" width="310" height="62" rx="8" fill="var(--surface-2)" stroke="var(--border)"/>
+  <text class="sTxt" x="30" y="192" font-size="12.5" font-weight="600">el decisor · 23 capacidades</text>
+  <text class="sMono sDim" x="30" y="210" font-size="10.5">lee data/ · corre lo que bate a su nulo</text>
+  <text class="sMono sDim" x="30" y="225" font-size="10.5">gobierna las dos mitades</text>
+
+  <line x1="801" y1="112" x2="801" y2="266" stroke="var(--alerta)" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#aHoy)"/>
+  <text class="sTxt" x="810" y="190" font-size="10.5" fill="var(--alerta)">si no verifica</text>
+  <text class="sTxt" x="810" y="204" font-size="10.5" fill="var(--alerta)">(apagado)</text>
+
+  <rect x="16" y="270" width="968" height="276" rx="12" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="6 5"/>
+  <text class="sMono sDim" x="32" y="292" font-size="10.5" letter-spacing="1.2">EL LAZO POR PASOS · CONSTRUIDO, APAGADO HASTA SU PUERTA CON MODELO</text>
+
+  <text class="sMono sDim" x="36" y="316" font-size="10" letter-spacing="1">PROPONENTES · MEDIDOS SIN API SOBRE 60 ESTADOS</text>
+  <rect x="36" y="324" width="170" height="54" rx="7" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+  <text class="sTxt" x="48" y="346" font-size="12" font-weight="600">D0 · la cascada</text>
+  <text class="sMono sDim" x="48" y="366" font-size="10.5">el suelo: 40</text>
+  <rect x="218" y="324" width="170" height="54" rx="7" fill="var(--lean-soft)" stroke="var(--lean)" stroke-width="1.2"/>
+  <text class="sTxt" x="230" y="346" font-size="12" font-weight="600">D1v · los vecinos</text>
+  <text class="sMono" x="230" y="366" font-size="10.5" fill="var(--lean)">+8 −0 · entra</text>
+  <rect x="400" y="324" width="170" height="54" rx="7" fill="var(--llm-soft)" stroke="var(--llm)" stroke-width="1.2"/>
+  <text class="sTxt" x="412" y="346" font-size="12" font-weight="600">D3 · el modelo</text>
+  <text class="sMono sDim" x="412" y="366" font-size="10.5">gasta API · sin medir</text>
+  <rect x="582" y="324" width="170" height="54" rx="7" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.2"/>
+  <text class="sTxt" x="594" y="346" font-size="12" font-weight="600">D2 · apply? de sonda</text>
+  <text class="sMono" x="594" y="366" font-size="10.5" fill="var(--alerta)">no entra</text>
+  <rect x="764" y="324" width="170" height="54" rx="7" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.2"/>
+  <text class="sTxt" x="776" y="346" font-size="12" font-weight="600">D1d · el denso</text>
+  <text class="sMono" x="776" y="366" font-size="10.5" fill="var(--alerta)">no entra</text>
+
+  <line x1="246" y1="380" x2="246" y2="400" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <rect x="36" y="402" width="420" height="58" rx="8" fill="var(--surface-3)" stroke="var(--text-dim)" stroke-width="1.2"/>
+  <text class="sTxt" x="50" y="425" font-size="12.5" font-weight="600">el mediador</text>
+  <text class="sMono sDim" x="50" y="445" font-size="10.5">lo mejor primero · fallos por estado · presupuesto</text>
+
+  <rect x="476" y="402" width="220" height="58" rx="8" fill="var(--lean-soft)" stroke="var(--lean)" stroke-width="1.4"/>
+  <text class="sTxt" x="490" y="425" font-size="12.5" font-weight="600">la sesión · busca</text>
+  <text class="sMono sDim" x="490" y="445" font-size="10.5">una táctica: centésimas</text>
+
+  <rect x="716" y="402" width="218" height="58" rx="8" fill="var(--lean)"/>
+  <text x="730" y="425" font-size="12.5" font-weight="600" fill="var(--surface)" font-family="'IBM Plex Sans',sans-serif">el fichero · decide</text>
+  <text x="730" y="445" font-size="10.5" fill="var(--surface)" font-family="'IBM Plex Mono',monospace">la prueba ensamblada</text>
+
+  <line x1="456" y1="422" x2="474" y2="422" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <line x1="476" y1="442" x2="458" y2="442" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <line x1="696" y1="431" x2="714" y2="431" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+
+  <line x1="246" y1="460" x2="246" y2="478" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <rect x="36" y="480" width="420" height="50" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+  <text class="sTxt" x="50" y="502" font-size="12" font-weight="600">el registro → L4</text>
+  <text class="sMono sDim" x="50" y="520" font-size="10.5">cada intento, y cada teorema verificado</text>
+
+  <line x1="825" y1="460" x2="825" y2="478" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
+  <rect x="476" y="480" width="458" height="50" rx="8" fill="var(--grafo-soft)" stroke="var(--grafo)" stroke-width="1.2"/>
+  <text class="sTxt" x="490" y="502" font-size="12" font-weight="600">φ · la explicación por paso</text>
+  <text class="sMono sDim" x="490" y="520" font-size="10.5">qué conceptos toca cada estado · exactitud sin revisar</text>
+</svg>
+      </div>
+      <figcaption><b>La arquitectura de hoy.</b> Arriba corre lo que el decisor
+      tiene encendido; la única pieza nueva en ese camino es la sesión de Lean
+      bajo la cascada. Abajo está el lazo por pasos de <a href="#lazo">§18</a>:
+      construido y medido sin API pieza a pieza, y fuera del camino hasta que su
+      puerta con modelo diga que verifica más que lo servido. En las dos mitades
+      la regla es la misma: la sesión busca, el fichero decide.</figcaption>
+    </figure>
+
     <div class="nota">
-      <b>Lo único que sigue fuera, y por qué</b>
+      <b>Lo que sigue fuera, y por qué</b>
       <p>El bloque estructural —prerrequisitos, tácticas sugeridas, competencia
       emergente y skills que suelen acompañar, que es lo que el grafo sabe por
       sus <em>aristas</em>— está escrito y <strong>apagado</strong>. Su efecto
@@ -2729,6 +2846,12 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
     <p>Cuando Lean acepta la estructura pero queda un <code>sorry</code>, entran
     doce tácticas con su tiempo límite. El orden lo propone el grafo a partir de
     la forma del objetivo.</p>
+
+    <p>Desde el paso 2 del lazo (<a href="#lazo">§18</a>) el bloque ya no se
+    compila como fichero en el camino servido: se elabora en la sesión viva de
+    Lean, con el mismo orden y el mismo texto, y el fichero sólo confirma la
+    táctica ganadora. Lo que sigue describe el bloque, que es el mismo en las
+    dos vías.</p>
 
     <pre>rfl 1s   simp 2s   norm_num 2s   ring 2s   ring_nf 3s   field_simp 3s
 linarith 3s   nlinarith 4s   omega 3s   exact? 5s   apply? 5s   aesop 8s</pre>
