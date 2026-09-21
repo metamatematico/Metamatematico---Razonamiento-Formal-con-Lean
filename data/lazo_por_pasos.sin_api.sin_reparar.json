@@ -1,0 +1,264 @@
+{
+ "modo": "sin_api",
+ "n": 20,
+ "lazo_verifica": 4,
+ "servido_verifica": 12,
+ "filas": [
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "servido": false,
+   "lazo": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 25.7,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que un grupo de orden primo es cíclico",
+   "servido": true,
+   "lazo": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 15.7,
+   "caminos": {},
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+   "servido": true,
+   "lazo": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 26.8,
+   "caminos": {},
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+   "servido": true,
+   "lazo": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 25.2,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "servido": false,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.6,
+   "caminos": {},
+   "motivo": "invalid 'import' command, it must be used in the beginning of the file"
+  },
+  {
+   "consulta": "Demuestra que la raíz de 2 es irracional",
+   "servido": true,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 12.2,
+   "caminos": {},
+   "motivo": "Function expected at\n  Irrational\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  (Real.sqrt 2)\n\nHint: The identifier `Irrational` is unkn"
+  },
+  {
+   "consulta": "Demuestra que los números racionales son numerables",
+   "servido": false,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.2,
+   "caminos": {},
+   "motivo": "Function expected at\n  Countable\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  ℚ\n\nHint: The identifier `Countable` is unknown, and Lean'"
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "servido": true,
+   "lazo": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 33,
+   "nodos": 2,
+   "segundos": 26.5,
+   "caminos": {},
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "servido": false,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.1,
+   "caminos": {},
+   "motivo": "Invalid field `Countable`: The environment does not contain `Function.Countable`, so it is not possible to project the field `Countable` from an expression\n  Set.univ\nof type `Set ℕ → Prop`"
+  },
+  {
+   "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+   "servido": true,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.3,
+   "caminos": {},
+   "motivo": "Unknown constant `Filter.atTop`"
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "servido": false,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.5,
+   "caminos": {},
+   "motivo": "Unknown constant `Filter.atTop`"
+  },
+  {
+   "consulta": "Demuestra que la derivada de una constante es cero",
+   "servido": true,
+   "lazo": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 3,
+   "nodos": 1,
+   "segundos": 25.8,
+   "caminos": {
+    "0": [
+     "simp"
+    ]
+   },
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que toda función derivable es continua",
+   "servido": true,
+   "lazo": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 16.9,
+   "caminos": {},
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+   "servido": true,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.3,
+   "caminos": {},
+   "motivo": "failed to synthesize instance of type class\n  TopologicalSpace ℝ\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command."
+  },
+  {
+   "consulta": "Demuestra que un espacio métrico compacto es completo",
+   "servido": true,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.0,
+   "caminos": {},
+   "motivo": "invalid binder annotation, type is not a class instance\n  ?m.2\n\nNote: Use the command `set_option checkBinderAnnotations false` to disable the check"
+  },
+  {
+   "consulta": "Demuestra que la unión de dos conjuntos abierto es abierto",
+   "servido": true,
+   "lazo": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 24.2,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que todo espacio vectorial tiene una base",
+   "servido": false,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.2,
+   "caminos": {},
+   "motivo": "invalid binder annotation, type is not a class instance\n  ?m.2\n\nNote: Use the command `set_option checkBinderAnnotations false` to disable the check"
+  },
+  {
+   "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+   "servido": false,
+   "lazo": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 12.5,
+   "caminos": {},
+   "motivo": "failed to synthesize instance of type class\n  Inv (Matrix n n R)\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command."
+  },
+  {
+   "consulta": "Demuestra que los polinomios irreducibles generan ideales maximales",
+   "servido": false,
+   "lazo": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 16.4,
+   "caminos": {},
+   "motivo": ""
+  },
+  {
+   "consulta": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+   "servido": true,
+   "lazo": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 17.4,
+   "caminos": {},
+   "motivo": ""
+  }
+ ]
+}

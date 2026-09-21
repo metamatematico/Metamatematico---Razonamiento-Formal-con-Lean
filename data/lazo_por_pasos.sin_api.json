@@ -1,0 +1,316 @@
+{
+ "modo": "sin_api",
+ "n": 20,
+ "A": 9,
+ "B": 6,
+ "ambas": 5,
+ "solo_A": 4,
+ "solo_B": 1,
+ "no_elabora_B": 3,
+ "filas": [
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "A": false,
+   "A_seg": 13.1,
+   "B": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 25.6,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": "",
+   "enunciado": "import Mathlib.Algebra.Group.Basic\nimport Mathlib.GroupTheory.Subgroup.Basic\nimport Mathlib.GroupTheory.SpecificGroups.Cyclic\n\ntheorem subgroup_of_cyclic_is_cyclic {G : Type*} [Group G] (hG : IsCyclic G)\n    (H : Subgroup G) : IsCyclic H := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que un grupo de orden primo es cíclico",
+   "A": false,
+   "A_seg": 11.1,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 14.3,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "import Mathlib.GroupTheory.SpecificGroups.Cyclic\nimport Mathlib.Algebra.Group.Basic\n\ntheorem cyclic_of_prime_order {G : Type*} [Group G] [Fintype G]\n    (hp : Nat.Prime (Fintype.card G)) : IsCyclic G := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+   "A": true,
+   "A_seg": 12.5,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 28.3,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "import Mathlib.Algebra.Group.Subgroup.Basic\n\n-- READING: the intersection of two subgroups of a group is a subgroup\n-- (we exhibit this via the Subgroup.instInf infrastructure and show explicitly it's a subgroup)\n\ntheorem inter_subgroup {G : Type*} [Group G] (H K : Subgroup G) :\n    ∃ L : Subgroup G, (L : Set G) = (H : Set G) ∩ (K : Set G) := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+   "A": true,
+   "A_seg": 10.6,
+   "B": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 25.9,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": "",
+   "enunciado": "import Mathlib.Algebra.Group.Basic\nimport Mathlib.GroupTheory.OrderOfElement\n\ntheorem order_dvd_card_group {G : Type} [Group G] [Fintype G] (g : G) :\n    orderOf g ∣ Fintype.card G := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "A": false,
+   "A_seg": 10.9,
+   "B": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.9,
+   "caminos": {},
+   "motivo": "invalid 'import' command, it must be used in the beginning of the file",
+   "enunciado": "-- READING: Every finite additive commutative group is isomorphic to a direct sum of cyclic groups\n-- (Fundamental theorem of finite abelian groups), using Mathlib's `AddCommGroup.equiv_directSum_zmod_of_fintype`.\n-- also: could be phrased via `Module.equiv_directSum_of_isTorsion` for finitely generated torsion modules.\n\nimport Mathlib.GroupTheory.FiniteAbelian.Basic\n\ntheorem finite_abelian_group_is_product_of_cyclic\n    (G : Type) [AddCommGroup G] [Fintype G] :\n    ∃ (ι : Type) (_ : Fintype ι) (n : ι → ℕ),\n      (∀ i, 1 < n i) ∧ Nonempty (G ≃+ ⨁ i, ZMod (n i)) := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que la raíz de 2 es irracional",
+   "A": true,
+   "A_seg": 12.5,
+   "B": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 31.1,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": "",
+   "enunciado": "import Mathlib.Data.Real.Irrational\n\ntheorem sqrt_two_irrational : Irrational (Real.sqrt 2) := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que los números racionales son numerables",
+   "A": false,
+   "A_seg": 12.3,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 12,
+   "nodos": 1,
+   "segundos": 15.3,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "theorem rat_countable : Countable ℚ := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "A": true,
+   "A_seg": 10.9,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 33,
+   "nodos": 2,
+   "segundos": 31.0,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "-- READING: unique factorization of natural numbers ≥ 1 into primes,\n-- stated via Nat.factors and Nat.prod_factors / Nat.factors_unique\n-- also: could be stated for ℤ using associates and irreducible elements, but ℕ.factors is the standard formalization\ntheorem unique_prime_factorization (n : ℕ) (hn : n ≠ 0) :\n    ∃ l : List ℕ, (∀ p ∈ l, Nat.Prime p) ∧ l.prod = n ∧\n      (∀ l' : List ℕ, (∀ p ∈ l', Nat.Prime p) → l'.prod = n → l' ~ l) := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "A": false,
+   "A_seg": 10.7,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 33,
+   "nodos": 2,
+   "segundos": 14.8,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "theorem powerset_nat_not_countable : ¬ (Set.univ : Set (Set ℕ)).Countable := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+   "A": true,
+   "A_seg": 15.4,
+   "B": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 38.8,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": "",
+   "enunciado": "-- READING: Every Cauchy sequence of real numbers converges to some limit (completeness of ℝ).\ntheorem cauchy_seq_converges (u : ℕ → ℝ) (h : CauchySeq u) :\n    ∃ L : ℝ, Filter.Tendsto u Filter.atTop (nhds L) := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que la serie armónica diverge",
+   "A": false,
+   "A_seg": 12.7,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 150,
+   "nodos": 10,
+   "segundos": 93.0,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "theorem harmonic_series_diverges :\n    ¬ ∃ L : ℝ, Filter.Tendsto (fun n : ℕ => ∑ i ∈ Finset.range n, (1 : ℝ) / (i + 1)) Filter.atTop (nhds L) := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que la derivada de una constante es cero",
+   "A": true,
+   "A_seg": 12.9,
+   "B": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 3,
+   "nodos": 1,
+   "segundos": 25.7,
+   "caminos": {
+    "0": [
+     "simp"
+    ]
+   },
+   "motivo": "",
+   "enunciado": "theorem deriv_const_eq_zero (c : ℝ) (x : ℝ) : deriv (fun _ : ℝ => c) x = 0 := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que toda función derivable es continua",
+   "A": true,
+   "A_seg": 12.9,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 17.2,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "theorem differentiable_implies_continuous (f : ℝ → ℝ) (hf : Differentiable ℝ f) :\n    Continuous f := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que toda función continua en un compacto alcanza su máximo",
+   "A": true,
+   "A_seg": 12.2,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 23.6,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "-- READING: A continuous real-valued function on a nonempty compact set attains its maximum\n-- (IsCompact.exists_isMaxOn) | also: could formalize on general compact spaces with sup\ntheorem continuous_attains_max\n    {X : Type*} [TopologicalSpace X] {s : Set X} (hs : IsCompact s) (hne : s.Nonempty)\n    {f : X → ℝ} (hf : ContinuousOn f s) :\n    ∃ x ∈ s, ∀ y ∈ s, f y ≤ f x := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que un espacio métrico compacto es completo",
+   "A": false,
+   "A_seg": 11.0,
+   "B": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 10.7,
+   "caminos": {},
+   "motivo": "Function expected at\n  CompleteSpace\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  X\n\nHint: The identifier `CompleteSpace` is unknown, a",
+   "enunciado": "-- READING: A compact metric space is a complete space | also: could ask for completeness of compact subsets instead\ntheorem compact_metric_space_complete {X : Type*} [MetricSpace X] [CompactSpace X] :\n    CompleteSpace X := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que la unión de dos conjuntos abierto es abierto",
+   "A": true,
+   "A_seg": 10.0,
+   "B": "verificado",
+   "cerradas": 1,
+   "raices": 1,
+   "lean": 11,
+   "nodos": 1,
+   "segundos": 23.8,
+   "caminos": {
+    "0": [
+     "exact?"
+    ]
+   },
+   "motivo": "",
+   "enunciado": "theorem union_of_open_is_open {X : Type*} [TopologicalSpace X] {U V : Set X}\n    (hU : IsOpen U) (hV : IsOpen V) : IsOpen (U ∪ V) := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que todo espacio vectorial tiene una base",
+   "A": false,
+   "A_seg": 13.6,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 49,
+   "nodos": 3,
+   "segundos": 31.7,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "-- READING: Every vector space over a field has a basis (uses choice) | also: could restrict to finite-dimensional case\ntheorem exists_basis_of_vectorSpace {K V : Type*} [Field K] [AddCommGroup V] [Module K V] :\n    ∃ (ι : Type _) (b : Module.Basis ι K V), True := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+   "A": false,
+   "A_seg": 13.0,
+   "B": "no_elabora",
+   "cerradas": 0,
+   "raices": 0,
+   "lean": 1,
+   "nodos": 0,
+   "segundos": 12.9,
+   "caminos": {},
+   "motivo": "failed to synthesize instance of type class\n  Inv (Matrix n n R)\n\nHint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.",
+   "enunciado": "theorem similar_matrices_same_det\n    {n : Type*} [Fintype n] [DecidableEq n] {R : Type*} [CommRing R]\n    (A B P : Matrix n n R) (hP : IsUnit P.det)\n    (hsim : B = P⁻¹ * A * P) :\n    B.det = A.det := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que los polinomios irreducibles generan ideales maximales",
+   "A": false,
+   "A_seg": 11.6,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 16.9,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "open Polynomial in\ntheorem irreducible_polynomial_generates_maximal_ideal\n    {K : Type*} [Field K] (p : K[X]) (hp : Irreducible p) :\n    (Ideal.span {p}).IsMaximal := by\n  sorry\n"
+  },
+  {
+   "consulta": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+   "A": false,
+   "A_seg": 12.9,
+   "B": "agotado",
+   "cerradas": 0,
+   "raices": 1,
+   "lean": 17,
+   "nodos": 1,
+   "segundos": 16.9,
+   "caminos": {},
+   "motivo": "",
+   "enunciado": "import Mathlib.Algebra.Ring.Basic\nimport Mathlib.FieldTheory.Finite.Basic\n\ntheorem finite_domain_isField (R : Type*) [Ring R] [IsDomain R] [Finite R] :\n    IsField R := by\n  sorry\n"
+  }
+ ]
+}

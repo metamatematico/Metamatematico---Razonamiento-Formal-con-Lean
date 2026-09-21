@@ -94,7 +94,7 @@ class Respuesta:
     de la respuesta, no de buscar subcadenas en un mensaje de error — el mismo
     criterio que `LeanResult.error_kinds` documenta en `lean/client.py`.
     """
-    clase: str                       # cierra · progresa · error · vacia
+    clase: str                       # cierra · progresa · incompleta · error · vacia
     proof_state: Optional[int] = None
     objetivos: list = field(default_factory=list)
     mensajes: list = field(default_factory=list)
@@ -138,6 +138,28 @@ def _clasificar(d: dict) -> str:
     if any((m or {}).get("severity") == "error" for m in d.get("messages") or []):
         return "error"
     g = d.get("goals")
+    # «SIN OBJETIVOS» NO ES «DEMOSTRADO». `apply?` sin prueba admite el
+    # objetivo con `sorry` y devuelve `goals: []` igual que un cierre de
+    # verdad; lo único que los distingue es `proofStatus`:
+    #
+    #     omega, exact? que cierran   goals []   "Completed"
+    #     apply? que no encuentra     goals []   "Incomplete: contains sorry"
+    #
+    # Medido sobre `n * n ≠ 2` al empezar el paso 3. Sin esto el lazo por
+    # pasos construiría flechas hacia el objeto terminal que no existen: I2 las
+    # pararía al final, pero después de buscar sobre ellas.
+    #
+    # Y NO ES SÓLO `sorry`. En la primera corrida real del mediador, `linarith`
+    # sobre `2*a*b ≤ a^2+b^2` con `h : 0 ≤ (a-b)^2` en el contexto devolvió
+    # `goals: []` con
+    #
+    #     "Error: kernel type check failed: (kernel) declaration has metavariables"
+    #
+    # La sesión daba por cerrado algo que EL KERNEL RECHAZA: el caso de la
+    # issue 44 del REPL, visto aquí. Por eso la clase no es «admite» sino
+    # `incompleta`: cualquier `proofStatus` que no sea «Completed».
+    if g == [] and d.get("proofStatus") not in (None, "Completed"):
+        return "incompleta"
     if g == []:
         return "cierra"
     if g:
@@ -261,8 +283,14 @@ class SesionLean:
         if isinstance(d.get("message"), str):
             # el canal de primer nivel, para que `.error` lo enseñe
             mensajes.append({"severity": "error", "data": d["message"]})
+        clase = _clasificar(d)
+        if clase == "incompleta":
+            # el motivo —sorry, rechazo del kernel— tiene que llegar a la
+            # memoria del estado, que es lo que lee el siguiente paso
+            mensajes.append({"severity": "error",
+                             "data": "proofStatus: %s" % d.get("proofStatus")})
         return Respuesta(
-            clase=_clasificar(d), proof_state=d.get("proofState"),
+            clase=clase, proof_state=d.get("proofState"),
             objetivos=d.get("goals") or [], mensajes=mensajes,
             env=d.get("env"), sorries=d.get("sorries") or [],
             segundos=seg, crudo=d)

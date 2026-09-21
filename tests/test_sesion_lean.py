@@ -281,3 +281,35 @@ def test_contra_lean_de_verdad():
         r = s.comando("theorem trivialito : True := by trivial")
         assert r.clase != "error", r.error
     assert not s.viva
+
+
+class TestAdmitirNoEsCerrar:
+    """`goals: []` con `proofStatus` distinto de `Completed` no es un cierre.
+
+    Las tres respuestas, copiadas del REPL real sobre `n * n ≠ 2` y
+    `a + b = b + a` al empezar el paso 3.
+    """
+
+    def test_apply_que_admite_con_sorry(self):
+        d = {"proofStatus": "Incomplete: contains sorry", "proofState": 1, "goals": []}
+        assert _clasificar(d) == "incompleta"
+        assert not Respuesta("incompleta").ok
+
+    def test_un_cierre_de_verdad(self):
+        assert _clasificar({"proofStatus": "Completed", "proofState": 3,
+                            "goals": []}) == "cierra"
+
+    def test_sin_proofstatus_se_mantiene_lo_de_antes(self):
+        """Los comandos no traen `proofStatus`; no se les cambia nada."""
+        assert _clasificar({"goals": [], "proofState": 3}) == "cierra"
+
+
+def test_el_rechazo_del_kernel_no_es_cierre():
+    """`linarith` en la primera corrida real del mediador: `goals: []` y el
+    kernel rechazando la prueba. La sesión lo daba por cerrado."""
+    d = {"proofStatus": "Error: kernel type check failed: (kernel) declaration "
+                        "has metavariables '[anonymous]'", "proofState": 2, "goals": []}
+    assert _clasificar(d) == "incompleta"
+    s = _sesion_falsa([d])
+    r = s._pide({"tactic": "linarith", "proofState": 1}, 5)
+    assert r.clase == "incompleta" and "kernel" in r.error

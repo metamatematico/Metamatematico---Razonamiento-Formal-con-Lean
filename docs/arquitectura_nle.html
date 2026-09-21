@@ -258,7 +258,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1319 tests · 66 suites
+    1351 tests · 67 suites
   </p>
 </nav>
 
@@ -302,7 +302,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1319</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1351</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -2894,16 +2894,16 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       resolver.</figcaption>
     </figure>
 
-    <p>El catálogo tiene diecisiete capacidades. Ante una consulta matemática
+    <p>El catálogo tiene dieciocho capacidades. Ante una consulta matemática
     con Lean disponible corren siete; cinco están apagadas
-    porque no baten a su nulo; una bate al suyo y no está
-    cableada, porque por el camino real no paga; dos dependen de
-    la consulta, porque su guarda sólo aplica a algunas; y dos
-    no tienen medición contra un nulo —una de ellas, el emparejador semántico, nunca
+    porque no baten a su nulo; una bate al suyo y no está cableada,
+    porque por el camino real no paga; dos dependen de
+    la consulta, porque su guarda sólo aplica a algunas; y tres
+    no tienen medición contra un nulo —entre ellas el emparejador semántico, que nunca
     llegó a producción y se conserva a propósito: <strong>un candidato evaluado
-    y descartado es información</strong>, y borrarlo invita a reinventarlo—.
-    La última en entrar es <code>cascada_por_estado</code>, el paso 2 del lazo
-    (<a href="#lazo">§18</a>).</p>
+    y descartado es información</strong>, y borrarlo invita a reinventarlo—, y
+    <code>lazo_por_pasos</code>, el paso 3 del lazo (<a href="#lazo">§18</a>), cuya
+    puerta con modelo no se ha corrido.</p>
   </section>
 
   <section id="formal">
@@ -3345,7 +3345,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="tests">
     <div class="head"><span class="num">17</span><h2>Tests y <span class="g">guardianes</span></h2></div>
 
-    <p><strong>1 319 tests en 66 suites</strong>, verdes en los dos intérpretes
+    <p><strong>1 351 tests en 67 suites</strong>, verdes en los dos intérpretes
     con los que se trabaja. Los que más valen no comprueban que el código
     funcione: comprueban que el sistema <strong>no pueda volver a afirmar más de
     lo que sabe</strong>.</p>
@@ -3401,7 +3401,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
         <tbody>
           <tr><td class="mono">1</td><td><strong>la sesión</strong><span class="sub">nucleo/lean/sesion.py</span></td><td>acepta lo mismo que el fichero, y más rápido</td><td><span class="pill v">pasa · 20 de 20</span></td></tr>
           <tr><td class="mono">2</td><td><strong>la cascada por estado</strong><span class="sub">nucleo/lean/cascada_sesion.py</span></td><td>no pierde ningún cierre y cuesta menos</td><td><span class="pill v">pasa · encendida</span></td></tr>
-          <tr><td class="mono">3</td><td><strong>el mediador con el modelo</strong><span class="sub">nucleo/lazo/</span></td><td>verifica más que el lazo por intentos</td><td><span class="pill">pendiente</span></td></tr>
+          <tr><td class="mono">3</td><td><strong>el mediador con el modelo</strong><span class="sub">nucleo/lazo/</span></td><td>verifica más que el lazo por intentos</td><td><span class="pill l">construido · sin medir</span></td></tr>
           <tr><td class="mono">4</td><td><strong>la recuperación</strong><span class="sub">premisas y tácticas por estado</span></td><td>cada fuente bate a su nulo</td><td><span class="pill">pendiente</span></td></tr>
           <tr><td class="mono">5</td><td><strong>φ y la explicación por paso</strong></td><td>explica con exactitud</td><td><span class="pill">pendiente</span></td></tr>
         </tbody>
@@ -3489,6 +3489,55 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     elabora como <em>comando</em>, con su límite, igual que un fichero pero
     sin arrancar Lean. El modo táctica queda para el paso 3, que tendrá que
     resolver ese límite.</p>
+
+    <h3>Paso 3 · el mediador, construido y todavía sin su puerta</h3>
+
+    <p><code>nucleo/lazo/</code> hace la búsqueda de la propuesta: cada
+    <code>sorry</code> es una raíz, los proponentes sugieren tácticas —D0, la
+    cascada, una a una; D3, el modelo, con la retroalimentación del estado—,
+    la sesión evalúa cada una, y el fichero verifica la prueba ensamblada. Los
+    estados se identifican normalizados, cada uno guarda sus fallos para el
+    paso siguiente, y todo intento va a
+    <code>data/transiciones_vivas.jsonl</code>: las alternativas que la
+    categoría de estados construida desde LeanWorkbook no tenía.</p>
+
+    <p><strong>Su puerta gasta modelo y no se ha corrido</strong>, así que el
+    decisor lo tiene apagado. Lo que sí está medido, gratis, es un suelo: las
+    dos ramas sobre las mismas 20 formalizaciones grabadas, A el camino
+    servido de hoy sobre el código que escribió el modelo, B el lazo
+    <em>sin modelo</em> —sólo D0— sobre su enunciado.</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th></th><th class="mono">verifica</th></tr></thead>
+        <tbody>
+          <tr><td>A · lo servido, sobre el código del modelo</td><td class="mono">9 de 20</td></tr>
+          <tr><td>B · el lazo sin modelo, sobre el enunciado</td><td class="mono">6 de 20</td></tr>
+          <tr><td>las dos · sólo A · sólo B</td><td class="mono">5 · 4 · 1</td></tr>
+          <tr><td><strong>A o B</strong>: el lazo como segunda etapa</td><td class="mono"><strong>10 de 20</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>El caso que sólo el lazo cierra es «todo subgrupo de un grupo cíclico
+    es cíclico»: el modelo escribió la prueba con un lema que <strong>no
+    existe</strong>, y el lazo la cerró con <code>exact?</code>, que busca por
+    el tipo sobre toda la biblioteca. Es la frontera de <a href="#arquitectura">§5</a>
+    en un solo caso. Con 20 consultas no significa nada estadísticamente, y
+    A no incluye las rondas de reparación, que gastan modelo.</p>
+
+    <div class="nota a">
+      <b>El modo táctica acepta lo que el kernel rechaza</b>
+      <p>La puerta del paso 1 midió la sesión en modo comando. El mediador
+      trabaja en modo táctica, y ahí apareció el caso que justifica que el
+      veredicto lo dé el fichero: <code>linarith</code> dejó el objetivo sin
+      metas y el REPL informó <code>kernel type check failed</code>. Una
+      lectura de «sin objetivos» como «demostrado» habría construido una
+      flecha falsa. Ahora un cierre exige <code>proofStatus</code>
+      <em>Completed</em>, y lo demás —<code>apply?</code> admitiendo con
+      <code>sorry</code>, el kernel rechazando— es un fallo que va a la
+      memoria del estado.</p>
+    </div>
 
     <h3>Lo que construirlo destapó del sistema de antes</h3>
 

@@ -451,6 +451,34 @@ CAPACIDADES: list[Capacidad] = [
             contra="la cascada en fichero, un compilado por sorry"),
     ),
     Capacidad(
+        nombre="lazo_por_pasos",
+        que_hace="cuando el camino servido no verifica, busca la prueba paso a"
+                 " paso sobre la categoría de estados: D0 y el modelo proponen,"
+                 " la sesión de Lean evalúa cada táctica, y el fichero da el"
+                 " veredicto de la prueba ensamblada",
+        coste=LLAMADA,
+        donde="nucleo/lazo/mediador.py::Mediador",
+        # SIN EVIDENCIA TODAVÍA, y se dice. La evidencia será la puerta del
+        # paso 3 con modelo (`scripts/lazo_por_pasos.py --con-api`), que
+        # escribirá `lazo_por_pasos.con_api.json` con las ramas A (lo servido)
+        # y B (el lazo); entonces se pone aquí `Evidencia(fichero=…,
+        # ruta_real=("B",), ruta_nulo=("A",))`. Apuntar ya a un fichero que no
+        # existe es una ruta rota, y `test_ninguna_ruta_de_evidencia_esta_rota`
+        # lo impide con razón.
+        #
+        # El suelo sin API (`lazo_por_pasos.sin_api.json`) NO sirve de
+        # evidencia: mide la búsqueda SIN modelo contra el código que el
+        # modelo ya había escrito, que es otra pregunta.
+        evidencia=None,
+        sin_evidencia_porque=(
+            "la puerta con modelo del paso 3 no se ha corrido todavía; el suelo"
+            " sin API mide otra cosa"),
+        fuera_del_camino=(
+            "construido y probado contra Lean (paso 3), pero la puerta con modelo"
+            " no se ha corrido: un lazo que gasta llamadas no entra en el camino"
+            " servido por estar construido"),
+    ),
+    Capacidad(
         nombre="modelo_de_orden_de_cascada",
         que_hace="ordena las tácticas con el modelo entrenado sobre 9 488"
                  " pares state_before->tactic de LeanWorkbook",

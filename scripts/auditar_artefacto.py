@@ -190,6 +190,14 @@ _NUM = {1: "una", 2: "dos", 3: "tres", 4: "cuatro", 5: "cinco", 6: "seis",
         13: "trece", 14: "catorce", 15: "quince", 16: "dieciséis",
         17: "diecisiete", 18: "dieciocho", 19: "diecinueve", 20: "veinte"}
 _d = _dec(_Ctx(consulta="x", es_matematica=True))
+_s3 = J("lazo_por_pasos.sin_api.json")
+if _s3:
+    PARES += [
+        ("paso 3: A", ("%d de %d" % (_s3["A"], _s3["n"]),)),
+        ("paso 3: B", ("%d de %d" % (_s3["B"], _s3["n"]),)),
+        ("paso 3: A o B", ("%d de %d" % (_s3["ambas"] + _s3["solo_A"] + _s3["solo_B"], _s3["n"]),)),
+        ("paso 3: reparto", ("%d · %d · %d" % (_s3["ambas"], _s3["solo_A"], _s3["solo_B"]),)),
+    ]
 PARES += [
     ("catalogo: total", ("El catálogo tiene %s capacidades" % _NUM.get(len(_CAPS), len(_CAPS)),)),
     ("catalogo: corren", ("con Lean disponible corren %s" % _NUM.get(len(_d.activas), len(_d.activas)),)),
