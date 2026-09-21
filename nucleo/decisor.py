@@ -511,6 +511,47 @@ CAPACIDADES: list[Capacidad] = [
             " del lazo tampoco paga: 40 contra 41"),
     ),
     Capacidad(
+        nombre="premisas_densas_en_el_lazo",
+        que_hace="el encoder de premisas de Mathlib (D1 denso) como fuente del"
+                 " lazo: las premisas más cercanas al objetivo, hechas `exact`,"
+                 " `apply`, `rw` y `simp [..]`",
+        coste=LOCAL,
+        donde="nucleo/lazo/densa.py::D1Denso",
+        # `scripts/fuentes_del_lazo.py --con-densa`, los mismos 60 estados: D0
+        # 40, D0+D1d 39 (+1 −2), D0+D1v 48, D0+D1v+D1d 46 (+0 −2 frente a los
+        # vecinos). Ningún camino verificado usa una táctica suya; su «+1» se
+        # cerró con `exact?`, de D0, en un caso en que el brazo D0 se colgó. Lo
+        # que hace es comerse el presupuesto de Lean con sus plantillas.
+        evidencia=Evidencia(
+            fichero="fuentes_del_lazo.densa.json",
+            metrica="estados raíz verificados por el lazo",
+            ruta_real=("D0+D1v+D1d",), ruta_nulo=("D0+D1v",),
+            contra="el lazo con la cascada y los vecinos"),
+        fuera_del_camino=(
+            "vive dentro del lazo, que no está en el camino servido; y dentro"
+            " del lazo resta: 46 contra 48 de los vecinos solos"),
+    ),
+    Capacidad(
+        nombre="etiquetado_phi",
+        que_hace="φ: etiqueta cada estado de un camino del lazo con los"
+                 " conceptos del grafo cuyas constantes usa, para explicar al"
+                 " alumno qué cambió en cada paso",
+        coste=LOCAL,
+        donde="nucleo/lazo/phi.py",
+        # EXPLICA, NO BUSCA (§9): se evalúa por exactitud, y la exactitud NO
+        # está medida. Lo que sí está medido (`scripts/phi_de_estados.py`):
+        # leer constantes cubre 168 de 168 estados frente a 21 del texto, pero
+        # es hueco —145 de 150 de LeanWorkbook se etiquetaban sólo con el tipo
+        # de número—; sin los tipos portadores, 5 contra 5. La muestra para
+        # revisar a mano está en `data/phi_muestra_para_revisar.json`.
+        evidencia=None,
+        sin_evidencia_porque=(
+            "su exactitud la tiene que revisar alguien leyendo; la cobertura"
+            " automática no dice si una etiqueta es pertinente"),
+        fuera_del_camino=(
+            "explica los caminos del lazo, que no está en el camino servido"),
+    ),
+    Capacidad(
         nombre="lazo_por_pasos",
         que_hace="cuando el camino servido no verifica, busca la prueba paso a"
                  " paso sobre la categoría de estados: D0 y el modelo proponen,"

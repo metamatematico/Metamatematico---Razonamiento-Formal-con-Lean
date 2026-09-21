@@ -25,9 +25,22 @@ LeanWorkbook los escribió (`import Mathlib`), y por eso el veredicto lo da un
 fichero con ESA cabecera y no `check_code`, cuyo normalizador la cambiaría por
 la estrecha y rechazaría enunciados que sí elaboran.
 
+D1 DENSO (paso 5, `--con-densa`)
+--------------------------------
+Los mismos estados, el mismo presupuesto, y la misma regla, con estos brazos:
+
+    D0 · D0 + D1v · D0 + D1d · D0 + D1v + D1d
+
+D1d es el encoder de premisas (`nucleo/lazo/densa.py`). Entra si D0 + D1d
+verifica más que D0, y SE QUEDA JUNTO A D1v sólo si D0 + D1v + D1d verifica más
+que D0 + D1v: si lo que añade ya lo traían los vecinos, no añade. Va a
+`data/fuentes_del_lazo.densa.json`, para no tocar la evidencia del paso 4. El
+encoder se entrenó con Mathlib, y los casos son de LeanWorkbook: no hay fuga.
+
 No gasta API.
 
     python -m scripts.fuentes_del_lazo --n 60
+    python -m scripts.fuentes_del_lazo --n 60 --con-densa
 """
 from __future__ import annotations
 
@@ -84,7 +97,9 @@ class ClienteFichero:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=60)
+    ap.add_argument("--con-densa", action="store_true")
     args = ap.parse_args()
+    salida = SALIDA.replace(".json", ".densa.json") if args.con_densa else SALIDA
 
     from sklearn.model_selection import train_test_split
     from nucleo.lean import nombres
@@ -129,6 +144,18 @@ def main():
         "D0+D2": lambda: [D0Cascada(casc), D2Busqueda()],
         "D0+D1v+D2": lambda: [D0Cascada(casc), D1Vecinos(indice), D2Busqueda()],
     }
+    if args.con_densa:
+        from nucleo.lazo.densa import D1Denso, IndiceDenso
+        densa = IndiceDenso()
+        if not densa.disponible():
+            print("D1 denso no está: falta el modelo o `premisas.jsonl` "
+                  "(scripts/bajar_encoders.py y scripts/alinear_premisas.py)")
+            return 1
+        configs = {
+            "D0": configs["D0"], "D0+D1v": configs["D0+D1v"],
+            "D0+D1d": lambda: [D0Cascada(casc), D1Denso(densa)],
+            "D0+D1v+D1d": lambda: [D0Cascada(casc), D1Vecinos(indice), D1Denso(densa)],
+        }
     p = Presupuesto(lean=30, llamadas=0, segundos=90, nodos=30, profundidad=4,
                     tope_tactica=15)
     bucle = asyncio.new_event_loop()
@@ -146,7 +173,7 @@ def main():
                                    "seg": round(r.segundos, 1), "caminos": r.caminos}
                 linea.append("%-10s" % ("SI" if r.veredicto == "verificado" else "·"))
             print("  %-26s %s" % (f["id"][:26], "  ".join(linea)))
-            json.dump({"parcial": True, "res": res}, io.open(SALIDA, "w", encoding="utf-8"),
+            json.dump({"parcial": True, "res": res}, io.open(salida, "w", encoding="utf-8"),
                       ensure_ascii=False, indent=1)
     finally:
         if viva["s"] is not None:
@@ -164,11 +191,16 @@ def main():
                       "lean_medio": round(sum(x["lean"] for x in res[c].values()) / max(1, len(res[c])), 1)}
         print("  %-10s %3d   +%d −%d frente a D0   p %.4f   %.1f llamadas por caso"
               % (c, len(ok[c]), b, d, resumen[c]["p"], resumen[c]["lean_medio"]))
-    json.dump({"n": len(casos), "presupuesto": p.__dict__, "resumen": resumen,
-               "D0": len(base), "D0+D1v": len(ok["D0+D1v"]), "D0+D2": len(ok["D0+D2"]),
-               "D0+D1v+D2": len(ok["D0+D1v+D2"]), "res": res},
-              io.open(SALIDA, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print("\n-> %s" % SALIDA)
+    fuera = {"n": len(casos), "presupuesto": p.__dict__, "resumen": resumen, "res": res}
+    fuera.update({c: len(ok[c]) for c in configs})
+    if args.con_densa:
+        # la segunda mitad de la regla: ¿añade D1d a lo que ya traen los vecinos?
+        v, vd = ok["D0+D1v"], ok["D0+D1v+D1d"]
+        b, d = len(vd - v), len(v - vd)
+        fuera["densa_sobre_vecinos"] = {"gana": b, "pierde": d, "p": round(mcnemar(b, d), 4)}
+        print("\n  D0+D1v+D1d frente a D0+D1v: +%d −%d   p %.4f" % (b, d, mcnemar(b, d)))
+    json.dump(fuera, io.open(salida, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("\n-> %s" % salida)
     return 0
 
 

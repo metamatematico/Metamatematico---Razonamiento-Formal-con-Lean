@@ -258,7 +258,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1357 tests · 67 suites
+    1373 tests · 68 suites
   </p>
 </nav>
 
@@ -302,7 +302,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1357</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1373</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -2894,11 +2894,11 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       resolver.</figcaption>
     </figure>
 
-    <p>El catálogo tiene veintiuna capacidades. Ante una consulta matemática
-    con Lean disponible corren siete; siete están apagadas
+    <p>El catálogo tiene veintitrés capacidades. Ante una consulta matemática
+    con Lean disponible corren siete; ocho están apagadas
     porque no baten a su nulo; dos baten al suyo y no están cableadas,
     y el decisor dice por qué en cada caso; dos dependen de
-    la consulta, porque su guarda sólo aplica a algunas; y tres
+    la consulta, porque su guarda sólo aplica a algunas; y cuatro
     no tienen medición contra un nulo —entre ellas el emparejador semántico, que nunca
     llegó a producción y se conserva a propósito: <strong>un candidato evaluado
     y descartado es información</strong>, y borrarlo invita a reinventarlo—, y
@@ -3345,7 +3345,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="tests">
     <div class="head"><span class="num">17</span><h2>Tests y <span class="g">guardianes</span></h2></div>
 
-    <p><strong>1 357 tests en 67 suites</strong>, verdes en los dos intérpretes
+    <p><strong>1 373 tests en 68 suites</strong>, verdes en los dos intérpretes
     con los que se trabaja. Los que más valen no comprueban que el código
     funcione: comprueban que el sistema <strong>no pueda volver a afirmar más de
     lo que sabe</strong>.</p>
@@ -3402,8 +3402,8 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
           <tr><td class="mono">1</td><td><strong>la sesión</strong><span class="sub">nucleo/lean/sesion.py</span></td><td>acepta lo mismo que el fichero, y más rápido</td><td><span class="pill v">pasa · 20 de 20</span></td></tr>
           <tr><td class="mono">2</td><td><strong>la cascada por estado</strong><span class="sub">nucleo/lean/cascada_sesion.py</span></td><td>no pierde ningún cierre y cuesta menos</td><td><span class="pill v">pasa · encendida</span></td></tr>
           <tr><td class="mono">3</td><td><strong>el mediador con el modelo</strong><span class="sub">nucleo/lazo/</span></td><td>verifica más que el lazo por intentos</td><td><span class="pill l">construido · sin medir</span></td></tr>
-          <tr><td class="mono">4</td><td><strong>la recuperación</strong><span class="sub">premisas y tácticas por estado</span></td><td>cada fuente bate a su nulo</td><td><span class="pill l">vecinos sí · D2 no · denso pendiente</span></td></tr>
-          <tr><td class="mono">5</td><td><strong>φ y la explicación por paso</strong></td><td>explica con exactitud</td><td><span class="pill">pendiente</span></td></tr>
+          <tr><td class="mono">4</td><td><strong>la recuperación</strong><span class="sub">premisas y tácticas por estado</span></td><td>cada fuente bate a su nulo</td><td><span class="pill l">vecinos sí · D2 no · denso no</span></td></tr>
+          <tr><td class="mono">5</td><td><strong>φ y la explicación por paso</strong><span class="sub">nucleo/lazo/phi.py</span></td><td>explica con exactitud</td><td><span class="pill l">construido · exactitud sin revisar</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -3588,15 +3588,101 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     ninguna llega al alumno todavía: viven dentro del lazo, que sigue sin su
     puerta con modelo.</p>
 
+    <p>La tercera fuente es el <strong>índice denso</strong>: un codificador
+    entrenado para Lean —<code>premise-selection</code>, Zhu et al., ICLR
+    2026— que acerca el estado impreso a las premisas de Mathlib que su
+    prueba usó. Las 382&nbsp;212 premisas vienen ya codificadas; cada una se
+    prueba como <code>exact</code>, <code>apply</code> y <code>rw</code>, y
+    todas juntas en <code>simp&nbsp;[…]</code>. Mismo banco, mismos 60 estados,
+    y la regla escrita antes: entra si bate a D0, y se queda junto a los
+    vecinos sólo si les añade algo.</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>el lazo con</th><th class="mono">verifica</th><th class="mono">frente a</th><th class="mono">p</th><th class="mono">llamadas a Lean</th></tr></thead>
+        <tbody>
+          <tr><td>D0 · la cascada</td><td class="mono">40</td><td class="mono">—</td><td class="mono">—</td><td class="mono">14,4</td></tr>
+          <tr><td>D0 + vecinos</td><td class="mono">48</td><td class="mono">+8 −0 · D0</td><td class="mono">0,008</td><td class="mono">13,0</td></tr>
+          <tr><td>D0 + denso</td><td class="mono">39</td><td class="mono">+1 −2 · D0</td><td class="mono">1,000</td><td class="mono">15,4</td></tr>
+          <tr><td>D0 + vecinos + denso</td><td class="mono">46</td><td class="mono">+0 −2 · vecinos</td><td class="mono">0,500</td><td class="mono">13,5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>El denso no entra.</strong> En ninguno de los caminos
+    verificados aparece una táctica suya; su único «rescate» lo cerró
+    <code>exact?</code>, que es de D0, en un caso en que el brazo D0 se había
+    colgado en una sola llamada. Lo que sí hace es gastar: trece plantillas
+    por estado que Lean rechaza y que agotan el presupuesto antes de que
+    lleguen las que cierran. La corrida repite a los vecinos —48 otra vez—; D0
+    dio 40 donde el paso 4 dio 41, y ésa es la escala del ruido de un
+    presupuesto en segundos.</p>
+
+    <div class="nota a">
+      <b>El modelo correcto no era el que enlaza el artículo</b>
+      <p>Los embeddings precalculados son una matriz sin nombres; el nombre
+      de la fila <em>i</em> sale de reconstruir el corpus en el mismo orden.
+      Antes de medir se comprobó (<code>scripts/alinear_premisas.py</code>)
+      re-codificando premisas al azar. Con el modelo de
+      <code>hanwenzhu/</code>, el que llega a Lean v4.20, cada premisa se
+      parecía a su propia fila casi lo mismo que a la vecina: coseno 0,33
+      frente a 0,26. Los embeddings los hizo <code>l3lab/</code>, rama v4.29.0,
+      y con él dan 1,0000. Además, el lector del corpus, escrito en Linux,
+      descartaba en silencio en Windows todo fichero con un <code>α</code>.
+      Ninguna de las dos cosas daba un error: habría dado premisas
+      equivocadas con toda la seguridad del mundo.</p>
+    </div>
+
+    <p>El sesgo de los vecinos queda dicho: LeanWorkbook es matemática de
+    competición, y fuera de desigualdades y álgebra elemental propondrán
+    tácticas que Lean rechazará en centésimas. Los dos codificadores de
+    7&nbsp;000 millones de parámetros de la propuesta —LeanSearch-PS y Lean
+    Finder— están descargados, pero con 4,3&nbsp;GB de GPU no codifican
+    Mathlib a una velocidad útil: no están medidos.</p>
+
+    <h3>Paso 5 · φ, de qué conceptos habla un estado</h3>
+
+    <p>φ lleva cada estado de prueba a los conceptos del grafo cuyos nombres
+    verificados de Mathlib aparecen en él, por coincidencia exacta —la regla
+    que hizo fiable a L4—. No es un funtor y no se usa para buscar: sirve para
+    que la explicación diga «este paso pasó de hablar de subgrupos a hablar
+    de órdenes». La propuesta predecía que leerlo del texto impreso pierde
+    casi todo, porque Lean escribe <code>ℝ</code> y <code>∑</code> y no
+    <code>Real</code> ni <code>Finset.sum</code>; la otra lectura pide a Lean
+    las constantes que el estado usa, con una táctica propia. Sobre 168
+    estados raíz —las consultas de la campaña y LeanWorkbook—:</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>estados con al menos un concepto</th><th class="mono">de 168</th></tr></thead>
+        <tbody>
+          <tr><td>leyendo el texto impreso</td><td class="mono">21</td></tr>
+          <tr><td>leyendo las constantes</td><td class="mono">168</td></tr>
+          <tr><td><strong>las constantes, sin los tipos de número</strong></td><td class="mono"><strong>21</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>La cobertura de las constantes es <strong>hueca</strong>. 145 de los
+    150 estados de LeanWorkbook sólo recibían la etiqueta del tipo donde viven
+    los números —<code>ℝ</code> daba «análisis real», <code>ℕ</code> «teoría
+    elemental de números»—, y una etiqueta que sale en todo no explica nada.
+    Quitados los tipos portadores, las dos lecturas empatan: 21 contra 21.
+    La predicción de la propuesta no se confirma: quitada la notación, lo que
+    queda apunta a otro límite —que el grafo nombre las constantes que estos
+    estados usan—, y eso no está medido.</p>
+
     <div class="nota n">
-      <b>Lo que falta del paso 4, y por qué</b>
-      <p>El <strong>índice denso</strong> —los enunciados de Mathlib
-      codificados con un modelo hecho para Lean— no se ha medido: en esta
-      máquina sólo hay un codificador general de paráfrasis, el mismo que dio
-      0,37&nbsp;% de cobertura, y los candidatos de la propuesta hay que
-      descargarlos. El sesgo de los vecinos también queda dicho: LeanWorkbook
-      es matemática de competición, y fuera de desigualdades y álgebra
-      elemental propondrán tácticas que Lean rechazará en centésimas.</p>
+      <b>La exactitud no la decide un guion</b>
+      <p>Que «análisis real» sea una buena etiqueta para
+      2ab&nbsp;≤&nbsp;a²&nbsp;+&nbsp;b² lo decide alguien leyendo. La muestra
+      está en <code>data/phi_muestra_para_revisar.json</code>: 38 estados con
+      sus etiquetas y <code>pertinente: null</code> en cada uno. Hasta que se
+      revise, el decisor tiene φ sin evidencia. La explicación por paso
+      (<code>phi.explicar</code>) está escrita y probada, y los teoremas que el
+      lazo verifica ya se anotan para que L4 los sume a los de Mathlib; ni lo
+      uno ni lo otro llega al alumno mientras el lazo no tenga su puerta con
+      modelo.</p>
     </div>
 
     <h3>Lo que construirlo destapó del sistema de antes</h3>

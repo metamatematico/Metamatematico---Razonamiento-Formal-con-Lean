@@ -19,6 +19,11 @@ from nucleo.lean.sesion import Respuesta
 
 
 # ── filtros ──────────────────────────────────────────────────────────────
+
+def _transiciones(reg):
+    """Las filas que son transiciones; el teorema verificado es otra cosa."""
+    return [f for f in reg.filas if "clase" in f]
+
 class TestFiltros:
 
     @pytest.mark.parametrize("c", ["sorry", "exact sorry", "admit", "apply?",
@@ -158,19 +163,19 @@ class TestMediador:
     def test_volver_al_mismo_estado_no_avanza(self):
         s = _Sesion([("⊢ P", 2, 2)], {("⊢ P", "skip"): ("progresa", ["⊢ P"])})
         r, reg, _ = _corre(s, {"⊢ P": ["skip"]})
-        assert [f["clase"] for f in reg.filas] == ["no_avanza"] and r.nodos == 1
+        assert [f["clase"] for f in _transiciones(reg)] == ["no_avanza"] and r.nodos == 1
 
     def test_dos_caminos_al_mismo_estado_confluyen(self):
         s = _Sesion([("⊢ P", 2, 2)], {("⊢ P", "a"): ("progresa", ["⊢ Q"]),
                                        ("⊢ P", "b"): ("progresa", ["⊢ Q"])})
         r, reg, _ = _corre(s, {"⊢ P": ["a", "b"]})
-        assert [f["clase"] for f in reg.filas] == ["progresa", "confluye"]
+        assert [f["clase"] for f in _transiciones(reg)] == ["progresa", "confluye"]
         assert r.confluencias == 1 and r.nodos == 2
 
     def test_los_atajos_se_filtran_sin_gastar_lean(self):
         s = _Sesion([("⊢ P", 2, 2)], {})
         r, reg, _ = _corre(s, {"⊢ P": ["sorry", "apply?"]})
-        assert all(f["clase"] == "filtro:atajo" for f in reg.filas)
+        assert all(f["clase"] == "filtro:atajo" for f in _transiciones(reg))
         assert r.llamadas_lean == 1          # sólo plantar el teorema
 
     def test_el_presupuesto_de_lean_se_respeta(self):
@@ -184,8 +189,17 @@ class TestMediador:
         s = _Sesion([("⊢ P", 2, 2)], {("⊢ P", "lenta"): ("error", "TIMEOUT tras 20 s"),
                                        ("⊢ P", "rapida"): ("cierra",)})
         r, reg, _ = _corre(s, {"⊢ P": ["lenta", "rapida"]})
-        assert [f["clase"] for f in reg.filas] == ["cara", "cierra"]
+        assert [f["clase"] for f in _transiciones(reg)] == ["cara", "cierra"]
         assert r.veredicto == "verificado"
+
+    def test_un_teorema_verificado_se_anota_para_l4(self):
+        """La fila que lee `l4_coocurrencia_verificada.py --con-lazo`."""
+        s = _Sesion([("⊢ P", 2, 2)], {("⊢ P", "b"): ("cierra",)})
+        r, reg, _ = _corre(s, {"⊢ P": ["b"]})
+        assert r.veredicto == "verificado"
+        ts = [f for f in reg.filas if f.get("tipo") == "teorema_verificado"]
+        assert len(ts) == 1 and ts[0]["enunciado"] and ts[0]["caminos"] == {"0": ["b"]}
+        assert "clase" not in ts[0]
 
     def test_una_raiz_resuelta_no_se_sigue_buscando(self):
         s = _Sesion([("⊢ P", 2, 2)], {("⊢ P", "a"): ("progresa", ["⊢ Q"]),
@@ -193,7 +207,7 @@ class TestMediador:
                                        ("⊢ Q", "c"): ("cierra",)})
         r, reg, _ = _corre(s, {"⊢ P": ["a", "b"], "⊢ Q": ["c"]})
         assert r.caminos == {0: ["b"]}
-        assert "c" not in [f["tactica"] for f in reg.filas]
+        assert "c" not in [f["tactica"] for f in _transiciones(reg)]
 
     def test_si_no_elabora_no_se_busca(self):
         class _Rota(_Sesion):
@@ -218,3 +232,11 @@ def test_un_estado_de_otra_raiz_no_confluye():
                  ("⊢ Q", "c"): ("cierra",)})
     r, _, _ = _corre(s, {"⊢ P": ["a"], "⊢ R": ["a"], "⊢ Q": ["c"]})
     assert r.cerradas == 2 and r.caminos == {0: ["a", "c"], 1: ["a", "c"]}
+
+
+def test_el_resultado_trae_los_estados_del_camino():
+    """Lo que φ necesita para explicar cada paso: los estados en orden."""
+    s = _Sesion([("⊢ P", 2, 2)], {("⊢ P", "intro h"): ("progresa", ["h : A\n⊢ Q"]),
+                                   ("h : A\n⊢ Q", "exact h"): ("cierra",)})
+    r, _, _ = _corre(s, {"⊢ P": ["intro h"], "⊢ Q": ["exact h"]})
+    assert r.estados == {0: [["⊢ P"], ["h : A\n⊢ Q"]]}

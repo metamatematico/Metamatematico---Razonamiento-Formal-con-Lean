@@ -1,0 +1,512 @@
+[
+ {
+  "fuente": "es",
+  "clave": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+  "estado": "G : Type u_1\ninst✝ : Group G\nhG : IsCyclic G\nH : Subgroup G\n⊢ IsCyclic ↥H",
+  "etiquetas": [
+   "group-theory",
+   "subgroups-cosets"
+  ],
+  "sin_portadores": [
+   "group-theory",
+   "subgroups-cosets"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que un grupo de orden primo es cíclico",
+  "estado": "G : Type u_1\ninst✝¹ : Group G\ninst✝ : Fintype G\nhp : Nat.Prime (Fintype.card G)\n⊢ IsCyclic G",
+  "etiquetas": [
+   "elementary-number-theory",
+   "finite-fields",
+   "group-theory"
+  ],
+  "sin_portadores": [
+   "elementary-number-theory",
+   "finite-fields",
+   "group-theory"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que la intersección de subgrupos es un subgrupo",
+  "estado": "G : Type u_1\ninst✝ : Group G\nH K : Subgroup G\n⊢ ∃ L, ↑L = ↑H ∩ ↑K",
+  "etiquetas": [
+   "group-theory",
+   "subgroups-cosets"
+  ],
+  "sin_portadores": [
+   "group-theory",
+   "subgroups-cosets"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que el orden de un elemento divide al orden del grupo",
+  "estado": "G : Type\ninst✝¹ : Group G\ninst✝ : Fintype G\ng : G\n⊢ orderOf g ∣ Fintype.card G",
+  "etiquetas": [
+   "elementary-number-theory",
+   "finite-fields",
+   "group-theory"
+  ],
+  "sin_portadores": [
+   "finite-fields",
+   "group-theory"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que la raíz de 2 es irracional",
+  "estado": "⊢ Irrational √2",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [
+   "real-analysis"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que los números racionales son numerables",
+  "estado": "⊢ Countable ℚ",
+  "etiquetas": [
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que el conjunto de partes de N no es numerable",
+  "estado": "⊢ ¬Set.univ.Countable",
+  "etiquetas": [
+   "elementary-number-theory"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que toda sucesión de Cauchy en R converge",
+  "estado": "u : ℕ → ℝ\nh : CauchySeq u\n⊢ ∃ L, Filter.Tendsto u Filter.atTop (nhds L)",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis",
+   "sequences-series"
+  ],
+  "sin_portadores": [
+   "sequences-series"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que la serie armónica diverge",
+  "estado": "⊢ ¬∃ L, Filter.Tendsto (fun n => ∑ i ∈ Finset.range n, 1 / (↑i + 1)) Filter.atTop (nhds L)",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis",
+   "sequences-series"
+  ],
+  "sin_portadores": [
+   "sequences-series"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que la derivada de una constante es cero",
+  "estado": "c x : ℝ\n⊢ deriv (fun x => c) x = 0",
+  "etiquetas": [
+   "differentiation",
+   "real-analysis"
+  ],
+  "sin_portadores": [
+   "differentiation"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que toda función derivable es continua",
+  "estado": "f : ℝ → ℝ\nhf : Differentiable ℝ f\n⊢ Continuous f",
+  "etiquetas": [
+   "point-set-topology",
+   "real-analysis"
+  ],
+  "sin_portadores": [
+   "point-set-topology"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que toda función continua en un compacto alcanza su máximo",
+  "estado": "X : Type u_1\ninst✝ : TopologicalSpace X\ns : Set X\nhs : IsCompact s\nhne : s.Nonempty\nf : X → ℝ\nhf : ContinuousOn f s\n⊢ ∃ x ∈ s, ∀ y ∈ s, f y ≤ f x",
+  "etiquetas": [
+   "compactness",
+   "point-set-topology",
+   "real-analysis"
+  ],
+  "sin_portadores": [
+   "compactness",
+   "point-set-topology"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que un espacio métrico compacto es completo",
+  "estado": "X : Type u_1\ninst✝¹ : MetricSpace X\ninst✝ : CompactSpace X\n⊢ CompleteSpace X",
+  "etiquetas": [
+   "banach-spaces",
+   "compactness",
+   "hilbert-spaces",
+   "metric-spaces"
+  ],
+  "sin_portadores": [
+   "banach-spaces",
+   "compactness",
+   "hilbert-spaces",
+   "metric-spaces"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que la unión de dos conjuntos abierto es abierto",
+  "estado": "X : Type u_1\ninst✝ : TopologicalSpace X\nU V : Set X\nhU : IsOpen U\nhV : IsOpen V\n⊢ IsOpen (U ∪ V)",
+  "etiquetas": [
+   "point-set-topology"
+  ],
+  "sin_portadores": [
+   "point-set-topology"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que todo espacio vectorial tiene una base",
+  "estado": "K : Type u_1\nV : Type u_2\ninst✝² : Field K\ninst✝¹ : AddCommGroup V\ninst✝ : Module K V\n⊢ ∃ ι b, True",
+  "etiquetas": [
+   "abelian-groups",
+   "bases-and-dimension",
+   "field-theory",
+   "finite-fields",
+   "linear-algebra"
+  ],
+  "sin_portadores": [
+   "abelian-groups",
+   "bases-and-dimension",
+   "field-theory",
+   "finite-fields",
+   "linear-algebra"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que dos matrices semejantes tienen el mismo determinante",
+  "estado": "n : Type u_1\ninst✝² : Fintype n\ninst✝¹ : DecidableEq n\nR : Type u_2\ninst✝ : CommRing R\nA B P : Matrix n n R\nhP : IsUnit P.det\nhsim : B = P⁻¹ * A * P\n⊢ B.det = A.det",
+  "etiquetas": [
+   "commutative-algebra",
+   "finite-fields",
+   "linear-algebra"
+  ],
+  "sin_portadores": [
+   "commutative-algebra",
+   "finite-fields",
+   "linear-algebra"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que los polinomios irreducibles generan ideales maximales",
+  "estado": "K : Type u_1\ninst✝ : Field K\np : Polynomial K\nhp : Irreducible p\n⊢ (Ideal.span {p}).IsMaximal",
+  "etiquetas": [
+   "commutative-algebra",
+   "field-theory",
+   "finite-fields",
+   "polynomial-rings"
+  ],
+  "sin_portadores": [
+   "commutative-algebra",
+   "field-theory",
+   "finite-fields",
+   "polynomial-rings"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "es",
+  "clave": "Demuestra que todo anillo finito sin divisores de cero es un cuerpo",
+  "estado": "R : Type u_1\ninst✝² : Ring R\ninst✝¹ : IsDomain R\ninst✝ : Finite R\n⊢ IsField R",
+  "etiquetas": [
+   "ring-theory"
+  ],
+  "sin_portadores": [
+   "ring-theory"
+  ],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_67755",
+  "estado": "f : ℝ → ℝ\nhf : f = fun x => x ^ 2 - 14 / 15 * x - 4 / 5\n⊢ f = fun x => x ^ 2 - 14 / 15 * x - 4 / 5",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_53488",
+  "estado": "⊢ 2 ^ 6 ≡ 1 [ZMOD 7] ∧ 4 ^ 3 ≡ 1 [ZMOD 9] ∧ 6 ^ 10 ≡ 1 [ZMOD 11] ∧ 8 ^ 12 ≡ 1 [ZMOD 13]",
+  "etiquetas": [
+   "elementary-number-theory"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_34705",
+  "estado": "x : ℝ\n⊢ x ^ 4 + x ^ 3 - x + 1 > 0",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_18386",
+  "estado": "a b : ℝ\nf : ℝ → ℝ\nhf : f = fun x => if x % 2 = 0 then b else a\n⊢ ∃ a b, f = fun x => if x % 2 = 0 then b else a",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_26687",
+  "estado": "a b n : ℤ\nhn : n ≠ 0\n⊢ a % n = b % n ↔ n ∣ a - b",
+  "etiquetas": [
+   "elementary-number-theory"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_18321",
+  "estado": "x y : ℝ\nh : x + y ≥ 0\n⊢ x ^ 5 + y ^ 5 ≥ x * y * (x ^ 3 + y ^ 3)",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_16750",
+  "estado": "a b : ℝ\n⊢ exp (a + b) = exp a * exp b",
+  "etiquetas": [
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_48302",
+  "estado": "a b c : ℝ\nha : 0 ≤ a\nhb : 0 ≤ b\nhc : 0 ≤ c\nhabc : a + b + c = 1\n⊢ 1 / (a ^ 3 + 7) ^ (1 / 3) + 1 / (b ^ 3 + 7) ^ (1 / 3) + 1 / (c ^ 3 + 7) ^ (1 / 3) ≥ 1 / 2 + 2 / 7 ^ (1 / 3)",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_69336",
+  "estado": "a b c : ℝ\nha : 0 ≤ a\nhb : 0 ≤ b\nhc : 0 ≤ c\n⊢ (2 * a / (b + c)) ^ (3 / 5) + (2 * b / (c + a)) ^ (3 / 5) + (2 * c / (a + b)) ^ (3 / 5) ≥ 3",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_41544",
+  "estado": "a b c : ℝ\nhx : a > 0 ∧ b > 0 ∧ c > 0\nhab : a + b > c\nhbc : b + c > a\nhca : a + c > b\n⊢ (a + b) * (a + c) * (b + c) / 8 ≥ (2 * a + b) * (2 * b + c) * (2 * c + a) / 27",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_46622",
+  "estado": "x y z : ℝ\nhx : 0 < x\nhy : 0 < y\nhz : 0 < z\n⊢ (x + y) * (y + z) * (z + x) ≥ 8 / 9 * (x + y + z) * (x * y + y * z + z * x)",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_5943",
+  "estado": "f : ℕ → ℝ\nk : ℕ\nh₁ : f k = 2 ^ k * ↑k / ((↑k + 1) * (↑k + 2))\n⊢ f k = 2 ^ k * ↑k / ((↑k + 1) * (↑k + 2))",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_71987",
+  "estado": "a₁ a₂ k : ℤ\nh : a₁ ≡ a₂ [ZMOD 8]\n⊢ a₁ + k ≡ a₂ + k [ZMOD 8]",
+  "etiquetas": [
+   "elementary-number-theory"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_38421",
+  "estado": "a b : ℝ\n⊢ a ^ 2 - b ^ 2 = (a - b) * (a + b)",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_69072",
+  "estado": "f : ℝ → ℝ\n⊢ (∀ (x y : ℝ), f x = f y → x = y) ↔ Function.Injective f",
+  "etiquetas": [
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_16301",
+  "estado": "a : ℕ → ℝ\n⊢ (a 1 + a 2 + a 3 + a 4) ^ 2 - 4 * (a 1 * a 2 + a 2 * a 3 + a 3 * a 4 + a 4 * a 1) ≥ 0",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_18354",
+  "estado": "f : ℕ → ℝ → ℝ\nn : ℕ\nx f_n : ℝ\nhf_n : f_n = (2 ^ n + |x| ^ n) ^ (1 / n)\n⊢ ∃ l, ∀ ε > 0, ∃ N, ∀ n ≥ N, |f_n - l| < ε",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_45343",
+  "estado": "a b c : ℝ\nha : 0 ≤ a\nhb : 0 ≤ b\nhc : 0 ≤ c\nhabc : a * b * c = 1\nh : a ^ 2 + b ^ 2 + c ^ 2 + a * b * c = 4\n⊢ 2 + a * b * c ≥ a * b + b * c + c * a",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_51285",
+  "estado": "a b c d e : ℝ\nh1 : a ≤ b ∧ b ≤ c ∧ c ≤ d ∧ d ≤ e\nh2 : a + b + c + d + e = 1\n⊢ a * d + d * c + c * b + b * e + e * a ≤ 1 / 5",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ },
+ {
+  "fuente": "lw",
+  "clave": "lean_workbook_plus_23709",
+  "estado": "a b c d : ℝ\nhab : a ≤ b\nhbc : b ≤ c\nhcd : c ≤ d\n⊢ (2 * a / (a + b)) ^ (1 / 3) + (2 * b / (b + c)) ^ (1 / 3) + (2 * c / (c + d)) ^ (1 / 3) +\n      (2 * d / (d + a)) ^ (1 / 3) ≤\n    4",
+  "etiquetas": [
+   "elementary-number-theory",
+   "real-analysis"
+  ],
+  "sin_portadores": [],
+  "pertinente": null,
+  "notas": ""
+ }
+]

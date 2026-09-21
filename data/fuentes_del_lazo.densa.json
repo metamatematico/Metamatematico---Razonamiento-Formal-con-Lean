@@ -1,0 +1,2202 @@
+{
+ "n": 60,
+ "presupuesto": {
+  "lean": 30,
+  "llamadas": 0,
+  "segundos": 90,
+  "nodos": 30,
+  "profundidad": 4,
+  "tope_tactica": 15
+ },
+ "resumen": {
+  "D0": {
+   "verifica": 40,
+   "gana_a_D0": 0,
+   "pierde_con_D0": 0,
+   "p": 1.0,
+   "lean_medio": 14.4
+  },
+  "D0+D1v": {
+   "verifica": 48,
+   "gana_a_D0": 8,
+   "pierde_con_D0": 0,
+   "p": 0.0078,
+   "lean_medio": 13.0
+  },
+  "D0+D1d": {
+   "verifica": 39,
+   "gana_a_D0": 1,
+   "pierde_con_D0": 2,
+   "p": 1.0,
+   "lean_medio": 15.4
+  },
+  "D0+D1v+D1d": {
+   "verifica": 46,
+   "gana_a_D0": 8,
+   "pierde_con_D0": 2,
+   "p": 0.1094,
+   "lean_medio": 13.5
+  }
+ },
+ "res": {
+  "D0": {
+   "lean_workbook_plus_70629": {
+    "v": "agotado",
+    "lean": 1,
+    "seg": 139.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_15426": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 13.9,
+    "caminos": {}
+   },
+   "lean_workbook_plus_40308": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16617": {
+    "v": "verificado",
+    "lean": 5,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_45600": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 24.2,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_44993": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.0,
+    "caminos": {
+     "0": [
+      "rfl"
+     ]
+    }
+   },
+   "lean_workbook_plus_50775": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.6,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_54694": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 13.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_31182": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_26300": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 34.8,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_34705": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 8.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_59662": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 2.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_22729": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.0,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_21082": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 12.6,
+    "caminos": {}
+   },
+   "lean_workbook_plus_56055": {
+    "v": "verificado",
+    "lean": 17,
+    "seg": 24.4,
+    "caminos": {
+     "0": [
+      "ring",
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_79564": {
+    "v": "verificado",
+    "lean": 28,
+    "seg": 64.5,
+    "caminos": {
+     "0": [
+      "ring",
+      "omega"
+     ]
+    }
+   },
+   "lean_workbook_plus_34130": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 40.6,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_9498": {
+    "v": "verificado",
+    "lean": 22,
+    "seg": 70.6,
+    "caminos": {
+     "0": [
+      "simp",
+      "norm_num"
+     ]
+    }
+   },
+   "lean_workbook_plus_63330": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 23.8,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_79469": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 24.5,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38910": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.9,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24744": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.3,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24238": {
+    "v": "verificado",
+    "lean": 26,
+    "seg": 35.1,
+    "caminos": {
+     "0": [
+      "aesop",
+      "norm_num"
+     ]
+    }
+   },
+   "lean_workbook_plus_66240": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16301": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 12.9,
+    "caminos": {}
+   },
+   "lean_workbook_plus_34352": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.4,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74655": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.3,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_61102": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.3,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_54224": {
+    "v": "agotado",
+    "lean": 23,
+    "seg": 6.7,
+    "caminos": {}
+   },
+   "lean_workbook_plus_2284": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16976": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_77956": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 34.7,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_28514": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.9,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_3467": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 25.1,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_81875": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.8,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38421": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.8,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_29093": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 11.7,
+    "caminos": {}
+   },
+   "lean_workbook_plus_51285": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 25.4,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5094": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74263": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 33.1,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_16613": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.2,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_51901": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.1,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_64633": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16306": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 13.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_29421": {
+    "v": "agotado",
+    "lean": 31,
+    "seg": 64.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_67932": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 4.6,
+    "caminos": {}
+   },
+   "lean_workbook_plus_67394": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 12.1,
+    "caminos": {}
+   },
+   "lean_workbook_plus_9978": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_2278": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 54.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_46738": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 22.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_28445": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16631": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 5.6,
+    "caminos": {}
+   },
+   "lean_workbook_plus_55154": {
+    "v": "agotado",
+    "lean": 12,
+    "seg": 6.6,
+    "caminos": {}
+   },
+   "lean_workbook_plus_29233": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 24.2,
+    "caminos": {
+     "0": [
+      "omega"
+     ]
+    }
+   },
+   "lean_workbook_plus_69421": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.9,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5943": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.5,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_29219": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_20472": {
+    "v": "agotado",
+    "lean": 12,
+    "seg": 3.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_14728": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 53.2,
+    "caminos": {}
+   },
+   "lean_workbook_plus_51958": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 15.9,
+    "caminos": {}
+   }
+  },
+  "D0+D1v": {
+   "lean_workbook_plus_70629": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 46.2,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_15426": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 15.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_40308": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16617": {
+    "v": "verificado",
+    "lean": 5,
+    "seg": 23.8,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_45600": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_44993": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.2,
+    "caminos": {
+     "0": [
+      "rfl"
+     ]
+    }
+   },
+   "lean_workbook_plus_50775": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_54694": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 31.2,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (x ^ 2), sq_nonneg (x ^ 3), sq_nonneg (x ^ 4)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_31182": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_26300": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 33.5,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_34705": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 28.2,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (x^2 - x), sq_nonneg (x^2 - 1)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_59662": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 2.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_22729": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 22.9,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_21082": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 30.4,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_56055": {
+    "v": "verificado",
+    "lean": 21,
+    "seg": 24.5,
+    "caminos": {
+     "0": [
+      "ring",
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_79564": {
+    "v": "verificado",
+    "lean": 30,
+    "seg": 73.5,
+    "caminos": {
+     "0": [
+      "ring",
+      "omega"
+     ]
+    }
+   },
+   "lean_workbook_plus_34130": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.4,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_9498": {
+    "v": "verificado",
+    "lean": 27,
+    "seg": 79.3,
+    "caminos": {
+     "0": [
+      "simp",
+      "norm_num"
+     ]
+    }
+   },
+   "lean_workbook_plus_63330": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_79469": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 24.0,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38910": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.5,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24744": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.4,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24238": {
+    "v": "verificado",
+    "lean": 14,
+    "seg": 25.2,
+    "caminos": {
+     "0": [
+      "norm_num [h₁, h₂, h₃, h₄]"
+     ]
+    }
+   },
+   "lean_workbook_plus_66240": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16301": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 12.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_34352": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.4,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74655": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.0,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_61102": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.3,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_54224": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 6.7,
+    "caminos": {}
+   },
+   "lean_workbook_plus_2284": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 23.9,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16976": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_77956": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 35.1,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_28514": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.0,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_3467": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 26.3,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_81875": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.8,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38421": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.6,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_29093": {
+    "v": "verificado",
+    "lean": 17,
+    "seg": 30.3,
+    "caminos": {
+     "0": [
+      "exact fun x y ↦ by linarith [sq_nonneg (x - y), sq_nonneg (x + y)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_51285": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 25.3,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5094": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.8,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74263": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.5,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_16613": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.0,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_51901": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.4,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_64633": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.7,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16306": {
+    "v": "verificado",
+    "lean": 16,
+    "seg": 32.2,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - a^2)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_29421": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 33.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_67932": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 25.1,
+    "caminos": {
+     "0": [
+      "constructor <;> intro h <;> linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_67394": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 12.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_9978": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.6,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_2278": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 44.0,
+    "caminos": {}
+   },
+   "lean_workbook_plus_46738": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 31.2,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_28445": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.6,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16631": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 4.9,
+    "caminos": {}
+   },
+   "lean_workbook_plus_55154": {
+    "v": "agotado",
+    "lean": 17,
+    "seg": 7.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_29233": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 24.2,
+    "caminos": {
+     "0": [
+      "omega"
+     ]
+    }
+   },
+   "lean_workbook_plus_69421": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.9,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5943": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.5,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_29219": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.4,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_20472": {
+    "v": "agotado",
+    "lean": 16,
+    "seg": 3.8,
+    "caminos": {}
+   },
+   "lean_workbook_plus_14728": {
+    "v": "agotado",
+    "lean": 31,
+    "seg": 63.0,
+    "caminos": {}
+   },
+   "lean_workbook_plus_51958": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 9.3,
+    "caminos": {}
+   }
+  },
+  "D0+D1d": {
+   "lean_workbook_plus_70629": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 32.6,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_15426": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 29.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_40308": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16617": {
+    "v": "verificado",
+    "lean": 5,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_45600": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_44993": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.2,
+    "caminos": {
+     "0": [
+      "rfl"
+     ]
+    }
+   },
+   "lean_workbook_plus_50775": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.3,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_54694": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 13.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_31182": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_26300": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.7,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_34705": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 4.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_59662": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 2.6,
+    "caminos": {}
+   },
+   "lean_workbook_plus_22729": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.0,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_21082": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 6.8,
+    "caminos": {}
+   },
+   "lean_workbook_plus_56055": {
+    "v": "verificado",
+    "lean": 20,
+    "seg": 24.2,
+    "caminos": {
+     "0": [
+      "ring",
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_79564": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 49.8,
+    "caminos": {}
+   },
+   "lean_workbook_plus_34130": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.4,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_9498": {
+    "v": "verificado",
+    "lean": 25,
+    "seg": 79.0,
+    "caminos": {
+     "0": [
+      "simp",
+      "norm_num"
+     ]
+    }
+   },
+   "lean_workbook_plus_63330": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 23.3,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_79469": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 24.2,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38910": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.5,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24744": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.3,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24238": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 2.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_66240": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.8,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16301": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 7.2,
+    "caminos": {}
+   },
+   "lean_workbook_plus_34352": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74655": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 31.6,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_61102": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.4,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_54224": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 6.8,
+    "caminos": {}
+   },
+   "lean_workbook_plus_2284": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 24.0,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16976": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.4,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_77956": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 34.7,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_28514": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.9,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_3467": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 25.1,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_81875": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.8,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38421": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.6,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_29093": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 6.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_51285": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 25.6,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5094": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74263": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.5,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_16613": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.2,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_51901": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.3,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_64633": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.8,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16306": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 13.2,
+    "caminos": {}
+   },
+   "lean_workbook_plus_29421": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 18.0,
+    "caminos": {}
+   },
+   "lean_workbook_plus_67932": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 2.9,
+    "caminos": {}
+   },
+   "lean_workbook_plus_67394": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 12.1,
+    "caminos": {}
+   },
+   "lean_workbook_plus_9978": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_2278": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 51.9,
+    "caminos": {}
+   },
+   "lean_workbook_plus_46738": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 7.1,
+    "caminos": {}
+   },
+   "lean_workbook_plus_28445": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.6,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16631": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 4.1,
+    "caminos": {}
+   },
+   "lean_workbook_plus_55154": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 7.7,
+    "caminos": {}
+   },
+   "lean_workbook_plus_29233": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "omega"
+     ]
+    }
+   },
+   "lean_workbook_plus_69421": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5943": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.4,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_29219": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_20472": {
+    "v": "agotado",
+    "lean": 21,
+    "seg": 3.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_14728": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 17.3,
+    "caminos": {}
+   },
+   "lean_workbook_plus_51958": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 9.3,
+    "caminos": {}
+   }
+  },
+  "D0+D1v+D1d": {
+   "lean_workbook_plus_70629": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 32.4,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_15426": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 8.8,
+    "caminos": {}
+   },
+   "lean_workbook_plus_40308": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16617": {
+    "v": "verificado",
+    "lean": 5,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_45600": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_44993": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.3,
+    "caminos": {
+     "0": [
+      "rfl"
+     ]
+    }
+   },
+   "lean_workbook_plus_50775": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_54694": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 31.1,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (x ^ 2), sq_nonneg (x ^ 3), sq_nonneg (x ^ 4)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_31182": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.1,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_26300": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.6,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_34705": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 27.9,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (x^2 - x), sq_nonneg (x^2 - 1)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_59662": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 2.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_22729": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.2,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_21082": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 30.7,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_56055": {
+    "v": "verificado",
+    "lean": 24,
+    "seg": 24.9,
+    "caminos": {
+     "0": [
+      "ring",
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_79564": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 49.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_34130": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 31.8,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_9498": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 80.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_63330": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 23.8,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_79469": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 24.0,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38910": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.6,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24744": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.2,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_24238": {
+    "v": "verificado",
+    "lean": 14,
+    "seg": 26.0,
+    "caminos": {
+     "0": [
+      "norm_num [h₁, h₂, h₃, h₄]"
+     ]
+    }
+   },
+   "lean_workbook_plus_66240": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.9,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16301": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 6.7,
+    "caminos": {}
+   },
+   "lean_workbook_plus_34352": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74655": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.1,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_61102": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.4,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_54224": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 3.6,
+    "caminos": {}
+   },
+   "lean_workbook_plus_2284": {
+    "v": "verificado",
+    "lean": 3,
+    "seg": 23.9,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_16976": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.4,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_77956": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 34.6,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_28514": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.0,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_3467": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.8,
+    "caminos": {
+     "0": [
+      "field_simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_81875": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.6,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_38421": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.6,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_29093": {
+    "v": "verificado",
+    "lean": 17,
+    "seg": 30.0,
+    "caminos": {
+     "0": [
+      "exact fun x y ↦ by linarith [sq_nonneg (x - y), sq_nonneg (x + y)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_51285": {
+    "v": "verificado",
+    "lean": 10,
+    "seg": 25.4,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5094": {
+    "v": "verificado",
+    "lean": 6,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_74263": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 32.2,
+    "caminos": {
+     "0": [
+      "exact?"
+     ]
+    }
+   },
+   "lean_workbook_plus_16613": {
+    "v": "verificado",
+    "lean": 12,
+    "seg": 26.2,
+    "caminos": {
+     "0": [
+      "aesop"
+     ]
+    }
+   },
+   "lean_workbook_plus_51901": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.4,
+    "caminos": {
+     "0": [
+      "simp"
+     ]
+    }
+   },
+   "lean_workbook_plus_64633": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.5,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16306": {
+    "v": "verificado",
+    "lean": 16,
+    "seg": 32.4,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - a^2)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_29421": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 17.9,
+    "caminos": {}
+   },
+   "lean_workbook_plus_67932": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 25.4,
+    "caminos": {
+     "0": [
+      "constructor <;> intro h <;> linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_67394": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 6.8,
+    "caminos": {}
+   },
+   "lean_workbook_plus_9978": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.7,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_2278": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 51.8,
+    "caminos": {}
+   },
+   "lean_workbook_plus_46738": {
+    "v": "verificado",
+    "lean": 13,
+    "seg": 30.7,
+    "caminos": {
+     "0": [
+      "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]"
+     ]
+    }
+   },
+   "lean_workbook_plus_28445": {
+    "v": "verificado",
+    "lean": 2,
+    "seg": 23.4,
+    "caminos": {
+     "0": [
+      "ring"
+     ]
+    }
+   },
+   "lean_workbook_plus_16631": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 3.4,
+    "caminos": {}
+   },
+   "lean_workbook_plus_55154": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 7.6,
+    "caminos": {}
+   },
+   "lean_workbook_plus_29233": {
+    "v": "verificado",
+    "lean": 11,
+    "seg": 24.2,
+    "caminos": {
+     "0": [
+      "omega"
+     ]
+    }
+   },
+   "lean_workbook_plus_69421": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.7,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_5943": {
+    "v": "verificado",
+    "lean": 8,
+    "seg": 24.6,
+    "caminos": {
+     "0": [
+      "linarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_29219": {
+    "v": "verificado",
+    "lean": 9,
+    "seg": 24.3,
+    "caminos": {
+     "0": [
+      "nlinarith"
+     ]
+    }
+   },
+   "lean_workbook_plus_20472": {
+    "v": "agotado",
+    "lean": 25,
+    "seg": 3.9,
+    "caminos": {}
+   },
+   "lean_workbook_plus_14728": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 7.5,
+    "caminos": {}
+   },
+   "lean_workbook_plus_51958": {
+    "v": "agotado",
+    "lean": 30,
+    "seg": 9.3,
+    "caminos": {}
+   }
+  }
+ },
+ "D0": 40,
+ "D0+D1v": 48,
+ "D0+D1d": 39,
+ "D0+D1v+D1d": 46,
+ "densa_sobre_vecinos": {
+  "gana": 0,
+  "pierde": 2,
+  "p": 0.5
+ }
+}

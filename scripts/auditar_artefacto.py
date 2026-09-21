@@ -211,6 +211,25 @@ if _rp and _fl:
         ("paso 4: D0+vecinos", ("+%d −%d" % (_rs["D0+D1v"]["gana_a_D0"], _rs["D0+D1v"]["pierde_con_D0"]),)),
         ("paso 4: p vecinos", (_e(_rs["D0+D1v"]["p"], 3),)),
     ]
+_fd, _ph = J("fuentes_del_lazo.densa.json"), J("phi_de_estados.json")
+if _fd:
+    _rd = _fd["resumen"]
+    _e = lambda x, d=2: (("%." + str(d) + "f") % x).replace(".", ",")
+    PARES += [
+        ("paso 4: denso D0", ("D0 · la cascada %d — — %s" % (_fd["D0"], _e(_rd["D0"]["lean_medio"], 1)),)),
+        ("paso 4: denso vecinos", ("+%d −%d · D0" % (_rd["D0+D1v"]["gana_a_D0"], _rd["D0+D1v"]["pierde_con_D0"]),)),
+        ("paso 4: denso solo", ("+%d −%d · D0" % (_rd["D0+D1d"]["gana_a_D0"], _rd["D0+D1d"]["pierde_con_D0"]),)),
+        ("paso 4: denso sobre vecinos", ("+%d −%d · vecinos" % (
+            _fd["densa_sobre_vecinos"]["gana"], _fd["densa_sobre_vecinos"]["pierde"]),)),
+        ("paso 4: denso llamadas", (_e(_rd["D0+D1d"]["lean_medio"], 1),)),
+    ]
+if _ph:
+    _t, _lw = _ph["resumen"]["todos"], _ph["resumen"]["lw"]
+    PARES += [
+        ("paso 5: estados", ("Sobre %d estados raíz" % _t["n"],)),
+        ("paso 5: sin portadores", ("empatan: %d contra %d" % (_t["especificas"], _t["texto"]),)),
+        ("paso 5: sólo portador", ("%d de los %d estados" % (_lw["constantes"] - _lw["especificas"], _lw["n"]),)),
+    ]
 PARES += [
     ("catalogo: total", ("El catálogo tiene %s capacidades" % _NUM.get(len(_CAPS), len(_CAPS)),)),
     ("catalogo: corren", ("con Lean disponible corren %s" % _NUM.get(len(_d.activas), len(_d.activas)),)),

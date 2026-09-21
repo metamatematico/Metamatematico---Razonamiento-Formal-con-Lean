@@ -91,7 +91,7 @@ def indice_de_nombres(g):
     return por_nombre
 
 
-def main(tope: int, minimo: int) -> int:
+def main(tope: int, minimo: int, con_lazo: bool = False) -> int:
     import logging
     import warnings
     warnings.filterwarnings("ignore")
@@ -117,6 +117,25 @@ def main(tope: int, minimo: int) -> int:
     print("recolectando teoremas de Mathlib con sus premisas...")
     casos = recolectar(cortos, largos, tope)
     print("teoremas con premisas: %d" % len(casos))
+    if con_lazo:
+        # LOS TEOREMAS QUE EL LAZO VERIFICÓ (paso 5): la misma clase de
+        # material —enunciados que el FICHERO aceptó enteros—, anotados por el
+        # mediador en `data/transiciones_vivas.jsonl`. Se deduplican por
+        # enunciado: el mismo teorema verificado en varias corridas cuenta una.
+        vistos, del_lazo = set(), 0
+        ruta = os.path.join(os.path.dirname(LEMAS), "transiciones_vivas.jsonl")
+        if os.path.exists(ruta):
+            for l in io.open(ruta, encoding="utf-8"):
+                try:
+                    d = json.loads(l)
+                except Exception:                              # noqa: BLE001
+                    continue
+                e = d.get("enunciado")
+                if d.get("tipo") == "teorema_verificado" and e and e not in vistos:
+                    vistos.add(e)
+                    casos.append({"enunciado": e, "origen": "lazo"})
+                    del_lazo += 1
+        print("  + teoremas verificados por el lazo: %d" % del_lazo)
 
     # EL MATERIAL ES EL ENUNCIADO, NO LAS PREMISAS. Y ESO SE MIDIO.
     #
@@ -211,5 +230,7 @@ if __name__ == "__main__":
     ap.add_argument("--tope", type=int, default=40000)
     ap.add_argument("--minimo", type=int, default=5,
                     help="coocurrencias mínimas para entrar (def. 5)")
+    ap.add_argument("--con-lazo", action="store_true",
+                    help="sumar los teoremas que verificó el lazo por pasos")
     a = ap.parse_args()
-    raise SystemExit(main(a.tope, a.minimo))
+    raise SystemExit(main(a.tope, a.minimo, a.con_lazo))

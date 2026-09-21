@@ -99,6 +99,9 @@ class Resultado:
     nodos: int = 0
     confluencias: int = 0
     motivo: str = ""
+    #: por raíz, los OBJETIVOS de cada estado del camino, de la raíz al último
+    #: antes de cerrar: es lo que φ etiqueta para explicar cada paso (paso 5)
+    estados: dict = field(default_factory=dict)
 
 
 def _subclase(error: str) -> str:
@@ -225,6 +228,7 @@ class Mediador:
         frontera: list = []
         vistos: dict = {}
         resueltas: dict = {}
+        estados_de: dict = {}
         confl = 0
         nodos = []
 
@@ -293,6 +297,11 @@ class Mediador:
                     destino = ""
                     if clase == "cierra":
                         resueltas[nodo.raiz] = nodo.camino + [c]
+                        cadena, n_ = [], nodo
+                        while n_ is not None:
+                            cadena.append(list(n_.objetivos))
+                            n_ = nodos[n_.padre] if n_.padre is not None else None
+                        estados_de[nodo.raiz] = list(reversed(cadena))
                         cerrado = True
                         destino = "⊤"
                     elif clase == "progresa":
@@ -329,7 +338,8 @@ class Mediador:
 
         res = Resultado("agotado", raices=len(raices), cerradas=len(resueltas),
                         caminos=dict(resueltas), llamadas_lean=self.lean,
-                        llamadas_llm=self.llm, nodos=len(nodos), confluencias=confl)
+                        llamadas_llm=self.llm, nodos=len(nodos), confluencias=confl,
+                        estados=dict(estados_de))
         try:
             if self._sesion is not None and self._cerrar_al_final:
                 self._sesion.cerrar()
@@ -361,6 +371,15 @@ class Mediador:
                 res.veredicto = "parcial" if ok else "rechazado_por_fichero"
             if res.veredicto == "rechazado_por_fichero":
                 res.motivo = (rf.get_first_error() or "")[:300]
+            if res.veredicto == "verificado":
+                # PARA L4: un teorema que el FICHERO aceptó entero. Es la misma
+                # clase de material que L4 lee de Mathlib —enunciados
+                # verificados—, y con esta fila `l4_coocurrencia_verificada.py
+                # --con-lazo` lo suma a los 40 025 de Mathlib (paso 5).
+                # NO es una transición: no lleva `clase` ni `tactica`, y quien
+                # cuente transiciones filtra por `"clase" in fila`
+                self._anota(tipo="teorema_verificado", enunciado=cuerpo,
+                            caminos={str(k): v for k, v in resueltas.items()})
         res.segundos = time.time() - t0
         return res
 
