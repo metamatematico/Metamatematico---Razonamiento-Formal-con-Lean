@@ -188,7 +188,9 @@ from nucleo.decisor import CAPACIDADES as _CAPS, Contexto as _Ctx, decidir as _d
 _NUM = {1: "una", 2: "dos", 3: "tres", 4: "cuatro", 5: "cinco", 6: "seis",
         7: "siete", 8: "ocho", 9: "nueve", 10: "diez", 11: "once", 12: "doce",
         13: "trece", 14: "catorce", 15: "quince", 16: "dieciséis",
-        17: "diecisiete", 18: "dieciocho", 19: "diecinueve", 20: "veinte"}
+        17: "diecisiete", 18: "dieciocho", 19: "diecinueve", 20: "veinte",
+        21: "veintiuna", 22: "veintidós", 23: "veintitrés", 24: "veinticuatro",
+        25: "veinticinco"}
 _d = _dec(_Ctx(consulta="x", es_matematica=True))
 _s3 = J("lazo_por_pasos.sin_api.json")
 if _s3:
@@ -197,6 +199,17 @@ if _s3:
         ("paso 3: B", ("%d de %d" % (_s3["B"], _s3["n"]),)),
         ("paso 3: A o B", ("%d de %d" % (_s3["ambas"] + _s3["solo_A"] + _s3["solo_B"], _s3["n"]),)),
         ("paso 3: reparto", ("%d · %d · %d" % (_s3["ambas"], _s3["solo_A"], _s3["solo_B"]),)),
+    ]
+_rp, _fl = J("recuperacion_por_estado.json"), J("fuentes_del_lazo.json")
+if _rp and _fl:
+    _m1, _m2, _rs = _rp["medida_1"], _rp["medida_2"], _fl["resumen"]
+    _e = lambda x, d=2: (("%." + str(d) + "f") % x).replace(".", ",")
+    PARES += [
+        ("paso 4: rankeador m1", (_e(_m1["rankeador"]),)),
+        ("paso 4: fusión m1", (_e(_m1["fusion"]),)),
+        ("paso 4: V frente a R", ("%d frente a %d" % (_m2["V"], _m2["R"]),)),
+        ("paso 4: D0+vecinos", ("+%d −%d" % (_rs["D0+D1v"]["gana_a_D0"], _rs["D0+D1v"]["pierde_con_D0"]),)),
+        ("paso 4: p vecinos", (_e(_rs["D0+D1v"]["p"], 3),)),
     ]
 PARES += [
     ("catalogo: total", ("El catálogo tiene %s capacidades" % _NUM.get(len(_CAPS), len(_CAPS)),)),

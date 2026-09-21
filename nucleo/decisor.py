@@ -451,6 +451,66 @@ CAPACIDADES: list[Capacidad] = [
             contra="la cascada en fichero, un compilado por sorry"),
     ),
     Capacidad(
+        nombre="tacticas_por_vecinos",
+        que_hace="propone la táctica ENTERA —con sus argumentos— que cerró los"
+                 " estados más parecidos de LeanWorkbook, en lugar de los"
+                 " nombres desnudos del rankeador",
+        coste=LOCAL,
+        donde="nucleo/lazo/vecinos.py::IndiceDeVecinos",
+        # Medido con Lean sobre 150 estados raíz de la partición de prueba, 3
+        # intentos por rama. Como SUSTITUTO no gana (76 contra 79), pero es
+        # complementario —22 que sólo cierran los vecinos, 25 que sólo cierra
+        # el rankeador— y la fusión cierra 88. La fusión no estaba en la regla
+        # escrita, así que no se da por buena aquí: la mide como fuente del
+        # lazo `scripts/fuentes_del_lazo.py`.
+        evidencia=Evidencia(
+            fichero="recuperacion_por_estado.json",
+            metrica="estados raíz cerrados en 3 intentos",
+            ruta_real=("V",), ruta_nulo=("R",),
+            contra="las 3 primeras tácticas del rankeador, desnudas"),
+        fuera_del_camino=(
+            "no está cableada como sustituto del rankeador, y no debe: medida"
+            " con Lean pierde contra él; como fuente del lazo es"
+            " `vecinos_en_el_lazo`"),
+    ),
+    Capacidad(
+        nombre="vecinos_en_el_lazo",
+        que_hace="los vecinos de estado como FUENTE AÑADIDA del lazo (D1v),"
+                 " detrás de la cascada: sus tácticas enteras se prueban cuando"
+                 " D0 no cierra el estado",
+        coste=LOCAL,
+        donde="nucleo/lazo/proponentes.py::D1Vecinos",
+        # Medido sin modelo en `scripts/fuentes_del_lazo.py`: 60 estados raíz
+        # de prueba, mismo presupuesto. D0+D1v verifica 48 contra 41 de D0,
+        # +7 −0, p = 0,016, y con MENOS llamadas a Lean (13,0 contra 14,6).
+        evidencia=Evidencia(
+            fichero="fuentes_del_lazo.json",
+            metrica="estados raíz verificados por el lazo",
+            ruta_real=("D0+D1v",), ruta_nulo=("D0",),
+            contra="el lazo sólo con la cascada"),
+        fuera_del_camino=(
+            "bate a su nulo dentro del lazo, pero el lazo no está en el camino"
+            " servido: su puerta con modelo no se ha corrido"),
+    ),
+    Capacidad(
+        nombre="busqueda_de_lean_en_el_lazo",
+        que_hace="`apply?` como SONDA en el lazo (D2): sus «Try this» como"
+                 " candidatos",
+        coste=LOCAL,
+        donde="nucleo/lazo/proponentes.py::D2Busqueda",
+        # Mismo banco: D0+D2 verifica 40 contra 41 de D0. No rescata ninguno y
+        # sus sondas se comen el presupuesto: con las tres fuentes juntas se
+        # pierden 2 casos que D0+D1v cerraba.
+        evidencia=Evidencia(
+            fichero="fuentes_del_lazo.json",
+            metrica="estados raíz verificados por el lazo",
+            ruta_real=("D0+D2",), ruta_nulo=("D0",),
+            contra="el lazo sólo con la cascada"),
+        fuera_del_camino=(
+            "vive dentro del lazo, que no está en el camino servido; y dentro"
+            " del lazo tampoco paga: 40 contra 41"),
+    ),
+    Capacidad(
         nombre="lazo_por_pasos",
         que_hace="cuando el camino servido no verifica, busca la prueba paso a"
                  " paso sobre la categoría de estados: D0 y el modelo proponen,"

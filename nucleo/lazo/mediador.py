@@ -122,13 +122,17 @@ class Mediador:
 
     def __init__(self, abrir: Callable, cliente, proponentes: list,
                  presupuesto: Optional[Presupuesto] = None, registro=None,
-                 existe: Optional[Callable] = None):
+                 existe: Optional[Callable] = None, cerrar_al_final: bool = True):
         self._abrir = abrir
         self._cliente = cliente
         self._prop = list(proponentes)
         self.p = presupuesto or Presupuesto()
         self._reg = registro
         self._existe = existe
+        #: False deja viva la sesión para el siguiente problema: un banco de
+        #: cientos de enunciados con `import Mathlib` no puede recargarla en
+        #: cada uno. Tras un tope agotado se rehace SIEMPRE, con esto o sin esto.
+        self._cerrar_al_final = cerrar_al_final
         self._gen = 0
         self._sesion = None
         self._env = None
@@ -177,6 +181,22 @@ class Mediador:
         nodo.ps, nodo.gen = ps, self._gen
         return True
 
+    def sondear(self, tactica: str, nodo: Nodo):
+        """Una táctica de SONDA para un proponente (D2): lee, no crea flechas.
+
+        Cuenta en el presupuesto de Lean como cualquier otra, y si agota su
+        tope la sesión se rehace aquí mismo —igual que con una candidata—.
+        """
+        if not self._asegurar(nodo):
+            return None
+        r = self._sesion.tactica(tactica, nodo.ps, tope=self.p.tope_tactica)
+        self.lean += 1
+        if "TIMEOUT" in (r.error or ""):
+            if self._rehacer(self._cuerpo):
+                self._asegurar(nodo)
+            return None
+        return r
+
     def _anota(self, **kw) -> None:
         if self._reg is not None:
             self._reg.anota(**kw)
@@ -189,6 +209,7 @@ class Mediador:
         texto = self._cliente._normalize_code(codigo)
         cab, cuerpo, lineas_cab = partir(texto)
         self._cab = cab
+        self._cuerpo = cuerpo
 
         self._sesion, self._env = self._abrir(cab)
         r0 = self._plantar(cuerpo)
@@ -239,7 +260,10 @@ class Mediador:
                         continue
                     self.llm += 1
                 try:
-                    cands = await prop.proponer(nodo)
+                    if getattr(prop, "usa_sesion", False):
+                        cands = await prop.proponer(nodo, mediador=self)
+                    else:
+                        cands = await prop.proponer(nodo)
                 except Exception as e:                         # noqa: BLE001
                     logger.info("el proponente %s falló: %s", prop.nombre, e)
                     continue
@@ -307,7 +331,7 @@ class Mediador:
                         caminos=dict(resueltas), llamadas_lean=self.lean,
                         llamadas_llm=self.llm, nodos=len(nodos), confluencias=confl)
         try:
-            if self._sesion is not None:
+            if self._sesion is not None and self._cerrar_al_final:
                 self._sesion.cerrar()
         except Exception:                                      # noqa: BLE001
             pass

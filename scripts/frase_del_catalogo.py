@@ -21,7 +21,8 @@ NUM = {1: "una", 2: "dos", 3: "tres", 4: "cuatro", 5: "cinco", 6: "seis",
        7: "siete", 8: "ocho", 9: "nueve", 10: "diez", 11: "once", 12: "doce",
        13: "trece", 14: "catorce", 15: "quince", 16: "dieciséis",
        17: "diecisiete", 18: "dieciocho", 19: "diecinueve", 20: "veinte",
-       21: "veintiuna", 22: "veintidós"}
+       21: "veintiuna", 22: "veintidós", 23: "veintitrés", 24: "veinticuatro",
+       25: "veinticinco"}
 
 
 def frase():
@@ -40,7 +41,7 @@ def frase():
     return (f"""    <p>El catálogo tiene {w(len(CAPACIDADES))} capacidades. Ante una consulta matemática
     con Lean disponible corren {w(len(d.activas))}; {w(len(por_medicion))} {s(len(por_medicion), 'está apagada', 'están apagadas')}
     porque no {s(len(por_medicion), 'bate', 'baten')} a su nulo; {w(len(sin_cablear))} {s(len(sin_cablear), 'bate al suyo y no está cableada', 'baten al suyo y no están cableadas')},
-    porque por el camino real no {s(len(sin_cablear), 'paga', 'pagan')}; {w(len(por_guarda))} {s(len(por_guarda), 'depende', 'dependen')} de
+    y el decisor dice por qué en cada caso; {w(len(por_guarda))} {s(len(por_guarda), 'depende', 'dependen')} de
     la consulta, porque su guarda sólo aplica a algunas; y {w(len(sin_evidencia))}
     no tienen medición contra un nulo —entre ellas el emparejador semántico, que nunca
     llegó a producción y se conserva a propósito: <strong>un candidato evaluado

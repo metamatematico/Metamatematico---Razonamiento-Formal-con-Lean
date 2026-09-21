@@ -1,0 +1,2732 @@
+{
+ "medida_1": {
+  "n": 1530,
+  "rankeador": 1.567,
+  "vecinos": 1.845,
+  "fusion": 1.458
+ },
+ "medida_2": {
+  "n": 150,
+  "R": 79,
+  "V": 76,
+  "F": 88,
+  "solo_V": 22,
+  "solo_R": 25,
+  "p": 0.7709
+ },
+ "medida_2_sin_duplicados": {
+  "n": 145,
+  "R": 76,
+  "V": 71,
+  "F": 83,
+  "solo_V": 20,
+  "solo_R": 25,
+  "p": 0.5515
+ },
+ "descartados": 209,
+ "pasa": false,
+ "V": 76,
+ "R": 79,
+ "filas": [
+  {
+   "id": "lean_workbook_plus_70629",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "exact fun x hx ↦ by rw [Real.exp_le_one_iff]; linarith",
+    "nlinarith [exp_le_one_iff.2 (by linarith : -x ≤ 0)]",
+    "simpa only [add_comm] using add_one_le_exp x"
+   ],
+   "tactica_real": "nlinarith [add_one_le_exp (-x)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_15426",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - a^2)]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (a - c)]",
+    "refine ⟨by nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)], by nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]⟩"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a + b + c - 3 * b), sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_40308",
+   "R": "aesop",
+   "V": "aesop",
+   "F": "aesop",
+   "R_cands": [
+    "simp",
+    "aesop",
+    "omega"
+   ],
+   "V_cands": [
+    "simp [h]",
+    "aesop",
+    "simp [even_iff, odd_iff, Nat.mod_eq_of_lt]"
+   ],
+   "tactica_real": "exact fun n h ↦ Or.elim h (fun h₁' ↦ Or.inl (h₁ n h₁')) (fun h₂' ↦ Or.inr (h₂ n h₂'))",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16617",
+   "R": "linarith",
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (a - c)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (a - c)]",
+   "R_cands": [
+    "linarith",
+    "ring",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (a - c)]",
+    "linear_combination a^3 + b^3 + c^3 - 3 * a * b * c - (a + b + c) * (a^2 + b^2 + c^2 - a * b - a * c - b * c)",
+    "linarith [a^3 + b^3 + c^3 - 3 * a * b * c, (a + b + c) * (a^2 + b^2 + c^2 - a * b - b * c - c * a)]"
+   ],
+   "tactica_real": "linarith [h₁]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_45600",
+   "R": "aesop",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "linarith",
+    "aesop"
+   ],
+   "V_cands": [
+    "nlinarith [h₁ 1, h₁ (-1), h₂]",
+    "linarith [h 1 0, h 1 1]",
+    "exact (by simp [h₁, h₂]; ring)"
+   ],
+   "tactica_real": "simp [h₁, h₂]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_44993",
+   "R": "norm_num",
+   "V": "norm_num [div_eq_mul_inv, mul_comm, mul_assoc, mul_left_comm]",
+   "F": "norm_num [div_eq_mul_inv, mul_comm, mul_assoc, mul_left_comm]",
+   "R_cands": [
+    "norm_num",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [div_eq_mul_inv, mul_comm, mul_assoc, mul_left_comm]",
+    "norm_num [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv]",
+    "norm_num [Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left]"
+   ],
+   "tactica_real": "norm_num [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_50775",
+   "R": "ring",
+   "V": "norm_num [pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one]",
+   "F": "ring",
+   "R_cands": [
+    "ring",
+    "norm_num",
+    "field_simp"
+   ],
+   "V_cands": [
+    "norm_num [hx, hy, hz]",
+    "norm_num [hx, hy, hz, h]",
+    "norm_num [pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one, pow_one]"
+   ],
+   "tactica_real": "simp [div_eq_mul_inv, mul_add, mul_comm, mul_left_comm, hx, hyz]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_54694",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (x ^ 2), sq_nonneg (x ^ 3), sq_nonneg (x ^ 4)]",
+   "F": "nlinarith [sq_nonneg (x ^ 2), sq_nonneg (x ^ 3), sq_nonneg (x ^ 4)]",
+   "R_cands": [
+    "nlinarith",
+    "norm_num",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x ^ 2), sq_nonneg (x ^ 3), sq_nonneg (x ^ 4)]",
+    "nlinarith [sq_nonneg (x - 2), sq_nonneg (x - 1)]",
+    "nlinarith [sq_nonneg (x ^ 2 - 1), sq_nonneg (x ^ 3 - x)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x ^ 2), sq_nonneg (x ^ 3), sq_nonneg (x ^ 4)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_31182",
+   "R": "ring_nf",
+   "V": null,
+   "F": "ring_nf",
+   "R_cands": [
+    "ring_nf",
+    "simp",
+    "field_simp"
+   ],
+   "V_cands": [
+    "refine' ⟨-1, 0, by norm_num⟩",
+    "nlinarith [Real.sq_sqrt (by nlinarith : 0 ≤ x^2 + 1)]",
+    "nlinarith [sq_nonneg (x - y), Real.sq_sqrt (mul_nonneg hx.le hy.le)]"
+   ],
+   "tactica_real": "constructor <;> intro h <;> linarith [h]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_26300",
+   "R": "aesop",
+   "V": "exact fun x ↦ by rw [hf]",
+   "F": "exact fun x ↦ by rw [hf]",
+   "R_cands": [
+    "simp",
+    "aesop",
+    "linarith"
+   ],
+   "V_cands": [
+    "exact fun x ↦ by rw [hf]",
+    "exact fun x ↦ by simp [hf]",
+    "simp only [hf, eq_self_iff_true, forall_const]"
+   ],
+   "tactica_real": "exact fun x ↦ by simp [hf]",
+   "duplicado": true
+  },
+  {
+   "id": "lean_workbook_plus_34705",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (x^2 - x), sq_nonneg (x^2 - 1)]",
+   "F": "nlinarith [sq_nonneg (x^2 - x), sq_nonneg (x^2 - 1)]",
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x^2 - x), sq_nonneg (x^2 - 1)]",
+    "nlinarith [sq_nonneg (x ^ 2 - x), sq_nonneg (x ^ 2 + x - 1)]",
+    "nlinarith [sq_nonneg (x ^ 2 - 1 / 2), sq_nonneg (x ^ 2 + x - 1 / 2)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x ^ 2 + x - 1), sq_nonneg (x ^ 2 - x)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_59662",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "norm_num",
+    "aesop"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - 2), sq_nonneg (x - 4)]",
+    "nlinarith [sq_nonneg (x ^ 4 - x ^ 2), sq_nonneg (x ^ 2 - x), sq_nonneg (x ^ 4 + x ^ 2 - 1)]",
+    "linarith [h₀ 1, h₀ 2, h₀ 3, h₀ 4, h₀ 5]"
+   ],
+   "tactica_real": "simp (config := {decide := true}) [sq]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_22729",
+   "R": "aesop",
+   "V": "exact fun x ↦ by simpa using h x",
+   "F": "aesop",
+   "R_cands": [
+    "aesop",
+    "norm_num",
+    "simp"
+   ],
+   "V_cands": [
+    "exact fun x hx ↦ by simpa [div_eq_iff hx] using hf x hx",
+    "exact fun x ↦ by simpa using h x",
+    "refine' ⟨fun x => if x = 0 then 1 else 0, by simp⟩"
+   ],
+   "tactica_real": "exact fun f hf x hx => by simpa [pow_two] using hf x hx",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_21082",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "linarith",
+    "nlinarith",
+    "field_simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a - 1), sq_nonneg (b - 1), sq_nonneg (c - 1)]",
+    "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - 1/3), sq_nonneg (b - 1/3), sq_nonneg (c - 1/3)]",
+   "duplicado": true
+  },
+  {
+   "id": "lean_workbook_plus_56055",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "linarith",
+    "simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "ring_nf",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x - z), sq_nonneg (y - z)]",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (x - z)]"
+   ],
+   "tactica_real": "exact fun h ↦ by linarith [h]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_79564",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "omega",
+    "simp",
+    "norm_num"
+   ],
+   "V_cands": [
+    "omega",
+    "simp [Nat.coprime_iff_gcd_eq_one, Nat.gcd_add_self_right]",
+    "simpa only [pow_mul, one_pow] using nat_sub_dvd_pow_sub_pow _ 1 k"
+   ],
+   "tactica_real": "simp [pow_add, pow_mul, h₁, h₂, Nat.add_mod, Nat.mul_mod, Nat.pow_mod]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_34130",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "ring",
+    "simp",
+    "norm_num"
+   ],
+   "V_cands": [
+    "rw [← rank_quotient_add_rank Y, add_comm]",
+    "exact ⟨x + 1, by ring⟩",
+    "exacts [⟨by simpa using hxy, by simp⟩, False.elim <| h ⟨x / y, by field_simp [hy] at hxy ⊢; simpa using hxy⟩]"
+   ],
+   "tactica_real": "rw [two_smul]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_9498",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [ha, hb, hab]",
+    "linarith [sq_nonneg (a - 1), sq_nonneg (b - 1), sq_nonneg (c - 1)]",
+    "norm_num [ha, hb, hc, hab]"
+   ],
+   "tactica_real": "norm_num [ha, hb, hab]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_63330",
+   "R": "aesop",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "field_simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "refine' ⟨u, v, h₁, h₂, h₃, h₄⟩",
+    "refine' ⟨u - v + 2 * t + 2, (u - v + 1) * (t + 1) - 1, _, _⟩ <;> ring",
+    "nlinarith [sq_nonneg (u - 2 * v), sq_nonneg (u - 2 * v)]"
+   ],
+   "tactica_real": "exact ⟨congr_arg Prod.fst h₃, congr_arg Prod.snd h₃⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_79469",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (a - 1), sq_nonneg (b - 1)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (a - 1), sq_nonneg (b - 1)]",
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a - 1), sq_nonneg (b - 1)]",
+    "nlinarith [sq_nonneg (a - 1), sq_nonneg (b - 1)]",
+    "nlinarith [sq_nonneg (a - b), ha, hb]"
+   ],
+   "tactica_real": "nlinarith [hab.1, hab.2]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_38910",
+   "R": "field_simp",
+   "V": null,
+   "F": "field_simp",
+   "R_cands": [
+    "field_simp",
+    "ring",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a * cos θ - b * sin θ), sin_sq_add_cos_sq θ]",
+    "rw [Real.cos_sq_add_sin_sq]",
+    "simp [sin_sq, cos_sq, sub_eq_add_neg, add_assoc, add_comm, add_left_comm]"
+   ],
+   "tactica_real": "field_simp [ha, hb, mul_comm]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_24744",
+   "R": "simp",
+   "V": "aesop",
+   "F": "simp",
+   "R_cands": [
+    "simp",
+    "linarith",
+    "ring"
+   ],
+   "V_cands": [
+    "simp [hx, Int.ceil_eq_iff]",
+    "aesop",
+    "refine' ⟨by linarith [Int.floor_le x, Int.lt_floor_add_one x], by linarith [Int.le_ceil x, Int.ceil_lt_add_one x], by simp [Int.floor_add_int], by simp [Int.floor_neg, Int.ceil_neg], by simp [Int.ceil_neg, Int.floor_neg]⟩"
+   ],
+   "tactica_real": "exact fun x n ↦ by simp [Int.ceil_add_int]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_24238",
+   "R": null,
+   "V": "norm_num [h₁, h₂, h₃, h₄]",
+   "F": "norm_num [h₁, h₂, h₃, h₄]",
+   "R_cands": [
+    "norm_num",
+    "linarith",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [h₁, h₂, h₃]",
+    "norm_num [h₁, h₂, h₃, h₄]",
+    "norm_num [h₁, h₂]"
+   ],
+   "tactica_real": "norm_num [h₁, h₂, h₃, h₄]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_66240",
+   "R": "simp",
+   "V": null,
+   "F": "simp",
+   "R_cands": [
+    "simp",
+    "ring_nf",
+    "field_simp"
+   ],
+   "V_cands": [
+    "linarith [h]",
+    "exact fun p q h => by norm_num [sq_nonneg (Real.sqrt (p / q) - Real.sqrt (q / p))]",
+    "omega"
+   ],
+   "tactica_real": "exact ⟨fun h ↦ by rw [h], fun h ↦ by rw [h]⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16301",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "refine' ⟨by linarith [show (0 : ℕ) ≤ 4 * a from Nat.zero_le _], by linarith [show (0 : ℕ) ≤ 4 * (a - 1) from Nat.zero_le _]⟩",
+    "nlinarith [sq_nonneg (a - 1), sq_nonneg (a^2 - 1), sq_nonneg (a^3 - 1)]",
+    "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (a^2 + b^2)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a 1 - a 2 + a 3 - a 4)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_34352",
+   "R": "norm_num",
+   "V": "norm_num [Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ]",
+   "F": "norm_num",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "exact fun h ↦ by norm_num [h.1, h.2.1, h.2.2]",
+    "norm_num [Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ]",
+    "linarith [h1, h2, h3]"
+   ],
+   "tactica_real": "exact ⟨by norm_num, by norm_num⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_74655",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "aesop",
+    "simp",
+    "field_simp"
+   ],
+   "V_cands": [
+    "rw [← cos_pi_div_two_sub, sub_sub_cancel]",
+    "exact fun x ↦ by rw [cos_two_mul, sin_sq]; ring",
+    "refine' fun x => by rw [← cos_sq_add_sin_sq (x / 2), sin_sq, cos_sq]; ring"
+   ],
+   "tactica_real": "exact fun x ↦ by rw [cos_sub, cos_pi_div_two, sin_pi_div_two]; simp",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_61102",
+   "R": "aesop",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "aesop",
+    "linarith"
+   ],
+   "V_cands": [
+    "simpa [zero_add] using h 0 x",
+    "simp [hf, hg, add_mul, mul_add, mul_comm, mul_left_comm]",
+    "simp [hf, add_comm, add_left_comm, add_assoc, mul_comm, mul_left_comm, mul_assoc]"
+   ],
+   "tactica_real": "simp [hg, Int.add_zero, Int.mul_zero, Int.zero_add, Int.zero_mul]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_54224",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "nlinarith",
+    "linarith"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ]",
+    "nlinarith [sq_nonneg (a^2011 - b^2011), sq_nonneg (a^2011 - 1), sq_nonneg (b^2011 - 1)]",
+    "norm_num [pow_succ, pow_zero, pow_one]"
+   ],
+   "tactica_real": "norm_num [h₁, h₂]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_2284",
+   "R": "aesop",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "aesop",
+    "field_simp"
+   ],
+   "V_cands": [
+    "linarith [hf, hx]",
+    "simp only [hf, hx, le_refl, eq_self_iff_true, and_self_iff]",
+    "simp only [hf, eq_self_iff_true, and_self_iff]"
+   ],
+   "tactica_real": "rw [hf, hx]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16976",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (a * b - b * c), sq_nonneg (b * c - c * a), sq_nonneg (c * a - a * b)]",
+   "F": "nlinarith",
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "ring",
+    "nlinarith [sq_nonneg (a * b - b * c), sq_nonneg (b * c - c * a), sq_nonneg (c * a - a * b)]",
+    "nlinarith [sq_nonneg (a + b + c), sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - c), sq_nonneg (b - c), sq_nonneg (a - b)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_77956",
+   "R": "aesop",
+   "V": null,
+   "F": "aesop",
+   "R_cands": [
+    "aesop",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "refine' ⟨fun x => x, fun x hx => rfl⟩",
+    "refine' ⟨fun x => x + 1, by simp⟩",
+    "refine' ⟨fun x => if x = 0 then 1 else 0, by simp, fun x hx => by simp [hx.ne']⟩"
+   ],
+   "tactica_real": "exact ⟨fun x ↦ a * x, fun x hx ↦ rfl⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_28514",
+   "R": "aesop",
+   "V": null,
+   "F": "aesop",
+   "R_cands": [
+    "aesop",
+    "simp",
+    "omega"
+   ],
+   "V_cands": [
+    "refine' ⟨0, 0, by norm_num⟩",
+    "simp [hz, Complex.abs_ofReal, Complex.abs_of_nonneg (by norm_num : (0 : ℝ) ≤ 5)]",
+    "exact fun h ↦ by rw [h.1, h.2]"
+   ],
+   "tactica_real": "exact fun h ↦ ⟨h.1, h.2⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_3467",
+   "R": "field_simp",
+   "V": "field_simp [add_comm, add_left_comm, add_assoc]",
+   "F": "field_simp [add_comm, add_left_comm, add_assoc]",
+   "R_cands": [
+    "field_simp",
+    "linarith",
+    "simp"
+   ],
+   "V_cands": [
+    "field_simp [add_comm, add_left_comm, add_assoc]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a + b)]",
+    "nlinarith [sq_nonneg (a - b)]"
+   ],
+   "tactica_real": "field_simp [mul_comm]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_81875",
+   "R": "nlinarith",
+   "V": null,
+   "F": "nlinarith",
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "ring",
+    "ring_nf",
+    "rw [two_mul, sin_add, two_mul, add_mul, mul_comm (cos a)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (ξ₁ + ξ₂ * Real.cos (2 * φ₃) + ξ₃ * Real.cos (2 * φ₂)),\n  sq_nonneg (ξ₂ * Real.sin (2 * φ₃) - ξ₃ * Real.sin (2 * φ₂))]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_38421",
+   "R": "linarith",
+   "V": "linarith [sq_nonneg (a + b), sq_nonneg (a - b)]",
+   "F": "linarith",
+   "R_cands": [
+    "linarith",
+    "simp",
+    "ring"
+   ],
+   "V_cands": [
+    "simp [sub_sq, mul_add, add_mul, mul_comm, mul_left_comm]",
+    "linarith [sq_nonneg (a + b), sq_nonneg (a - b)]",
+    "simp [sq, mul_add, mul_comm, mul_left_comm, sub_eq_add_neg, add_assoc, add_comm, add_left_comm]"
+   ],
+   "tactica_real": "simp [sq, mul_add, mul_comm, mul_left_comm, sub_eq_add_neg, add_assoc, add_comm, add_left_comm]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_29093",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "exact fun x y ↦ by ring",
+    "exact fun x y ↦ by linarith [sq_nonneg (x - y)]",
+    "exact fun x y ↦ by nlinarith [sq_nonneg (x - y)]"
+   ],
+   "tactica_real": "exact fun x y ↦ by linarith [sq_nonneg (x - y), sq_nonneg (x + y)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_51285",
+   "R": "nlinarith",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "linarith",
+    "nlinarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "refine' ⟨by linarith [h1.2.2.2], by linarith [h1.2.2.2], by linarith [h1.2.2.2], by linarith [h1.2.2.2], by linarith [h1.2.2.2]⟩",
+    "constructor <;> linarith [h1.1, h1.2, h2]",
+    "norm_num [ha, hb, hc, hd, he]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - d), sq_nonneg (b - c), sq_nonneg (c - e), sq_nonneg (d - a), sq_nonneg (e - b)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_5094",
+   "R": "simp",
+   "V": null,
+   "F": "simp",
+   "R_cands": [
+    "simp",
+    "omega",
+    "aesop"
+   ],
+   "V_cands": [
+    "refine' ⟨0, 0, 0, by norm_num⟩",
+    "linarith [ha]",
+    "norm_num [ha, hb, hc, hab]"
+   ],
+   "tactica_real": "simp (config := { contextual := true }) [Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_right]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_74263",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "ring_nf",
+    "omega"
+   ],
+   "V_cands": [
+    "simpa only [sq] using mul_dvd_mul h h",
+    "simpa only [add_comm] using dvd_add h (dvd_refl a)",
+    "exact h"
+   ],
+   "tactica_real": "exact pow_dvd_pow_of_dvd h₁ 3",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16613",
+   "R": "aesop",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "field_simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "calc ‖z - 1 / z‖ ≤ ‖z‖ + ‖1 / z‖ := by apply norm_sub_le",
+    "simp [Complex.norm_eq_abs]",
+    "simp [Complex.norm_eq_abs, Complex.abs_pow]"
+   ],
+   "tactica_real": "simp [Finset.filter, Finset.fold, ha.ne', hz]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_51901",
+   "R": "simp",
+   "V": "exact fun x ↦ by simp [sin, exp_neg, (neg_div _ _).symm, add_mul, mul_add, mul_comm, mul_left_comm]",
+   "F": "exact fun x ↦ by simp [sin, exp_neg, (neg_div _ _).symm, add_mul, mul_add, mul_comm, mul_left_comm]",
+   "R_cands": [
+    "simp",
+    "aesop",
+    "linarith"
+   ],
+   "V_cands": [
+    "exact fun x ↦ by simp [sin, exp_neg, (neg_div _ _).symm, add_mul, mul_add, mul_comm, mul_left_comm]",
+    "exact fun x ↦ by rw [cosh_sq, sinh_sq]; ring",
+    "simp [Real.sinh_add, add_mul, mul_add, mul_comm, mul_left_comm]"
+   ],
+   "tactica_real": "exact fun x ↦ by simp [sinh_neg]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_64633",
+   "R": "ring",
+   "V": "linarith [sq (n - 1), sq (n + 1)]",
+   "F": "ring",
+   "R_cands": [
+    "ring",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "refine' not_forall_of_exists_not ⟨1, by norm_num⟩",
+    "linarith [sq (n - 1), sq (n + 1)]",
+    "linear_combination 5 * n^11 - 2 * n^5 - 3 * n - (n - 1) * n * (n + 1) * (5 * n^4 * (n^4 + n^2 + 1) + 3 * (n^2 + 1))"
+   ],
+   "tactica_real": "ring",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16306",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a^2 - b * c), sq_nonneg (b^2 - c * a), sq_nonneg (c^2 - a * b)]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a * c - b^2), sq_nonneg (b * c - a * b)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - a^2)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_29421",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "nlinarith [ha.1, ha.2, hb.1, hb.2, hc.1, hc.2, h1]",
+    "nlinarith [mul_nonneg (sub_nonneg.2 ha.2) (sub_nonneg.2 hb.2), mul_nonneg (sub_nonneg.2 hb.2) (sub_nonneg.2 hc.2), mul_nonneg (sub_nonneg.2 hc.2) (sub_nonneg.2 ha.2)]",
+    "refine' ⟨by nlinarith [ha.1, ha.2, hb.1, hb.2], by nlinarith [ha.1, ha.2, hb.1, hb.2]⟩"
+   ],
+   "tactica_real": "nlinarith [ha.1, ha.2, hb.1, hb.2, hc.1, hc.2, hd.1, hd.2]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_67932",
+   "R": null,
+   "V": "constructor <;> intro h <;> linarith",
+   "F": "constructor <;> intro h <;> linarith",
+   "R_cands": [
+    "ring_nf",
+    "simp",
+    "field_simp"
+   ],
+   "V_cands": [
+    "constructor <;> intro h <;> linarith",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a + b)]",
+    "refine' fun h => by linarith [h]"
+   ],
+   "tactica_real": "constructor <;> intro h <;> linarith [sq_nonneg (a + b), sq_nonneg (a - b)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_67394",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - 2 * b + c)]",
+    "nlinarith [sq_nonneg (a^2 * b + a * b^2 - 2 * b^3), sq_nonneg (a^3 - 2 * b^3 + a * b^2)]",
+    "nlinarith [sq_nonneg (a - b - c), sq_nonneg (b - 2 * c / 3)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - b), sq_nonneg (a - 1), sq_nonneg (b - 1)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_9978",
+   "R": "norm_num",
+   "V": "norm_num [Real.rpow_def_of_pos (by norm_num : (0 : ℝ) < 3)]",
+   "F": "norm_num",
+   "R_cands": [
+    "norm_num",
+    "ring_nf",
+    "simp"
+   ],
+   "V_cands": [
+    "simp [hx.1, hx.2, div_eq_mul_inv]",
+    "norm_num [Real.rpow_def_of_pos (by norm_num : (0 : ℝ) < 3)]",
+    "simp [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm]"
+   ],
+   "tactica_real": "norm_num [div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv, div_eq_mul_inv",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_2278",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "omega",
+    "aesop",
+    "simp"
+   ],
+   "V_cands": [
+    "refine' ⟨0, 0, by linarith, by simp [hp']⟩",
+    "simp [Nat.div_eq_of_lt ha, Nat.div_eq_of_lt hb, hpq]",
+    "omega"
+   ],
+   "tactica_real": "refine ⟨p + 1,?_,?_⟩ <;> omega",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_46738",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "F": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "field_simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "nlinarith [sq_nonneg (x^2 - y^2), sq_nonneg (y^2 - z^2), sq_nonneg (z^2 - x^2)]",
+    "refine' ⟨by nlinarith [sq_nonneg x, sq_nonneg y, sq_nonneg z, hx, hy, hz], by nlinarith [sq_nonneg x, sq_nonneg y, sq_nonneg z, hx, hy, hz], by nlinarith [sq_nonneg x, sq_nonneg y, sq_nonneg z, hx, hy, hz]⟩"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_28445",
+   "R": "ring",
+   "V": "nlinarith [sq_nonneg (t - 1), sq_nonneg (t + 1)]",
+   "F": "ring",
+   "R_cands": [
+    "ring",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "constructor <;> intro h <;> nlinarith",
+    "nlinarith [sq_nonneg (t - 1), sq_nonneg (t + 1)]",
+    "nlinarith [sq_nonneg (t - 1)]"
+   ],
+   "tactica_real": "ring",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16631",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "field_simp",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [Real.sq_sqrt (by positivity : (0 : ℝ) ≤ a^2 + b^2)]",
+    "nlinarith [ha, hb, hc, habc, h]",
+    "exact ⟨fun h ↦ h, fun h ↦ h⟩"
+   ],
+   "tactica_real": "field_simp [Real.sqrt_eq_iff_sq_eq, mul_assoc, mul_comm, mul_left_comm]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_55154",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "simp"
+   ],
+   "V_cands": [
+    "exact fun x y u v h ↦ by nlinarith [sq_nonneg (x - u), sq_nonneg (y - v)]",
+    "nlinarith [sq_nonneg (u^2 - v^2), sq_nonneg (u^2 + v^2)]",
+    "exact h₂"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - u), sq_nonneg (y - v)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_29233",
+   "R": "omega",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "ring_nf",
+    "omega"
+   ],
+   "V_cands": [
+    "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "simp (config := { contextual := true }) [sq, mul_add, add_mul]"
+   ],
+   "tactica_real": "constructor <;> intro h <;> linarith",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_69421",
+   "R": "nlinarith",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "field_simp",
+    "nlinarith",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [Real.sq_sqrt h.1, Real.sq_sqrt h.2]",
+    "simp [div_eq_mul_inv, mul_assoc, mul_comm, mul_left_comm]",
+    "linarith [Real.sq_sqrt ha, Real.sq_sqrt hb]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (Real.sqrt a - Real.sqrt b), sq_nonneg (Real.sqrt a - Real.sqrt c), sq_nonneg (Real.sqrt c - Real.sqrt b)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_5943",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (k - 1), sq_nonneg k]",
+   "F": "nlinarith [sq_nonneg (k - 1), sq_nonneg k]",
+   "R_cands": [
+    "field_simp",
+    "simp",
+    "norm_num"
+   ],
+   "V_cands": [
+    "field_simp <;> ring",
+    "nlinarith [sq_nonneg (k - 1), sq_nonneg k]",
+    "rw [div_le_iff] <;> norm_cast <;> nlinarith [h]"
+   ],
+   "tactica_real": "exact h₁",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_29219",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (a - b - (a - c)), sq_nonneg (a - b + (a - c))]",
+   "F": "nlinarith [sq_nonneg (a - b - (a - c)), sq_nonneg (a - b + (a - c))]",
+   "R_cands": [
+    "linarith",
+    "nlinarith",
+    "simp"
+   ],
+   "V_cands": [
+    "apply mul_nonneg <;> nlinarith [sq_nonneg (a - b), sq_nonneg (a - c), sq_nonneg (b - c)]",
+    "nlinarith [sq_nonneg (a - b - (a - c)), sq_nonneg (a - b + (a - c))]",
+    "refine' add_nonneg (mul_nonneg (mul_nonneg (sq_nonneg (a - b)) (sq_nonneg (a - c))) (sq_nonneg (b - c))) (mul_nonneg (mul_nonneg (by norm_num : (0 : ℝ) ≤ 3 / 2) (sq_nonneg (a + b + c))) (sq_nonneg _))"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - b), sq_nonneg (a - c), sq_nonneg (b - c)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_20472",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "aesop",
+    "omega",
+    "simp"
+   ],
+   "V_cands": [
+    "refine' ⟨0, 0, by simp⟩",
+    "simp [Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod]",
+    "exact fun h ↦ absurd (h 0) (by simp [h₀, h₁, h₂])"
+   ],
+   "tactica_real": "refine' ⟨fun n => 2, fun n => 4, by norm_num, by norm_num, by norm_num⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_14728",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "refine' ⟨-1, -1, 1, 1, 1, by norm_num⟩",
+    "exact fun x1 x2 x3 ↦ by ring_nf",
+    "exact ⟨fun h ↦ h, fun h ↦ h⟩"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x1 - x2 + x3 - x4)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_51958",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "norm_num",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+    "exact (show 10 ≡ -1 [ZMOD 11] by rfl)",
+    "simp (config := { contextual := true }) [Int.ModEq]"
+   ],
+   "tactica_real": "exact h₀.trans (h₁.trans h₂)",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_28863",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "linarith",
+    "nlinarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a^2 * b - b^2 * c), sq_nonneg (b^2 * c - c^2 * a), sq_nonneg (c^2 * a - a^2 * b)]",
+    "nlinarith [sq_nonneg (a * b + b * c + c * a - b^2 - b * c - c^2)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a ^ 2 - b * c), sq_nonneg (b ^ 2 - c * a), sq_nonneg (c ^ 2 - a * b)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_9331",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [Nat.mul_comm, Nat.mul_assoc, Nat.mul_left_comm]",
+    "norm_num [Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.pow_succ]",
+    "refine' not_forall.2 ⟨-2016, by norm_num⟩"
+   ],
+   "tactica_real": "refine' fun h => h.symm ▸ by norm_num [div_eq_mul_inv, inv_eq_one_div]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_41921",
+   "R": "norm_num",
+   "V": "norm_num [pow_succ, pow_zero, Int.ModEq]",
+   "F": "norm_num [pow_succ, pow_zero, Int.ModEq]",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_zero, Int.ModEq]",
+    "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+    "simp (config := { contextual := true }) [Int.ModEq, Int.dvd_iff_emod_eq_zero, Int.add_emod, Int.mul_emod, Int.emod_emod]"
+   ],
+   "tactica_real": "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_34004",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (a^2 - 1), sq_nonneg (a^2 + 1)]",
+   "F": "nlinarith [sq_nonneg (a^2 - 1), sq_nonneg (a^2 + 1)]",
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a^2 - 1), sq_nonneg (a^2 + 1)]",
+    "nlinarith [sq_nonneg (a^2 - 1), sq_nonneg (a^2 - a)]",
+    "nlinarith [sq_nonneg (a - 1), sq_nonneg (a - 2)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - 1), sq_nonneg (a + 2)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_18354",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "linarith",
+    "aesop"
+   ],
+   "V_cands": [
+    "refine' ⟨x0, fun ε ε0 => ⟨0, fun n _ => by simp [h, ε0]⟩⟩",
+    "exact fun x ε ε_pos ↦ hf x ε ε_pos",
+    "linarith [x2n 0, x2np1 0]"
+   ],
+   "tactica_real": "exact ⟨f_n, fun ε ε_pos ↦ ⟨0, fun n _ ↦ by simp [hf_n, ε_pos]⟩⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_6629",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "norm_num",
+    "nlinarith"
+   ],
+   "V_cands": [
+    "norm_num [show (10 : ℕ) = 2 * 5 by norm_num, show (4 : ℕ) = 2 * 2 by norm_num]",
+    "norm_num [pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ]",
+    "norm_num [h]"
+   ],
+   "tactica_real": "simp [hx, show (9 + 1) ^ 10 = 10000000000 by norm_num]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_18386",
+   "R": "aesop",
+   "V": null,
+   "F": "aesop",
+   "R_cands": [
+    "aesop",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "simp only [hf, eq_self_iff_true, if_true]",
+    "exact fun x hx ↦ by rw [hf]; simp [hx]",
+    "exact fun n hn => hf ▸ rfl"
+   ],
+   "tactica_real": "exact ⟨a, b, hf⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_56431",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "F": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "R_cands": [
+    "field_simp",
+    "nlinarith",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "linarith [h₀.1, h₀.2.1, h₀.2.2, h₁, h₂]",
+    "nlinarith [sq_nonneg (x - y), h₀.1, h₀.2.1, h₀.2.2, h₁]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x), h₀.1, h₀.2.1, h₀.2.2, h₁.1, h₁.2, h₂]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_7237",
+   "R": "norm_num",
+   "V": "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+   "F": "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+    "exact ⟨by decide, by decide⟩",
+    "conv => lhs; rw [← pow_one 5]"
+   ],
+   "tactica_real": "conv => lhs; rw [← pow_one 2]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_13480",
+   "R": "norm_num",
+   "V": "norm_num [pow_succ, pow_zero, pow_one, mul_one, mul_add, add_mul, add_assoc, add_comm, add_left_comm]",
+   "F": "norm_num [pow_succ, pow_zero, pow_one, mul_one, mul_add, add_mul, add_assoc, add_comm, add_left_comm]",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_zero, pow_one, mul_one, mul_add, add_mul, add_assoc, add_comm, add_left_comm]",
+    "norm_num [pow_succ, pow_zero, pow_one, Nat.mod_eq_of_lt]",
+    "norm_num [show (10 : ℕ) = 2 * 5 by norm_num, show (4 : ℕ) = 2 * 2 by norm_num]"
+   ],
+   "tactica_real": "norm_num [pow_succ, pow_mul, pow_one, Nat.mul_mod, Nat.pow_mod, Nat.mod_mod]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_25391",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x - z), sq_nonneg (y - z)]",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "nlinarith [mul_nonneg (sub_nonneg.2 hx) (sub_nonneg.2 hy), mul_nonneg (sub_nonneg.2 hy) (sub_nonneg.2 hz), mul_nonneg (sub_nonneg.2 hz) (sub_nonneg.2 hx)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x * y - x * z), sq_nonneg (x * y - y * z), sq_nonneg (x * z - y * z)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_44446",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "aesop",
+    "norm_num"
+   ],
+   "V_cands": [
+    "refine' ⟨1 / 2, ⟨by norm_num, by norm_num⟩, by norm_num [hx]⟩",
+    "refine ⟨a, ⟨by linarith [hab.le], by linarith [hab.le]⟩, by norm_num⟩",
+    "refine' continuousOn_const.congr fun x hx => hg x hx"
+   ],
+   "tactica_real": "simp [ContinuousOn, ContinuousWithinAt, hA]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_69072",
+   "R": "aesop",
+   "V": "simp [Function.Injective]",
+   "F": "simp [Function.Injective]",
+   "R_cands": [
+    "simp",
+    "aesop",
+    "linarith"
+   ],
+   "V_cands": [
+    "refine' fun x y hxy ↦ by simpa [mul_left_inj' (two_ne_zero' ℤ)] using hxy",
+    "simp [Function.Injective]",
+    "exact exp_injective"
+   ],
+   "tactica_real": "exact ⟨fun h x y hxy ↦ h x y hxy, fun h x y hxy ↦ h hxy⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_42372",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "nlinarith [sq_nonneg (x * y - x * z), sq_nonneg (x * y - y * z), sq_nonneg (x * z - y * z)]",
+    "refine' ⟨by linarith [h₁, h₂], by linarith [h₁, h₂]⟩"
+   ],
+   "tactica_real": "refine' ⟨by nlinarith [sq_nonneg (x - y), h₁], by nlinarith [sq_nonneg (x - z), h₁], by nlinarith [sq_nonneg (y - z), h₁]⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_28930",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a^2 - b * c), sq_nonneg (b^2 - c * a), sq_nonneg (c^2 - a * b)]",
+    "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_51594",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (a^2 - 1/2), sq_nonneg (b^3 - 1/4)]",
+   "F": "nlinarith [sq_nonneg (a^2 - 1/2), sq_nonneg (b^3 - 1/4)]",
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a^2 - 1/2), sq_nonneg (b^3 - 1/4)]",
+    "nlinarith [sq_nonneg (a + b), sq_nonneg (a - b)]",
+    "nlinarith [sq_nonneg (a^3 - b^3), sq_nonneg (a^2 * b - b^3), sq_nonneg (a * b^2 - b^3)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a^2 - 1/2), sq_nonneg (b^3 - 1/4)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_3908",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (x - 1), sq_nonneg (x - 2)]",
+   "F": "nlinarith",
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "constructor <;> nlinarith [sq_nonneg (x - 1/2)]",
+    "nlinarith [sq_nonneg (x - 1), sq_nonneg (x - 2)]",
+    "rw [div_le_iff] <;> nlinarith"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - 1), sq_nonneg (x - 2)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_48302",
+   "R": "norm_num",
+   "V": "norm_num [ha, hb, hc, habc]",
+   "F": "norm_num [ha, hb, hc, habc]",
+   "R_cands": [
+    "norm_num",
+    "ring_nf",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [ha, hb, hc, habc]",
+    "norm_num [ha, hb, hc, hab]",
+    "linarith [sq_nonneg (a - 1), sq_nonneg (b - 1), sq_nonneg (c - 1)]"
+   ],
+   "tactica_real": "norm_num [ha, hb, hc, habc]",
+   "duplicado": true
+  },
+  {
+   "id": "lean_workbook_plus_72723",
+   "R": "ring",
+   "V": "linear_combination (x + y + z) ^ 3",
+   "F": "linear_combination (x + y + z) ^ 3",
+   "R_cands": [
+    "ring",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "linear_combination (x + y + z) ^ 3",
+    "nlinarith [sq_nonneg (x ^ 3 + y ^ 3 + z ^ 3 + 2 * x * y * z)]",
+    "ring"
+   ],
+   "tactica_real": "ring",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_23709",
+   "R": "norm_num",
+   "V": null,
+   "F": "norm_num",
+   "R_cands": [
+    "norm_num",
+    "nlinarith",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [ha, hb, hc, hab]",
+    "norm_num [ha, hb, hc]",
+    "norm_num [ha, hb, hc, habc]"
+   ],
+   "tactica_real": "norm_num [hab, hbc, hcd]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_10988",
+   "R": "norm_num",
+   "V": "norm_num [show (2 : ℤ) * 81 = 162 by norm_num]",
+   "F": "norm_num [show (2 : ℤ) * 81 = 162 by norm_num]",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "field_simp"
+   ],
+   "V_cands": [
+    "norm_num [show (2 : ℤ) * 81 = 162 by norm_num]",
+    "nlinarith [sq_nonneg (x - 3), sq_nonneg (x ^ 2 - 6 * x + 9)]",
+    "norm_num [Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ, Nat.factorial_succ]"
+   ],
+   "tactica_real": "norm_num [Nat.factorial]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_68586",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (x - 1), sq_nonneg (x ^ 2 - 1), sq_nonneg (x ^ 3 - 1)]",
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x ^ 5 - x ^ 4), sq_nonneg (x ^ 4 - x ^ 3), sq_nonneg (x ^ 3 - x ^ 2)]",
+    "field_simp [h₁]",
+    "nlinarith [sq_nonneg (x - 1), sq_nonneg (x ^ 2 - 1), sq_nonneg (x ^ 3 - 1)]"
+   ],
+   "tactica_real": "norm_num [hx, show (1.98 : ℝ) = 198 / 100 by norm_num]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_70164",
+   "R": "simp",
+   "V": "simp [Real.sin_three_mul, sub_eq_add_neg]",
+   "F": "simp [Real.sin_three_mul, sub_eq_add_neg]",
+   "R_cands": [
+    "linarith",
+    "simp",
+    "nlinarith"
+   ],
+   "V_cands": [
+    "simp [Real.sin_three_mul, sub_eq_add_neg]",
+    "rw [Real.sq_sqrt (sub_nonneg.2 (by nlinarith [cos_le_one (θ₁ + θ₂)]))]",
+    "exact ⟨fun h ↦ h, fun h ↦ h⟩"
+   ],
+   "tactica_real": "exact ⟨l * sin θ₁ + l * sin θ₂, rfl⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_76411",
+   "R": "ring",
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - d), sq_nonneg (d - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - d), sq_nonneg (d - a)]",
+   "R_cands": [
+    "ring",
+    "linarith",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - d), sq_nonneg (d - a)]",
+    "nlinarith [sq_nonneg (a + b + c + d), sq_nonneg (a - b + c - d), sq_nonneg (a - b - c + d)]",
+    "linarith [sq_nonneg (a - b + c - d)]"
+   ],
+   "tactica_real": "linarith [a + b + c + a + b + d + a + c + d + b + c + d]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_23724",
+   "R": null,
+   "V": "exact mul_nonneg (mul_nonneg (sq_nonneg (a - b)) (sq_nonneg (a - c))) (sq_nonneg (b - c))",
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "ring",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "exact mul_nonneg (mul_nonneg (sq_nonneg (a - b)) (sq_nonneg (a - c))) (sq_nonneg (b - c))"
+   ],
+   "tactica_real": "exact mul_nonneg (mul_nonneg (sq_nonneg (a - b)) (sq_nonneg (a - c))) (sq_nonneg (b - c))",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_61327",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "omega",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "simpa only [Int.ModEq] using h",
+    "refine' ⟨1, by simp [Int.ModEq]⟩",
+    "simpa [pow_add, pow_mul, pow_one] using h.pow 2"
+   ],
+   "tactica_real": "exact ⟨2 ^ (p - 2) + 3 ^ (p - 2) + 6 ^ (p - 2), by simp [hp1]⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_1582",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (x - 1), hx]",
+   "F": "nlinarith",
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "rw [div_le_iff] <;> nlinarith",
+    "nlinarith [sq_nonneg (x - 1), hx]",
+    "constructor <;> nlinarith [sq_nonneg (x - 1/2)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - 1), hx.1, hx.2]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_46338",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "norm_num",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a + b)]",
+    "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (a^2 + b^2 - 2)]",
+    "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (a^2 - a * b), sq_nonneg (b^2 - a * b)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (a^2 + b^2 - 4)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_47773",
+   "R": "ring",
+   "V": "linarith [sq (x - y), sq (y - z), sq (z - x)]",
+   "F": "linarith [sq (x - y), sq (y - z), sq (z - x)]",
+   "R_cands": [
+    "ring",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "linarith [sq (x - y), sq (y - z), sq (z - x)]",
+    "nlinarith [sq_nonneg (x^2 * (y - z)), sq_nonneg (y^2 * (z - x)), sq_nonneg (z^2 * (x - y))]",
+    "ring"
+   ],
+   "tactica_real": "ring",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_47452",
+   "R": "norm_num",
+   "V": "simp only [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]",
+   "F": "simp only [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]",
+   "R_cands": [
+    "norm_num",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "simp only [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]",
+    "norm_num [Nat.add_comm, Nat.add_assoc, Nat.add_left_comm]",
+    "norm_num [pow_succ, pow_zero, pow_one, mul_one, mul_comm, mul_assoc, mul_left_comm]"
+   ],
+   "tactica_real": "norm_num [Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, Nat.div_eq_of_eq_mul_left, N",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_5799",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "aesop",
+    "refine' ⟨fun n ↦ a n, fun n ↦ rfl⟩",
+    "omega"
+   ],
+   "tactica_real": "refine' ⟨1346269 / 196418, 0, by norm_num [a0, a1, a_rec], by norm_num [a0, a1, a_rec]⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_41544",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "field_simp",
+    "nlinarith",
+    "norm_num"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "exact ⟨add_pos (add_pos hab hbc) hca, add_pos (add_pos (one_div_pos.mpr hab) (one_div_pos.mpr hbc)) (one_div_pos.mpr hca)⟩",
+    "constructor <;> nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_86",
+   "R": "linarith",
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "linarith",
+   "R_cands": [
+    "linarith",
+    "norm_num",
+    "nlinarith"
+   ],
+   "V_cands": [
+    "exact fun h ↦ by linarith [h.1, h.2.1, h.2.2.1, h.2.2.2]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "simp [ha, hb, hc, habc]"
+   ],
+   "tactica_real": "linarith [h, habc]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_69533",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a * c - b^2), sq_nonneg (b * c - a * b), sq_nonneg (a * b - b * c)]",
+    "nlinarith [sq_nonneg (a * c - b^2), sq_nonneg (b * c - a * b)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_14615",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "linarith",
+    "simp"
+   ],
+   "V_cands": [
+    "constructor <;> intro h <;> linarith",
+    "nlinarith [sq_nonneg (a - b), h₁, h₂, h₃]",
+    "simp [h₁, h₂, h₃, add_assoc, add_comm, add_left_comm]"
+   ],
+   "tactica_real": "norm_num [h₁, h₂, h₃]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_32451",
+   "R": null,
+   "V": "exact ⟨x^2 + y^2 + z^2 - x * y - x * z - y * z, by ring⟩",
+   "F": "exact ⟨x^2 + y^2 + z^2 - x * y - x * z - y * z, by ring⟩",
+   "R_cands": [
+    "simp",
+    "ring_nf",
+    "nlinarith"
+   ],
+   "V_cands": [
+    "exact ⟨x^2 + y^2 + z^2 - x * y - x * z - y * z, by ring⟩",
+    "nlinarith [sq_nonneg (x * (x - z) - y * (y - z)), sq_nonneg (y * (y - x) - z * (z - x)), sq_nonneg (z * (z - y) - x * (x - y))]",
+    "ring"
+   ],
+   "tactica_real": "exact ⟨x^2 + y^2 + z^2 - x * y - x * z - y * z, by ring⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_65625",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "omega",
+    "simp"
+   ],
+   "V_cands": [
+    "simp only [h₁, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]",
+    "exact ⟨by norm_num, by norm_num⟩",
+    "refine' fun x hx => by nlinarith [sq_nonneg (x - 1), sq_nonneg (x - 1 / 3)]"
+   ],
+   "tactica_real": "norm_num [hx, show (123 : ℤ) = 123 by rfl, show (123456 : ℤ) = 123456 by rfl]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16524",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "ring_nf",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x - z), sq_nonneg (y - z)]",
+    "nlinarith [mul_pos hx hy, mul_pos hx hz, mul_pos hy hz]"
+   ],
+   "tactica_real": "constructor <;> intro h <;> linarith",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_67755",
+   "R": null,
+   "V": "simp only [hf, eq_self_iff_true, forall_const]",
+   "F": null,
+   "R_cands": [
+    "simp",
+    "norm_num",
+    "linarith"
+   ],
+   "V_cands": [
+    "simp only [h, sub_self, eq_self_iff_true, forall_const]",
+    "simp only [hf, hx, mul_pos]",
+    "simp only [hf, eq_self_iff_true, forall_const]"
+   ],
+   "tactica_real": "simp only [hf, eq_self_iff_true, forall_const]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_78905",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "ring",
+    "simp",
+    "omega"
+   ],
+   "V_cands": [
+    "ring",
+    "simp [sq, mul_add, mul_comm, mul_left_comm, sub_eq_add_neg, add_assoc, add_comm, add_left_comm]",
+    "exact fun x y ↦ by ring"
+   ],
+   "tactica_real": "refine' ⟨by ring, by ring, by ring⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_35284",
+   "R": "norm_num",
+   "V": "norm_num [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "norm_num [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "norm_num",
+    "ring_nf",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "norm_num [div_eq_mul_inv, mul_add, add_mul, add_assoc, add_comm, add_left_comm]",
+    "linarith [sq_nonneg (a / (a + 2 * b) - b / (b + 2 * c)), sq_nonneg (b / (b + 2 * c) - c / (c + 2 * a)), sq_nonneg (c / (c + 2 * a) - a / (a + 2 * b))]"
+   ],
+   "tactica_real": "norm_num [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_70188",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "field_simp",
+    "norm_num",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "aesop",
+    "nlinarith [ha.1, ha.2, hb.1, hb.2, hc.1, hc.2]"
+   ],
+   "tactica_real": "norm_num [h.1, h.2.1, h.2.2]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_39298",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "field_simp"
+   ],
+   "V_cands": [
+    "refine' ⟨by nlinarith [sq_nonneg x, sq_nonneg y, sq_nonneg z, hx, hy, hz], by nlinarith [sq_nonneg x, sq_nonneg y, sq_nonneg z, hx, hy, hz], by nlinarith [sq_nonneg x, sq_nonneg y, sq_nonneg z, hx, hy, hz]⟩",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "exact mul_pos (mul_pos (mul_pos (by norm_num) hx) hy) hz"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x * y), sq_nonneg z]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16750",
+   "R": null,
+   "V": "simp [Real.exp_add]",
+   "F": "simp [Real.exp_add]",
+   "R_cands": [
+    "simp",
+    "ring",
+    "linarith"
+   ],
+   "V_cands": [
+    "simp [Real.exp_add]",
+    "rw [← exp_mul, mul_comm]",
+    "nlinarith [add_one_le_exp x]"
+   ],
+   "tactica_real": "rw [Real.exp_add]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_42173",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "ring_nf",
+    "field_simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [ha, hb, hc, habc, h]",
+    "refine' ⟨0, 0, 0, by norm_num⟩",
+    "nlinarith [sq_nonneg (a + b - c), sq_nonneg (b + c - a), sq_nonneg (c + a - b)]"
+   ],
+   "tactica_real": "ring_nf",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_11215",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "ring",
+    "nlinarith [sq_nonneg (cos a - cos b), sq_nonneg (cos b - cos c), sq_nonneg (cos c - cos a)]",
+    "field_simp [cos_add, cos_sub]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (cos x - cos y), sq_nonneg (cos y - cos z), sq_nonneg (cos z - cos x)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_29099",
+   "R": "linarith",
+   "V": "linarith [h]",
+   "F": "linarith [h]",
+   "R_cands": [
+    "linarith",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "linarith [h]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a + b - 2 * c)]"
+   ],
+   "tactica_real": "linarith [h, show (4 : ℝ) ≠ 0 by norm_num]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_53488",
+   "R": "norm_num",
+   "V": "refine' ⟨by norm_num [pow_succ, pow_zero, Int.ModEq], by norm_num [pow_succ, pow_zero, Int.ModEq], by norm_num [pow_succ, pow_zero, Int.ModEq]⟩",
+   "F": "refine' ⟨by norm_num [pow_succ, pow_zero, Int.ModEq], by norm_num [pow_succ, pow_zero, Int.ModEq], by norm_num [pow_succ, pow_zero, Int.ModEq]⟩",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "refine' ⟨by norm_num [pow_succ, pow_zero, Int.ModEq], by norm_num [pow_succ, pow_zero, Int.ModEq], by norm_num [pow_succ, pow_zero, Int.ModEq]⟩",
+    "exact ⟨by decide, by decide, by decide⟩",
+    "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]"
+   ],
+   "tactica_real": "exact ⟨by decide, by decide, by decide, by decide⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_28278",
+   "R": "norm_num",
+   "V": "norm_num [pow_succ, pow_zero, pow_one, mul_comm, mul_assoc, mul_left_comm]",
+   "F": "norm_num [pow_succ, pow_zero, pow_one, mul_comm, mul_assoc, mul_left_comm]",
+   "R_cands": [
+    "norm_num",
+    "omega",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_zero, pow_one, mul_comm, mul_assoc, mul_left_comm]",
+    "norm_num [hx, Int.floor_eq_iff]",
+    "norm_num [pow_succ, pow_zero, pow_one, Nat.mul_mod, Nat.pow_mod]"
+   ],
+   "tactica_real": "norm_num [pow_succ]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_37865",
+   "R": "omega",
+   "V": null,
+   "F": "omega",
+   "R_cands": [
+    "omega",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "simpa only [add_comm] using dvd_add h (dvd_refl a)",
+    "simpa only [sq] using mul_dvd_mul h h",
+    "exact ⟨fun h ↦ by linarith, fun h ↦ by linarith⟩"
+   ],
+   "tactica_real": "constructor <;> intro h <;> omega",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_35489",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (a - 1)]",
+   "F": "nlinarith [sq_nonneg (a - 1)]",
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - 1)]",
+    "nlinarith [sq_nonneg (a^3 - 1), sq_nonneg (a^2 - 1), sq_nonneg (a - 1)]",
+    "nlinarith [sq_nonneg (a - 1), sq_nonneg (a + 1)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg a]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_41559",
+   "R": "simp",
+   "V": "simp [Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod]",
+   "F": "simp [Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod]",
+   "R_cands": [
+    "simp",
+    "norm_num",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "simp [Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.pow_mod]",
+    "refine' not_forall.2 ⟨0, by norm_num⟩",
+    "refine' fun h ↦ absurd (h 0) (by norm_num)"
+   ],
+   "tactica_real": "exact fun n ↦ by simp [Nat.pow_mul, Nat.pow_succ]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_31659",
+   "R": "ring",
+   "V": null,
+   "F": "ring",
+   "R_cands": [
+    "ring",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - d), sq_nonneg (d - a)]",
+    "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - d^2), sq_nonneg (d^2 - a^2)]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a - c), sq_nonneg (a - d), sq_nonneg (b - c), sq_nonneg (b - d), sq_nonneg (c - d)]"
+   ],
+   "tactica_real": "simp [sq, mul_add, mul_comm, mul_left_comm]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_11458",
+   "R": "ring",
+   "V": "nlinarith [a, b, c, d, e, f]",
+   "F": "nlinarith [a, b, c, d, e, f]",
+   "R_cands": [
+    "ring",
+    "linarith",
+    "norm_num"
+   ],
+   "V_cands": [
+    "nlinarith [a, b, c, d, e, f]",
+    "ring",
+    "simp [h', h''] at h'' <;> linarith"
+   ],
+   "tactica_real": "ring",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_15488",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "linarith",
+    "omega"
+   ],
+   "V_cands": [
+    "omega",
+    "rcases h with (h | h) <;> linarith",
+    "exact hp.dvd_of_dvd_pow h"
+   ],
+   "tactica_real": "refine' ⟨2 * p, 0, 1, by ring⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_49486",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "linarith",
+    "norm_num"
+   ],
+   "V_cands": [
+    "simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]",
+    "simp only [Nat.add_zero, Nat.add_succ, Nat.zero_add, Nat.succ_add]",
+    "simp [mul_add, add_mul, mul_comm, mul_left_comm]"
+   ],
+   "tactica_real": "exact fun h ↦ by linarith",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_57499",
+   "R": "omega",
+   "V": null,
+   "F": "omega",
+   "R_cands": [
+    "omega",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "simp only [Nat.mod_eq_of_lt (Nat.lt_succ_self 9)]",
+    "refine' ⟨0, by norm_num⟩",
+    "rcases h with (h | h | h) <;> simp [h, pow_two, Int.mul_emod, Int.add_emod]"
+   ],
+   "tactica_real": "omega",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_6009",
+   "R": null,
+   "V": "constructor <;> intro h <;> linarith",
+   "F": "constructor <;> intro h <;> linarith",
+   "R_cands": [
+    "field_simp",
+    "ring_nf",
+    "simp"
+   ],
+   "V_cands": [
+    "constructor <;> intro h <;> linarith",
+    "constructor <;> intro h <;> linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a + b + c), sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "tactica_real": "constructor <;> intro h <;> linarith",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_47096",
+   "R": "aesop",
+   "V": "refine' ⟨fun x ↦ -x^2, fun x ↦ rfl⟩",
+   "F": "aesop",
+   "R_cands": [
+    "aesop",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "refine' ⟨fun x ↦ x, fun x ↦ rfl⟩",
+    "refine' ⟨fun x ↦ x + 1, fun x ↦ rfl⟩",
+    "refine' ⟨fun x ↦ -x^2, fun x ↦ rfl⟩"
+   ],
+   "tactica_real": "refine' ⟨fun x ↦ -x^2, fun x ↦ rfl⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_20026",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "omega",
+    "aesop",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [h₀, h₁, h₂.1, h₂.2]",
+    "nlinarith [sq_nonneg (x - 1), sq_nonneg (y - 1), h.1, h.2, h2]",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x + y), h.1, h.2, h2]"
+   ],
+   "tactica_real": "exact ⟨by nlinarith [h₀.1, h₀.2, h₁], by nlinarith [h₀.1, h₀.2, h₁]⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16181",
+   "R": "linarith",
+   "V": null,
+   "F": "linarith",
+   "R_cands": [
+    "linarith",
+    "simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "constructor <;> linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "ring",
+    "ring_nf"
+   ],
+   "tactica_real": "linarith [sq (a - x), sq (a + x)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_34095",
+   "R": "ring",
+   "V": "nlinarith [sq_nonneg (a * d - b * c), sq_nonneg (a * c - b * d), sq_nonneg (a * d + b * c)]",
+   "F": "nlinarith [sq_nonneg (a * d - b * c), sq_nonneg (a * c - b * d), sq_nonneg (a * d + b * c)]",
+   "R_cands": [
+    "ring",
+    "linarith",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a * d - b * c), sq_nonneg (a * c - b * d), sq_nonneg (a * d + b * c)]",
+    "linarith [sq_nonneg (a - b), sq_nonneg (a - c), sq_nonneg (a - d), sq_nonneg (b - c), sq_nonneg (b - d), sq_nonneg (c - d)]",
+    "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - d), sq_nonneg (d - a)]"
+   ],
+   "tactica_real": "ring",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_69336",
+   "R": "norm_num",
+   "V": "norm_num [ha, hb, hc]",
+   "F": "norm_num [ha, hb, hc]",
+   "R_cands": [
+    "norm_num",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "norm_num [ha, hb, hc]",
+    "norm_num [h]",
+    "norm_num [habc]"
+   ],
+   "tactica_real": "norm_num [ha, hb, hc]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_56973",
+   "R": "omega",
+   "V": "omega",
+   "F": "omega",
+   "R_cands": [
+    "omega",
+    "simp",
+    "norm_num"
+   ],
+   "V_cands": [
+    "omega",
+    "constructor <;> intro h <;> linarith",
+    "nlinarith [h₁, h₂]"
+   ],
+   "tactica_real": "exact fun h => by omega",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_18321",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x - 1), sq_nonneg (y - 1)]",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x + y)]",
+    "linarith [sq_nonneg (x - 2 * y), sq_nonneg (x + 2 * y)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x^2 - y^2), sq_nonneg (x^2 - 2 * x * y + y^2)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_48872",
+   "R": null,
+   "V": "linarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "F": "linarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "R_cands": [
+    "linarith",
+    "field_simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "linarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "apply div_nonneg <;> nlinarith [sq_nonneg (x + 1), sq_nonneg (y + 1), sq_nonneg (z + 1)]",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]"
+   ],
+   "tactica_real": "linarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_50804",
+   "R": "norm_num",
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (a - c), sq_nonneg (a - d), sq_nonneg (b - c), sq_nonneg (b - d), sq_nonneg (c - d)]",
+   "F": "norm_num",
+   "R_cands": [
+    "norm_num",
+    "ring_nf",
+    "field_simp"
+   ],
+   "V_cands": [
+    "rw [div_le_iff] <;> nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - d), sq_nonneg (d - a)]",
+    "norm_num [h, show (0 : ℝ) < 16 by norm_num, show (0 : ℝ) < 16 by norm_num]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a - c), sq_nonneg (a - d), sq_nonneg (b - c), sq_nonneg (b - d), sq_nonneg (c - d)]"
+   ],
+   "tactica_real": "norm_num [ha, hb, hc, hd, habc]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_61800",
+   "R": "aesop",
+   "V": "exact fun x ↦ hf x",
+   "F": "aesop",
+   "R_cands": [
+    "aesop",
+    "simp",
+    "linarith"
+   ],
+   "V_cands": [
+    "exact fun x y hxy ↦ hf x y ⟨hxy.1, hxy.2⟩",
+    "linarith [hf x 1, hf 1 x]",
+    "exact fun x ↦ hf x"
+   ],
+   "tactica_real": "exact fun x y hxy ↦ hf x y hxy",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_13317",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "F": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x - z), sq_nonneg (y - z)]",
+    "nlinarith [sq_nonneg (x * y - x * z), sq_nonneg (x * y - y * z), sq_nonneg (x * z - y * z)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_71987",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "ring_nf",
+    "norm_num"
+   ],
+   "V_cands": [
+    "simp [Int.ModEq, Int.mul_emod, h₀.eq, h₁.eq]",
+    "simpa only [add_comm a₁ b₁, add_comm a₂ b₂] using ha.add hb",
+    "exact fun h ↦ by linarith [h]"
+   ],
+   "tactica_real": "simpa only [add_comm a₁ k, add_comm a₂ k] using h.add_right k",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_26687",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "simp",
+    "omega",
+    "aesop"
+   ],
+   "V_cands": [
+    "rw [← Int.dvd_iff_emod_eq_zero]",
+    "simp [Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.pow_mod, hn]",
+    "interval_cases n % 3 <;> simp [Int.mul_emod, Int.add_emod, Int.emod_emod]"
+   ],
+   "tactica_real": "simp only [Int.dvd_iff_emod_eq_zero, Int.emod_eq_emod_iff_emod_sub_eq_zero, hn]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_38768",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_mul, pow_one, Int.ModEq]",
+    "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+    "norm_num [pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ, pow_succ]"
+   ],
+   "tactica_real": "norm_num [pow_succ, pow_mul, Int.ModEq]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_17770",
+   "R": "norm_num",
+   "V": "norm_num [ha, hb, hc, habc]",
+   "F": "norm_num",
+   "R_cands": [
+    "norm_num",
+    "field_simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "norm_num [ha, hb, hc, hab]",
+    "norm_num [ha, hb, hc, habc]",
+    "nlinarith [ha, hb, hc, habc, h]"
+   ],
+   "tactica_real": "norm_num [ha, hb, hc, habc]",
+   "duplicado": true
+  },
+  {
+   "id": "lean_workbook_plus_74566",
+   "R": "omega",
+   "V": null,
+   "F": "omega",
+   "R_cands": [
+    "omega",
+    "simp",
+    "aesop"
+   ],
+   "V_cands": [
+    "simp [h, show (1 : ℝ) ^ 2 = 1 by norm_num]",
+    "simp [ha, hb, Int.mul_comm, Int.mul_assoc, Int.mul_left_comm]",
+    "interval_cases x <;> norm_num at h₁ ⊢"
+   ],
+   "tactica_real": "simp [h₂, Nat.dvd_iff_mod_eq_zero, Nat.add_mod, Nat.mul_mod, Nat.mod_mod]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_75815",
+   "R": "ring",
+   "V": "linarith [sq_nonneg (sin A - sin B), sq_nonneg (sin B - sin C), sq_nonneg (sin C - sin A)]",
+   "F": "linarith [sq_nonneg (sin A - sin B), sq_nonneg (sin B - sin C), sq_nonneg (sin C - sin A)]",
+   "R_cands": [
+    "ring",
+    "field_simp",
+    "simp"
+   ],
+   "V_cands": [
+    "linarith [sq_nonneg (sin A - sin B), sq_nonneg (sin B - sin C), sq_nonneg (sin C - sin A)]",
+    "linarith [sin_sq_add_cos_sq A, sin_sq_add_cos_sq B, sin_sq_add_cos_sq C]",
+    "exact fun h ↦ ⟨π, 0, π, by norm_num [h]⟩"
+   ],
+   "tactica_real": "linear_combination (a - b) * sin (A / 2) + (b - c) * sin (B / 2) + (c - a) * sin (C / 2)",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_54181",
+   "R": "aesop",
+   "V": null,
+   "F": "aesop",
+   "R_cands": [
+    "aesop",
+    "linarith",
+    "simp"
+   ],
+   "V_cands": [
+    "exact fun x ↦ h x",
+    "exact fun x ↦ by simpa using h x",
+    "exact fun x ↦ hf x"
+   ],
+   "tactica_real": "exact ⟨c, fun x ↦ h x⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_45343",
+   "R": null,
+   "V": "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a), habc, h]",
+   "F": null,
+   "R_cands": [
+    "linarith",
+    "nlinarith",
+    "simp"
+   ],
+   "V_cands": [
+    "linarith [sq_nonneg (a - 1), sq_nonneg (b - 1), sq_nonneg (c - 1)]",
+    "linarith [sq_nonneg (a - 1/2), sq_nonneg (b - 1/2), sq_nonneg (c - 1/2)]",
+    "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a), habc, h]"
+   ],
+   "tactica_real": "linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_40085",
+   "R": "linarith",
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "field_simp",
+    "norm_num",
+    "linarith"
+   ],
+   "V_cands": [
+    "norm_num [show (-1 : ℤ) * (-1) = 1 by norm_num]",
+    "linarith [h 1 zero_lt_one]",
+    "constructor <;> nlinarith [hx.1, hx.2, hy.1, hy.2]"
+   ],
+   "tactica_real": "linarith [Real.exp_pos (1 : ℝ)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_80188",
+   "R": "nlinarith",
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a + b + c), sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg (a + b - c), sq_nonneg (a - b + c), sq_nonneg (-a + b + c)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_67713",
+   "R": "norm_num",
+   "V": "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+   "F": "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "norm_num [pow_succ, pow_zero, pow_one, Int.ModEq]",
+    "exact (show 10 ≡ -1 [ZMOD 11] by rfl)",
+    "conv => lhs; rw [← pow_one 5]"
+   ],
+   "tactica_real": "conv => lhs; rw [← pow_one 2]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_12277",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "F": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a^2 - b^2), sq_nonneg (b^2 - c^2), sq_nonneg (c^2 - a^2)]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "nlinarith [sq_nonneg ((a - b) * (b - c) * (c - a))]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_9633",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "norm_num",
+    "aesop",
+    "simp"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+    "exact fun a b c ↦ by ring",
+    "exact fun a b c ↦ by linarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]"
+   ],
+   "tactica_real": "exact fun a b c ↦ by nlinarith [sq_nonneg (a - b), sq_nonneg (b - c), sq_nonneg (c - a)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_8157",
+   "R": "norm_num",
+   "V": "norm_num [show (-1 : ℤ) * (-1) = 1 by norm_num]",
+   "F": "norm_num [show (-1 : ℤ) * (-1) = 1 by norm_num]",
+   "R_cands": [
+    "norm_num",
+    "simp",
+    "field_simp"
+   ],
+   "V_cands": [
+    "norm_num [show (-1 : ℤ) * (-1) = 1 by norm_num]",
+    "norm_num [show (1 : ℤ) - (-1) = 2 by norm_num]",
+    "simp [Int.floor_eq_iff]"
+   ],
+   "tactica_real": "exact Int.floor_eq_iff.mpr ⟨by norm_num, by norm_num⟩",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_42964",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "linarith [sq_nonneg (x + y), sq_nonneg (x - y)]",
+    "nlinarith [sq_nonneg (a + 1 - b), sq_nonneg (b - 1)]",
+    "nlinarith [sq_nonneg (x - 1), sq_nonneg (y - 1)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - 2 * y), sq_nonneg (17 * x + 4 * y)]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_16433",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "field_simp",
+    "linarith",
+    "ring_nf"
+   ],
+   "V_cands": [
+    "exact ⟨by rw [div_lt_div_iff] <;> nlinarith [sq_pos_of_pos hx], by rw [div_lt_one] <;> nlinarith [sq_pos_of_pos hx]⟩",
+    "nlinarith [sq_nonneg (x - 1/2)]",
+    "simp [two_mul, pow_add, pow_one, mul_add, mul_one, hx]"
+   ],
+   "tactica_real": "rw [div_lt_div_iff] <;> nlinarith",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_78031",
+   "R": "linarith",
+   "V": null,
+   "F": "linarith",
+   "R_cands": [
+    "linarith",
+    "ring",
+    "simp"
+   ],
+   "V_cands": [
+    "exact fun h ↦ ⟨k - 1, by linarith⟩",
+    "exact fun k ↦ by ring",
+    "simp [add_tsub_cancel_of_le (Nat.pow_le_pow_of_le_left (Nat.sub_le ..) ..)]"
+   ],
+   "tactica_real": "linarith [k^2 - (k + 1)^2 - (k + 2)^2 + (k + 3)^2]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_44987",
+   "R": "linarith",
+   "V": "nlinarith [sq_nonneg (a - b), sq_nonneg (a + b)]",
+   "F": "linarith",
+   "R_cands": [
+    "linarith",
+    "ring_nf",
+    "nlinarith"
+   ],
+   "V_cands": [
+    "exacts [h, fun h' ↦ by simp [h'] at h]",
+    "linarith [h₁, h₂, h₃]",
+    "nlinarith [sq_nonneg (a - b), sq_nonneg (a + b)]"
+   ],
+   "tactica_real": "simp [sub_eq_add_neg, add_comm, add_left_comm, add_assoc, h]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_4226",
+   "R": "simp",
+   "V": "constructor <;> intro h <;> simp at h <;> simp [h] <;> omega",
+   "F": "simp",
+   "R_cands": [
+    "simp",
+    "norm_num",
+    "field_simp"
+   ],
+   "V_cands": [
+    "refine ⟨fun x ↦ if x = 1 then (1, 1) else if x = 2 then (2, 1) else if x = 3 then (1, 2) else if x = 4 then (3, 1) else if x = 5 then (2, 2) else if x = 6 then (1, 3) else (4, 1),?_,?_,?_,?_,?_,?_,?_⟩ <;> simp",
+    "refine' not_forall.2 ⟨(-1,1), by norm_num⟩",
+    "constructor <;> intro h <;> simp at h <;> simp [h] <;> omega"
+   ],
+   "tactica_real": "simp [add_comm, add_left_comm, add_assoc]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_62680",
+   "R": null,
+   "V": null,
+   "F": null,
+   "R_cands": [
+    "nlinarith",
+    "ring_nf",
+    "linarith"
+   ],
+   "V_cands": [
+    "linarith [h₀, show (3 : ℝ) = 3 by norm_num, show (9 : ℝ) = 9 by norm_num]",
+    "exact ⟨by nlinarith [h₀, h₁], by nlinarith [h₀, h₁]⟩",
+    "linarith [h₀, h₁]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - 3/4), h₀, h₁]",
+   "duplicado": false
+  },
+  {
+   "id": "lean_workbook_plus_46622",
+   "R": null,
+   "V": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "F": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "R_cands": [
+    "field_simp",
+    "ring_nf",
+    "nlinarith"
+   ],
+   "V_cands": [
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+    "linear_combination x * y * z + (x + y) * (y + z) * (z + x) - (x + y + z) * (x * y + x * z + y * z)",
+    "nlinarith [sq_nonneg (x - y), sq_nonneg (x - z), sq_nonneg (y - z)]"
+   ],
+   "tactica_real": "nlinarith [sq_nonneg (x - y), sq_nonneg (y - z), sq_nonneg (z - x)]",
+   "duplicado": true
+  }
+ ]
+}

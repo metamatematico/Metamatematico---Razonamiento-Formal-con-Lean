@@ -258,7 +258,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1351 tests · 67 suites
+    1357 tests · 67 suites
   </p>
 </nav>
 
@@ -302,7 +302,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1351</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1357</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -2894,10 +2894,10 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       resolver.</figcaption>
     </figure>
 
-    <p>El catálogo tiene dieciocho capacidades. Ante una consulta matemática
-    con Lean disponible corren siete; cinco están apagadas
-    porque no baten a su nulo; una bate al suyo y no está cableada,
-    porque por el camino real no paga; dos dependen de
+    <p>El catálogo tiene veintiuna capacidades. Ante una consulta matemática
+    con Lean disponible corren siete; siete están apagadas
+    porque no baten a su nulo; dos baten al suyo y no están cableadas,
+    y el decisor dice por qué en cada caso; dos dependen de
     la consulta, porque su guarda sólo aplica a algunas; y tres
     no tienen medición contra un nulo —entre ellas el emparejador semántico, que nunca
     llegó a producción y se conserva a propósito: <strong>un candidato evaluado
@@ -3345,7 +3345,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="tests">
     <div class="head"><span class="num">17</span><h2>Tests y <span class="g">guardianes</span></h2></div>
 
-    <p><strong>1 351 tests en 67 suites</strong>, verdes en los dos intérpretes
+    <p><strong>1 357 tests en 67 suites</strong>, verdes en los dos intérpretes
     con los que se trabaja. Los que más valen no comprueban que el código
     funcione: comprueban que el sistema <strong>no pueda volver a afirmar más de
     lo que sabe</strong>.</p>
@@ -3402,7 +3402,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
           <tr><td class="mono">1</td><td><strong>la sesión</strong><span class="sub">nucleo/lean/sesion.py</span></td><td>acepta lo mismo que el fichero, y más rápido</td><td><span class="pill v">pasa · 20 de 20</span></td></tr>
           <tr><td class="mono">2</td><td><strong>la cascada por estado</strong><span class="sub">nucleo/lean/cascada_sesion.py</span></td><td>no pierde ningún cierre y cuesta menos</td><td><span class="pill v">pasa · encendida</span></td></tr>
           <tr><td class="mono">3</td><td><strong>el mediador con el modelo</strong><span class="sub">nucleo/lazo/</span></td><td>verifica más que el lazo por intentos</td><td><span class="pill l">construido · sin medir</span></td></tr>
-          <tr><td class="mono">4</td><td><strong>la recuperación</strong><span class="sub">premisas y tácticas por estado</span></td><td>cada fuente bate a su nulo</td><td><span class="pill">pendiente</span></td></tr>
+          <tr><td class="mono">4</td><td><strong>la recuperación</strong><span class="sub">premisas y tácticas por estado</span></td><td>cada fuente bate a su nulo</td><td><span class="pill l">vecinos sí · D2 no · denso pendiente</span></td></tr>
           <tr><td class="mono">5</td><td><strong>φ y la explicación por paso</strong></td><td>explica con exactitud</td><td><span class="pill">pendiente</span></td></tr>
         </tbody>
       </table>
@@ -3537,6 +3537,66 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <em>Completed</em>, y lo demás —<code>apply?</code> admitiendo con
       <code>sorry</code>, el kernel rechazando— es un fallo que va a la
       memoria del estado.</p>
+    </div>
+
+    <h3>Paso 4 · de dónde salen las tácticas</h3>
+
+    <p>La cascada propone nombres: «prueba <code>nlinarith</code>». Lo que
+    cierra una desigualdad de competición casi nunca es el nombre desnudo,
+    sino <code>nlinarith [sq_nonneg (a - b), …]</code>, con los hechos que hay
+    que citarle. Esos argumentos están escritos en las transiciones de
+    LeanWorkbook de <a href="#fibra">§8</a>: los <strong>vecinos de estado</strong>
+    buscan el estado más parecido y copian lo que lo cerró. La otra fuente es
+    <strong>D2</strong>: <code>apply?</code> lanzado como sonda para leer sus
+    «Try this». Todo se mide sin modelo, con el índice construido sólo con la
+    partición de entrenamiento.</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>medida</th><th class="mono">rankeador</th><th class="mono">vecinos</th><th class="mono">fusión</th></tr></thead>
+        <tbody>
+          <tr><td>posición del nombre que cierra<span class="sub">1530 casos · la de la propuesta</span></td><td class="mono">1,57</td><td class="mono">1,84</td><td class="mono">1,46</td></tr>
+          <tr><td>estados raíz cerrados con Lean<span class="sub">150 estados · 3 intentos por rama</span></td><td class="mono">79</td><td class="mono">76</td><td class="mono">88</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Como <strong>sustitutos</strong> del rankeador, los vecinos no ganan:
+    76 frente a 79. Pero son complementarios —22
+    estados que sólo cierran ellos, 25 que sólo cierra el
+    rankeador—, y la prueba que decide es otra: <strong>como fuente añadida
+    del lazo</strong>, con los mismos 60 estados y el mismo
+    presupuesto:</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>el lazo con</th><th class="mono">verifica</th><th class="mono">frente a D0</th><th class="mono">p</th><th class="mono">llamadas a Lean</th></tr></thead>
+        <tbody>
+          <tr><td>D0 · la cascada</td><td class="mono">41</td><td class="mono">—</td><td class="mono">—</td><td class="mono">14,6</td></tr>
+          <tr><td><strong>D0 + vecinos</strong></td><td class="mono"><strong>48</strong></td><td class="mono">+7 −0</td><td class="mono">0,016</td><td class="mono">13,0</td></tr>
+          <tr><td>D0 + D2</td><td class="mono">40</td><td class="mono">+0 −1</td><td class="mono">1,000</td><td class="mono">15,3</td></tr>
+          <tr><td>D0 + vecinos + D2</td><td class="mono">46</td><td class="mono">+7 −2</td><td class="mono">0,180</td><td class="mono">13,4</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Los vecinos entran como fuente del lazo</strong>: rescatan sin
+    romper, y además gastan menos Lean, porque cierran antes. <strong>D2 no
+    entra</strong>: no rescata ninguno y sus sondas se comen el presupuesto;
+    con las tres fuentes juntas se pierden casos que D0 + vecinos cerraba. Las
+    dos decisiones las tiene escritas el decisor, que lee estos ficheros. Y
+    ninguna llega al alumno todavía: viven dentro del lazo, que sigue sin su
+    puerta con modelo.</p>
+
+    <div class="nota n">
+      <b>Lo que falta del paso 4, y por qué</b>
+      <p>El <strong>índice denso</strong> —los enunciados de Mathlib
+      codificados con un modelo hecho para Lean— no se ha medido: en esta
+      máquina sólo hay un codificador general de paráfrasis, el mismo que dio
+      0,37&nbsp;% de cobertura, y los candidatos de la propuesta hay que
+      descargarlos. El sesgo de los vecinos también queda dicho: LeanWorkbook
+      es matemática de competición, y fuera de desigualdades y álgebra
+      elemental propondrán tácticas que Lean rechazará en centésimas.</p>
     </div>
 
     <h3>Lo que construirlo destapó del sistema de antes</h3>
