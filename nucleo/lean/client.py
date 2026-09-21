@@ -18,7 +18,6 @@ import json
 import os
 import re
 import tempfile
-import urllib.request
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
@@ -924,11 +923,6 @@ class LeanClient:
 
         try:
             result = await self._run_lean_check(temp_file)
-            # Si Lean no está instalado localmente, intentar API HTTP externa
-            if result.status == LeanResultStatus.NOT_AVAILABLE:
-                http_result = await self._verify_via_http(code)
-                if http_result is not None:
-                    result = http_result
             result.elapsed_ms = (time.perf_counter() - start) * 1000
             return result
         finally:
@@ -962,38 +956,6 @@ class LeanClient:
   {proof}
 """
         return await self.check_code(code)
-
-
-
-    async def _verify_via_http(self, code: str) -> Optional[LeanResult]:
-        """
-        Llama al microservicio externo de verificación Lean (si LEAN_VERIFY_URL
-        está configurado).  Retorna None si el servicio no está disponible.
-        """
-        url = os.environ.get("LEAN_VERIFY_URL", "").rstrip("/")
-        if not url:
-            return None
-        try:
-            payload = json.dumps({"code": code, "timeout": int(self.timeout_s)}).encode()
-            req = urllib.request.Request(
-                f"{url}/verify",
-                data=payload,
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-            with urllib.request.urlopen(req, timeout=self.timeout_s + 10) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-            result = self._parse_lean_output(
-                data.get("stdout", ""),
-                data.get("stderr", ""),
-                data.get("returncode", 0),
-                codigo_verificado=code,
-            )
-            logger.info("Lean verificado via HTTP API")
-            return result
-        except Exception as e:
-            logger.warning(f"Lean HTTP API no disponible: {e}")
-            return None
 
     @staticmethod
     def _kill_process_tree(pid: int) -> None:

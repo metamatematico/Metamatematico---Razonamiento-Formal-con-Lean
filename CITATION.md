@@ -9,7 +9,7 @@ Si usas este sistema en tu investigación o proyecto, por favor cita:
 ```
 Jiménez Martínez, L. (2025). NLE v7.0: Núcleo Lógico Evolutivo basado en
 Memory Evolutive Systems de Ehresmann. Universidad Nacional Autónoma de
-México (UNAM). https://github.com/metamatematico/Demostrador-de-enunciados-matem-ticos
+México (UNAM). https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean
 ```
 
 ### Formato BibTeX
@@ -20,7 +20,7 @@ México (UNAM). https://github.com/metamatematico/Demostrador-de-enunciados-mate
   author={Jim{\'e}nez Mart{\'i}nez, Leonardo},
   year={2025},
   institution={Universidad Nacional Aut{\'o}noma de M{\'e}xico (UNAM)},
-  url={https://github.com/metamatematico/Demostrador-de-enunciados-matem-ticos},
+  url={https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean},
   note={Software de razonamiento matem{\'a}tico con IA}
 }
 ```
@@ -31,7 +31,7 @@ México (UNAM). https://github.com/metamatematico/Demostrador-de-enunciados-mate
 L. Jiménez Martínez, "NLE v7.0: Núcleo Lógico Evolutivo basado en Memory
 Evolutive Systems de Ehresmann," Universidad Nacional Autónoma de México
 (UNAM), 2025. [Online]. Available:
-https://github.com/metamatematico/Demostrador-de-enunciados-matem-ticos
+https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean
 ```
 
 ### Formato Chicago
@@ -40,7 +40,7 @@ https://github.com/metamatematico/Demostrador-de-enunciados-matem-ticos
 Jiménez Martínez, Leonardo. 2025. "NLE v7.0: Núcleo Lógico Evolutivo
 basado en Memory Evolutive Systems de Ehresmann." Universidad Nacional
 Autónoma de México (UNAM).
-https://github.com/metamatematico/Demostrador-de-enunciados-matem-ticos.
+https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.
 ```
 
 ---

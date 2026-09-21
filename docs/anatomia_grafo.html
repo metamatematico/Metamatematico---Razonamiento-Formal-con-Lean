@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Anatomía del grafo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -211,11 +212,12 @@ svg .ln{stroke:var(--muted);fill:none}
     <li><a href="#medido">Lo que está medido</a></li>
     <li><a href="#defectos">Los defectos conocidos</a></li>
     <li><a href="#construir">Cómo se construye</a></li>
+    <li><a href="#lazo">El grafo en el lazo por pasos</a></li>
   </ol>
   <p class="toc-f">
     353 objetos · 1586 morfismos<br>
     206 curados · 147 derivados<br>
-    4676 palabras clave<br>
+    4687 palabras clave<br>
     217 nombres de Mathlib<br>
     0 ciclos de dependencia
   </p>
@@ -223,7 +225,7 @@ svg .ln{stroke:var(--muted);fill:none}
 
 <main>
   <header class="hero">
-    <p class="hero-k"><span class="dot"></span>El grafo de conocimiento, en detalle</p>
+    <p class="hero-k"><span class="dot"></span>El grafo de conocimiento, en detalle · 21-09-2026</p>
     <h1>353 objetos, 1 586 flechas, y de dónde sale <em>cada una</em></h1>
     <p class="lede">Es el grafo que <strong>Metamatemático</strong> consulta
     para convertir una pregunta en castellano o en inglés en un enunciado de
@@ -354,7 +356,8 @@ svg .ln{stroke:var(--muted);fill:none}
       <table>
         <thead><tr><th>grupo</th><th class="mono">cuántos</th><th class="mono">origen</th><th>quién lo escribió</th></tr></thead>
         <tbody>
-          <tr><td><strong>CONCEPTO</strong></td><td class="mono">190</td><td class="mono">—</td><td>a mano, con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos»</td></tr>
+          <tr><td><strong>CONCEPTO</strong></td><td class="mono">189</td><td class="mono">—</td><td>a mano, con veredicto categórico: «un objeto es un grupo, las flechas son homomorfismos»</td></tr>
+          <tr><td><strong>AREA</strong> movidos</td><td class="mono">2</td><td class="mono">—</td><td>a mano: <code>zfc-axioms</code> y <code>lean-kernel</code>, que el veredicto pasó a la capa de área</td></tr>
           <tr><td><strong>TACTICA</strong></td><td class="mono">9</td><td class="mono">—</td><td>a mano — las herramientas de prueba de Lean</td></tr>
           <tr><td><strong>ESTRATEGIA</strong></td><td class="mono">6</td><td class="mono">—</td><td>a mano — formas de demostrar</td></tr>
           <tr><td><strong>MODULO</strong></td><td class="mono">125</td><td class="mono">mathlib</td><td>generado desde la taxonomía de módulos, con umbral de teoremas</td></tr>
@@ -1008,9 +1011,12 @@ tactic-omega         7                area-categorytheory 19</pre>
       <li><strong>Las tácticas son nodos y deberían ser flechas.</strong> Nueve
       sumideros que reciben 552 aristas y emiten 11. Una táctica no es
       una cosa: es una transformación de estado de prueba, y como flecha
-      compondría y tendría dominio y codominio. Hay <strong>25 214
-      transiciones</strong> <code>state_before → tactic → state_after</code> en
-      disco para construir esa categoría y medirla sin gastar API.</li>
+      compondría y tendría dominio y codominio. <strong>Esa categoría ya
+      existe fuera de este grafo</strong>: la de estados de prueba, 24&nbsp;752
+      objetos y 25&nbsp;206 flechas de LeanWorkbook, y el lazo por pasos la
+      construye en vivo (<a href="#lazo">§15</a>). Los nueve nodos siguen aquí
+      porque son lo que las 533 cuotas apuntan; el defecto es de este grafo, no
+      del sistema.</li>
 
       <li><strike>Los diez fundacionales no tienen palabras clave.</strike>
       <strong>Cerrado</strong> — ya las tienen los diez, y con ellas el suelo
@@ -1095,6 +1101,65 @@ python scripts/auditar_respaldo_lean.py   # comprueba el mapeo Python ↔ teorem
     uno de ellos o de leer el grafo directamente.</p>
   </section>
 
+  <section id="lazo">
+    <div class="head"><span class="num">15</span><h2>El grafo en el lazo <span class="g">por pasos</span></h2></div>
+
+    <p>El sistema tiene ahora una segunda mitad construida: un lazo en el que
+    las tácticas se prueban de una en una sobre estados de prueba, en una
+    sesión de Lean que no se apaga, y en el que sólo Lean crea flechas. Está
+    medido sin API y fuera del camino servido hasta que corra su puerta con
+    modelo; su detalle está en la §18 de
+    <a href="https://claude.ai/artifact/HvRhJLUKDkxrQW7GjLhZrg">Metamatemático
+    por dentro</a>. Para este grafo, el lazo cambia dos cosas y confirma una.</p>
+
+    <h3>Lo que confirma: el grafo no busca después de la frontera</h3>
+    <p>Ninguno de los proponentes del lazo sale de este grafo. El que entra, con
+    +8 −0 sobre 60 estados, son los <em>vecinos de estado</em>: las tácticas
+    enteras que cerraron estados parecidos de LeanWorkbook. La regla de
+    §13 sigue en pie: lo que este grafo hace antes de que exista un enunciado
+    formal gana, y lo que hace después pierde o empata.</p>
+
+    <h3>Lo nuevo: φ, de qué conceptos habla un estado</h3>
+    <p>El grafo vuelve a entrar, pero para <strong>explicar</strong>: φ lleva
+    cada estado de prueba a los conceptos cuyos nombres verificados aparecen en
+    él, por coincidencia exacta y sin expandir espacios de nombres —la regla que
+    hizo fiable a L4—. Hay dos lecturas: el texto que Lean imprime y las constantes que
+    Lean dice que el estado usa. Sobre 168 estados raíz:</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>estados con al menos un concepto</th><th class="mono">de 168</th></tr></thead>
+        <tbody>
+          <tr><td>leyendo el texto impreso</td><td class="mono">21</td></tr>
+          <tr><td>leyendo las constantes</td><td class="mono">168</td></tr>
+          <tr><td><strong>las constantes, sin los tipos de número</strong></td><td class="mono"><strong>21</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="nota a">
+      <b>Una cobertura hueca, y lo que dice de este grafo</b>
+      <p>Las 168 son casi todas <code>Real</code> o <code>Nat</code>: el tipo
+      donde viven los números, que <code>real-analysis</code> y
+      <code>elementary-number-theory</code> declaran entre sus nombres. Es el
+      mismo fallo que L4 resolvió con <code>cic</code> y <code>Type</code>, y
+      por la misma razón: un nombre que sale en todo no distingue nada. Quitados
+      esos tipos, las dos lecturas empatan, 21 contra 21, y en los estados de
+      competición sólo 5 de 150 reciben alguna etiqueta. Es otra cara de §5:
+      para una desigualdad escolar no hay nodo que nombre lo que usa.</p>
+      <p>Que una etiqueta sea <em>pertinente</em> no lo decide un guion: hay 38
+      estados con sus etiquetas esperando que alguien los lea, y hasta entonces
+      la exactitud de φ no está medida.</p>
+    </div>
+
+    <h3>Lo nuevo: L4 recibe también lo que el lazo verifica</h3>
+    <p>L4, la capa de emergencia, cuenta los conceptos que coocurren en teoremas que Lean aceptó —40&nbsp;025
+    de Mathlib—. Cada teorema que el lazo verifica entero se anota con su
+    enunciado, y el cálculo de L4 los puede sumar, con la misma regla y sin
+    repetir el mismo teorema. Es la misma clase de material: enunciados que el
+    fichero aceptó.</p>
+  </section>
+
   <footer>
     <p><strong>De dónde sale cada cifra.</strong> Los conteos de objetos,
     flechas, vocabulario y forma se leen del grafo que construye
@@ -1110,10 +1175,12 @@ python scripts/auditar_respaldo_lean.py   # comprueba el mapeo Python ↔ teorem
     <p>El grafo entero se puede recorrer nodo a nodo en
     <a href="https://claude.ai/code/artifact/eeb735d8-9854-490b-91e1-53c2ff9bad09">el
     explorador</a>, y su papel dentro del sistema completo está en
-    <a href="https://claude.ai/code/artifact/8907db6a-017e-41ff-a434-b1eaf4ac0631">Metamatemático
+    <a href="https://claude.ai/artifact/HvRhJLUKDkxrQW7GjLhZrg">Metamatemático
     por dentro</a>.</p>
     <p style="margin-bottom:0">Leonardo Jiménez Martínez · BIOMAT, Centro de
     Biomatemáticas · Licencia MIT</p>
   </footer>
 </main>
 </div>
+
+</body></html>

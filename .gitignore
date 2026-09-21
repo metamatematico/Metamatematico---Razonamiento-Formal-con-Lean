@@ -108,3 +108,7 @@ data/_*.json
 # Encoders de Lean descargados de Hugging Face (paso 4, D1 denso). Son
 # decenas de GB y se vuelven a bajar con scripts/bajar_encoders.py.
 /modelos/
+
+# Repositorios de terceros clonados en local (se usaron como referencia; no
+# forman parte del proyecto).
+/external/

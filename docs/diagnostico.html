@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Diagnóstico del Metamatemático</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;0,800;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
@@ -130,26 +131,82 @@ pre b{color:var(--tinta); font-weight:600}
 enunciado de Lean&nbsp;4 y deja que el kernel decida si es cierta; está
 organizado en cinco capas a uno y otro lado de la <em>frontera de
 formalización</em>, que es el momento en que ese enunciado existe. Esto es su
-estado a 18 de septiembre de 2026. Cada cifra va con su modelo
+estado a 21 de septiembre de 2026. Cada cifra va con su modelo
 nulo; donde no lo hay, se dice. Y donde una conclusión anterior resultó falsa,
-se dice también. Desde la última revisión hay una novedad que cambia el orden
-de todo lo demás: <strong>el sistema entero ya está medido contra el modelo
-desnudo</strong>, y con él al lado varias cifras de este documento se leen
-distinto.
+se dice también. Desde la revisión del 18 hay una novedad de arquitectura:
+<strong>el lazo por pasos está construido</strong> —una sesión de Lean que no
+se apaga, un mediador que prueba tácticas de una en una, y φ para explicar cada
+paso—, y una pieza suya ya corre en el camino servido. Va en la
+<a href="#lazo">sección 00</a>; lo demás sigue siendo la revisión del 18.
 </p>
 
 <div class="ficha">
-  <div><div class="v">1124</div><div class="e">tests en verde, 56 suites, en los dos intérpretes</div></div>
+  <div><div class="v">1373</div><div class="e">tests en verde, 68 suites</div></div>
   <div><div class="v">62/63</div><div class="e">operaciones con respaldo formal en Lean</div></div>
   <div><div class="v">387</div><div class="e">teoremas Lean en 22 archivos, 0 <code>sorry</code></div></div>
-  <div><div class="v">35 815</div><div class="e">líneas de Python en <code>nucleo/</code></div></div>
+  <div><div class="v">42 368</div><div class="e">líneas de Python en <code>nucleo/</code></div></div>
   <div><div class="v">217 419</div><div class="e">nombres de Mathlib indexados</div></div>
   <div><div class="v">79,2 %</div><div class="e">de los teoremas de Mathlib bajo algún concepto</div></div>
 </div>
 <p class="sub">
-353 nodos · 1 586 morfismos · 22 áreas en la base · 98 scripts de medición ·
-70 mediciones guardadas en <code>data/</code>
+353 nodos · 1 586 morfismos · 23 áreas en la base · 123 scripts ·
+88 mediciones guardadas en <code>data/</code> · 23 capacidades en el decisor
 </p>
+
+
+<h2 id="lazo"><span class="n">00</span>La arquitectura nueva: el lazo por pasos</h2>
+<p>
+El camino servido es un lazo por <em>intentos</em>: el modelo escribe la prueba
+entera, Lean compila el fichero y, si falla, el modelo la reescribe entera. Lo
+construido del 19 al 21 de septiembre es un lazo por <em>pasos</em>: una
+táctica, un veredicto de Lean sobre el estado de prueba, y el paso siguiente
+sabe por qué falló el anterior. Se hizo en cinco pasos, cada uno con su puerta
+medida sin gastar API.
+</p>
+
+<div class="tabla">
+<table>
+<thead><tr><th>paso</th><th>lo medido</th><th>estado</th></tr></thead>
+<tbody>
+<tr><td>1 · la sesión de Lean</td><td class="num">20/20 de acuerdo con el fichero · 0 aceptados de más</td><td><span class="eti ok">pasa</span></td></tr>
+<tr><td>2 · la cascada en la sesión</td><td class="num">los mismos 9 cierres · fallos 276 s → 40,4 s</td><td><span class="eti ok">encendida</span></td></tr>
+<tr><td>3 · el mediador con el modelo</td><td class="num">suelo sin modelo: 9 · 6 · uno u otro 10 de 20</td><td><span class="eti sin">sin su puerta</span></td></tr>
+<tr><td>4 · de dónde salen las tácticas</td><td class="num">vecinos +8 −0 · D2 no · denso no</td><td><span class="eti sin">dentro del lazo</span></td></tr>
+<tr><td>5 · φ y la explicación</td><td class="num">sin tipos de número: 21 y 21 de 168</td><td><span class="eti sin">exactitud sin revisar</span></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="nota verde">
+<strong>Lo único que llegó al alumno es la sesión bajo la cascada.</strong> Cierra
+exactamente lo mismo que el compilado por fichero y no necesita compilar para
+saber que no cerró, que es el caso más frecuente. El resto del lazo está
+construido y fuera del camino, porque su puerta —¿verifica más que lo
+servido?— necesita gastar modelo y no se ha corrido. La estimación con
+<code>claude-haiku-4-5</code> es 1,65 USD las 20 consultas.
+</div>
+
+<h3>Lo que construirlo destapó</h3>
+
+<div class="fallo">
+  <div class="t">La cascada servida no cerraba nada desde el 4 de septiembre</div>
+  <div class="d"><code>field_simp</code> no existía bajo la cabecera estrecha, y un <code>first |</code> es una sola pieza de sintaxis: si una táctica no existe, Lean rechaza el bloque entero. Los tests usaban un Lean de mentira y no podían verlo. Ahora la cabecera trae <code>FieldSimp</code> y hay un test que compila de verdad.</div>
+</div>
+<div class="fallo">
+  <div class="t">«Sin objetivos» no es «demostrado»</div>
+  <div class="d">En modo táctica <code>linarith</code> dejó el estado sin metas y el kernel rechazó la prueba. Leerlo como cierre habría creado una flecha falsa; un cierre exige ahora <code>proofStatus</code> <em>Completed</em>, y el sello sigue saliendo siempre del fichero.</div>
+</div>
+<div class="fallo">
+  <div class="t">El modelo que enlaza el artículo no es el de los embeddings</div>
+  <div class="d">Para el índice denso, cada premisa se parecía a su propia fila casi lo mismo que a la vecina (0,33 contra 0,26). Los embeddings los hizo el modelo de <code>l3lab/</code>, rama v4.29.0, y con él dan 1,0000. Además el lector del corpus descartaba en silencio, en Windows, todo fichero con un <code>α</code>. Ninguna de las dos cosas daba error.</div>
+</div>
+
+<div class="nota ambar">
+<strong>Y la misma clase de fallo que la sección 09 persigue.</strong> Las tres
+cosas afirmaban en silencio: un bloque que no compilaba y se leía como «no
+cerró», un estado vacío que se leía como «demostrado», una matriz desalineada
+que habría devuelto premisas equivocadas con toda la seguridad del mundo.
+</div>
 
 
 <h2><span class="n">01</span>El sistema entero contra el modelo desnudo</h2>
@@ -626,7 +683,7 @@ se lee como otra cosa.
 </div>
 <div class="fallo">
   <div class="t">Se compilaba un código y se enseñaba otro</div>
-  <div class="d"><code>check_code</code> normaliza antes de compilar y borra <code>import Mathlib</code> — cargarlo entero tarda 742 s. Se mostraba el original, así que se leía <code>import Mathlib</code> junto a «este lema no existe», cuando con ese import sí existe.</div>
+  <div class="d"><code>check_code</code> normaliza antes de compilar y cambia <code>import Mathlib</code> por la cabecera estrecha. Se mostraba el original, así que se leía <code>import Mathlib</code> junto a «este lema no existe», cuando con ese import sí existe. <em>(Aquí se decía que cargar Mathlib entera tarda 742 s; la cifra no tenía procedencia, y medida son 24 s.)</em></div>
 </div>
 <div class="fallo">
   <div class="t">Una conjunción inglesa como evidencia</div>
@@ -666,14 +723,16 @@ autoridad de la que tiene.
 
 <div class="nota ambar">
 <strong>Riesgo de entorno.</strong> Los tests corren con Python 3.13 y sklearn
-1.7.2; la aplicación con anaconda 3.10 y sklearn 1.6.1. Los 1124 pasan en los
-dos, y se comprueba en los dos antes de cada commit — pero el modelo del
-TacticRanker está encurtido con 1.6.1 y sklearn avisa al cargarlo con 1.7.2.
+1.7.2; la aplicación con anaconda 3.10 y sklearn 1.6.1. Los 1373 de hoy se han
+pasado con anaconda 3.10; el otro intérprete no se ha vuelto a comprobar en
+esta revisión. El modelo del TacticRanker está encurtido con 1.6.1 y sklearn
+avisa al cargarlo con 1.7.2.
 </div>
 
 
 <h2><span class="n">11</span>Lo siguiente, por orden de valor</h2>
 <ol>
+<li><strong>Correr la puerta del lazo por pasos con un modelo barato.</strong> Es lo único que falta para saber si el lazo entra en el camino servido: las 20 consultas grabadas, pareadas contra lo servido, con <code>claude-haiku-4-5</code> —unos 1,65 USD—. Y, gratis pero a mano, revisar los 38 estados de <code>data/phi_muestra_para_revisar.json</code>, sin los que la exactitud de φ no está medida.</li>
 <li><strong>Rehacer el banco de fidelidad, los 24 casos.</strong> Es la única afirmación que de verdad importa —que la respuesta responde a lo que se preguntó— y la única pendiente que necesita gastar. La muestra rápida ya reparte 4/2/2 entre los tres grupos, así que iterar es barato. La campaña de la §1 mide si Lean <em>verifica</em>; este banco mide si lo verificado es <em>lo que se preguntaba</em>, que no es lo mismo.</li>
 <li><strong>Pasar los rasgos del árbol a <code>premisas_para</code>.</strong> Miden 1,43× sobre su nulo prediciendo qué lemas harán falta, y hoy llegan al decisor como guarda en vez de al selector de premisas. Cambio de firma pequeño; la medición ya está escrita.</li>
 <li><strong>Curar el núcleo, rama por rama.</strong> Es lo que la §3 deja sobre la mesa: el grafo da 5,0 % sobre Mathlib entero y ~17-20 % donde tiene nodo, así que el margen está en cubrir. La hoja está escrita —<code>hoja_de_curacion.py --ramas</code>, 24 módulos en dos grupos— y el criterio de aceptación ya no es ciego. <em>Qué merece nodo lo sigue decidiendo una persona.</em></li>
@@ -695,9 +754,11 @@ núcleo. Ninguna de las cuatro se cayó revisando el código: se cayeron midiend
 <div class="pie">
 Metamatemático · NLE v7.0 — Leonardo Jiménez Martínez, BIOMAT, Centro de
 Biomatemáticas.<br>
-Cifras verificadas el 18 de septiembre de 2026 contra el repositorio en
+Cifras verificadas el 18 de septiembre de 2026 —la sección 00 y la ficha, el 21— contra el repositorio en
 <code>E:\Metamatematico</code>. Cada una es reproducible con su script en
 <code>scripts/</code>; los ficheros de medición viven en <code>data/</code>.
 </div>
 
 </div>
+
+</body></html>
