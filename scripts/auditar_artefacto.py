@@ -104,7 +104,10 @@ svg = " ".join(re.sub(r"<[^>]+>", " ", m.group(0))
                for m in re.finditer(r"<svg[\s\S]*?</svg>", s))
 prosa = re.sub(r"<svg[\s\S]*?</svg>", " ", s)
 prosa = re.sub(r"<[^>]+>", " ", prosa)
-todo = re.sub(r"[\s\u00a0\u202f]+", " ", prosa + " " + svg)
+import html as _html                                         # noqa: E402
+#: `&nbsp;` es una ENTIDAD en la fuente, no el caracter: sin decodificarla,
+#: \u00ab25&nbsp;s\u00bb no casa con \u00ab25 s\u00bb y la cifra parece ausente estando.
+todo = re.sub(r"[\s\u00a0\u202f]+", " ", _html.unescape(prosa + " " + svg))
 
 def hay(*formas):
     return [f for f in formas if f in todo]
@@ -149,6 +152,49 @@ PARES = [
                              "552 aristas y sólo emiten 11", "552 entran")),
     ("147 aportan nombres", ("147 lo hacen",)),
 ]
+# ── EL LAZO POR PASOS (§18): cada cifra, CALCULADA de su JSON ───────────
+#: No escritas a mano como las de arriba: si se vuelve a medir, la forma
+#: esperada cambia con el fichero y el documento tiene que seguirla.
+def _es(x, d=1):
+    return (("%." + str(d) + "f") % x).replace(".", ",")
+
+s1, vel, cm, c2 = (J("sesion_contra_fichero.json"), J("velocidad_de_la_sesion.json"),
+                   J("coste_de_mathlib.json"), J("cascada_por_estado.json"))
+if s1 and vel and cm and c2:
+    _fal = [x for x in c2["filas"] if not x["A_cierra"]]
+    PARES += [
+        ("paso 1 concordancia", ("%d de %d de acuerdo" % (s1["de_acuerdo"], s1["n"]),)),
+        ("paso 1 tactica", ("%s – %s" % (_es(vel["tactica_min"], 3), _es(vel["tactica_max"], 3)),)),
+        ("paso 1 fichero", (_es(vel["segundos_fichero"]),)),
+        ("paso 2 fallos A", ("%s s" % _es(sum(x["A_seg"] for x in _fal), 0),)),
+        ("paso 2 fallos B", ("%s s" % _es(sum(x["B_seg_sesion"] + x["B_seg_fichero"] for x in _fal)),)),
+        ("paso 2 con cabeceras", ("%s s" % _es(c2["segundos_B_con_cabeceras"], 0),)),
+        ("paso 2 perdidos", ("%d · %d · %d" % (c2["perdidos"], c2["ganados"], c2["falsos"]),)),
+        ("Mathlib entera", ("%s s entera" % _es(cm["resumen_ancha"]["mediana"], 0),)),
+        ("cabecera estrecha", ("%s s estrecha" % _es(cm["resumen_estrecha"]["mediana"], 0),)),
+        # la §10 dice las mismas dos cifras con otras palabras: tienen que ser
+        # las mismas. Llegaron a no serlo —24 y 11 en una, 25 y 12 en otra—.
+        ("§10 estrecha frente a entera", ("compila en %s s frente a los %s s" % (
+            _es(cm["resumen_estrecha"]["mediana"], 0),
+            _es(cm["resumen_ancha"]["mediana"], 0)),)),
+    ]
+else:
+    print("   FALTA algun JSON del lazo por pasos: no se comprueban sus cifras")
+
+# ── EL CATALOGO DEL DECISOR (§12), contado del decisor ──────────────────────
+#: Decia «doce capacidades» con dieciseis en el catalogo: una frase que nadie
+#: releia cada vez que entraba una capacidad. Ahora el numero sale de aqui.
+from nucleo.decisor import CAPACIDADES as _CAPS, Contexto as _Ctx, decidir as _dec  # noqa: E402
+_NUM = {1: "una", 2: "dos", 3: "tres", 4: "cuatro", 5: "cinco", 6: "seis",
+        7: "siete", 8: "ocho", 9: "nueve", 10: "diez", 11: "once", 12: "doce",
+        13: "trece", 14: "catorce", 15: "quince", 16: "dieciséis",
+        17: "diecisiete", 18: "dieciocho", 19: "diecinueve", 20: "veinte"}
+_d = _dec(_Ctx(consulta="x", es_matematica=True))
+PARES += [
+    ("catalogo: total", ("El catálogo tiene %s capacidades" % _NUM.get(len(_CAPS), len(_CAPS)),)),
+    ("catalogo: corren", ("con Lean disponible corren %s" % _NUM.get(len(_d.activas), len(_d.activas)),)),
+]
+
 mal = []
 for et, formas in PARES:
     if not hay(*formas):
@@ -171,7 +217,10 @@ VIEJAS = ["58,7 %", "40,9 %", "61,2 %", "14 de 20", "18 frente a 14",
           "24 750", "341 pares", "25 214", "1219 tests", "1238 tests",
           "1244 tests", "62 suites", "15,7×", "19,0×", "8,8×", "2,28×",
           "0,598", "453 aristas", "3 de 860", "860 pares", "72,2 %", "30,7 %",
-          "151 aristas", "109 confirmadas", "1 085 tests", "1089 tests"]
+          "151 aristas", "109 confirmadas", "1 085 tests", "1089 tests",
+          # la cifra de import Mathlib que no tenia procedencia: el documento
+          # la CITA para desmentirla, asi que se veta la frase, no el numero
+          "entero tarda 742", "742 s — más que", "1284 tests", "64 suites"]
 enc = [v for v in VIEJAS if v in todo]
 print("  ", enc or "ninguna")
 

@@ -101,6 +101,26 @@ CASCADA_EN_UN_COMPILADO = True
 #: busca en la salida cruda y no puede colisionar con nada de Mathlib.
 _MARCA = "ELEGIDA:"
 
+#: TACTICAS QUE, CUANDO NO ENCUENTRAN PRUEBA, CIERRAN EL OBJETIVO CON `sorry`.
+#:
+#: `apply?` imprime sus sugerencias y ADMITE el objetivo. Dentro de un
+#: `first | (t ; done ; …)` eso es una rama que «no falla»: `done` pasa, la
+#: marca dice «ganó apply?», y `first` deja de probar las ramas que vienen
+#: detrás. Medido el 2026-09-21 sobre `n * n ≠ 2`: el bloque «cierra» con
+#: `apply?`. El fichero no da sello falso —compila con `sorry` y `check_code`
+#: no lo acepta—, pero toda táctica colocada DETRÁS de `apply?` era código
+#: muerto: `aesop` va última en el orden por defecto, y no se probaba nunca
+#: en cuanto se llegaba a `apply?`. Por eso van al final siempre, sea cual
+#: sea el orden que proponga el rankeador.
+_ADMITEN_CON_SORRY = frozenset({"apply?"})
+
+
+def _al_final_las_que_admiten(solvers) -> list:
+    """El mismo orden, con las que admiten con `sorry` movidas al final."""
+    solvers = list(solvers)
+    return ([s for s in solvers if s[0] not in _ADMITEN_CON_SORRY]
+            + [s for s in solvers if s[0] in _ADMITEN_CON_SORRY])
+
 
 def _bloque_first(solvers) -> str:
     """`first | (t1; trace ...) | (t2; trace ...) | ...`, en UNA linea.
@@ -127,7 +147,8 @@ def _bloque_first(solvers) -> str:
     tabla no lo vuelva a romper sin avisar.
     """
     ramas = " | ".join(
-        '(%s ; done ; trace "%s%s")' % (t, _MARCA, t) for t, _ in solvers)
+        '(%s ; done ; trace "%s%s")' % (t, _MARCA, t)
+        for t, _ in _al_final_las_que_admiten(solvers))
     return "first | " + ramas
 
 
@@ -533,7 +554,10 @@ class SolverCascade:
             modified_code = cab + "\n\n" + modified_code
 
         result = await self._lean.check_code(modified_code)
-        orden = [t for t, _ in self._solvers]
+        # el orden QUE VA EN EL BLOQUE, no el pedido: `_bloque_first` mueve al
+        # final las que admiten con `sorry`, y la posición de la ganadora se
+        # cuenta sobre lo que Lean probó de verdad
+        orden = [t for t, _ in _al_final_las_que_admiten(self._solvers)]
 
         if result.is_success:
             # DE LOS MENSAJES, no de `output`. `output` son lineas JSON, y
@@ -600,6 +624,34 @@ class SolverCascade:
         if not goal_text and not domain_tactic and not domain_order:
             return await self.try_fill_sorry(code, sorry_line, error_type, imports)
 
+        smart_order = self.orden_para(goal_text, domain_tactic=domain_tactic,
+                                      domain_order=domain_order,
+                                      area_premisas=area_premisas)
+
+        # Temporarily swap solver order and run
+        original_solvers = self._solvers
+        self._solvers = smart_order
+        try:
+            result = await self.try_fill_sorry(code, sorry_line, error_type, imports)
+        finally:
+            self._solvers = original_solvers
+
+        return result
+
+    def orden_para(
+        self,
+        goal_text: str,
+        domain_tactic: str = "",
+        domain_order: Optional[list[str]] = None,
+        area_premisas: str = "",
+    ) -> list[tuple[str, int]]:
+        """El orden de tácticas que la cascada probaría para este objetivo.
+
+        Sale de `try_fill_sorry_smart` tal cual, sin cambiar nada, para que
+        otro canal —la sesión de Lean, paso 2 del lazo— pruebe EXACTAMENTE la
+        misma lista. Si cada canal calculase su orden, una diferencia medida
+        entre ellos podría ser del orden y no del canal.
+        """
         # Etapa 1: reordenamiento heuristico. El objetivo primero, luego la
         # tactica aprendida, luego el orden medido del area. Ver prioritize.
         smart_order = self._goal_analyzer.prioritize(
@@ -642,16 +694,7 @@ class SolverCascade:
                     e for e in extra if e[0] not in {n for n, _ in smart_order}]
         except Exception as e:
             logger.debug("sin premisas (%s)", type(e).__name__)
-
-        # Temporarily swap solver order and run
-        original_solvers = self._solvers
-        self._solvers = smart_order
-        try:
-            result = await self.try_fill_sorry(code, sorry_line, error_type, imports)
-        finally:
-            self._solvers = original_solvers
-
-        return result
+        return list(smart_order)
 
     async def try_fill_theorem(
         self,

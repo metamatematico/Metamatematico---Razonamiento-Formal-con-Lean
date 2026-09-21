@@ -45,7 +45,8 @@
    24.6,
    24.4
   ],
-  "mediana_resto": 24.6
+  "mediana_resto": 24.6,
+  "mediana": 24.4
  },
  "resumen_estrecha": {
   "primera": 11.1,
@@ -53,7 +54,8 @@
    10.8,
    12.0
   ],
-  "mediana_resto": 12.0
+  "mediana_resto": 12.0,
+  "mediana": 11.1
  },
  "peor_ancha": 24.6,
  "expira_siempre": false

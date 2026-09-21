@@ -215,6 +215,7 @@ _TODAS_LAS_GOBERNADAS = frozenset({
     "eleccion_de_imports",
     "contexto_estructural_en_el_prompt",
     "modelo_de_orden_de_cascada",
+    "cascada_por_estado",
 })
 
 
@@ -2768,6 +2769,7 @@ class Nucleo:
             sorry_msg, confidence, success_value = await self._try_solve_sorries(
                 lean_code, result, domain_tactic=_tactica_aprendida,
                 domain_order=_domain_order, area_premisas=_area,
+                por_estado="cascada_por_estado" in _corre,
             )
             verification_status = "parcial"
             verification_note = (
@@ -3277,6 +3279,7 @@ class Nucleo:
     async def _try_solve_sorries(
         self, code: str, result: LeanResult, domain_tactic: str = "",
         domain_order: Optional[list[str]] = None, area_premisas: str = "",
+        por_estado: bool = False,
     ) -> tuple[str, float, float]:
         """Try solver cascade on sorry-containing code.
 
@@ -3286,6 +3289,8 @@ class Nucleo:
             domain_tactic: Default tactic from the ColimitAgent of the
                 detected area (paper §3.5). Placed first in the cascade
                 via GoalAnalyzer.prioritize() → try_fill_sorry_smart().
+            por_estado: la capacidad `cascada_por_estado` del decisor. Si
+                corre, la cascada va primero a la sesión de Lean.
         """
         sorries = find_sorries_in_text(code)
         if not sorries and self._solver_cascade:
@@ -3293,6 +3298,40 @@ class Nucleo:
                 "Prueba contiene sorry pero no se pudo localizar.",
                 0.4, -0.2
             )
+
+        # ── PASO 2 DEL LAZO: la cascada en la sesión, no en un fichero ─────
+        #
+        # Mismo bloque, mismo orden (`orden_para`), otro canal. Medido en
+        # `scripts/cascada_por_estado.py`: los mismos cierres, 0 perdidos, y
+        # en los que NO cierran 22,7 s frente a 223 — porque la sesión no
+        # necesita compilar para saber que no cerró.
+        #
+        # Tres salidas, y la tercera es la que protege:
+        #   · cierra TODOS  -> éxito; cada cierre ya lo confirmó el fichero (I2)
+        #   · no cierra NINGUNO -> el camino de siempre, sin repetir la cascada
+        #     en fichero: `sorry_filler` sigue corriendo como antes
+        #   · cierra ALGUNOS, o la sesión no puede decirlo (None) -> el camino
+        #     de siempre ENTERO. Lo parcial no se reconcilia por líneas: la
+        #     sesión ve el código normalizado y el bucle de abajo el original,
+        #     y casar posiciones entre los dos es donde se cuelan los errores.
+        cascada_ya_en_sesion = False
+        if por_estado and self._solver_cascade is not None:
+            try:
+                from nucleo.lean import cascada_sesion
+                _casc = self._solver_cascade
+                r = await cascada_sesion.resolver(
+                    code, self._lean,
+                    lambda objetivo: _casc.orden_para(
+                        objetivo, domain_tactic=domain_tactic,
+                        domain_order=domain_order, area_premisas=area_premisas))
+            except Exception as e:                              # noqa: BLE001
+                logger.info("cascada por estado no disponible (%s)", e)
+                r = None
+            if r is not None and r["total"] and r["cerrados"] == r["total"]:
+                return ("Todos los sorry resueltos: %s" % ", ".join(r["ganadoras"]),
+                        0.95, 0.9)
+            if r is not None and r["cerrados"] == 0:
+                cascada_ya_en_sesion = True
 
         solved = []
         failed = []
@@ -3305,9 +3344,12 @@ class Nucleo:
                 surrounding_code="\n".join(sorry.context_before),
             )
             filled = False
-            cascade_already_ran = False
+            # si la sesión ya probó la cascada entera y no cerró nada, no se
+            # repite en fichero: es el compilado que el paso 2 ahorra
+            cascade_already_ran = cascada_ya_en_sesion
             # Smart cascade: domain_tactic placed first (paper §3.5)
-            if self._solver_cascade and (domain_tactic or domain_order or ctx.goal):
+            if (self._solver_cascade and not cascada_ya_en_sesion
+                    and (domain_tactic or domain_order or ctx.goal)):
                 cascade_result = await self._solver_cascade.try_fill_sorry_smart(
                     code=code,
                     sorry_line=ctx.line_number,

@@ -132,3 +132,57 @@ class TestElParseoDelGanador:
         assert r.solver == "linarith", "solver mal parseado: %r" % r.solver
         assert r.solvers_tried == [t for t, _ in SOLVER_CASCADE].index(
             "linarith") + 1
+
+
+def _hay_lean():
+    from nucleo.lean.client import LeanClient
+    from nucleo.rutas import RAIZ
+    import shutil
+    lake = LeanClient(project_path=RAIZ).lean_path
+    return bool(shutil.which(lake) or __import__("os").path.exists(lake))
+
+
+@pytest.mark.skipif(not _hay_lean(), reason="sin lake: no hay Lean contra el que compilar")
+def test_el_bloque_compila_contra_lean():
+    """EL GUARDIAN QUE FALTABA: la cascada entera, compilada de verdad.
+
+    Todos los tests de arriba usan un Lean de mentira, y ninguno podia ver
+    lo que paso: `field_simp` no existe bajo la cabecera estrecha, un `first`
+    es UNA pieza de sintaxis, y Lean rechazaba el bloque entero con «unknown
+    tactic» sin probar ninguna rama. La cascada servida no cerraba ni
+    `a + b = b + a`, y el sintoma era identico a «ninguna tactica cierra».
+
+    Cuesta un compilado (~11 s). Si alguien anade a `SOLVER_CASCADE` una
+    tactica cuyo modulo no esta en `_SAFE_HEADER`, esto se pone rojo.
+    """
+    import asyncio
+    from nucleo.lean.client import LeanClient
+    from nucleo.lean.solver_cascade import SolverCascade
+    from nucleo.rutas import RAIZ
+
+    casc = SolverCascade(LeanClient(project_path=RAIZ),
+                         solvers=list(SOLVER_CASCADE))
+    bucle = asyncio.new_event_loop()
+    try:
+        r = bucle.run_until_complete(casc.try_fill_sorry(
+            "theorem _t (a b : ℝ) : a + b = b + a := by\n  sorry\n", 2))
+    finally:
+        bucle.close()
+    assert r.success, ("la cascada no cierra a + b = b + a: casi seguro una "
+                       "tactica de SOLVER_CASCADE no existe bajo _SAFE_HEADER")
+
+
+def test_las_que_admiten_con_sorry_van_al_final():
+    """`apply?` admite el objetivo con `sorry` cuando no encuentra prueba.
+
+    Dentro de un `first` eso es una rama que no falla: todo lo que va detrás
+    no se prueba nunca. Medido sobre `n * n ≠ 2`: el bloque «cerraba» con
+    `apply?` y `aesop`, que iba detrás, no llegaba a correr.
+    """
+    from nucleo.lean.solver_cascade import _ADMITEN_CON_SORRY
+    orden = [("apply?", 5), ("aesop", 8), ("ring", 2)]
+    b = _bloque_first(orden)
+    assert b.index(_MARCA + "aesop") < b.index(_MARCA + "apply?")
+    assert b.index(_MARCA + "ring") < b.index(_MARCA + "apply?")
+    ramas = b.replace("first | ", "").split(" | ")
+    assert all(t in ramas[-1] for t in _ADMITEN_CON_SORRY)

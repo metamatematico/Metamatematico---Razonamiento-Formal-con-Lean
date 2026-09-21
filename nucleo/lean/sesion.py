@@ -124,6 +124,17 @@ def _clasificar(d: dict) -> str:
     error, porque una táctica puede vaciar los objetivos y dejar un error de
     elaboración detrás.
     """
+    # EL REPL TIENE DOS CANALES DE ERROR, y el segundo no está en `messages`.
+    # Una táctica que falla, un proofState o un entorno que no existen,
+    # vuelven como `{"message": "Lean error: …"}` en el primer nivel, sin
+    # `messages`, `goals` ni `env`. Sin esta línea caían en `vacia`, y el banco
+    # de concordancia del paso 1 contaba como ACEPTADO todo lo que no fuera
+    # `error`. No se coló ningún caso —ninguna de sus 20 filas es `vacia`—,
+    # pero la trampa solo podía inflar lo aceptado, que es la dirección que
+    # este módulo no se puede permitir. Visto en la sonda del paso 2.
+    if isinstance(d.get("message"), str) and "proofState" not in d \
+            and "env" not in d:
+        return "error"
     if any((m or {}).get("severity") == "error" for m in d.get("messages") or []):
         return "error"
     g = d.get("goals")
@@ -246,9 +257,13 @@ class SesionLean:
                              mensajes=[{"severity": "error",
                                         "data": "respuesta no es JSON"}],
                              crudo={"texto": "".join(lineas)[:400]})
+        mensajes = list(d.get("messages") or [])
+        if isinstance(d.get("message"), str):
+            # el canal de primer nivel, para que `.error` lo enseñe
+            mensajes.append({"severity": "error", "data": d["message"]})
         return Respuesta(
             clase=_clasificar(d), proof_state=d.get("proofState"),
-            objetivos=d.get("goals") or [], mensajes=d.get("messages") or [],
+            objetivos=d.get("goals") or [], mensajes=mensajes,
             env=d.get("env"), sorries=d.get("sorries") or [],
             segundos=seg, crudo=d)
 

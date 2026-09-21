@@ -62,6 +62,56 @@ CONTEXTO = re.compile(
     r"^(variable\b.*|open\b.*|universe\b.*|local\s+.*|"
     r"noncomputable\s+section.*|section\b.*)$", re.M)
 
+#: LAS LINEAS QUE ABREN Y CIERRAN AMBITO, que `CONTEXTO` no distinguia.
+_ABRE = re.compile(r"^(?:noncomputable\s+)?(?:section|namespace)\b")
+_CIERRA = re.compile(r"^end\b")
+_DECLARA = re.compile(r"^(variable\b|open\b|universe\b|local\s+)")
+
+
+def contexto_vigente(lineas):
+    """El contexto que Lean tiene ACTIVO al final de `lineas`, y sólo ése.
+
+    POR QUE NO BASTABA `CONTEXTO.findall`. Recogía toda `variable` de toda
+    `section` anterior e ignoraba los `end`: en `mul_neg_one` el teorema
+    acababa con nueve instancias sobre `α` a la vez —`Add`, `MulOneClass`,
+    `NonAssocSemiring`, `CommSemiring`…— de secciones ya cerradas, y el
+    enunciado dejaba de ser el de Mathlib: `simp` progresaba sin cerrar algo
+    que cierra en Mathlib. Tampoco copiaba los `namespace`, así que un teorema
+    de `namespace Int` perdía su espacio de nombres. Y el `[-25:]` podía
+    quedarse con las `variable` de un ámbito cortando la línea que lo abría.
+
+    Se lleva una pila: cada `section`/`namespace` abre un ámbito con su propia
+    línea, cada `end` cierra el último, y las declaraciones van al ámbito
+    abierto. Lo que queda en la pila al llegar al teorema es su contexto.
+    Visto en la puerta del paso 2 (`scripts/cascada_por_estado.py`), donde
+    NINGUNO de 25 casos cerraba en ninguna de las dos ramas.
+    """
+    globales, pila = [], []
+    ultima = None            # la declaración a la que se pegan continuaciones
+    for l in lineas:
+        s = l.strip()
+        sangrada = l[:1] in (" ", "\t")
+        if not s:
+            ultima = None
+            continue
+        if sangrada:
+            # `variable {α : Type*}\n    [Ring α]`: la continuación es parte
+            # de la misma declaración, y sin ella la `variable` queda rota
+            if ultima is not None:
+                ultima[0][ultima[1]] += " " + s
+            continue
+        ultima = None
+        if _ABRE.match(s):
+            pila.append([s])
+        elif _CIERRA.match(s):
+            if pila:
+                pila.pop()
+        elif _DECLARA.match(s):
+            destino = pila[-1] if pila else globales
+            destino.append(s)
+            ultima = (destino, len(destino) - 1)
+    return globales + [x for ambito in pila for x in ambito]
+
 #: La tabla vieja, para calcular el orden de antes sin volver a correr Lean.
 VIEJA = {
     "algebra": "ring", "analysis": "norm_num", "category-theory": "simp",
@@ -113,8 +163,7 @@ def candidatos(area_de_dir, n):
                               "tactica_mathlib": p.group(1), "area": area,
                               "imports": cabecera[:8],
                               # solo lo declarado ANTES del teorema
-                              "contexto": CONTEXTO.findall(
-                                  "\n".join(ls[:i]))[-25:],
+                              "contexto": contexto_vigente(ls[:i]),
                               "fichero": rel})
     random.seed(SEMILLA)
     random.shuffle(fuera)

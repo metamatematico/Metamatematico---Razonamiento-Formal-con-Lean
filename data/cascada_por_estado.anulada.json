@@ -1,0 +1,516 @@
+{
+ "n": 25,
+ "excluidos": 42,
+ "filas": [
+  {
+   "nombre": "inv_pi",
+   "area": "algebra",
+   "fichero": "Algebra/Group/Pointwise/Set/Basic.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.4,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.2,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.4,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "hausdorffDist_self_closure",
+   "area": "topology",
+   "fichero": "Topology/MetricSpace/HausdorffDistance.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 11.6,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.08,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 6.7,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "one_lt_div",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Field/Basic.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.9,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.06,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.1,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "abs_mul_self",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Ring/Abs.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.6,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.07,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.1,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "leadingCoeff_ne_zero",
+   "area": "algebra",
+   "fichero": "Algebra/Polynomial/Degree/Defs.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 13.5,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.08,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.5,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "one_sub_nonneg",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Interval/Set/Instances.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 12.1,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.06,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 12.1,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "bihimp_top",
+   "area": "set-theory",
+   "fichero": "Order/SymmDiff.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.5,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.05,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 4.8,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "frequently_top",
+   "area": "set-theory",
+   "fichero": "Order/Filter/Basic.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.7,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.12,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 11.1,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "odd_add_one",
+   "area": "algebra",
+   "fichero": "Algebra/Ring/Parity.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.6,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.14,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 10.4,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "mem_Ioc_succ",
+   "area": "set-theory",
+   "fichero": "Order/Interval/Finset/Nat.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.2,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.02,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 4.9,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "zero_comp",
+   "area": "algebra",
+   "fichero": "Algebra/Polynomial/Eval/Defs.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 11.6,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.08,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 6.6,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "odd_add",
+   "area": "algebra",
+   "fichero": "Algebra/Ring/Int/Parity.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 13.4,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.03,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.3,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "mul_neg_one",
+   "area": "algebra",
+   "fichero": "Algebra/Ring/Defs.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 11.1,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.08,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 10.5,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "odd_sign_iff",
+   "area": "algebra",
+   "fichero": "Algebra/Ring/Int/Parity.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 11.3,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.02,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 4.8,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "invOf_lt_zero",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Invertible.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.0,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.05,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 4.9,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "cast_eq_zero",
+   "area": "algebra",
+   "fichero": "Algebra/CharZero/Defs.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 9.9,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.05,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 10.5,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "smul_ne_zero",
+   "area": "algebra",
+   "fichero": "Algebra/Module/Torsion/Free.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.5,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.08,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 4.8,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "card_Ico",
+   "area": "set-theory",
+   "fichero": "Order/Interval/Finset/Fin.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 11.4,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.06,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 6.4,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "oneLePart_le_one",
+   "area": "algebra",
+   "fichero": "Algebra/Order/Group/PosPart.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.8,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.05,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 4.8,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "log_nonneg_iff",
+   "area": "analysis",
+   "fichero": "Analysis/SpecialFunctions/Log/Basic.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 16.1,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.04,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 12.3,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "card_bot",
+   "area": "algebra",
+   "fichero": "Algebra/Group/Subgroup/Finite.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.4,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.05,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.1,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "rank_prod'",
+   "area": "algebra",
+   "fichero": "LinearAlgebra/Dimension/Constructions.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 11.7,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.15,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 11.3,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "lt_unbotD_iff",
+   "area": "set-theory",
+   "fichero": "Order/WithBot.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.8,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.07,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.1,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "eq_div_of_mul_eq''",
+   "area": "algebra",
+   "fichero": "Algebra/Group/Basic.lean",
+   "n_tacticas": 12,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 11.3,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.48,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 5.0,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  },
+  {
+   "nombre": "le_of_eq",
+   "area": "set-theory",
+   "fichero": "Order/Defs/PartialOrder.lean",
+   "n_tacticas": 17,
+   "A_cierra": false,
+   "A_ganadora": "",
+   "A_seg": 10.8,
+   "A_procesos": 1,
+   "B_sesion_dice": false,
+   "B_ganadora": "?",
+   "B_cierra": false,
+   "B_seg_sesion": 0.04,
+   "B_seg_fichero": 0.0,
+   "B_procesos": 0,
+   "B_seg_cabecera": 10.4,
+   "B_motivos": [
+    "no_cierra"
+   ]
+  }
+ ],
+ "segundos_cabeceras_B": 178.6,
+ "perdidos": 0,
+ "ganados": 0,
+ "falsos": 0,
+ "segundos_A": 282.2,
+ "segundos_B": 2.2,
+ "segundos_B_con_cabeceras": 180.8,
+ "procesos_A": 25,
+ "procesos_B": 0,
+ "pasa": true
+}

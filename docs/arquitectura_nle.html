@@ -250,6 +250,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     <li><a href="#medido">Lo que está medido</a></li>
     <li><a href="#negativos">Los resultados negativos</a></li>
     <li><a href="#tests">Tests y guardianes</a></li>
+    <li><a href="#lazo">El lazo por pasos</a></li>
     <li><a href="#limites">Límites y trabajo abierto</a></li>
   </ol>
   <p class="toc-foot">
@@ -257,7 +258,7 @@ svg .sLine{stroke:var(--muted); fill:none}
     183 433 hechos de Mathlib<br>
     217 419 nombres indexados<br>
     387 teoremas Lean · 0 sorry<br>
-    1284 tests · 64 suites
+    1319 tests · 66 suites
   </p>
 </nav>
 
@@ -301,7 +302,7 @@ svg .sLine{stroke:var(--muted); fill:none}
       <div><div class="n">183 433</div><div class="l">hechos de Mathlib</div></div>
       <div><div class="n">217 419</div><div class="l">nombres indexados</div></div>
       <div><div class="n">387</div><div class="l">teoremas Lean, 0 sorry</div></div>
-      <div><div class="n">1284</div><div class="l">tests en verde</div></div>
+      <div><div class="n">1319</div><div class="l">tests en verde</div></div>
     </div>
   </header>
 
@@ -517,7 +518,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 
   <rect x="140" y="740" width="510" height="66" rx="9" fill="var(--grafo-soft)" stroke="var(--grafo)" stroke-width="1.4"/>
   <text class="sTxt" x="158" y="762" font-size="12.5" font-weight="600">5 · L3 ORDENA LAS TÁCTICAS</text>
-  <text class="sTxt sDim" x="158" y="781" font-size="11">las 12 tácticas en UN SOLO compilado de Lean, con `first |` y `done`</text>
+  <text class="sTxt sDim" x="158" y="781" font-size="11">las 12 tácticas en un `first |` con `done` · en la sesión viva (paso 2, §18)</text>
   <text class="sMono" x="158" y="797" font-size="10.5" fill="var(--lean)">APORTA — 1,57 posiciones frente a 2,44 del nulo por frecuencia · 3,7x menos compilados</text>
 
   <path class="sLine" d="M395 806 L395 820" marker-end="url(#fl)" stroke-width="1.5"/>
@@ -1356,8 +1357,8 @@ svg .sLine{stroke:var(--muted); fill:none}
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M460 743 Q510 577 502 753"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M460 743 Q510 577 359 336"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M456 223 Q508 316 503 67"/>
-<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M503 67 Q531 255 542 197"/>
-<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M503 67 Q531 255 465 75"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M503 67 Q531 253 542 197"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M503 67 Q531 253 465 75"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M456 223 Q508 316 472 73"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M542 197 Q551 303 487 70"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M542 197 Q551 303 495 68"/>
@@ -1386,7 +1387,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 543 758"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 742 707"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 908 407"/>
-<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 871 255"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 871 253"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 223 497"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M612 486 Q586 448 868 247"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M485 357 Q522 384 274 212"/>
@@ -1561,7 +1562,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 861 236"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 865 242"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 868 247"/>
-<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 871 255"/>
+<path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 871 253"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 874 259"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 876 265"/>
 <path class="e" fill="none" opacity=".11" stroke="#1b1e17" d="M756 324 Q658 367 879 271"/>
@@ -2704,8 +2705,13 @@ nodos que alcanza la lógica            <b>278 de 320</b></pre>
 
     <div class="nota v">
       <b>Lo que se le muestra al alumno es lo que Lean compiló</b>
-      <p>El normalizador retira <code>import Mathlib</code> antes de compilar,
-      porque cargarlo entero tarda 742&nbsp;s — más que el tiempo límite. El
+      <p>El normalizador retira <code>import Mathlib</code> antes de compilar
+      y pone una cabecera estrecha: compila en 11&nbsp;s frente a los
+      24&nbsp;s de Mathlib entera (<code>data/coste_de_mathlib.json</code>).
+      Aquí decía «742&nbsp;s, más que el tiempo límite»: esa cifra no tenía
+      procedencia, y medida de nuevo el 2026-09-21 queda muy por debajo de
+      los 360&nbsp;s del límite. La razón para la cabecera estrecha es el
+      coste, no que Mathlib entera no quepa. El
       resultado guarda <em>el código que realmente se compiló</em>, y es ése el
       que se muestra y el que se le pasa al modelo para que lo explique. Así, el
       bloque de código de la respuesta y el veredicto hablan del mismo
@@ -2888,11 +2894,16 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       resolver.</figcaption>
     </figure>
 
-    <p>El catálogo tiene doce capacidades. Ocho tienen evidencia y guarda, tres
-    están apagadas por medición, una —el emparejador semántico— nunca llegó a
-    producción y se conserva en el catálogo a propósito: <strong>un candidato
-    evaluado y descartado es información</strong>, y borrarlo invita a
-    reinventarlo.</p>
+    <p>El catálogo tiene diecisiete capacidades. Ante una consulta matemática
+    con Lean disponible corren siete; cinco están apagadas
+    porque no baten a su nulo; una bate al suyo y no está
+    cableada, porque por el camino real no paga; dos dependen de
+    la consulta, porque su guarda sólo aplica a algunas; y dos
+    no tienen medición contra un nulo —una de ellas, el emparejador semántico, nunca
+    llegó a producción y se conserva a propósito: <strong>un candidato evaluado
+    y descartado es información</strong>, y borrarlo invita a reinventarlo—.
+    La última en entrar es <code>cascada_por_estado</code>, el paso 2 del lazo
+    (<a href="#lazo">§18</a>).</p>
   </section>
 
   <section id="formal">
@@ -3334,7 +3345,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <section id="tests">
     <div class="head"><span class="num">17</span><h2>Tests y <span class="g">guardianes</span></h2></div>
 
-    <p><strong>1 284 tests en 64 suites</strong>, verdes en los dos intérpretes
+    <p><strong>1 319 tests en 66 suites</strong>, verdes en los dos intérpretes
     con los que se trabaja. Los que más valen no comprueban que el código
     funcione: comprueban que el sistema <strong>no pueda volver a afirmar más de
     lo que sabe</strong>.</p>
@@ -3367,8 +3378,146 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     </div>
   </section>
 
+  <section id="lazo">
+    <div class="head"><span class="num">18</span><h2>El lazo por <span class="v">pasos</span>: en construcción</h2></div>
+
+    <p>Las tres vueltas de <a href="#tesis">§1</a> son un lazo <strong>por
+    intentos</strong>: el modelo escribe la prueba entera, Lean compila el
+    fichero, y si falla el modelo recibe los errores y la reescribe entera. Lo
+    que se está construyendo es un lazo <strong>por pasos</strong>: el modelo
+    propone <em>una</em> táctica sobre un estado de prueba, Lean la evalúa, y
+    lo que contesta —el estado nuevo, o por qué falló— condiciona el paso
+    siguiente. Es la categoría de estados de <a href="#fibra">§8</a> hecha
+    viva: cada flecha la crea Lean en línea, no un corpus.</p>
+
+    <p>Se construye en cinco pasos, y cada uno termina en una medición que
+    decide si se sigue. Ninguno entra en el camino servido por estar
+    construido: entra si su capacidad bate a su nulo en el decisor
+    (<a href="#decisor">§12</a>).</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th class="mono">paso</th><th>qué</th><th>sigue si</th><th>estado</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">1</td><td><strong>la sesión</strong><span class="sub">nucleo/lean/sesion.py</span></td><td>acepta lo mismo que el fichero, y más rápido</td><td><span class="pill v">pasa · 20 de 20</span></td></tr>
+          <tr><td class="mono">2</td><td><strong>la cascada por estado</strong><span class="sub">nucleo/lean/cascada_sesion.py</span></td><td>no pierde ningún cierre y cuesta menos</td><td><span class="pill v">pasa · encendida</span></td></tr>
+          <tr><td class="mono">3</td><td><strong>el mediador con el modelo</strong><span class="sub">nucleo/lazo/</span></td><td>verifica más que el lazo por intentos</td><td><span class="pill">pendiente</span></td></tr>
+          <tr><td class="mono">4</td><td><strong>la recuperación</strong><span class="sub">premisas y tácticas por estado</span></td><td>cada fuente bate a su nulo</td><td><span class="pill">pendiente</span></td></tr>
+          <tr><td class="mono">5</td><td><strong>φ y la explicación por paso</strong></td><td>explica con exactitud</td><td><span class="pill">pendiente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Paso 1 · una sesión de Lean que no se apaga</h3>
+
+    <p>Hoy cada comprobación arranca Lean y vuelve a cargar la cabecera: el
+    coste está ahí, no en la táctica. La sesión es un proceso de Lean
+    —el <code>repl</code> de leanprover-community, con el mismo toolchain que
+    el proyecto— que carga la cabecera <strong>una vez</strong> y después
+    recibe tácticas sobre estados. Con la cabecera estrecha del camino
+    servido, medido en esta máquina:</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th>qué</th><th class="mono">segundos</th></tr></thead>
+        <tbody>
+          <tr><td>cargar la cabecera, una vez por proceso</td><td class="mono">10,2</td></tr>
+          <tr><td>plantar el teorema con <code>sorry</code></td><td class="mono">0,04</td></tr>
+          <tr><td><strong>una táctica</strong> —cierra, progresa o falla—</td><td class="mono">0,009 – 0,093</td></tr>
+          <tr><td>el mismo teorema como fichero, que es lo de hoy</td><td class="mono">10,8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="nota v">
+      <b>La sesión busca; el fichero decide</b>
+      <p>La velocidad no era la pregunta difícil. La difícil es si la sesión
+      acepta <em>lo mismo</em> que el fichero: el <code>repl</code> tiene
+      registrado un caso en que aceptó pruebas incorrectas. Se enviaron
+      20 formalizaciones reales por los dos caminos, con la misma
+      cabecera: <strong>20 de 20 de acuerdo, y
+      0 aceptadas por la sesión que el fichero
+      rechace</strong>. Aun así, el sello de verificado sigue saliendo siempre
+      del fichero: un buscador que se equivoca cuesta un camino perdido; un
+      certificador que se equivoca cuesta un sello falso.</p>
+    </div>
+
+    <h3>Paso 2 · la cascada, en la sesión</h3>
+
+    <p>Cuando queda un <code>sorry</code>, la cascada de <a href="#cascada">§11</a>
+    prueba doce tácticas en un <code>first&nbsp;|</code>. Hoy eso es un
+    compilado por <code>sorry</code>, cierre o no. En el paso 2 el mismo
+    bloque, con el mismo orden y sobre el mismo texto, se elabora en la
+    sesión viva; si cierra, el fichero confirma la prueba con la táctica
+    ganadora. Medido sobre 30 casos, las dos vías:</p>
+
+    <div class="tabla">
+      <table>
+        <thead><tr><th></th><th class="mono">fichero (hoy)</th><th class="mono">sesión (paso 2)</th></tr></thead>
+        <tbody>
+          <tr><td>cierran</td><td class="mono">9 de 30</td><td class="mono">los mismos 9</td></tr>
+          <tr><td>perdidos · ganados · falsos</td><td class="mono">—</td><td class="mono">0 · 0 · 0</td></tr>
+          <tr><td><strong>en los 21 que no cierran</strong></td><td class="mono">276 s</td><td class="mono">40,4 s</td></tr>
+          <tr><td>todo, pagando la cabecera en cada caso</td><td class="mono">381 s</td><td class="mono">373 s</td></tr>
+          <tr><td>procesos de Lean</td><td class="mono">30</td><td class="mono">9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Es lo que se predijo antes de medir: <strong>empate en cierres y la
+    ganancia en los fallos</strong>, que son la mayoría —la sesión no
+    necesita compilar para saber que no cerró—. La fila con cabeceras apenas
+    gana porque en este banco cada teorema trae la cabecera de su fichero; en
+    el sistema servido la cabecera estrecha es casi siempre la misma y se
+    paga una vez por proceso. El decisor lee esa fila, la peor para la
+    sesión, y la enciende; si una medición futura pierde un solo cierre, la
+    cifra desaparece del fichero y la apaga sola.</p>
+
+    <div class="nota a">
+      <b>Los 9 cierres no son una tasa de la cascada</b>
+      <p>La cabecera estrecha alcanza cientos de módulos de Mathlib. En
+      11 de los 30 casos el fichero del propio
+      teorema está entre ellos, y ahí <code>simp</code> o <code>exact?</code>
+      pueden cerrarlo <em>con el propio teorema</em>: 7
+      de los 9 cierres son de ésos. La comparación entre las dos vías
+      es válida —ven el mismo texto—; el porcentaje de cierre, no.</p>
+    </div>
+
+    <p>El modo importa. La primera versión aplicaba el bloque como
+    <em>táctica</em> sobre el estado, y el <code>repl</code> no aplica ahí el
+    límite de heartbeats: en un objetivo duro se agotaba a los 120&nbsp;s. Se
+    elabora como <em>comando</em>, con su límite, igual que un fichero pero
+    sin arrancar Lean. El modo táctica queda para el paso 3, que tendrá que
+    resolver ese límite.</p>
+
+    <h3>Lo que construirlo destapó del sistema de antes</h3>
+
+    <ul>
+      <li><strong>La cascada servida no cerraba nada desde el 2026-09-04.</strong>
+      <code>field_simp</code> no existe bajo la cabecera estrecha, y un
+      <code>first&nbsp;|</code> es una sola pieza de sintaxis: si una táctica
+      no existe, Lean rechaza el bloque entero sin probar ninguna. Ni
+      <code>a&nbsp;+&nbsp;b&nbsp;=&nbsp;b&nbsp;+&nbsp;a</code>. Los tests
+      usaban un Lean de mentira y no podían verlo; ahora la cabecera trae
+      <code>FieldSimp</code> y hay un test que compila de verdad. La campaña
+      del lazo por intentos (2026-09-10) se midió con ese fallo; de las 63
+      formalizaciones grabadas, sólo 2 tenían un <code>sorry</code>, que es
+      donde entra la cascada.</li>
+      <li><strong><code>apply?</code> dejaba muerto lo que iba detrás.</strong>
+      Cuando no encuentra prueba, cierra el objetivo con <code>sorry</code>:
+      dentro del <code>first</code> es una rama que no falla, y las tácticas
+      posteriores no se probaban. El fichero no daba sello falso; ahora va
+      siempre la última. No hay un caso medido en que eso costara un cierre.</li>
+      <li><strong><code>import Mathlib</code> no tarda 742&nbsp;s.</strong>
+      La cifra estaba en diez sitios sin procedencia, justificando la
+      cabecera estrecha porque «siempre expira». Medido de nuevo: 24&nbsp;s
+      entera y 11&nbsp;s estrecha, las dos muy por debajo del
+      límite de 360&nbsp;s. La cabecera estrecha se queda, por coste.</li>
+    </ul>
+  </section>
+
   <section id="limites">
-    <div class="head"><span class="num">18</span><h2>Límites y trabajo <span class="a">abierto</span></h2></div>
+    <div class="head"><span class="num">19</span><h2>Límites y trabajo <span class="a">abierto</span></h2></div>
 
     <h3>Lo que el sistema no hace</h3>
     <ul>
@@ -3406,8 +3555,9 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <strong>sólo 72 de los 24 752 estados registran dos tácticas
       distintas</strong>, porque el corpus recoge la prueba que alguien
       escribió y no las que descartó. Aprender a <em>elegir</em> exige generar
-      esas alternativas probando tácticas contra estados reales, y eso cuesta
-      compilaciones de Lean, no lectura de un fichero.</li>
+      esas alternativas probando tácticas contra estados reales. Eso ya no
+      cuesta un compilado por intento: con la sesión viva una táctica cuesta
+      centésimas de segundo (<a href="#lazo">§18</a>). Es el paso 3.</li>
       <li><strong>La base no es un orden, y por eso no hay viaje general.</strong>
       Esto decía que faltaban morfismos que crucen de área y que eran
       «lo único que puede convertir el funtor en una fibración». Es falso, y lo

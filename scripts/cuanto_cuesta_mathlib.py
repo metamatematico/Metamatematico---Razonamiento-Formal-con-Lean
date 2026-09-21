@@ -113,7 +113,11 @@ def main():
         #: la PRIMERA aparte: es la unica con el cache del sistema frio, y
         #: mezclarla con las demas esconde justo la diferencia que importa
         return {"primera": v[0], "resto": v[1:],
-                "mediana_resto": sorted(v[1:])[len(v[1:]) // 2] if v[1:] else v[0]}
+                "mediana_resto": sorted(v[1:])[len(v[1:]) // 2] if v[1:] else v[0],
+                #: LA QUE SE PUBLICA. `mediana_resto` con dos tomas escoge la
+                #: mayor, y el artefacto llego a decir 25 y 12 en una seccion y
+                #: 24 y 11 en otra, del mismo fichero.
+                "mediana": sorted(v)[len(v) // 2]}
 
     r_a, r_e = resumen("ancha"), resumen("estrecha")
     print("\n=== LO MEDIDO ===\n")

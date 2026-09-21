@@ -108,6 +108,26 @@ class TestClasificar:
     def test_una_respuesta_sin_nada_es_vacia(self):
         assert _clasificar({}) == "vacia"
 
+    @pytest.mark.parametrize("crudo", [
+        {"message": "Lean error:\nTactic `rfl` failed"},     # táctica que falla
+        {"message": "Lean error:\n<input>:1:1: unknown tactic"},
+        {"message": "Unknown proof state."},
+        {"message": "Unknown environment."},
+    ])
+    def test_el_error_de_primer_nivel_es_error(self, crudo):
+        """Las cuatro respuestas, copiadas de la sonda contra el REPL real.
+
+        Caían en `vacia`, y quien contara `clase != "error"` como aceptado las
+        contaba como aceptadas: la dirección peligrosa.
+        """
+        assert _clasificar(crudo) == "error"
+
+    def test_el_error_de_primer_nivel_llega_a_error(self):
+        s = _sesion_falsa([{"message": "Unknown proof state."}])
+        r = s._pide({"tactic": "ring", "proofState": 9999}, 5)
+        assert r.clase == "error" and not r.ok
+        assert "Unknown proof state" in r.error
+
 
 class TestRespuesta:
 

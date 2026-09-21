@@ -172,7 +172,8 @@ def main():
             r = s.comando(cuerpo if cab else cod,
                           env=entornos.get(cab) if cab else None)
             r.segundos = time.time() - t0
-            b_ok = r.clase != "error"
+            # `ok` y no `clase != "error"`: una respuesta `vacia` NO es aceptar
+            b_ok = r.ok
             marca = ("de acuerdo" if a_ok == b_ok else
                      "SESION ACEPTA, FICHERO NO" if (b_ok and a_ok is False)
                      else "sesion rechaza, fichero si")

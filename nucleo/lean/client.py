@@ -203,11 +203,27 @@ class LeanClient:
         return lean_path
 
     # Header mínimo garantizado para tácticas y tipos básicos
+    #
+    # `FieldSimp` NO ES OPCIONAL, y su falta apagaba la cascada entera.
+    # `SOLVER_CASCADE` incluye `field_simp`, y desde el 2026-09-04 la cascada
+    # va en UN `first | (t ; done) | …`. Un `first` es una sola pieza de
+    # sintaxis: si UNA táctica no existe, Lean rechaza el bloque entero al
+    # analizarlo —«unknown tactic»— sin probar ninguna rama. Sin este import
+    # la cascada servida no cerraba ni `a + b = b + a`. Medido el 2026-09-21
+    # contra Lean, cuatro casos con la cascada de doce:
+    #
+    #     sin FieldSimp   0 de 3 cierran (+ el agotado)   ~10,8 s
+    #     con FieldSimp   3 de 3 (ring, field_simp, linarith)   ~11,2 s
+    #
+    # Lo vigila `tests/test_cascada_un_compilado.py::test_el_bloque_compila_
+    # contra_lean`, que compila de verdad: los tests de antes usaban un Lean
+    # de mentira y por eso no podían verlo.
     _SAFE_HEADER = (
         "import Mathlib.Tactic.Ring\n"
         "import Mathlib.Tactic.Linarith\n"
         "import Mathlib.Tactic.NormNum\n"
         "import Mathlib.Tactic.Positivity\n"
+        "import Mathlib.Tactic.FieldSimp\n"
         "import Mathlib.Algebra.Order.Field.Basic\n"
         "import Mathlib.Data.Real.Basic\n"
     )

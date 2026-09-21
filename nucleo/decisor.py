@@ -187,6 +187,15 @@ class Decision:
 # ═══════════════════════════════════════════════════════════════════════════
 # EL CATALOGO
 # ═══════════════════════════════════════════════════════════════════════════
+def _hay_repl() -> bool:
+    import os
+    try:
+        from nucleo.lean.sesion import _ruta_repl
+        return os.path.exists(_ruta_repl())
+    except Exception:                                          # noqa: BLE001
+        return False
+
+
 def _tiene_notacion(ctx: Contexto) -> bool:
     return not ctx.rasgos.get("sin_notacion", 1)
 
@@ -418,6 +427,28 @@ CAPACIDADES: list[Capacidad] = [
             ruta_nulo=("resultados", "NULO", 0),
             mas_es_mejor=False,
             contra="`simp` primero y el resto por frecuencia"),
+    ),
+    Capacidad(
+        nombre="cascada_por_estado",
+        que_hace="aplica la cascada al estado de cada sorry en una sesión de"
+                 " Lean viva, en vez de compilar un fichero por sorry; el"
+                 " fichero sigue confirmando cada cierre",
+        coste=COMPILADO,
+        donde="nucleo/lean/cascada_sesion.py::resolver",
+        # SOLO SI HAY REPL: sin el binario la sesión no abre, y `resolver`
+        # volvería al fichero de todas formas; la guarda lo dice antes.
+        guarda=lambda ctx: ctx.hay_lean and _hay_repl(),
+        # La cifra real SOLO EXISTE si no se perdió ningún cierre: el banco
+        # escribe `segundos_B_si_no_pierde` como null cuando pierde uno. Así
+        # una medición que pierda cierres apaga esto sola, aunque sea más
+        # barata: un canal rápido que cierra menos no es el mismo sistema.
+        evidencia=Evidencia(
+            fichero="cascada_por_estado.json",
+            metrica="segundos de la cascada, sin perder ningún cierre",
+            ruta_real=("segundos_B_si_no_pierde",),
+            ruta_nulo=("segundos_A",),
+            mas_es_mejor=False,
+            contra="la cascada en fichero, un compilado por sorry"),
     ),
     Capacidad(
         nombre="modelo_de_orden_de_cascada",

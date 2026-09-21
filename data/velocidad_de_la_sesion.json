@@ -1,0 +1,65 @@
+{
+ "fecha": "2026-09-21",
+ "cabecera": [
+  "import Mathlib.Tactic.Ring",
+  "import Mathlib.Tactic.Linarith",
+  "import Mathlib.Tactic.NormNum",
+  "import Mathlib.Tactic.Positivity",
+  "import Mathlib.Tactic.FieldSimp",
+  "import Mathlib.Algebra.Order.Field.Basic",
+  "import Mathlib.Data.Real.Basic"
+ ],
+ "segundos_cabecera": 10.15,
+ "segundos_plantar": 0.04,
+ "tacticas": [
+  {
+   "tactica": "nlinarith [sq_nonneg (a - b)]",
+   "esperado": "cierra",
+   "clases": [
+    "cierra",
+    "cierra",
+    "cierra"
+   ],
+   "tomas": [
+    0.463,
+    0.093,
+    0.092
+   ],
+   "mediana": 0.093
+  },
+  {
+   "tactica": "ring_nf",
+   "esperado": "progresa",
+   "clases": [
+    "progresa",
+    "progresa",
+    "progresa"
+   ],
+   "tomas": [
+    0.079,
+    0.03,
+    0.033
+   ],
+   "mediana": 0.033
+  },
+  {
+   "tactica": "linarith",
+   "esperado": "falla",
+   "clases": [
+    "error",
+    "error",
+    "error"
+   ],
+   "tomas": [
+    0.019,
+    0.008,
+    0.009
+   ],
+   "mediana": 0.009
+  }
+ ],
+ "segundos_fichero": 10.8,
+ "fichero_compila": true,
+ "tactica_min": 0.009,
+ "tactica_max": 0.093
+}
