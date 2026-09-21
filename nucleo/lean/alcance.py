@@ -3,8 +3,10 @@
 
 POR QUE HACE FALTA
 ------------------
-El sistema NO usa `import Mathlib`: cargarlo entero tarda 742 s y siempre
-expira, asi que `_normalize_code` lo borra y deja una cabecera estrecha. Bajo
+El sistema NO usa `import Mathlib`: `_normalize_code` lo borra y deja una
+cabecera estrecha, que compila en ~11 s frente a ~24 s de Mathlib entero
+(data/coste_de_mathlib.json). Aqui decia «742 s y siempre expira»: cifra sin
+procedencia, desmentida por la medicion de 2026-09-21. Bajo
 una cabecera estrecha, un lema PERFECTAMENTE REAL da «unknown constant».
 
 Eso paso en produccion con este caso, que es el que motivo este modulo:

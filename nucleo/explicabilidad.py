@@ -273,9 +273,9 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
     if mods:
         e.pasos.append(Paso(
             "modulos", "Qué trozos de Mathlib se le dieron a Lean",
-            detalle=("`import Mathlib` entero tarda 742 segundos —más que el "
-                     "tiempo límite—, así que se importa sólo lo que hace "
-                     "falta."),
+            detalle=("`import Mathlib` entero cuesta unos 24 segundos por "
+                     "prueba; importando sólo lo que hace falta baja a unos "
+                     "11. Por eso Lean no ve Mathlib entera."),
             items=[str(m) for m in mods[:8]],
             respaldo=("esta elección es **inerte**: elabora 18 de 20 "
                       "enunciados, exactamente los mismos 18 que un conjunto "

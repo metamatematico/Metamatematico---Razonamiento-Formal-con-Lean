@@ -2818,8 +2818,10 @@ class Nucleo:
         # ── SE ENSEÑA EL CODIGO QUE LEAN VIO, NO EL QUE SE LE PASO ──────────
         #
         # `check_code` normaliza antes de compilar y —entre otras cosas— BORRA
-        # `import Mathlib`, porque cargarlo entero tarda 742 s y siempre
-        # expira. Lo sustituye por una cabecera estrecha. Medido: se le pasa
+        # `import Mathlib` y lo sustituye por una cabecera estrecha, que
+        # compila en ~11 s frente a ~24 s (data/coste_de_mathlib.json;
+        # aqui decia 742 s y «siempre expira», cifra sin procedencia que la
+        # medicion de 2026-09-21 desmiente). Medido: se le pasa
         #
         #     import Mathlib
         #     theorem t : 1 = 1 := rfl

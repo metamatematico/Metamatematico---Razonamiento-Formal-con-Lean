@@ -1,0 +1,60 @@
+{
+ "fecha": "2026-09-21",
+ "timeout_del_sistema": 360,
+ "cifra_publicada_antes": 742,
+ "cabecera_estrecha": [
+  "import Mathlib.Tactic.Ring",
+  "import Mathlib.Tactic.Linarith",
+  "import Mathlib.Tactic.NormNum",
+  "import Mathlib.Tactic.Positivity",
+  "import Mathlib.Algebra.Order.Field.Basic",
+  "import Mathlib.Data.Real.Basic",
+  "open Real"
+ ],
+ "ancha": [
+  {
+   "seg": 24.2,
+   "compila": true
+  },
+  {
+   "seg": 24.6,
+   "compila": true
+  },
+  {
+   "seg": 24.4,
+   "compila": true
+  }
+ ],
+ "estrecha": [
+  {
+   "seg": 11.1,
+   "compila": true
+  },
+  {
+   "seg": 10.8,
+   "compila": true
+  },
+  {
+   "seg": 12.0,
+   "compila": true
+  }
+ ],
+ "resumen_ancha": {
+  "primera": 24.2,
+  "resto": [
+   24.6,
+   24.4
+  ],
+  "mediana_resto": 24.6
+ },
+ "resumen_estrecha": {
+  "primera": 11.1,
+  "resto": [
+   10.8,
+   12.0
+  ],
+  "mediana_resto": 12.0
+ },
+ "peor_ancha": 24.6,
+ "expira_siempre": false
+}

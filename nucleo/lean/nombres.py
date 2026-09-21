@@ -118,8 +118,9 @@ def _cargar() -> None:
 def modulo_de(nombre: str) -> str:
     """El modulo de Mathlib que define este nombre. Cadena vacia si no consta.
 
-    Hace falta porque `_normalize_code` BORRA `import Mathlib` —cargarlo entero
-    tarda 742 s y siempre expira— y lo sustituye por una cabecera estrecha. Bajo
+    Hace falta porque `_normalize_code` BORRA `import Mathlib` —la estrecha
+    compila en ~11 s frente a ~24 s, data/coste_de_mathlib.json— y lo
+    sustituye por una cabecera estrecha. Bajo
     esa cabecera, un lema perfectamente real da «Unknown constant» si su modulo
     no esta. Cualificar el nombre sin traer su modulo no arregla nada.
     """
@@ -496,8 +497,9 @@ def reparar_codigo(codigo: str) -> tuple:
     # ── regla 3 · traer el MODULO de lo que se ha cualificado ───────────
     #
     # Cualificar el nombre y no traer su modulo no arregla nada:
-    # `_normalize_code` BORRA `import Mathlib` —cargarlo entero tarda 742 s y
-    # siempre expira— y deja una cabecera estrecha. Bajo esa cabecera, un lema
+    # `_normalize_code` BORRA `import Mathlib` —la estrecha compila en ~11 s
+    # frente a ~24 s, data/coste_de_mathlib.json— y deja una cabecera
+    # estrecha. Bajo esa cabecera, un lema
     # perfectamente real da «Unknown constant».
     #
     # Ese es exactamente el fallo que se repitio cuatro veces:

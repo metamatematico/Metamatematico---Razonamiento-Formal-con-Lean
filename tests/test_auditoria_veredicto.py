@@ -154,7 +154,8 @@ class TestSeEnsenaElCodigoQueLeanVio:
         theorem t : 1 = 1 := rfl
 
     y Lean ve seis imports estrechos, un `open Real` y el teorema. `import
-    Mathlib` se BORRA porque cargarlo entero tarda 742 s y siempre expira.
+    Mathlib` se BORRA: la cabecera estrecha compila en ~11 s frente a ~24 s
+    (data/coste_de_mathlib.json).
 
     Consecuencia: se podia leer `import Mathlib` junto a un error diciendo que
     un lema no existe —cuando con ese import SI existe—. Cuatro intentos

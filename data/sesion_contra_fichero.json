@@ -1,0 +1,230 @@
+{
+ "n": 20,
+ "de_acuerdo": 20,
+ "sesion_acepta_fichero_no": 0,
+ "sesion_rechaza_fichero_si": 0,
+ "segundos_fichero": 258.3,
+ "segundos_sesion": 137.5,
+ "tabla": [
+  {
+   "consulta": "¿Cuánto es 127 + 458?",
+   "fichero": true,
+   "fichero_seg": 24.2,
+   "sesion": true,
+   "sesion_seg": 21.5,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que (a+b)^2 = a^2 + 2ab + b^2",
+   "fichero": true,
+   "fichero_seg": 22.8,
+   "sesion": true,
+   "sesion_seg": 0.1,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que la raíz de 2 es irracional",
+   "fichero": true,
+   "fichero_seg": 11.7,
+   "sesion": true,
+   "sesion_seg": 6.5,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que n^2 es par si y solo si n es par",
+   "fichero": true,
+   "fichero_seg": 25.0,
+   "sesion": true,
+   "sesion_seg": 0.1,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que en un grupo el elemento neutro es único",
+   "fichero": false,
+   "fichero_seg": 6.6,
+   "sesion": false,
+   "sesion_seg": 4.0,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:10:0: error: unexpected end of input; expected ':=' or '|'\nE:\\Metamatematico\\_concordancia.lean:9:7: error: Missing cases:\n",
+   "err_sesion": "unexpected end of input; expected ':=' or '|'"
+  },
+  {
+   "consulta": "Demuestra que P implica (Q implica P)",
+   "fichero": true,
+   "fichero_seg": 22.5,
+   "sesion": true,
+   "sesion_seg": 0.0,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que la raíz de 4 es irracional",
+   "fichero": true,
+   "fichero_seg": 22.6,
+   "sesion": true,
+   "sesion_seg": 23.2,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "It shows that every vector space has a base.",
+   "fichero": false,
+   "fichero_seg": 10.2,
+   "sesion": false,
+   "sesion_seg": 5.1,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:12:9: error: Application type mismatch: The argument\n  s\nhas type\n  Set V\nof sort `Type u_2` but is expected to have type\n ",
+   "err_sesion": "Application type mismatch: The argument\n  s\nhas type\n  Set V\nof sort `Type u_2` but is expected to have type\n  Type u_3\nof sort `Type (u_3 + 1)` in the applicat"
+  },
+  {
+   "consulta": "It shows that every vector space has a base.",
+   "fichero": false,
+   "fichero_seg": 22.0,
+   "sesion": false,
+   "sesion_seg": 23.9,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:11:12: error: Application type mismatch: The argument\n  b\nhas type\n  Nonempty (Basis (↑s) K V)\nof sort `Prop` but is expect",
+   "err_sesion": "Application type mismatch: The argument\n  b\nhas type\n  Nonempty (Basis (↑s) K V)\nof sort `Prop` but is expected to have type\n  Basis (↑s) K V\nof sort `Type (max"
+  },
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "fichero": true,
+   "fichero_seg": 23.0,
+   "sesion": true,
+   "sesion_seg": 0.0,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que todo subgrupo de un grupo cíclico es cíclico",
+   "fichero": false,
+   "fichero_seg": 4.3,
+   "sesion": false,
+   "sesion_seg": 5.2,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:1:0: error: object file 'C:\\MetamatematicoLake\\packages\\mathlib\\.lake\\build\\lib\\lean\\Mathlib\\GroupTheory\\Subgroup\\Basic.ole",
+   "err_sesion": "unexpected token '*'; expected '}'"
+  },
+  {
+   "consulta": "Demuestra que un grupo de orden primo es cíclico",
+   "fichero": false,
+   "fichero_seg": 10.8,
+   "sesion": false,
+   "sesion_seg": 13.7,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:6:25: error: Application type mismatch: The argument\n  hp\nhas type\n  Nat.Prime (Fintype.card G)\nbut is expected to have typ",
+   "err_sesion": "Application type mismatch: The argument\n  hp\nhas type\n  Nat.Prime (Fintype.card G)\nbut is expected to have type\n  Nat.card G = ?m.5\nin the application\n  isCycli"
+  },
+  {
+   "consulta": "Demuestra que la intersección de subgrupos es un subgrupo",
+   "fichero": true,
+   "fichero_seg": 9.0,
+   "sesion": true,
+   "sesion_seg": 5.2,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que el orden de un elemento divide al orden del grupo",
+   "fichero": true,
+   "fichero_seg": 10.0,
+   "sesion": true,
+   "sesion_seg": 10.7,
+   "clase": "progresa",
+   "marca": "de acuerdo",
+   "err_fichero": "",
+   "err_sesion": ""
+  },
+  {
+   "consulta": "Demuestra que un grupo abeliano finito es producto de cíclicos",
+   "fichero": false,
+   "fichero_seg": 12.4,
+   "sesion": false,
+   "sesion_seg": 8.4,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:10:38: error(lean.synthInstanceFailed): failed to synthesize instance of type class\n  CategoryTheory.Limits.HasZeroMorphism",
+   "err_sesion": "failed to synthesize instance of type class\n  CategoryTheory.Limits.HasZeroMorphisms (Type ?u.341)\n\nHint: Type class instance resolution failures can be inspect"
+  },
+  {
+   "consulta": "Demuestra que la raíz de 2 es irracional",
+   "fichero": false,
+   "fichero_seg": 11.0,
+   "sesion": false,
+   "sesion_seg": 6.5,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:3:30: error: Function expected at\n  Irrational\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term i",
+   "err_sesion": "Function expected at\n  Irrational\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  (Real.sqrt 2)\n\nH"
+  },
+  {
+   "consulta": "Demuestra que los números racionales son numerables",
+   "fichero": false,
+   "fichero_seg": 2.7,
+   "sesion": false,
+   "sesion_seg": 0.9,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:1:24: error: Function expected at\n  Countable\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is",
+   "err_sesion": "Function expected at\n  Countable\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  ℚ\n\nHint: The iden"
+  },
+  {
+   "consulta": "Demuestra que todo entero se factoriza en primos de forma única",
+   "fichero": false,
+   "fichero_seg": 2.5,
+   "sesion": false,
+   "sesion_seg": 0.8,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:6:65: error: expected token\n",
+   "err_sesion": "expected token"
+  },
+  {
+   "consulta": "Demuestra que el conjunto de partes de N no es numerable",
+   "fichero": false,
+   "fichero_seg": 2.5,
+   "sesion": false,
+   "sesion_seg": 0.9,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:1:51: error: Function expected at\n  Set\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being",
+   "err_sesion": "Function expected at\n  Set\nbut this term has type\n  ?m.1\n\nNote: Expected a function because this term is being applied to the argument\n  (Set ℕ)\n\nHint: The iden"
+  },
+  {
+   "consulta": "Demuestra que toda sucesión de Cauchy en R converge",
+   "fichero": false,
+   "fichero_seg": 2.5,
+   "sesion": false,
+   "sesion_seg": 0.8,
+   "clase": "error",
+   "marca": "de acuerdo",
+   "err_fichero": "E:\\Metamatematico\\_concordancia.lean:3:13: error(lean.unknownIdentifier): Unknown identifier `Filter.Tendsto`\nE:\\Metamatematico\\_concordancia.lean:2:46: error: ",
+   "err_sesion": "Unknown identifier `Filter.Tendsto`"
+  }
+ ]
+}

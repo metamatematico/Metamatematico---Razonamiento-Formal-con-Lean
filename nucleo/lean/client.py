@@ -70,7 +70,8 @@ class LeanResult:
     #: EL CODIGO QUE LEAN VIO DE VERDAD, que no es el que se le paso.
     #:
     #: `check_code` normaliza antes de compilar y —entre otras cosas— BORRA
-    #: `import Mathlib`, porque cargarlo entero tarda 742 s y siempre expira.
+    #: `import Mathlib` (cabecera estrecha ~11 s frente a ~24 s de Mathlib
+    #: entero, data/coste_de_mathlib.json; no los 742 s que decia antes).
     #: El llamante se quedaba con el codigo ORIGINAL y era ese el que se
     #: enseñaba junto al veredicto: el alumno veia `import Mathlib` y un error
     #: diciendo que un lema no existe, cuando con ese import si existe.
@@ -248,7 +249,7 @@ class LeanClient:
         #
         # Es el caso del teorema chino del residuo: el modelo escribia
         # `import Mathlib` (correcto), _normalize_code lo quitaba por coste
-        # —742 s frente a ~15 s— y la cabecera estrecha no traia ModEq, asi
+        # —~24 s frente a ~11 s— y la cabecera estrecha no traia ModEq, asi
         # que el codigo valido se volvia imparseable.
         (["[MOD ", "ModEq", "Nat.Coprime", "chineseRemainder", "≡"],
          "import Mathlib.Data.Nat.ModEq"),
@@ -736,8 +737,8 @@ class LeanClient:
 
     #: Modulos que el GRAFO sugiere para la consulta en curso.
     #:
-    #: `_normalize_code` descarta `import Mathlib` —cargarlo entero se midio en
-    #: 742 s, por encima del timeout— y lo sustituye por una cabecera estrecha
+    #: `_normalize_code` descarta `import Mathlib` —~24 s frente a ~11 s de la
+    #: estrecha, data/coste_de_mathlib.json— y lo sustituye por una cabecera estrecha
     #: mas imports elegidos POR PALABRAS CLAVE del enunciado. Ese es el punto
     #: donde se decide QUE VE LEAN, y hasta ahora lo decidia un diccionario de
     #: terminos en vez de la estructura de conceptos que el sistema ya tiene.
@@ -762,10 +763,13 @@ class LeanClient:
         """
         lines = code.lstrip().splitlines()
 
-        # `import Mathlib` a secas carga los ~1.58 GB de .olean: 742 s medidos,
-        # muy por encima del timeout de 360 s, asi que SIEMPRE expiraba. Se
-        # descarta esa linea y se deja que el header estrecho la sustituya
-        # (~11 s). Si la prueba necesitaba un modulo fuera del header, Lean
+        # `import Mathlib` a secas carga los ~1.58 GB de .olean. Aqui decia
+        # «742 s medidos, SIEMPRE expira»: esa cifra no tiene procedencia y la
+        # medicion de 2026-09-21 (data/coste_de_mathlib.json) da ~24 s, muy
+        # por DEBAJO del timeout de 360 s. La razon que queda es de coste, no
+        # de viabilidad: el header estrecho compila en ~11 s, la mitad. Si la
+        # ancha acierta MAS no lo mide ese fichero; eso es otro banco.
+        # Se descarta esa linea y se deja que el header estrecho la sustituya. Si la prueba necesitaba un modulo fuera del header, Lean
         # dara "unknown identifier" en segundos — un error diagnosticable por
         # la cascada de solvers es mejor que un timeout seguro sin resultado.
         if any(l.strip() == "import Mathlib" for l in lines):
