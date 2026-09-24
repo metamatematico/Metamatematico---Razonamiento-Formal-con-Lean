@@ -108,6 +108,13 @@ data/_*.json
 # puede borrarse en local.
 /modelos/
 
+# Pesos de los 14 especialistas: los entrenaba la red que se quito el
+# 2026-09-21, y no van al repositorio. Estuvieron ignorados, se quitaron estas
+# lineas al borrar el codigo, y un `git add -A` metio 123 MB de .pt en un
+# commit. Vuelven a estar aqui aunque la carpeta ya no exista.
+training/
+*.pt
+
 # Repositorios de terceros clonados en local (se usaron como referencia; no
 # forman parte del proyecto).
 /external/
