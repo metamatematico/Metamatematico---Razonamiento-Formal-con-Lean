@@ -37,9 +37,10 @@ decide la verdad — eso es Lean, siempre.
 7. [El lazo por pasos](#7-el-lazo-por-pasos)
 8. [Tests y guardianes](#8-tests-y-guardianes)
 9. [Lo que se midió y se quitó](#9-lo-que-se-midió-y-se-quitó)
-10. [Instalación y uso](#10-instalación-y-uso)
-11. [Estructura del repositorio](#11-estructura-del-repositorio)
-12. [Lo que no está](#12-lo-que-no-está)
+10. [El flujo de trabajo](#10-el-flujo-de-trabajo)
+11. [Instalación y uso](#11-instalación-y-uso)
+12. [Estructura del repositorio](#12-estructura-del-repositorio)
+13. [Lo que no está](#13-lo-que-no-está)
 
 ---
 
@@ -781,22 +782,121 @@ Lo que sí hizo fue gastarse el presupuesto de Lean en plantillas que no cierran
 
 ### El bucle que no cuesta dinero
 
-El modelo formaliza una consulta **una vez**, se graba, y todo lo que el sistema
-hace después —imports, reparación, cascada, premisas— se reejecuta con Lean de
-juez y coste cero.
-
-```bash
-METAMAT_GRABAR=1 python -m nucleo chat     # graba mientras trabajas
-python scripts/replay.py                   # reproduce, sin API
-```
-
-La frontera está donde tiene que estar: se graba el código del LLM *antes* de
-que Lean lo vea. Si el gancho se moviera detrás, el replay mediría el sistema
-contra su propia salida — hay un test que lo impide.
+Casi todos estos negativos se midieron sin gastar una llamada al modelo: se
+graba la formalización una vez y se reejecuta el resto con Lean de juez. Cómo,
+en el [flujo de trabajo](#10-el-flujo-de-trabajo).
 
 ---
 
-## 10. Instalación y uso
+## 10. El flujo de trabajo
+
+Cómo entra —y cómo sale— una pieza de este sistema. No es una aspiración: es
+lo que hacen los guardianes de la [sección 8](#8-tests-y-guardianes).
+
+### El ciclo de una capacidad
+
+```
+     escribir la puerta          ¿qué mediría que esto sirve, y contra qué suelo?
+            ↓                    se escribe ANTES de medir, en el docstring del banco
+        construirla
+            ↓
+       medir sin API             Lean de juez · el nulo al lado · la huella del grafo
+            ↓
+     ┌──── ¿bate a su nulo? ────┐
+     │ sí                       │ no
+     ↓                          ↓
+  cablearla y                quitarla, y dejar
+  declararla en              su cifra en
+  nucleo/decisor.py          data/descartado.json
+```
+
+**La puerta se escribe antes.** Los bancos de `scripts/` llevan en su
+docstring qué miden, contra qué nulo y —los del lazo por pasos, donde la
+disciplina está más apretada— qué resultado haría entrar la pieza. Escribirla después
+es elegir la regla que te da la razón — y este repositorio ya se lo hizo a sí
+mismo: la medición del orden de tácticas comparaba dos reglas entre sí, sin
+suelo, y publicó «2,4× mejor» durante meses.
+
+**El veredicto se lee, no se recuerda.** El decisor guarda la *ruta* al número
+dentro del fichero de medición, no el número. Volver a medir cambia la conducta
+sin tocar código, y `test_ninguna_ruta_de_evidencia_esta_rota` falla si una ruta
+deja de resolver: una capacidad que se apaga en silencio sería peor que no
+tener decisor.
+
+**Y si pierde, se va.** Hasta el 21 de septiembre de 2026 lo que perdía se
+quedaba apagado «por si acaso»; hoy se borra y queda el registro —qué hacía, su
+cifra, su nulo y el commit donde vive su código—. Diez capacidades salieron así
+(§9). Descartar no es borrar: sin el registro, dentro de seis meses alguien
+vuelve a construir lo mismo.
+
+### Medir sin gastar
+
+Casi todo se mide con Lean de juez y **cero llamadas al modelo**. El truco es
+grabar la formalización una vez y reejecutar el resto cuantas veces haga falta:
+
+```bash
+METAMAT_GRABAR=1 python -m nucleo chat     # graba mientras trabajas
+python scripts/replay.py                   # reproduce el camino servido, sin API
+```
+
+La frontera está donde tiene que estar: se graba el código del modelo *antes*
+de que Lean lo vea. Si el gancho se moviera detrás, el replay mediría el
+sistema contra su propia salida — hay un test que lo impide.
+
+Lo único que sí gasta: el banco de fidelidad y la puerta con modelo del lazo
+por pasos (§7).
+
+### Antes de cada commit
+
+```bash
+python -m pytest tests/ -o "addopts="      # 1300 tests · 66 suites
+python -m scripts.alineacion               # ¿las piezas dicen lo mismo entre sí?
+python -m scripts.auditar_artefacto        # ¿cada cifra publicada sigue siendo la suya?
+python -m scripts.cifras_de_tests          # reescribe los recuentos en los 7 sitios
+python -m scripts.frase_del_catalogo       # reescribe la frase del decisor
+```
+
+Los dos primeros son de naturaleza distinta y hacen falta los dos: los tests
+comprueban que **cada pieza cumple su contrato**, y el auditor que **las piezas
+se corresponden entre sí**. `FUSIONES` llegó a declarar ocho fusiones con cero
+aplicadas sin que fallara un solo test, porque la tabla declaraba bien y el
+grafo cargaba bien; nadie preguntaba si una cosa correspondía con la otra.
+
+Los tres últimos **reescriben** documentación desde el código: los recuentos de
+tests y la frase del catálogo del decisor no se escriben a mano, porque una
+cifra escrita a mano envejece en silencio.
+
+### Dónde queda cada cosa
+
+| qué | dónde |
+|---|---|
+| cada medición, con su método en el docstring | `scripts/*.py` |
+| su resultado, con la **huella del grafo** que midió | `data/*.json` |
+| lo que se quitó, con su cifra y su commit | `data/descartado.json` |
+| qué corre y por qué, por consulta | `nucleo/decisor.py` |
+| el documento largo, y su fuente | [artefacto](https://claude.ai/artifact/HvRhJLUKDkxrQW7GjLhZrg) · `docs/arquitectura_nle.html` |
+
+La huella no es un adorno. `banco_herald.json` decía «10,3 % de precisión» y la
+documentación lo citaba como la cifra de hoy; se había medido sobre un grafo de
+352 nodos con tres que ya no existen. Ni el fichero ni el documento mentían por
+separado — faltaba la pregunta *¿y esto sobre qué grafo?*.
+
+### El día a día en esta máquina
+
+El sistema arranca solo al iniciar sesión (Programador de tareas → el lanzador
+`Metamatematico.vbs`, que llama a `Metamatematico.ps1`) y queda en
+`http://localhost:8501`. El acceso directo del escritorio abre eso mismo.
+
+```powershell
+# reiniciarlo tras tocar el código (mata lo que escuche en 8501 y relanza)
+wscript.exe E:\Metamatematico\Metamatematico.vbs
+# los registros
+Get-Content E:\Metamatematico\logs\streamlit_error.log -Tail 20
+```
+
+---
+
+## 11. Instalación y uso
 
 ```bash
 git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
@@ -824,7 +924,7 @@ lake exe graph --to Mathlib data/mathlib_imports.dot
 
 ---
 
-## 11. Estructura del repositorio
+## 12. Estructura del repositorio
 
 ```
 nucleo/
@@ -857,7 +957,7 @@ data/                     índices derivados (los grandes van en .gitignore)
 
 ---
 
-## 12. Lo que no está
+## 13. Lo que no está
 
 **Sin respuesta todavía.** Si el vocabulario del paso 1 se traduce en más
 verificaciones. Es la única pregunta que necesita llamar al modelo, y está
