@@ -775,7 +775,7 @@ def _build_file_verify_prompt(text: str, filename: str) -> str:
 
 def _onboarding_body():
     st.markdown(
-        "Para usar **todo el poder del sistema** configura estas tres cosas. "
+        "Para usar **todo el poder del sistema** configura estas dos cosas. "
         "Con solo la API key ya puedes empezar a chatear."
     )
     st.divider()
