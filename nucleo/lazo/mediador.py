@@ -184,22 +184,6 @@ class Mediador:
         nodo.ps, nodo.gen = ps, self._gen
         return True
 
-    def sondear(self, tactica: str, nodo: Nodo):
-        """Una táctica de SONDA para un proponente (D2): lee, no crea flechas.
-
-        Cuenta en el presupuesto de Lean como cualquier otra, y si agota su
-        tope la sesión se rehace aquí mismo —igual que con una candidata—.
-        """
-        if not self._asegurar(nodo):
-            return None
-        r = self._sesion.tactica(tactica, nodo.ps, tope=self.p.tope_tactica)
-        self.lean += 1
-        if "TIMEOUT" in (r.error or ""):
-            if self._rehacer(self._cuerpo):
-                self._asegurar(nodo)
-            return None
-        return r
-
     def _anota(self, **kw) -> None:
         if self._reg is not None:
             self._reg.anota(**kw)
@@ -264,10 +248,7 @@ class Mediador:
                         continue
                     self.llm += 1
                 try:
-                    if getattr(prop, "usa_sesion", False):
-                        cands = await prop.proponer(nodo, mediador=self)
-                    else:
-                        cands = await prop.proponer(nodo)
+                    cands = await prop.proponer(nodo)
                 except Exception as e:                         # noqa: BLE001
                     logger.info("el proponente %s falló: %s", prop.nombre, e)
                     continue

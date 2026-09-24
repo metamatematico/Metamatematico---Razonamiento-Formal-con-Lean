@@ -23,7 +23,7 @@ SALIDA = RAIZ / "data" / "funtor_pi.json"
 def construir_grafo():
     """El mismo grafo que usa el sistema: 10 fundacionales + los dominios."""
     sys.argv = ["x"]
-    from scripts.train_gnn_ppo import build_skill_graph
+    from nucleo.pillars.grafo_curado import build_skill_graph
     return build_skill_graph()
 
 

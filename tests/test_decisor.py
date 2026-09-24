@@ -144,33 +144,39 @@ def test_una_capacidad_sin_evidencia_tiene_que_explicarse():
                 "%s no dice por que no tiene evidencia" % cap.nombre)
 
 
-def test_el_decisor_apaga_algo_que_hoy_esta_en_produccion():
-    """Si el decisor no apagara nada, sería decoración.
+def test_lo_que_perdio_esta_en_el_registro_y_no_en_el_codigo():
+    """Lo que no batió a su nulo se quitó (2026-09-21) y queda registrado.
 
-    Hoy apaga el orden de cascada por área (1,262 contra 1,091 del nulo), la
-    localización en dos etapas (0,42 contra 0,93) y la recuperación léxica de
-    lemas (0,065 contra 7,78).
+    El orden de cascada por área (1,262 contra 1,091 del nulo), la
+    localización en dos etapas (0,42 contra 0,93), la recuperación léxica de
+    lemas (0,065 contra 7,78) y siete más. Que no vuelvan al catálogo sin una
+    medición nueva, y que el registro diga de cada una su cifra y su nulo.
     """
-    d = decidir(Contexto(rasgos={"sin_notacion": 0}))
-    perdedoras = [c.nombre for c in d.apagadas
-                  if "NO bate a su nulo" in d.motivos[c.nombre]]
-    assert "orden_de_cascada_por_area" in perdedoras
-    assert len(perdedoras) >= 3
+    import json
+    reg = json.loads((RAIZ / "data" / "descartado.json").read_text(encoding="utf-8"))
+    quitadas = {c["nombre"] for c in reg["capacidades"]}
+    assert "orden_de_cascada_por_area" in quitadas and len(quitadas) >= 10
+    assert not quitadas & {c.nombre for c in CAPACIDADES}
+    fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
+    for n in quitadas:
+        assert '"%s" in _corre' % n not in fuente, n
+    for c in reg["capacidades"]:
+        assert c["codigo_en_el_commit"] and c["por_que_se_quito"], c["nombre"]
 
 
 def test_el_decisor_cuesta_menos_que_su_nulo():
     """El nulo del decisor es «ejecútalo todo». Si no ahorra, no decide."""
     ctx = Contexto(rasgos={"sin_notacion": 0})
     d, todo = decidir(ctx), decidir_todo(ctx)
-    assert d.coste[COMPILADO] < todo.coste[COMPILADO]
-    assert d.coste[LLAMADA] <= todo.coste[LLAMADA]
+    assert d.coste[COMPILADO] <= todo.coste[COMPILADO]
+    assert d.coste[LLAMADA] < todo.coste[LLAMADA]
 
 
 def test_core_consulta_al_decisor():
     """Sin esto el decisor sería un informe bonito que nadie lee."""
     fuente = (RAIZ / "nucleo" / "core.py").read_text(encoding="utf-8")
     assert "from nucleo.decisor import" in fuente
-    assert '"orden_de_cascada_por_area" in _corre' in fuente
+    assert '"cascada_por_estado" in _corre' in fuente
 
 
 def test_la_guarda_del_estrato_parte_el_promedio():
@@ -192,7 +198,7 @@ def test_la_guarda_del_estrato_parte_el_promedio():
     assert n not in [c.nombre for c in sin_notacion.activas]
 
 
-def test_apagar_el_orden_no_vacia_la_etiqueta_de_la_memoria():
+def test_la_etiqueta_de_la_memoria_no_se_vacia():
     """`_domain_tactic` NO llega a la cascada: va como etiqueta al reportar el
     resultado a la memoria de aprendizaje (`report_lean_result`).
 
@@ -205,8 +211,6 @@ def test_apagar_el_orden_no_vacia_la_etiqueta_de_la_memoria():
     assert "_domain_tactic = domain_default_tactic(_area)" in fuente
     assert '_domain_tactic = ""' not in fuente, (
         "la etiqueta que va a la memoria no puede quedarse vacia")
-    # y el orden sí depende del decisor
-    assert '"orden_de_cascada_por_area" in _corre else []' in fuente
 
 
 class TestNadieSeAcreditaLoQueNoCorre:

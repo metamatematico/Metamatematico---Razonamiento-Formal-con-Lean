@@ -587,17 +587,22 @@ class TestCifrasDelGrafo:
             % (len(pasos), len(set(filas))))
         #: los veredictos medidos tienen que estar EN el dibujo, no solo en el
         #: texto: un diagrama que pinta los tres puntos igual engaña
-        assert "INERTE" in svg, (
-            "el diagrama ya no dice que el paso de imports es inerte")
-        #: UNO, no dos. El paso 5 decia «APORTA · 2,4x menos intentos» y esa
-        #: medicion NO TENIA MODELO NULO: `simp` cierra el 95,8 % de los 1 600
-        #: casos, el nulo «probar simp primero» da 1,07 y la regla 1,29. Pierde
-        #: en 24 casos y gana en 2, IC 95 % [+0,094, +0,253].
+        #: CADA PUNTO CON SU VEREDICTO, y el que se quito con su cifra. El
+        #: paso 3b —proponer modulos vecinos— y el orden de cascada por area se
+        #: midieron contra su nulo, empataron o perdieron, y el 2026-09-21 se
+        #: quitaron del codigo (ver `data/descartado.json`). El dibujo tiene
+        #: que decirlo: un diagrama que pinta todos los puntos igual engaña.
+        assert "se quitó" in svg, (
+            "el diagrama ya no dice que proponer modulos vecinos se quito")
+        assert "18 de 20 contra 18" in svg, (
+            "el diagrama no trae la cifra por la que se quito: empataba con un "
+            "conjunto fijo de tres modulos")
         assert svg.count("APORTA") == 1, (
-            "el diagrama debe marcar exactamente el UNICO punto que aporta: el "
-            "paso 5 no bate a su modelo nulo")
-        assert "NO BATE AL NULO" in svg, (
-            "el diagrama ya no dice que el orden de tacticas no bate al nulo")
+            "el diagrama debe marcar el punto donde el grafo aporta, que es el "
+            "vocabulario del prompt")
+        assert "TacticRanker" in svg, (
+            "el orden de la cascada lo fija el TacticRanker, no el area: el "
+            "dibujo tiene que decir quien ordena")
 
     def test_los_veredictos_dibujados_son_los_que_el_codigo_produce(self):
         """El dibujo declaraba seis salidas y el código produce siete.

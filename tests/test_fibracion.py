@@ -166,7 +166,7 @@ class TestElGrafoReal:
     @pytest.fixture(scope="class")
     def real(self):
         try:
-            from scripts.train_gnn_ppo import build_skill_graph
+            from nucleo.pillars.grafo_curado import build_skill_graph
         except Exception:                                   # pragma: no cover
             pytest.skip("no se puede construir el grafo real")
         g = build_skill_graph()

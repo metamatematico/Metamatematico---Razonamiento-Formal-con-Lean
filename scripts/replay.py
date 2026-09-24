@@ -135,12 +135,12 @@ async def reproduce(nucleo, fila, cfg):
         except Exception:                                      # noqa: BLE001
             cambios = []
 
-    # PASO 3 — los módulos que el grafo propone
+    # PASO 3 — los módulos de los nombres ofrecidos, como en el camino servido
     try:
         if cfg["imports"]:
             skills = fila.get("skills") or Nucleo._match_skills_to_query(
                 nucleo, fila["consulta"], nucleo._graph)
-            mods = Nucleo._modulos_mathlib(nucleo, {"relevant_skills": skills})
+            mods = Nucleo._modulos_de_los_nombres(nucleo, {"relevant_skills": skills})
         else:
             mods = []
         nucleo._lean.sugerir_imports(mods)
@@ -153,13 +153,14 @@ async def reproduce(nucleo, fila, cfg):
     # PASO 6 — la cascada, si queda un `sorry`
     if not verifica and "sorry" in codigo:
         try:
-            from nucleo.multi_agent.colimit_agents import domain_tactic_order
-            r2 = await nucleo._fill_sorries(
+            # `_fill_sorries` ya no existía: este paso fallaba en silencio
+            # dentro del `try` y el replay nunca contaba un cierre de la
+            # cascada. Es la llamada del camino servido.
+            msg, _conf, _ok = await nucleo._try_solve_sorries(
                 codigo, result,
-                domain_order=domain_tactic_order(area),
-                area_premisas=(area if cfg["premisas"] else ""))
-            if r2 and getattr(r2[1] if isinstance(r2, tuple) else r2,
-                              "is_success", False):
+                area_premisas=(area if cfg["premisas"] else ""),
+                por_estado=True)
+            if msg.startswith("Todos los sorry resueltos"):
                 verifica = True
         except Exception:
             pass

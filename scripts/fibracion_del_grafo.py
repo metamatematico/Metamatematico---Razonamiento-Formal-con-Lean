@@ -58,7 +58,7 @@ SALIDA = RAIZ / "data" / "fibracion_del_grafo.json"
 def _grafo():
     """EL GRAFO DEL SISTEMA, no el del entrenamiento.
 
-    Esto llamaba a `build_skill_graph()` de `scripts/train_gnn_ppo.py`, que
+    Esto llamaba a `build_skill_graph()` (hoy `nucleo/pillars/grafo_curado.py`), que
     RECONSTRUYE un grafo para entrenar la red: 206 skills y 1016 morfismos
     frente a los 353 y 1585 que monta `Nucleo.initialize()`. Le faltaban 147
     nodos y 569 morfismos, y entre ellos los que mas importan aqui —los

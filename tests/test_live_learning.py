@@ -6,7 +6,7 @@ Verifica:
 - Skills de tacticas Lean se cargan correctamente
 - Skills de estrategias de prueba se cargan
 - Dependencias L2 resuelven a L1
-- Live PPO update via Nucleo
+- (la red y su PPO en vivo se retiraron)
 - Procedimientos guardan contexto (query, tactic)
 - get_best_for_query encuentra coincidencias
 - Agente prioriza patrones exitosos de memoria
@@ -227,7 +227,7 @@ class TestAgentMemoryIntegration:
 
         from nucleo.rl.agent import NucleoAgent
 
-        agent = NucleoAgent(g, use_neural=True)
+        agent = NucleoAgent(g)
         agent.eval_mode()
 
         # Set up procedural memory with a proven pattern
@@ -250,7 +250,7 @@ class TestAgentMemoryIntegration:
         action = agent.select_action(state)
         assert action.action_type == ActionType.ASSIST
 
-    def test_agent_falls_back_to_neural(self):
+    def test_agent_falls_back_to_heuristic(self):
         g = SkillCategory(name="MemTest")
         g.add_skill(Skill(id="s1", name="A", pillar=PillarType.SET, level=0))
         g.add_skill(Skill(id="s2", name="B", pillar=PillarType.LOG, level=0))
@@ -258,14 +258,14 @@ class TestAgentMemoryIntegration:
 
         from nucleo.rl.agent import NucleoAgent
 
-        agent = NucleoAgent(g, use_neural=True)
+        agent = NucleoAgent(g)
         agent.eval_mode()
 
-        # Empty memory - should fall back to neural
+        # Empty memory - should fall back to the heuristic
         agent._procedural_memory = ProceduralMemory()
         state = State(lean_goal="something completely new")
         action = agent.select_action(state)
-        # Should still return a valid action (from neural net)
+        # Should still return a valid action (from the heuristic)
         assert action.action_type in [
             ActionType.RESPONSE, ActionType.REORGANIZE, ActionType.ASSIST
         ]

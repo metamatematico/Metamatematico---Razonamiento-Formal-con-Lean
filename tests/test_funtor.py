@@ -94,7 +94,7 @@ class TestLeyesDeFuntor:
         """La verificacion que importa: el grafo que el sistema usa de verdad."""
         import sys
         sys.argv = ["x"]
-        from scripts.train_gnn_ppo import build_skill_graph
+        from nucleo.pillars.grafo_curado import build_skill_graph
         g = build_skill_graph()
         r = verificar_functorialidad(construir_funtor(g), g)
         assert r["objetos_sin_imagen"] == 0

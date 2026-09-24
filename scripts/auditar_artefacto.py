@@ -39,8 +39,8 @@ sort = collections.Counter(meta[s.id].get("sort") or "CONCEPTO" for s in g.skill
 
 pn, fu, do, he = (J("recuperacion_proofnet.json"), J("funtor_mathlib.json"),
                   J("banco_docstrings.json"), J("banco_herald.json"))
-fi, em, ra, im = (J("fibracion_del_grafo.json"), J("emparejamiento.json"),
-                  J("ranker_en_la_cascada.json"), J("imports_contra_lean.json"))
+fi, em, ra = (J("fibracion_del_grafo.json"), J("emparejamiento.json"),
+              J("ranker_en_la_cascada.json"))
 vi, es, tr = (J("viajes.json"), J("categoria_de_estados.json"),
               J("tactic_ranker_report.json"))
 
@@ -84,9 +84,6 @@ VERDAD = {
     "ranker fijo pos": rk["fijo (SOLVER_CASCADE)"]["posicion_media"],
     "ranker 1er": rk["RANKEADOR"]["primer_intento"],
     "ranker acc": 100 * tr["accuracy"], "ranker base": 100 * tr["baseline_mayoritaria"],
-    "imports grafo": im["resumen"]["grafo"]["ok"],
-    "imports fijo": im["resumen"]["fijo"]["ok"],
-    "imports azar": im["resumen"]["azar"]["ok"],
     "viajes pares": vi["pares"], "viajes con": vi["con_viaje"],
     "viajes tasa%": 100 * vi["tasa"], "viajes nulo%": 100 * vi["nulo_base_directa"],
     "estados objetos": es["objetos"], "estados flechas": es["flechas"],
@@ -132,7 +129,6 @@ PARES = [
     ("ranker nulo 2,44", ("2,44",)),
     ("ranker 0,621", ("0,621",)),
     ("imports 18 de 20", ("18 de 20", "18/20")),
-    ("imports azar 12", ("12 de 20", "18 frente a 12")),
     ("282 de 284", ("282 de 284", "282 de las 284")),
     ("fibracion 0,1 %", ("0,1 %",)),
     ("fibracion nulo 4,3 %", ("4,3 %",)),
@@ -211,18 +207,7 @@ if _rp and _fl:
         ("paso 4: D0+vecinos", ("+%d −%d" % (_rs["D0+D1v"]["gana_a_D0"], _rs["D0+D1v"]["pierde_con_D0"]),)),
         ("paso 4: p vecinos", (_e(_rs["D0+D1v"]["p"], 3),)),
     ]
-_fd, _ph = J("fuentes_del_lazo.densa.json"), J("phi_de_estados.json")
-if _fd:
-    _rd = _fd["resumen"]
-    _e = lambda x, d=2: (("%." + str(d) + "f") % x).replace(".", ",")
-    PARES += [
-        ("paso 4: denso D0", ("D0 · la cascada %d — — %s" % (_fd["D0"], _e(_rd["D0"]["lean_medio"], 1)),)),
-        ("paso 4: denso vecinos", ("+%d −%d · D0" % (_rd["D0+D1v"]["gana_a_D0"], _rd["D0+D1v"]["pierde_con_D0"]),)),
-        ("paso 4: denso solo", ("+%d −%d · D0" % (_rd["D0+D1d"]["gana_a_D0"], _rd["D0+D1d"]["pierde_con_D0"]),)),
-        ("paso 4: denso sobre vecinos", ("+%d −%d · vecinos" % (
-            _fd["densa_sobre_vecinos"]["gana"], _fd["densa_sobre_vecinos"]["pierde"]),)),
-        ("paso 4: denso llamadas", (_e(_rd["D0+D1d"]["lean_medio"], 1),)),
-    ]
+_ph = J("phi_de_estados.json")
 if _ph:
     _t, _lw = _ph["resumen"]["todos"], _ph["resumen"]["lw"]
     PARES += [

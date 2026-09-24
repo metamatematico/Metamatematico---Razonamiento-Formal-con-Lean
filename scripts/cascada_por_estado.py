@@ -135,7 +135,6 @@ def main(n):
     from nucleo.lean.client import LeanClient
     from nucleo.lean.sesion import SesionLean
     from nucleo.lean.solver_cascade import SolverCascade, _bloque_first
-    from nucleo.multi_agent.colimit_agents import domain_tactic_order
     from scripts.cascada_contra_lean import candidatos
     from scripts.tacticas_reales_mathlib import AREA
 
@@ -169,7 +168,6 @@ def main(n):
                       + "\n\ntheorem _probe_ %s := by\n  sorry\n" % c["sig"])
             linea_sorry = codigo.split("\n").index("  sorry") + 1
             orden = base.orden_para(c["sig"],
-                                    domain_order=domain_tactic_order(c["area"]),
                                     area_premisas=c["area"])
             con_bloque = codigo.replace("\n  sorry\n",
                                         "\n  " + _bloque_first(orden) + "\n")

@@ -100,7 +100,7 @@ def main(n_consultas: int, k: int) -> int:
 
     from scripts.premisas_sin_simp import indice_atributos, LISTA
     from scripts.banco_premisas_mathlib import recolectar
-    from scripts.medir_recuperacion_lemas import _texto
+    from scripts.texto_de_lema import _texto
     from nucleo.core import Nucleo
     from nucleo.graph.category import SkillCategory
 

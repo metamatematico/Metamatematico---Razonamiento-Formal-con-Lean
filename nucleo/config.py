@@ -191,18 +191,10 @@ class NucleoConfig:
     debug: bool = False
     verbose: bool = False
 
-    # Live learning: por defecto NO sobreescribe el checkpoint validado en disco.
-    # El PPO online sigue actualizando los pesos en memoria durante la sesion,
-    # pero persistirlos automaticamente cada 10 interacciones causaba drift
-    # acumulado (bias/norm de la GNN se alejaban >60% del checkpoint de 100% acc).
-    # Activar explicitamente solo si se quiere persistir aprendizaje online.
-    live_learning_autosave: bool = False
-
-    # Multi-agente (14 especialistas por categoria, training/agents/best/*.pt):
+    # Multi-agente (14 especialistas por categoria, con memoria procedimental):
     # activado por defecto porque solo enruta metadata y sugiere tacticas via
-    # memoria procedimental (nunca sobreescribe pesos en disco) — riesgo bajo,
-    # a diferencia de live_learning_autosave. Poner en False para volver al
-    # comportamiento previo (agente global unico).
+    # memoria procedimental. Poner en False para volver al comportamiento
+    # previo (agente global unico).
     enable_multi_agent: bool = True
 
     # Complexificacion automatica al arrancar: K -> K' cerrando los huecos que
@@ -249,7 +241,6 @@ class NucleoConfig:
             logs_dir=Path(data.get("logs_dir", "logs")),
             debug=data.get("debug", False),
             verbose=data.get("verbose", False),
-            live_learning_autosave=data.get("live_learning_autosave", False),
             enable_multi_agent=data.get("enable_multi_agent", True),
         )
 
@@ -311,7 +302,6 @@ class NucleoConfig:
             "logs_dir": str(self.logs_dir),
             "debug": self.debug,
             "verbose": self.verbose,
-            "live_learning_autosave": self.live_learning_autosave,
             "enable_multi_agent": self.enable_multi_agent,
         }
 

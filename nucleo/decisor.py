@@ -27,19 +27,22 @@ Esto hace al decisor honesto POR CONSTRUCCIÓN. No puede encender algo que
 mide peor que no hacer nada, porque lee el veredicto de los ficheros de
 medición en vez de llevarlo escrito a mano.
 
-LO QUE ESTO YA APAGA, HOY
--------------------------
-Al leer la evidencia que hay en `data/` salen cuatro capacidades que están en
-producción y NO baten a su nulo. La más cara de las cuatro:
+LO QUE APAGÓ, Y DÓNDE QUEDÓ
+---------------------------
+Al leer la evidencia salieron diez capacidades que NO batían a su nulo, cuatro
+de ellas en producción. La más cara:
 
     orden de la cascada por área   posición media 1,262
     el nulo (simp primero)         posición media 1,091
 
-O sea que la regla que hoy decide en qué orden probar las tácticas hace falta
-MÁS invocaciones de Lean que probar `simp` y seguir por frecuencia. Eso lo
-midió `scripts/modelo_en_la_cascada.py` justo porque la medición anterior
-—`efecto_orden_cascada.py`— comparaba dos reglas entre sí y ninguna contra el
-suelo. Comparar dos versiones de la misma idea no es una medición.
+O sea que la regla que decidía en qué orden probar las tácticas hacía falta
+MÁS invocaciones de Lean que probar `simp` y seguir por frecuencia. Comparar dos
+versiones de la misma idea —que era lo que se había medido antes— no es una
+medición.
+
+Las diez se quitaron del código el 2026-09-21. Su registro, con la cifra y el
+nulo de cada una y el commit donde sigue su código, está en
+`data/descartado.json`.
 
 UNA GUARDA NO ES UN ADORNO: PARTE EL PROMEDIO
 ---------------------------------------------
@@ -253,36 +256,6 @@ CAPACIDADES: list[Capacidad] = [
             contra="los lemas mas frecuentes, en ese mismo estrato"),
     ),
     Capacidad(
-        nombre="reconocedor_de_area",
-        que_hace="lee el área del enunciado por su FORMA (símbolos + palabras)",
-        coste=LOCAL,
-        # OJO CON EL `donde`: esta entrada apuntaba a
-        # `multi_agent/specialized_agent.py::classify_query`, que es OTRO
-        # codigo. La evidencia de abajo la produce
-        # `scripts/entrenar_reconocedor.py` sobre `graph/reconocedor.py`
-        # —símbolos y palabras, peso elegido en validación, 7 temas de MATH—
-        # mientras que `classify_query` cuenta palabras clave sobre 14
-        # categorías y en caso de empate responde «algebra». Son cosas
-        # distintas, y la que corría se estaba llevando el 3,2× de la que no.
-        donde="nucleo/graph/reconocedor.py",
-        evidencia=Evidencia(
-            fichero="reconocedor_area.json",
-            metrica="acierto de área",
-            ruta_real=("combinado_equilibrado",), ruta_nulo=("nulo",),
-            contra="siempre el área más frecuente"),
-        fuera_del_camino=(
-            "gana a su nulo en MATH (75,9 % contra 23,8 %) pero medida por el"
-            " camino real contra ProofNet no paga: el brazo `lexico+puerta` de"
-            " scripts/recuperacion_contra_proofnet.py ofrece nombres en 11"
-            " casos mas y no se usa ni uno —cobertura igual, precision 0,7"
-            " puntos por debajo—. El motivo esta en nucleo/core.py, donde se"
-            " decidio dejarla fuera: en ProofNet el lexico solo calla en 31 de"
-            " 371, asi que el margen era del 4 % desde el principio. Se"
-            " construyo para las consultas en español, donde el lexico calla"
-            " en el 27 %, y para esas NO HAY BANCO con premisas de oro. Lo que"
-            " falta no es cablearla: es medirla donde se supone que sirve"),
-    ),
-    Capacidad(
         nombre="clasificacion_por_palabras_clave",
         que_hace="asigna un area contando palabras clave, para elegir agente",
         coste=LOCAL,
@@ -385,50 +358,6 @@ CAPACIDADES: list[Capacidad] = [
             contra="las premisas más frecuentes"),
     ),
     Capacidad(
-        nombre="eleccion_de_imports",
-        que_hace="añade a la cabecera los módulos de Mathlib de las skills"
-                 " activadas, sobre un conjunto fijo de tres",
-        coste=LOCAL,
-        donde="nucleo/core.py::_modulos_mathlib",
-        evidencia=Evidencia(
-            fichero="imports_contra_lean.json",
-            metrica="enunciados que elaboran, de 20",
-            ruta_real=("resumen", "grafo", "ok"),
-            ruta_nulo=("resumen", "fijo", "ok"),
-            contra="un conjunto fijo de tres módulos"),
-        # POR QUE ENTRA AHORA AL CATALOGO Y NO ANTES.
-        #
-        # Su medicion decia «inerte» desde hacia tiempo, pero descansaba sobre
-        # un banco que NO PODIA DECIDIR: el mapa de modulos conocia 76 de los
-        # 320 nodos, asi que en 14 de 20 casos las dos ramas eran la MISMA
-        # ejecucion. Arreglado el mapa —223 skills— los casos discriminantes
-        # pasan a 10 de 20 y el grafo ofrece 4,7 modulos por caso frente a
-        # 3,0, y el veredicto no se mueve: 18 de 20 los dos, sin una sola
-        # diferencia caso a caso.
-        #
-        # Con un test que ya discrimina y un empate limpio, la regla del
-        # decisor aplica sin asteriscos. Y ademas cuesta: 17,6 s por consulta
-        # frente a 15,9 s, un 11 % mas.
-        #
-        # Contra el azar si gana —18 frente a 12—, o sea que hace trabajo
-        # real: redundante con una constante, no inutil. Si alguien vuelve a
-        # medirlo con un banco donde el conjunto fijo no cubra el 38,4 % de
-        # Mathlib por transitividad, el decisor lo enciende solo.
-    ),
-    Capacidad(
-        nombre="orden_de_cascada_por_area",
-        que_hace="ordena las tácticas de la cascada según el área detectada",
-        coste=COMPILADO,
-        donde="nucleo/multi_agent/colimit_agents.py::domain_tactic_order",
-        evidencia=Evidencia(
-            fichero="modelo_en_la_cascada.json",
-            metrica="posición de la táctica que cierra",
-            ruta_real=("resultados", "regla", 0),
-            ruta_nulo=("resultados", "NULO", 0),
-            mas_es_mejor=False,
-            contra="`simp` primero y el resto por frecuencia"),
-    ),
-    Capacidad(
         nombre="cascada_por_estado",
         que_hace="aplica la cascada al estado de cada sorry en una sesión de"
                  " Lean viva, en vez de compilar un fichero por sorry; el"
@@ -451,29 +380,6 @@ CAPACIDADES: list[Capacidad] = [
             contra="la cascada en fichero, un compilado por sorry"),
     ),
     Capacidad(
-        nombre="tacticas_por_vecinos",
-        que_hace="propone la táctica ENTERA —con sus argumentos— que cerró los"
-                 " estados más parecidos de LeanWorkbook, en lugar de los"
-                 " nombres desnudos del rankeador",
-        coste=LOCAL,
-        donde="nucleo/lazo/vecinos.py::IndiceDeVecinos",
-        # Medido con Lean sobre 150 estados raíz de la partición de prueba, 3
-        # intentos por rama. Como SUSTITUTO no gana (76 contra 79), pero es
-        # complementario —22 que sólo cierran los vecinos, 25 que sólo cierra
-        # el rankeador— y la fusión cierra 88. La fusión no estaba en la regla
-        # escrita, así que no se da por buena aquí: la mide como fuente del
-        # lazo `scripts/fuentes_del_lazo.py`.
-        evidencia=Evidencia(
-            fichero="recuperacion_por_estado.json",
-            metrica="estados raíz cerrados en 3 intentos",
-            ruta_real=("V",), ruta_nulo=("R",),
-            contra="las 3 primeras tácticas del rankeador, desnudas"),
-        fuera_del_camino=(
-            "no está cableada como sustituto del rankeador, y no debe: medida"
-            " con Lean pierde contra él; como fuente del lazo es"
-            " `vecinos_en_el_lazo`"),
-    ),
-    Capacidad(
         nombre="vecinos_en_el_lazo",
         que_hace="los vecinos de estado como FUENTE AÑADIDA del lazo (D1v),"
                  " detrás de la cascada: sus tácticas enteras se prueban cuando"
@@ -491,45 +397,6 @@ CAPACIDADES: list[Capacidad] = [
         fuera_del_camino=(
             "bate a su nulo dentro del lazo, pero el lazo no está en el camino"
             " servido: su puerta con modelo no se ha corrido"),
-    ),
-    Capacidad(
-        nombre="busqueda_de_lean_en_el_lazo",
-        que_hace="`apply?` como SONDA en el lazo (D2): sus «Try this» como"
-                 " candidatos",
-        coste=LOCAL,
-        donde="nucleo/lazo/proponentes.py::D2Busqueda",
-        # Mismo banco: D0+D2 verifica 40 contra 41 de D0. No rescata ninguno y
-        # sus sondas se comen el presupuesto: con las tres fuentes juntas se
-        # pierden 2 casos que D0+D1v cerraba.
-        evidencia=Evidencia(
-            fichero="fuentes_del_lazo.json",
-            metrica="estados raíz verificados por el lazo",
-            ruta_real=("D0+D2",), ruta_nulo=("D0",),
-            contra="el lazo sólo con la cascada"),
-        fuera_del_camino=(
-            "vive dentro del lazo, que no está en el camino servido; y dentro"
-            " del lazo tampoco paga: 40 contra 41"),
-    ),
-    Capacidad(
-        nombre="premisas_densas_en_el_lazo",
-        que_hace="el encoder de premisas de Mathlib (D1 denso) como fuente del"
-                 " lazo: las premisas más cercanas al objetivo, hechas `exact`,"
-                 " `apply`, `rw` y `simp [..]`",
-        coste=LOCAL,
-        donde="nucleo/lazo/densa.py::D1Denso",
-        # `scripts/fuentes_del_lazo.py --con-densa`, los mismos 60 estados: D0
-        # 40, D0+D1d 39 (+1 −2), D0+D1v 48, D0+D1v+D1d 46 (+0 −2 frente a los
-        # vecinos). Ningún camino verificado usa una táctica suya; su «+1» se
-        # cerró con `exact?`, de D0, en un caso en que el brazo D0 se colgó. Lo
-        # que hace es comerse el presupuesto de Lean con sus plantillas.
-        evidencia=Evidencia(
-            fichero="fuentes_del_lazo.densa.json",
-            metrica="estados raíz verificados por el lazo",
-            ruta_real=("D0+D1v+D1d",), ruta_nulo=("D0+D1v",),
-            contra="el lazo con la cascada y los vecinos"),
-        fuera_del_camino=(
-            "vive dentro del lazo, que no está en el camino servido; y dentro"
-            " del lazo resta: 46 contra 48 de los vecinos solos"),
     ),
     Capacidad(
         nombre="etiquetado_phi",
@@ -596,84 +463,6 @@ CAPACIDADES: list[Capacidad] = [
             metrica="acierto de la tactica",
             ruta_real=("accuracy",), ruta_nulo=("baseline_mayoritaria",),
             contra="responder siempre la tactica mayoritaria (nlinarith)"),
-    ),
-    Capacidad(
-        nombre="dos_etapas_localizar_y_elegir",
-        que_hace="localiza el área y luego elige premisas dentro de ella",
-        coste=LOCAL,
-        donde="scripts/dos_etapas_localizar_y_elegir.py",
-        evidencia=Evidencia(
-            fichero="dos_etapas.json",
-            metrica="precisión de premisas",
-            ruta_real=("resultados", "real", "precision"),
-            ruta_nulo=("resultados", "nulo", "precision"),
-            contra="las premisas más frecuentes, sin localizar nada"),
-    ),
-    Capacidad(
-        nombre="recuperacion_lexica_de_lemas",
-        que_hace="busca lemas por solapamiento léxico con la consulta",
-        coste=LOCAL,
-        donde="scripts/medir_recuperacion_lemas.py",
-        evidencia=Evidencia(
-            fichero="recuperacion_lemas.json",
-            metrica="precisión de lemas",
-            ruta_real=("resultados", "lexico_nl", "precision"),
-            ruta_nulo=("resultados", "nulo", "precision"),
-            contra="los lemas más frecuentes"),
-    ),
-    Capacidad(
-        nombre="emparejador_semantico",
-        que_hace="empareja la consulta con skills por embeddings",
-        coste=LLAMADA,
-        # NUNCA LLEGO A PRODUCCION: vive solo como script. Se queda en el
-        # catalogo a proposito, porque un candidato evaluado y descartado es
-        # informacion —dice que ya se probo— y borrarlo invita a reinventarlo.
-        donde="scripts/emparejador_semantico.py",
-        evidencia=None,
-        sin_evidencia_porque=(
-            "evaluado y descartado, nunca se adopto: en"
-            " emparejador_semantico.json acierta el area en el 12 % (285 de"
-            " 2385) contra el 61 % del emparejador lexico"
-            " (emparejamiento.json). Las dos cifras son CRUDAS sobre un banco"
-            " 89 % algebra, donde responder siempre «algebra» acierta el"
-            " 88,6 %: ninguna de las dos bate a esa constante, asi que la"
-            " comparacion vale para ordenarlas entre si y para nada mas. El"
-            " fichero no guarda un nulo en forma comparable, asi que aqui"
-            " cuenta como sin evidencia; y ademas cuesta una llamada. Contra"
-            " ProofNet, que si tiene oro, el semantico da 13,1 % de precision"
-            " y 2,4 % de cobertura frente a 21,6 % y 18,3 % del lexico"),
-    ),
-    # LA RED NEURONAL, APAGADA POR SU PROPIA CIFRA Y NO POR UN COMENTARIO.
-    #
-    # El GNN+PPO se entreno hasta el «100 % de precision» sobre este objetivo:
-    #
-    #     todo problema matematico  ->  accion ASSIST
-    #
-    # que SE SATISFACE CON UNA CONSTANTE. La red aprendio la constante, y el
-    # 100 % era un modelo nulo con otro nombre.
-    #
-    # El runtime ya la descarta —`_neural_agent_is_degenerate` en
-    # `co_regulators.py`— pero esa comprobacion vive dentro y no dejaba cifra,
-    # asi que el catalogo no podia verla. `scripts/sonda_de_degeneracion.py`
-    # la saca fuera: cuatro entradas heterogeneas —un teorema, un saludo, un
-    # hecho no matematico y codigo Lean— y cuenta cuantas acciones distintas
-    # da. Con los pesos entrenados da UNA. La politica constante da una: la
-    # red no bate a su nulo porque ES su nulo.
-    #
-    # Registrada aqui para que el decisor la apague por la misma regla que a
-    # todo lo demas. Si alguien reentrena con un objetivo que la constante no
-    # satisfaga y la sonda da mas de una, se enciende sola.
-    Capacidad(
-        nombre="enrutado_neuronal",
-        que_hace="decide con el GNN+PPO si la consulta va a Lean o al chat",
-        coste=LOCAL,
-        donde="nucleo/rl/agent.py::NucleoAgent._select_neural",
-        evidencia=Evidencia(
-            fichero="sonda_de_degeneracion.json",
-            metrica="acciones distintas ante una sonda heterogenea",
-            ruta_real=("acciones_distintas",),
-            ruta_nulo=("nulo_constante",),
-            contra="la politica constante, que da exactamente una"),
     ),
     Capacidad(
         nombre="verificacion_con_lean",

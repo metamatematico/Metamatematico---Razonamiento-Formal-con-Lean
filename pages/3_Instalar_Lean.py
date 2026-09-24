@@ -276,34 +276,7 @@ lake env lean /tmp/test.lean
 """)
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PASO 4 — Lanzar el agente local
-# ═══════════════════════════════════════════════════════════════════════════════
-st.markdown("""
-<div class="step-card">
-  <div class="step-num">Paso 4</div>
-  <h3>Lanzar el agente de verificación local</h3>
-  <p>
-    El agente conecta tu instalación de Lean con METAMATEMÁTICO.
-    Mientras esté activo, la verificación formal ocurre en tu máquina.
-  </p>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-```bash
-# Verificar instalación:
-python scripts/local_agent.py --check
-
-# Conectar con esta instancia (reemplaza la URL):
-python scripts/local_agent.py --server https://URL_DE_LA_APP
-
-# Modo standalone (sin servidor web — verifica código manualmente):
-python scripts/local_agent.py
-```
-""")
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# PASO 5 — Verificación rápida (si la app corre localmente)
+# PASO 4 — Verificación rápida (si la app corre localmente)
 # ═══════════════════════════════════════════════════════════════════════════════
 st.divider()
 st.markdown("### Verificar instalación (en esta máquina)")
@@ -381,12 +354,6 @@ if st.button("▶ Comprobar si Lean está instalado aquí", type="primary"):
     st.markdown("---")
     if all_ok:
         st.success("🎉 ¡Todo listo! Tu Lean 4 + Mathlib está funcionando correctamente.")
-        st.markdown("""
-Ahora puedes lanzar el agente local para conectar tu cómputo:
-```bash
-python scripts/local_agent.py --check
-```
-        """)
     else:
         missing = [labels[k] for k, (s, _) in results.items() if s != "ok"]
         st.warning(f"Sigue los pasos anteriores para instalar: **{', '.join(missing)}**")

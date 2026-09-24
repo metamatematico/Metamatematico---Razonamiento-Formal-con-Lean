@@ -2,8 +2,9 @@
 SpecializedAgent — agente especializado en una categoría matemática.
 ====================================================================
 
-Cada instancia es un NucleoAgent (GNN+PPO) entrenado exclusivamente
-en problemas de su categoría. Carga pesos propios si existen.
+Cada instancia envuelve un NucleoAgent heurístico y lleva la memoria
+procedimental de su categoría a través del MES Bridge compartido. Hubo pesos
+GNN+PPO por categoría; se retiraron con la red (ver `nucleo/rl/agent.py`).
 """
 
 from __future__ import annotations
@@ -167,27 +168,22 @@ def classify_query(text: str) -> str:
 
 
 class SpecializedAgent:
-    """Agente GNN+PPO especializado en una categoría matemática.
+    """Agente especializado en una categoría matemática.
 
     Envuelve a NucleoAgent y añade:
     - categoría explícita
-    - ruta de pesos por categoría
+    - la memoria procedimental de su categoría (MES Bridge)
     - estadísticas de uso
     """
 
     def __init__(
         self,
         category: str,
-        weights_dir: Optional[Path] = None,
-        use_neural: bool = True,
         mes_bridge=None,
     ):
         if category not in CATEGORIES:
             raise ValueError(f"Categoría desconocida: {category!r}. Válidas: {CATEGORIES}")
         self.category = category
-        self.weights_dir = Path(weights_dir) if weights_dir else _DEFAULT_WEIGHTS_DIR
-        self.weights_path = self.weights_dir / f"{category}.pt"
-        self.use_neural = use_neural
 
         # MES Bridge — conexión con PatternManager + ColimitBuilder
         # Puede ser None (modo independiente) o compartido entre todos los agentes
@@ -201,83 +197,9 @@ class SpecializedAgent:
         self._agent = None
 
     def _load_agent(self):
-        """Carga NucleoAgent con los pesos de esta categoría."""
         from nucleo.graph.category import SkillCategory
-        from nucleo.rl.agent import NucleoAgent, AgentConfig
-
-        # Los checkpoints por categoria en training/agents/best/*.pt fueron
-        # entrenados por scripts/train_multiagent.py con num_heads=8 (el
-        # default de AgentConfig en ese momento); el default actual es 4
-        # (fijado para que coincida con data/neural_agent.json.pt). Cargar
-        # con num_heads=4 fallaba en silencio (los tensores de atencion no
-        # calzan) y cada agente "especializado" terminaba con pesos
-        # aleatorios sin entrenar, disfrazados de estar cargados.
-        state, num_heads = self._read_checkpoint_and_infer_heads(self.weights_path)
-
-        config = AgentConfig(num_heads=num_heads) if num_heads else AgentConfig()
-        agent = NucleoAgent(
-            graph=SkillCategory(name=f"agent_{self.category}"),
-            config=config,
-            use_neural=self.use_neural,
-        )
-
-        if state is not None:
-            try:
-                network_state = state["network"] if isinstance(state, dict) and "network" in state else state
-                # tactic_head fue una capa extra de la Fase 2 de entrenamiento
-                # que nunca se integro a ActorCriticNetwork en produccion
-                # (la tactica real la elige HeuristicAgent/memoria procedimental,
-                # no esta cabeza) — se descarta explicitamente en vez de fallar.
-                network_state = {k: v for k, v in network_state.items() if not k.startswith("tactic_head.")}
-                agent._network.load_state_dict(network_state, strict=True)
-                if isinstance(state, dict) and "optimizer" in state and agent._optimizer is not None:
-                    try:
-                        agent._optimizer.load_state_dict(state["optimizer"])
-                    except Exception:
-                        pass  # el optimizador no es necesario para inferencia
-                agent.weights_pretrained = True
-                logger.info(
-                    f"[{self.category}] Pesos cargados desde {self.weights_path} "
-                    f"(num_heads={num_heads or 4})"
-                )
-            except Exception as e:
-                logger.warning(f"[{self.category}] No se pudo cargar pesos: {e}")
-        else:
-            # Intentar pesos base compartidos (arquitectura actual, num_heads=4)
-            base = Path(__file__).parent.parent.parent / "data" / "neural_agent.json.pt"
-            if base.exists():
-                try:
-                    import torch
-                    base_state = torch.load(str(base), map_location="cpu", weights_only=False)
-                    agent._network.load_state_dict(base_state)
-                    agent.weights_pretrained = True
-                    logger.info(f"[{self.category}] Usando pesos base compartidos")
-                except Exception as e:
-                    logger.warning(f"[{self.category}] Pesos base no cargados: {e}")
-
-        return agent
-
-    @staticmethod
-    def _read_checkpoint_and_infer_heads(weights_path: Path):
-        """Lee un checkpoint .pt y detecta num_heads real a partir de la
-        forma de gnn.convs.0.att_src (shape [1, num_heads, dim_por_cabeza]),
-        en vez de asumir el default actual de AgentConfig. Devuelve
-        (state_or_None, num_heads_or_None)."""
-        if not weights_path.exists():
-            return None, None
-        try:
-            import torch
-        except ImportError:
-            return None, None
-        try:
-            state = torch.load(str(weights_path), map_location="cpu", weights_only=False)
-            network_state = state["network"] if isinstance(state, dict) and "network" in state else state
-            att = network_state.get("gnn.convs.0.att_src")
-            num_heads = int(att.shape[1]) if att is not None else None
-            return state, num_heads
-        except Exception as e:
-            logger.warning(f"No se pudo leer/inspeccionar checkpoint {weights_path}: {e}")
-            return None, None
+        from nucleo.rl.agent import NucleoAgent
+        return NucleoAgent(graph=SkillCategory(name=f"agent_{self.category}"))
 
     @property
     def agent(self):
@@ -292,7 +214,7 @@ class SpecializedAgent:
         conocida para esta query (memoria procedimental).
         """
         self.calls += 1
-        # Consultar mejor táctica conocida antes de usar la red neuronal
+        # Consultar mejor táctica conocida antes de la heurística
         if self.mes_bridge is not None:
             query = getattr(state, "query", "") or str(state)
             best_tactic = self.mes_bridge.query_best_tactic(self.category, query)
@@ -341,27 +263,13 @@ class SpecializedAgent:
             )
 
     def update(self, transitions) -> Dict[str, float]:
-        """Actualiza los pesos del agente con nuevas transiciones."""
+        """Pasa las transiciones al agente subyacente."""
         return self.agent.update(transitions)
-
-    def save_weights(self):
-        """Guarda los pesos del agente en su archivo dedicado."""
-        import torch
-        self.weights_dir.mkdir(parents=True, exist_ok=True)
-        state = {
-            "network": self.agent.network.state_dict(),
-            "optimizer": self.agent.optimizer.state_dict(),
-            "category": self.category,
-            "calls": self.calls,
-        }
-        torch.save(state, str(self.weights_path))
-        logger.info(f"[{self.category}] Pesos guardados en {self.weights_path}")
 
     def stats(self) -> Dict[str, Any]:
         return {
             "category": self.category,
             "calls": self.calls,
-            "weights_exist": self.weights_path.exists(),
         }
 
     def __repr__(self) -> str:

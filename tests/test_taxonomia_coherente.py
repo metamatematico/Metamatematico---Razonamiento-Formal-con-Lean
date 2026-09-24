@@ -8,9 +8,6 @@ subsistemas distintos:
 
     nucleo/multi_agent/specialized_agent.py   CATEGORIES      (canonica)
     nucleo/multi_agent/colimit_agents.py      CATEGORIES
-    scripts/balance_datasets.py               CATEGORIES_14
-    scripts/split_by_category.py              CATEGORIES
-    scripts/train_multiagent.py               CATEGORIES
 
 y una sexta vez, habilidad por habilidad, como `category="algebra"` en
 nucleo/pillars/math_domains.py. Coincidian, pero por nada mas que por haberse
@@ -37,9 +34,6 @@ RAIZ = Path(__file__).resolve().parent.parent
 COPIAS = [
     ("nucleo/multi_agent/specialized_agent.py", "CATEGORIES"),
     ("nucleo/multi_agent/colimit_agents.py", "CATEGORIES"),
-    ("scripts/balance_datasets.py", "CATEGORIES_14"),
-    ("scripts/split_by_category.py", "CATEGORIES"),
-    ("scripts/train_multiagent.py", "CATEGORIES"),
 ]
 
 
@@ -134,7 +128,7 @@ class TestCoherenciaConElFuntor:
         """
         import sys
         sys.argv = ["x"]
-        from scripts.train_gnn_ppo import build_skill_graph
+        from nucleo.pillars.grafo_curado import build_skill_graph
         from nucleo.graph.functor import construir_funtor, OBJETO_BASE
 
         g = build_skill_graph()
@@ -159,7 +153,7 @@ class TestCoherenciaConElFuntor:
         """
         import sys
         sys.argv = ["x"]
-        from scripts.train_gnn_ppo import build_skill_graph
+        from nucleo.pillars.grafo_curado import build_skill_graph
         from nucleo.graph.functor import construir_funtor, OBJETO_BASE
         from nucleo.pillars.areas import AREAS_CANONICAS
 
@@ -174,7 +168,7 @@ class TestCoherenciaConElFuntor:
         """Cambiar de base no puede romper las leyes de funtor."""
         import sys
         sys.argv = ["x"]
-        from scripts.train_gnn_ppo import build_skill_graph
+        from nucleo.pillars.grafo_curado import build_skill_graph
         from nucleo.graph.functor import (
             construir_funtor, verificar_functorialidad)
 

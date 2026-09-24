@@ -801,19 +801,9 @@ def _onboarding_body():
     st.caption("Guía completa → página **⚙️ Instalar Lean 4** en el menú lateral izquierdo.")
     st.divider()
 
-    st.markdown("#### ⚡ Paso 3 — Conectar tu Lean con la app &nbsp;*(agente local)*")
-    st.caption("Tu PC verificará las demostraciones en tiempo real.")
-    st.code(
-        "git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git\n"
-        "cd Metamatematico---Razonamiento-Formal-con-Lean\n"
-        "python scripts/local_agent.py",
-        language="bash",
-    )
-    st.divider()
-
     st.caption(
         "✅ Con solo la **API key** ya puedes chatear y explorar matemáticas.  \n"
-        "✅ Con **Lean + agente** cada demostración se verifica formalmente en tiempo real."
+        "✅ Con **Lean** cada demostración se verifica formalmente."
     )
     if st.button("✓ Entendido, ¡comenzar!", type="primary", width="stretch"):
         st.session_state["onboarded"] = True
@@ -1478,50 +1468,6 @@ sin tocar código.
             _check_updates.clear()
             st.rerun()
 
-        # ── Panel: usa tu cómputo local ───────────────────────────────────
-        try:
-            _ctx_host = (st.context.headers or {}).get("host", "")
-        except Exception:
-            _ctx_host = ""
-        _is_remote = not (
-            os.environ.get("STREAMLIT_SERVER_ADDRESS", "localhost") in ("localhost", "127.0.0.1")
-            or _ctx_host.startswith("localhost")
-        )
-        if _is_remote:
-            st.divider()
-            with st.expander("⚡ Amplía el poder con tu PC"):
-                st.markdown(
-                    """
-**¿Tienes Lean 4 instalado localmente?**
-Conecta tu máquina para que la verificación formal ocurra en tu hardware,
-no en el servidor.
-
-**1. Instala Lean 4** (si no lo tienes):
-```bash
-curl https://elan.lean-lang.org/elan-init.sh -sSf | sh
-```
-
-**2. Clona el repositorio:**
-```bash
-git clone https://github.com/metamatematico/\
-Metamatematico---Razonamiento-Formal-con-Lean.git
-cd Metamatematico---Razonamiento-Formal-con-Lean
-lake update   # descarga Mathlib (~20-30 min)
-```
-
-**3. Lanza el agente local:**
-```bash
-python scripts/local_agent.py \\
-  --server https://ESTA_URL \\
-  --check    # verifica tu instalación primero
-```
-
-Cuando el agente esté activo, Lean corre en tu PC y
-los resultados se muestran aquí.
-                    """,
-                    unsafe_allow_html=False,
-                )
-
     # ── Hero compacto ──────────────────────────────────────────────────────────
     st.markdown("""
 <div class="meta-hero">
@@ -1530,7 +1476,7 @@ los resultados se muestran aquí.
     <div class="meta-sub">Razonamiento formal · Lean 4 · Núcleo Lógico Evolutivo · BIOMAT</div>
     <div style="margin-top:.4rem">
       <span class="meta-badge">5 capas</span>
-      <span class="meta-badge">321 objetos</span>
+      <span class="meta-badge">353 objetos</span>
       <span class="meta-badge">387 teoremas · 0 sorry</span>
       <span class="meta-badge">Lean 4</span>
     </div>

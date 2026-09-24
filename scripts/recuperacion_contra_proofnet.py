@@ -175,27 +175,8 @@ def main(k):
     nulo = {_norm(p) for p, _ in todos.most_common(3 * k)}
     nulo |= {_norm(p.split(".")[0]) for p, _ in todos.most_common(3 * k)}
 
-    # emparejador semantico, para comparar con el lexico
-    try:
-        import numpy as np
-        from sentence_transformers import SentenceTransformer
-        from scripts.emparejador_semantico import texto_de
-        modelo = SentenceTransformer(MODELO)
-        skills = g.skills
-        ids = [s.id for s in skills]
-        M = modelo.encode([texto_de(s) for s in skills],
-                          normalize_embeddings=True, show_progress_bar=False)
-        Q = modelo.encode([f[1] for f in filas], normalize_embeddings=True,
-                          batch_size=32, show_progress_bar=False)
-        sem = [[ids[i] for i in np.argsort(-fila)[:k]] for fila in Q @ M.T]
-    except Exception as e:
-        print("  sin emparejador semantico (%s)" % type(e).__name__)
-        sem = None
-
     res = {}
-    for etiqueta in ("lexico", "lexico+puerta", "semantico", "nulo"):
-        if etiqueta == "semantico" and sem is None:
-            continue
+    for etiqueta in ("lexico", "nulo"):
         tp = fp = fn = 0
         con_algo = 0
         for idx, (_id, nl, formal) in enumerate(filas):
@@ -204,20 +185,6 @@ def main(k):
                 continue
             if etiqueta == "lexico":
                 ofr = ofrecidos(Nucleo._match_skills_to_query(n, nl, g), nl)
-            elif etiqueta == "lexico+puerta":
-                # LA PUERTA SOLO ACTUA DONDE EL LEXICO CALLA, igual que en
-                # `_find_relevant_context`. Aqui se replica ese camino para
-                # poder medirlo por separado: el brazo `lexico` es la linea
-                # base y este dice lo que aporta el reconocedor de forma.
-                m = Nucleo._match_skills_to_query(n, nl, g)
-                if not m:
-                    from nucleo.graph.reconocedor import areas_de
-                    puertas = [a for a in areas_de(nl) if g.get_skill(a)]
-                    hijos = [h for a in puertas for h in g.dependents(a)]
-                    m = (puertas + hijos)[:8]
-                ofr = ofrecidos(m, nl)
-            elif etiqueta == "semantico":
-                ofr = ofrecidos(sem[idx])
             else:
                 ofr = set(nulo)
             if ofr:
@@ -238,7 +205,7 @@ def main(k):
     print("    precision = de lo que el grafo ofrece, cuanto se usa de verdad")
     print("    cobertura = de lo que hacia falta, cuanto ofrecio el grafo")
     if "nulo" in res:
-        for e in ("lexico", "lexico+puerta", "semantico"):
+        for e in ("lexico",):
             if e in res:
                 d = res[e]["cobertura"] - res["nulo"]["cobertura"]
                 print("    %s vs modelo nulo en cobertura: %+.1f puntos"

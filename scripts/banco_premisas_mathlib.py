@@ -123,7 +123,7 @@ def recolectar(cortos, largos, tope):
 def main(k, n_consultas):
     from sklearn.feature_extraction.text import TfidfVectorizer
     import numpy as np
-    from scripts.medir_recuperacion_lemas import _texto
+    from scripts.texto_de_lema import _texto
 
     print("cargando la lista...")
     lemas = [json.loads(l) for l in io.open(LISTA, encoding="utf-8")]

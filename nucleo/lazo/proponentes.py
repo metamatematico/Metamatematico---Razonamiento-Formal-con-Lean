@@ -17,7 +17,9 @@
                         mecánica —estados, confluencias, ensamblado, I2— se
                         verifica aparte del modelo.
 
-D1 (premisas) y D2 (`exact?`/`apply?` leyendo su «Try this») son el paso 4.
+Del paso 4 entró D1v, los vecinos de estado. D2 (`apply?` leyendo su «Try
+this») y D1 denso (un encoder de premisas) se midieron, no batieron a su
+nulo y se quitaron.
 """
 from __future__ import annotations
 
@@ -134,51 +136,3 @@ class D1Vecinos(Proponente):
         if self._i is None or not nodo.objetivos:
             return []
         return self._i.proponer(nodo.objetivos[0], k=self.k)
-
-
-class D2Busqueda(Proponente):
-    """`apply?` / `rw?` como SONDA: sus «Try this» son los candidatos.
-
-    Nunca entran como táctica —`apply?` admite con `sorry` cuando no encuentra
-    prueba, y por eso el filtro I6 lo veta—; aquí se ejecutan para LEER lo que
-    sugieren, que es la búsqueda por la estructura del tipo sobre toda la
-    biblioteca que ARQUITECTURA.md asigna a Lean tras la frontera. Cada sonda
-    cuenta en el presupuesto de Lean del mediador.
-    """
-    nombre = "D2"
-    usa_sesion = True
-
-    def __init__(self, sondas=("apply?",), k: int = 6):
-        self.sondas = tuple(sondas)
-        self.k = k
-
-    async def proponer(self, nodo, mediador=None) -> list:
-        if mediador is None or nodo.ps is None:
-            return []
-        fuera: list = []
-        for s in self.sondas:
-            r = mediador.sondear(s, nodo)
-            for t in sugerencias(r.mensajes if r is not None else []):
-                if t not in fuera:
-                    fuera.append(t)
-        return fuera[:self.k]
-
-
-_TRY = re.compile(r"Try this:\s*\n?\s*(?:\[[a-z]+\]\s*)?(.+)")
-
-
-def sugerencias(mensajes) -> list:
-    """Las tácticas de los «Try this: [apply] refine … ?_» de un mensaje de Lean.
-
-    Una por mensaje, la primera línea: lo que viene detrás («-- Remaining
-    subgoals») es comentario, no táctica.
-    """
-    fuera = []
-    for m in mensajes or []:
-        txt = str((m or {}).get("data") or "")
-        mm = _TRY.search(txt)
-        if mm:
-            t = mm.group(1).strip()
-            if t and t not in fuera:
-                fuera.append(t)
-    return fuera

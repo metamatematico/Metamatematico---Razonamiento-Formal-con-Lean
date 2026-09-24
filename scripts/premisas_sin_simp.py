@@ -48,7 +48,7 @@ DECL = re.compile(r"^(?:@\[[^\]]*\]\s*)?(?:private\s+|protected\s+"
 
 from scripts.construir_lista_lemas import _sin_comentarios  # noqa: E402
 from scripts.banco_premisas_mathlib import recolectar  # noqa: E402
-from scripts.medir_recuperacion_lemas import _texto  # noqa: E402
+from scripts.texto_de_lema import _texto  # noqa: E402
 
 
 def indice_atributos():

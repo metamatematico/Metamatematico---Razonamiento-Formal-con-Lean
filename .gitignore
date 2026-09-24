@@ -30,8 +30,6 @@ data/experience_buffer.pkl
 data/eval_results/
 
 # Training weights and large datasets (regenerables, no se versionan)
-training/agents/*.pt
-training/agents/best/
 training/balanced_train.jsonl
 training/by_category/
 training/logs/
@@ -106,7 +104,8 @@ data/_*.json
 *.blg
 
 # Encoders de Lean descargados de Hugging Face (paso 4, D1 denso). Son
-# decenas de GB y se vuelven a bajar con scripts/bajar_encoders.py.
+# decenas de GB. D1 denso se quitó (ver data/descartado.json); la carpeta
+# puede borrarse en local.
 /modelos/
 
 # Repositorios de terceros clonados en local (se usaron como referencia; no

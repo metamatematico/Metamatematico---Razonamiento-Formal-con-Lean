@@ -440,33 +440,6 @@ def build_graph():
     return G
 
 
-@st.cache_data(ttl=600, show_spinner=False)
-def _params_gnn() -> tuple[int, dict]:
-    """
-    Cuenta los parametros entrenables REALES de la red.
-
-    La cifra estaba fija en "124,420" en tres sitios de esta pagina. La red
-    actual tiene 546,820: la constante era de una version anterior, mas
-    pequena, y llevaba tiempo infravalorando el modelo en un factor de 4,4.
-    Se calcula en vivo para que no vuelva a envejecer.
-
-    Returns:
-        (total, desglose_por_submodulo). (0, {}) si torch no esta disponible.
-    """
-    try:
-        from nucleo.rl.networks import ActorCriticNetwork
-        net = ActorCriticNetwork()
-    except Exception:
-        return 0, {}
-    total = sum(q.numel() for q in net.parameters() if q.requires_grad)
-    desglose = {}
-    for nombre, mod in net.named_children():
-        n = sum(q.numel() for q in mod.parameters() if q.requires_grad)
-        if n:
-            desglose[nombre] = n
-    return total, desglose
-
-
 def _skills_viz():
     """
     Skills para las visualizaciones, con la MISMA forma que la lista SKILLS:
@@ -1862,7 +1835,7 @@ def fig_pipeline():
 
     # ── fases posteriores ────────────────────────────────────────────────────
     caja(0.70, 0.55, 2.20, 0.62, "④ Evaluación", AZUL, "#132033", fs=7.6)
-    caja(3.25, 0.55, 2.70, 0.62, "⑤ Memoria MES + PPO", AZUL, "#132033", fs=7.6)
+    caja(3.25, 0.55, 2.70, 0.62, "⑤ Memoria MES", AZUL, "#132033", fs=7.6)
     caja(6.30, 0.55, 2.85, 0.62, "⑥ Complexificación", MORADO, "#1a1a2e", fs=7.6)
     flecha((1.80, 1.80), (1.80, 1.17), AZUL)
     flecha((2.90, 0.86), (3.25, 0.86), AZUL)
@@ -1878,12 +1851,10 @@ def fig_pipeline():
             "El orden de la cascada lo fija el TacticRanker: 0,621 de acierto "
             "contra 0,318 de responder siempre la mayoritaria, y 1,57 posiciones "
             "contra 2,44 de su nulo por frecuencia.\n"
-            "El ORDEN POR ÁREA está APAGADO — medía 1,262 posiciones contra "
-            "1,091 del nulo «simp primero», y el decisor apaga lo que no bate a "
-            "su nulo.\n"
-            "Del paso 3 solo es INERTE la mitad b —proponer vecinos—: 18 de 20, "
-            "los mismos 18 que un conjunto fijo de tres, y 12 de 20 al azar. La mitad a va siempre.\n"
-            "El GNN+PPO sigue fuera del enrutado: se entrenó con etiqueta constante y CR_tac lo detecta degenerado.",
+            "El ORDEN POR ÁREA se quitó — medía 1,262 posiciones contra 1,091 "
+            "del nulo «simp primero».\n"
+            "Los imports son los módulos de los nombres ofrecidos; proponer "
+            "módulos vecinos se quitó: 18 de 20, los mismos que un conjunto fijo.",
             ha="center", fontsize=6.8, color=AMBAR, zorder=7,
             bbox=dict(boxstyle="round", facecolor="#1c1710",
                       edgecolor="#7c5a1e", alpha=0.95))
@@ -1989,63 +1960,6 @@ def fig_heatmap():
             ax.text(j, i, f"{sim[i,j]:.2f}", ha="center", va="center",
                     fontsize=5.5, color="white" if sim[i,j] > 0.7 else "#9ca3af")
     ax.set_title("Similitud Semántica entre Categorías (embeddings NLE)", color=FG, fontsize=10, pad=10)
-    fig.tight_layout()
-    return fig
-
-
-# ─── GNN ARCHITECTURE ────────────────────────────────────────────────────────
-
-def fig_gnn():
-    fig, ax = plt.subplots(figsize=(12, 5), facecolor=BG)
-    ax.set_facecolor(BG)
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 5)
-    ax.axis("off")
-
-    # Capas del GNN
-    layers = [
-        (0.5, "Input\nFeatures\n(node)", "#1e3a5f", 4),
-        (2.2, "GATConv 1\n64-dim\n4 heads", "#1a1a2e", 5),
-        (4.2, "GATConv 2\n64-dim\n4 heads", "#1a1a2e", 5),
-        (6.2, "GATConv 3\n64-dim\n4 heads", "#1a1a2e", 5),
-        (8.2, "Skill\nEmbedding\n64-dim", "#0d2137", 4),
-        (10.0, "Actor\nCritic\n(PPO)", "#1f1107", 3),
-    ]
-
-    for x, lbl, color, n_nodes in layers:
-        # Nodos de la capa
-        ys = np.linspace(0.5, 4.5, n_nodes)
-        for y in ys:
-            ax.scatter(x, y, s=200, c=color, zorder=5, edgecolors="#58a6ff", lw=1.2)
-        ax.text(x, -0.1, lbl, ha="center", va="top", fontsize=7, color=FG,
-                bbox=dict(boxstyle="round", facecolor="#161b22", edgecolor="#21262d", alpha=0.8))
-
-    # Conexiones
-    for (x1, _, _, n1), (x2, _, _, n2) in zip(layers[:-1], layers[1:]):
-        ys1 = np.linspace(0.5, 4.5, n1)
-        ys2 = np.linspace(0.5, 4.5, n2)
-        for y1 in ys1:
-            for y2 in ys2:
-                alpha = 0.08 if n1 * n2 > 12 else 0.2
-                ax.plot([x1, x2], [y1, y2], color="#374151", lw=0.5, alpha=alpha, zorder=2)
-
-    # Anotaciones de atención
-    for x in [2.2, 4.2, 6.2]:
-        ax.text(x, 4.9, "↗ Atención\nmulticabeza", ha="center", fontsize=6, color="#818cf8")
-
-    # Skip connections
-    ax.annotate("", xy=(8.2, 2.5), xytext=(0.5, 2.5),
-                arrowprops=dict(arrowstyle="-|>", color="#3fb950", lw=1.2,
-                                connectionstyle="arc3,rad=-0.3"))
-    ax.text(4.5, 0.1, "Skip connection", ha="center", fontsize=6.5, color="#3fb950")
-
-    # Stats
-    ax.text(11, 2.5, f"{_params_gnn()[0]:,}\nparámetros", ha="center", va="center",
-            fontsize=8, color="#fbbf24",
-            bbox=dict(boxstyle="round", facecolor="#1f1107", edgecolor="#fbbf24", lw=1.5))
-
-    ax.set_title("SkillGNN — Graph Attention Network para selección de skills (GNN + PPO)",
-                 color=FG, fontsize=10, pad=8)
     fig.tight_layout()
     return fig
 
@@ -2422,22 +2336,8 @@ _MEDICIONES = [
     ("premisas_sin_simp.json", "Selección de premisas (precisión)",
      ("global", "HIBRIDO", "precision"),
      ("global", "nulo", "precision"), True),
-    ("dos_etapas.json", "Localizar el área y luego elegir (precisión)",
-     ("resultados", "real", "precision"),
-     ("resultados", "nulo", "precision"), True),
-    ("recuperacion_lemas.json", "Recuperación léxica de lemas (precisión)",
-     ("resultados", "lexico_nl", "precision"),
-     ("resultados", "nulo", "precision"), True),
-    ("modelo_en_la_cascada.json",
-     "Orden de cascada por área (posición, menos es mejor)",
-     ("resultados", "regla", 0), ("resultados", "NULO", 0), False),
-    ("modelo_en_la_cascada.json",
-     "Orden por el clasificador (posición, menos es mejor)",
-     ("resultados", "modelo", 0), ("resultados", "NULO", 0), False),
     ("tactic_ranker_report.json", "TacticRanker (acierto)",
      ("accuracy",), ("baseline_mayoritaria",), True),
-    ("reconocedor_area.json", "Reconocedor de área (acierto equilibrado)",
-     ("combinado_equilibrado",), ("nulo",), True),
     ("sintaxis_falsos_positivos.json", "Revisión de sintaxis (caza)",
      ("tasa_caza",), ("nulo_moneda",), True),
     ("sintaxis_de_consulta_contra_lemas.json",
@@ -2459,7 +2359,7 @@ _MEDICIONES = [
     "⚙ Arquitectura · 5 capas",
     "◈ Extensión del Grafo",
     "→ Pipeline",
-    "⊛ Red neuronal (apagada)",
+    "⊛ Estado del sistema",
     "🔍 Traza de Prueba",
     "🤖 Agentes",
     "⧉ Emergencia",
@@ -2657,31 +2557,12 @@ with tab5:
             st.error(f"Error al renderizar distribución: {_e}")
 
 with tab6:
-    st.warning(
-        "**Esta pieza está apagada, y la apagó su propia medición.** La sonda "
-        "le da cuatro entradas deliberadamente heterogéneas —un teorema, un "
-        "saludo, un hecho no matemático y un fragmento de Lean— y responde "
-        "`ASSIST` a las cuatro: **1 acción distinta**, que es exactamente lo "
-        "que da la política constante. El 100 % del informe de entrenamiento "
-        "no era un logro sino un modelo nulo con otro nombre, porque el "
-        "objetivo «todo problema → ASSIST» se satisface con una constante.",
-        icon="⚠",
+    st.markdown(
+        "**El sistema de hoy, en cifras que se leen del repositorio.** La red "
+        "GNN+PPO que tuvo esta pestaña se retiró: aprendió una constante —la "
+        "misma acción para un teorema, un saludo y código Lean—. Lo que sigue "
+        "en pie, y por qué, está en «📊 Mediciones»."
     )
-    st.caption(
-        "Se conserva a propósito: un candidato evaluado y descartado es "
-        "información, y borrarlo invita a reinventarlo. La cifra vive en "
-        "`data/sonda_de_degeneracion.json` y el decisor la lee en cada consulta."
-    )
-    st.markdown("**Arquitectura de la red**, para referencia:")
-    try:
-        with st.spinner("Generando diagrama GNN..."):
-            fig = fig_gnn()
-        st.pyplot(fig, width="stretch")
-        plt.close(fig)
-    except Exception as _e:
-        st.error(f"Error al renderizar GNN: {_e}")
-
-    st.divider()
     col1, col2, col3, col4 = st.columns(4)
     _vd6 = _vd()
     # Cifras en vivo desde el grafo real; los literales quedaban obsoletos con
@@ -2698,30 +2579,20 @@ with tab6:
     if _n_skills6 is None:
         _n_skills6 = len(_vd6["graph_nodes"]) if _vd6 and _vd6.get("graph_nodes") else 0
     col1.metric("Skills totales", str(_n_skills6), _sub6 or None)
-    _p_total, _p_desglose = _params_gnn()
-    col2.metric("Parámetros GNN+PPO",
-                f"{_p_total:,}" if _p_total else "—",
-                "3 capas GATConv")
+    try:
+        from nucleo.decisor import CAPACIDADES as _CAPS6
+        col2.metric("Capacidades en el decisor", str(len(_CAPS6)),
+                    "cada una contra su nulo")
+    except Exception:
+        col2.metric("Capacidades en el decisor", "—")
     # LAS DOS CIFRAS VAN LITERALES A PROPOSITO. Intente contar las suites en
     # vivo con un glob y eso DESACTIVO el guardian: `test_ui_coherencia.py`
     # busca el patron `"Tests", "N", "M suites"` con una regex, y un f-string
     # no encaja, asi que el test pasaba a saltarse en silencio. Una cifra
     # viva que apaga su propio control es peor que una literal vigilada.
-    col3.metric("Tests", "1373", "68 suites")
+    col3.metric("Tests", "1300", "66 suites")
     col4.metric("Categorías matemáticas", "14", "4 niveles jerárquicos")
 
-    st.markdown("**Desglose de parámetros GNN:**")
-    if _p_desglose:
-        _lineas = [f"  {k:<16s} {v:>10,}" for k, v in
-                   sorted(_p_desglose.items(), key=lambda kv: -kv[1])]
-        st.code(
-            "ActorCriticNetwork — parametros entrenables (medidos)\n\n"
-            + "\n".join(_lineas)
-            + f"\n\n  {'TOTAL':<16s} {_p_total:>10,}",
-            language="",
-        )
-    else:
-        st.caption("torch no disponible: no se puede medir la red.")
 
 with tab7:
     st.markdown("**Traza de prueba interactiva** — ingresa un teorema o problema y ve qué skills, dependencias y tácticas activa el sistema.")
@@ -2858,15 +2729,13 @@ with tab8:
     import json as _json
     from pathlib import Path as _Path
 
-    st.markdown("**Sistema multi-agente** — jerarquía L0→L1→L2→L3, pesos entrenados y rendimiento por categoría.")
-
-    # Cargar summary de entrenamiento
-    _summary_path = _Path(__file__).parent.parent / "training" / "agents" / "training_summary.json"
-    _best_dir     = _Path(__file__).parent.parent / "training" / "agents" / "best"
-    _summary = []
-    if _summary_path.exists():
-        with open(_summary_path, encoding="utf-8") as _f:
-            _summary = _json.load(_f)
+    st.markdown(
+        "**Sistema multi-agente** — jerarquía L0→L1→L2→L3. Cada uno de los 14 "
+        "especialistas enruta su categoría (por palabras clave, contra el nulo "
+        "de responder siempre «algebra») y guarda la memoria procedimental de "
+        "lo que ya funcionó en ella. Tuvieron pesos GNN+PPO por categoría; se "
+        "retiraron con la red."
+    )
 
     # ── Grafo jerárquico de agentes ─────────────────────────────────────────────
     st.markdown("### Jerarquía de joins verificados: Skills L0 → join-envoltorios L2 → Orchestrador L3")
@@ -2960,20 +2829,11 @@ with tab8:
                 ax.text(x, y, "L3\nOrch", ha="center", va="center", fontsize=7,
                         fontweight="bold", color="#000000", zorder=9, transform=ax.transAxes)
             elif kind == "agent":
-                # ¿tiene pesos?
-                has_wt = (_best_dir / f"{nid}.pt").exists()
-                ec = "#ffffff" if has_wt else "#6b7280"
-                lw = 2.0 if has_wt else 0.8
                 ax.scatter(x, y, s=700, c=[color], transform=ax.transAxes,
-                           zorder=7, edgecolors=ec, linewidths=lw, marker="s")
+                           zorder=7, edgecolors="#ffffff", linewidths=1.2, marker="s")
                 short = nid[:8] if len(nid) > 8 else nid
                 ax.text(x, y + 0.025, short, ha="center", va="bottom", fontsize=5.5,
                         color="#e5e7eb", zorder=8, transform=ax.transAxes, fontweight="bold")
-                # F1 acc badge
-                acc = next((s["phase1_val_acc"] for s in _summary if s["category"] == nid), None)
-                if acc is not None:
-                    ax.text(x, y - 0.025, f"F1={acc:.2f}", ha="center", va="top", fontsize=4.5,
-                            color="#9ca3af", zorder=8, transform=ax.transAxes)
             else:
                 ax.scatter(x, y, s=80, c=[color], transform=ax.transAxes,
                            zorder=6, edgecolors="#374151", linewidths=0.3, alpha=0.7)
@@ -2981,7 +2841,7 @@ with tab8:
         # Leyenda
         legend_h = [
             mpatches.Patch(color="#f59e0b", label="L3 Orchestrator"),
-            mpatches.Patch(color="#6366f1", label="L2 join-envoltorio (Principio 3.1 — borde blanco = pesos cargados)"),
+            mpatches.Patch(color="#6366f1", label="L2 join-envoltorio (Principio 3.1)"),
             mpatches.Patch(color="#6b7280", label="L1 Skills (3 por agente)"),
         ]
         ax.legend(handles=legend_h, loc="lower center", bbox_to_anchor=(0.5, -0.02),
@@ -2998,56 +2858,6 @@ with tab8:
         plt.close(_fig_ag)
     except Exception as _e:
         st.error(f"Error al renderizar grafo de agentes: {_e}")
-
-    # ── Tabla de estadísticas ────────────────────────────────────────────────────
-    st.markdown("### Resultados de entrenamiento por agente")
-    if _summary:
-        _col_names = ["Categoría", "Muestras", "F1 routing acc", "F2 tactic acc", "Pesos"]
-        _rows = []
-        for s in _summary:
-            cat    = s["category"]
-            n_samp = s.get("train_samples", 0)
-            f1     = s.get("phase1_val_acc", 0.0)
-            f2     = s.get("phase2_tactic_acc", 0.0)
-            has_wt = "✓" if (_best_dir / f"{cat}.pt").exists() else "✗"
-            _rows.append({
-                "Categoría":      cat,
-                "Muestras":       f"{n_samp:,}",
-                "F1 routing acc": f"{f1:.3f}",
-                "F2 tactic acc":  f"{f2:.3f}",
-                "Pesos":          has_wt,
-            })
-        import pandas as _pd
-        _df = _pd.DataFrame(_rows)
-        st.dataframe(_df, width="stretch", hide_index=True)
-    else:
-        st.warning("No se encontró training_summary.json — entrena primero con scripts/train_multiagent.py")
-
-    # ── Bar chart F1 / F2 ────────────────────────────────────────────────────────
-    if _summary:
-        st.markdown("### F1 routing vs F2 tactic accuracy por agente")
-        _cats  = [s["category"] for s in _summary]
-        _f1s   = [s.get("phase1_val_acc", 0.0) for s in _summary]
-        _f2s   = [s.get("phase2_tactic_acc", 0.0) for s in _summary]
-        _x     = np.arange(len(_cats))
-        _w     = 0.4
-        _fig_b, _ax_b = plt.subplots(figsize=(14, 4), facecolor="#080c12")
-        _ax_b.set_facecolor("#0d1117")
-        _ax_b.bar(_x - _w/2, _f1s, _w, label="F1 routing", color="#6366f1", alpha=0.85)
-        _ax_b.bar(_x + _w/2, _f2s, _w, label="F2 tactic",  color="#22c55e", alpha=0.85)
-        _ax_b.set_xticks(_x)
-        _ax_b.set_xticklabels([c[:10] for c in _cats], rotation=35, ha="right",
-                               fontsize=8, color="#9ca3af")
-        _ax_b.set_ylim(0, 1.05)
-        _ax_b.set_ylabel("Accuracy", color="#9ca3af", fontsize=9)
-        _ax_b.tick_params(colors="#9ca3af")
-        for spine in _ax_b.spines.values():
-            spine.set_edgecolor("#21262d")
-        _ax_b.legend(facecolor="#0d1117", edgecolor="#21262d", labelcolor="#c9d1d9", fontsize=8)
-        _ax_b.axhline(0.5, color="#374151", lw=0.8, linestyle="--", alpha=0.6)
-        _fig_b.tight_layout()
-        st.pyplot(_fig_b, width="stretch")
-        plt.close(_fig_b)
 
 
 # =============================================================================
@@ -3518,3 +3328,21 @@ with tab11:
         st.dataframe(_tabla, width="stretch", hide_index=True)
     else:
         st.info("No se pudo leer ninguna medición de `data/`.")
+
+    # ── lo que se probó y se quitó ─────────────────────────────────────
+    st.divider()
+    st.markdown("#### Lo que se probó y se quitó")
+    _desc = _leer_medicion("descartado.json")
+    if _desc:
+        st.caption(
+            "Midieron peor que su modelo nulo, o no pagaban en el camino real, "
+            "y su código se quitó el %s. Queda la cifra, y el código entero en "
+            "el commit que se indica." % _desc.get("fecha", "")
+        )
+        st.dataframe([{
+            "qué hacía": c["que_hacia"],
+            "resultado": c["real"],
+            "modelo nulo": c["nulo"],
+            "métrica": c.get("metrica") or "—",
+            "commit": c["codigo_en_el_commit"],
+        } for c in _desc["capacidades"]], width="stretch", hide_index=True)

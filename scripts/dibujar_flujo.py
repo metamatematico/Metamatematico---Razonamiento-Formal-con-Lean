@@ -148,18 +148,16 @@ ARIA = (
     "todo el aparato del sistema es inglés; el inglés pasa directo. Un "
     "clasificador decide entonces si es matemática; si no lo es va al modelo "
     "conversacional, que responde sin verificación formal. Si lo es, el grafo "
-    "actúa en tres puntos numerados: prepara el prompt con nombres de Mathlib "
-    "comprobados, completa la cabecera de imports, y ordena las tácticas si "
-    "queda un sorry. El primero aporta. El segundo son dos cosas: dar el "
-    "módulo de cada nombre ofrecido va siempre, porque sin ello 282 de 284 "
-    "consultas reciben un nombre que Lean no resuelve, mientras que proponer "
-    "módulos vecinos además de ésos es inerte. El tercero no bate a su "
-    "modelo nulo. "
+    "prepara el prompt con nombres de Mathlib comprobados, y la cabecera de "
+    "imports lleva el módulo de cada nombre ofrecido, porque sin ello 282 de "
+    "284 consultas reciben un nombre que Lean no resuelve. "
     "Lean verifica y abre cuatro caminos: si falta un módulo se repara el "
     "encabezado y se reintenta una vez, si el error es semántico vuelve al "
-    "modelo hasta dos rondas, si queda un sorry entra la cascada de tácticas, "
-    "y si Lean acepta se pasa directo al veredicto. Los caminos confluyen en "
-    "un veredicto final de siete estados, que el modelo traduce a lenguaje "
+    "modelo hasta dos rondas, si queda un sorry entra la cascada de doce "
+    "tácticas, ordenadas por un clasificador de la forma del objetivo y "
+    "probadas en una sesión viva de Lean, y si Lean acepta se pasa directo al "
+    "veredicto. Los caminos confluyen en un veredicto final de ocho estados, "
+    "que el modelo traduce a lenguaje "
     "natural. Al final se cruza la frontera de vuelta: la respuesta sale en el "
     "idioma en que se preguntó y la pregunta que se le enseña al alumno es la "
     "suya, no la traducción."
@@ -179,11 +177,10 @@ NOTA = [
     ["La lista de 183 433 hechos de Mathlib",
      "no toca el prompt: alimenta el índice",
      "de premisas del paso 5."],
-    ["El reconocedor de área lee la FORMA del",
-     "enunciado —75,4 % frente a un nulo del",
-     "23,8 %— y está FUERA de la cadena:",
-     "enchufarlo costaba 0,7 puntos de",
-     "precisión sin ganar cobertura."],
+    ["El lazo por pasos —una táctica, un",
+     "veredicto de Lean, y el paso siguiente",
+     "sabe por qué— está construido y fuera",
+     "de la cadena hasta su puerta con modelo."],
     ["Los nombres de los 125 nodos generados",
      "no se inyectan: están deducidos, y 95",
      "de 447 no existen en Mathlib."],
@@ -217,7 +214,7 @@ def main(_):
     p.append(estilo("fig-flujo", OSCURO))
 
     p.append(txt(24, 26, "DE LA ENTRADA A LA SALIDA", "b"))
-    p.append(txt(232, 26, "— el grafo actúa en TRES puntos, y sólo UNO aporta",
+    p.append(txt(232, 26, "— el grafo actúa antes de la frontera; después decide Lean",
                  "s"))
 
     # ── entrada ────────────────────────────────────────────────────────────
@@ -255,7 +252,7 @@ def main(_):
     p.append(txt(186, 298, "1 · EL GRAFO PREPARA EL PROMPT", "b"))
     p.append(txt(186, 318, "conceptos activados · nombres de Mathlib "
                            "comprobados con #check · ejemplos few-shot", "s"))
-    p.append(txt(186, 336, "APORTA · 12× sobre el azar, medido contra ProofNet",
+    p.append(txt(186, 336, "APORTA · 16,5× sobre el azar, medido contra ProofNet",
                  "s"))
 
     # ── 2 · el LLM formaliza ───────────────────────────────────────────────
@@ -272,15 +269,16 @@ def main(_):
     p.append(txt(186, 458, "3a · EL MÓDULO DE CADA NOMBRE OFRECIDO", "b"))
     p.append(txt(186, 476, "va SIEMPRE — sin él, 282 de 284 reciben un "
                            "nombre que Lean no resuelve", "s"))
-    p.append(txt(186, 496, "3b · Y ADEMÁS, MÓDULOS VECINOS EN EL GRAFO", "b"))
-    p.append(txt(186, 514, "INERTE · empata con un conjunto fijo de 3 módulos "
-                           "— apagado por el decisor", "s"))
+    p.append(txt(186, 496, "sólo ésos: proponer además módulos vecinos del grafo "
+                           "se quitó", "s"))
+    p.append(txt(186, 514, "empataba con un conjunto fijo de 3 módulos, 18 de "
+                           "20 contra 18", "s"))
 
     # ── 4 · Lean ───────────────────────────────────────────────────────────
     p.append(ruta((432, 530), (432, 542)))
     p.append(caja("paso4", 170, 544, 574, 50, "ve"))
-    p.append(txt(186, 566, "4 · LEAN VERIFICA", "b"))
-    p.append(txt(186, 566, "la fuente de verdad · su veredicto es inapelable",
+    p.append(txt(186, 563, "4 · LEAN VERIFICA", "b"))
+    p.append(txt(186, 581, "la fuente de verdad · su veredicto es inapelable",
                  "s"))
 
     # ── las cuatro salidas de Lean ─────────────────────────────────────────
@@ -298,16 +296,16 @@ def main(_):
     # ── 5 · la cascada de tácticas ─────────────────────────────────────────
     p.append(ruta((530, 644), (530, 666)))
     p.append(caja("paso5", 170, 668, 460, 72, "gr"))
-    p.append(txt(186, 690, "5 · EL GRAFO ORDENA LAS TÁCTICAS", "b"))
-    p.append(txt(186, 710, "12 tácticas · premisas sólo si el objetivo "
-                           "engancha", "s"))
-    p.append(txt(186, 728, "NO BATE AL NULO · 1,26 frente al 1,09 de «probar simp primero»", "s"))
+    p.append(txt(186, 690, "5 · LA CASCADA, EN LA SESIÓN DE LEAN", "b"))
+    p.append(txt(186, 710, "12 tácticas en el orden del TacticRanker · 1,57 "
+                           "frente a 2,44 de su nulo", "s"))
+    p.append(txt(186, 728, "los fallos, 276 s → 40,4 s sin perder un cierre", "s"))
 
     # ── el veredicto final ─────────────────────────────────────────────────
     p.append(ruta((400, 740), (400, 756)))
     p.append(ruta((676, 644), (676, 756)))
     p.append(caja("veredicto", 170, 758, 574, 98, "bg"))
-    p.append(txt(186, 780, "EL VEREDICTO FINAL — siete estados, no dos", "b"))
+    p.append(txt(186, 780, "EL VEREDICTO FINAL — ocho estados, no dos", "b"))
     for fila, y in zip(VEREDICTOS, (792, 822)):
         x = 186
         for s, cls in fila:

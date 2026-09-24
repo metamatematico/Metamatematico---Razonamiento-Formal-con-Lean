@@ -5,8 +5,8 @@ MultiAgentOrchestrator — enrutador de consultas a 14 agentes especializados.
 Flujo:
   consulta → classify_query() → SpecializedAgent[categoría] → Lean pipeline → respuesta
 
-El orquestador mantiene los 14 agentes en memoria (lazy loading por categoría).
-Registra estadísticas por agente y permite guardar/cargar todos los pesos de una vez.
+El orquestador mantiene los 14 agentes en memoria (lazy loading por categoría)
+y registra estadísticas por agente.
 """
 
 from __future__ import annotations
@@ -42,8 +42,6 @@ class MultiAgentOrchestrator:
 
     def __init__(
         self,
-        weights_dir: Optional[Path] = None,
-        use_neural: bool = True,
         lazy: bool = True,
         pattern_manager=None,
         colimit_builder=None,
@@ -51,17 +49,11 @@ class MultiAgentOrchestrator:
     ):
         """
         Args:
-            weights_dir:     Directorio donde se guardan los pesos por categoría.
-            use_neural:      Si True, cada agente usa GNN+PPO; si False, heurístico.
             lazy:            Si True, los agentes se crean bajo demanda (ahorra RAM).
             pattern_manager: PatternManager del MES (opcional, para skills emergentes).
             colimit_builder: ColimitBuilder del MES (opcional).
             skill_graph:     SkillCategory global (opcional).
         """
-        self.weights_dir = Path(weights_dir) if weights_dir else (
-            Path(__file__).parent.parent.parent / "data" / "agents"
-        )
-        self.use_neural = use_neural
         self.lazy = lazy
 
         # MES Bridge compartido por todos los agentes
@@ -80,7 +72,7 @@ class MultiAgentOrchestrator:
 
         logger.info(
             f"MultiAgentOrchestrator iniciado: {len(CATEGORIES)} categorías, "
-            f"lazy={lazy}, MES Bridge activo, weights_dir={self.weights_dir}"
+            f"lazy={lazy}, MES Bridge activo"
         )
 
     def _get_agent(self, category: str) -> SpecializedAgent:
@@ -90,8 +82,6 @@ class MultiAgentOrchestrator:
         if category not in self._agents:
             self._agents[category] = SpecializedAgent(
                 category=category,
-                weights_dir=self.weights_dir,
-                use_neural=self.use_neural,
                 mes_bridge=self.mes_bridge,   # Bridge MES compartido
             )
         return self._agents[category]
@@ -148,18 +138,9 @@ class MultiAgentOrchestrator:
         agent.record_solution(query, tactic, lean_result, reward, skill_ids)
 
     def update_agent(self, category: str, transitions: list) -> Dict[str, float]:
-        """Actualiza los pesos del agente de una categoría con nuevas transiciones."""
+        """Pasa transiciones al agente de una categoría."""
         agent = self._get_agent(category)
         return agent.update(transitions)
-
-    def save_all(self):
-        """Guarda los pesos de todos los agentes cargados."""
-        saved = []
-        for cat, agent in self._agents.items():
-            agent.save_weights()
-            saved.append(cat)
-        logger.info(f"Pesos guardados para: {saved}")
-        return saved
 
     def load_all(self):
         """Fuerza la carga de todos los 14 agentes."""
@@ -174,22 +155,15 @@ class MultiAgentOrchestrator:
             if cat in self._agents:
                 result.append(self._agents[cat].stats())
             else:
-                result.append({
-                    "category": cat,
-                    "calls": 0,
-                    "weights_exist": (self.weights_dir / f"{cat}.pt").exists(),
-                })
+                result.append({"category": cat, "calls": 0})
         return result
 
     def print_stats(self):
         """Imprime tabla de estadísticas."""
-        print(f"\n{'Categoría':<20} {'Llamadas':>10} {'Pesos':>8}")
-        print("-" * 42)
+        print(f"\n{'Categoría':<20} {'Llamadas':>10}")
+        print("-" * 32)
         for s in self.stats():
-            print(
-                f"{s['category']:<20} {s['calls']:>10} "
-                f"{'SI' if s['weights_exist'] else 'no':>8}"
-            )
+            print(f"{s['category']:<20} {s['calls']:>10}")
 
     def integrate_with_nucleo(self, nucleo):
         """Conecta el orquestador con una instancia de Nucleo.
@@ -207,4 +181,4 @@ class MultiAgentOrchestrator:
 
     def __repr__(self) -> str:
         loaded = len(self._agents)
-        return f"MultiAgentOrchestrator(loaded={loaded}/{len(CATEGORIES)}, weights_dir={self.weights_dir})"
+        return f"MultiAgentOrchestrator(loaded={loaded}/{len(CATEGORIES)})"

@@ -192,7 +192,6 @@ def corre(imports, sig, cuerpo, contexto=()):
 
 def main(n):
     from nucleo.lean.solver_cascade import SOLVER_CASCADE, GoalAnalyzer
-    from nucleo.multi_agent.colimit_agents import domain_tactic_order
     from scripts.tacticas_reales_mathlib import AREA
 
     an = GoalAnalyzer()
@@ -219,7 +218,7 @@ def main(n):
         # puede reproducir esas pruebas. Se cuentan aparte para saber cuanto
         # aportan de verdad.
         orden = [x for x, _ in an.prioritize(
-            c["sig"], domain_order=domain_tactic_order(c["area"]))]
+            c["sig"])]
         n_desnudas = min(6, len(orden))
         orden = orden[:n_desnudas]
         try:

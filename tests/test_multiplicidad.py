@@ -50,7 +50,7 @@ import pytest
 @pytest.fixture(scope="module")
 def sistema():
     sys.argv = ["x"]
-    from scripts.train_gnn_ppo import build_skill_graph
+    from nucleo.pillars.grafo_curado import build_skill_graph
     from nucleo.mes.patterns import PatternManager, ColimitBuilder
     from nucleo.graph.complexity import build_hierarchy_to_fixpoint
 

@@ -276,7 +276,6 @@ class TacticalCoRegulator(CoRegulator):
         memory: Optional[MESMemory] = None,
         pattern_manager: Optional[PatternManager] = None,
         colimit_builder: Optional[ColimitBuilder] = None,
-        neural_agent=None,
     ):
         super().__init__(
             cr_type=CoRegulatorType.TACTICAL,
@@ -287,7 +286,6 @@ class TacticalCoRegulator(CoRegulator):
             colimit_builder=colimit_builder,
         )
         self._current_query: str = ""
-        self._neural_agent = neural_agent
         self._relevant_skills: list[str] = []  # Skills matched by last query
 
     #: Cota del paisaje. No es un corte de nivel: primero entran los skills que
@@ -411,47 +409,6 @@ class TacticalCoRegulator(CoRegulator):
             return True
         return False
 
-    # Sonda deliberadamente heterogenea: matematica, saludo, hecho no
-    # matematico y codigo Lean explicito. Una red util no puede dar la misma
-    # accion a las cuatro.
-    _DEGENERACY_PROBE = (
-        "Demuestra que la raiz de 2 es irracional",
-        "Hola, como estas",
-        "Cual es la capital de Francia",
-        "```lean\ntheorem t : 1 = 1 := rfl\n```",
-    )
-
-    def _neural_agent_is_degenerate(self) -> bool:
-        """True si la red devuelve siempre la misma accion (no discrimina).
-
-        Se evalua una sola vez por agente y se cachea: es una propiedad de los
-        pesos, no de la consulta.
-        """
-        agent = self._neural_agent
-        if agent is None:
-            return True
-        cached = getattr(agent, "_degenerate_cache", None)
-        if cached is not None:
-            return cached
-
-        from nucleo.types import State
-        try:
-            acciones = {
-                agent._select_neural(State(lean_goal=q)).action_type
-                for q in self._DEGENERACY_PROBE
-            }
-            degenerada = len(acciones) <= 1
-        except Exception:
-            degenerada = True   # si no se puede evaluar, no confiar en ella
-
-        if degenerada:
-            logger.warning(
-                "Red neuronal degenerada (misma accion para toda la sonda): "
-                "se ignora y se usa la heuristica de CR_tac"
-            )
-        agent._degenerate_cache = degenerada
-        return degenerada
-
     def classify_query(
         self, query: str, graph: Optional[SkillCategory] = None
     ) -> ActionType:
@@ -459,9 +416,8 @@ class TacticalCoRegulator(CoRegulator):
         Clasificar un query en tipo de accion (Seccion 4.3 v7.0).
 
         Classification chain:
-        1. Neural agent (GNN+PPO) if available
-        2. Keyword heuristic (fast path)
-        3. Graph-based: match skills, check tactic connections
+        1. Keyword heuristic (fast path)
+        2. Graph-based: match skills, check tactic connections
 
         Args:
             query: User query text
@@ -469,34 +425,6 @@ class TacticalCoRegulator(CoRegulator):
         """
         self._current_query = query
         self._relevant_skills = []
-
-        # Clasificacion neuronal, con dos compuertas.
-        #
-        # (1) La red tiene que saber algo: pesos entrenados desde disco, o
-        #     >= 50 transiciones acumuladas en esta sesion. Un agente recien
-        #     inicializado devuelve REORGANIZE para todo y rompe el routing.
-        #
-        # (2) La red no puede ser DEGENERADA. Medido el 2026-08-05: los pesos
-        #     actuales devuelven ASSIST para *cualquier* entrada — incluido
-        #     "Hola, como estas" y "Cual es la capital de Francia". Se entreno
-        #     con el objetivo "todo problema matematico -> ASSIST", asi que
-        #     aprendio la constante. Una constante no enruta: aporta cero y
-        #     ademas se salta la heuristica, que si distingue. Se comprueba con
-        #     una sonda fija y, si colapsa, se ignora la red.
-        _trained = (
-            getattr(self._neural_agent, "weights_pretrained", False)
-            or len(getattr(self._neural_agent, "buffer", [])) >= 50
-        )
-        if (self._neural_agent is not None
-                and self._neural_agent.has_network
-                and _trained
-                and not self._neural_agent_is_degenerate()):
-            from nucleo.types import State
-            state = State(lean_goal=query)
-            action = self._neural_agent._select_neural(state)
-            # Solo aceptar RESPONSE/ASSIST; REORGANIZE es acción interna
-            if action.action_type in (ActionType.RESPONSE, ActionType.ASSIST):
-                return action.action_type
 
         # Heurística: keywords y frases Lean explícitas
         query_lower = query.lower()
@@ -1234,14 +1162,12 @@ class CoRegulatorNetwork:
         cr_org_frequency: int = 10,
         cr_str_frequency: int = 100,
         cr_int_frequency: int = 50,
-        neural_agent=None,
     ):
         self.tactical = TacticalCoRegulator(
             frequency=1,
             memory=memory,
             pattern_manager=pattern_manager,
             colimit_builder=colimit_builder,
-            neural_agent=neural_agent,
         )
         self.organizational = OrganizationalCoRegulator(
             frequency=cr_org_frequency,
@@ -1268,10 +1194,6 @@ class CoRegulatorNetwork:
             self.strategic,
             self.integrity
         ]
-
-    def set_neural_agent(self, agent) -> None:
-        """Propagar neural agent al CR_tac para clasificación GNN+PPO."""
-        self.tactical._neural_agent = agent
 
     def step(self, graph: SkillCategory) -> list[tuple[CoRegulatorType, MESActionType, Option]]:
         """

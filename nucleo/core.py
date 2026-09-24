@@ -211,8 +211,6 @@ def enunciado_vacuo(code: str) -> bool:
 #: `test_decisor_gobierna_lo_que_dice` comprueba que esta lista coincide con
 #: los `in _corre` que hay en el codigo.
 _TODAS_LAS_GOBERNADAS = frozenset({
-    "orden_de_cascada_por_area",
-    "eleccion_de_imports",
     "contexto_estructural_en_el_prompt",
     "modelo_de_orden_de_cascada",
     "cascada_por_estado",
@@ -776,11 +774,10 @@ class Nucleo:
 
         # ── Sistema multi-agente (14 especialistas por categoria) ──────────
         # Antes se construia pero nunca se activaba (set_multi_agent_orchestrator
-        # no se llamaba desde ningun punto de la app). Los pesos por categoria
-        # SI existen en disco (training/agents/best/*.pt), asi que activarlo
-        # aporta sugerencias de tactica por memoria procedimental especifica
-        # de cada area, ademas de la metadata de categoria ya expuesta en
-        # las respuestas. No sobreescribe ningun checkpoint en disco.
+        # no se llamaba desde ningun punto de la app). Activarlo aporta
+        # sugerencias de tactica por memoria procedimental especifica de cada
+        # area, ademas de la metadata de categoria ya expuesta en las
+        # respuestas.
         if self.config.enable_multi_agent:
             try:
                 self.set_multi_agent_orchestrator()
@@ -788,7 +785,7 @@ class Nucleo:
                 logger.warning(f"MultiAgentOrchestrator no se pudo activar: {e}")
 
         self._initialized = True
-        logger.info("Nucleo inicializado correctamente (PPO activo)")
+        logger.info("Nucleo inicializado correctamente")
 
     @staticmethod
     def _bloque_estructural(context) -> str:
@@ -2059,8 +2056,7 @@ class Nucleo:
             return self._demo_educational_response(input_text)
 
         from nucleo.multi_agent.specialized_agent import classify_query
-        from nucleo.multi_agent.colimit_agents import (
-            domain_default_tactic, domain_tactic_order)
+        from nucleo.multi_agent.colimit_agents import domain_default_tactic
 
         # ── La sintaxis del enunciado, ANTES de gastar nada ──────────────────
         #
@@ -2095,23 +2091,10 @@ class Nucleo:
         # ── EL DECISOR: qué capacidades corren para esta consulta ────────────
         #
         # No es una preferencia: lee el veredicto de los ficheros de medición
-        # y apaga lo que NO bate a su modelo nulo. Ver `nucleo/decisor.py`.
-        #
-        # Lo que apaga aquí es el ORDEN DE CASCADA POR ÁREA, y con su número:
-        #
-        #     la regla que había     posición media de la táctica que cierra  1,262
-        #     el nulo (simp primero)                                          1,091
-        #
-        # O sea que ordenar por área hacía falta MÁS invocaciones de Lean que
-        # probar `simp` y seguir por frecuencia. Lo midió
-        # `scripts/modelo_en_la_cascada.py`, que existe justamente porque la
-        # medición anterior —`efecto_orden_cascada.py`, con su «2,4× de
-        # mejora»— comparaba dos reglas entre sí y ninguna contra el suelo.
-        #
-        # Quien manda entonces son los patrones del objetivo y el TacticRanker
-        # (0,598 de acierto contra 0,318 de la mayoritaria), que sí batieron al
-        # suyo. El código de `domain_tactic_order` se queda donde está: si
-        # alguien vuelve a medirlo y gana, el decisor lo enciende solo.
+        # y deja correr sólo lo que bate a su modelo nulo. Ver
+        # `nucleo/decisor.py`. Lo que se midió peor que su nulo —entre ello el
+        # orden de la cascada por área, 1,262 posiciones contra 1,091 de
+        # «simp primero»— ya no está en el código.
         from nucleo.decisor import Contexto as _Ctx, decidir as _decidir
         try:
             _plan = _decidir(_Ctx(
@@ -2151,15 +2134,10 @@ class Nucleo:
         except Exception as e:                                  # noqa: BLE001
             logger.debug("no se pudo fijar el rankeador (%s)", type(e).__name__)
 
-        # SOLO SE APAGA EL ORDEN, NO LA ETIQUETA. `_domain_tactic` NO llega a
-        # la cascada —ahí va `_tactica_aprendida`, ver la llamada a
-        # `_apply_solver_cascade`—: se usa como etiqueta al reportar el
-        # resultado a la memoria de aprendizaje. Vaciarla no apagaba nada y sí
-        # metía una táctica en blanco en la memoria, que es peor que la que
-        # había. Lo que se apaga es `_domain_order`, que es lo medido.
+        # `_domain_tactic` NO llega a la cascada —ahí va `_tactica_aprendida`,
+        # ver la llamada a `_try_solve_sorries`—: es la etiqueta con que se
+        # reporta el resultado a la memoria de aprendizaje.
         _domain_tactic = domain_default_tactic(_area)
-        _domain_order = (domain_tactic_order(_area)
-                         if "orden_de_cascada_por_area" in _corre else [])
         # Vacia mientras no haya experiencia real. Se rellena abajo solo si el
         # agente especializado recuerda una tactica que YA funciono aqui; solo
         # entonces adelanta al orden medido.
@@ -2490,34 +2468,13 @@ class Nucleo:
                 lean_code = lean_code2
 
         # ── Paso 2: Lean verifier ─────────────────────────────────────────
-        # EL GRAFO ELIGE LOS IMPORTS — SI EL DECISOR LO DEJA.
-        #
-        # Las skills activadas se traducen a modulos de Mathlib mediante
-        # `data/mathlib_modulos.json`, que se construye leyendo DONDE se
-        # declara cada nombre en el fuente. Es el sitio donde el grafo influye
-        # sobre lo que Lean ve, que era la idea original de ponerlo entre el
-        # LLM y el verificador.
-        #
-        # Y HOY ESTA APAGADO, por su propia medicion. Con Lean de juez sobre
-        # 20 enunciados: el grafo elabora 18 y un conjunto fijo de tres
-        # modulos tambien 18, sin una sola diferencia caso a caso — y cuesta
-        # 17,6 s por consulta frente a 15,9 s, un 11 % mas.
-        #
-        # El empate esta bien sostenido desde que se arreglo el mapa de
-        # modulos: antes conocia 76 de los 320 nodos y en 14 de 20 casos las
-        # dos ramas eran la MISMA ejecucion, o sea que el banco no podia
-        # decidir. Ahora los casos discriminantes son 10 y el grafo ofrece
-        # 4,7 modulos por caso frente a 3,0.
-        #
-        # No se borra nada: si alguien vuelve a medirlo y gana, el decisor lo
-        # enciende solo, porque lee la RUTA al numero y no una copia.
         # OFRECER UN NOMBRE Y PODER IMPORTARLO SON EL MISMO ACTO.
         #
         # Esto estaba partido en dos capacidades que el decisor gobernaba por
         # separado, y la particion era el fallo:
         #
         #   nombres_de_mathlib_en_el_prompt  ENCENDIDA  22,8 % contra 1,45 %
-        #   eleccion_de_imports              APAGADA    18 de 20 contra 18
+        #   eleccion_de_imports              APAGADA    18 de 20 contra 18  (quitada)
         #
         # La segunda se apago por no batir a su nulo, y esa decision es
         # correcta DENTRO DE SU BANCO. Lo que nadie midio es la INTERACCION:
@@ -2540,15 +2497,11 @@ class Nucleo:
         #
         # Asi que el modulo de un nombre OFRECIDO no es una optimizacion
         # opcional: es la precondicion de la capacidad que si esta encendida,
-        # y va siempre. Lo que sigue gobernado por `eleccion_de_imports` es
-        # lo que de verdad se midio y empato — proponer modulos ADEMAS de
-        # esos, por vecindad en el grafo.
+        # y va siempre. Proponer modulos ADEMAS de esos, por vecindad en el
+        # grafo, se midio —18 de 20 enunciados elaboran, los mismos que con un
+        # conjunto fijo de tres modulos— y se quito.
         try:
             mods = self._modulos_de_los_nombres(context)
-            if "eleccion_de_imports" in _corre:
-                for m in self._modulos_mathlib(context):
-                    if m not in mods:
-                        mods.append(m)
             if mods:
                 self._lean.sugerir_imports(mods)
         except Exception:
@@ -2768,7 +2721,7 @@ class Nucleo:
             # detectada, colocada primera en la cascada (paper §3.5).
             sorry_msg, confidence, success_value = await self._try_solve_sorries(
                 lean_code, result, domain_tactic=_tactica_aprendida,
-                domain_order=_domain_order, area_premisas=_area,
+                area_premisas=_area,
                 por_estado="cascada_por_estado" in _corre,
             )
             verification_status = "parcial"
@@ -4237,7 +4190,6 @@ class Nucleo:
         Registrar experiencia en memoria MES (Teorema 9.9).
 
         Enriquecimiento monotono: la memoria solo crece.
-        Also feeds live PPO update if neural_agent is set.
         """
         if not self._memory:
             return
@@ -4311,15 +4263,7 @@ class Nucleo:
         if orchestrator is None:
             try:
                 from nucleo.multi_agent import MultiAgentOrchestrator
-                # MultiAgentOrchestrator por defecto busca pesos en
-                # <repo>/data/agents (vacio); los 14 pesos reales entrenados
-                # por scripts/train_multiagent.py viven en
-                # <repo>/training/agents/best/{categoria}.pt — hay que
-                # apuntar ahi explicitamente o cada agente "especializado"
-                # cae en silencio al checkpoint global colapsado.
-                _weights_dir = Path(__file__).parent.parent / "training" / "agents" / "best"
                 orchestrator = MultiAgentOrchestrator(
-                    weights_dir=_weights_dir if _weights_dir.exists() else None,
                     lazy=True,
                     pattern_manager=self._pattern_manager,
                     colimit_builder=self._colimit_builder,
@@ -4623,31 +4567,9 @@ class Nucleo:
 
         matched = self._match_skills_to_query(consulta_en, graph)
 
-        # ── LA PUERTA SE MIDIO Y NO PAGA, ASI QUE NO ESTA AQUI ────────────
-        # `nucleo/graph/reconocedor.py` lee el AREA del enunciado por su forma
-        # —75,4 % sobre los 7 temas de MATH frente a un nulo del 23,8 %— y se
-        # cableo aqui como respaldo para cuando el emparejador lexico calla.
-        #
-        # Medido contra ProofNet por el camino real (brazo `lexico+puerta` de
-        # scripts/recuperacion_contra_proofnet.py):
-        #
-        #     lexico          precision 13,6 %  cobertura 13,6 %  ofrece 271
-        #     lexico+puerta   precision 12,9 %  cobertura 13,6 %  ofrece 282
-        #
-        # (medido cuando el lexico daba 13,6 %. Hoy da 21,6 % / 18,3 %, tras
-        #  reapuntar el vocabulario al nivel de generalidad que reclama cada
-        #  nodo, asi que el margen para la puerta es AUN MENOR que entonces.)
-        #
-        # Ofrece nombres en 6 casos mas y NO SE USA NI UNO: la cobertura no se
-        # mueve —18,3 % las dos— y la precision baja 0,5 puntos. Es ruido.
-        #
-        # Por que no ayuda AQUI: en ProofNet el lexico solo calla en 31 de 371,
-        # asi que el margen era del 4 % desde el principio. El reconocedor se
-        # construyo para las consultas en español, donde el lexico calla en el
-        # 27 %, y para esas NO HAY BANCO con premisas de oro. Lo que falta no
-        # es cablearlo mejor: es medirlo donde se supone que sirve.
-        #
-        # El modulo se queda, entrenado y calibrado. Fuera del camino.
+        # Hubo un reconocedor de area por la forma del enunciado para cuando el
+        # emparejador lexico calla: 75,9 % sobre MATH, pero contra ProofNet
+        # ofrecia nombres en 11 casos mas y no se usaba ninguno. Se quito.
 
         deps: list[str] = []
         tactics: list[str] = []

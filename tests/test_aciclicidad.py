@@ -21,7 +21,7 @@ import pytest
 def joins():
     """join_id -> componentes, tal como los descubre el sistema."""
     sys.argv = ["x"]
-    from scripts.train_gnn_ppo import build_skill_graph
+    from nucleo.pillars.grafo_curado import build_skill_graph
     from nucleo.mes.patterns import PatternManager, ColimitBuilder
     from nucleo.graph.complexity import build_hierarchy_to_fixpoint
 
@@ -82,7 +82,7 @@ def test_cn_acotado_y_positivo(joins):
     algo; no como evidencia de emergencia.
     """
     sys.argv = ["x"]
-    from scripts.train_gnn_ppo import build_skill_graph
+    from nucleo.pillars.grafo_curado import build_skill_graph
     from nucleo.mes.patterns import PatternManager, ColimitBuilder
     from nucleo.graph.complexity import build_hierarchy_to_fixpoint
 

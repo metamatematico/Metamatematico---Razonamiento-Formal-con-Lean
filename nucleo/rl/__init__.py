@@ -14,27 +14,13 @@ Donde:
 - R: X × A → R: Funcion de recompensa
 - γ ∈ [0, 1): Factor de descuento
 
-Arquitectura de Red:
-    c_L     g_Lean      G
-     |        |         |
-     v        v         v
-Transformer Goal_Enc   GNN
-     \\        |        /
-      \\       |       /
-       v      v      v
-      Multi-Head Attention
-             |
-        +---------+
-        |         |
-        v         v
-    Actor π_θ  Critic V_φ
+La politica es heuristica, guiada por la memoria procedimental. La red
+GNN+PPO que hubo se retiro: aprendio una constante (ver `agent.py`).
 """
 
 from nucleo.rl.mdp import MDP, Transition
 from nucleo.rl.rewards import RewardFunction, compute_reward
 from nucleo.rl.agent import NucleoAgent
-from nucleo.rl.gnn import SkillGNN, graph_to_pyg
-from nucleo.rl.networks import ActorCriticNetwork, encode_query
 
 __all__ = [
     "MDP",
@@ -42,8 +28,4 @@ __all__ = [
     "RewardFunction",
     "compute_reward",
     "NucleoAgent",
-    "SkillGNN",
-    "graph_to_pyg",
-    "ActorCriticNetwork",
-    "encode_query",
 ]

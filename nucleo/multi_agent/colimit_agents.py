@@ -905,18 +905,6 @@ CATEGORY_DEFAULT_TACTICS: dict[str, str] = {
 }
 
 
-def domain_tactic_order(category: str) -> list[str]:
-    """Las tácticas del área, de más a menos frecuente al cerrar sola.
-
-    Es lo que la cascada debe consumir: un orden, no un nombre. Devuelve lista
-    vacía para un área desconocida — sin evidencia es mejor no opinar y dejar
-    que manden los patrones del objetivo.
-    """
-    return list(CATEGORY_TACTIC_ORDER.get(category)
-                or CATEGORY_TACTIC_ORDER_SIN_MEDIR.get(category)
-                or ())
-
-
 def domain_default_tactic(category: str) -> str:
     """Táctica Lean por defecto del join-envoltorio de un área matemática."""
     return CATEGORY_DEFAULT_TACTICS.get(category, "simp")

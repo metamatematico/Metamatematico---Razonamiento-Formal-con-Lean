@@ -359,8 +359,7 @@ class TestDomainTacticPipelineIntegration:
 
     def test_pipeline_algebra_uses_ring_first(self):
         from nucleo.multi_agent.specialized_agent import classify_query
-        from nucleo.multi_agent.colimit_agents import (
-            domain_default_tactic, domain_tactic_order)
+        from nucleo.multi_agent.colimit_agents import domain_default_tactic
         from nucleo.lean.solver_cascade import GoalAnalyzer
 
         area = classify_query("Demuestra que los grupos abelianos son conmutativos")
@@ -369,8 +368,7 @@ class TestDomainTacticPipelineIntegration:
         # Y aun asi `ring` sale primera, porque `a * b = b * a` es una
         # identidad de anillo y el PATRON DEL OBJETIVO la detecta. Esa es la
         # diferencia entre saberlo por el area (mal) y por el objetivo (bien).
-        order = GoalAnalyzer().prioritize(
-            "a * b = b * a", domain_order=domain_tactic_order(area))
+        order = GoalAnalyzer().prioritize("a * b = b * a")
         assert order[0][0] == "ring"
 
     def test_pipeline_optimization_uses_linarith_first(self):
