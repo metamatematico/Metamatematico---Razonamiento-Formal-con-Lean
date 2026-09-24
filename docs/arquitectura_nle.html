@@ -422,7 +422,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="Diagrama del flujo completo. La consulta del alumno entra en español o en inglés y cruza la frontera del idioma, donde se traduce al inglés con un modelo local protegiendo la notación matemática. Se revisa la sintaxis de la consulta. Un clasificador decide si es matemática: si no lo es, va al modelo conversacional y sale sin veredicto formal. Si lo es, el paso 1 hace que el grafo prepare el prompt con nombres de Mathlib verificados; el paso 2 es el modelo de lenguaje formalizando en Lean 4; el paso 3 es el grafo eligiendo qué módulos importa Lean, y son dos cosas distintas: el módulo de cada nombre que el paso 1 ofreció, que va siempre porque sin él 282 de 284 consultas reciben un nombre que Lean no puede resolver, y proponer módulos vecinos además de ésos, que es lo que midió inerte; las dos reusan el emparejamiento del paso 1; el paso 4 es Lean verificando. Lean abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico vuelve al modelo hasta dos rondas; si queda un sorry entra la cascada de doce tácticas del paso 5; y si acepta el archivo pasa directo al veredicto. Todos confluyen en un veredicto final de ocho estados. El paso 6 es el modelo traduciendo el veredicto, y por último se cruza la frontera de vuelta para responder en el idioma de la pregunta." viewBox="0 0 1120 1180" style="min-width:720px">
+<svg role="img" aria-label="Diagrama del flujo completo. La consulta del alumno entra en español o en inglés y cruza la frontera del idioma, donde se traduce al inglés con un modelo local protegiendo la notación matemática. Se revisa la sintaxis de la consulta. Un clasificador decide si es matemática: si no lo es, va al modelo conversacional y sale sin veredicto formal. Si lo es, el paso 1 hace que el grafo prepare el prompt con nombres de Mathlib verificados; el paso 2 es el modelo de lenguaje formalizando en Lean 4; el paso 3 es el grafo dando el módulo de cada nombre que el paso 1 ofreció, que va siempre porque sin él 282 de 284 consultas reciben un nombre que Lean no puede resolver, y reusa el emparejamiento del paso 1; el paso 4 es Lean verificando. Lean abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico vuelve al modelo hasta dos rondas; si queda un sorry entra la cascada de doce tácticas del paso 5, probadas sobre una sesión viva de Lean; y si acepta el archivo pasa directo al veredicto. Todos confluyen en un veredicto final de ocho estados. El paso 6 es el modelo traduciendo el veredicto, y por último se cruza la frontera de vuelta para responder en el idioma de la pregunta." viewBox="0 0 1120 1180" style="min-width:720px">
   <defs>
     <marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
       <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
@@ -477,11 +477,11 @@ svg .sLine{stroke:var(--muted); fill:none}
   <path class="sLine" d="M440 482 L440 496" marker-end="url(#fl)" stroke-width="1.6"/>
 
   <rect x="140" y="498" width="600" height="66" rx="9" fill="var(--grafo-soft)" stroke="var(--grafo)" stroke-width="1.4"/>
-  <text class="sTxt" x="158" y="518" font-size="12.5" font-weight="600">3 · EL GRAFO ELIGE LOS MÓDULOS QUE VE LEAN — y son DOS cosas</text>
-  <text class="sTxt sDim" x="158" y="535" font-size="10.5">a · el módulo de cada nombre OFRECIDO — va siempre, no se negocia</text>
+  <text class="sTxt" x="158" y="518" font-size="12.5" font-weight="600">3 · EL GRAFO DA EL MÓDULO DE CADA NOMBRE OFRECIDO</text>
+  <text class="sTxt sDim" x="158" y="535" font-size="10.5">va siempre, no se negocia</text>
   <text class="sMono" x="470" y="535" font-size="10" fill="var(--lean)">sin esto, 282 de 284 reciben un nombre que Lean no resuelve</text>
-  <text class="sTxt sDim" x="158" y="551" font-size="10.5">b · módulos vecinos, ADEMÁS de ésos</text>
-  <text class="sMono sDim" x="470" y="551" font-size="10">INERTE — empata con un conjunto fijo de tres</text>
+  <text class="sTxt sDim" x="158" y="551" font-size="10.5">proponer módulos VECINOS además de ésos se quitó</text>
+  <text class="sMono sDim" x="470" y="551" font-size="10">empataba con un conjunto fijo de tres: 18 de 20 contra 18</text>
 
   <path d="M140 362 L112 362 L112 531 L136 531" fill="none" stroke="var(--grafo)" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#flg)"/>
   <text class="sTxt" x="18" y="432" font-size="10.5" fill="var(--grafo)">reusa el</text>
@@ -577,20 +577,20 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sTxt sDim" x="788" y="590" font-size="10.5">identificadores contra el índice de</text>
   <text class="sTxt sDim" x="788" y="605" font-size="10.5">217 419 nombres reales.</text>
 
-  <text class="sTxt sDim" x="788" y="632" font-size="10.5">El reconocedor de área lee la FORMA</text>
-  <text class="sTxt sDim" x="788" y="647" font-size="10.5">del enunciado —75,4 % frente a un</text>
-  <text class="sTxt sDim" x="788" y="662" font-size="10.5">nulo del 23,8 %— y está fuera de la</text>
-  <text class="sTxt sDim" x="788" y="677" font-size="10.5">cadena: en el camino no paga.</text>
+  <text class="sTxt sDim" x="788" y="632" font-size="10.5">Hubo un reconocedor de área por la</text>
+  <text class="sTxt sDim" x="788" y="647" font-size="10.5">FORMA del enunciado. En el camino</text>
+  <text class="sTxt sDim" x="788" y="662" font-size="10.5">real ofrecía nombres en 11 casos más</text>
+  <text class="sTxt sDim" x="788" y="677" font-size="10.5">y no se usaba ninguno: se quitó.</text>
 
   <text class="sTxt sDim" x="788" y="704" font-size="10.5">Cuando la formalización admite varias</text>
   <text class="sTxt sDim" x="788" y="719" font-size="10.5">lecturas clásicas, el modelo debe</text>
   <text class="sTxt sDim" x="788" y="734" font-size="10.5">declarar cuál toma, y esa declaración</text>
   <text class="sTxt sDim" x="788" y="749" font-size="10.5">encabeza la respuesta.</text>
 
-  <text class="sTxt sDim" x="788" y="776" font-size="10.5">El agente neuronal (GNN + PPO) está</text>
-  <text class="sTxt sDim" x="788" y="791" font-size="10.5">DEGENERADO: da la misma acción a las</text>
-  <text class="sTxt sDim" x="788" y="806" font-size="10.5">cuatro entradas de la sonda. El runtime</text>
-  <text class="sTxt sDim" x="788" y="821" font-size="10.5">lo detecta y lo ignora.</text>
+  <text class="sTxt sDim" x="788" y="776" font-size="10.5">El agente neuronal (GNN + PPO) daba la</text>
+  <text class="sTxt sDim" x="788" y="791" font-size="10.5">MISMA acción a las cuatro entradas de</text>
+  <text class="sTxt sDim" x="788" y="806" font-size="10.5">la sonda: aprendió una constante. Se</text>
+  <text class="sTxt sDim" x="788" y="821" font-size="10.5">quitó; queda data/descartado.json.</text>
 
   <text class="sTxt sDim" x="788" y="848" font-size="10.5">Con METAMAT_GRABAR=1, el paso 2 se</text>
   <text class="sTxt sDim" x="788" y="863" font-size="10.5">graba antes de que Lean lo vea, y todo</text>
@@ -612,10 +612,9 @@ svg .sLine{stroke:var(--muted); fill:none}
         <tbody>
           <tr><td class="mono">1</td><td><strong>grafo</strong></td><td>inyecta nombres de Mathlib verificados en el prompt<span class="sub">_find_relevant_context</span></td><td><span class="pill v">aporta · 16,5×</span></td></tr>
           <tr><td class="mono">2</td><td>modelo</td><td>escribe Lean 4 — no juzga si es correcto<span class="sub">LEAN_SYSTEM_PROMPT</span></td><td>—</td></tr>
-          <tr><td class="mono">3a</td><td><strong>grafo</strong></td><td>da el módulo de cada nombre que el paso 1 ofreció<span class="sub">_modulos_de_los_nombres · va siempre</span></td><td><span class="pill v">imprescindible · 282 de 284</span></td></tr>
-          <tr><td class="mono">3b</td><td><strong>grafo</strong></td><td>propone módulos vecinos, además de ésos<span class="sub">_modulos_mathlib</span></td><td><span class="pill">inerte</span></td></tr>
+          <tr><td class="mono">3</td><td><strong>grafo</strong></td><td>da el módulo de cada nombre que el paso 1 ofreció<span class="sub">_modulos_de_los_nombres · va siempre</span></td><td><span class="pill v">imprescindible · 282 de 284</span></td></tr>
           <tr><td class="mono">4</td><td><strong>Lean</strong></td><td>verifica · veredicto inapelable<span class="sub">lean/client.py</span></td><td>—</td></tr>
-          <tr><td class="mono">5</td><td><strong>L3</strong></td><td>ordena las 12 tácticas ante un <code>sorry</code><span class="sub">solver_cascade.py::TacticRanker</span></td><td><span class="pill v">aporta · 3,7×</span></td></tr>
+          <tr><td class="mono">5</td><td><strong>L3</strong></td><td>ordena las 12 tácticas ante un <code>sorry</code> y las prueba sobre la sesión viva<span class="sub">solver_cascade.py::TacticRanker · cascada_sesion.py</span></td><td><span class="pill v">aporta · 3,7× · 276 s → 40,4 s</span></td></tr>
           <tr><td class="mono">6</td><td>modelo</td><td>traduce el código que Lean aceptó<span class="sub">EXPLICACION_SYSTEM_PROMPT</span></td><td>—</td></tr>
         </tbody>
       </table>
@@ -624,16 +623,19 @@ svg .sLine{stroke:var(--muted); fill:none}
     <p>La última columna es el resultado de medir cada punto por separado.
     <strong>No hay un veredicto único sobre «el núcleo»</strong>: aporta en el
     paso 1 y en el paso 5 —y por razones distintas, a un lado y a otro de la
-    frontera de formalización (<a href="#arquitectura">§5</a>)—, y en el 3
-    depende de cuál de sus dos mitades se mire: dar el módulo del nombre que
-    se ofreció es imprescindible, y proponer módulos vecinos además es
-    inerte. Resumirlo en una sola cifra sería mentir por agregación.</p>
+    frontera de formalización (<a href="#arquitectura">§5</a>)—, y en el 3 lo
+    que va siempre es el módulo del nombre que se ofreció. Resumirlo en una
+    sola cifra sería mentir por agregación.</p>
 
-    <p>Conviene separar dos cosas que el paso 5 mezcló mucho tiempo: la
-    <em>regla por área</em> que proponía el grafo de conceptos <strong>no batía
-    a su nulo</strong> (1,26 frente a 1,09) y está apagada por el decisor; lo
-    que ordena la cascada hoy es un clasificador sobre la <strong>forma del
-    objetivo</strong>, que es otra cosa y se mide aparte.</p>
+    <p>Esta tabla tenía dos filas más. Proponer <em>módulos vecinos</em> además
+    de los del nombre ofrecido empataba con un conjunto fijo de tres —18 de 20
+    enunciados elaboran, los mismos— y la <em>regla por área</em> que ordenaba
+    la cascada perdía contra «probar <code>simp</code> primero» —1,262 contra
+    1,091—. Las dos estaban apagadas por el decisor y el 21 de septiembre de
+    2026 se quitaron del código; su cifra queda en
+    <a href="#negativos">§16</a>. Lo que ordena la cascada hoy es un
+    clasificador sobre la <strong>forma del objetivo</strong>, que es otra cosa
+    y se mide aparte.</p>
   </section>
 
   <section id="idioma">
@@ -927,7 +929,7 @@ svg .sLine{stroke:var(--muted); fill:none}
 
     <figure>
       <div class="marco">
-<svg role="img" aria-label="La arquitectura de hoy. Arriba, el camino servido, de izquierda a derecha: la consulta en español o inglés entra en el grafo, capas L0 a L2, que da nombres comprobados con check y los módulos; el formalizador, un modelo de lenguaje, escribe el enunciado y la prueba; se cruza la frontera de formalización; Lean compila el fichero, con hasta dos rondas de reparación; sale un veredicto de ocho estados y la respuesta en el idioma de la pregunta. Debajo de Lean, si queda un sorry, la cascada de doce tácticas corre en la sesión viva de Lean, encendida desde el paso 2, y la táctica ganadora vuelve al fichero, que confirma. A la izquierda, el decisor, con veintitrés capacidades, lee los ficheros de medición y sólo deja correr lo que bate a su modelo nulo. Abajo, en una banda discontinua, el lazo por pasos, construido y apagado hasta su puerta con modelo: cinco proponentes, D0 la cascada, D1v los vecinos de estado que entran con más ocho menos cero, D3 el modelo sin medir, D2 apply como sonda que no entra, y D1d el encoder denso que no entra; el mediador busca primero lo mejor y guarda los fallos de cada estado; la sesión de Lean evalúa cada táctica en centésimas de segundo; el fichero decide sobre la prueba ensamblada. Cada intento va al registro, que alimenta L4, y φ etiqueta cada estado para la explicación por paso, con la exactitud sin revisar." viewBox="0 0 1000 560" style="min-width:760px">
+<svg role="img" aria-label="La arquitectura de hoy. Arriba, el camino servido, de izquierda a derecha: la consulta en español o inglés entra en el grafo, capas L0 a L2, que da nombres comprobados con check y los módulos; el formalizador, un modelo de lenguaje, escribe el enunciado y la prueba; se cruza la frontera de formalización; Lean compila el fichero, con hasta dos rondas de reparación; sale un veredicto de ocho estados y la respuesta en el idioma de la pregunta. Debajo de Lean, si queda un sorry, la cascada de doce tácticas corre en la sesión viva de Lean, encendida desde el paso 2, y la táctica ganadora vuelve al fichero, que confirma. A la izquierda, el decisor, con veintitrés capacidades, lee los ficheros de medición y sólo deja correr lo que bate a su modelo nulo. Abajo, en una banda discontinua, el lazo por pasos, construido y apagado hasta su puerta con modelo: cinco proponentes, D0 la cascada, D1v los vecinos de estado que entran con más ocho menos cero, D3 el modelo sin medir, D2 apply como sonda y D1d el encoder denso, los dos medidos y quitados del código; el mediador busca primero lo mejor y guarda los fallos de cada estado; la sesión de Lean evalúa cada táctica en centésimas de segundo; el fichero decide sobre la prueba ensamblada. Cada intento va al registro, que alimenta L4, y φ etiqueta cada estado para la explicación por paso, con la exactitud sin revisar." viewBox="0 0 1000 560" style="min-width:760px">
   <defs>
     <marker id="aHoy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
   </defs>
@@ -999,10 +1001,10 @@ svg .sLine{stroke:var(--muted); fill:none}
   <text class="sMono sDim" x="412" y="366" font-size="10.5">gasta API · sin medir</text>
   <rect x="582" y="324" width="170" height="54" rx="7" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.2"/>
   <text class="sTxt" x="594" y="346" font-size="12" font-weight="600">D2 · apply? de sonda</text>
-  <text class="sMono" x="594" y="366" font-size="10.5" fill="var(--alerta)">no entra</text>
+  <text class="sMono" x="594" y="366" font-size="10.5" fill="var(--alerta)">medido · quitado</text>
   <rect x="764" y="324" width="170" height="54" rx="7" fill="var(--alerta-soft)" stroke="var(--alerta)" stroke-width="1.2"/>
   <text class="sTxt" x="776" y="346" font-size="12" font-weight="600">D1d · el denso</text>
-  <text class="sMono" x="776" y="366" font-size="10.5" fill="var(--alerta)">no entra</text>
+  <text class="sMono" x="776" y="366" font-size="10.5" fill="var(--alerta)">medido · quitado</text>
 
   <line x1="246" y1="380" x2="246" y2="400" stroke="var(--muted)" stroke-width="1.3" marker-end="url(#aHoy)"/>
   <rect x="36" y="402" width="420" height="58" rx="8" fill="var(--surface-3)" stroke="var(--text-dim)" stroke-width="1.2"/>
@@ -2916,7 +2918,7 @@ linarith 3s   nlinarith 4s   omega 3s   exact? 5s   apply? 5s   aesop 8s</pre>
     </figure>
 
     <div class="nota a">
-      <b>El orden que propone el grafo no bate a su modelo nulo</b>
+      <b>El orden que proponía el grafo no batía a su modelo nulo, y se quitó</b>
       <p>Sobre 1&nbsp;600 pruebas de una línea de Mathlib, con una partición de
       prueba del 20&nbsp;%:</p>
       <pre>orden                 posición media   1er intento   en los 3
@@ -2935,8 +2937,13 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <p>La conclusión honesta no es «el orden de tácticas es malo», sino que
       <strong>este banco no puede decidirlo</strong>: con el 95,8&nbsp;% en una
       sola clase, casi cualquier cosa que ponga <code>simp</code> primero da lo
-      mismo. Por eso tampoco se cablea el clasificador entrenado: 1,06 frente a
+      mismo. Por eso tampoco se cableó el clasificador entrenado: 1,06 frente a
       1,09 no es nada sobre 320 casos.</p>
+      <p>La regla por área estuvo apagada por el decisor hasta que, el 21 de
+      septiembre de 2026, se quitó del código con las otras nueve que no batían
+      a su nulo. Quien ordena la cascada es el <code>TacticRanker</code>, que
+      mira la forma del objetivo y sí bate al suyo: 1,57 posiciones contra
+      2,44.</p>
     </div>
   </section>
 
@@ -2980,7 +2987,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <text class="sTxt sDim" x="34" y="359" font-size="11">no el número. Volver a medir cambia la decisión sola. Y si una</text>
   <text class="sTxt sDim" x="34" y="373" font-size="11">ruta deja de resolver, un test lo caza.</text>
 
-  <text class="sMono sDim" x="490" y="18" font-size="10.5" letter-spacing="1.3">LO QUE ESTÁ APAGADO HOY, Y POR QUÉ</text>
+  <text class="sMono sDim" x="490" y="18" font-size="10.5" letter-spacing="1.3">LO QUE APAGÓ — Y QUE POR ESO SE QUITÓ DEL CÓDIGO</text>
 
   <rect x="490" y="32" width="494" height="72" rx="9" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
   <text class="sTxt" x="508" y="54" font-size="12" font-weight="600">orden de cascada por área</text>
@@ -3000,17 +3007,20 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
   <rect x="490" y="260" width="494" height="66" rx="9" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
   <text class="sTxt" x="508" y="282" font-size="12" font-weight="600">emparejador semántico por embeddings</text>
   <text class="sMono" x="508" y="302" font-size="11" fill="var(--alerta)">13,2 % precisión · el léxico da 23,9 %</text>
-  <text class="sTxt sDim" x="508" y="319" font-size="10.5">nunca se adoptó, y además cuesta una llamada al modelo</text>
+  <text class="sTxt sDim" x="508" y="319" font-size="10.5">nunca se adoptó, y además costaba una llamada al modelo</text>
 
   <rect x="490" y="336" width="494" height="40" rx="9" fill="var(--surface-2)" stroke="var(--border)" stroke-width="1.2"/>
-  <text class="sTxt sDim" x="508" y="361" font-size="11">Coste por consulta: el decisor 0 llamadas y 1 compilado; su nulo, 1 y 2.</text>
+  <text class="sTxt sDim" x="508" y="340" font-size="11">… y seis más, todas con su cifra en data/descartado.json</text>
+  <text class="sTxt sDim" x="508" y="361" font-size="11">Coste por consulta: el decisor 0 llamadas al modelo; su nulo, 2.</text>
 
   <rect x="16" y="392" width="968" height="52" rx="9" fill="var(--lean-soft)" stroke="var(--lean)" stroke-width="1.4"/>
   <text class="sTxt" x="34" y="414" font-size="12" font-weight="600">LA ÚNICA EXCEPCIÓN, Y VA DECLARADA: verificar con Lean no pasa por esta regla</text>
   <text class="sTxt sDim" x="34" y="433" font-size="11">El nulo de «verificar» sería «no verificar», que es OTRO SISTEMA — no una versión más barata de éste.</text>
 </svg>
       </div>
-      <figcaption><b>Fig. 9 —</b> El decisor. Su propio modelo nulo es
+      <figcaption><b>Fig. 9 —</b> Las cuatro de la derecha, y otras seis, se
+      quitaron del código el 21 de septiembre de 2026: lo que queda de ellas es
+      su medición. El decisor. Su propio modelo nulo es
       «ejecutarlo todo», y está implementado: se puede correr la comparación
       completa. Una capacidad que se apagara en silencio sería peor que no tener
       decisor, así que hay un test que falla si alguna ruta de evidencia deja de
@@ -3022,11 +3032,16 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     porque no baten a su nulo; una bate al suyo y no está cableada,
     y el decisor dice por qué en cada caso; dos dependen de
     la consulta, porque su guarda sólo aplica a algunas; y tres
-    no tienen medición contra un nulo —entre ellas el emparejador semántico, que nunca
-    llegó a producción y se conserva a propósito: <strong>un candidato evaluado
-    y descartado es información</strong>, y borrarlo invita a reinventarlo—, y
-    <code>lazo_por_pasos</code>, el paso 3 del lazo (<a href="#lazo">§18</a>), cuya
-    puerta con modelo no se ha corrido.</p>
+    no tienen medición contra un nulo —entre ellas <code>lazo_por_pasos</code>, el
+    paso 3 del lazo (<a href="#lazo">§18</a>), cuya puerta con modelo no se ha
+    corrido—.</p>
+
+    <p>Que ninguna capacidad esté hoy apagada <em>por medición</em> no es que la
+    regla se haya relajado: las diez que no batieron a su nulo se quitaron del
+    código el 21 de septiembre de 2026. <strong>Un candidato evaluado y
+    descartado es información</strong>, así que no desaparece: queda en
+    <code>data/descartado.json</code> —qué hacía, su cifra, su nulo y el commit
+    donde se puede leer entero— y en <a href="#negativos">§16</a>.</p>
   </section>
 
   <section id="formal">
@@ -3352,11 +3367,11 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
           <tr><td><strong>La tanda de curación, en su barrio</strong><span class="sub">384 y 691 filas de los temas que trajo · sin ella contra con ella</span></td><td class="mono">3,9 → 16,9 %<br>4,0 → 20,6 %</td><td class="mono">0,5 %<br>0,2 %</td><td><span class="pill v">×4,3 y ×5,2</span></td></tr>
           <tr><td><strong>Revisión de sintaxis de la consulta</strong><span class="sub">23 243 enunciados de LeanWorkbook, todos correctos</span></td><td class="mono">3,6 % falsos pos.<br>60,8 % de caza</td><td class="mono">3,6 %<br>(moneda)</td><td><span class="pill v">+57,2 puntos</span></td></tr>
           <tr><td><strong>Rasgos del árbol → premisas</strong><span class="sub">22 117 pares, bootstrap emparejado, 68 rasgos</span></td><td class="mono">80,9 % cobertura</td><td class="mono">56,6 %</td><td><span class="pill v">+24,3 · aporta</span></td></tr>
-          <tr><td><strong>Reconocedor de área por la forma</strong><span class="sub">5 750 de test sobre 7 temas de MATH · <em>medido, no cableado</em>: por el camino real contra ProofNet no paga</span></td><td class="mono">75,4 %<br>techo 84,1 %</td><td class="mono">23,8 %</td><td><span class="pill v">3,2× · aporta<br><span class="sub">fuera de la cadena</span></span></td></tr>
+          <tr><td><strong>Reconocedor de área por la forma</strong><span class="sub">5 750 de test sobre 7 temas de MATH · <em>medido, nunca cableado</em>: por el camino real contra ProofNet no pagaba</span></td><td class="mono">75,4 %<br>techo 84,1 %</td><td class="mono">23,8 %</td><td><span class="pill a">3,2× en su banco<br><span class="sub">quitado · §16</span></span></td></tr>
           <tr><td><strong>Área de la consulta</strong><span class="sub">3 000 consultas etiquetadas · banco 88,6 % algebra</span></td><td class="mono">62,1 % equilibrada<br>60,3 % cruda</td><td class="mono">33,3 %<br>88,6 % cruda</td><td><span class="pill v">+25,4 equilibrada</span></td></tr>
           <tr><td><strong>Selección de premisas</strong><span class="sub">sin los <code>@[simp]</code>, que <code>simp</code> ya conoce</span></td><td class="mono">14,0 % cobertura</td><td class="mono">11,7 %</td><td><span class="pill">mejora pequeña</span></td></tr>
-          <tr><td><strong>Elección de imports</strong><span class="sub">20 enunciados, Lean como juez · azar 14/20</span></td><td class="mono">18/20 elabora</td><td class="mono">18/20 fijo</td><td><span class="pill">inerte</span></td></tr>
-          <tr><td><strong>Orden de tácticas</strong><span class="sub">1 600 pruebas de Mathlib · <code>simp</code> cierra el 95,8 %</span></td><td class="mono">1,26 posiciones</td><td class="mono">1,09</td><td><span class="pill a">no bate al nulo</span></td></tr>
+          <tr><td><strong>Elección de imports</strong><span class="sub">módulos vecinos ADEMÁS de los del nombre ofrecido · 20 enunciados, Lean como juez</span></td><td class="mono">18/20 elabora</td><td class="mono">18/20 fijo</td><td><span class="pill a">inerte<br><span class="sub">quitado · §16</span></span></td></tr>
+          <tr><td><strong>Orden de tácticas por área</strong><span class="sub">1 600 pruebas de Mathlib · <code>simp</code> cierra el 95,8 %</span></td><td class="mono">1,26 posiciones</td><td class="mono">1,09</td><td><span class="pill a">no bate al nulo</span></td></tr>
           <tr><td><strong>Poda por área antes de elegir</strong><span class="sub">con localización perfecta — es el techo, no lo real</span></td><td class="mono">6,8 %</td><td class="mono">9,8 %</td><td><span class="pill a">no llega al nulo</span></td></tr>
           <tr><td><strong>Fibración π : Skills → Áreas</strong><span class="sub">6753 pares (objeto, área por debajo)</span></td><td class="mono">10 se levantan<br>0,1 %</td><td class="mono">4,3 %<br>(áreas al azar)</td><td><span class="pill a">peor que el azar</span></td></tr>
           <tr><td><strong>Nombres de los nodos generados</strong><span class="sub">447 identificadores, uno a uno con <code>#check</code></span></td><td class="mono">346 existen</td><td class="mono">—</td><td><span class="pill a">95 no existen</span></td></tr>
@@ -3403,6 +3418,21 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
     <p>Costaron el mismo trabajo que los positivos y valen igual. Están aquí
     para que nadie los repita, y porque un sistema que sólo publica lo que
     funciona no se puede evaluar.</p>
+
+    <div class="nota a">
+      <b>Y el 21 de septiembre de 2026 dejaron de ser código</b>
+      <p>Diez capacidades habían quedado apagadas por su propia medición, y el
+      código seguía ahí. Se quitó. Lo que queda de cada una es su cifra, su
+      nulo y el commit donde se puede leer entera, en
+      <code>data/descartado.json</code>; la página de mediciones del sistema lo
+      enseña como una tabla más. <strong>Descartar no es borrar</strong>: sin el
+      registro, dentro de seis meses alguien vuelve a construir lo mismo.</p>
+      <p>Las diez: el orden de cascada por área, proponer módulos vecinos, el
+      reconocedor de área, los vecinos de estado como sustituto del rankeador,
+      <code>apply?</code> como sonda, el encoder denso de premisas, la
+      localización en dos etapas, la recuperación léxica de lemas, el
+      emparejador semántico y el enrutado neuronal.</p>
+    </div>
 
     <div class="ficha">
       <header><h3>Proponer imports por vecindad no aporta — y no es todo el paso 3</h3></header>
@@ -3463,6 +3493,25 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       <div class="paso"><div class="et">por qué</div><p>Estaban <em>deducidos</em> de la ruta del módulo. El filtro pedía CamelCase sin guion bajo, y eso deja pasar <code>Basic</code> —un nombre de fichero— igual que <code>Polynomial</code> —un tipo—. La forma no distingue; sólo Lean lo hace.</p></div>
       <div class="paso"><div class="et">consecuencia</div><p>Cuatro nodos se quedan sin ningún nombre válido, así que aunque se activara la inyección no podrían aportar nada. Por eso los nodos generados no inyectan vocabulario.</p></div>
     </div>
+
+    <h3>La red neuronal aprendió una constante</h3>
+
+    <div class="pasos">
+      <div class="paso"><div class="et">qué era</div><p>Un GNN de atención sobre el grafo más un actor-crítico entrenado con PPO —546&nbsp;820 parámetros— para decidir si una consulta se responde, se reorganiza el grafo o se asiste con Lean.</p></div>
+      <div class="paso"><div class="et">medido</div><p>Una sonda de cuatro entradas deliberadamente distintas —un teorema, un saludo, un hecho no matemático y un fragmento de Lean— recibe <strong>la misma acción en las cuatro</strong>: 1 acción distinta, exactamente lo que da la política constante.</p></div>
+      <div class="paso"><div class="et">por qué</div><p>Se entrenó con el objetivo «todo problema matemático → ASSIST», que <strong>se satisface con una constante</strong>. El «100 % de precisión» del informe de entrenamiento no era un logro: era el modelo nulo con otro nombre.</p></div>
+      <div class="paso"><div class="et">la lección</div><p>Un objetivo que una constante satisface no puede evaluar un modelo. El runtime ya la detectaba degenerada y la ignoraba en cada arranque; ahora el código tampoco está.</p></div>
+    </div>
+
+    <h3>Un encoder de premisas entrenado para Lean tampoco entra</h3>
+
+    <div class="pasos">
+      <div class="paso"><div class="et">la idea</div><p>Llevar el estado de prueba impreso a las premisas de Mathlib que su prueba usó, con el codificador de <em>premise-selection</em> (Zhu et&nbsp;al., ICLR&nbsp;2026) y las 382&nbsp;212 premisas ya codificadas.</p></div>
+      <div class="paso"><div class="et">medido</div><p>Dentro del lazo, con Lean de juez sobre 60 estados y el mismo presupuesto: <strong>39 verificados contra 40</strong> sin él, y <strong>46 contra 48</strong> junto a los vecinos de estado.</p></div>
+      <div class="paso"><div class="et">y lo que dice<br>el detalle</div><p>Ningún camino verificado usa una táctica suya. Lo que sí hace es gastar: trece plantillas por estado que Lean rechaza, y el presupuesto se agota antes de que lleguen las que cierran.</p></div>
+      <div class="paso"><div class="et">la trampa<br>que casi cuela</div><p>Los embeddings publicados son una matriz sin nombres. Con el modelo que enlaza el artículo, cada premisa se parecía a su propia fila casi lo mismo que a la vecina —0,33 contra 0,26—: era otro modelo. Sin comprobarlo, el experimento habría medido premisas equivocadas con toda la seguridad del mundo.</p></div>
+    </div>
+
   </section>
 
   <section id="tests">
@@ -3705,7 +3754,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
 
     <p><strong>Los vecinos entran como fuente del lazo</strong>: rescatan sin
     romper, y además gastan menos Lean, porque cierran antes. <strong>D2 no
-    entra</strong>: no rescata ninguno y sus sondas se comen el presupuesto;
+    entra —y su código se quitó—</strong>: no rescata ninguno y sus sondas se comen el presupuesto;
     con las tres fuentes juntas se pierden casos que D0 + vecinos cerraba. Las
     dos decisiones las tiene escritas el decisor, que lee estos ficheros. Y
     ninguna llega al alumno todavía: viven dentro del lazo, que sigue sin su
@@ -3732,7 +3781,7 @@ clasificador entrenado      1,06          95,9 %       99,4 %</pre>
       </table>
     </div>
 
-    <p><strong>El denso no entra.</strong> En ninguno de los caminos
+    <p><strong>El denso no entra, y su código se quitó.</strong> En ninguno de los caminos
     verificados aparece una táctica suya; su único «rescate» lo cerró
     <code>exact?</code>, que es de D0, en un caso en que el brazo D0 se había
     colgado en una sola llamada. Lo que sí hace es gastar: trece plantillas

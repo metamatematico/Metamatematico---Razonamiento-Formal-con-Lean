@@ -43,17 +43,23 @@ def frase():
     porque no {s(len(por_medicion), 'bate', 'baten')} a su nulo; {w(len(sin_cablear))} {s(len(sin_cablear), 'bate al suyo y no está cableada', 'baten al suyo y no están cableadas')},
     y el decisor dice por qué en cada caso; {w(len(por_guarda))} {s(len(por_guarda), 'depende', 'dependen')} de
     la consulta, porque su guarda sólo aplica a algunas; y {w(len(sin_evidencia))}
-    no tienen medición contra un nulo —entre ellas el emparejador semántico, que nunca
-    llegó a producción y se conserva a propósito: <strong>un candidato evaluado
-    y descartado es información</strong>, y borrarlo invita a reinventarlo—, y
-    <code>lazo_por_pasos</code>, el paso 3 del lazo (<a href="#lazo">§18</a>), cuya
-    puerta con modelo no se ha corrido.</p>""")
+    no tienen medición contra un nulo —entre ellas <code>lazo_por_pasos</code>, el
+    paso 3 del lazo (<a href="#lazo">§18</a>), cuya puerta con modelo no se ha
+    corrido—.</p>
+
+    <p>Que ninguna capacidad esté hoy apagada <em>por medición</em> no es que la
+    regla se haya relajado: las diez que no batieron a su nulo se quitaron del
+    código el 21 de septiembre de 2026. <strong>Un candidato evaluado y
+    descartado es información</strong>, así que no desaparece: queda en
+    <code>data/descartado.json</code> —qué hacía, su cifra, su nulo y el commit
+    donde se puede leer entero— y en <a href="#negativos">§16</a>.</p>""")
 
 
 def main():
     f = os.path.join(RAIZ, "docs", "arquitectura_nle.html")
     t = io.open(f, encoding="utf-8").read()
-    patron = re.compile(r"    <p>El catálogo tiene [\s\S]*?</p>")
+    patron = re.compile(r"    <p>El catálogo tiene [\s\S]*?§16</a>\.</p>|"
+                        r"    <p>El catálogo tiene [\s\S]*?</p>")
     if len(patron.findall(t)) != 1:
         print("no se encuentra exactamente una frase del catálogo")
         return 1
