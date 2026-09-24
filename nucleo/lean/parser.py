@@ -261,6 +261,13 @@ class LeanParser:
 # Extended error classification patterns
 _EXTENDED_ERROR_PATTERNS = [
     # More specific patterns first to avoid substring matches
+    #
+    # `invalid field` FALTABA, y es una clase entera: la notacion de punto se
+    # resuelve por el TIPO del termino, asi que `T.IsSatisfiable` sobre algo
+    # de tipo `L.Sentence -> Prop` busca `Function.IsSatisfiable` y no existe.
+    # Sin patron caia en `unknown`, y con el tipo `unknown` el mensaje al
+    # alumno decia literalmente «un error de tipo unknown».
+    (r"invalid field", "invalid_field"),
     (r"application type mismatch", "app_type_mismatch"),
     (r"type mismatch", "type_mismatch"),
     (r"don't know how to synthesize implicit argument", "synth_implicit"),

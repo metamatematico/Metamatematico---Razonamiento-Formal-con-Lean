@@ -2325,6 +2325,15 @@ class Nucleo:
                 "  `-- READING: <the statement you chose> | also: <the other readings>`\n"
                 "  as the FIRST line of the block. Do not resolve an ambiguity in\n"
                 "  silence: the reader has to know which question is being answered.\n"
+                # ESA LINEA LA LEE EL ALUMNO, no Lean: sale tal cual como
+                # primera linea de la respuesta. En una consulta real en
+                # español salio en ingles —«The compactness theorem of
+                # first-order logic»—, que es la misma frontera de idioma que
+                # el resto del sistema cruza de vuelta y esta no cruzaba.
+                + ("  Write the text of that READING line in SPANISH: it is shown\n"
+                   "  to the reader as-is, and the reader asked in Spanish.\n"
+                   if getattr(self, "_respuesta_en_espanol", False) else "")
+                +
                 "- Use the appropriate Mathlib types and theorems.\n"
                 "- Do not put explanations outside the code block."
             )
@@ -2747,14 +2756,17 @@ class Nucleo:
             hint = self._lean_hint(first_err)
             verification_status = "no_verificado"
             _tras = (
-                f" El sistema reintentó {_rondas_revision} vez/veces "
-                "realimentando el error de Lean al generador, y el resultado "
-                "sigue sin verificarse."
+                " El sistema reintentó %d %s realimentando el error de Lean al "
+                "generador, y el resultado sigue sin verificarse."
+                % (_rondas_revision,
+                   "vez" if _rondas_revision == 1 else "veces")
                 if _rondas_revision else ""
             )
+            _clase = self._TIPO_DE_ERROR.get(err_type, "")
+            _cabeza = ("Lean 4 rechazó la prueba por %s: %s." % (_clase, first_err)
+                       if _clase else "Lean 4 rechazó la prueba: %s." % first_err)
             verification_note = (
-                f"Lean 4 detectó un error de tipo `{err_type}`: {first_err}. "
-                f"Diagnóstico: {hint}.{_tras}"
+                f"{_cabeza} Diagnóstico: {hint}.{_tras}"
             )
             confidence    = 0.6
             success_value = 0.2
@@ -3383,6 +3395,26 @@ class Nucleo:
         "function expected": "se usó algo como función que no lo es.",
         "tactic failed": "la táctica no cerró el goal; prueba `ring_nf` o `simp [*]` primero.",
         "unsolved goals": "la prueba no cierra todos los objetivos; faltan casos.",
+        "invalid field": ("la notación de punto se resuelve por el TIPO del "
+                          "término; ese tipo no declara ese campo."),
+    }
+
+    #: EL TIPO DE ERROR, EN CASTELLANO. El mensaje al alumno decía «Lean 4
+    #: detectó un error de tipo `unknown`», que junta dos defectos: el nombre
+    #: interno del clasificador y el caso en que no clasificó nada.
+    _TIPO_DE_ERROR: dict[str, str] = {
+        "invalid_field": "un campo que ese tipo no tiene",
+        "unknown_ident": "un identificador que no reconoce",
+        "type_mismatch": "tipos que no casan",
+        "app_type_mismatch": "argumentos mal aplicados",
+        "synth_instance": "una instancia de clase que no encuentra",
+        "synth_implicit": "un argumento implícito que no puede deducir",
+        "unsolved_goals": "objetivos sin cerrar",
+        "sorry_present": "un `sorry` en la prueba",
+        "unknown_tactic": "una táctica que no existe",
+        "recursion_depth": "recursión demasiado profunda",
+        "timeout": "tiempo agotado",
+        "type_expected": "algo que no es un tipo donde esperaba uno",
     }
 
     # Errores que repair_imports puede arreglar solo: son de MODULO, no de
@@ -3569,6 +3601,54 @@ class Nucleo:
             except Exception:                                   # noqa: BLE001
                 logger.debug("no se pudo comprobar el nombre en el indice",
                              exc_info=True)
+
+        # LA NOTACION DE PUNTO SE RESUELVE POR EL TIPO, y el indice sabe
+        # donde vive el campo de verdad.
+        #
+        # Caso real, consulta «demuestra el teorema de compacidad»: el modelo
+        # escribio `T0.IsSatisfiable` con `T0 : L.Sentence -> Prop`, Lean
+        # contesto «Invalid field IsSatisfiable: the environment does not
+        # contain Function.IsSatisfiable» y este metodo respondia «revisa la
+        # sintaxis y los imports», que no dice nada. El indice, preguntado,
+        # devuelve `FirstOrder.Language.Theory.IsSatisfiable` — que es
+        # exactamente lo que faltaba saber, y ademas explica el fallo: el
+        # termino tiene el tipo equivocado, no el nombre.
+        #
+        # Importa el doble porque esta pista no va solo al alumno: es la que
+        # `_revisar_con_lean` le devuelve al modelo para que repare.
+        if "invalid field" in low:
+            try:
+                from nucleo.lean import nombres as _nom
+                _mc = re.search(r"invalid field\s+['`]?([A-Za-z_][\w']*)",
+                                error or "", re.I)
+                campo = _mc.group(1) if _mc else ""
+                _mt = re.search(r"of type\s+(.+?)\s*$", error or "",
+                                re.I | re.M)
+                tipo = (_mt.group(1).strip().rstrip(".") if _mt else "")
+                _mn = re.search(r"does not contain\s+['`]?([\w.']+)",
+                                error or "", re.I)
+                buscado = _mn.group(1) if _mn else ""
+                reales = [c for c in _nom.parecidos(campo, 4)
+                          if c.endswith("." + campo)] if campo else []
+                if campo and reales:
+                    modulo = _nom.modulo_de(reales[0])
+                    donde = ("`%s`%s" % (reales[0],
+                                         " (en `%s`)" % modulo if modulo else ""))
+                    extra = (" El término es de tipo `%s`, y por eso `.%s` se "
+                             "busca como `%s`." % (tipo, campo, buscado)
+                             if tipo and buscado else "")
+                    return ("la notación de punto se resuelve por el TIPO del "
+                            "término, no por el nombre del campo.%s `%s` SÍ "
+                            "existe en Mathlib, como %s: o el término tiene "
+                            "que ser de ese tipo, o hay que escribir el nombre "
+                            "completo." % (extra, campo, donde))
+                if campo:
+                    return ("`.%s` no se puede proyectar de ese término: la "
+                            "notación de punto se resuelve por su TIPO, y ese "
+                            "tipo no declara el campo. Comprueba el tipo del "
+                            "término antes que el nombre." % campo)
+            except Exception:                                   # noqa: BLE001
+                logger.debug("no se pudo diagnosticar el campo", exc_info=True)
 
         return next(
             (h for k, h in self._LEAN_HINTS.items() if k in low),
