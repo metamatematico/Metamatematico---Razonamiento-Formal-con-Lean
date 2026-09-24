@@ -19,10 +19,10 @@ distintos: un grafo pequeño y curado que dice *de qué habla* algo, y una lista
 grande y extraída de Mathlib que dice *qué es cierto*. Ninguna de las dos
 decide la verdad — eso es Lean, siempre.
 
-> **Documentación visual completa** — [Metamatemático por dentro](https://claude.ai/code/artifact/8907db6a-017e-41ff-a434-b1eaf4ac0631):
-> las dos capas, el grafo dibujado, lo que está medido, **lo que se midió y no
-> sirve**, y los doce instrumentos rotos que hubo que cazar por el camino.
-> Fuente en [`docs/arquitectura_nle.html`](docs/arquitectura_nle.html).
+> **Documentación visual completa** — [Metamatemático por dentro](https://claude.ai/artifact/HvRhJLUKDkxrQW7GjLhZrg):
+> las dos capas, el grafo dibujado, la arquitectura de hoy, lo que está medido,
+> **lo que se midió y se quitó**, y los instrumentos rotos que hubo que cazar
+> por el camino. Fuente en [`docs/arquitectura_nle.html`](docs/arquitectura_nle.html).
 
 ---
 
@@ -34,11 +34,12 @@ decide la verdad — eso es Lean, siempre.
 4. [La lista: 183 433 hechos](#4-la-lista-183-433-hechos)
 5. [Lean: cuatro caminos, ocho veredictos](#5-lean-cuatro-caminos-ocho-veredictos)
 6. [Lo que está medido](#6-lo-que-está-medido)
-7. [Tests y guardianes](#7-tests-y-guardianes)
-8. [Lo que se midió y no sirve](#8-lo-que-se-midió-y-no-sirve)
-9. [Instalación y uso](#9-instalación-y-uso)
-10. [Estructura del repositorio](#10-estructura-del-repositorio)
-11. [Lo que no está](#11-lo-que-no-está)
+7. [El lazo por pasos](#7-el-lazo-por-pasos)
+8. [Tests y guardianes](#8-tests-y-guardianes)
+9. [Lo que se midió y se quitó](#9-lo-que-se-midió-y-se-quitó)
+10. [Instalación y uso](#10-instalación-y-uso)
+11. [Estructura del repositorio](#11-estructura-del-repositorio)
+12. [Lo que no está](#12-lo-que-no-está)
 
 ---
 
@@ -49,23 +50,25 @@ todo el aparato es inglés**, así que el flujo empieza y acaba en una frontera 
 idioma.
 
 <p align="center">
-  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta entra en español o en inglés y cruza la frontera del idioma: si viene en español se traduce al inglés con un modelo local protegiendo la notación, y el inglés pasa directo. Después pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional, que responde sin verificación formal. Si lo es, el grafo aporta al prompt los conceptos activados con sus nombres de Mathlib verificados. El LLM formaliza. Antes de verificar, el grafo elige los módulos de Mathlib que Lean importará. Lean verifica y abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico el error vuelve al modelo, máximo dos rondas; si queda un sorry entra la cascada de tácticas del grafo; y si Lean acepta se pasa directo al veredicto. Los caminos confluyen en un veredicto final de siete estados, que el LLM traduce antes de la respuesta, con el veredicto siempre delante del texto." width="100%">
+  <img src="docs/img/00-flujo-real.svg" alt="Flujo del sistema de la entrada a la salida. La consulta entra en español o en inglés y cruza la frontera del idioma: si viene en español se traduce al inglés con un modelo local protegiendo la notación, y el inglés pasa directo. Después pasa por un clasificador que decide si es matemática; si no lo es va al LLM conversacional, que responde sin verificación formal. Si lo es, el grafo aporta al prompt los conceptos activados con sus nombres de Mathlib verificados. El LLM formaliza. Antes de verificar, la cabecera de imports lleva el módulo de cada nombre ofrecido. Lean verifica y abre cuatro caminos: si falta un módulo se repara el encabezado y se reintenta una vez; si el error es semántico el error vuelve al modelo, máximo dos rondas; si queda un sorry entra la cascada de doce tácticas, ordenadas por un clasificador de la forma del objetivo y probadas sobre una sesión viva de Lean; y si Lean acepta se pasa directo al veredicto. Los caminos confluyen en un veredicto final de ocho estados, que el LLM traduce antes de la respuesta, con el veredicto siempre delante del texto." width="100%">
 </p>
 
 | paso | quién | qué hace | ¿aporta? |
 |---|---|---|---|
 | 1 | **grafo** | nombres de Mathlib verificados al prompt | **sí — 16,5× sobre el azar** |
 | 2 | LLM | escribe Lean 4 — no juzga si es correcto | — |
-| 3a | **grafo** | el módulo de cada nombre que el paso 1 ofreció | **imprescindible — sin él, 282 de 284** |
-| 3b | **grafo** | propone módulos vecinos, además de ésos | **inerte** |
+| 3 | **grafo** | el módulo de cada nombre que el paso 1 ofreció | **imprescindible — sin él, 282 de 284** |
 | 4 | **Lean** | verifica · su veredicto es inapelable | — |
-| 5 | **grafo** | ordena las tácticas si queda un `sorry` | **no bate al nulo** |
+| 5 | **cascada** | 12 tácticas si queda un `sorry`, en una sesión viva de Lean | **sí — los fallos, 276 s → 40,4 s** |
 | 6 | LLM | traduce el código que Lean aceptó | — |
 
 La última columna sale de medir cada punto por separado. **No hay un veredicto
-único sobre «el núcleo»**: aporta en **uno** de sus tres puntos de actuación, es
-inerte en otro, y en el tercero **no bate a su modelo nulo**. El detalle está en la [sección 6](#6-lo-que-está-medido) y los
-negativos en la [8](#8-lo-que-se-midió-y-no-sirve).
+único sobre «el núcleo»**: el vocabulario del prompt aporta, el módulo de cada
+nombre ofrecido es imprescindible, y lo que el grafo hacía después de la
+frontera —proponer módulos vecinos, ordenar las tácticas por área— se midió, no
+batió a su nulo y **ya no está en el código**. El detalle está en la
+[sección 6](#6-lo-que-está-medido) y los negativos, con su cifra, en la
+[9](#9-lo-que-se-midió-y-se-quitó).
 
 ### La frontera del idioma
 
@@ -115,7 +118,7 @@ que él escribió.
 | **cómo se hizo** | 206 a mano + 125 generados | extraída del fuente, entera |
 | **¿puede equivocarse?** | **sí** — es curación humana | no sobre sí misma |
 | **estructura** | categórica: colímites, orden, pilares | plana, indexada |
-| **en el flujo** | pasos 1, 3 y 5 — *el 3 reusa el emparejamiento del 1* | alimenta el índice de premisas, y se alcanza por `classify_query`, **no** por el grafo |
+| **en el flujo** | pasos 1 y 3 — *el 3 reusa el emparejamiento del 1* | alimenta el índice de premisas, y se alcanza por `classify_query`, **no** por el grafo |
 
 **El puente existe en los datos, pero no está tendido en el código.** Cada
 hecho de la lista lleva su `concepto` —`Algebra.Order`, `Data.Set`— y ésos son
@@ -347,14 +350,14 @@ caminos**, y tres de ellos siguen trabajando; sólo al final hay un veredicto.
 |---|---|
 | falta un módulo | se repara el encabezado y se reintenta **una vez** |
 | error semántico | el error vuelve al LLM, **máximo 2 rondas** |
-| queda un `sorry` | entra la cascada de 12 tácticas del paso 5 |
+| queda un `sorry` | entra la cascada de 12 tácticas, sobre la sesión viva de Lean |
 | acepta el archivo | pasa directo al veredicto |
 
 Los dos reintentos **sólo se aceptan si mejoran**: nunca se sustituye un
 resultado por otro peor.
 
 Y que Lean compile no significa que haya demostrado lo que se preguntó. El
-veredicto final tiene siete estados, y va **delante** del texto.
+veredicto final tiene ocho estados, y va **delante** del texto.
 
 | veredicto | qué significa |
 |---|---|
@@ -387,12 +390,11 @@ lo mismo acierta el 79 %.
 | Vocabulario contra ProofNet<br><sub>371 ejercicios con formalización de oro · `concepto`, k=2</sub> | 23,9 % precisión<br>16,5 % cobertura | 1,45 %<br>3,3 % | **16,5× · aporta** |
 | Dependencias **curadas** contra el DAG real<br><sub>151 aristas `skill→skill` medibles · DAG de 24 209 aristas</sub> | 72,2 % confirmadas<br><sub>109/151</sub> | 30,7 %<br><sub>nulo emparejado</sub> | **2,35× · aporta** |
 | Costura de **cobertura** contra el DAG<br><sub>9 aristas `skill→módulo` medibles</sub> | 100 % confirmadas<br><sub>9/9</sub> | **100 %** | **1,00× · no dice nada** |
-| Orden de tácticas<br><sub>1 600 pruebas de Mathlib · partición de prueba</sub> | 1,26 posiciones | **1,09** | **no bate al nulo** |
+| Orden de la cascada — el TacticRanker<br><sub>1 530 casos que no vio · n-gramas + 74 rasgos del estado</sub> | 1,57 posiciones | **2,44** | **aporta · 3,7× menos compilados** |
+| La cascada sobre la sesión de Lean<br><sub>30 casos · los 21 que no cierran</sub> | 40,4 s | 276 s | **aporta · mismos cierres** |
 | Selección de premisas<br><sub>sin los `@[simp]`, que simp ya tiene</sub> | 14,0 % cobertura | 11,7 % | mejora pequeña |
-| Elección de imports<br><sub>20 enunciados, Lean como juez · azar 14/20</sub> | 18/20 elabora | 18/20 fijo | **inerte** |
 | Banco de fidelidad<br><sub>banco de 24 · corrida registrada: muestra rápida de 8</sub> | 8/8 medidos | — | **0 infieles** |
 | Nombres de los nodos generados<br><sub>447 identificadores con `#check`</sub> | 346 existen | — | **95 no existen** |
-| Poda por área antes de elegir<br><sub>con localización perfecta — el techo</sub> | 6,8 % | 9,8 % | **no llega al nulo** |
 | Revisión de sintaxis de la consulta<br><sub>23 243 enunciados de LeanWorkbook, todos correctos</sub> | 3,6 % falsos positivos<br>60,8 % de caza | 3,6 % (moneda) | **+57,3 puntos · aporta** |
 | N-gramas **+** rasgos del árbol → premisas<br><sub>22 117 enunciados · el 80,9 % es de LAS DOS juntas: los 68 rasgos añaden +4,1 puntos sobre los n-gramas solos (76,8 %)</sub> | 80,9 % cobertura | 56,6 % (los 6 más citados) | **1,43× · aporta** |
 | Fibración π : Skills → Áreas<br><sub>6753 pares (objeto, área debajo)</sub> | 0,1 % se levanta | 4,3 % (áreas al azar) | **peor que el azar** |
@@ -400,9 +402,9 @@ lo mismo acierta el 79 %.
 ```bash
 python scripts/recuperacion_contra_proofnet.py    # vocabulario
 python scripts/funtor_dag_mathlib.py              # dependencias
-python scripts/efecto_orden_cascada.py            # tácticas
+python scripts/ranker_en_la_cascada.py            # el orden de la cascada
 python scripts/premisas_sin_simp.py               # premisas
-python scripts/imports_del_grafo_contra_lean.py   # imports
+python -m scripts.cascada_por_estado              # la cascada en la sesión
 python -m scripts.banco_fidelidad                 # fidelidad (usa API)
 ```
 
@@ -451,56 +453,26 @@ no está verificando nada.
 
 ---
 
-### El orden de tácticas no batía a su modelo nulo, y nadie lo había preguntado
+### El orden de tácticas por área no batía a su modelo nulo
 
 Esta medición comparaba dos reglas entre sí —2,59 y 1,29— y de ahí salía
 «**APORTA · 2,4× menos intentos**», que este repositorio publicaba como el punto
 mejor medido del grafo. **Nunca preguntó contra qué suelo.**
 
-El suelo se ve en cuanto se mira la distribución de los 1 600 casos:
+El suelo aparece al mirar la distribución de los 1 600 casos: `simp` cierra
+**1 532 (95,8 %)**. Con eso el modelo nulo es «probar `simp` primero y no mirar
+nada más», y la regla del área pierde: **1,262 posiciones contra 1,091**, con
+24 casos peor y 2 mejor, diferencia media +0,172 e intervalo de confianza del
+95 % en `[+0,094, +0,253]` — entero por encima de cero.
 
-```
-simp       1532  (95,8 %)
-aesop        34  ( 2,1 %)
-rfl          23  ( 1,4 %)
-norm_num      5  ( 0,3 %)
-linarith      5  ( 0,3 %)
-ring          1  ( 0,1 %)
-```
+El mecanismo se ve en los casos: los patrones del área **desplazaban a `simp`**
+justo en objetivos que `simp` cierra.
 
-Con eso, el modelo nulo es «probar `simp` primero y no mirar nada más». Medido
-en una partición de prueba del 20 %:
-
-| orden | posición media | 1er intento | en los 3 |
-|---|---|---|---|
-| viejo | 2,58 | 27,2 % | 92,2 % |
-| **regla de hoy** | **1,26** | 88,4 % | 94,4 % |
-| **MODELO NULO** | **1,09** | 94,4 % | 99,4 % |
-| clasificador entrenado | 1,06 | 95,9 % | 99,4 % |
-
-**La regla pierde contra el nulo en 24 casos y gana en 2**, con una diferencia
-media de +0,172 posiciones e intervalo de confianza del 95 % en
-`[+0,094, +0,253]` — entero por encima de cero. Es real.
-
-Y el mecanismo se ve en los casos: los patrones del objetivo **desplazan a
-`simp`** justo en objetivos que `simp` cierra.
-
-```
-: card α < ⊤ ↔ Finite α                    set-theory  ->  simp
-: ⁅x, m - n⁆ = ⁅x, m⁆ - ⁅x, n⁆             algebra     ->  simp
-: (pure a : Filter α) * pure b = pure (a * b)  set-theory -> simp
-```
-
-**Lo que sigue siendo cierto:** pasar de 2,59 a 1,29 es una mejora real sobre el
-orden viejo. Lo que no se sostiene es leerla como que el grafo aporta ahí.
-
-**Y el clasificador tampoco se cablea.** 1,06 frente a 1,09 no es nada sobre 320
-casos. El banco no puede distinguir: con el 95,8 % en una sola clase, casi
-cualquier cosa que ponga `simp` primero da lo mismo. La conclusión honesta no es
-«el orden de tácticas es malo», sino **este banco no puede decidirlo**.
-
-`efecto_orden_cascada.py` calcula ahora su modelo nulo y lo imprime, para que la
-cifra no se pueda volver a citar sola.
+**Quién ordena hoy.** El `TacticRanker` —n-gramas del objetivo más 74 rasgos
+estructurales del estado de prueba—, que sí bate al suyo: 1,57 posiciones
+contra 2,44, y 3,7 veces menos invocaciones de Lean que el orden fijo. El orden
+por área se quitó del código el 2026-09-21; su cifra y su nulo quedan en
+[`data/descartado.json`](data/descartado.json).
 
 ---
 
@@ -562,25 +534,35 @@ del fichero de medición, no el número. Volver a medir cambia la decisión sola
 Si una ruta deja de resolver, un test lo caza: una capacidad que se apaga en
 silencio es peor que no tener decisor.
 
-Qué apaga hoy:
+**Lo que apagó, y dónde quedó.** Diez capacidades no batieron a su nulo —cuatro
+de ellas estaban en producción— y el 2026-09-21 se quitaron del código. El
+registro está en [`data/descartado.json`](data/descartado.json): qué hacía cada
+una, su cifra, su nulo y el commit donde sigue viviendo su código.
 
 | capacidad | real | nulo |
 |---|---|---|
 | orden de cascada por área — *estaba en producción* | 1,262 | 1,091 |
+| elección de imports: módulos vecinos — *estaba en producción* | 18 de 20 | 18 de 20 |
 | dos etapas: localizar y elegir | 0,42 | 0,93 |
 | recuperación léxica de lemas | 0,065 | 7,78 |
-| emparejador semántico — *nunca se adoptó* | 13,1 % precisión | 1,6 % |
+| emparejador semántico — *nunca se adoptó* | 13,1 % precisión | 1,45 % |
+| enrutado neuronal (GNN + PPO) | 1 acción distinta | 1 de la constante |
+| … y cuatro más, en el registro | | |
 
-La última fila decía «12 % contra 61 %», y ese 61 % **no era un nulo**: era el
-emparejador léxico. Comparar un candidato contra la versión que ya tienes no es
-medirlo, y encima las dos cifras eran crudas sobre el banco 89 % `algebra`,
-donde una constante le gana a las dos. La fila de ahora es la de ProofNet, que
-sí trae formalizaciones de oro y por tanto un nulo de verdad: el semántico da
-13,1 % de precisión y **2,4 % de cobertura**, frente a 21,0 % y 14,8 % del
-léxico. Se apaga por eso, y además cuesta una llamada al modelo.
+La fila del semántico decía «12 % contra 61 %», y ese 61 % **no era un nulo**:
+era el emparejador léxico. Comparar un candidato contra la versión que ya
+tienes no es medirlo. La de ahora es la de ProofNet, que sí trae
+formalizaciones de oro.
+
+**Lo que queda gobernado.** El decisor sigue decidiendo qué corre —hoy, con
+Lean disponible, siete capacidades de trece— y sigue dejando fuera lo que no
+tiene evidencia y cuesta: el lazo por pasos, φ, el bloque estructural del
+prompt. Que ninguna fila diga ya «no bate al nulo» no es que la regla se haya
+relajado: es que lo que perdía se quitó.
 
 Su propio modelo nulo es «ejecutarlo todo», y está implementado. Coste por
-consulta: el decisor 0 llamadas al modelo y 1 compilado de Lean; el nulo 1 y 2.
+consulta: el decisor **0 llamadas al modelo**, el nulo 2; los dos, 2 compilados
+de Lean.
 
 Verificar con Lean **no** pasa por esta regla, y se dice por qué: el nulo de
 «verificar» sería «no verificar», que es otro sistema, no una versión más
@@ -655,7 +637,43 @@ python -m scripts.base_no_es_un_orden      # el diagnóstico, con su prueba
 ```
 
 
-## 7. Tests y guardianes
+## 7. El lazo por pasos
+
+El camino de arriba es un lazo **por intentos**: el modelo escribe la prueba
+entera, Lean compila el fichero y, si falla, el modelo la reescribe entera. Lo
+construido en septiembre de 2026 es un lazo **por pasos**: una táctica, un
+veredicto de Lean sobre el estado de prueba, y el paso siguiente sabe por qué
+falló el anterior. Cinco piezas, cada una con su puerta medida **sin gastar
+API**.
+
+| paso | qué es | lo medido | estado |
+|---|---|---|---|
+| 1 | **la sesión** — un Lean que no se apaga (`nucleo/lean/sesion.py`) | 20 de 20 formalizaciones con el mismo veredicto que el fichero, 0 aceptadas de más | base de lo demás |
+| 2 | **la cascada sobre la sesión** (`cascada_sesion.py`) | los mismos 9 cierres de 30, 0 perdidos; los fallos, 276 s → 40,4 s | **encendida** |
+| 3 | **el mediador** (`nucleo/lazo/`) | suelo sin modelo: lo servido 9 de 20, el lazo sólo con la cascada 6, uno u otro 10 | apagado · falta su puerta con modelo |
+| 4 | **de dónde salen las tácticas** | los vecinos de estado, +8 −0 sobre 60 estados (*p* = 0,008); D2 y el encoder denso, fuera | vecinos sí · los otros dos, quitados |
+| 5 | **φ y la explicación por paso** (`lazo/phi.py`) | 168 estados etiquetados; sin los tipos de número, 21 contra 21 del texto | construido · exactitud sin revisar |
+
+**Dos reglas que no se negocian.** Sólo Lean crea flechas: una táctica existe
+si y sólo si la sesión la aceptó en ese estado. Y el veredicto lo da el
+**fichero** sobre la prueba ensamblada, no la sesión — el REPL tiene registrado
+un caso en que aceptó pruebas incorrectas, así que la sesión busca y el fichero
+decide.
+
+De las cinco piezas **sólo la 2 llegó al camino servido**. El resto está
+construido, medido y fuera hasta que la puerta del paso 3 —¿verifica más que lo
+servido?— se corra con un modelo; esa es la única que gasta API.
+
+```bash
+python -m scripts.sesion_contra_fichero     # la puerta del paso 1
+python -m scripts.cascada_por_estado        # la del paso 2
+python -m scripts.fuentes_del_lazo --n 60   # de dónde salen las tácticas
+python -m scripts.phi_de_estados            # φ
+```
+
+---
+
+## 8. Tests y guardianes
 
 **1300 tests en 66 suites.** Los que más valen no comprueban que el código
 funcione, sino que **no vuelva a mentir**:
@@ -703,15 +721,20 @@ vuelta más arriba: **cada cifra con su grafo**.
 
 ---
 
-## 8. Lo que se midió y no sirve
+## 9. Lo que se midió y se quitó
 
 Estos resultados costaron tanto trabajo como los positivos. Están aquí para que
-nadie los repita.
+nadie los repita — y desde el 2026-09-21, lo que además tenía código, ya no lo
+tiene: se quitó y quedó su registro en
+[`data/descartado.json`](data/descartado.json), con la cifra, el nulo y el
+commit donde se puede leer entero.
 
-**La elección de imports no aporta, y no queda margen.** Un conjunto fijo de
-tres módulos hace elaborar el 92,5 % de los enunciados; añadirle lo del grafo da
-el mismo 92,5 %. De 40 casos fallan 3: uno necesita `open Real`, otro usa
-sintaxis vieja, y sólo uno es de imports. **Margen real: 2,5 puntos.**
+**La elección de imports no aporta, y no queda margen.** Dar el módulo de cada
+nombre ofrecido es imprescindible; proponer *además* módulos vecinos del grafo
+empata: 18 de 20 enunciados elaboran, los mismos 18 que con un conjunto fijo de
+tres módulos, y cuesta un 11 % más de tiempo. De 40 casos fallan 3: uno
+necesita `open Real`, otro usa sintaxis vieja, y sólo uno es de imports.
+**Margen real: 2,5 puntos.** *(quitado)*
 
 **Las premisas no cierran pruebas.** Añadir tácticas con premisas costó 231
 invocaciones extra de Lean y cerró **cero**. La razón es aritmética: la
@@ -738,7 +761,21 @@ sin ningún nombre válido.
 **La recuperación de lemas por contenido pierde contra la moda.** Sobre 23 243
 pruebas reales: contenido 0,6 % de cobertura, ofrecer siempre los 20 lemas más
 citados, 77 %. `sq_nonneg` no aparece en el enunciado ni tiene por qué — es una
-*herramienta*, no un concepto del que el problema hable.
+*herramienta*, no un concepto del que el problema hable. *(quitado)*
+
+**La red neuronal aprendió una constante.** El GNN + PPO se entrenó hasta el
+«100 % de precisión» sobre el objetivo «todo problema matemático → ASSIST», que
+**se satisface con una constante**, y eso fue lo que aprendió: la misma acción
+para un teorema, un saludo, una pregunta de geografía y un fragmento de Lean.
+El 100 % del informe de entrenamiento no era un logro, era un modelo nulo con
+otro nombre. El runtime ya la ignoraba con una sonda; ahora el código tampoco
+está. *(quitado)*
+
+**Un encoder de premisas entrenado para Lean tampoco entró.** Dentro del lazo,
+con Lean de juez sobre 60 estados: 39 verificados contra 40 sin él, y 46 contra
+48 junto a los vecinos de estado. Ninguna prueba cerrada usó una táctica suya.
+Lo que sí hizo fue gastarse el presupuesto de Lean en plantillas que no cierran.
+*(quitado)*
 
 ---
 
@@ -759,11 +796,11 @@ contra su propia salida — hay un test que lo impide.
 
 ---
 
-## 9. Instalación y uso
+## 10. Instalación y uso
 
 ```bash
 git clone https://github.com/metamatematico/Metamatematico---Razonamiento-Formal-con-Lean.git
-cd Metamatematico
+cd Metamatematico---Razonamiento-Formal-con-Lean
 pip install -r requirements.txt
 
 # Lean 4 + Mathlib
@@ -787,32 +824,40 @@ lake exe graph --to Mathlib data/mathlib_imports.dot
 
 ---
 
-## 10. Estructura del repositorio
+## 11. Estructura del repositorio
 
 ```
 nucleo/
   core.py                 el orquestador: Nucleo.process()
+  decisor.py              qué capacidad corre, leyendo su medición
   rutas.py                dónde está cada cosa, sin rutas absolutas
   graph/                  la categoría de conceptos
     interpretacion.py     el veredicto: qué es cada nodo, y su `teoria`
     complexity.py         colímites, orden, emergencia
+    estados.py            la categoría de estados de prueba
   lean/
-    client.py             habla con Lean
-    solver_cascade.py     las 12 tácticas y su orden
+    client.py             habla con Lean — el fichero, que es quien decide
+    sesion.py             el REPL que no se apaga — la sesión, que busca
+    cascada_sesion.py     las 12 tácticas sobre la sesión
+    solver_cascade.py     la cascada y el TacticRanker que la ordena
     premisas.py           qué lemas citar cuando la táctica desnuda no basta
+  lazo/                   el lazo por pasos: mediador, proponentes, φ
+  sintaxis/               el árbol de la consulta, antes de gastar nada
   pillars/
-    math_domains.py       los 163 conceptos curados
+    math_domains.py       los 206 nodos curados
     mathlib_taxonomy.py   los 125 generados (GENERADO — no editar a mano)
+    grafo_curado.py       el grafo curado a solas, que miden los tests
 
 scripts/                  cada medición, con su método en el docstring
 MetamathProver/           387 teoremas Lean · 22 archivos
 tests/                    1300 tests en 66 suites
 data/                     índices derivados (los grandes van en .gitignore)
+  descartado.json         lo que se midió, no batió a su nulo y se quitó
 ```
 
 ---
 
-## 11. Lo que no está
+## 12. Lo que no está
 
 **Sin respuesta todavía.** Si el vocabulario del paso 1 se traduce en más
 verificaciones. Es la única pregunta que necesita llamar al modelo, y está
@@ -829,7 +874,9 @@ efecto techo, no concluyente.
 - **Los pasos 1 y 3 no son independientes.** El 3 reusa el `context` del 1
   (`core.py:1858`), así que si el emparejamiento falla, el 3 hereda el fallo. Se
   venían describiendo como tres actuaciones separadas y son dos más una.
-- Las tácticas como nodos: 453 aristas entrando en 9 sumideros.
+- Las tácticas como nodos: 552 aristas entrando en 9 sumideros. La categoría
+  donde son flechas ya existe —la de estados de prueba— y el lazo por pasos la
+  construye en vivo; el defecto es de este grafo, no del sistema.
 - Los nombres de los 125 nodos generados están *deducidos* de la ruta del
   módulo, no comprobados con `#check`. Por eso no se inyectan: al activarlos la
   precisión caía por debajo del azar.
