@@ -1419,13 +1419,14 @@ capacidad contra su modelo nulo.
 | | L4 Emergencia | colímites sobre teoremas aceptados | exceso hasta +6,74 |
 
 Cada capacidad corre **si y sólo si** su medición gana a un modelo nulo
-explícito. Hoy hay cuatro apagadas por perder, y el veredicto se lee del
-fichero de medición en tiempo de ejecución: volver a medir cambia la conducta
-sin tocar código.
+explícito, y el veredicto se lee del fichero de medición en tiempo de
+ejecución: volver a medir cambia la conducta sin tocar código. Las diez que
+perdieron contra su nulo se quitaron del código el 21-09-2026, y su cifra
+queda en `data/descartado.json`.
 """)
         st.markdown(
             '<div style="font-size:0.64rem;color:#5858a0;line-height:1.7;margin-top:.5rem">'
-            '321 objetos · 1 354 morfismos · 159 conceptos curados<br>'
+            '353 objetos · 1 586 morfismos · 206 nodos curados<br>'
             'Cinco capas · gobierno por evidencia<br>'
             'Lean 4 · FOL · ZFC · Teoría de Tipos'
             '</div>',

@@ -262,22 +262,24 @@ class TestElVeredictoSeNombraYSeExplica:
             "sale, que es lo contrario de lo que hace")
 
 
-class TestLoInerteTambienSeEnsena:
-    """Proponer módulos por vecindad no aporta, y se cuenta igual.
+class TestLosModulosVanConSuEvidencia:
+    """El paso 3 lleva su cifra, y tambien lo que se quito de el.
 
-    Es la mitad `b` del paso 3. La mitad `a` —el módulo de cada nombre que
-    el prompt ofrecio— va siempre y no pasa por el decisor: sin ella, 282
-    de las 284 consultas de ProofNet que reciben un nombre reciben alguno
-    que Lean no puede resolver.
+    El modulo de cada nombre ofrecido va siempre: sin el, 282 de las 284
+    consultas de ProofNet que reciben un nombre reciben alguno que Lean no
+    puede resolver. Proponer ADEMAS modulos vecinos del grafo se midio —18
+    de 20 enunciados elaboran, los mismos que un conjunto fijo de tres— y se
+    quito del codigo el 2026-09-21. Ensenar solo lo que gana seria
+    publicidad; callar lo que se quito, otra forma de lo mismo.
     """
 
-    def test_los_modulos_van_con_su_veredicto_de_inerte(self):
+    def test_los_modulos_van_con_su_cifra(self):
         e = explicar(modulos=["Mathlib.Data.Nat.Prime"])
         paso = [p for p in e.pasos if p.clave == "modulos"][0]
-        assert "inerte" in paso.respaldo.lower(), (
-            "el grafo hace aqui trabajo real —18 de 20 contra 12 de 20 del "
-            "azar— y aun asi no aporta, porque una constante consigue los "
-            "mismos 18. Ensenar solo lo que gana seria publicidad")
+        assert "282" in paso.respaldo, (
+            "el paso 3 tiene que decir por que va siempre: sin el, 282 de 284")
+        assert "quit" in paso.respaldo.lower(), (
+            "y que proponer modulos vecinos se midio y se quito")
 
     def test_sin_modulos_no_hay_paso(self):
         assert not [p for p in explicar().pasos if p.clave == "modulos"]

@@ -27,8 +27,10 @@ LA REGLA: CADA AFIRMACION CON SU RESPALDO, Y EL SILENCIO TAMBIEN SE CUENTA
 Dos cosas que un panel de explicabilidad hace mal por omisión y aquí no:
 
   · Una capacidad APAGADA se enseña igual que una encendida, con su motivo.
-    «El reconocedor de área no corrió porque mide peor que su nulo» le dice al
-    alumno más sobre este sistema que cualquier lista de lo que sí corrió.
+    «El lazo por pasos no corrió porque su puerta con modelo no se ha corrido»
+    le dice al alumno más sobre este sistema que cualquier lista de lo que sí
+    corrió. Y lo que se midió PEOR que su nulo ya no está en el código: se
+    quitó, con su cifra guardada (`data/descartado.json`).
 
   · Una cifra va con su modelo nulo o no va. Decir «el vocabulario acierta el
     23,9 %» sin decir que el azar acierta el 1,45 % no explica nada: no se
@@ -235,9 +237,11 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
     proc = ctx.get("procedencia") or ""
     e.pasos.append(Paso(
         "grafo", "Qué activó el grafo de conocimiento",
-        detalle=("%d concepto(s), %s."
-                 % (len(skills), PROCEDENCIA.get(proc, "por coincidencia de "
-                                                 "palabras sobre los 353 nodos"))
+        detalle=("%d %s, %s."
+                 % (len(skills),
+                    "concepto" if len(skills) == 1 else "conceptos",
+                    PROCEDENCIA.get(proc, "por coincidencia de "
+                                    "palabras sobre los 353 nodos"))
                  if skills else
                  "ningún concepto se activó: el emparejador no encontró "
                  "coincidencia, y el modelo trabajó sin vocabulario del grafo."),
@@ -265,10 +269,10 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
 
     # ── 3b · qué módulos de Mathlib vio Lean ────────────────────────────
     #
-    # VA CON SU VEREDICTO DE «INERTE», y eso es lo interesante de enseñarlo:
-    # el grafo hace aqui trabajo real —bate al azar 18/20 contra 14/20— y aun
-    # asi no aporta, porque un conjunto fijo de tres modulos consigue los
-    # mismos 18. Ensenar solo lo que gana seria publicidad, no explicacion.
+    # LO QUE VA AQUI ES EL MODULO DE CADA NOMBRE OFRECIDO, que es
+    # imprescindible: sin el, 282 de 284 consultas reciben un nombre que Lean
+    # no puede resolver. Proponer ADEMAS modulos vecinos del grafo se midio
+    # —18 de 20, los mismos que un conjunto fijo de tres— y se quito.
     mods = [m for m in (modulos or []) if m]
     if mods:
         e.pasos.append(Paso(
@@ -277,10 +281,12 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
                      "prueba; importando sólo lo que hace falta baja a unos "
                      "11. Por eso Lean no ve Mathlib entera."),
             items=[str(m) for m in mods[:8]],
-            respaldo=("esta elección es **inerte**: elabora 18 de 20 "
-                      "enunciados, exactamente los mismos 18 que un conjunto "
-                      "fijo de tres módulos. Gana al azar (18 contra 12) pero no "
-                      "gana a la constante"),
+            respaldo=("son los módulos de los nombres que el grafo ofreció, y "
+                      "van siempre: sin ellos, 282 de las 284 consultas que "
+                      "reciben un nombre reciben alguno que Lean no puede "
+                      "resolver. Proponer además módulos vecinos del grafo se "
+                      "midió —18 de 20, los mismos que un conjunto fijo de "
+                      "tres— y se quitó"),
         ))
 
     # ── 3c · qué se arregló antes de compilar ───────────────────────────
@@ -311,8 +317,8 @@ def explicar(*, consulta: str = "", area: str = "", lectura: str = "",
         e.pasos.append(Paso(
             "decisor", "Qué capacidades corrieron",
             detalle=("cada una corre sólo si su evidencia gana a su modelo "
-                     "nulo; las que miden peor que no hacer nada están "
-                     "apagadas siempre."),
+                     "nulo; las que midieron peor que no hacer nada se "
+                     "quitaron del código, y queda su cifra."),
             items=["%s — %s" % (getattr(c, "nombre", "?"),
                                 getattr(c, "que_hace", ""))
                    for c in activas],
@@ -411,10 +417,10 @@ def _recorta(texto: str, tope: int) -> str:
 def en_markdown(exp: Explicacion, breve: bool = True) -> str:
     """El panel, listo para pintar en el chat.
 
-    `breve` es el valor por defecto Y ESO IMPORTA. El rastro entero son once
+    `breve` es el valor por defecto Y ESO IMPORTA. El rastro entero son las
     capacidades apagadas con motivos de párrafo —ahí está escrito por qué el
-    emparejador semántico perdió contra el léxico, con sus dos bancos—, y eso
-    es material para quien audita el sistema, no para quien acaba de preguntar
+    lazo por pasos no corre, o por qué una guarda no aplicaba—, y eso es
+    material para quien audita el sistema, no para quien acaba de preguntar
     por la irracionalidad de raíz de 2. Enterrar la explicación en un muro es
     otra forma de no explicar.
 
@@ -451,8 +457,10 @@ def en_markdown(exp: Explicacion, breve: bool = True) -> str:
                       else a["por_que"])
             out.append("  - `%s` — %s\n" % (a["nombre"], motivo))
         if len(orden) > tope:
-            out.append("  - …y %d capacidades más apagadas\n"
-                       % (len(orden) - tope))
+            faltan = len(orden) - tope
+            out.append("  - …y %d %s\n"
+                       % (faltan, "capacidad más apagada" if faltan == 1
+                          else "capacidades más apagadas"))
         out.append("\n")
 
     if exp.coste:
